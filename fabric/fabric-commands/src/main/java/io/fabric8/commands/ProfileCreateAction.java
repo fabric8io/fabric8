@@ -53,7 +53,8 @@ public class ProfileCreateAction extends AbstractAction {
         FabricValidations.validateProfileName(name);
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
-        Profile[] parents = FabricCommand.getProfiles(fabricService, ver, this.parents);
+        // we can only use existing parent profiles
+        Profile[] parents = FabricCommand.getExistingProfiles(fabricService, ver, this.parents);
         Profile profile = fabricService.getVersion(ver.getId()).createProfile(name);
         profile.setParents(parents);
         return null;

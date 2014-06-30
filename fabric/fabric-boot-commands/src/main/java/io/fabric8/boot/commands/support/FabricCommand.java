@@ -15,20 +15,20 @@
  */
 package io.fabric8.boot.commands.support;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 import io.fabric8.internal.ProfileImpl;
 import io.fabric8.zookeeper.ZkPath;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.osgi.service.cm.ConfigurationAdmin;
-
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
 
@@ -95,10 +95,26 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         return sb.toString();
     }
 
+    /**
+     * Gets all the profiles for the given names.
+     * <p/>
+     * <b>Important:</b> If a profile does not already exists with the given name, then a new {@link Profile} is
+     * created and returned in the list.
+     *
+     * @see #getExistingProfiles(io.fabric8.api.FabricService, String, java.util.List)
+     */
     public static Profile[] getProfiles(FabricService fabricService, String version, List<String> names) {
         return getProfiles(fabricService, fabricService.getVersion(version), names);
     }
 
+    /**
+     * Gets (or creates) all the profiles for the given names.
+     * <p/>
+     * <b>Important:</b> If a profile does not already exists with the given name, then a new {@link Profile} is
+     * created and returned in the list.
+     *
+     * @see #getExistingProfiles(io.fabric8.api.FabricService, io.fabric8.api.Version, java.util.List)
+     */
     public static Profile[] getProfiles(FabricService fabricService, Version version, List<String> names) {
         Profile[] allProfiles = version.getProfiles();
         List<Profile> profiles = new ArrayList<Profile>();
@@ -121,6 +137,47 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         return profiles.toArray(new Profile[profiles.size()]);
     }
 
+    /**
+     * Gets all the existing profiles for the given names.
+     *
+     * @throws IllegalArgumentException if a profile with the given name does not exists
+     */
+    public static Profile[] getExistingProfiles(FabricService fabricService, String version, List<String> names) {
+        return getExistingProfiles(fabricService, fabricService.getVersion(version), names);
+    }
+
+    /**
+     * Gets all the existing profiles for the given names.
+     *
+     * @throws IllegalArgumentException if a profile with the given name does not exists
+     */
+    public static Profile[] getExistingProfiles(FabricService fabricService, Version version, List<String> names) {
+        Profile[] allProfiles = version.getProfiles();
+        List<Profile> profiles = new ArrayList<Profile>();
+        if (names == null) {
+            return new Profile[0];
+        }
+        for (String name : names) {
+            Profile profile = null;
+            for (Profile p : allProfiles) {
+                if (name.equals(p.getId())) {
+                    profile = p;
+                    break;
+                }
+            }
+            if (profile == null) {
+                throw new IllegalArgumentException("Profile " + name + " does not exist.");
+            }
+            profiles.add(profile);
+        }
+        return profiles.toArray(new Profile[profiles.size()]);
+    }
+
+    /**
+     * Gets the profile for the given name
+     *
+     * @throws java.lang.IllegalArgumentException if the profile does not exists
+     */
     public static Profile getProfile(Version ver, String name) {
         Profile p = ver.getProfile(name);
         if (p == null) {

@@ -51,7 +51,8 @@ public class ProfileChangeParentsAction extends AbstractAction {
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
 
         Profile prof = FabricCommand.getProfile(ver, name);
-        Profile[] profs = FabricCommand.getProfiles(fabricService, ver, parents);
+        // we can only change parents to existing profiles
+        Profile[] profs = FabricCommand.getExistingProfiles(fabricService, ver, parents);
         prof.setParents(profs);
         return null;
     }

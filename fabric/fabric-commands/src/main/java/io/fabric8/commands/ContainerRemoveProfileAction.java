@@ -47,6 +47,7 @@ public class ContainerRemoveProfileAction extends AbstractAction {
         //Do not validate profile names, because we want to be able to remove non-existent profiles.
 
         Container cont = FabricCommand.getContainer(fabricService, container);
+        // allow to remove non-existing profiles
         Profile[] profs = FabricCommand.getProfiles(fabricService, cont.getVersion(), profiles);
         cont.removeProfiles(profs);
         return null;
