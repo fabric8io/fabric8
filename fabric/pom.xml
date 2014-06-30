@@ -65,7 +65,6 @@
         <module>fabric-jolokia</module>
         <module>fabric-ldap</module>
         <module>fabric-maven-proxy</module>
-        <module>fabric-openshift</module>
         <module>fabric-partition</module>
         <module>fabric-process-container</module>
         <module>fabric-project-deployer</module>
@@ -97,6 +96,7 @@
                 <module>fabric-hadoop</module>
                 <module>fabric-itests</module>
                 <module>fabric-ldap</module>
+                <module>fabric-openshift</module>
                 <module>fabric-osgimetadata</module>
                 <module>fabric-webapp-agent</module>
                 <module>watcher-blueprint-web</module>
