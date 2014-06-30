@@ -30,25 +30,10 @@ class ThreadContextMethodMetricsStack {
     return value;
   }
 
-  ThreadContextMethodMetrics getLast() {
-    if (pointer > 0) {
-      return stack[pointer - 1];
-    }
-    return null;
-  }
-
   ThreadContextMethodMetrics pop() {
     final ThreadContextMethodMetrics result = stack[--pointer];
     stack[pointer] = null;
     return result;
-  }
-
-  int size() {
-    return pointer;
-  }
-
-  boolean isEmpty() {
-    return pointer == 0;
   }
 
   private void resizeStack(int newCapacity) {
@@ -58,12 +43,12 @@ class ThreadContextMethodMetricsStack {
   }
 
   public String toString() {
-    StringBuffer result = new StringBuffer("[");
+    StringBuilder result = new StringBuilder("[");
     for (int i = 0; i < pointer; i++) {
       if (i > 0) {
         result.append(", ");
       }
-      result.append(stack[i]);
+      result.append(stack[i].getName());
     }
     result.append(']');
     return result.toString();

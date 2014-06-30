@@ -20,17 +20,16 @@ import static org.objectweb.asm.Opcodes.*;
 public class ApmMethodVisitor extends MethodVisitor {
   private final String fullMethodName;
 
-  public ApmMethodVisitor(MethodVisitor mv, String owner, String name, String desc) {
+  public ApmMethodVisitor(MethodVisitor mv, String className, String methodName) {
     super(ASM5, mv);
-
-    this.fullMethodName = new String(owner + "@" + name + desc).replace('/', '.');
+    this.fullMethodName =  className + "@" + methodName;
   }
 
   @Override
   public void visitCode() {
     super.visitCode();
     super.visitLdcInsn(fullMethodName);
-    super.visitMethodInsn(INVOKESTATIC, "io/fabric8/apmagent/metrics/ApmAgentContext",
+    super.visitMethodInsn(INVOKESTATIC, "io/fabric8/apmagent/ApmAgent",
         "enterMethod", "(Ljava/lang/String;)V", false);
   }
 
@@ -38,7 +37,7 @@ public class ApmMethodVisitor extends MethodVisitor {
   public void visitInsn(int opcode) {
     if ((opcode >= IRETURN && opcode <= RETURN) || opcode == ATHROW) {
       super.visitLdcInsn(fullMethodName);
-      super.visitMethodInsn(INVOKESTATIC, "io/fabric8/apmagent/metrics/ApmAgentContext",
+      super.visitMethodInsn(INVOKESTATIC, "io/fabric8/apmagent/ApmAgent",
           "exitMethod", "(Ljava/lang/String;)V", false);
     }
     super.visitInsn(opcode);

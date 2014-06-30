@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ApmConfiguration implements ApmConfigurationMBean {
   final static Logger logger = LoggerFactory.getLogger(ApmConfiguration.class);
@@ -31,9 +32,12 @@ public class ApmConfiguration implements ApmConfigurationMBean {
   private boolean debug = false;
   private boolean asyncTransformation = false;
   private boolean startJolokiaAgent = false;
+  private boolean autoStartMetrics = false;
   private boolean usePlatformMBeanServer = true;
-  private List<FilterItem> whiteFilterList = new ArrayList<FilterItem>();
-  private List<FilterItem> blackFilterList = new ArrayList<FilterItem>();
+  private boolean verifyClasses = false;
+  private List<FilterItem> whiteFilterList = new ArrayList<>();
+  private List<FilterItem> blackFilterList = new ArrayList<>();
+  private List<ApmConfigurationFilterChangeListener> changeListeners = new CopyOnWriteArrayList<>();
 
   ApmConfiguration() {
     addToBlackList("java");
@@ -73,8 +77,9 @@ public class ApmConfiguration implements ApmConfigurationMBean {
 
   @Override
   public void setWhiteList(String whiteList) {
-    whiteFilterList = new ArrayList<FilterItem>();
+    whiteFilterList = new ArrayList<>();
     initializeList(whiteList, this.whiteFilterList);
+    fireFilterChangeListener();
   }
 
   @Override
@@ -84,8 +89,9 @@ public class ApmConfiguration implements ApmConfigurationMBean {
 
   @Override
   public void setBlackList(String blackList) {
-    this.blackFilterList = new ArrayList<FilterItem>();
+    this.blackFilterList = new ArrayList<>();
     initializeList(blackList, this.blackFilterList);
+    fireFilterChangeListener();
   }
 
   @Override
@@ -97,6 +103,7 @@ public class ApmConfiguration implements ApmConfigurationMBean {
       filterItem.setMethodName(classAndMethod[1]);
     }
     blackFilterList.add(filterItem);
+    fireFilterChangeListener();
   }
 
   @Override
@@ -108,6 +115,7 @@ public class ApmConfiguration implements ApmConfigurationMBean {
       filterItem.setMethodName(classAndMethod[1]);
     }
     whiteFilterList.add(filterItem);
+    fireFilterChangeListener();
   }
 
   @Override
@@ -148,6 +156,14 @@ public class ApmConfiguration implements ApmConfigurationMBean {
     this.startJolokiaAgent = startJolokiaAgent;
   }
 
+  public boolean isAutoStartMetrics() {
+    return autoStartMetrics;
+  }
+
+  public void setAutoStartMetrics(boolean autoStartMetrics) {
+    this.autoStartMetrics = autoStartMetrics;
+  }
+
   public boolean isUsePlatformMBeanServer() {
     return usePlatformMBeanServer;
   }
@@ -155,6 +171,15 @@ public class ApmConfiguration implements ApmConfigurationMBean {
   public void setUsePlatformMBeanServer(boolean usePlatformMBeanServer) {
     this.usePlatformMBeanServer = usePlatformMBeanServer;
   }
+
+  public boolean isVerifyClasses() {
+    return verifyClasses;
+  }
+
+  public void setVerifyClasses(boolean verifyClasses) {
+    this.verifyClasses = verifyClasses;
+  }
+
 
   public void initalizeFromProperties(Properties properties) {
     for (Map.Entry entry : properties.entrySet()) {
@@ -165,13 +190,11 @@ public class ApmConfiguration implements ApmConfigurationMBean {
   }
 
   public boolean isAudit(String className) {
-    boolean result = isWhiteListed(className) || !isBlackListed(className);
-    return result;
+    return  isWhiteListed(className) || !isBlackListed(className);
   }
 
   public boolean isAudit(String className, String methodName) {
-    boolean result = isWhiteListed(className, methodName) || !isBlackListed(className, methodName);
-    return result;
+    return isWhiteListed(className, methodName) || !isBlackListed(className, methodName);
   }
 
   public boolean isBlackListed(String className) {
@@ -212,14 +235,28 @@ public class ApmConfiguration implements ApmConfigurationMBean {
     return false;
   }
 
+  public void addChangeListener(ApmConfigurationFilterChangeListener changeListener){
+    changeListeners.add(changeListener);
+  }
+
+  public void removeChangeListener(ApmConfigurationFilterChangeListener changeListener){
+    changeListeners.remove(changeListener);
+  }
+
+  private void fireFilterChangeListener(){
+    for (ApmConfigurationFilterChangeListener apmConfigurationFilterChangeListener:this.changeListeners){
+      apmConfigurationFilterChangeListener.configurationFilterChanged();
+    }
+  }
+
   private void setProperty(String name, Object value) {
     try {
       Method setter = findSetterMethod(name);
       if (setter != null) {
         if (value == null || value.getClass().equals(setter.getParameterTypes()[0])) {
-          setter.invoke(this, new Object[]{value});
+          setter.invoke(this, value);
         } else {
-          setter.invoke(this, new Object[]{convert(value, setter.getParameterTypes()[0])});
+          setter.invoke(this, convert(value, setter.getParameterTypes()[0]));
         }
       }
     } catch (Throwable e) {
@@ -232,7 +269,7 @@ public class ApmConfiguration implements ApmConfigurationMBean {
     Method[] methods = ApmConfiguration.class.getMethods();
     for (Method method : methods) {
       Class params[] = method.getParameterTypes();
-      if (method.getName().equals(name) && params.length == 1) {
+      if (method.getName().equals(methodName) && params.length == 1) {
         return method;
       }
     }

@@ -14,7 +14,7 @@ if [ -z "$JAVA_HOME" ] ; then
 fi
 
 TOOLSJAR="$JAVA_HOME/lib/tools.jar"
-JAVA_OPTS=-javaagent:$JAR_DIR/apmagent-project-1.1.0-SNAPSHOT.jar=startJolokiaAgent=true
+JAVA_OPTS=-javaagent:$JAR_DIR/apmagent-project-1.1.0-SNAPSHOT.jar=startJolokiaAgent=false
 
 if [ ! -f "$TOOLSJAR" ] ; then
         echo "$JAVA_HOME seems to be no JDK!" >&2
