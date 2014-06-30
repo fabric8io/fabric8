@@ -29,7 +29,7 @@ Unpack the tarball:
     unzip fabric8-karaf-1.1.0.CR2.tar.gz
     cd fabric8-karaf-1.1.0.CR2
 
-Or you could [build the project](https://github.com/fabric8io/fabric8/blob/master/readme-build.md) with [maven](http://maven.apache.org/) via:
+Or, [build the project](https://github.com/fabric8io/fabric8/blob/master/readme-build.md) with [maven](http://maven.apache.org/) via:
 
     mvn -DskipTests clean install -Pall
     cd fabric/fabric8-karaf/target
@@ -45,7 +45,7 @@ Now to create a fabric using the karaf distribution type:
 
     bin/fabric8
 
-if you are using the Tomcat or TomEE distribution type:
+If you are using the Tomcat or TomEE distribution type:
 
     bin/fabric8 run
 
@@ -72,11 +72,11 @@ Or check out:
 
 To help you get started you could watch one of the demos in the  <a class="btn btn-success" href="https://vimeo.com/album/2635012">JBoss Fuse and JBoss A-MQ demo album</a>
 
-For example try this: <a class="btn btn-success" href="https://vimeo.com/80625940">JBoss Fuse 6.1 Demo</a>
+For example try the <a class="btn btn-success" href="https://vimeo.com/80625940">JBoss Fuse 6.1 Demo</a>
 
 #### Try QuickStarts
 
-New users to Fabric8 is recommended to try some of the [QuickStarts](http://fabric8.io/gitbook/quickstarts.html).
+New users to Fabric8 should try the [QuickStarts](http://fabric8.io/gitbook/quickstarts.html).
 
 #### Read the documentation
 
