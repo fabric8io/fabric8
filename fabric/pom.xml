@@ -61,7 +61,6 @@
         <module>fabric-git-server</module>
         <module>fabric-groovy</module>
         <module>fabric-groups</module>
-        <module>fabric-itests</module>
         <module>fabric-jaas</module>
         <module>fabric-jolokia</module>
         <module>fabric-ldap</module>
@@ -96,6 +95,7 @@
                 <module>fabric-dynamic-jaxb</module>
                 <module>fabric-examples</module>
                 <module>fabric-hadoop</module>
+                <module>fabric-itests</module>
                 <module>fabric-ldap</module>
                 <module>fabric-osgimetadata</module>
                 <module>fabric-webapp-agent</module>
