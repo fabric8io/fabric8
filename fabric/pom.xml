@@ -55,7 +55,6 @@
         <module>fabric-cxf-registry</module>
         <module>fabric-docker-api</module>
         <module>fabric-dosgi</module>
-        <module>fabric-examples</module>
         <module>fabric-extender-listener</module>
         <module>fabric-features-service</module>
         <module>fabric-git</module>
@@ -95,6 +94,7 @@
                 <module>fabric-core-agent-jclouds</module>
                 <module>fabric-docker-provider</module>
                 <module>fabric-dynamic-jaxb</module>
+                <module>fabric-examples</module>
                 <module>fabric-hadoop</module>
                 <module>fabric-ldap</module>
                 <module>fabric-osgimetadata</module>
