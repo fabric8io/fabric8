@@ -1,6 +1,6 @@
 # Migration
 
-## Migrating profiles from the old Fabric8 instances
+## Importing profiles from the old Fabric8 instances
 
 If you try to migrate the older version of Fabric (let's say old
 [JBoss Fuse 6.0](http://www.jboss.org/products/fuse/overview) instance) to the new Fabric8 installation, you will
@@ -14,7 +14,9 @@ In order to migrate profiles from your older Fabric8 installations to the brand 
 
     unzip fabric8-karaf-1.1.0-SNAPSHOT.zip
     mv fabric8-karaf-1.1.0-SNAPSHOT /opt/new-fabric8-home
-
+    
+Do not start new Fabric8 server until you reach **step 4** of the migration.
+    
 **Step 2**: Export the registry of your old Fabric8 instance using the `fabric:export` shell command.
 
     > fabric:export
@@ -38,10 +40,11 @@ The `foo` and `bar` profiles we copied in the previous step will be automaticall
     bar                         0              default
 
 ## Development activities
-There are a number of development activities that you will need to carry out when migrating your solutions to later versions.  For migrations of [old JBoss Fuse 6.0](http://www.jboss.org/products/fuse/overview) to Fabric8 or newer versions of JBoss Fuse then below are a few steps to be aware of..
+
+There are a number of development activities that you will need to carry out when migrating your solutions to later versions.  For migrations of [old JBoss Fuse 6.0](http://www.jboss.org/products/fuse/overview) to Fabric8 or newer versions of JBoss Fuse then below are a few steps to be aware of.
 
 **Step 1**: Refactor old package names.
-References to the fabric packages need changing from org.fusesource.fabric to io.fabric8.  This will affect dependency injection contexts, OSGi manifests and java classes in your project.  A SED script that ignores a ./git dir could look like this..
+References to the fabric packages need changing from `org.fusesource.fabric` to `io.fabric8`.  This will affect dependency injection contexts, OSGi manifests and java classes in your project.  A SED script that ignores a `./git` dir could look like this:
 
 	find . -path ./.git -prune -o -type f -name '*.xml' -o -name '*.java'  | xargs sed -b 's/org.fusesource.fabric/io.fabric8/g'
 
@@ -91,7 +94,7 @@ way to add configuration to a fabric.
 
 **Step 5**: Client connection to broker
 
-In order to connect to a broker group it used to be enough to use fabric://(discover:my_group_name) but now we need to assign the profile that gets created as part of mq-create.  This is all documented in the Broker Client section.
+In order to connect to a broker group it used to be enough to use `fabric://(discover:my_group_name)` but now we need to assign the profile that gets created as part of mq-create.  This is all documented in the Broker Client section.
 
 **Step 6**: New OSGi resolver
 
