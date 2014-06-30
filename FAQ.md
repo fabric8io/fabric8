@@ -8,11 +8,11 @@ General questions on all things fabric8.
 fabric8 uses the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0.txt).
 
 #### What is it?
-It’s is an integration platform based on Apache ActiveMQ, Camel, CXF,Karaf, HawtIO and others.
+fabric8 is an integration platform based on Apache ActiveMQ, Apache Camel, Apache CXF, Apache Karaf, Hawtio and others.
 
 It provides automated configuration and deployment management to help make deployments easy, reproducible, and less human-error prone.
 
-Take a look [at this blog post](http://www.christianposta.com/blog/?p=376) to see a more detailed treatment
+Take a look [at this blog post](http://www.christianposta.com/blog/?p=376) to see a more detailed treatment.
 
 #### What does fabric8 do?
 
@@ -22,7 +22,7 @@ Try reading the [overview](http://fabric8.io/gitbook/overview.html) to see if th
 
 #### Deprecations
 
-FAB (Fuse Application Bundles) has been deprecated for the 1.1 release, and is scheduled to be removed in the following releas. 
+FAB (Fuse Application Bundles) has been deprecated for the 1.1 release, and is scheduled to be removed in the following release. 
 
 ### Configuration questions
 
