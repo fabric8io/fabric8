@@ -54,7 +54,6 @@
         <module>fabric-cxf</module>
         <module>fabric-cxf-registry</module>
         <module>fabric-docker-api</module>
-        <module>fabric-docker-provider</module>
         <module>fabric-dosgi</module>
         <module>fabric-examples</module>
         <module>fabric-extender-listener</module>
@@ -94,6 +93,7 @@
                 <module>fabric-camel-autotest</module>
                 <module>fabric-client</module>
                 <module>fabric-core-agent-jclouds</module>
+                <module>fabric-docker-provider</module>
                 <module>fabric-dynamic-jaxb</module>
                 <module>fabric-hadoop</module>
                 <module>fabric-ldap</module>
