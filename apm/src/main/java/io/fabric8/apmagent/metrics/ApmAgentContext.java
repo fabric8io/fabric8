@@ -15,6 +15,8 @@ package io.fabric8.apmagent.metrics;
 
 import io.fabric8.apmagent.ApmAgent;
 import io.fabric8.apmagent.ApmConfiguration;
+import io.fabric8.apmagent.ClassInfo;
+import io.fabric8.apmagent.MethodDescription;
 import org.jolokia.jmx.JolokiaMBeanServerUtil;
 import org.jolokia.jvmagent.JolokiaServer;
 import org.slf4j.Logger;
@@ -25,122 +27,160 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
-public class ApmAgentContext implements ApmAgentContextMBean {
-  public static final ApmAgentContext INSTANCE = new ApmAgentContext();
+public class ApmAgentContext {
   private static final Logger LOG = LoggerFactory.getLogger(ApmAgent.class);
   private final String DEFAULT_DOMAIN = "io.fabric8.apmagent";
-  private final Set<String> transformedClasses = new HashSet<String>();
-  private final Set<String> transformedMethods = new HashSet<String>();
+  private final ConcurrentMap<String,ClassInfo> allMethods = new ConcurrentHashMap<>();
   private AtomicBoolean initialized = new AtomicBoolean();
   private AtomicBoolean started = new AtomicBoolean();
-  private Map<Thread, ThreadMetrics> threadMetricsMap = new ConcurrentHashMap<Thread, ThreadMetrics>();
-  private Map<String, MethodMetrics> methodMetricsMap = new ConcurrentHashMap<String, MethodMetrics>();
-  private Map<Object, ObjectName> objectNameMap = new ConcurrentHashMap<Object, ObjectName>();
+  private ConcurrentMap<Thread, ThreadMetrics> threadMetricsMap = new ConcurrentHashMap<>();
+  private ConcurrentMap<String, MethodMetrics> methodMetricsMap = new ConcurrentHashMap<>();
+  private ConcurrentMap<Object, ObjectName> objectNameMap = new ConcurrentHashMap<>();
   private MBeanServer mBeanServer;
   private JolokiaServer jolokiaServer;
-  private Thread backGroundThread;
+  private final ApmAgent apmAgent;
+  private ObjectName agentObjectName;
+  private ObjectName configurationObjectName;
+  private final AtomicReference<Timer> backgroundTimerRef = new AtomicReference<>();
 
-  private ApmAgentContext() {
+
+  public ApmAgentContext(ApmAgent agent) {
+    this.apmAgent = agent;
   }
 
-  public static void enterMethod(String methodName) {
-    ApmAgentContext apmAgentContext = ApmAgentContext.INSTANCE;
-    if (apmAgentContext.isInitialized()) {
+  public void enterMethod(String fullMethodName) {
+    if (isInitialized()) {
       Thread currentThread = Thread.currentThread();
-      ThreadMetrics threadMetrics = apmAgentContext.threadMetricsMap.get(currentThread);
+      ThreadMetrics threadMetrics = threadMetricsMap.get(currentThread);
       if (threadMetrics == null) {
-        threadMetrics = new ThreadMetrics(apmAgentContext, currentThread);
-        apmAgentContext.threadMetricsMap.put(currentThread, threadMetrics);
+        threadMetrics = new ThreadMetrics(this, currentThread);
+        threadMetricsMap.put(currentThread, threadMetrics);
       }
-      threadMetrics.enter(methodName);
+      threadMetrics.enter(fullMethodName);
 
-      MethodMetrics methodMetrics = apmAgentContext.methodMetricsMap.get(methodName);
+      MethodMetrics methodMetrics = methodMetricsMap.get(fullMethodName);
       if (methodMetrics == null) {
-        methodMetrics = new MethodMetrics(methodName);
-        apmAgentContext.methodMetricsMap.put(methodName, methodMetrics);
-        apmAgentContext.registerMethodMetricsMBean(methodMetrics);
+        methodMetrics = new MethodMetrics(fullMethodName);
+        if (methodMetricsMap.putIfAbsent(fullMethodName, methodMetrics) == null) {
+          //another thread could be doing the same thing at the same time,
+          //so only register if we actually added the method
+          registerMethodMetricsMBean(methodMetrics);
+        }
       }
     }
 
   }
 
-  public static void exitMethod(String methodName) {
-    ApmAgentContext apmAgentContext = ApmAgentContext.INSTANCE;
-    if (apmAgentContext.isInitialized()) {
+  public void exitMethod(String methodName) {
+    if (isInitialized()) {
 
       Thread currentThread = Thread.currentThread();
 
-      ThreadMetrics threadMetrics = apmAgentContext.threadMetricsMap.get(currentThread);
+      ThreadMetrics threadMetrics = threadMetricsMap.get(currentThread);
 
       long elapsed = -1;
       if (threadMetrics != null) {
         elapsed = threadMetrics.exit(methodName);
       }
 
-      MethodMetrics methodMetrics = apmAgentContext.methodMetricsMap.get(methodName);
-      if (methodMetrics != null) {
-        methodMetrics.update(elapsed);
+      if (elapsed >= 0) {
+        MethodMetrics methodMetrics = methodMetricsMap.get(methodName);
+        if (methodMetrics != null) {
+          methodMetrics.update(elapsed);
+        }
       }
     }
   }
 
   public void initialize() {
     if (initialized.compareAndSet(false, true)) {
-      backGroundThread = new Thread(new Runnable() {
-        @Override
-        public void run() {
-          while (started.get())
-            try {
-              checkForDeadThreads();
-              Thread.sleep(2000);
-            } catch (Throwable e) {
-              break;
-            }
-        }
-      }, "ApmAgentContext background thread");
-      backGroundThread.setDaemon(true);
+      try {
+        ObjectName objectName = new ObjectName(DEFAULT_DOMAIN, "type", "apmAgent");
+        ObjectInstance objectInstance = getMBeanServer().registerMBean(apmAgent, objectName);
+        agentObjectName = objectInstance.getObjectName();
+        ApmConfiguration configuration = apmAgent.getConfiguration();
+        objectName = new ObjectName(DEFAULT_DOMAIN, "type", "configuration");
+        objectInstance = getMBeanServer().registerMBean(configuration, objectName);
+        configurationObjectName = objectInstance.getObjectName();
+      } catch (Throwable e) {
+        LOG.error("Failed to register apmAgent mbeans with mBeanServer ", e);
+      }
     }
   }
 
   public void start() {
     if (initialized.get()) {
       if (started.compareAndSet(false, true)) {
-        backGroundThread.start();
-        try {
-          ObjectName objectName = new ObjectName(DEFAULT_DOMAIN, "type", "apmAgent");
-          ObjectInstance objectInstance = getMBeanServer().registerMBean(this, objectName);
-          objectNameMap.put(this, objectInstance.getObjectName());
-          ApmConfiguration configuration = ApmAgent.INSTANCE.getConfiguration();
-          objectName = new ObjectName(DEFAULT_DOMAIN, "type", "configuration");
-          objectInstance = getMBeanServer().registerMBean(configuration, objectName);
-          objectNameMap.put(configuration, objectInstance.getObjectName());
-        } catch (Throwable e) {
-          LOG.error("Failed to register apmAgent mbeans with mBeanServer ", e);
+        Timer oldValue = backgroundTimerRef.getAndSet(new Timer(true));
+        if (oldValue != null){
+          oldValue.cancel();
         }
+        TimerTask deadThread = new TimerTask() {
+          @Override
+          public void run() {
+            for (ThreadMetrics tm : threadMetricsMap.values()) {
+              if (tm.isDead()) {
+                tm.destroy();
+                threadMetricsMap.remove(tm.getThread());
+              }
+            }
+          }
+        };
+        backgroundTimerRef.get().scheduleAtFixedRate(deadThread,0,2 * 1000);
       }
     }
   }
 
-  public void shutDown() {
-    if (initialized.compareAndSet(true, false)) {
-      started.set(false);
-      backGroundThread = null;
+  public void stop() {
+    if (initialized.get() && started.compareAndSet(true, false)) {
+      Timer oldValue = backgroundTimerRef.getAndSet(null);
+      if (oldValue != null){
+        oldValue.cancel();
+      }
       if (mBeanServer != null) {
         for (ObjectName objectName : objectNameMap.values()) {
           try {
             mBeanServer.unregisterMBean(objectName);
           } catch (Throwable e) {
             LOG.error("Failed to unregister mbean: " + objectName, e);
+          }
+        }
+        objectNameMap.clear();
+      }
+      methodMetricsMap.clear();
+      threadMetricsMap.clear();
+    }
+  }
+
+  public void shutDown() {
+    if (initialized.compareAndSet(true, false)) {
+      stop();
+      if (mBeanServer != null) {
+        if (configurationObjectName != null) {
+          try {
+            mBeanServer.unregisterMBean(configurationObjectName);
+          } catch (Throwable e) {
+            LOG.error("Failed to unregister mbean: " + configurationObjectName, e);
+          }
+        }
+        if (agentObjectName != null) {
+          try {
+            mBeanServer.unregisterMBean(agentObjectName);
+          } catch (Throwable e) {
+            LOG.error("Failed to unregister mbean: " + agentObjectName, e);
           }
         }
         if (jolokiaServer != null) {
@@ -150,37 +190,47 @@ public class ApmAgentContext implements ApmAgentContextMBean {
         }
         mBeanServer = null;
       }
-      //unwind instrumentation
-      ApmAgent.INSTANCE.shutdowm("");
     }
   }
 
-  public boolean isAlreadyTransformed(String className) {
-    synchronized (transformedClasses) {
-      return transformedClasses.contains(className.replace("/", "."));
+
+  public ClassInfo getClassInfo(String className){
+    String key = className.replace('/','.');
+
+    ClassInfo result = allMethods.get(key);
+    if (result == null){
+      ClassInfo classInfo = new ClassInfo();
+      classInfo.setClassName(key);
+      result = allMethods.putIfAbsent(key,classInfo);
+      if (result == null){
+        result = classInfo;
+      }
     }
+    return result;
   }
 
-  public void addTransformedClass(String className) {
-    synchronized (transformedClasses) {
-      transformedClasses.add(className.replace("/", "."));
+  public List<String> getTransformedMethods() {
+    List<String> result = new ArrayList<>();
+    for (ClassInfo classInfo:allMethods.values()){
+      for(String methodName:classInfo.getAllTransformedMethodNames()){
+        result.add(classInfo.getClassName() + "@" + methodName);
+      }
     }
+    return result;
   }
 
-  public void removedTransformedClass(String className) {
-    synchronized (transformedClasses) {
-      transformedClasses.remove(className);
+  public List<String> getAllMethods() {
+    List<String> result = new ArrayList<>();
+    for (ClassInfo classInfo:allMethods.values()){
+      for(String methodName:classInfo.getAllMethodNames()){
+        result.add(classInfo.getClassName() + "@" + methodName);
+      }
     }
-  }
-
-  public List<String> getTransformed() {
-    List<String> result = new ArrayList<String>();
-    result.addAll(transformedMethods);
     return result;
   }
 
   public List<ThreadMetrics> getThreadMetrics() {
-    List<ThreadMetrics> result = new ArrayList<ThreadMetrics>();
+    List<ThreadMetrics> result = new ArrayList<>();
     for (ThreadMetrics threadMetrics : threadMetricsMap.values()) {
       result.add(threadMetrics);
     }
@@ -194,22 +244,88 @@ public class ApmAgentContext implements ApmAgentContextMBean {
     return result;
   }
 
-  public ApmConfiguration getApmConfiguration() {
-    return ApmAgent.INSTANCE.getConfiguration();
-  }
-
   public boolean isInitialized() {
     return initialized.get();
   }
 
+  public List<ClassInfo> buildDeltaList(){
+    ApmConfiguration configuration = apmAgent.getConfiguration();
+    List<ClassInfo> result = new ArrayList<>();
+    for (ClassInfo classInfo:allMethods.values()){
+      if (classInfo.isTransformed()){
+        //check to see its still should be audited
+        if (configuration.isAudit(classInfo.getClassName())){
+          boolean retransform = false;
+          //check to see if there's a change to methods that should be transformed
+          Set<String> transformedMethodNames = classInfo.getAllTransformedMethodNames();
+          for (String methodName:transformedMethodNames){
+            if (!configuration.isAudit(classInfo.getClassName(),methodName)){
+              retransform = true;
+              break;
+            }
+          }
+          if (!retransform){
+            //check to see if there are methods that should now be audited but weren't
+            Set<String> allMethodNames = classInfo.getAllMethodNames();
+            for (String methodName:allMethodNames){
+              if (!transformedMethodNames.contains(methodName) && configuration.isAudit(classInfo.getClassName(),methodName)){
+                retransform = true;
+                break;
+              }
+            }
+          }
+          if (retransform){
+            result.add(classInfo);
+          }
+
+        } else {
+          //we were once audited - but now need to be removed
+          result.add(classInfo);
+        }
+      }else if (configuration.isAudit(classInfo.getClassName())){
+        if (classInfo.isCanTransform()){
+          result.add(classInfo);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  public void resetMethods(ClassInfo classInfo){
+    ApmConfiguration configuration = apmAgent.getConfiguration();
+    Collection<MethodDescription> list = classInfo.getTransformedMethodDescriptions();
+    for (MethodDescription methodDescription:list){
+      if (!configuration.isAudit(classInfo.getClassName(),methodDescription.getMethodName())){
+         remove(methodDescription);
+      }
+    }
+  }
+
+  public void resetAll(ClassInfo classInfo){
+    Collection<MethodDescription> list = classInfo.getTransformedMethodDescriptions();
+    for (MethodDescription methodDescription:list){
+      remove(methodDescription);
+    }
+    classInfo.resetTransformed();
+  }
+
+  private void remove(MethodDescription methodDescription){
+    MethodMetrics methodMetrics = this.methodMetricsMap.remove(methodDescription.getFullMethodName());
+    if (methodMetrics != null){
+      unregisterMethodMetricsMBean(methodMetrics);
+    }
+    for (ThreadMetrics threadMetrics :threadMetricsMap.values()){
+      threadMetrics.remove(methodDescription.getFullMethodName());
+    }
+  }
+
   void registerThreadContextMethodMetricsMBean(ThreadContextMethodMetrics threadMetrics) {
-    Hashtable<String, String> properties = new Hashtable<String, String>();
+    Hashtable<String, String> properties = new Hashtable<>();
     properties.put("type", "threadContextMetrics");
     properties.put("name", ObjectName.quote(threadMetrics.getName()));
     properties.put("threadName", ObjectName.quote(threadMetrics.getThreadName()));
     properties.put("threadId", String.valueOf(threadMetrics.getThreadId()));
-    properties.put("parent", ObjectName.quote(threadMetrics.getParentName()));
-    properties.put("methodId", String.valueOf(System.identityHashCode(threadMetrics)));
 
     try {
       ObjectName objectName = new ObjectName(DEFAULT_DOMAIN, properties);
@@ -232,10 +348,10 @@ public class ApmAgentContext implements ApmAgentContextMBean {
   }
 
   void registerMethodMetricsMBean(MethodMetrics methodMetrics) {
-    Hashtable<String, String> properties = new Hashtable<String, String>();
+    Hashtable<String, String> properties = new Hashtable<>();
     properties.put("type", "MethodMetrics");
     properties.put("name", ObjectName.quote(methodMetrics.getName()));
-    properties.put("methodId", String.valueOf(System.identityHashCode(methodMetrics)));
+    //properties.put("methodId", String.valueOf(System.identityHashCode(methodMetrics)));
 
     try {
       ObjectName objectName = new ObjectName(DEFAULT_DOMAIN, properties);
@@ -260,21 +376,12 @@ public class ApmAgentContext implements ApmAgentContextMBean {
   private synchronized MBeanServer getMBeanServer() {
     if (mBeanServer == null) {
       // return platform mbean server if the option is specified.
-      if (getApmConfiguration().isUsePlatformMBeanServer()) {
+      if (apmAgent.getConfiguration().isUsePlatformMBeanServer()) {
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
       } else {
         mBeanServer = JolokiaMBeanServerUtil.getJolokiaMBeanServer();
       }
     }
     return mBeanServer;
-  }
-
-  private void checkForDeadThreads() {
-    for (ThreadMetrics tm : threadMetricsMap.values()) {
-      if (tm.isDead()) {
-        tm.destroy();
-        threadMetricsMap.remove(tm.getThread());
-      }
-    }
   }
 }

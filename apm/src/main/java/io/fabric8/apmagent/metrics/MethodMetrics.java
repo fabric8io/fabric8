@@ -14,13 +14,10 @@
 package io.fabric8.apmagent.metrics;
 
 import com.codahale.metrics.Timer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
 public class MethodMetrics implements MethodMetricsMBean {
-  private static final Logger LOG = LoggerFactory.getLogger(MethodMetrics.class);
   protected final Timer timer;
   private final String name;
   private final double rateFactor;
@@ -29,7 +26,7 @@ public class MethodMetrics implements MethodMetricsMBean {
   /**
    * Constructor.
    *
-   * @param name
+   * @param name - the fully qualified method name
    */
   public MethodMetrics(String name) {
     this.name = name;
@@ -117,6 +114,7 @@ public class MethodMetrics implements MethodMetricsMBean {
   public long[] values() {
     return timer.getSnapshot().getValues();
   }
+
 
   public void update(long elapsed) {
     if (elapsed >= 0) {

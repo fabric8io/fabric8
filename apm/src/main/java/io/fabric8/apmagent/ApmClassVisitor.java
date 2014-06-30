@@ -23,11 +23,13 @@ import static org.objectweb.asm.Opcodes.ASM5;
 
 public class ApmClassVisitor extends ClassVisitor {
   private static final Logger LOG = LoggerFactory.getLogger(ApmAgent.class);
-  final String id;
+  private final ApmAgent apmAgent;
+  private final ClassInfo classInfo;
 
-  public ApmClassVisitor(ClassVisitor cv, String classId) {
+  public ApmClassVisitor(ApmAgent agent, ClassVisitor cv, ClassInfo classInfo) {
     super(ASM5, cv);
-    this.id = classId;
+    this.apmAgent = agent;
+    this.classInfo = classInfo;
   }
 
   public void visit(int version,
@@ -46,33 +48,19 @@ public class ApmClassVisitor extends ClassVisitor {
                                    String[] exceptions) {
 
     try {
-      if (canProfileMethod(name, desc) && ApmAgent.INSTANCE.getConfiguration().isAudit(id, name)) {
+      String methodDescription = getDescription(desc);
+      classInfo.addMethod(name,methodDescription);
+
+      if (canProfileMethod(name, desc) && apmAgent.getConfiguration().isAudit(classInfo.getClassName(), name)) {
         MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-        Type[] parameterTypes = Type.getArgumentTypes(desc);
-        String str = "";
-        if (parameterTypes == null || parameterTypes.length == 0) {
-          str = "()";
-        } else {
-          str = "(";
-          for (int i = 0; i < parameterTypes.length; i++) {
-            str += parameterTypes[i].getClassName();
-            if ((i + 1) < parameterTypes.length) {
-              str += ",";
-            }
-          }
-          str += ")";
-        }
-        Type type = Type.getReturnType(desc);
-        if (type == null) {
-          str += " void";
-        } else {
-          str += " " + type.getClassName();
-        }
-        ApmMethodVisitor methodVisitor = new ApmMethodVisitor(mv, id, name, str);
+
+        ApmMethodVisitor methodVisitor = new ApmMethodVisitor(mv, classInfo.getClassName(),name + methodDescription);
+        classInfo.addTransformedMethod(name,methodDescription);
         return methodVisitor;
       }
 
     } catch (Throwable e) {
+      e.printStackTrace();
       LOG.error("Failed to visitMethod " + name, e);
     }
 
@@ -90,11 +78,32 @@ public class ApmClassVisitor extends ClassVisitor {
       if (methodName.startsWith("is") || methodName.startsWith("get") && (parameterTypes == null || parameterTypes.length == 0)) {
         return false;
       }
-      if (methodName.startsWith("set") && parameterTypes != null && parameterTypes.length == 1) {
-        return false;
-      }
-      return true;
+      return !(methodName.startsWith("set") && parameterTypes != null && parameterTypes.length == 1);
     }
     return false;
+  }
+
+  private String getDescription (String desc){
+    Type[] parameterTypes = Type.getArgumentTypes(desc);
+    String result;
+    if (parameterTypes == null || parameterTypes.length == 0) {
+      result = "()";
+    } else {
+      result = "(";
+      for (int i = 0; i < parameterTypes.length; i++) {
+        result += parameterTypes[i].getClassName();
+        if ((i + 1) < parameterTypes.length) {
+          result += ",";
+        }
+      }
+      result += ")";
+    }
+    Type type = Type.getReturnType(desc);
+    if (type == null) {
+      result += " void";
+    } else {
+      result += " " + type.getClassName();
+    }
+    return result;
   }
 }

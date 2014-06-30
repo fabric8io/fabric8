@@ -12,14 +12,7 @@
  */
 package io.fabric8.apmagent.metrics;
 
-/**
- * Created by rajdavies on 20/06/2014.
- */
 public interface ThreadContextMethodMetricsMBean extends MethodMetricsMBean {
   String getThreadName();
-
   long getThreadId();
-
-  String getParentName();
-
 }
