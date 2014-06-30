@@ -18,10 +18,18 @@ angular.module('eshead', ['hawtioCore'])
         isActive: function() { return workspace.isLinkActive("eshead"); }
       });
 
-      var link = $("<link>");
       var head = $("head");
-      head.append(link);
 
+      var link = $("<link>");
+      head.append(link);
+      link.attr({
+        rel: 'stylesheet',
+        type: 'text/css',
+        href: '/eshead/dist/vendor.css'
+      });
+
+      link = $("<link>");
+      head.append(link);
       link.attr({
         rel: 'stylesheet',
         type: 'text/css',
@@ -30,7 +38,14 @@ angular.module('eshead', ['hawtioCore'])
 
       link = $("<link>");
       head.append(link);
+      link.attr({
+        rel: 'stylesheet',
+        type: 'text/css',
+        href: '/eshead/dist/fabric.css'
+      });
 
+      link = $("<link>");
+      head.append(link);
       link.attr({
         rel: 'stylesheet',
         type: 'text/css',

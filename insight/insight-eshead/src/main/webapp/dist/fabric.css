@@ -1,0 +1,6 @@
+.uiClusterConnect input {
+	display: none;
+}
+.uiClusterConnect button {
+	visibility: hidden;
+}

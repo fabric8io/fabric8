@@ -5,9 +5,11 @@
 		<meta charset="UTF-8">
 		<title>elasticsearch-head</title>
 		<link rel="stylesheet" href="dist/base/reset.css">
-		<link rel="stylesheet" href="dist/app.css">
-		<script src="dist/i18n.js" data-baseDir="dist/lang" data-langs="en,fr"></script>
-        <script src="dist/vendor.js"></script>
+		<link rel="stylesheet" href="dist/vendor.css">
+        <link rel="stylesheet" href="dist/app.css">
+        <link rel="stylesheet" href="dist/fabric.css">
+		<script src="dist/i18n.js" data-baseDir="dist/lang" data-langs="en,fr,pt"></script>
+		<script src="dist/vendor.js"></script>
 		<script src="dist/app.js"></script>
 		<script>
 			window.onload = function() {
@@ -21,7 +23,8 @@
 					id: "es",
 					base_uri: "/eshead/es",
 					auth_user : args["auth_user"] || "",
-					auth_password : args["auth_password"]
+					auth_password : args["auth_password"],
+					dashboard: args["dashboard"]
 				});
 			};
 		</script>

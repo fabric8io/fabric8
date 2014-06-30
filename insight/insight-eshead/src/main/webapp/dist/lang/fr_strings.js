@@ -1,5 +1,5 @@
 i18n.setKeys({
-//	"General.ElasticSearch": "ElasticSearch",
+//	"General.Elasticsearch": "Elasticsearch",
 	"General.LoadingFacets" : "Chargement des facettes...",
 	"General.Searching": "Recherche en cours...",
 	"General.Search": "Recherche",
@@ -35,6 +35,7 @@ i18n.setKeys({
 	"IndexActionsMenu.NewAlias": "Nouvel Alias...",
 	"IndexActionsMenu.Refresh": "Rafraîchir",
 	"IndexActionsMenu.Flush": "Flusher",
+	"IndexActionsMenu.Optimize": "Optimiser...",
 	"IndexActionsMenu.Snapshot": "Dupliquer l'index (Snapshot)",
 	"IndexActionsMenu.Analyser": "Tester un analyseur",
 	"IndexActionsMenu.Open": "Ouvrir",
@@ -48,7 +49,7 @@ i18n.setKeys({
 //	"IndexSelector.NameWithDocs": "{0} ({1} docs)",
 	"IndexSelector.SearchIndexForDocs": "Chercher dans {0} les documents correspondant à",
 	"FilterBrowser.OutputType": "Format d'affichage des résultats {0}",
-	"Header.ClusterHealth": "Santé du cluster: {0} ({1}, {2})",
+	"Header.ClusterHealth": "Santé du cluster: {0} ({1} {2})",
 	"Header.Connect": "Se connecter",
 	"Nav.AnyRequest": "Autres requêtes",
 	"Nav.StructuredQuery": "Requêtes structurées",
@@ -66,6 +67,11 @@ i18n.setKeys({
 	"NodeInfoMenu.ClusterNodeInfo": "Infos sur le noeud du cluster",
 	"NodeInfoMenu.NodeStats": "Statistiques du noeud",
 	"Overview.PageTitle" : "Aperçu du cluster",
+	"OptimizeForm.OptimizeIndex": "Optimiser {0}",
+	"OptimizeForm.MaxSegments": "Nombre maximum de segments",
+	"OptimizeForm.ExpungeDeletes": "Seulement purger les suppressions",
+	"OptimizeForm.FlushAfter": "Flusher après l'optimisation",
+	"OptimizeForm.WaitForMerge": "Attendre la fin de la fusion",
 //	"Output.JSON": "JSON",
 	"Output.Table": "Tableau",
 	"Output.ShowSource": "Voir la requête source",
@@ -139,3 +145,4 @@ i18n.setKeys({
 		</ul>\
 	"
 });
+
