@@ -9012,7 +9012,7 @@ window.jQuery = window.$ = jQuery;
 
 	$.clean = function( elems, context, fragment, scripts ) {
 		for(var i = 0; i < elems.length; i++) {
-			if( elems[i].tag || elems[i] instanceof app.ui.AbstractWidget ) {
+			if( elems[i] && (elems[i].tag || elems[i] instanceof app.ui.AbstractWidget) ) {
 				elems[i] = create( elems[i], null, context );
 			}
 		}

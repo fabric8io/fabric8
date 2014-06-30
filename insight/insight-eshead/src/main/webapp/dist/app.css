@@ -1,3 +1,24 @@
+TABLE.table {
+	border-collapse: collapse;
+}
+
+
+TABLE.table TH {
+	font-weight: normal;
+	text-align: left;
+	vertical-align: middle;
+}
+
+TABLE.table TBODY.striped TR:nth-child(odd) {
+	background: #eee;
+}
+
+TABLE.table H3 {
+	margin: 0;
+	font-weight: bold;
+	font-size: 140%;
+}
+
 .require { color: #a00; }
 
 .uiButton {
@@ -96,18 +117,6 @@
 	padding: 2px 17px 2px 6px;
 	margin-left: -8px;
 }
-.uiSplitButton-panel .uiMenuPanel-label {
-	margin-left: 1em;
-	padding-left: 4px;
-}
-
-.uiSplitButton-panel .uiMenuPanel-item.selected .uiMenuPanel-label:before {
-	content: "\2713";
-	width: 12px;
-	margin-left: -12px;
-	display: inline-block;
-
-}
 
 .uiToolbar {
 	height: 28px;
@@ -125,6 +134,14 @@
 	padding: 5px 20px 5px 0;
 }
 
+.uiToolbar .uiTextField {
+	display: inline-block;
+}
+
+.uiToolbar .uiTextField INPUT {
+	padding-top: 2px;
+	padding-bottom: 5px;
+}
 #uiModal {
 	background: black;
 }
@@ -239,6 +256,17 @@
 	color: #888;
 }
 
+.uiSelectMenuPanel .uiMenuPanel-label {
+	margin-left: 1em;
+	padding-left: 4px;
+}
+
+.uiSelectMenuPanel .uiMenuPanel-item.selected .uiMenuPanel-label:before {
+	content: "\2713";
+	width: 12px;
+	margin-left: -12px;
+	display: inline-block;
+}
 
 .uiTable TABLE {
 	border-collapse: collapse;
@@ -518,55 +546,66 @@ SPAN.uiJsonPretty-boolean { color: purple; }
 	overflow-y: auto;
 }
 
-.uiClusterOverview .uiMenuButton .uiButton-content {
+.uiNodesView TH,
+.uiNodesView TD {
+	vertical-align: top;
+	padding: 2px 20px;
+}
+
+.uiNodesView TH.close,
+.uiNodesView TD.close {
+	color: #888;
+	background: #f2f2f2;
+}
+
+.uiNodesView .uiMenuButton .uiButton-content {
 	padding-right: 3px;
 	border-radius: 8px;
 	height: 14px;
 }
 
-.uiClusterOverview .uiMenuButton.active .uiButton-content,
-.uiClusterOverview .uiMenuButton:active .uiButton-content {
+.uiNodesView .uiMenuButton.active .uiButton-content,
+.uiNodesView .uiMenuButton:active .uiButton-content {
 	border-bottom-right-radius: 0px;
 	border-bottom-left-radius: 0px;
 }
 
-.uiClusterOverview .uiMenuButton .uiButton-label {
+.uiNodesView .uiMenuButton .uiButton-label {
 	padding: 0px 17px 0px 7px;
 }
 
-.uiClusterOverview-cluster {
-	border-collapse: collapse;
+.uiNodesView-hasAlias {
+	text-align: center;
 }
-.uiClusterOverview-cluster TH,
-.uiClusterOverview-cluster TD {
-	vertical-align: top;
-	padding: 2px 20px;
+.uiNodesView-hasAlias.max {
+	border-top-right-radius: 8px;
+	border-bottom-right-radius: 8px;
 }
-
-.uiClusterOverview TH {
-	font-weight: normal;
-	text-align: left;
+.uiNodesView-hasAlias.min {
+	border-top-left-radius: 8px;
+	border-bottom-left-radius: 8px;
 }
-
-.uiClusterOverview TH.close,
-.uiClusterOverview TD.close {
-	color: #888;
-	background: #f2f2f2;
-}
-
-.uiClusterOverview-node.master {
-	background: #fff8dd;
-}
-
-.uiClusterOverview-title {
+.uiNodesView-hasAlias-remove {
+	float: right;
 	font-weight: bold;
-	font-size: 140%;
+	cursor: pointer;
 }
-.uiClusterOverview-routing {
+
+.uiNodesView TD.uiNodesView-icon {
+	padding: 20px 0px 15px 20px;
+}
+
+.uiNodesView-node:nth-child(odd) {
+	background: #eee;
+}
+
+.uiNodesView-routing {
 	position: relative;
+	min-width: 90px;
 }
-.uiClusterOverview-nullReplica,
-.uiClusterOverview-replica {
+
+.uiNodesView-nullReplica,
+.uiNodesView-replica {
 	cursor: pointer;
 	float: left;
 	height: 40px;
@@ -578,50 +617,27 @@ SPAN.uiJsonPretty-boolean { color: purple; }
 	letter-spacing: -5px;
 	text-indent: -7px;
 }
-.uiClusterOverview-replica.primary {
+.uiNodesView-replica.primary {
 	border-width: 4px;
 	margin: 2px;
 }
 
-.uiClusterOverview-nullReplica {
+.uiNodesView-nullReplica {
 	border-color: transparent;
 }
-.uiClusterOverview-hasAlias {
-	text-align: center;
-}
-.uiClusterOverview-hasAlias.max {
-	border-top-right-radius: 8px;
-	border-bottom-right-radius: 8px;
-}
-.uiClusterOverview-hasAlias.min {
-	border-top-left-radius: 8px;
-	border-bottom-left-radius: 8px;
-}
-.uiClusterOverview-hasAlias-remove {
-	float: right;
-	font-weight: bold;
-	cursor: pointer;
-}
-.uiClusterOverview-replica.state-UNASSIGNED { background: #eeeeee; color: #999; border-color: #666; float: none; display: inline-block; }
-.uiClusterOverview-replica.state-INITIALIZING { background: #dddc88; }
-.uiClusterOverview-replica.state-STARTED { background: #99dd88; }
-.uiClusterOverview-replica.state-RELOCATING { background: #dc88dd; }
 
-.uiClusterConnect input {
-	display: none;
-}
-.uiClusterConnect button {
-	visibility: hidden;
-}
+.uiNodesView-replica.state-UNASSIGNED { background: #eeeeee; color: #999; border-color: #666; float: none; display: inline-block; }
+.uiNodesView-replica.state-INITIALIZING { background: #dddc88; }
+.uiNodesView-replica.state-STARTED { background: #99dd88; }
+.uiNodesView-replica.state-RELOCATING { background: #dc88dd; }
 
-.uiClusterConnect-name, .uiClusterConnect-status {
-	font-size: 1.2em;
-	font-weight: bold;
-	padding: 0 10px;
-}
 
 .uiClusterConnect-uri {
 	width: 280px;
+}
+
+.uiStructuredQuery {
+	padding: 10px;
 }
 
 .uiStructuredQuery-out {
@@ -642,36 +658,46 @@ SPAN.uiJsonPretty-boolean { color: purple; }
 	padding: 3px 10px;
 }
 
-.es-header {
+.uiHeader-name, .uiHeader-status {
+	font-size: 1.2em;
+	font-weight: bold;
+	padding: 0 10px;
+}
+
+
+.uiApp-header {
 	background: #eee;
+	position: fixed;
+	width: 100%;
 	z-index: 9;
 }
 
-.es-header H1 {
+.uiApp-header H1 {
 	margin: -2px 0 -4px 0;
 	float: left;
 	padding-right: 25px;
 }
 
-.es-header-menu {
+.uiApp-headerMenu {
 	border-bottom: 1px solid #bbb;
-	padding: 28px 3px 0px 3px;
+	padding: 0px 3px;
 	height: 22px;
 }
 
-.es-header-menu .active {
+.uiApp-headerMenu .active {
 	background: white;
 	border-bottom-color: white;
 }
 
-.es-header-menu-item {
+.uiApp-headerMenuItem {
 	border: 1px solid #bbb;
 	padding: 4px 8px 1px ;
 	margin: 2px 1px 0;
 	height: 14px;
 	cursor: pointer;
 }
-.es-body {
-	padding: 0px 0px 0px 0px;
+
+.uiApp-body {
+	padding: 51px 0px 0px 0px;
 }
 
