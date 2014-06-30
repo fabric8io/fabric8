@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Revision 1404069859043
+# Revision 1404156264703
 
 CACHE:
 getStarted.html
@@ -22,19 +22,19 @@ gateway.html
 git.html
 javaContainer.html
 mavenPlugin.html
-mavenProxy.html
-microServices.html
 migration.html
+mavenProxy.html
 offlineRepo.html
 overview.html
+microServices.html
 partition.html
-processContainer.html
 processManager.html
 profiles.html
+processContainer.html
 propertyResolver.html
-quickstarts.html
 registry.html
 requirements.html
+quickstarts.html
 rollingUpgrade.html
 security.html
 springBootContainer.html

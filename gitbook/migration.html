@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1404069859041">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1404156264702">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -716,10 +716,10 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_23">
+                    <section class="normal" id="section-gitbook_21">
                     
                         <h1 id="migration"><a name="migration" class="anchor" href="#migration"><span class="fa fa-link"></span></a>Migration</h1>
-<h2 id="migrating-profiles-from-the-old-fabric8-instances"><a name="migrating-profiles-from-the-old-fabric8-instances" class="anchor" href="#migrating-profiles-from-the-old-fabric8-instances"><span class="fa fa-link"></span></a>Migrating profiles from the old Fabric8 instances</h2>
+<h2 id="importing-profiles-from-the-old-fabric8-instances"><a name="importing-profiles-from-the-old-fabric8-instances" class="anchor" href="#importing-profiles-from-the-old-fabric8-instances"><span class="fa fa-link"></span></a>Importing profiles from the old Fabric8 instances</h2>
 <p>If you try to migrate the older version of Fabric (let&apos;s say old
 <a href="http://www.jboss.org/products/fuse/overview" target="_blank">JBoss Fuse 6.0</a> instance) to the new Fabric8 installation, you will
 notice that there is no <code>fabric8:zip</code> Maven command available for your old project. Maven tooling has been introduced
@@ -729,7 +729,9 @@ Fabric8 instances.</p>
 <p><strong>Step 1</strong>: Install new Fabric8 server.</p>
 <pre><code>unzip fabric8-karaf-1.1.0-SNAPSHOT.zip
 mv fabric8-karaf-1.1.0-SNAPSHOT /opt/new-fabric8-home
-</code></pre><p><strong>Step 2</strong>: Export the registry of your old Fabric8 instance using the <code>fabric:export</code> shell command.</p>
+</code></pre><p>Do not start new Fabric8 server until you reach <strong>step 4</strong> of the migration. Keep in mind however that your old Fabric8
+server can be up and running when you export configuration from it.</p>
+<p><strong>Step 2</strong>: Export the registry of your old Fabric8 instance using the <code>fabric:export</code> shell command.</p>
 <pre><code>&gt; fabric:export
 Export to /opt/old-fabric8-home/fabric/export completed successfully
 </code></pre><p><strong>Step 3</strong>: Copy the profiles you want to migrate into the <code>fabric/import/fabric/configs/versions</code> directory in your new Fabric
@@ -743,9 +745,9 @@ instance.</p>
 foo                         0              default
 bar                         0              default
 </code></pre><h2 id="development-activities"><a name="development-activities" class="anchor" href="#development-activities"><span class="fa fa-link"></span></a>Development activities</h2>
-<p>There are a number of development activities that you will need to carry out when migrating your solutions to later versions.  For migrations of <a href="http://www.jboss.org/products/fuse/overview" target="_blank">old JBoss Fuse 6.0</a> to Fabric8 or newer versions of JBoss Fuse then below are a few steps to be aware of..</p>
-<p><strong>Step 1</strong>: Refactor old package names.
-References to the fabric packages need changing from org.fusesource.fabric to io.fabric8.  This will affect dependency injection contexts, OSGi manifests and java classes in your project.  A SED script that ignores a ./git dir could look like this..</p>
+<p>There are a number of development activities that you will need to carry out when migrating your solutions to later versions.  For migrations of <a href="http://www.jboss.org/products/fuse/overview" target="_blank">old JBoss Fuse 6.0</a> to Fabric8 or newer versions of JBoss Fuse then below are a few steps to be aware of.</p>
+<p><strong>Step 1</strong>: Refactor old package names.</p>
+<p>References to the fabric packages need changing from <code>org.fusesource.fabric</code> to <code>io.fabric8</code>.  This will affect dependency injection contexts, OSGi manifests and java classes in your project.  A SED script that ignores a <code>./git</code> dir could look like this:</p>
 <pre><code>find . -path ./.git -prune -o -type f -name &apos;*.xml&apos; -o -name &apos;*.java&apos;  | xargs sed -b &apos;s/org.fusesource.fabric/io.fabric8/g&apos;
 </code></pre><p>NOTE: OSX ignores the -b arg so a simple search and replace might be better</p>
 <p><strong>Step 2</strong>: Some feature names have changed</p>
@@ -779,7 +781,7 @@ git push origin HEAD:1.0
 <pre><code>fabric:import 
 </code></pre><p>way to add configuration to a fabric.</p>
 <p><strong>Step 5</strong>: Client connection to broker</p>
-<p>In order to connect to a broker group it used to be enough to use fabric://(discover:my_group_name) but now we need to assign the profile that gets created as part of mq-create.  This is all documented in the Broker Client section.</p>
+<p>In order to connect to a broker group it used to be enough to use <code>fabric://(discover:my_group_name)</code> but now we need to assign the profile that gets created as part of mq-create.  This is all documented in the Broker Client section.</p>
 <p><strong>Step 6</strong>: New OSGi resolver</p>
 <p>There is a new OSGi resolver used so you may see some of these when previously they did not prevent bundles starting..</p>
 <pre><code>ResolutionException: Uses constraint violation. Unable to resolve resource my-service [my-service/1.0.1] because it is exposed to package &apos;com.mypackage&apos; from resources com.a and com.b via two dependency chains.
