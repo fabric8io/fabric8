@@ -20,11 +20,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import io.fabric8.common.util.XmlUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Default implementation of Settings.
@@ -356,38 +359,28 @@ public class MavenSettingsImpl
 
         return ret;
     }
-
+    */
     private void readSettings()
     {
         if( m_document == null && m_settingsURL != null )
         {
             try
             {
-                m_document = XmlUtils.parseDoc( m_settingsURL.openStream() );
+                m_document = XmlUtils.parseDoc(m_settingsURL.openStream());
             }
-            catch( ParserConfigurationException e )
-            {
-                throw new RuntimeException( "Could not parse settings [" + m_settingsURL + "]", e );
-            }
-            catch( SAXException e )
-            {
-                throw new RuntimeException( "Could not parse settings [" + m_settingsURL + "]", e );
-            }
-            catch( IOException e )
+            catch( Exception e )
             {
                 throw new RuntimeException( "Could not parse settings [" + m_settingsURL + "]", e );
             }
         }
-
     }
-    */
 
     private static URL safeGetFile(final String filePath) {
         if (filePath != null) {
             File file = new File(filePath);
             if (file.exists() && file.canRead() && file.isFile()) {
                 try {
-                    return file.toURL();
+                    return file.toURI().toURL();
                 } catch (MalformedURLException e) {
                     // do nothing
                 }
@@ -396,7 +389,6 @@ public class MavenSettingsImpl
         return null;
     }
 
-    /*
     private String getSetting( Element element, String settingName, String defaultSetting )
     {
         final String setting = XmlUtils.getTextContentOfElement( element, settingName );
@@ -406,7 +398,6 @@ public class MavenSettingsImpl
         }
         return setting;
     }
-    */
 
     /**
      * Returns the active proxy settings from settings.xml
@@ -416,7 +407,6 @@ public class MavenSettingsImpl
     public Map<String, Map<String, String>> getProxySettings() {
         if (m_proxySettings == null) {
             m_proxySettings = new HashMap<String, Map<String, String>>();
-            /*
             readSettings();
             if( m_document != null )
             {
@@ -444,7 +434,6 @@ public class MavenSettingsImpl
                     }
                 }
             }
-            */
         }
 
         return Collections.unmodifiableMap(m_proxySettings);
