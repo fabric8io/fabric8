@@ -59,6 +59,8 @@ public class MQProfileTest extends FabricTestSupport {
     @Ignore("Fix me later as people create brokers using the mq-create command and not assign a profile, so this test is obsolete")
     public void testLocalChildCreation() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("shell:info"));
+        System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
@@ -110,6 +112,8 @@ public class MQProfileTest extends FabricTestSupport {
     @Test
     public void testMQCreateBasic() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("shell:info"));
+        System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
         System.out.println(executeCommand("mq-create --no-ssl --jmx-user admin --jmx-password admin --minimumInstances 1 mq"));
 
@@ -161,6 +165,8 @@ public class MQProfileTest extends FabricTestSupport {
     @Test
     public void testMQCreateNetwork() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("shell:info"));
+        System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
 
         executeCommand("mq-create --no-ssl --group us-east --networks us-west --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-east");
