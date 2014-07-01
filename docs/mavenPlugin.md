@@ -1,4 +1,4 @@
-# Fabric8 Maven Plugin
+## Fabric8 Maven Plugin
 
 This maven plugin makes it easy to create or update a fabric profile from your maven project.
 
@@ -9,7 +9,7 @@ When you deploy your project to a fabric profile with this plugin the following 
 * adds/updates the maven project artifact into the profile configuration
 * adds any additional parent profile, bundles or features to the profile.
 
-## Configuring the plugin
+### Configuring the plugin
 
 First you will need to edit your **~/.m2/settings.xml** file to add the fabric server's user and password so that the maven plugin can login to the fabric..
 
