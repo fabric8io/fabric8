@@ -114,6 +114,11 @@ public class ProcessProfile extends ProfileImpl {
     }
 
     @Override
+    public void setOptionals(List<String> values) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean configurationEquals(Profile other) {
         throw new UnsupportedOperationException();
     }

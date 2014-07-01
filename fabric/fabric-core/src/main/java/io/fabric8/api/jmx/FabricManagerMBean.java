@@ -219,6 +219,8 @@ public interface FabricManagerMBean {
 
     void setProfileOverrides(String versionId, String profileId, List<String> overrides);
 
+    void setProfileOptionals(String versionId, String profileId, List<String> optionals);
+
     void setProfileAttribute(String versionId, String profileId, String attributeId, String value);
 
     /**

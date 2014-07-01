@@ -15,9 +15,15 @@
  */
 package io.fabric8.deployer;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,6 +33,8 @@ import java.util.Map;
 
 import io.fabric8.api.Containers;
 import io.fabric8.api.DefaultRuntimeProperties;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.Profile;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.common.util.Strings;
@@ -35,7 +43,10 @@ import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.git.internal.CachingGitDataStore;
 import io.fabric8.git.internal.FabricGitServiceImpl;
 import io.fabric8.git.internal.GitDataStore;
+import io.fabric8.service.ChecksumPlaceholderResolver;
 import io.fabric8.service.FabricServiceImpl;
+import io.fabric8.service.ProfilePropertyPointerResolver;
+import io.fabric8.service.VersionPropertyPointerResolver;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry;
 import io.fabric8.zookeeper.spring.ZKServerFactoryBean;
@@ -70,6 +81,8 @@ public class ProjectDeployerTest {
 
     @Before
     public void setUp() throws Exception {
+        URL.setURLStreamHandlerFactory(new CustomBundleURLStreamHandlerFactory());
+
         basedir = System.getProperty("basedir", ".");
         String karafRoot = basedir + "/target/karaf";
         System.setProperty("karaf.root", karafRoot);
@@ -139,6 +152,11 @@ public class ProjectDeployerTest {
         fabricService = new FabricServiceImpl();
         fabricService.bindDataStore(dataStore);
         fabricService.bindRuntimeProperties(runtimeProperties);
+        fabricService.bindPlaceholderResolver(new DummyPlaceholerResolver("port"));
+        fabricService.bindPlaceholderResolver(new DummyPlaceholerResolver("zk"));
+        fabricService.bindPlaceholderResolver(new ProfilePropertyPointerResolver());
+        fabricService.bindPlaceholderResolver(new ChecksumPlaceholderResolver());
+        fabricService.bindPlaceholderResolver(new VersionPropertyPointerResolver());
         fabricService.activateComponent();
 
 
@@ -284,6 +302,54 @@ public class ProjectDeployerTest {
         }
         if (file.exists() && !file.delete()) {
             throw new IOException("Unable to delete file " + file);
+        }
+    }
+
+    private static class DummyPlaceholerResolver implements PlaceholderResolver {
+        private final String scheme;
+
+        private DummyPlaceholerResolver(String scheme) {
+            this.scheme = scheme;
+        }
+
+        @Override
+        public String getScheme() {
+            return scheme;
+        }
+
+        @Override
+        public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value) {
+            return null;
+        }
+    }
+
+    public class CustomBundleURLStreamHandlerFactory implements
+            URLStreamHandlerFactory {
+        private static final String MVN_URI_PREFIX = "mvn";
+
+        public URLStreamHandler createURLStreamHandler(String protocol) {
+            if (protocol.equals(MVN_URI_PREFIX)) {
+                return new MvnHandler();
+            } else {
+                return null;
+            }
+        }
+
+    }
+
+    public class MvnHandler extends URLStreamHandler {
+        @Override
+        protected URLConnection openConnection(URL u) throws IOException {
+            return new URLConnection(u) {
+                @Override
+                public void connect() throws IOException {
+                }
+
+                @Override
+                public InputStream getInputStream() throws IOException {
+                    return new ByteArrayInputStream("<features/>".getBytes());
+                }
+            };
         }
     }
 
