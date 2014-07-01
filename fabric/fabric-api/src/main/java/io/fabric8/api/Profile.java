@@ -87,6 +87,11 @@ public interface Profile extends Comparable<Profile>, HasId {
     List<String> getOptionals();
 
     /**
+     * Returns the URL of the profile's icon, relative to the Fabric REST API or null if no icon could be found
+     */
+    String getIconURL();
+
+    /**
      * Returns the configuration file names that are available on this profile
      */
     List<String> getConfigurationFileNames();

@@ -251,4 +251,18 @@ public class Profiles {
         }
     }
 
+    /**
+     * Returns the icon URL of the given list of profiles relative to the REST API URL or null if it could not be determined
+     */
+    public static String getProfileIconURL(Profile[] parents) {
+        String answer = null;
+        if (parents != null) {
+            for (Profile parent : parents) {
+                answer = parent.getIconURL();
+                if (answer != null) break;
+            }
+        }
+        return answer;
+    }
 }
+$scope.tags.add(tags);
