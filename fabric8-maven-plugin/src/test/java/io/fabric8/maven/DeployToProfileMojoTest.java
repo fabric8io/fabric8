@@ -34,6 +34,8 @@ import java.io.IOException;
 import static io.fabric8.api.FabricConstants.FABRIC_VERSION;
 import static io.fabric8.common.util.Base64Encoder.decode;
 import static io.fabric8.common.util.Files.writeToFile;
+import static io.fabric8.maven.DeployToProfileMojo.PLACEHOLDER_PROJECT_ARTIFACT_ID;
+import static io.fabric8.maven.DeployToProfileMojo.PLACEHOLDER_PROJECT_GROUP_ID;
 import static io.fabric8.maven.DeployToProfileMojo.PLACEHOLDER_PROJECT_VERSION;
 import static java.util.UUID.randomUUID;
 import static org.mockito.ArgumentCaptor.forClass;
@@ -51,10 +53,14 @@ public class DeployToProfileMojoTest extends Assert {
 
     DeployResults deployResults;
 
+    File root = new File("target");
+
     @Before
     public void before() {
         mojo.fabricServer = mock(Server.class);
         MavenProject project = new MavenProject();
+        project.setGroupId("io.fabric8");
+        project.setArtifactId("artifact");
         project.setVersion(FABRIC_VERSION);
         mojo.project = project;
 
@@ -66,9 +72,38 @@ public class DeployToProfileMojoTest extends Assert {
     // Tests
 
     @Test
-    public void shouldExpandProjectPlaceholder() throws IOException, J4pException, MalformedObjectNameException, MojoExecutionException {
+    public void shouldExpandProjectGroupIdPlaceholder() throws IOException, J4pException, MalformedObjectNameException, MojoExecutionException {
         // Given
-        File root = new File("target");
+        File config = new File(root, randomUUID().toString());
+        String property = "groupId = " + PLACEHOLDER_PROJECT_GROUP_ID;
+        writeToFile(config, property.getBytes());
+
+        // When
+        mojo.uploadProfileConfigFile(jolokiaClient, deployResults, root, config);
+        String decodedConfig = decodeSentConfig();
+
+        // Then
+        assertEquals("groupId = io.fabric8", decodedConfig);
+    }
+
+    @Test
+    public void shouldExpandProjectArtifactIdPlaceholder() throws IOException, J4pException, MalformedObjectNameException, MojoExecutionException {
+        // Given
+        File config = new File(root, randomUUID().toString());
+        String property = "artifactId = " + PLACEHOLDER_PROJECT_ARTIFACT_ID;
+        writeToFile(config, property.getBytes());
+
+        // When
+        mojo.uploadProfileConfigFile(jolokiaClient, deployResults, root, config);
+        String decodedConfig = decodeSentConfig();
+
+        // Then
+        assertEquals("artifactId = artifact", decodedConfig);
+    }
+
+    @Test
+    public void shouldExpandProjectVersionPlaceholder() throws IOException, J4pException, MalformedObjectNameException, MojoExecutionException {
+        // Given
         File config = new File(root, randomUUID().toString());
         String property = "project = " + PLACEHOLDER_PROJECT_VERSION;
         writeToFile(config, property.getBytes());

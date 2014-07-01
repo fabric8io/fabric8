@@ -76,6 +76,12 @@ import org.jolokia.client.request.J4pSearchResponse;
 public class DeployToProfileMojo extends AbstractProfileMojo {
 
     @VisibleForTesting
+    static final String PLACEHOLDER_PROJECT_GROUP_ID = "${project.groupId}";
+
+    @VisibleForTesting
+    static final String PLACEHOLDER_PROJECT_ARTIFACT_ID = "${project.artifactId}";
+
+    @VisibleForTesting
     static final String PLACEHOLDER_PROJECT_VERSION = "${project.version}";
 
     public static String FABRIC_MBEAN = "io.fabric8:type=Fabric";
@@ -511,7 +517,10 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
 
     protected String expandPlaceholders(String text) {
         getLog().debug("Expanding placeholders in the config file: " + text);
-        return text.replace("${project.version}", project.getVersion());
+        return text.
+                replace("${project.groupId}", project.getGroupId()).
+                replace("${project.artifactId}", project.getArtifactId()).
+                replace("${project.version}", project.getVersion());
     }
 
     protected DeployResults uploadRequirements(J4pClient client, ProjectRequirements requirements) throws Exception {
