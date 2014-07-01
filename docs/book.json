@@ -2,7 +2,7 @@
   "title": "Fabric8 Documentation",
   "description": "Fabric8 User Guide and Reference Documentation",
   "extension": "pdf",
-  "github": "https://github.com/fabric8io/fabric8",
+  "github": "fabric8io/fabric8",
   "githubHost": "https://github.com/",
 
   "links": {
