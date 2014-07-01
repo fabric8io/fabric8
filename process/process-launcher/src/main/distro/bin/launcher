@@ -79,7 +79,7 @@ CLASSPATH="$CLASSPATH:$APP_BASE/classes"
 
 JVM_DEBUG_ARGS="$FABRIC8_JVM_DEBUG_ARGS"
 if [ -z "$JVM_DEBUG_ARGS" ]; then
-  if [ "$FABRIC8_JVM_DEBUG" == 'TRUE' ]; then
+  if [ ! -z "$FABRIC8_JVM_DEBUG" ] && [ "$FABRIC8_JVM_DEBUG" == 'TRUE' ]; then
     JVM_DEBUG_ARGS='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'
   fi
 fi
