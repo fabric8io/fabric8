@@ -51,7 +51,7 @@ public class ExtendedUpgradeAndRollbackTest extends FabricTestSupport {
      */
     @Test
     public void testContainerAfterVersionUpgradeAndDowngrade() throws Exception {
-        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
         System.out.println(executeCommand("shell:info"));
         System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
@@ -105,7 +105,7 @@ public class ExtendedUpgradeAndRollbackTest extends FabricTestSupport {
      */
     @Test
     public void testContainerAfterVersionDowngrade() throws Exception {
-        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
         System.out.println(executeCommand("shell:info"));
         System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));

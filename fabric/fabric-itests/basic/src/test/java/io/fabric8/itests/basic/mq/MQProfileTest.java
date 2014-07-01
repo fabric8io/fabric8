@@ -58,7 +58,7 @@ public class MQProfileTest extends FabricTestSupport {
     @Test
     @Ignore("Fix me later as people create brokers using the mq-create command and not assign a profile, so this test is obsolete")
     public void testLocalChildCreation() throws Exception {
-        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
         System.out.println(executeCommand("shell:info"));
         System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
@@ -111,7 +111,7 @@ public class MQProfileTest extends FabricTestSupport {
 
     @Test
     public void testMQCreateBasic() throws Exception {
-        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
         System.out.println(executeCommand("shell:info"));
         System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
@@ -164,7 +164,7 @@ public class MQProfileTest extends FabricTestSupport {
 
     @Test
     public void testMQCreateNetwork() throws Exception {
-        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
         System.out.println(executeCommand("shell:info"));
         System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));

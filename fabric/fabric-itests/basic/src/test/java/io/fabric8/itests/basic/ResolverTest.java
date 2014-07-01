@@ -47,7 +47,7 @@ public class ResolverTest extends FabricTestSupport {
 
     @Test
     public void testRootContainerResolver() throws Exception {
-        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
         System.out.println(executeCommand("shell:info"));
         System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
@@ -111,7 +111,7 @@ public class ResolverTest extends FabricTestSupport {
 
     @Test
     public void testChildContainerResolver() throws Exception {
-        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
         System.out.println(executeCommand("shell:info"));
         System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
