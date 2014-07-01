@@ -182,6 +182,7 @@ public class MavenProxyServletSupportTest {
                 String proxyAuth = request.getHeader("Proxy-Authorization");
                 if (proxyAuth == null || proxyAuth.trim().equals("")) {
                     response.setStatus(HttpServletResponse.SC_PROXY_AUTHENTICATION_REQUIRED);
+                    response.addHeader("Proxy-Authenticate", "Basic realm=\"Proxy Server\"");
                     baseRequest.setHandled(true);
                 } else {
                     response.setStatus(HttpServletResponse.SC_OK);
@@ -211,7 +212,7 @@ public class MavenProxyServletSupportTest {
         System.setProperty("karaf.data", new File("target").getCanonicalPath());
         FileUtils.deleteDirectory(new File("target/tmp"));
 
-        Server server = new Server(3000);
+        Server server = new Server(0);
         server.setHandler(serverHandler);
         server.start();
 
