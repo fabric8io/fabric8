@@ -518,12 +518,13 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
         return null;
     }
 
-    protected String expandPlaceholders(String text) {
-        getLog().debug("Expanding placeholders in the config file: " + text);
-        return text.
-                replace("${project.groupId}", project.getGroupId()).
+    protected String expandPlaceholders(String configToExpand) {
+        getLog().debug("Expanding placeholders in the config file: " + configToExpand);
+        String expandedConfig = configToExpand.replace("${project.groupId}", project.getGroupId()).
                 replace("${project.artifactId}", project.getArtifactId()).
                 replace("${project.version}", project.getVersion());
+        getLog().debug("Expanded config file: " + expandedConfig);
+        return expandedConfig;
     }
 
     protected DeployResults uploadRequirements(J4pClient client, ProjectRequirements requirements) throws Exception {

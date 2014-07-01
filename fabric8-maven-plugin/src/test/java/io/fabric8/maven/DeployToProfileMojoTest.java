@@ -46,19 +46,31 @@ import static org.mockito.Mockito.verify;
 
 public class DeployToProfileMojoTest extends Assert {
 
+    // Test subject
+
     DeployToProfileMojo mojo = new DeployToProfileMojo();
 
+    // Collaborators fixture
+
     J4pClient jolokiaClient = mock(J4pClient.class, RETURNS_DEEP_STUBS);
+
     ArgumentCaptor<J4pExecRequest> jolokiaRequest = forClass(J4pExecRequest.class);
 
     DeployResults deployResults;
 
+    // Data fixtures
+
+    MavenProject project;
+
     File root = new File("target");
+
+    // Fixtures setup
 
     @Before
     public void before() {
         mojo.fabricServer = mock(Server.class);
-        MavenProject project = new MavenProject();
+
+        project = new MavenProject();
         project.setGroupId("io.fabric8");
         project.setArtifactId("artifact");
         project.setVersion(FABRIC_VERSION);
@@ -83,7 +95,8 @@ public class DeployToProfileMojoTest extends Assert {
         String decodedConfig = decodeSentConfig();
 
         // Then
-        assertEquals("groupId = io.fabric8", decodedConfig);
+        String expectedConfig = "groupId = " + project.getGroupId();
+        assertEquals(expectedConfig, decodedConfig);
     }
 
     @Test
