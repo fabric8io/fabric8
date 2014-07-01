@@ -233,8 +233,8 @@ With Maven resources filtering enabled, you can use placeholder in your PID file
 
     jarUrl = mvn:${project.groupId}:${project.artifactId}:${project.version}
 
-Keep in mind that even if Maven resource filtering is not enabled, `${project.version}` placeholder will be still
-expanded into the project version of the current Maven module.
+Keep in mind that even if Maven resource filtering is not enabled, `${project.groupId}`, `${project.artifactId}` and 
+`${project.version}` placeholders will be still expanded into the project version of the current Maven module.
 
 
 ## Specifying Properties
