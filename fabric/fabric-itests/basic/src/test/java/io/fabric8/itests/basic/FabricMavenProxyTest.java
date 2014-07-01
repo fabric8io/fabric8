@@ -55,7 +55,7 @@ public class FabricMavenProxyTest extends FabricTestSupport {
     public void testUpload() throws Exception {
         String featureLocation = System.getProperty("feature.location");
         System.out.println("Testing with feature from:" + featureLocation);
-        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
         System.out.println(executeCommand("shell:info"));
         System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));

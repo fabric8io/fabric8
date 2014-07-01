@@ -50,7 +50,7 @@ public class ExampleCxfProfileLongTest extends FabricTestSupport {
 
     @Before
     public void setUp() throws Exception {
-        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
     }
 
     @Test

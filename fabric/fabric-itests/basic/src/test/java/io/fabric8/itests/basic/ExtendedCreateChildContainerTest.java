@@ -47,7 +47,7 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
     @Test
     // [FABRIC-370] Incomplete cleanup of registry entries when deleting containers.
     public void testContainerDelete() throws Exception {
-        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
         System.out.println(executeCommand("shell:info"));
         System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
@@ -82,7 +82,7 @@ public class ExtendedCreateChildContainerTest extends FabricTestSupport {
     @Test
     // [FABRIC-482] Fabric doesn't allow remote host user/password to be changed once the container is created.
     public void testContainerWithPasswordChange() throws Exception {
-        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
         System.out.println(executeCommand("shell:info"));
         System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
