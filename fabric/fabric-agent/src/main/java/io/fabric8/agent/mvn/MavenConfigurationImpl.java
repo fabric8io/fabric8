@@ -301,8 +301,7 @@ public class MavenConfigurationImpl
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(user, pass.toCharArray());
                 }
-            }
-            );
+            });
 
             System.setProperty(protocol + ".proxyHost", proxyDetails.get("host"));
             System.setProperty(protocol + ".proxyPort", proxyDetails.get("port"));
