@@ -32,7 +32,7 @@ All the OSGi configuration will just you the pid and key value pairs that have b
 
 The bridge will also watch the registry for changes, so any change in the profiles that are assigned to the container will be *tracked* and will immediately be applied to the local OSGi configuration of the container.
 
-## The deployment agent (fabric-agent)
+### The deployment agent (fabric-agent)
 
 The deployment agent is listening for local configuration changes on the io.fabric8.agent pid. Any change in that configuration will trigger the *deployment agent*.
 Once the *deployment agent* is triggered, it will read the whole **io.fabric8.agent** pid and calculate the bundles that the container should have installed.

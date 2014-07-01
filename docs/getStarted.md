@@ -1,5 +1,7 @@
 
-## Download
+## Getting Started
+
+### Download
 
 <div class="row">
   <div class="col-md-4 text-center">
@@ -19,7 +21,7 @@
 
 If you've used a previous version you may want to check out the [Change Log](http://fabric8.io/changes/index.html)
 
-## Installation
+### Installation
 
 Unpack the tarball:
 
@@ -34,7 +36,7 @@ Or you could [build the project](https://github.com/fabric8io/fabric8/blob/maste
     unzip fabric8-karaf-1.1.0-SNAPSHOT.zip
     cd fabric8-karaf-1.1.0-SNAPSHOT
 
-## Create a fabric
+### Create a fabric
 
 By default fabric starts up with a default admin user with username `admin` and password `admin`.
 This can be changed by editing the `etc/users.properties` file before starting fabric for the first time.
@@ -49,7 +51,7 @@ if you are using the Tomcat or TomEE distribution type:
 
 Once the container has started up, you have a working Fabric and you can connect to the console
 
-## Use the console
+### Use the console
 
 Then open the [hawtio based](http://hawt.io/) console via the Karaf web console, which runs on [port 8181](http://localhost:8181/)
 
@@ -66,16 +68,16 @@ Or check out:
  * [how to use the command shell](agent.html)
  * [how to use git with fabric8](git.html)
 
-### View a demo
+#### View a demo
 
 To help you get started you could watch one of the demos in the  <a class="btn" href="https://vimeo.com/album/2635012">JBoss Fuse and JBoss A-MQ demo album</a>
 
 For example try this: <a class="btn" href="https://vimeo.com/80625940">JBoss Fuse 6.1 Demo</a>
 
-### Try QuickStarts
+#### Try QuickStarts
 
 New users to Fabric8 is recommended to try some of the [QuickStarts](http://fabric8.io/gitbook/quickstarts.html).
 
-### Read the documentation
+#### Read the documentation
 
 Check out the [Overview](http://fabric8.io/gitbook/overview.html) and [User Guide](http://fabric8.io/gitbook/index.html).

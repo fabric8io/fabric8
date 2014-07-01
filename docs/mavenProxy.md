@@ -17,7 +17,7 @@ the container will automatically install the fabric-maven-proxy feature on the c
 To avoid having the fabric-maven-proxy as a single point of failure fabric can discover & use any fabric-maven-proxy that is running inside the fabric cluster. Each container running the fabric-maven-proxy will register it in the runtime registry and the fabric-agent will be able to discover it from there.
 When having multiple fabric-maven-proxies running, the fabric-agent will use them in the same order that were added in the runtime registry.
 
-## Configuration
+### Configuration
 Out of the box any fabric-maven-proxy will make use of a default set of remote and local repositories.
 
 #### Local repository

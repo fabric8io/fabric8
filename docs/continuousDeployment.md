@@ -1,10 +1,10 @@
-# Continuous Deployment
+## Continuous Deployment
 
 Having a single fabric be capable of managing all the [profiles](profiles.html) and containers within it using its own [git repository](git.html) for audit, version tracking and [rolling upgrades](rollingUpgrade.html) is very cool; but what if you want to manage more than one environment?
 
 Typically you'll want a fabric for each environment as they are usually on different cycles in the continuous deployment pipeline. So how you do migrate code and profiles between fabrics (environments?)
 
-## Moving Binaries
+### Moving Binaries
 
 We tend to create various binaries; jar files, bundles, wars, ears, tarballs, zips as part of Java projects.
 
@@ -16,13 +16,13 @@ We then refer to those binaries in [profiles](profiles.html) by using maven coor
 
 So we assume you'd have an internal maven repository where all versions of released artifacts are stored.
 
-## Moving profiles
+### Moving profiles
 
 Since each environment has its own git repository you could try using code reviews, pull requests and cherry picking to move changes in one git repository to another. There is a ton of tooling out there (e.g. [gerrit](https://code.google.com/p/gerrit/)) for doing this kind of thing.
 
 One of the easiest ways to move profiles between environments is via _profile zips_. A profile zip is literally a zip file of one or more profile directories and their configuration files which then gets released during the normal software release cycle; so each team is responsible for its own profiles (the code used inside them and its configurations).
 
-### Creating profile zips via maven
+#### Creating profile zips via maven
 
 The [maven fabric8 plugin](mavenPlugin.html) supports the _fabric8:zip_ goal; which takes the same project metadata (such as [maven properties for the fabric8 plugin](mavenPlugin.html#property-reference).
 
@@ -53,7 +53,7 @@ You can also add some XML to your pom.xml to ensure that a fabric8 profile zip i
       </plugins>
     </build>
 
-### Exporting profiles to zips
+#### Exporting profiles to zips
 
 There's also a command line tool called _profile_export_ in the command line shell that lets you export all the profiles in a version; or all profiles matching a wildcard to a file.
 
@@ -67,7 +67,7 @@ or use a wildcard
 
     profile-export -v 1.1 /tmp/myprofiles.zip quickstarts/*
 
-### Importing profile zips
+#### Importing profile zips
 
 The main way to use a profile zip right now is to install them in a fabric via the _profile-import_ command. This command takes a URL of one or more profile zips; usually using the maven coordinate URL.
 
@@ -89,7 +89,7 @@ Or force a new version to be created before importing it:
 
 Once the profiles are imported you should be able to use them from the command line; or you should be able to view them in the Wiki in the web console and create containers or migrate them etc.
 
-### Combining profile zips into a new branch in a fabric's git repo
+#### Combining profile zips into a new branch in a fabric's git repo
 
 Another approach to moving profile zips from one environment to another is to use a maven build to aggregate a number of different profile zip files (usually released by different teams on different schedules) together in a _Continuous Integration_ build to make a new branch in a git repository for an environment.
 
@@ -143,7 +143,7 @@ The following section of a pom.xml will create a new branch, unzip the dependent
       </plugins>
     </build>
 
-### Figuring out the best approach
+#### Figuring out the best approach
 
 Different teams and companies have different policies for moving software through the Continuous Deployment pipeline; so try find the approach that suits your team, its workflow and the tools and processes you are using.
 

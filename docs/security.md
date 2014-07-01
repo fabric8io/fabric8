@@ -11,7 +11,7 @@ JAAS will be used for the following cases:
 
 All Karaf-based containers out of the box are using a JAAS realm named "karaf". When fabric is created a second "karaf" realm is created that is backed by zookeeper that has higher ranking than the existing one.
 
-## Managing users
+### Managing users
 When a fabric is created using the fabric:create command, the user will be prompted to create a new user. The user and password (encrypted) information will be stored in side zookeeper and can be shared by all fabric containers.
 
       fabric:create
@@ -45,7 +45,7 @@ Then you can add, edit or delete users:
 
 Changes will only take effect only after the jaas:update command.
 
-## Fabric operations that require authentication / authorization
+### Fabric operations that require authentication / authorization
 When a user tries to create a child container, fabric will need to connect to the parent container via jmx in order to create the child instance. As mentioned above JMX access requires authentication/authorization.
 Even though the user information are stored in the registry, its not possible to retrieve the user and decrypt its password in order. So the user will be prompted for a jmx user and jmx password instead.
 
@@ -54,7 +54,7 @@ Also when a users tries to connect to a container shell via fabric:connect, fabr
 To avoid prompting the user for credentials all the time, fabric will "remember" the credentials and try to reuse them. The credentials will be stored in the command session and will be available to the user throughout the session.
 Of course, its always possible to override the "cached" credentials by specifying the appropriate option. See the commands help for more info.
 
-## Securing access to Zookeeper
+### Securing access to Zookeeper
 To prevent unauthorized access to zookeeper, fabric will use digest authentication for zookeeper. The authdata used are fabric:<zookeeper password>.
 
 Wait! What is the zookeeper password?

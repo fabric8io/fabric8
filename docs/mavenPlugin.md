@@ -25,7 +25,7 @@ If you don't do this, the first time you use the fabric8 plugin it will ask you 
 
 The default fabric upload maven repo ID is **fabric8.upload.repo**. You can define as many &lt;server&gt; elements in your settings file as you like for each of the fabrics you wish to work with. Then to pick the credentials to use for a server specify the server id as the **serverId** property on the fabric8 maven plugin configuration section (see below) or use the **fabric8.serverId** maven property.
 
-## Using the plugin
+### Using the plugin
 
 To use the fabric8 maven plugin to deploy into a fabric profile on any maven project just type:
 
@@ -53,7 +53,7 @@ e.g. to try it out
 
 Then you should see this profile being created at the [my-rest/rest profile page](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/my/rest.profile) which should have a bundle and some features added too (click on the Bundle and Feature tabs and you should see those).
 
-## Configuring the fabric server
+### Configuring the fabric server
 
 By default the fabric8 maven plugin deploys to a local fabric server using the url
 
@@ -75,13 +75,13 @@ To use a remote fabric server you can either configure this in the plugin in the
 
     mvn fabric8:deploy -Dfabric8.jolokiaUrl=http://someServer:8181/jolokia
 
-### Quick deploy without testing
+#### Quick deploy without testing
 
 Sometimes you may want to skip testing before deploying, if you have done a trivial change. This can be done by speciftying ```-DskipTests``` via the command line as shown:
 
     mvn fabric8:deploy -DskipTests
 
-## Specifying the profile information in the plugin configuration
+### Specifying the profile information in the plugin configuration
 
 You can configure the maven plugin to explicitly specify the profile to create via the plugin &lt;configuration&gt; section in your pom.xml:
 
@@ -134,7 +134,7 @@ Then all of the projects within the foo folder, such as foo/a and foo/b would al
 
 At any point in your tree of maven projects you can define a maven **fabric8.profile** property to specify exactly where it gets deployed; along with any other property on the plugin (see the Property Reference below).
 
-## Specifying features, additional bundles, repositories and parent profiles
+### Specifying features, additional bundles, repositories and parent profiles
 
 You can also specify additional configuration in the maven plugin like this:
 
@@ -154,7 +154,7 @@ Notice we can pass in a space-separated list of features to include in the profi
 
 We've used space separated lists for the parent profile IDs, features, repositories and bundles so that its easy to reuse maven properties for these values (for example to add some extra features in a child maven project while inheriting from the parent project).
 
-### Specifying the minimum number of required containers for the profile
+#### Specifying the minimum number of required containers for the profile
 
 You can specify the minimum number of instances of a profile that are expected via the **fabric8.minInstanceCount** property. This value defaults to **1** so that it means the profile you deploy should be instantiated. See the [requirements documentation](requirements.html) for more details.
 
@@ -162,7 +162,7 @@ What this means is that out of the box if you deploy a profile then view the Pro
 
 Also if you deploy the **autoscale** profile then this will automatically create new containers if their requirement count increases.
 
-### Specifying configuration using maven properties
+#### Specifying configuration using maven properties
 
 You can also use maven property values (or command line arguments) to specify the configuration values by prefixing the property name with **fabric8.**.
 
@@ -174,7 +174,7 @@ By default the project artifacts are uploaded to the maven repository inside the
 
     mvn fabric8:deploy -Dfabric8.upload=false
 
-## Adding additional configuration files into the profile
+### Adding additional configuration files into the profile
 
 If you create the directory **src/main/fabric8** in your local project and add any configuration files or a ReadMe.md file (for documentation) in your project they will get automatically uploaded into the profile too.
 
@@ -186,7 +186,7 @@ e.g. in your project if you run this command:
 
 Then when your profile will have a ReadMe.md wiki page uploaded.
 
-## Adding PID files into the profile
+### Adding PID files into the profile
 
 Probably one of the most interesting use cases of the `src/main/fabric8` directory, is uploading PID files into your
 profile. For example you can take `my.pid.properties` file with the following contents:
@@ -205,7 +205,7 @@ profile. For example you can take `my.pid.properties` file with the following co
       foo bar
       baz qux
 
-### Using Maven placeholders in PID files
+#### Using Maven placeholders in PID files
 
 We recommend to add the `src/main/fabric8` directory to the list of the resources
 [filtered](http://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html) by Maven. For example:
@@ -237,7 +237,7 @@ Keep in mind that even if Maven resource filtering is not enabled, `${project.gr
 `${project.version}` placeholders will be still expanded into the project version of the current Maven module.
 
 
-## Specifying Properties
+### Specifying Properties
 
 The following properties can be specified as elements inside the &lt;configuration&gt; section of the plugin in your pom.xml. e.g. the _profile_ configuration can be passed like this:
 

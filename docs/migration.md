@@ -1,6 +1,6 @@
-# Migration
+## Migration
 
-## Importing profiles from the old Fabric8 instances
+### Importing profiles from the old Fabric8 instances
 
 If you try to migrate the older version of Fabric (let's say old
 [JBoss Fuse 6.0](http://www.jboss.org/products/fuse/overview) instance) to the new Fabric8 installation, you will
@@ -40,7 +40,7 @@ The `foo` and `bar` profiles we copied in the previous step will be automaticall
     foo                         0              default
     bar                         0              default
 
-## Development activities
+### Development activities
 
 There are a number of development activities that you will need to carry out when migrating your solutions to later versions.  For migrations of [old JBoss Fuse 6.0](http://www.jboss.org/products/fuse/overview) to Fabric8 or newer versions of JBoss Fuse then below are a few steps to be aware of.
 

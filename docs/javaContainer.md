@@ -8,8 +8,7 @@ Note that no application server or fabric8 jars are required to be inside the JV
 
 In fabric8 speak, we define a [profile](profiles.html) for each service; then we use fabric8 to create as many (java) containers as we need for the service. Fabric8 takes care of provisioning the containers and managing things. So fabric8 helps make Micro Services easy to use, manage and monitor.
 
-
-## Example
+### Example
 
 For example take any Java maven archetype project which has an executable main of some kind. e.g. the Apache Camel spring archetype.
 

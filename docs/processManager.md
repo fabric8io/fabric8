@@ -146,13 +146,13 @@ So to install the above sample as a tarball use:
 
     process:install mvn:io.fabric8.samples/process-sample-camel-spring/1.1.0/tar.gz
 
-## Debugging managed processes
+### Debugging managed processes
 
 Not all your process deployments will succeed with no issues. If your process is not starting successfully, try to
 examine the logs of the process you want to start. If digging into logs doesn't help, try to connect to the process with
 the debugger build into your IDE.
 
-### Location of the managed processes data
+#### Location of the managed processes data
 
 The managed processes data can be usually found in the `FABRIC8_HOME/processes` directory. Each process uses directory
 identified by the numerical ID assigned to it by the process manager. The same numerical identifiers are displayed by the
@@ -164,13 +164,13 @@ directories of the particular managed  processes:
      ~/labs/fabric8 % ls instances
      instance.properties 1 2 3
 
-### Managed process logs
+#### Managed process logs
 
 The standard output and standard error streams of the process are redirected to the `PROCESS_DIRECTORY/logs/out.log` and
 `PROCESS_DIRECTORY/logs/err.log` respectively. This is usually a good place to start to investigate when your
 application doesn't start properly.
 
-### Connecting to the remote process with the debugger
+#### Connecting to the remote process with the debugger
 
 If investigating process logs isn't enough to identify the issue, you should consider connecting with the debugger to
 the managed process. In order to start managed process with the remote debugger port 5005 opened and waiting for you to
@@ -181,7 +181,7 @@ connect, execute the following command:
 If environmental variable `FABRIC8_JVM_DEBUG` is set to `TRUE`, the process will be started with the debugger waiting
 for you to connect to the port 5005.
 
-## Process management - test API
+### Process management - test API
 
 Fabric8 comes with the `io.fabric8.process.test.AbstractProcessTest` base class dedicated for testing processes managed 
 by Fabric8. `AbstractProcessTest` provides utilities to gracefully start, test and stop managed processes. In order to use

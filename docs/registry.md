@@ -10,7 +10,7 @@ Conceptually Fabric has 2 registries:
 * **Configuration Registry** which is the logical configuration of your fabric and typically contains no physical machine information; its your logical configuration.
 * **Runtime Registry** which contains details of how many machines are actually running, their physical location details and what services they are implementing.
 
-## Initializing the registry
+### Initializing the registry
 
 There are currently two ways of initializing the fabric registry:
 

@@ -1,4 +1,4 @@
-## Articles and presentations on fabric8
+### Articles and presentations on fabric8
 
 * [Meet Fabric8: An open-source integration platform based on Camel and ActiveMQ](http://www.christianposta.com/blog/?p=376) by [Christian Posta](http://www.christianposta.com/blog/)
 * [Fabric8 Introduction](http://fabric8.io/presentations/devnation-2014-intro/index.html#/) at [DevNation](http://devnation.org) 2014 by [Ioannis Canellos](http://twitter.com/iocanel) and [James Strachan](http://twitter.com/jstrachan)
@@ -9,6 +9,6 @@
 * [DevOps with Apache Tomcat/TomEE and Fabric8](http://www.christianposta.com/blog/?p=393) by [Christian Posta](http://www.christianposta.com/blog/)
 * [Apache Camel in the Clouds](http://fabric8.io/presentations/camel-in-the-clouds-2014/index.html) a presentation by [James Strachan](http://twitter.com/jstrachan)
 
-## Videos
+### Videos
 
 There are various demos of fabric8 in the [JBoss Fuse demo video album](https://vimeo.com/album/2635012)
