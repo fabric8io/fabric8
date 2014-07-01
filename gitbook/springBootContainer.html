@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.4" data-basepath="." data-revision="1404156264702">
+    <div class="book" data-github="https://github.com/fabric8io/fabric8" data-level="4.4" data-basepath="." data-revision="1404242659971">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -722,7 +722,121 @@
 <p>Fabric comes with a set of features simplifying the effort of running and managing Spring Boot JVM processes. Fabric
 Boot utilities and starters are especially useful if you plan to run your system in a microservices-manner backed by
 the Spring Boot micro-containers and Fabric-related middleware (Camel, ActiveMQ, CXF and so forth).</p>
-<h3 id="fabric8-spring-boot-bom"><a name="fabric8-spring-boot-bom" class="anchor" href="#fabric8-spring-boot-bom"><span class="fa fa-link"></span></a>Fabric8 Spring Boot BOM</h3>
+<h3 id="spring-boot-quickstarts"><a name="spring-boot-quickstarts" class="anchor" href="#spring-boot-quickstarts"><span class="fa fa-link"></span></a>Spring Boot Quickstarts</h3>
+<p>Before we dig into the glorious details of Fabric8 support for Spring Boot application, keep in mind tha the easiest way 
+to start developing Spring Boot applications with Fabric8 is to use <em>Quickstarts</em>. Quickstarts are our reference
+Maven Archtypes we recommend to use as a base for your projects.</p>
+<p>For example to create and run the basic Spring Boot REST module follow these steps:</p>
+<p><strong>Step 1:</strong> Create new Maven project from Quickstart</p>
+<pre><code>$ mvn archetype:generate -Dfilter=io.fabric8.archetypes:springboot-webmvc-archetype 
+</code></pre><p>After executing the command above, you should see a similar output:</p>
+<pre><code>[INFO] Scanning for projects...
+...
+[INFO] &gt;&gt;&gt; maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom &gt;&gt;&gt;
+[INFO] Generating project in Interactive mode
+Choose archetype:
+1: remote -&gt; io.fabric8.archetypes:springboot-webmvc-archetype (Creates a new Shows how to use Spring Boot with WebMVC in the Java Container)
+Choose a number or apply filter (format: [groupId:]artifactId, case sensitive contains): : 1
+Define value for property &apos;groupId&apos;: : com.myapp    
+Define value for property &apos;artifactId&apos;: : my-spring-boot-rest-module
+Define value for property &apos;version&apos;:  1.0-SNAPSHOT: : 
+Define value for property &apos;package&apos;:  com.myapp: : 
+...
+[INFO] project created from Archetype in dir: /home/hekonsek/tmp/my-spring-boot-rest-module
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+</code></pre><p><strong>Step 2:</strong> Test and install your new module</p>
+<pre><code>$ cd my-spring-boot-rest-module 
+$ mvn install
+</code></pre><p>After executing the commands above, you should see a similar output:</p>
+<pre><code>[INFO] Scanning for projects...
+... 
+[INFO] Building Fabric8 :: Quickstarts :: Spring-Boot :: WebMVC 1.0-SNAPSHOT
+...
+[INFO] --- maven-compiler-plugin:2.3.1:compile (default-compile) @ my-spring-boot-rest-module ---
+[INFO] Compiling 4 source files to /home/hekonsek/tmp/my-spring-boot-rest-module/target/classes
+...
+T E S T S
+-------------------------------------------------------
+Running com.myapp.InvoicingRestApiTest
+...
+  .   ____          _            __ _ _
+ /\\ / ___&apos;_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | &apos;_ | &apos;_| | &apos;_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  &apos;  |____| .__|_| |_|_| |_\__, | / / / /
+=========|_|==============|___/=/_/_/_/
+:: Spring Boot ::        (v1.1.2.RELEASE)
+...
+2014-06-30 23:43:36.178  INFO 9719 --- [ost-startStop-1] org.hibernate.tool.hbm2ddl.SchemaExport  : HHH000230: Schema export complete
+...
+2014-06-30 23:43:37.434  INFO 9719 --- [           main] s.b.c.e.t.TomcatEmbeddedServletContainer : Tomcat started on port(s): 36063/http
+2014-06-30 23:43:37.437  INFO 9719 --- [           main] o.a.maven.surefire.booter.ForkedBooter   : Started ForkedBooter in 7.385 seconds (JVM running for 8.605)
+2014-06-30 23:43:37.556  INFO 9719 --- [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring FrameworkServlet &apos;dispatcherServlet&apos;
+...
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.797 sec
+...
+Results :
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+...
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ my-spring-boot-rest-module ---
+[INFO] Installing /home/hekonsek/tmp/my-spring-boot-rest-module/target/my-spring-boot-rest-module-1.0-SNAPSHOT.jar to /home/hekonsek/.m2/repository/com/myapp/my-spring-boot-rest-module/1.0-SNAPSHOT/my-spring-boot-rest-module-1.0-SNAPSHOT.jar
+[INFO] Installing /home/hekonsek/tmp/my-spring-boot-rest-module/pom.xml to /home/hekonsek/.m2/repository/com/myapp/my-spring-boot-rest-module/1.0-SNAPSHOT/my-spring-boot-rest-module-1.0-SNAPSHOT.pom
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+</code></pre><p><strong>Step 3:</strong> Start Fabric8 server</p>
+<pre><code>$ cd fabric8-karaf-1.1.0
+$ bin/fabric8
+</code></pre><p>After executing the commands above, you should see a similar output:</p>
+<pre><code>Please wait while Fabric8 is loading...
+99% [=======================================================================&gt;]
+______    _          _      _____ 
+|  ___|  | |        (_)    |  _  |
+| |_ __ _| |__  _ __ _  ___ \ V / 
+|  _/ _` | &apos;_ \| &apos;__| |/ __|/ _ \ 
+| || (_| | |_) | |  | | (__| |_| |
+\_| \__,_|_.__/|_|  |_|\___\_____/
+Fabric8 Container (1.1.0)
+http://fabric8.io/
+
+Fabric8:karaf@root&gt; 
+</code></pre><p><strong>Step 4:</strong> Deploy profile of your application into the Fabric8</p>
+<pre><code>.../my-spring-boot-rest-module $ mvn fabric8:deploy -DskipTests
+</code></pre><p>After executing the command above, you should see a similar output:</p>
+<pre><code>[INFO] Uploading file /home/hekonsek/tmp/my-spring-boot-rest-module/pom.xml
+Downloading: http://192.168.2.12:8181/maven/upload/com/myapp/my-spring-boot-rest-module/1.0-SNAPSHOT/maven-metadata.xml
+...
+Uploading: http://192.168.2.12:8181/maven/upload/com/myapp/my-spring-boot-rest-module/1.0-SNAPSHOT/my-spring-boot-rest-module-1.0-20140630.215711-1.jar
+Uploaded: http://192.168.2.12:8181/maven/upload/com/myapp/my-spring-boot-rest-module/1.0-SNAPSHOT/my-spring-boot-rest-module-1.0-20140630.215711-1.jar (5 KB at 63.0 KB/sec)
+...
+[INFO] Updating profile: quickstarts-spring.boot-webmvc with parent profile(s): [containers-java.spring.boot]
+...
+[INFO] Profile page: http://192.168.2.12:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/quickstarts/spring.boot/webmvc.profile
+...
+[INFO] BUILD SUCCESS
+</code></pre><p><strong>Step 5:</strong> Provision your Spring Boot container as a standalone JVM process managed by the Fabric8</p>
+<pre><code>Fabric8:karaf@root&gt; container-create-child --profile quickstarts-spring.boot-webmvc root my-spring-boot-rest
+</code></pre><p>After executing the command above, you should see a similar output:</p>
+<pre><code>Starting process
+Running java  -javaagent:jolokia-agent.jar=host=0.0.0.0,port=9018,agentId=my-spring-boot-rest ... 
+process is now running (11904)
+The following containers have been created successfully:
+    Container: my-spring-boot-rest.
+</code></pre><p><strong>Step 6:</strong> Find the HTTP port number assigned by Fabric8 to your application</p>
+<pre><code>Fabric8:karaf@root&gt; environment my-spring-boot-rest | grep HTTP_PROXY
+FABRIC8_HTTP_PROXY_PORT                       9017
+</code></pre><p><strong>Step 7:</strong> Enjoy your application being up and running!</p>
+<pre><code>$ curl http://localhost:9017/  
+{
+    &quot;_links&quot; : {
+        &quot;invoice&quot; : {
+            &quot;href&quot; : &quot;http://localhost:9017/invoice{?page,size,sort}&quot;,
+            &quot;templated&quot; : true
+        }
+    }
+}%      
+</code></pre><h3 id="fabric8-spring-boot-bom"><a name="fabric8-spring-boot-bom" class="anchor" href="#fabric8-spring-boot-bom"><span class="fa fa-link"></span></a>Fabric8 Spring Boot BOM</h3>
 <p>The best way to manage Spring Boot dependencies in the Fabric8-managed application is to import the Fabric8 Spring Boot
 BOM.</p>
 <pre><code>&lt;dependencyManagement&gt;
