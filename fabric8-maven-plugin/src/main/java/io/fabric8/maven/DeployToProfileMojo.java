@@ -515,12 +515,19 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
         return null;
     }
 
+    /**
+     * Expands placeholders in the uploaded configuration file. Currently <code>${project.groupId}</code>,
+     * <code>${project.artifactId}</code> and <code>${project.version}</code> placeholders are supported.
+     *
+     * @param configToExpand configuration containing placeholders to be expanded.
+     * @return configuration with expanded placeholders or unaffected configuration if no placeholders are present
+     */
     protected String expandPlaceholders(String configToExpand) {
-        getLog().debug("Expanding placeholders in the config file: " + configToExpand);
+        getLog().debug("Expanding placeholders in the configuration file: " + configToExpand);
         String expandedConfig = configToExpand.replace("${project.groupId}", project.getGroupId()).
                 replace("${project.artifactId}", project.getArtifactId()).
                 replace("${project.version}", project.getVersion());
-        getLog().debug("Expanded config file: " + expandedConfig);
+        getLog().debug("Expanded configuration file: " + expandedConfig);
         return expandedConfig;
     }
 
