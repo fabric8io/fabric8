@@ -75,6 +75,8 @@ public class CreateSshContainerTest extends FabricTestSupport {
         Assume.assumeTrue(isReady());
 
         System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("shell:info"));
+        System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);

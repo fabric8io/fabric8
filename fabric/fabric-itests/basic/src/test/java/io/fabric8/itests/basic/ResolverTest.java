@@ -48,6 +48,8 @@ public class ResolverTest extends FabricTestSupport {
     @Test
     public void testRootContainerResolver() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("shell:info"));
+        System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
@@ -74,6 +76,8 @@ public class ResolverTest extends FabricTestSupport {
     @Test
     public void testCreateWithGlobalResolver() throws Exception {
         System.out.println(executeCommand("fabric:create -n -g manualip --manual-ip localhost -b localhost --clean"));
+        System.out.println(executeCommand("shell:info"));
+        System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
@@ -90,6 +94,8 @@ public class ResolverTest extends FabricTestSupport {
     @Test
     public void testCreateWithGlobalAndLocalResolver() throws Exception {
         System.out.println(executeCommand("fabric:create -n -g manualip -r localhostname --manual-ip localhost --clean"));
+        System.out.println(executeCommand("shell:info"));
+        System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
@@ -106,6 +112,8 @@ public class ResolverTest extends FabricTestSupport {
     @Test
     public void testChildContainerResolver() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("shell:info"));
+        System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
@@ -156,6 +164,8 @@ public class ResolverTest extends FabricTestSupport {
     @Test
     public void testResolverInheritanceOnChild() throws Exception {
         System.out.println(executeCommand("fabric:create -n -g localip -r manualip --manual-ip localhost -b localhost"));
+        System.out.println(executeCommand("shell:info"));
+        System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
