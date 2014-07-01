@@ -73,6 +73,22 @@ public class ProfileScalingTest extends FabricTestSupport {
     }
 
     protected void assertProfileMinimumSize(FabricService fabricService, String profile, Integer expected) throws IOException {
+        // we need a little slack to have fabric provision this so lets retry up till 3 times
+        boolean done = false;
+        int tries = 0;
+        while (!done) {
+            try {
+                doAssertProfileMinimumSize(fabricService, profile, expected);
+                done = true;
+            } catch (Error e) {
+                if (++tries > 3) {
+                    throw e;
+                }
+            }
+        }
+    }
+
+    protected void doAssertProfileMinimumSize(FabricService fabricService, String profile, Integer expected) throws IOException {
         // lests add a little but of time to make sure that the ZK / Git cache has updated correctly
         try {
             Thread.sleep(2000);
