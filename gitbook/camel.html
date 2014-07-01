@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>master: endpoint | Fabric8 Documentation</title>
+        <title>Apache Camel | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./cxf.html" />
+        <link rel="next" href="./dataTransform.html" />
         
         
-        <link rel="prev" href="./camelEndpointFabric.html" />
+        <link rel="prev" href="./brokerClients.html" />
         
 
-        <meta property="og:title" content="master: endpoint | Fabric8 Documentation">
+        <meta property="og:title" content="Apache Camel | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="7.2.4" data-basepath="." data-revision="1404253093786">
+    <div class="book" data-github="fabric8io/fabric8" data-level="7.2" data-basepath="." data-revision="1404253093786">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -622,7 +622,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 95.45454545454545%;min-width: 93.18181818181819%;"></div>
+        <div class="inner" style="width: 86.36363636363636%;min-width: 84.0909090909091%;"></div>
     </div>
     <div class="chapters">
     
@@ -704,13 +704,13 @@
     
         <a href="./camel.html" title="Apache Camel" class="chapter done " data-progress="7.2" style="left: 86.36363636363636%;"></a>
     
-        <a href="./dataTransform.html" title="Data Transform" class="chapter done " data-progress="7.2.1" style="left: 88.63636363636364%;"></a>
+        <a href="./dataTransform.html" title="Data Transform" class="chapter  " data-progress="7.2.1" style="left: 88.63636363636364%;"></a>
     
-        <a href="./camelEndpointAmq.html" title="amq: endpoint" class="chapter done " data-progress="7.2.2" style="left: 90.9090909090909%;"></a>
+        <a href="./camelEndpointAmq.html" title="amq: endpoint" class="chapter  " data-progress="7.2.2" style="left: 90.9090909090909%;"></a>
     
-        <a href="./camelEndpointFabric.html" title="fabric: endpoint" class="chapter done " data-progress="7.2.3" style="left: 93.18181818181819%;"></a>
+        <a href="./camelEndpointFabric.html" title="fabric: endpoint" class="chapter  " data-progress="7.2.3" style="left: 93.18181818181819%;"></a>
     
-        <a href="./camelEndpointMaster.html" title="master: endpoint" class="chapter done " data-progress="7.2.4" style="left: 95.45454545454545%;"></a>
+        <a href="./camelEndpointMaster.html" title="master: endpoint" class="chapter  " data-progress="7.2.4" style="left: 95.45454545454545%;"></a>
     
         <a href="./cxf.html" title="Apache CXF" class="chapter  " data-progress="7.3" style="left: 97.72727272727273%;"></a>
     
@@ -721,28 +721,15 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_11">
-                    
-                        <h2 id="master-endpoint"><a name="master-endpoint" class="anchor" href="#master-endpoint"><span class="fa fa-link"></span></a>master: endpoint</h2>
-<p>The <strong>master:</strong> endpoint provides a way to ensure only a single consumer in a cluster consumes from a given endpoint; with automatic failover if that JVM dies.</p>
-<p>This can be very useful if you need to consume from some legacy back end which either doesn&apos;t support concurrent consumption or due to commercial or stability reasons you can only have a single connection at any point in time.</p>
-<h3 id="using-the-master-endpoint"><a name="using-the-master-endpoint" class="anchor" href="#using-the-master-endpoint"><span class="fa fa-link"></span></a>Using the master endpoint</h3>
-<p>Just prefix any camel endpoint with <strong>master:someName:</strong> where <em>someName</em> is a logical name and is used to acquire the master lock. e.g.</p>
-<pre><code>from(&quot;master:cheese:jms:foo&quot;).to(&quot;activemq:wine&quot;);
-</code></pre><p>The above simulates the <a href="http://activemq.apache.org/exclusive-consumer.html" target="_blank">Exclusive Consumers</a> type feature in ActiveMQ; but on any third party JMS provider which maybe doesn&apos;t support exclusive consumers.</p>
-
-                    
-                    </section>
-                
                 </div>
             </div>
         </div>
 
         
-        <a href="./camelEndpointFabric.html" class="navigation navigation-prev " aria-label="Previous page: fabric: endpoint"><i class="fa fa-angle-left"></i></a>
+        <a href="./brokerClients.html" class="navigation navigation-prev " aria-label="Previous page: Broker Clients"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./cxf.html" class="navigation navigation-next " aria-label="Next page: Apache CXF"><i class="fa fa-angle-right"></i></a>
+        <a href="./dataTransform.html" class="navigation navigation-next " aria-label="Next page: Data Transform"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
