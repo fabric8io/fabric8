@@ -21,6 +21,7 @@ import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.Profile;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 
 import java.io.IOException;
@@ -267,6 +268,19 @@ public class ProfileImpl implements Profile {
 
     public Profile getOverlay(boolean substitute) {
         return new ProfileOverlayImpl(this, fabricService.getEnvironment(), substitute, fabricService);
+    }
+
+    @Override
+    public String getIconURL() {
+        List<String> fileNames = getConfigurationFileNames();
+        for (String fileName : fileNames) {
+            if (fileName.startsWith("icon.")) {
+                String id = getId();
+                String version = getVersion();
+                return "/version/" + version + "/profile/" + id + " containers-java.camel.spring/file/" + fileName;
+            }
+        }
+        return Profiles.getProfileIconURL(getParents());
     }
 
     @Override

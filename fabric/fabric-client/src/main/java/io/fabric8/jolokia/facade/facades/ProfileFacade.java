@@ -18,6 +18,7 @@ package io.fabric8.jolokia.facade.facades;
 import io.fabric8.api.Container;
 import io.fabric8.api.HasId;
 import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 import io.fabric8.jolokia.facade.utils.Helpers;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
@@ -98,6 +99,11 @@ public class ProfileFacade implements Profile, HasId {
             parentIds.add(profile.getId());
         }
         Helpers.exec(j4p, "changeProfileParents(java.lang.String, java.lang.String, java.util.List)", versionId, id, parentIds);
+    }
+
+    @Override
+    public String getIconURL() {
+        return Profiles.getProfileIconURL(getParents());
     }
 
     @Override

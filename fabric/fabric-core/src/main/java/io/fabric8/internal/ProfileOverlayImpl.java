@@ -121,6 +121,11 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     @Override
+    public String getIconURL() {
+        return Profiles.getProfileIconURL(self.getParents());
+    }
+
+    @Override
     public Map<String, String> getContainerConfiguration() {
         Map<String, String> map = getConfigurations().get(Constants.AGENT_PID);
         if (map == null) {
