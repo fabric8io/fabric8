@@ -50,7 +50,7 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
 
     @Test
     public void testFeatureProvisioning() throws Exception {
-        System.out.println(executeCommand("fabric:create -n root"));
+        System.out.println(executeCommand("fabric:create -n --wait-for-provisioning root"));
         System.out.println(executeCommand("shell:info"));
         System.out.println(executeCommand("fabric:info"));
         System.out.println(executeCommand("fabric:profile-list"));
