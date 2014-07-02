@@ -27,6 +27,7 @@ import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -38,6 +39,7 @@ import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.Profile;
+import io.fabric8.api.Version;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
@@ -58,15 +60,23 @@ import org.apache.curator.retry.RetryOneTime;
 import org.easymock.EasyMock;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.hamcrest.CoreMatchers.any;
+import static org.hamcrest.CoreMatchers.anyOf;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class ProjectDeployerTest {
@@ -251,6 +261,33 @@ public class ProjectDeployerTest {
         assertEquals("parent ids", parentProfileIds, Containers.getParentProfileIds(profile));
         assertFeatures(profile, features);
     }
+
+    @Test
+    public void testProfileMetadata() throws Exception {
+        Version version = fabricService.getVersion("1.0");
+        assertNotNull("version", version);
+        Profile profile = version.getProfile("containers-wildfly");
+        assertNotNull("profile", profile);
+        List<String> tags = profile.getTags();
+        assertContains(tags, "containers");
+        String summaryMarkdown = profile.getSummaryMarkdown();
+        assertThat(summaryMarkdown, containsString("WildFly"));
+        String iconURL = profile.getIconURL();
+        assertEquals("iconURL", "/version/1.0/profile/containers-wildfly/file/icon.svg", iconURL);
+
+        // lets test inheritance of icons
+        profile = version.getProfile("containers-services-cassandra.local");
+        assertNotNull("profile", profile);
+        iconURL = profile.getIconURL();
+        assertEquals("iconURL", "/version/1.0/profile/containers-services-cassandra/file/icon.svg", iconURL);
+
+    }
+
+    public static <T> void assertContains(Collection<T> collection, T expected) {
+        assertNotNull("collection", collection);
+        assertTrue("Should contain " + expected, collection.contains(expected));
+    }
+
 
     protected void assertFeatures(Profile profile, List<String> features) {
         List<String> expected = new ArrayList<String>(features);
