@@ -92,6 +92,11 @@ public interface Profile extends Comparable<Profile>, HasId {
     String getIconURL();
 
     /**
+     * Returns the summary markdown text of the profile or null if none could be found. Typically returns the "Summary.md" file contents as a String
+     */
+    String getSummaryMarkdown();
+
+    /**
      * Returns the configuration file names that are available on this profile
      */
     List<String> getConfigurationFileNames();

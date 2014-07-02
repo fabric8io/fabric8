@@ -284,6 +284,34 @@ public class ProfileImpl implements Profile {
     }
 
     @Override
+    public String getSummaryMarkdown() {
+        byte[] data = getFileConfiguration("Summary.md");
+        if (data == null) {
+            data = getOverlay().getFileConfiguration("Summary.md");
+        }
+        if (data != null) {
+            return new String(data);
+        }
+
+        // lets return the first line of the ReadMe.md as a default value
+        data = getOverlay().getFileConfiguration("ReadMe.md");
+        if (data != null) {
+            String readMe = new String(data).trim();
+            StringTokenizer iter = new StringTokenizer(readMe, "\n");
+            while (iter.hasMoreTokens()) {
+                String text = iter.nextToken();
+                if (text != null) {
+                    text = text.trim();
+                    if (text.length() > 0) {
+                        return text;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public Map<String, byte[]> getFileConfigurations() {
         return fabricService.getDataStore().getFileConfigurations(version, id);
     }
