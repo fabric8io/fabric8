@@ -104,11 +104,17 @@ public class ProfileResource extends ResourceSupport {
         if (fileName.endsWith(".xml")) {
             return "application/xml";
         }
+        if (fileName.endsWith(".wadl")) {
+            return "application/wadl+xml";
+        }
+        if (fileName.endsWith(".wsdl")) {
+            return "application/wsdl+xml";
+        }
+        if (fileName.endsWith(".xsd")) {
+            return "application/xsd+xml";
+        }
         if (fileName.endsWith(".json")) {
             return "application/json";
-        }
-        if (fileName.endsWith(".xml") || fileName.endsWith(".xsd")) {
-            return "text/html";
         }
         if (fileName.endsWith(".html") || fileName.endsWith(".htm")) {
             return "application/html";
@@ -118,6 +124,15 @@ public class ProfileResource extends ResourceSupport {
         }
         if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
             return "image/jpeg";
+        }
+        if (fileName.endsWith(".png")) {
+            return "image/png";
+        }
+        if (fileName.endsWith(".gif")) {
+            return "image/gif";
+        }
+        if (fileName.endsWith(".svg")) {
+            return "image/svg+xml";
         }
         return "text/plain";
     }
