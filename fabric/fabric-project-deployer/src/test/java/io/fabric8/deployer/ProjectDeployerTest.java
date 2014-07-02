@@ -260,10 +260,11 @@ public class ProjectDeployerTest {
         assertBundleCount(profile, 1);
         assertEquals("parent ids", parentProfileIds, Containers.getParentProfileIds(profile));
         assertFeatures(profile, features);
+
+        assertProfileMetadata();
     }
 
-    @Test
-    public void testProfileMetadata() throws Exception {
+    public void assertProfileMetadata() throws Exception {
         Version version = fabricService.getVersion("1.0");
         assertNotNull("version", version);
         Profile profile = version.getProfile("containers-wildfly");
