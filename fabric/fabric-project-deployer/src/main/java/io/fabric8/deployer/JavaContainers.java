@@ -65,14 +65,13 @@ public class JavaContainers {
             Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(fabric, downloadManager, profile.getOverlay(), new AgentUtils.Callback<String>(){
                 @Override
                 public void call(String location) {
-                    System.out.println("Got non-mvn URL " + location);
                     try {
                         DownloadFuture future = downloadManager.download(location);
                         File file = AgentUtils.waitForFileDownload(future);
                         if (file != null) {
                             answer.put(location, file);
                         }
-                        System.out.println("downloaded file " + file + " for location: " + location);
+                        LOGGER.info("downloaded file " + file + " for location: " + location);
                     } catch (Exception e) {
                         LOGGER.warn("Error downloading " + location + ". " + e, e);
                     }
