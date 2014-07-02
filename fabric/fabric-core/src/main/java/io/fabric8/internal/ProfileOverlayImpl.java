@@ -127,8 +127,7 @@ public class ProfileOverlayImpl implements Profile {
 
     @Override
     public String getSummaryMarkdown() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return Profiles.getSummaryMarkdown(self.getParents());
     }
 
     @Override
