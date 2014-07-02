@@ -142,6 +142,11 @@ public class ProfileFacade implements Profile, HasId {
     }
 
     @Override
+    public List<String> getTags() {
+        return getFieldValue("tags");
+    }
+
+    @Override
     public List<String> getFabs() {
         return getFieldValue("fabs");
     }
@@ -229,6 +234,11 @@ public class ProfileFacade implements Profile, HasId {
     @Override
     public void setBundles(List<String> strings) {
         Void v = Helpers.exec(j4p, "setProfileBundles(java.lang.String, java.lang.String, java.util.List)", versionId, id, strings);
+    }
+
+    @Override
+    public void setTags(List<String> strings) {
+        Void v = Helpers.exec(j4p, "setProfileTags(java.lang.String, java.lang.String, java.util.List)", versionId, id, strings);
     }
 
     @Override

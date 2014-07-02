@@ -951,6 +951,13 @@ public class FabricManager implements FabricManagerMBean {
     }
 
 
+    @Override
+    public void setProfileTags(String versionId, String profileId, List<String> tags) {
+        Version v = getFabricService().getVersion(versionId);
+        Profile profile = v.getProfile(profileId);
+        profile.setTags(tags);
+    }
+
 /*
     @Override
     public ContainerProvider getProvider(Container container) {

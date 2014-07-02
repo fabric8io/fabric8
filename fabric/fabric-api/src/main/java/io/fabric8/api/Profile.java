@@ -96,6 +96,17 @@ public interface Profile extends Comparable<Profile>, HasId {
      */
     String getSummaryMarkdown();
 
+
+    /**
+     * Returns the list of tags that are applied to this profile. If none is configured then it defaults to the parent folders of the profile ID.
+     */
+    List<String> getTags();
+
+    /**
+     * Updates the tags on this profile
+     */
+    void setTags(List<String> tags);
+
     /**
      * Returns the configuration file names that are available on this profile
      */

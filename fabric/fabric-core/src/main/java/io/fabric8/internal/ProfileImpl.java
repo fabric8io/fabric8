@@ -72,7 +72,8 @@ public class ProfileImpl implements Profile {
         FEATURES("feature"),
         REPOSITORIES("repository"),
         OVERRIDES("override"),
-        OPTIONALS("optional");
+        OPTIONALS("optional"),
+        TAGS("tags");
 
         private String value;
 
@@ -313,6 +314,28 @@ public class ProfileImpl implements Profile {
             }
         }
         return null;
+    }
+
+    @Override
+    public List<String> getTags() {
+        List<String> answer = getContainerConfigList(this, ConfigListType.TAGS);
+        if (answer == null || answer.size() == 0) {
+            // lets create the default list of tags
+            answer = new ArrayList<>();
+            String id = getId();
+            String[] paths = id.split("-");
+            if (paths != null) {
+                for (int i = 0, last = paths.length - 1; i < last; i++) {
+                    answer.add(paths[i]);
+                }
+            }
+        }
+        return answer;
+    }
+
+    @Override
+    public void setTags(List<String> tags) {
+        setContainerConfigList(this, tags, ConfigListType.TAGS);
     }
 
     @Override
