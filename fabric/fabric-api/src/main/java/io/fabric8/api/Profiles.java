@@ -254,11 +254,25 @@ public class Profiles {
     /**
      * Returns the icon URL of the given list of profiles relative to the REST API URL or null if it could not be determined
      */
-    public static String getProfileIconURL(Profile[] parents) {
+    public static String getProfileIconURL(Profile[] profiles) {
         String answer = null;
-        if (parents != null) {
-            for (Profile parent : parents) {
+        if (profiles != null) {
+            for (Profile parent : profiles) {
                 answer = parent.getIconURL();
+                if (answer != null) break;
+            }
+        }
+        return answer;
+    }
+
+    /**
+     * Returns the first summary markdown text of the profiles
+     */
+    public static String getSummaryMarkdown(Profile[] profiles) {
+        String answer = null;
+        if (profiles != null) {
+            for (Profile parent : profiles) {
+                answer = parent.getSummaryMarkdown();
                 if (answer != null) break;
             }
         }
