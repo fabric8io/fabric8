@@ -277,7 +277,7 @@ public class ProfileImpl implements Profile {
             if (fileName.startsWith("icon.")) {
                 String id = getId();
                 String version = getVersion();
-                return "/version/" + version + "/profile/" + id + " containers-java.camel.spring/file/" + fileName;
+                return "/version/" + version + "/profile/" + id + "/file/" + fileName;
             }
         }
         return Profiles.getProfileIconURL(getParents());
@@ -301,6 +301,10 @@ public class ProfileImpl implements Profile {
             while (iter.hasMoreTokens()) {
                 String text = iter.nextToken();
                 if (text != null) {
+                    text = text.trim();
+                    while (text.startsWith("#")) {
+                        text = text.substring(1);
+                    }
                     text = text.trim();
                     if (text.length() > 0) {
                         return text;
