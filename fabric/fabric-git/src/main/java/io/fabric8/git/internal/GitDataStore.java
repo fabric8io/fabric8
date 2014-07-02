@@ -94,6 +94,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
@@ -497,7 +498,8 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 GitHelpers.removeBranch(git, version);
                 git.push().setTimeout(gitTimeout)
                         .setCredentialsProvider(getCredentialsProvider())
-                        .add(":refs/heads/" + version).call();
+                        .setRefSpecs(new RefSpec().setSource(null).setDestination("refs/heads/" + version))
+                        .call();
                 return null;
             }
         });
