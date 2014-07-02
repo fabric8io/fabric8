@@ -1,1 +1,0 @@
-The deploys the Drools workbench inside Tomcat 7 on OpenShift
