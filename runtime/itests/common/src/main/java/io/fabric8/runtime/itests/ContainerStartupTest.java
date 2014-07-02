@@ -22,7 +22,6 @@ import io.fabric8.api.CreateEnsembleOptions.Builder;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.runtime.itests.support.CommandSupport;
-import io.fabric8.runtime.itests.support.ServiceLocator;
 import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.PasswordEncoder;
 
@@ -38,6 +37,7 @@ import org.jboss.gravia.itests.support.ArchiveBuilder;
 import org.jboss.gravia.resource.ManifestBuilder;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
+import org.jboss.gravia.runtime.ServiceLocator;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.Asset;

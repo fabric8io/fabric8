@@ -40,6 +40,7 @@ import javax.management.remote.JMXServiceURL;
 
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
+import org.jboss.gravia.runtime.ServiceLocator;
 
 public class Provision {
 

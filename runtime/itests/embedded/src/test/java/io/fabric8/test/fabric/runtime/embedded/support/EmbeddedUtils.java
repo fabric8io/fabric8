@@ -110,6 +110,6 @@ public class EmbeddedUtils {
     }
 
     private static File getModuleFile(String modname) {
-        return new File("system/modules/" + modname + ".jar").getAbsoluteFile();
+        return new File("target/runtime/system/modules/" + modname + ".jar").getAbsoluteFile();
     }
 }

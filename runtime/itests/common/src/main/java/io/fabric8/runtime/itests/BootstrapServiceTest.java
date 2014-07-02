@@ -18,7 +18,6 @@ package io.fabric8.runtime.itests;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.runtime.itests.support.CommandSupport;
-import io.fabric8.runtime.itests.support.ServiceLocator;
 
 import java.io.InputStream;
 
@@ -26,14 +25,15 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
 import org.jboss.gravia.Constants;
+import org.jboss.gravia.itests.support.AnnotatedContextListener;
+import org.jboss.gravia.itests.support.ArchiveBuilder;
 import org.jboss.gravia.resource.ManifestBuilder;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
+import org.jboss.gravia.runtime.ServiceLocator;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.Asset;
-import org.jboss.gravia.itests.support.AnnotatedContextListener;
-import org.jboss.gravia.itests.support.ArchiveBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

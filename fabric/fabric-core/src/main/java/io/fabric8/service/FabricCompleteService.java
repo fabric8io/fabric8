@@ -13,14 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.boot;
+package io.fabric8.service;
 
-import io.fabric8.api.BootstrapComplete;
-import io.fabric8.api.ManagedCuratorFrameworkAvailable;
-import io.fabric8.api.ZooKeeperClusterBootstrap;
+import io.fabric8.api.FabricComplete;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.git.GitService;
-import io.fabric8.zookeeper.ACLManager;
+import io.fabric8.service.child.ChildContainerProvider;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -29,20 +27,16 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 
 /**
- * Indicates the completion of the bootstrap process before the fabric is created.
+ * Indicates the completion of the fabric create process.
  */
 @Component(immediate = true)
-@Service({ BootstrapComplete.class })
-public final class BootstrapCompleteService extends AbstractComponent implements BootstrapComplete {
+@Service( FabricComplete.class )
+public final class FabricCompleteService extends AbstractComponent implements FabricComplete {
 
     @Reference
-    private ACLManager aclManagerAvailable;
+    private FabricService fabricService;
     @Reference
-    private GitService gitServiceAvailable;
-    @Reference
-    private ManagedCuratorFrameworkAvailable managedCuratorAvailable;
-    @Reference
-    private ZooKeeperClusterBootstrap zookeeperBootstrapAvailable;
+    private ChildContainerProvider childContainerProvider;
 
     @Activate
     void activate() {

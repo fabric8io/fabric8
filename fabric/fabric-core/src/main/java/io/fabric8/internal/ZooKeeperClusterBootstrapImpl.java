@@ -19,9 +19,9 @@ import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DataStoreRegistrationHandler;
+import io.fabric8.api.FabricComplete;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.ServiceLocator;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
@@ -46,6 +46,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.jboss.gravia.runtime.ServiceLocator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -113,7 +114,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         assertValid();
         try {
             // Wait for bootstrap to be complete
-            ServiceLocator.awaitService(bundleContext, BootstrapComplete.class);
+            ServiceLocator.awaitService(BootstrapComplete.class);
 
             LOGGER.info("Create fabric with: {}", options);
 
@@ -132,11 +133,15 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             startBundles(options);
 
             long startTime = System.currentTimeMillis();
-            createHandler.waitForContainerAlive(name, syscontext, options.getBootstrapTimeout());
+            long bootstrapTimeout = options.getBootstrapTimeout();
+            ServiceLocator.awaitService(FabricComplete.class, bootstrapTimeout, TimeUnit.MILLISECONDS);
+            
+            long timeDiff = System.currentTimeMillis() - startTime; 
+			createHandler.waitForContainerAlive(name, syscontext, bootstrapTimeout - timeDiff);
 
             if (options.isWaitForProvision() && options.isAgentEnabled()) {
                 long currentTime = System.currentTimeMillis();
-                createHandler.waitForSuccessfulDeploymentOf(name, syscontext, options.getBootstrapTimeout() - (currentTime - startTime));
+                createHandler.waitForSuccessfulDeploymentOf(name, syscontext, bootstrapTimeout - (currentTime - startTime));
             }
         } catch (RuntimeException rte) {
             throw rte;
@@ -332,16 +337,17 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             System.out.println(String.format("Waiting for container: %s", containerName));
 
             Exception lastException = null;
-            long startedAt = System.currentTimeMillis();
-            while (!Thread.interrupted() && System.currentTimeMillis() < startedAt + timeout) {
-                ServiceReference<FabricService> sref = syscontext.getServiceReference(FabricService.class);
-                FabricService fabricService = sref != null ? syscontext.getService(sref) : null;
+            long now = System.currentTimeMillis();
+            long end = now + timeout;
+            while (!Thread.interrupted() && now < end) {
+                FabricService fabricService = ServiceLocator.getRequiredService(FabricService.class);
                 try {
-                    Container container = fabricService != null ? fabricService.getContainer(containerName) : null;
+                    Container container = fabricService.getContainer(containerName);
                     if (container != null && container.isAlive()) {
                         return;
                     } else {
                         Thread.sleep(500);
+                        now = System.currentTimeMillis();
                     }
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();

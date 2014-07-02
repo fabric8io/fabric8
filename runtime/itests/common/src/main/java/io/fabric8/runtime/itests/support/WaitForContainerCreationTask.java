@@ -22,6 +22,7 @@ import java.util.concurrent.Callable;
 
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
+import org.jboss.gravia.runtime.ServiceLocator;
 
 /**
  * A {@link java.util.concurrent.Callable} that waits for the {@link io.fabric8.api.Container} to get created.

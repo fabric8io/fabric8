@@ -67,6 +67,7 @@
             OSGI-INF/io.fabric8.service.ContainerPlaceholderResolver.xml,
             OSGI-INF/io.fabric8.service.EncryptedPropertyResolver.xml,
             OSGI-INF/io.fabric8.service.EnvPlaceholderResolver.xml,
+            OSGI-INF/io.fabric8.service.FabricCompleteService.xml,
             OSGI-INF/io.fabric8.service.FabricMBeanRegistrationListener.xml,
             OSGI-INF/io.fabric8.service.FabricServiceImpl.xml,
             OSGI-INF/io.fabric8.service.PortPlaceholderResolver.xml,
@@ -129,6 +130,10 @@
         <dependency>
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-runtime-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mvel</groupId>

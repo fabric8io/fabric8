@@ -15,6 +15,7 @@
  */
 package io.fabric8.service.child;
 
+import static io.fabric8.utils.Ports.mapPortToRange;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
@@ -37,6 +38,13 @@ import io.fabric8.service.ContainerTemplate;
 import io.fabric8.utils.AuthenticationUtils;
 import io.fabric8.utils.Ports;
 import io.fabric8.zookeeper.ZkDefs;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -50,17 +58,9 @@ import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static io.fabric8.utils.Ports.mapPortToRange;
-
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.child", label = "Fabric8 Child Container Provider", immediate = true, metatype = false)
-@Service(ContainerProvider.class)
+@Service({ ContainerProvider.class, ChildContainerProvider.class })
 @Properties(
         @Property(name = "fabric.container.protocol", value = ChildContainerProvider.SCHEME)
 )
@@ -70,11 +70,10 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     static final String SCHEME = "child";
 
     @Reference(referenceInterface = FabricService.class)
-    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
-
-    @Reference(referenceInterface = ProcessControllerFactory.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY,
-            policy = ReferencePolicy.DYNAMIC, bind = "bindProcessControllerFactory", unbind = "unbindProcessControllerFactory")
-    private ProcessControllerFactory processControllerFactory;
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<>();
+    // [TODO] #1916 Migrate process-manager to SCR
+    @Reference(referenceInterface = ProcessControllerFactory.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC, bind = "bindProcessControllerFactory", unbind = "unbindProcessControllerFactory")
+    private final ValidatingReference<ProcessControllerFactory> processControllerFactory = new ValidatingReference<>();
 
     @Activate
     void activate() {
@@ -89,29 +88,32 @@ public final class ChildContainerProvider extends AbstractComponent implements C
 
     @Override
     public CreateChildContainerOptions.Builder newBuilder() {
+        assertValid();
         return CreateChildContainerOptions.builder();
     }
 
     @Override
     public CreateChildContainerMetadata create(final CreateChildContainerOptions options, final CreationStateListener listener) throws Exception {
         assertValid();
-
         ChildContainerController controller = createController(options);
         return controller.create(options, listener);
     }
 
     @Override
     public void start(final Container container) {
+        assertValid();
         getContainerController(container).start(container);
     }
 
     @Override
     public void stop(final Container container) {
+        assertValid();
         getContainerController(container).stop(container);
     }
 
     @Override
     public void destroy(final Container container) {
+        assertValid();
         getContainerController(container).destroy(container);
     }
 
@@ -122,24 +124,27 @@ public final class ChildContainerProvider extends AbstractComponent implements C
 
     @Override
     public Class<CreateChildContainerOptions> getOptionsType() {
+        assertValid();
         return CreateChildContainerOptions.class;
     }
 
     @Override
     public Class<CreateChildContainerMetadata> getMetadataType() {
+        assertValid();
         return CreateChildContainerMetadata.class;
     }
 
     @Override
     public ContainerAutoScaler createAutoScaler() {
+        assertValid();
         return new ChildAutoScaler(this);
     }
 
-    protected ChildContainerController createController(CreateChildContainerOptions options) throws Exception {
+    private ChildContainerController createController(CreateChildContainerOptions options) throws Exception {
         ChildContainerController answer = null;
         boolean isJavaContainer = ChildContainers.isJavaContainer(getFabricService(), options);
         boolean isProcessContainer = ChildContainers.isProcessContainer(getFabricService(), options);
-        ProcessControllerFactory factory = processControllerFactory;
+        ProcessControllerFactory factory = processControllerFactory.getOptional();
         if (factory != null) {
             answer = factory.createController(options);
         } else if (isJavaContainer || isProcessContainer) {
@@ -152,11 +157,11 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         return answer;
     }
 
-    protected ChildContainerController getContainerController(Container container) {
+    private ChildContainerController getContainerController(Container container) {
         assertValid();
         ChildContainerController answer = null;
         try {
-            ProcessControllerFactory factory = processControllerFactory;
+            ProcessControllerFactory factory = processControllerFactory.getOptional();
             if (factory != null) {
                 answer = factory.getControllerForContainer(container);
             }
@@ -171,7 +176,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         return answer;
     }
 
-    protected ChildContainerController createKarafContainerController() {
+    private ChildContainerController createKarafContainerController() {
         return new ChildContainerController() {
             @Override
             public CreateChildContainerMetadata create(final CreateChildContainerOptions options, final CreationStateListener listener) {
@@ -396,20 +401,20 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         return sb.toString();
     }
 
-    void bindFabricService(FabricService fabricService) {
-        this.fabricService.bind(fabricService);
+    void bindFabricService(FabricService service) {
+        fabricService.bind(service);
     }
 
-    void unbindFabricService(FabricService fabricService) {
-        this.fabricService.unbind(fabricService);
+    void unbindFabricService(FabricService service) {
+        fabricService.unbind(service);
     }
 
 
-    void bindProcessControllerFactory(ProcessControllerFactory processControllerFactory) {
-        this.processControllerFactory = processControllerFactory;
+    void bindProcessControllerFactory(ProcessControllerFactory service) {
+        processControllerFactory.bind(service);
     }
 
-    void unbindProcessControllerFactory(ProcessControllerFactory processControllerFactory) {
-        this.processControllerFactory = null;
+    void unbindProcessControllerFactory(ProcessControllerFactory service) {
+        processControllerFactory.unbind(service);
     }
 }

@@ -17,11 +17,11 @@ package io.fabric8.test.fabric.runtime.embedded;
 
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.git.GitService;
-import io.fabric8.runtime.itests.support.ServiceLocator;
+import io.fabric8.test.fabric.runtime.embedded.support.AbstractEmbeddedTest;
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 
-import io.fabric8.test.fabric.runtime.embedded.support.AbstractEmbeddedTest;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.gravia.runtime.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

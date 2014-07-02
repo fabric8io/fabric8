@@ -16,19 +16,21 @@
 package io.fabric8.portable.runtime.tomcat;
 
 import io.fabric8.api.RuntimeProperties;
-import org.jboss.gravia.container.tomcat.support.TomcatPropertiesProvider;
+
+import javax.servlet.ServletContext;
+
+import org.jboss.gravia.container.tomcat.support.ServletContextPropertiesProvider;
+import org.jboss.gravia.runtime.spi.AbstractPropertiesProvider;
 import org.jboss.gravia.runtime.spi.CompositePropertiesProvider;
 import org.jboss.gravia.runtime.spi.EnvPropertiesProvider;
 import org.jboss.gravia.runtime.spi.PropertiesProvider;
 import org.jboss.gravia.runtime.spi.SubstitutionPropertiesProvider;
 import org.jboss.gravia.runtime.spi.SystemPropertiesProvider;
 
-import javax.servlet.ServletContext;
-
 /**
  * The Fabric {@link PropertiesProvider}
  */
-public class FabricPropertiesProvider  implements PropertiesProvider {
+public class FabricPropertiesProvider extends AbstractPropertiesProvider {
 
 
     private final PropertiesProvider delegate;
@@ -36,16 +38,11 @@ public class FabricPropertiesProvider  implements PropertiesProvider {
     public FabricPropertiesProvider(ServletContext servletContext) {
         delegate = new SubstitutionPropertiesProvider(
                 new CompositePropertiesProvider(
-                        new TomcatPropertiesProvider(servletContext),
+                        new ServletContextPropertiesProvider(servletContext),
                         new SystemPropertiesProvider(),
                         new EnvPropertiesProvider(RuntimeProperties.DEFAULT_ENV_PREFIX)
                 )
         );
-    }
-
-    @Override
-    public Object getProperty(String key) {
-        return delegate.getProperty(key);
     }
 
     @Override

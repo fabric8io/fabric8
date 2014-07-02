@@ -27,7 +27,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fabric8.runtime</groupId>
-    <artifactId>embedded</artifactId>
+    <artifactId>fabric-runtime-embedded</artifactId>
     <name>Fabric8 :: Runtime :: Embedded</name>
     <packaging>bundle</packaging>
 
@@ -39,7 +39,6 @@
             io.fabric8.runtime.embedded.registration,
             io.fabric8.utils;-split-package:=first
         </fuse.osgi.private.pkg>
-
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
             OSGI-INF/io.fabric8.runtime.embedded.registration.EmbeddedContainerRegistration.xml,

@@ -35,15 +35,13 @@
     <name>Fabric8 :: Runtime :: Integration Tests :: Embedded</name>
 
     <properties>
-        <runtime.id>root</runtime.id>
-        <runtime.home>${project.build.directory}/home</runtime.home>
+        <runtime.home>${project.build.directory}/runtime</runtime.home>
     </properties>
     
     <dependencies>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fabric8.runtime</groupId>
@@ -52,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8.runtime</groupId>
-            <artifactId>embedded</artifactId>
+            <artifactId>fabric-runtime-embedded</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -80,6 +78,12 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-git</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-process-container</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -130,7 +134,7 @@
                             <target>
                                 <mkdir dir="${runtime.home}"/>
                                 <copy todir="${runtime.home}" overwrite="true">
-                                    <fileset dir="${basedir}/src/test/etc/home" />
+                                    <fileset dir="${basedir}/src/test/etc/runtime" />
                                 </copy>
                             </target>
                         </configuration>
@@ -170,8 +174,13 @@
                                     <version>${project.version}</version>
                                 </artifactItem>
                                 <artifactItem>
+                                    <groupId>io.fabric8</groupId>
+                                    <artifactId>fabric-process-container</artifactId>
+                                    <version>${project.version}</version>
+                                </artifactItem>
+                                <artifactItem>
                                     <groupId>io.fabric8.runtime</groupId>
-                                    <artifactId>embedded</artifactId>
+                                    <artifactId>fabric-runtime-embedded</artifactId>
                                     <version>${project.version}</version>
                                 </artifactItem>
                             </artifactItems>
@@ -184,17 +193,9 @@
                 <configuration>
                     <argLine>${surefire.system.args}</argLine>
                     <failIfNoTests>false</failIfNoTests>
-                    <workingDirectory>${runtime.home}</workingDirectory>
                     <systemPropertyVariables>
-                        <!--felix.cm.loglevel>3</felix.cm.loglevel-->
-                        <basedir>${basedir}</basedir>
+                        <!-- felix.cm.loglevel>3</felix.cm.loglevel -->
                         <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>
-                        <runtime.home>${runtime.home}</runtime.home>
-                        <runtime.home>${runtime.home}</runtime.home>
-                        <runtime.data>${runtime.home}/data</runtime.data>
-                        <runtime.conf>${runtime.home}/conf</runtime.conf>
-                        <runtime.id>${runtime.id}</runtime.id>
-                        <profiles.auto.import.path>${runtime.home}/fabric/import</profiles.auto.import.path>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

@@ -31,6 +31,7 @@ import org.apache.felix.service.command.Function;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
+import org.jboss.gravia.runtime.ServiceLocator;
 import org.junit.Assert;
 
 /**
