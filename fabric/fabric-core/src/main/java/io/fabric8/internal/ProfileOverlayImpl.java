@@ -106,6 +106,11 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     @Override
+    public List<String> getTags() {
+        return getContainerConfigList(this, ConfigListType.TAGS);
+        }
+
+    @Override
     public List<String> getOverrides() {
         return getContainerConfigList(this, ConfigListType.OVERRIDES);
     }
@@ -151,6 +156,11 @@ public class ProfileOverlayImpl implements Profile {
 
     @Override
     public void setConfigurations(Map<String, Map<String, String>> configurations) {
+        throw new UnsupportedOperationException("Overlay profiles are read-only.");
+    }
+
+    @Override
+    public void setTags(List<String> tags) {
         throw new UnsupportedOperationException("Overlay profiles are read-only.");
     }
 
