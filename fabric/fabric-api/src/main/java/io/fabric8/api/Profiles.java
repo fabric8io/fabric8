@@ -265,4 +265,3 @@ public class Profiles {
         return answer;
     }
 }
-$scope.tags.add(tags);

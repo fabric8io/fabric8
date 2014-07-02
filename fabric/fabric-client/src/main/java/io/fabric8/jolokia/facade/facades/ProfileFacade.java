@@ -79,6 +79,11 @@ public class ProfileFacade implements Profile, HasId {
     }
 
     @Override
+    public String getSummaryMarkdown() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Profile[] getParents() {
         List<String> profiles = getFieldValue("parents");
 //        JSONArray profiles = getFieldValue("parents");
