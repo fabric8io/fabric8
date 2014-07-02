@@ -19,6 +19,7 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.api.scr.support.ConfigInjection;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -31,6 +32,7 @@ import org.jboss.gravia.runtime.spi.MapPropertiesProvider;
 import org.jboss.gravia.runtime.spi.PropertiesProvider;
 import org.jboss.gravia.runtime.spi.SubstitutionPropertiesProvider;
 import org.jboss.gravia.runtime.spi.SystemPropertiesProvider;
+import org.jboss.gravia.utils.IllegalStateAssertion;
 
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -84,6 +86,13 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
                 return runtime.getProperty(key);
             }
 
+            @Override
+        	public Object getRequiredProperty(String key) {
+                Object value = getProperty(key, null);
+                IllegalStateAssertion.assertNotNull(value, "Cannot obtain property: " + key);
+        		return value;
+        	}
+            
             @Override
             public Object getProperty(String key, Object defaultValue) {
                 Object value = null;
