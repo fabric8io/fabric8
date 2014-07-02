@@ -15,6 +15,7 @@
  */
 package io.fabric8.deployer;
 
+import io.fabric8.agent.download.DownloadFuture;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.mvn.Parser;
@@ -58,10 +59,25 @@ public class JavaContainers {
     }
 
     public static Map<String, File> getJavaContainerArtifactsFiles(FabricService fabric, List<Profile> profileList, ExecutorService downloadExecutor) throws Exception {
-        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
-        Map<String, File> answer = new HashMap<String, File>();
+        final DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
+        final Map<String, File> answer = new HashMap<String, File>();
         for (Profile profile : profileList) {
-            Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(fabric, downloadManager, profile.getOverlay());
+            Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(fabric, downloadManager, profile.getOverlay(), new AgentUtils.Callback<String>(){
+                @Override
+                public void call(String location) {
+                    System.out.println("Got non-mvn URL " + location);
+                    try {
+                        DownloadFuture future = downloadManager.download(location);
+                        File file = AgentUtils.waitForFileDownload(future);
+                        if (file != null) {
+                            answer.put(location, file);
+                        }
+                        System.out.println("downloaded file " + file + " for location: " + location);
+                    } catch (Exception e) {
+                        LOGGER.warn("Error downloading " + location + ". " + e, e);
+                    }
+                }
+            });
             appendMavenDependencies(profileArtifacts, profile);
             Set<String> rawUrls = profileArtifacts.keySet();
             List<String> cleanUrlsToDownload = new ArrayList<String>();

@@ -16,6 +16,7 @@
 package io.fabric8.agent.utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -65,10 +66,14 @@ public class AgentUtils {
      * of the given profile
      */
     public static Map<String, Parser> getProfileArtifacts(FabricService fabricService, DownloadManager downloadManager, Profile profile) throws Exception {
+        return getProfileArtifacts(fabricService, downloadManager, profile, null);
+    }
+
+    public static Map<String, Parser> getProfileArtifacts(FabricService fabricService, DownloadManager downloadManager, Profile profile, Callback<String> callback) throws Exception {
         List<String> bundles = profile.getBundles();
         Set<Feature> features = new HashSet<Feature>();
         addFeatures(features, fabricService, downloadManager, profile);
-        return getProfileArtifacts(fabricService, profile, bundles, features);
+        return getProfileArtifacts(fabricService, profile, bundles, features, callback);
     }
 
 
@@ -76,6 +81,38 @@ public class AgentUtils {
      * Returns the location and parser map (i.e. the location and the parsed maven coordinates and artifact locations) of each bundle and feature
      */
     public static Map<String, Parser> getProfileArtifacts(FabricService fabricService, Profile profile, Iterable<String> bundles, Iterable<Feature> features) {
+        return getProfileArtifacts(fabricService, profile, bundles, features, null);
+    }
+
+    /**
+     * Waits for the download to complete returning the file or throwing an exception if it could not complete
+     */
+    public static File waitForFileDownload(DownloadFuture future) throws IOException {
+        File file = future.getFile();
+        while (file == null && !future.isDone() && !future.isCanceled()) {
+            try {
+                future.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            file = future.getFile();
+        }
+        return file;
+    }
+
+    public interface Callback<T> {
+
+        /**
+         * Callback when a non-maven based location is discovered
+         */
+        void call(T location);
+    }
+
+    /**
+     * Returns the location and parser map (i.e. the location and the parsed maven coordinates and artifact locations) of each bundle and feature
+     */
+    public static Map<String, Parser> getProfileArtifacts(FabricService fabricService, Profile profile, Iterable<String> bundles, Iterable<Feature> features,
+                                                          Callback<String> nonMavenLocationCallback) {
         Set<String> locations = new HashSet<String>();
         for (Feature feature : features) {
             List<BundleInfo> bundleList = feature.getBundles();
@@ -99,6 +136,11 @@ public class AgentUtils {
                 if (location.startsWith("mvn:") || location.contains(":mvn:")) {
                     Parser parser = Parser.parsePathWithSchemePrefix(location);
                     artifacts.put(location, parser);
+                } else {
+                    if (nonMavenLocationCallback != null) {
+                        nonMavenLocationCallback.call(location);
+                    }
+
                 }
             } catch (MalformedURLException e) {
                 LOGGER.error("Failed to parse bundle URL: " + location + ". " + e, e);

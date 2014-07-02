@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import io.fabric8.agent.download.DownloadFuture;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
+import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateChildContainerMetadata;
 import io.fabric8.api.CreateChildContainerOptions;
@@ -377,15 +378,7 @@ public class ProcessManagerController implements ChildContainerController {
                         @Override
                         public File downloadContent(URL sourceUrl, File installDir) throws IOException {
                             DownloadFuture future = downloadManager.download(sourceUrl.toString());
-                            File file = future.getFile();
-                            while (file == null && !future.isDone() && !future.isCanceled()) {
-                                try {
-                                    future.await();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                                file = future.getFile();
-                            }
+                            File file = AgentUtils.waitForFileDownload(future);
                             if (file != null && file.exists() && file.isFile()) {
                                 // now lest copy it to the install dir
                                 File newFile = new File(installDir, file.getName());
