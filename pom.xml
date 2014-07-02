@@ -167,6 +167,7 @@
         <cxf-version>2.7.11</cxf-version>
         <cxf-version-range>[2.7,3.0)</cxf-version-range>
         <deltaspike-version>0.7</deltaspike-version>
+        <dnsjava.version>2.1.1</dnsjava.version>
         <drools-camel-artifactId>kie-camel</drools-camel-artifactId>
         <drools-camel-groupId>org.kie</drools-camel-groupId>
         <drools-spring-artifactId>kie-spring</drools-spring-artifactId>
@@ -265,6 +266,7 @@
         <ops4j-pax-swissbox-property.version>1.6.0</ops4j-pax-swissbox-property.version>
         <ops4j-pax-web-version>3.0.5</ops4j-pax-web-version>
         <org.apache.servicemix.bundles.jzlib.version>1.1.3_2</org.apache.servicemix.bundles.jzlib.version>
+        <org.apache.servicemix.bundles.dnsjava.version>2.1.1_1</org.apache.servicemix.bundles.dnsjava.version>
         <osgi-compendium-version>4.3.1</osgi-compendium-version>
         <osgi-enterprise-version>5.0.0</osgi-enterprise-version>
         <osgi-metadata-version>4.0.0.CR1</osgi-metadata-version>
