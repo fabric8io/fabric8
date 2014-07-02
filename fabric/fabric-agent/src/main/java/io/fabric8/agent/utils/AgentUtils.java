@@ -96,8 +96,10 @@ public class AgentUtils {
                 if (location.contains("$")) {
                     location = VersionPropertyPointerResolver.replaceVersions(fabricService, profile.getOverlay().getConfigurations(), location);
                 }
-                Parser parser = Parser.parsePathWithSchemePrefix(location);
-                artifacts.put(location, parser);
+                if (location.startsWith("mvn:") || location.contains(":mvn:")) {
+                    Parser parser = Parser.parsePathWithSchemePrefix(location);
+                    artifacts.put(location, parser);
+                }
             } catch (MalformedURLException e) {
                 LOGGER.error("Failed to parse bundle URL: " + location + ". " + e, e);
             }
