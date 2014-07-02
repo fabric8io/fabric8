@@ -286,16 +286,13 @@ public class ProfileImpl implements Profile {
 
     @Override
     public String getSummaryMarkdown() {
-        byte[] data = getFileConfiguration("Summary.md");
-        if (data == null) {
-            data = getOverlay().getFileConfiguration("Summary.md");
-        }
+        byte[] data = getFileConfigurationLocalOrOverlay("Summary.md");
         if (data != null) {
             return new String(data);
         }
 
         // lets return the first line of the ReadMe.md as a default value
-        data = getOverlay().getFileConfiguration("ReadMe.md");
+        data = getFileConfigurationLocalOrOverlay("ReadMe.md");
         if (data != null) {
             String readMe = new String(data).trim();
             StringTokenizer iter = new StringTokenizer(readMe, "\n");
@@ -314,6 +311,14 @@ public class ProfileImpl implements Profile {
             }
         }
         return null;
+    }
+
+    protected byte[] getFileConfigurationLocalOrOverlay(String summaryMarkdownFileName) {
+        byte[] data = getFileConfiguration(summaryMarkdownFileName);
+        if (data == null && !isOverlay()) {
+            data = getOverlay().getFileConfiguration(summaryMarkdownFileName);
+        }
+        return data;
     }
 
     @Override
