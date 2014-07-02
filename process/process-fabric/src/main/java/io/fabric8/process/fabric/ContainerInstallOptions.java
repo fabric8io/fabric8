@@ -41,7 +41,7 @@ public class ContainerInstallOptions extends InstallOptions {
         }
 
         public ContainerInstallOptions build() throws MalformedURLException {
-                return new ContainerInstallOptions(getId(), user, password, getName(), getUrl(), getControllerUrl(), getControllerJson(), getExtractCmd(), getPostInstallCmds(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties(), getEnvironment(), getJvmOptions(), getJarFiles(), getContainer(), getDownloadStrategy());
+                return new ContainerInstallOptions(getId(), user, password, getName(), getUrl(), getControllerUrl(), getControllerJson(), getExtractCmd(), getPostUnpackCmds(), getPostInstallCmds(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties(), getEnvironment(), getJvmOptions(), getJarFiles(), getContainer(), getDownloadStrategy());
 
         }
     }
@@ -53,8 +53,8 @@ public class ContainerInstallOptions extends InstallOptions {
         return new ContainerInstallOptionsBuilder();
     }
 
-    public ContainerInstallOptions(String id, String user, String password, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, String[] postInstallCmds, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, String[] jvmOptions, Map<String, File> jarFiles, Container container, DownloadStrategy downloadStrategy) {
-        super(id, name, url, controllerUrl, controllerJson, extractCmd, postInstallCmds, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jvmOptions, jarFiles, container, downloadStrategy);
+    public ContainerInstallOptions(String id, String user, String password, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, String[] postUnpackCmds, String[] postInstallCmds, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, String[] jvmOptions, Map<String, File> jarFiles, Container container, DownloadStrategy downloadStrategy) {
+        super(id, name, url, controllerUrl, controllerJson, extractCmd, postUnpackCmds, postInstallCmds, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jvmOptions, jarFiles, container, downloadStrategy);
         this.user = user;
         this.password = password;
     }
@@ -68,6 +68,6 @@ public class ContainerInstallOptions extends InstallOptions {
     }
 
     public InstallOptions asInstallOptions() {
-        return new InstallOptions(getId(), getName(), getUrl(), getControllerUrl(), getControllerJson(), getExtractCmd(), getPostInstallCmds(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties(), getEnvironment(), getJvmOptions(), getJarFiles(), getContainer(), getDownloadStrategy());
+        return new InstallOptions(getId(), getName(), getUrl(), getControllerUrl(), getControllerJson(), getExtractCmd(), getPostUnpackCmds(), getPostInstallCmds(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties(), getEnvironment(), getJvmOptions(), getJarFiles(), getContainer(), getDownloadStrategy());
     }
 }

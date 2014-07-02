@@ -52,7 +52,6 @@ import io.fabric8.process.manager.ProcessController;
 import io.fabric8.process.manager.config.JsonHelper;
 import io.fabric8.process.manager.support.DefaultProcessController;
 import io.fabric8.process.manager.support.FileUtils;
-import io.fabric8.process.manager.support.command.CommandFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +66,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
     private File storageLocation;
     private int lastId = 0;
     private final Duration untarTimeout = Duration.valueOf("1h");
+    private final Duration postUnpackTimeout = Duration.valueOf("1h");
     private final Duration postInstallTimeout = Duration.valueOf("1h");
     private SortedMap<String, Installation> installations = Maps.newTreeMap();
     private final ObjectName objectName;
@@ -183,21 +183,22 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                 if (archive == null) {
                     archive = new File(installDir, INSTALLED_BINARY);
                 }
+                File nestedProcessDirectory = null;
                 if (options.getExtractCmd() != null && archive.exists()) {
                     String extractCmd = options.getExtractCmd();
                     FileUtils.extractArchive(archive, installDir, extractCmd, untarTimeout, executor);
-                    File nestedProcessDirectory = findInstallDir(installDir);
+                    nestedProcessDirectory = findInstallDir(installDir);
                     exportInstallDirEnvVar(options, nestedProcessDirectory);
-                    String[] postInstallCmds = options.getPostInstallCmds();
-                    if (postInstallCmds != null) {
-                        for (String postInstallCmd : postInstallCmds) {
-                            if (Strings.isNotBlank(postInstallCmd)) {
-                                String[] args = FileUtils.splitCommands(postInstallCmd);
-                                LOGGER.info("Running post install command " + Arrays.asList(args) + " in folder " + nestedProcessDirectory);
+                    String[] postUnpackCmds = options.getPostUnpackCmds();
+                    if (postUnpackCmds != null) {
+                        for (String postUnpackCmd : postUnpackCmds) {
+                            if (Strings.isNotBlank(postUnpackCmd)) {
+                                String[] args = FileUtils.splitCommands(postUnpackCmd);
+                                LOGGER.info("Running post unpack command " + Arrays.asList(args) + " in folder " + nestedProcessDirectory);
                                 new Command(args)
                                         .addEnvironment(options.getEnvironment())
                                         .setDirectory(nestedProcessDirectory)
-                                        .setTimeLimit(postInstallTimeout)
+                                        .setTimeLimit(postUnpackTimeout)
                                         .execute(executor);
                             }
                         }
@@ -206,6 +207,20 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                 }
                 if (postInstall != null) {
                     postInstall.install(installContext, config, id, installDir);
+                }
+                String[] postInstallCmds = options.getPostInstallCmds();
+                if (postInstallCmds != null) {
+                    for (String postInstallCmd : postInstallCmds) {
+                        if (Strings.isNotBlank(postInstallCmd)) {
+                            String[] args = FileUtils.splitCommands(postInstallCmd);
+                            LOGGER.info("Running post install command " + Arrays.asList(args) + " in folder " + nestedProcessDirectory);
+                            new Command(args)
+                                    .addEnvironment(options.getEnvironment())
+                                    .setDirectory(nestedProcessDirectory)
+                                    .setTimeLimit(postInstallTimeout)
+                                    .execute(executor);
+                        }
+                    }
                 }
             }
         };

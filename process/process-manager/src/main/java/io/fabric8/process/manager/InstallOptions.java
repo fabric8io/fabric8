@@ -45,6 +45,7 @@ public class InstallOptions implements Serializable {
         private URL controllerUrl;
         private String controllerJson;
         private String extractCmd = DEFAULT_EXTRACT_CMD;
+        private String[] postUnpackCmds;
         private String[] postInstallCmds;
         private String groupId;
         private String artifactId;
@@ -99,6 +100,11 @@ public class InstallOptions implements Serializable {
 
         public T extractCmd(final String extract) {
             this.extractCmd = extract;
+            return (T) this;
+        }
+
+        public T postUnpackCmds(final String[] commands) {
+            this.postUnpackCmds = commands;
             return (T) this;
         }
 
@@ -193,6 +199,10 @@ public class InstallOptions implements Serializable {
 
         public String getExtractCmd() {
             return extractCmd;
+        }
+
+        public String[] getPostUnpackCmds() {
+            return postUnpackCmds;
         }
 
         public String[] getPostInstallCmds() {
@@ -329,7 +339,7 @@ public class InstallOptions implements Serializable {
         }
 
         public InstallOptions build() throws MalformedURLException {
-                return new InstallOptions(id, getName(), getUrl(), controllerUrl, controllerJson, extractCmd, postInstallCmds, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jvmOptions, jarFiles, container, downloadStrategy);
+                return new InstallOptions(id, getName(), getUrl(), controllerUrl, controllerJson, extractCmd, postUnpackCmds, postInstallCmds, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties, environment, jvmOptions, jarFiles, container, downloadStrategy);
         }
 
         public Map<String, File> getJarFiles() {
@@ -348,6 +358,7 @@ public class InstallOptions implements Serializable {
     private final URL controllerUrl;
     private final String controllerJson;
     private final String extractCmd;
+    private final String[] postUnpackCmds;
     private final String[] postInstallCmds;
     private final boolean offline;
     private final String[] optionalDependencyPatterns;
@@ -361,13 +372,14 @@ public class InstallOptions implements Serializable {
     private final DownloadStrategy downloadStrategy;
 
 
-    public InstallOptions(String id, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, String[] postInstallCmds, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, String[] jvmOptions, Map<String, File> jarFiles, Container container, DownloadStrategy downloadStrategy) {
+    public InstallOptions(String id, String name, URL url, URL controllerUrl, String controllerJson, String extractCmd, String[] postUnpackCmds, String[] postInstallCmds, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties, Map<String, String> environment, String[] jvmOptions, Map<String, File> jarFiles, Container container, DownloadStrategy downloadStrategy) {
         this.id = id;
         this.name = name;
         this.url = url;
         this.controllerUrl = controllerUrl;
         this.controllerJson = controllerJson;
         this.extractCmd = extractCmd;
+        this.postUnpackCmds = postUnpackCmds;
         this.postInstallCmds = postInstallCmds;
         this.offline = offline;
         this.optionalDependencyPatterns = optionalDependencyPatterns;
@@ -462,6 +474,10 @@ public class InstallOptions implements Serializable {
 
     public String getExtractCmd() {
         return extractCmd;
+    }
+
+    public String[] getPostUnpackCmds() {
+        return postUnpackCmds;
     }
 
     public String[] getPostInstallCmds() {

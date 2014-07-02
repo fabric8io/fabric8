@@ -50,9 +50,9 @@ public class ProcessContainerConfig {
     @Property(name = "extractCmd", label = "Extract distribution command", value = InstallOptions.DEFAULT_EXTRACT_CMD,
             description = "The command line command to unpack/unzip the distribution.")
     private String extractCmd = InstallOptions.DEFAULT_EXTRACT_CMD;
-    @Property(name = "postInstallCmds", label = "Post install commands", cardinality = Integer.MAX_VALUE,
+    @Property(name = "postUnpackCmds", label = "Post unpack commands", cardinality = Integer.MAX_VALUE,
             description = "The commands ran in the unpacked distribution folder after the distro is unzipped/untarred.")
-    private String[] postInstallCmds;
+    private String[] postUnpackCmds;
 
     @Property(name = "controllerPath", label = "Controller JSON Path", value = "controller.json",
             description = "The name of the JSON file in the Profile which is used to control the distribution; starting and stopping the process.")
@@ -61,6 +61,9 @@ public class ProcessContainerConfig {
     @Property(name = "overlayFolder", label = "Overlay folder path", value = "overlayFiles",
             description = "The folder path inside the profile used to contain files and MVEL templates which are then overlayed ontop of the process installation; for customizing the configuration of the process with configuration files maintained inside the profile; possibly with dynamically resolved values.")
     private String overlayFolder;
+    @Property(name = "postInstallCmds", label = "Post install commands", cardinality = Integer.MAX_VALUE,
+            description = "The commands ran in the distribution folder after the distro is unzipped/untarred and the overlay has been applied.")
+    private String[] postInstallCmds;
     @Property(name = "disableDynamicPorts", label = "Disable dynamic port resolving", cardinality = Integer.MAX_VALUE,
             description = "The list of port names which should not be dynamically resolved.")
     private String[] disableDynamicPorts;
@@ -95,6 +98,7 @@ public class ProcessContainerConfig {
         return InstallOptions.builder().id(options.getName()).name(installName).
                 container(container).url(url).
                 extractCmd(extractCmd).
+                postUnpackCmds(postUnpackCmds).
                 postInstallCmds(postInstallCmds).
                 controllerJson(controllerJson).
                 downloadStrategy(downloadStrategy).
@@ -174,6 +178,14 @@ public class ProcessContainerConfig {
 
     public void setExtractCmd(String extractCmd) {
         this.extractCmd = extractCmd;
+    }
+
+    public String[] getPostUnpackCmds() {
+        return postUnpackCmds;
+    }
+
+    public void setPostUnpackCmds(String[] postUnpackCmds) {
+        this.postUnpackCmds = postUnpackCmds;
     }
 
     public String[] getPostInstallCmds() {
