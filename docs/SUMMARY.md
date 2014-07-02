@@ -32,7 +32,7 @@
     * [Security](security.md)
     * [Property Resolver](propertyResolver.md)
     * [URL Handlers](urlHandlers.md)
-* [Technologies](techologies.md)
+* [Technologies](technologies.md)
   * [Apache ActiveMQ](activemq.md)
     * [Broker Topology](brokerTopology.md)
     * [Broker Clients](brokerClients.md)
