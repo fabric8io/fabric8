@@ -35,6 +35,7 @@
     <modules>
         <module>process-spring-boot-bom</module>
         <module>process-spring-boot-container</module>
+        <module>process-spring-boot-data</module>
         <module>process-spring-boot-starter-activemq</module>
         <module>process-spring-boot-starter-camel</module>
         <module>process-spring-boot-itests</module>
