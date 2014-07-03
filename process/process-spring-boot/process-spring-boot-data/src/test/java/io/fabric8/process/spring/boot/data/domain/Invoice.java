@@ -16,6 +16,7 @@
 package io.fabric8.process.spring.boot.data.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -29,6 +30,7 @@ import static javax.persistence.GenerationType.AUTO;
 
 @Entity
 @JsonIgnoreProperties({"_links"})
+@Data
 public class Invoice {
 
     // Members
@@ -42,30 +44,14 @@ public class Invoice {
     @OneToMany(cascade = ALL)
     private List<InvoiceCorrection> corrections = new LinkedList<InvoiceCorrection>();
 
-    // Getters & setters
-
-    public long getId() {
-        return id;
-    }
+    // Fluent getters & setters
 
     public long id() {
-        return getId();
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getInvoiceId() {
-        return invoiceId;
+        return id;
     }
 
     public String invoiceId() {
         return this.invoiceId;
-    }
-
-    public void setInvoiceId(String invoiceId) {
-        this.invoiceId = invoiceId;
     }
 
     public Invoice invoiceId(String invoiceId) {
@@ -73,16 +59,8 @@ public class Invoice {
         return this;
     }
 
-    public List<InvoiceCorrection> getCorrections() {
-        return corrections;
-    }
-
     public List<InvoiceCorrection> corrections() {
         return corrections;
-    }
-
-    public void setCorrections(List<InvoiceCorrection> corrections) {
-        this.corrections = corrections;
     }
 
     public Invoice addCorrection(InvoiceCorrection invoiceCorrection) {
