@@ -263,6 +263,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     public void stop(Container container) {
         assertValid();
         getContainerApplication(container, true).stop();
+        container.setProvisionResult(Container.PROVISION_STOPPED);
     }
 
     @Override

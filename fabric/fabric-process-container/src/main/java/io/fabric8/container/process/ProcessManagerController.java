@@ -149,6 +149,7 @@ public class ProcessManagerController implements ChildContainerController {
         if (installation != null) {
             try {
                 installation.getController().stop();
+                container.setProvisionResult(Container.PROVISION_STOPPED);
             } catch (Exception e) {
                 handleException("Stopping container " + container.getId(), e);
             }
@@ -318,6 +319,9 @@ public class ProcessManagerController implements ChildContainerController {
                 InstallTask postInstall = createProcessPostInstall(container, options, processConfig, environmentVariables);
                 Objects.notNull(parameters, "process parameters");
                 installation = procManager.install(parameters, postInstall);
+            }
+            if (container != null) {
+
             }
         } catch (Exception e) {
             handleException("Creating container " + containerId, e);

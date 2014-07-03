@@ -205,6 +205,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
                 getContainerTemplateForChild(container).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
                     public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                         adminService.stopInstance(container.getId());
+                        container.setProvisionResult(Container.PROVISION_STOPPED);
                         return null;
                     }
                 });

@@ -224,6 +224,7 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
                     jCloudsContainerMetadata.setFailure(new Exception(ContainerProviderUtils.parseScriptFailure(response.getOutput())));
                 }
             } catch (Throwable t) {
+                container.setProvisionResult(Container.PROVISION_STOPPED);
                 jCloudsContainerMetadata.setFailure(t);
             }
         }

@@ -42,6 +42,7 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -243,8 +244,21 @@ public final class AutoScaleController extends AbstractComponent implements Grou
         return true;
     }
 
+    /**
+     * Returns all the current alive profiles for the given profile
+     */
     private List<Container> containersForProfile(String profile) {
-        return Containers.containersForProfile(fabricService.get().getContainers(), profile);
+        List<Container> answer = new ArrayList<Container>();
+        List<Container> containers = Containers.containersForProfile(fabricService.get().getContainers(), profile);
+        for (Container container : containers) {
+            boolean alive = container.isAlive();
+            boolean provisioningPending = container.isProvisioningPending();
+            if (alive || provisioningPending) {
+                System.out.println("Container " + container.getId() + " is alive " + alive + " provision is pending " + provisioningPending);
+                answer.add(container);
+            }
+        }
+        return answer;
     }
 
     private AutoScalerNode createState() {

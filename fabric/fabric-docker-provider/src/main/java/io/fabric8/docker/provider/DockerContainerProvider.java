@@ -529,6 +529,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 LOG.info("Could not stop container " + id + ": " + e + Dockers.dockerErrorMessage(e), e);
                 throw e;
             }
+            container.setProvisionResult(Container.PROVISION_STOPPED);
         }
     }
 

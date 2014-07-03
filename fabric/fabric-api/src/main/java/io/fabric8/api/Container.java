@@ -24,6 +24,7 @@ public interface Container extends HasId {
     String PROVISION_SUCCESS = "success";
     String PROVISION_ERROR = "error";
     String PROVISION_FAILED = "failed";
+    String PROVISION_STOPPED = "stopped";
 
     String getType();
 

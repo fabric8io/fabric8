@@ -108,7 +108,7 @@ public class ContainerImpl implements Container {
     @Override
     public boolean isProvisioningComplete() {
         String result = getProvisionResult();
-        return PROVISION_SUCCESS.equals(result) || PROVISION_ERROR.equals(result);
+        return PROVISION_SUCCESS.equals(result) ||  PROVISION_STOPPED.equals(result) || PROVISION_ERROR.equals(result);
     }
 
     @Override
