@@ -6,13 +6,13 @@ the Spring Boot micro-containers and Fabric-related middleware (Camel, ActiveMQ,
 
 ### Spring Boot Quickstarts
 
-Before we dig into the glorious details of Fabric8 support for Spring Boot application, keep in mind tha the easiest way 
-to start developing Spring Boot applications with Fabric8 is to use *Quickstarts*. Quickstarts are our reference
-Maven Archtypes we recommend to use as a base for your projects.
+Before we dig into the glorious details of the Fabric8 support for the Spring Boot applications, keep in mind that the 
+easiest way to start developing Spring Boot applications with Fabric8 is to use *Quickstarts*. Quickstarts are our 
+opinionated Maven Archtypes that we highly recommend to use as a base for your projects.
 
 For example to create and run the basic Spring Boot REST module follow these steps:
 
-**Step 1:** Create new Maven project from Quickstart
+**Step 1:** Create the new Maven project from the Quickstart.
 
     $ mvn archetype:generate -Dfilter=io.fabric8.archetypes:springboot-webmvc-archetype 
 
@@ -35,7 +35,10 @@ After executing the command above, you should see a similar output:
     [INFO] BUILD SUCCESS
     [INFO] ------------------------------------------------------------------------
 
-**Step 2:** Test and install your new module
+**Step 2:** Test and install your new module.
+
+In the previous step we created new maven project with artifactId `my-spring-boot-rest-module`. Let's step into a 
+directory of our new module and build it, using the following commands:
 
     $ cd my-spring-boot-rest-module 
     $ mvn install
@@ -77,8 +80,13 @@ After executing the commands above, you should see a similar output:
     [INFO] Installing /home/hekonsek/tmp/my-spring-boot-rest-module/pom.xml to /home/hekonsek/.m2/repository/com/myapp/my-spring-boot-rest-module/1.0-SNAPSHOT/my-spring-boot-rest-module-1.0-SNAPSHOT.pom
     [INFO] ------------------------------------------------------------------------
     [INFO] BUILD SUCCESS
+    [INFO] ------------------------------------------------------------------------
 
-**Step 3:** Start Fabric8 server
+
+**Step 3:** Start Fabric8 server.
+
+Now we need to start the Fabric8 server which we would like to provision and manage our brand new Spring Boot
+application.
 
     $ cd fabric8-karaf-1.1.0
     $ bin/fabric8
@@ -98,7 +106,10 @@ After executing the commands above, you should see a similar output:
     
     Fabric8:karaf@root> 
 
-**Step 4:** Deploy profile of your application into the Fabric8
+**Step 4:** Deploy profile of your application into the Fabric8.
+
+With the Fabric8 server up and running we can go back to the directory of our new project and execute the following Maven
+goal in order to deploy the profile describing our Spring application:
  
     .../my-spring-boot-rest-module $ mvn fabric8:deploy -DskipTests
     
@@ -114,9 +125,14 @@ After executing the command above, you should see a similar output:
     ...
     [INFO] Profile page: http://192.168.2.12:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/quickstarts/spring.boot/webmvc.profile
     ...
+    [INFO] ------------------------------------------------------------------------
     [INFO] BUILD SUCCESS
+    [INFO] ------------------------------------------------------------------------
+    
+Now your Fabric8 configuration registry contains the profile describing your Spring Boot application. In the next step 
+we will use that profile to provision our Spring application.
 
-**Step 5:** Provision your Spring Boot container as a standalone JVM process managed by the Fabric8
+**Step 5:** Provision your Spring Boot container as a standalone JVM process managed by the Fabric8.
 
     Fabric8:karaf@root> container-create-child --profile quickstarts-spring.boot-webmvc root my-spring-boot-rest
     
@@ -128,7 +144,7 @@ After executing the command above, you should see a similar output:
     The following containers have been created successfully:
 	    Container: my-spring-boot-rest.
     
-**Step 6:** Find the HTTP port number assigned by Fabric8 to your application
+**Step 6:** Find the HTTP port number assigned by Fabric8 to your application.
 
     Fabric8:karaf@root> environment my-spring-boot-rest | grep HTTP_PROXY
     FABRIC8_HTTP_PROXY_PORT                       9017
