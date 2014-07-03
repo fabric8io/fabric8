@@ -59,7 +59,7 @@ public class ResolverTest {
         properties.setProperty("mvn.repositories", "http://repo1.maven.org/maven2/,http://repository.jboss.org/nexus/content/groups/fs-public/,https://repo.fusesource.com/nexus/content/repositories/ea");
         PropertiesPropertyResolver propertyResolver = new PropertiesPropertyResolver(properties);
         MavenConfigurationImpl mavenConfiguration = new MavenConfigurationImpl(propertyResolver, "mvn");
-        mavenConfiguration.setSettings(new MavenSettingsImpl(new URL("file:"+home+"/.m2/settings.xml")));
+        mavenConfiguration.setSettings(new MavenSettingsImpl(getClass().getResource("maven-default-settings.xml")));
 
         DownloadManager manager = new DownloadManager(mavenConfiguration, Executors.newFixedThreadPool(2));
 
