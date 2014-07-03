@@ -254,7 +254,9 @@ public final class AutoScaleController extends AbstractComponent implements Grou
             boolean alive = container.isAlive();
             boolean provisioningPending = container.isProvisioningPending();
             if (alive || provisioningPending) {
-                System.out.println("Container " + container.getId() + " is alive " + alive + " provision is pending " + provisioningPending);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Container " + container.getId() + " is alive " + alive + " provision is pending " + provisioningPending);
+                }
                 answer.add(container);
             }
         }
