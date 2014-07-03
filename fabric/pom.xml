@@ -78,6 +78,7 @@
         <module>fabric-zookeeper-spring</module>
         <module>fabric-zookeeper-commands</module>
         <module>fabric8-karaf</module>
+        <module>fabric-vertx</module>
     </modules>
 
     <profiles>

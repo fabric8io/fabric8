@@ -252,6 +252,7 @@
         <mina-version>2.0.7</mina-version>
         <mongo-java-driver-version>2.12.0</mongo-java-driver-version>
         <mvel-version>2.1.9.Final</mvel-version>
+        <netty.version>4.0.19.Final</netty.version>
         <openshift.client.groupId>com.openshift</openshift.client.groupId>
         <openshift.client.version>2.5.0.Final</openshift.client.version>
         <ops4j-base.version>1.4.0</ops4j-base.version>

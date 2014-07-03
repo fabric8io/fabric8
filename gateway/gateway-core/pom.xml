@@ -33,9 +33,7 @@
 
     <properties>
         <fuse.osgi.export>
-            io.fabric8.gateway*;version=${project.version};-noimport:=true,
-            org.vertx*;version=${project.version};-noimport:=true,
-            io.netty*;version=${project.version};-noimport:=true,
+            io.fabric8.gateway*;version=${project.version};-noimport:=true
         </fuse.osgi.export>
         <fuse.osgi.import>
           META-INF.services.*,
@@ -90,6 +88,11 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>gateway-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-vertx</artifactId>
             <version>${project.version}</version>
         </dependency>
 

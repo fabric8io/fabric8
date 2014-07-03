@@ -664,6 +664,19 @@
         <bundle>mvn:io.fabric8/fabric-process-container/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric-vertx" version="${project.version}" resolver="(obr)">
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+        <bundle dependency="true">mvn:commons-pool/commons-pool/${commons-pool-version}</bundle>
+        <bundle dependency="true">mvn:io.netty/netty-common/${netty.version}</bundle>
+        <bundle dependency="true">mvn:io.netty/netty-buffer/${netty.version}</bundle>
+        <bundle dependency="true">mvn:io.netty/netty-transport/${netty.version}</bundle>
+        <bundle dependency="true">mvn:io.netty/netty-handler/${netty.version}</bundle>
+        <bundle dependency="true">mvn:io.netty/netty-codec/${netty.version}</bundle>
+        <bundle dependency="true">mvn:io.netty/netty-codec-http/${netty.version}</bundle>
+        <bundle>mvn:io.fabric8/fabric-vertx/${project.version}</bundle>
+    </feature>
+
     <feature name="jolokia" version="${project.version}" resolver="(obr)">
      <feature version="${karaf-version}">http</feature>
         <bundle>mvn:io.fabric8/fabric-jolokia/${project.version}</bundle>
