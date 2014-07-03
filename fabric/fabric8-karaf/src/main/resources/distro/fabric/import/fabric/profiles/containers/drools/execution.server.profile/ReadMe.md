@@ -1,3 +1,3 @@
 ## Drools Workbench
 
-This profile deploys the [Drools](http://drools.jboss.org/) Execution Server.
+This profile deploys the [Drools](http://drools.jboss.org/) Execution Server

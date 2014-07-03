@@ -1,3 +1,3 @@
 ## Drools Workbench
 
-This profile deploys the [Drools](http://drools.jboss.org/) workbench console.
+This profile deploys the [Drools](http://drools.jboss.org/) Workbench

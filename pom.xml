@@ -222,6 +222,8 @@
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.2.7</jaxb-version>
         <jboss-javaee-6-version>1.0.0.Final</jboss-javaee-6-version>
+        <!-- TODO is this always the same as drools-version? -->
+        <jbpm-version>6.1.0.CR1</jbpm-version>
         <jclouds-karaf-version>1.7.2</jclouds-karaf-version>
         <jclouds-version>1.7.2</jclouds-version>
         <jclouds.osgi.version.clean>${jclouds-version}</jclouds.osgi.version.clean>
