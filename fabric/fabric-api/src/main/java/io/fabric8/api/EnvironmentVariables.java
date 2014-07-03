@@ -25,7 +25,10 @@ public class EnvironmentVariables {
     public static final String ENVIRONMENT_VARIABLES_PID = "io.fabric8.environment";
 
     public static final String ZOOKEEPER_URL = "FABRIC8_ZOOKEEPER_URL";
+    public static final String ZOOKEEPER_USER = "FABRIC8_ZOOKEEPER_USER";
+
     public static final String ZOOKEEPER_PASSWORD = "FABRIC8_ZOOKEEPER_PASSWORD";
+    public static final String ZOOKEEPER_PASSWORD_RAW = "FABRIC8_ZOOKEEPER_PASSWORD_RAW";
     public static final String ZOOKEEPER_PASSWORD_ENCODE = "FABRIC8_ZOOKEEPER_PASSWORD_ENCODE";
 
     public static final String KARAF_NAME = "FABRIC8_KARAF_NAME";
@@ -60,5 +63,4 @@ public class EnvironmentVariables {
      * The URL of the jolokia URL for a process
      */
     public static final String FABRIC8_JOLOKIA_URL = "FABRIC8_JOLOKIA_URL";
-
 }

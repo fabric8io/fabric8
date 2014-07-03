@@ -85,7 +85,9 @@ public class ChildContainers {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         String zookeeperUrl = service.getZookeeperUrl();
-        String zookeeperPassword = service.getZookeeperPassword();
+        String zookeeperUser = service.getZooKeeperUser();
+        String zookeeperPasswordRaw = service.getZookeeperPassword();
+        String zookeeperPassword = zookeeperPasswordRaw;
         if (zookeeperPassword != null) {
             zookeeperPassword = PasswordEncoder.encode(zookeeperPassword);
         }
@@ -103,13 +105,19 @@ public class ChildContainers {
         envVarsOverlay.put(EnvironmentVariables.KARAF_NAME, containerName);
         envVarsOverlay.put(EnvironmentVariables.CONTAINER_NAME, containerName);
         if (!options.isEnsembleServer()) {
-            if (envVarsOverlay.get(EnvironmentVariables.ZOOKEEPER_URL) == null) {
+            if (!envVarsOverlay.containsKey(EnvironmentVariables.ZOOKEEPER_URL)) {
                 envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_URL, zookeeperUrl);
             }
-            if (envVarsOverlay.get(EnvironmentVariables.ZOOKEEPER_PASSWORD) == null) {
+            if (!envVarsOverlay.containsKey(EnvironmentVariables.ZOOKEEPER_USER)) {
+                envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_USER, zookeeperUser);
+            }
+            if (!envVarsOverlay.containsKey(EnvironmentVariables.ZOOKEEPER_PASSWORD)) {
                 envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_PASSWORD, zookeeperPassword);
             }
-            if (envVarsOverlay.get(EnvironmentVariables.ZOOKEEPER_PASSWORD_ENCODE) == null) {
+            if (!envVarsOverlay.containsKey(EnvironmentVariables.ZOOKEEPER_PASSWORD_RAW)) {
+                envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_PASSWORD_RAW, zookeeperPasswordRaw);
+            }
+            if (!envVarsOverlay.containsKey(EnvironmentVariables.ZOOKEEPER_PASSWORD_ENCODE)) {
                 String zkPasswordEncode = System.getProperty("zookeeper.password.encode", "true");
                 envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_PASSWORD_ENCODE, zkPasswordEncode);
             }
