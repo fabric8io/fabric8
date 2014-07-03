@@ -42,6 +42,11 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.14.4</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
         </dependency>
@@ -63,6 +68,15 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-rest-webmvc</artifactId>
+            <!-- This dependency causes issues in IntelliJ IDEA 13.1.3 -->
+            <!-- If you use later version of IDEA and POM is resolved properly, -->
+            <!-- then feel free to remove that exclusion. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.atteo</groupId>
+                    <artifactId>evo-inflector</artifactId>
+                </exclusion>
+            </exclusions>
             <scope>test</scope>
         </dependency>
         <dependency>

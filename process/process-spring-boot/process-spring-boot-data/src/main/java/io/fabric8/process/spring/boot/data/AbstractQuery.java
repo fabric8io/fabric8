@@ -15,67 +15,30 @@
  */
 package io.fabric8.process.spring.boot.data;
 
+import lombok.Data;
+import lombok.NonNull;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
+@Data
 public abstract class AbstractQuery {
 
-    private int page;
+    @NonNull
+    private int page = 0;
 
-    private int size;
+    @NonNull
+    private int size = 25;
 
-    private Sort.Direction sortDirection;
+    @NonNull
+    private Sort.Direction sortDirection = ASC;
 
-    private String[] orderBy;
-
-    protected AbstractQuery() {
-        this(0, 25, ASC, "id");
-    }
-
-    public AbstractQuery(int page, int size, Sort.Direction sortDirection, String... orderBy) {
-        this.page = page;
-        this.size = size;
-        this.sortDirection = sortDirection;
-        this.orderBy = orderBy;
-    }
+    @NonNull
+    private String[] orderBy = {"id"};
 
     public PageRequest pageRequest() {
         return new PageRequest(page, size, sortDirection, orderBy);
-    }
-
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    public Sort.Direction getSortDirection() {
-        return sortDirection;
-    }
-
-    public void setSortDirection(Sort.Direction sortDirection) {
-        this.sortDirection = sortDirection;
-    }
-
-    public String[] getOrderBy() {
-        return orderBy;
-    }
-
-    public void setOrderBy(String[] orderBy) {
-        this.orderBy = orderBy;
     }
 
 }

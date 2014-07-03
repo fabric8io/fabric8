@@ -106,9 +106,10 @@ public class InvoicingRestApiTest extends Assert {
         // Given
         Invoice invoice = new Invoice().invoiceId(randomUUID().toString());
         Invoice savedInvoice = restRepository.save(invoice);
+        InvoiceQuery query = new InvoiceQuery().invoiceId(invoice.invoiceId());
 
         // When
-        Iterable<Invoice> receivedInvoices = restRepository.findByQuery(new InvoiceQuery().invoiceId(invoice.invoiceId()));
+        Iterable<Invoice> receivedInvoices = restRepository.findByQuery(query);
 
         // Then
         assertEquals(savedInvoice.id(), receivedInvoices.iterator().next().id());
