@@ -29,7 +29,7 @@ import io.fabric8.insight.elasticsearch.ElasticRest;
 
 public class ElasticSearchServlet extends HttpServlet {
 
-    private final ElasticRest rest;
+    private ElasticRest rest;
 
     public ElasticSearchServlet(ElasticRest rest) {
         this.rest = rest;
@@ -61,6 +61,11 @@ public class ElasticSearchServlet extends HttpServlet {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void destroy() {
+        rest = null;
     }
 
     public static String loadFully(InputStream is, String encoding) throws IOException {
