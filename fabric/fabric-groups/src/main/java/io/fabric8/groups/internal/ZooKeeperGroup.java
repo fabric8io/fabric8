@@ -186,6 +186,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
             } catch (Exception e) {
                 handleException(e);
             }
+            listeners.clear();
         }
     }
 
