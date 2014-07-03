@@ -16,21 +16,12 @@
 package io.fabric8.process.spring.boot.data.repository;
 
 import io.fabric8.process.spring.boot.data.AbstractQuery;
+import lombok.Data;
 
+@Data
 public class InvoiceQuery extends AbstractQuery {
 
     private String invoiceId;
-
-    public InvoiceQuery() {
-    }
-
-    public String getInvoiceId() {
-        return invoiceId;
-    }
-
-    public void setInvoiceId(String invoiceId) {
-        this.invoiceId = invoiceId;
-    }
 
     public InvoiceQuery invoiceId(String invoiceId) {
         this.invoiceId = invoiceId;
