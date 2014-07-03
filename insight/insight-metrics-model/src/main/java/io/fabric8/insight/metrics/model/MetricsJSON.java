@@ -16,6 +16,7 @@
 package io.fabric8.insight.metrics.model;
 
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ public final class MetricsJSON {
     private static final ObjectMapper mapper;
 
     static {
-        format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         mapper = new ObjectMapper();
         mapper.getDeserializationConfig().with(format);
         mapper.getSerializationConfig().with(format);
@@ -39,7 +40,37 @@ public final class MetricsJSON {
 
     public static String toJson(Object o) {
         try {
-            return mapper.writeValueAsString(o);
+            if (o instanceof Collection) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("[");
+                for (Object c : (Collection) o) {
+                    if (sb.length() > 1) {
+                        sb.append(",");
+                    }
+                    sb.append(toJson(c));
+                }
+                sb.append("]");
+                return sb.toString();
+            } else if (o instanceof Map) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("{");
+                for (Map.Entry<Object, Object> e : ((Map<Object, Object>) o).entrySet()) {
+                    if (sb.length() > 1) {
+                        sb.append(",");
+                    }
+                    sb.append(toJson(e.getKey().toString()));
+                    sb.append(":");
+                    sb.append(toJson(e.getValue()));
+                }
+                sb.append("}");
+                return sb.toString();
+            } else if (o == null) {
+                return "null";
+            } else if (o instanceof Date) {
+                return "\"" + toIso((Date) o) + "\"";
+            } else {
+                return mapper.writeValueAsString(o.toString());
+            }
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not serialize " + o, e);
         }
