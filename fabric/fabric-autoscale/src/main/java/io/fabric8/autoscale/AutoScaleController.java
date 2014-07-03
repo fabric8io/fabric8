@@ -15,8 +15,6 @@
  */
 package io.fabric8.autoscale;
 
-import java.util.List;
-
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.Containers;
@@ -36,11 +34,18 @@ import io.fabric8.zookeeper.ZkPath;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A Fabric auto-scaler which when it becomes the master auto-scales
@@ -48,8 +53,9 @@ import org.slf4j.LoggerFactory;
  * {@link FabricService#setRequirements(io.fabric8.api.FabricRequirements)}
  */
 @ThreadSafe
-@Component(name = "io.fabric8.autoscale", label = "Fabric8 auto scaler", immediate = true, metatype = false)
-public final class AutoScaleController  extends AbstractComponent implements GroupListener<AutoScalerNode> {
+@Component(name = "io.fabric8.autoscale", label = "Fabric8 auto scaler", immediate = true,
+        policy = ConfigurationPolicy.OPTIONAL, metatype = true)
+public final class AutoScaleController extends AbstractComponent implements GroupListener<AutoScalerNode> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AutoScaleController.class);
 
     @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
@@ -60,7 +66,15 @@ public final class AutoScaleController  extends AbstractComponent implements Gro
             bind = "bindContainerAutoScaler", unbind = "unbindContainerAutoScaler")
     private final ValidatingReference<ContainerAutoScaler> containerAutoScaler = new ValidatingReference<ContainerAutoScaler>();
 
-    @GuardedBy("volatile") private volatile Group<AutoScalerNode> group;
+    @Property(name = "pollTime", longValue = 10000,
+            label = "Poll period",
+            description = "The number of milliseconds between polls to check if the system still has its requirements satisfied.")
+    private long pollTime = 10000;
+
+    private AtomicReference<Timer> timer = new AtomicReference<Timer>();
+
+    @GuardedBy("volatile")
+    private volatile Group<AutoScalerNode> group;
 
     private Runnable runnable = new Runnable() {
         @Override
@@ -80,6 +94,7 @@ public final class AutoScaleController  extends AbstractComponent implements Gro
 
     @Deactivate
     void deactivate() {
+        disableTimer();
         deactivateComponent();
         group.remove(this);
         Closeables.closeQuitely(group);
@@ -99,10 +114,12 @@ public final class AutoScaleController  extends AbstractComponent implements Gro
                             LOGGER.info("AutoScaleController is the master");
                             group.update(state);
                             dataStore.trackConfiguration(runnable);
+                            enableTimer();
                             onConfigurationChanged();
                         } else {
                             LOGGER.info("AutoScaleController is not the master");
                             group.update(state);
+                            disableTimer();
                             dataStore.untrackConfiguration(runnable);
                         }
                     } catch (IllegalStateException e) {
@@ -120,9 +137,30 @@ public final class AutoScaleController  extends AbstractComponent implements Gro
         }
     }
 
+    protected void enableTimer() {
+        Timer newTimer = new Timer("fabric8-autoscaler");
+        if (timer.compareAndSet(null, newTimer)) {
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    LOGGER.debug("autoscale timer");
+                    autoScale();
+                }
+            };
+            newTimer.schedule(timerTask, pollTime, pollTime);
+        }
+    }
+
+    protected void disableTimer() {
+        Timer oldValue = timer.getAndSet(null);
+        if (oldValue != null) {
+            oldValue.cancel();
+        }
+    }
+
 
     private void onConfigurationChanged() {
-        LOGGER.info("Configuration has changed; so checking the auto-scaling requirements");
+        LOGGER.debug("Configuration has changed; so checking the auto-scaling requirements");
         autoScale();
     }
 
