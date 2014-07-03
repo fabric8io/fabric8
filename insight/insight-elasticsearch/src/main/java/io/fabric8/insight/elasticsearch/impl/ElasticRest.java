@@ -101,7 +101,7 @@ public class ElasticRest implements ElasticRestMBean {
 
         Request(String method, String uri, String content) {
             this.method = method;
-            this.uri = uri;
+            this.uri = uri == null ? "" : uri;
 
             this.params = new HashMap<String, String>();
             int pathEndPos = uri.indexOf('?');
