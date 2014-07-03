@@ -21,7 +21,7 @@
 
     <ext:property-placeholder />
     
-	<bean id="nodeFactory" class="org.elasticsearch.pojo.NodeFactory" destroy-method="destroy">
+	<bean id="nodeFactory" class="io.fabric8.insight.elasticsearch.pojo.NodeFactory" destroy-method="destroy">
         <argument ref="blueprintBundleContext" />
 		<argument>
 			<map>
@@ -37,5 +37,11 @@
             <entry key="service.pid" value="io.fabric8.insight.elasticsearch" />
         </service-properties>
     </service>
+
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+        <command name="elasticsearch/esrest">
+            <action class="io.fabric8.insight.elasticsearch.command.EsRest"/>
+        </command>
+    </command-bundle>
 
 </blueprint>
