@@ -188,7 +188,20 @@
             <fileMode>0644</fileMode>
         </file>
     </files>
-    
+
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/system</outputDirectory>
+            <unpack>false</unpack>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputFileNameMapping>
+                io/fabric8/quickstarts/${artifact.artifactId}/${artifact.baseVersion}/${artifact.artifactId}-${artifact.baseVersion}${dashClassifier?}.${artifact.extension}
+            </outputFileNameMapping>
+            <includes>
+                <include>io.fabric8.quickstarts:fabric8-quickstarts-parent:zip:profile</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
 
     <componentDescriptors>
       <componentDescriptor>${basedir}/src/main/descriptors/common-bin.xml</componentDescriptor>

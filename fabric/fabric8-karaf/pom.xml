@@ -46,12 +46,20 @@
            </dependency>
            
            <!-- we want to include quickstarts -->
-           <dependency>
-               <groupId>io.fabric8.quickstarts</groupId>
-               <artifactId>fabric8-quickstarts-parent</artifactId>
-               <version>${project.version}</version>
-               <type>pom</type>
-           </dependency>
+            <dependency>
+                <groupId>io.fabric8.quickstarts</groupId>
+                <artifactId>fabric8-quickstarts-parent</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>io.fabric8.quickstarts</groupId>
+                <artifactId>fabric8-quickstarts-parent</artifactId>
+                <version>${project.version}</version>
+                <classifier>profile</classifier>
+                <type>zip</type>
+            </dependency>
 
             <!-- Gravia Dependencies -->
             <dependency>
