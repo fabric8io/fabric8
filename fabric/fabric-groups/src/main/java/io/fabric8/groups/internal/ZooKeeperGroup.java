@@ -486,7 +486,9 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
             String fullPath = ZKPaths.makePath(path, name);
 
             if ((mode == RefreshMode.FORCE_GET_DATA_AND_STAT) || !currentData.containsKey(fullPath)) {
-                getDataAndStat(fullPath);
+                try {
+                    getDataAndStat(fullPath);
+                } catch (KeeperException.NoNodeException ignore) {}
             }
         }
     }
