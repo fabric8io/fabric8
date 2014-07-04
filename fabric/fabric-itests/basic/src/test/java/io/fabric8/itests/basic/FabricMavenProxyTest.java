@@ -56,9 +56,10 @@ public class FabricMavenProxyTest extends FabricTestSupport {
         String featureLocation = System.getProperty("feature.location");
         System.out.println("Testing with feature from:" + featureLocation);
         System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
-        System.out.println(executeCommand("shell:info"));
-        System.out.println(executeCommand("fabric:info"));
-        System.out.println(executeCommand("fabric:profile-list"));
+        //System.out.println(executeCommand("shell:info"));
+        //System.out.println(executeCommand("fabric:info"));
+        //System.out.println(executeCommand("fabric:profile-list"));
+
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 2).withName("maven").withProfiles("fabric").assertProvisioningResult().build();

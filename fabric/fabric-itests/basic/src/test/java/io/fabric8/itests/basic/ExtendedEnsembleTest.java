@@ -48,9 +48,9 @@ public class ExtendedEnsembleTest extends FabricEnsembleTest {
     @Test
     public void testAddAndRemoveWithVersions() throws Exception {
         System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
-        System.out.println(executeCommand("shell:info"));
-        System.out.println(executeCommand("fabric:info"));
-        System.out.println(executeCommand("fabric:profile-list"));
+        //System.out.println(executeCommand("shell:info"));
+        //System.out.println(executeCommand("fabric:info"));
+        //System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
@@ -119,9 +119,9 @@ public class ExtendedEnsembleTest extends FabricEnsembleTest {
     @Test
     public void testAddAndRemoveWithPartialVersionUpgrades() throws Exception {
         System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
-        System.out.println(executeCommand("shell:info"));
-        System.out.println(executeCommand("fabric:info"));
-        System.out.println(executeCommand("fabric:profile-list"));
+        //System.out.println(executeCommand("shell:info"));
+        //System.out.println(executeCommand("fabric:info"));
+        //System.out.println(executeCommand("fabric:profile-list"));
 
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
