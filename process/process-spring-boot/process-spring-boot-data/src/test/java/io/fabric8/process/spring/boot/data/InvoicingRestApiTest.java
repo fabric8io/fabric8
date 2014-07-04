@@ -17,12 +17,12 @@ package io.fabric8.process.spring.boot.data;
 
 import io.fabric8.process.spring.boot.data.domain.Invoice;
 import io.fabric8.process.spring.boot.data.repository.InvoiceQuery;
-import io.fabric8.process.spring.boot.data.repository.InvoiceRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext;
 import org.springframework.boot.test.IntegrationTest;
@@ -46,6 +46,12 @@ import static java.util.UUID.randomUUID;
 @ComponentScan
 public class InvoicingRestApiTest extends Assert {
 
+    // Test subject fixture
+
+    RestRepository<Invoice, Long> restRepository;
+
+    // Collaborators fixtures
+
     @Autowired
     EmbeddedWebApplicationContext tomcat;
 
@@ -53,10 +59,11 @@ public class InvoicingRestApiTest extends Assert {
 
     String baseUri;
 
-    @Autowired
-    InvoiceRepository invoiceRepository;
+    // Data fixtures
 
-    RestRepository<Invoice, Long> restRepository;
+    Invoice invoice;
+
+    // Fixtures setup
 
     @Before
     public void before() throws MalformedURLException {
@@ -64,33 +71,20 @@ public class InvoicingRestApiTest extends Assert {
         baseUri = "http://localhost:" + port + "/invoice";
 
         restRepository = new TemplateRestRepository<>(Invoice.class, baseUri);
+
+        invoice = new Invoice().invoiceId(randomUUID().toString());
+        invoice = restRepository.save(invoice);
     }
 
     // Tests
 
     @Test
     public void shouldFindInvoiceById() throws InterruptedException {
-        // Given
-        Invoice invoice = new Invoice().invoiceId(randomUUID().toString());
-        Invoice savedInvoice = restRepository.save(invoice);
-
         // When
-        Invoice loadedInvoice = restRepository.findOne(savedInvoice.id());
+        Invoice loadedInvoice = restRepository.findOne(invoice.id());
 
         // Then
-        assertEquals(savedInvoice.id(), loadedInvoice.id());
-    }
-
-    @Test
-    public void shouldSaveInvoice() throws InterruptedException {
-        // Given
-        Invoice invoice = new Invoice().invoiceId(randomUUID().toString());
-
-        // When
-        Invoice savedInvoice = restRepository.save(invoice);
-
-        // Then
-        assertEquals(invoice.invoiceId(), savedInvoice.invoiceId());
+        assertEquals(invoice.id(), loadedInvoice.id());
     }
 
     @Test
@@ -109,10 +103,6 @@ public class InvoicingRestApiTest extends Assert {
 
     @Test
     public void shouldCountInvoicesByQuery() throws InterruptedException {
-        // Given
-        Invoice invoice = new Invoice().invoiceId(randomUUID().toString());
-        restRepository.save(invoice);
-
         // When
         long count = restRepository.countByQuery(new InvoiceQuery().invoiceId(invoice.invoiceId()));
 
@@ -123,15 +113,13 @@ public class InvoicingRestApiTest extends Assert {
     @Test
     public void shouldFindInvoicesByQuery() throws InterruptedException {
         // Given
-        Invoice invoice = new Invoice().invoiceId(randomUUID().toString());
-        Invoice savedInvoice = restRepository.save(invoice);
         InvoiceQuery query = new InvoiceQuery().invoiceId(invoice.invoiceId());
 
         // When
         Iterable<Invoice> receivedInvoices = restRepository.findByQuery(query);
 
         // Then
-        assertEquals(savedInvoice.id(), receivedInvoices.iterator().next().id());
+        assertEquals(invoice.id(), receivedInvoices.iterator().next().id());
     }
 
 }
