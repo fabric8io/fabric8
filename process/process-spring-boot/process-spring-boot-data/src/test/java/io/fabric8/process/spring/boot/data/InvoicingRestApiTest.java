@@ -31,6 +31,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class InvoicingRestApiTest extends Assert {
     RestRepository<Invoice, Long> restRepository;
 
     @Before
-    public void before() {
+    public void before() throws MalformedURLException {
         port = tomcat.getEmbeddedServletContainer().getPort();
         baseUri = "http://localhost:" + port + "/invoice";
 

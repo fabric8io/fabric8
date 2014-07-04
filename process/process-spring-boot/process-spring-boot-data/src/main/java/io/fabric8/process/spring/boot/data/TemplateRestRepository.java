@@ -24,7 +24,10 @@ import org.springframework.web.client.RestTemplate;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import static com.google.common.collect.Iterables.transform;
 import static java.util.Arrays.asList;
@@ -35,11 +38,15 @@ public class TemplateRestRepository<T, ID extends java.io.Serializable> implemen
 
     private final Class<T[]> arrayOfEntityClass;
 
-    private final String url;
+    private final URL url;
 
     private final RestTemplate restTemplate;
 
-    public TemplateRestRepository(Class<T> entityClass, String url) {
+    public TemplateRestRepository(Class<T> entityClass, String url) throws MalformedURLException {
+       this(entityClass, new URL(url));
+    }
+
+    public TemplateRestRepository(Class<T> entityClass, URL url) {
         this.entityClass = entityClass;
         this.arrayOfEntityClass = (Class<T[]>) Array.newInstance(entityClass, 0).getClass();
         this.url = url;
@@ -68,10 +75,14 @@ public class TemplateRestRepository<T, ID extends java.io.Serializable> implemen
 
     @Override
     public <S extends T> S save(S s) {
-        URI location = restTemplate.postForLocation(url, s);
-        Serializable id = Long.parseLong(location.toString().replace(url + "/", ""));
-        updateId(s, (ID) id);
-        return s;
+        try {
+            URI location = restTemplate.postForLocation(url.toURI(), s);
+            Serializable id = Long.parseLong(location.toString().replace(url + "/", ""));
+            updateId(s, (ID) id);
+            return s;
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
