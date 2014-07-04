@@ -37,9 +37,11 @@ public class InstallDeploymentsTask implements InstallTask {
     private static final transient Logger LOG = LoggerFactory.getLogger(InstallDeploymentsTask.class);
 
     private final Map<String, File> javaArtifacts;
+    private final Map<String, String> locationToContextPathMap;
 
-    public InstallDeploymentsTask(Map<String, File> javaArtifacts) {
+    public InstallDeploymentsTask(Map<String, File> javaArtifacts, Map<String, String> locationToContextPathMap) {
         this.javaArtifacts = javaArtifacts;
+        this.locationToContextPathMap = locationToContextPathMap;
     }
 
     @Override
@@ -84,7 +86,20 @@ public class InstallDeploymentsTask implements InstallTask {
                     destDir = deployDir;
                     checksums = deployChecksums;
                 }
-                File destFile = new File(destDir, fileName);
+                String destFileName = fileName;
+                if (destFileName.endsWith(".war")) {
+                    String value = locationToContextPathMap.get(location);
+                    if (value != null) {
+                        while (value.startsWith("/")) {
+                            value = value.substring(1);
+                        }
+                        if (value.length() == 0) {
+                            value = "ROOT";
+                        }
+                        destFileName = value + ".war";
+                    }
+                }
+                File destFile = new File(destDir, destFileName);
                 Long checksum = checksums.get(destFile);
                 if (deletePass) {
                     // on the delete pass we just keep track of all checksums

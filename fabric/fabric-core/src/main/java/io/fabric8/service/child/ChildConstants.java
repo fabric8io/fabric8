@@ -46,4 +46,9 @@ public class ChildConstants {
      * The PID for the list of ports and their default values
      */
     public static final String PORTS_PID = "io.fabric8.ports";
+
+    /**
+     * The PID of the context paths; mapping of group/artifact id -> context path mappings
+     */
+    public static final String WEB_CONTEXT_PATHS_PID = "io.fabric8.web.contextPath";
 }

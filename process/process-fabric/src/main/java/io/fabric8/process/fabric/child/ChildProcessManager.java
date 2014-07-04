@@ -20,6 +20,7 @@ import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 import io.fabric8.common.util.Objects;
 import io.fabric8.deployer.JavaContainers;
 import io.fabric8.internal.ProfileOverlayImpl;
@@ -32,6 +33,7 @@ import io.fabric8.process.manager.support.ApplyConfigurationTask;
 import io.fabric8.process.manager.support.CompositeTask;
 import io.fabric8.process.manager.support.InstallDeploymentsTask;
 import io.fabric8.process.manager.support.ProcessUtils;
+import io.fabric8.service.child.ChildConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +89,10 @@ public class ChildProcessManager {
         List<Profile> profiles = new ArrayList<Profile>();
         profiles.add(deployProcessProfile);
         Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, executorService);
-        InstallTask applyProfile = new InstallDeploymentsTask(javaArtifacts);
+        String versionId = Profiles.versionId(fabricService.getCurrentContainer().getVersion());
+        List<String> profileIds = Profiles.profileIds(profiles);
+        Map<String, String> contextPathConfiguration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.WEB_CONTEXT_PATHS_PID);
+        InstallTask applyProfile = new InstallDeploymentsTask(javaArtifacts, contextPathConfiguration);
         InstallTask compositeTask = new CompositeTask(applyConfiguration, applyProfile);
         Installation installation = processManager.install(installOptions, compositeTask);
         if (installation != null) {

@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import io.fabric8.agent.download.DownloadFuture;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
+import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateChildContainerMetadata;
@@ -461,7 +462,40 @@ public class ProcessManagerController implements ChildContainerController {
         if (!configObject.isInternalAgent()) {
             Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
             if (!javaArtifacts.isEmpty()) {
-                answer = CompositeTask.combine(answer, new InstallDeploymentsTask(javaArtifacts));
+                Map<String, String> contextPathConfiguration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.WEB_CONTEXT_PATHS_PID);
+
+                Map<String, String> locationToContextPathMap = new HashMap<String, String>();
+                // lets map the the locations to context paths
+
+                Set<String> locations = javaArtifacts.keySet();
+                for (String location : locations) {
+                    Parser parser = null;
+                    try {
+                        parser = Parser.parsePathWithSchemePrefix(location);
+                    } catch (MalformedURLException e) {
+                        // ignore
+                    }
+                    if (parser != null) {
+                        String key = parser.getGroup() + "/" + parser.getArtifact();
+                        String value = contextPathConfiguration.get(key);
+                        if (value != null) {
+                            locationToContextPathMap.put(location, value);
+                        }
+                    }
+                }
+                Set<Map.Entry<String, String>> contextPathEntries = contextPathConfiguration.entrySet();
+                for (Map.Entry<String, String> contextPathEntry : contextPathEntries) {
+                    String groupIdAndArtifactId = contextPathEntry.getKey();
+                    String contextPath = contextPathEntry.getValue();
+                    if (!locationToContextPathMap.containsValue(contextPath)) {
+                        LOG.warn("Properties file " +  ChildConstants.WEB_CONTEXT_PATHS_PID
+                                + " for profile(s) " + profileIds
+                                + " has unmatched contextPath mapping to " + contextPath
+                                + " for group id and artifact id key " + groupIdAndArtifactId
+                                + " when has matched values: " + locationToContextPathMap.values());
+                    }
+                }
+                answer = CompositeTask.combine(answer, new InstallDeploymentsTask(javaArtifacts, locationToContextPathMap));
                 setProvisionList(container, javaArtifacts);
             }
         }
