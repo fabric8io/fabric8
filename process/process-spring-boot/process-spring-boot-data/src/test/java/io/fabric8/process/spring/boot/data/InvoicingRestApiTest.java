@@ -31,6 +31,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.UUID.randomUUID;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -86,6 +90,20 @@ public class InvoicingRestApiTest extends Assert {
 
         // Then
         assertEquals(invoice.invoiceId(), savedInvoice.invoiceId());
+    }
+
+    @Test
+    public void shouldSaveInvoices() throws InterruptedException {
+        // Given
+        Invoice firstInvoice = new Invoice().invoiceId(randomUUID().toString());
+        Invoice secondInvoice = new Invoice().invoiceId(randomUUID().toString());
+
+        // When
+        List<Invoice> savedInvoices = newArrayList(restRepository.save(Arrays.asList(firstInvoice, secondInvoice)));
+
+        // Then
+        assertEquals(firstInvoice.id(), savedInvoices.get(0).id());
+        assertEquals(secondInvoice.id(), savedInvoices.get(1).id());
     }
 
     @Test

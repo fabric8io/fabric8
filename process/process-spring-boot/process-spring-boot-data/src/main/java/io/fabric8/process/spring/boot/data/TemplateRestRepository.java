@@ -15,6 +15,7 @@
  */
 package io.fabric8.process.spring.boot.data;
 
+import com.google.common.base.Function;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,6 +26,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.net.URI;
 
+import static com.google.common.collect.Iterables.transform;
 import static java.util.Arrays.asList;
 
 public class TemplateRestRepository<T, ID extends java.io.Serializable> implements RestRepository<T, ID> {
@@ -73,8 +75,13 @@ public class TemplateRestRepository<T, ID extends java.io.Serializable> implemen
     }
 
     @Override
-    public <S extends T> Iterable<S> save(Iterable<S> ses) {
-        throw new UnsupportedOperationException("Not *yet* supported.");
+    public <S extends T> Iterable<S> save(Iterable<S> entities) {
+        return transform(entities, new Function<S, S>() {
+            @Override
+            public S apply(S entity) {
+                return save(entity);
+            }
+        });
     }
 
     @Override
