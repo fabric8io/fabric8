@@ -418,6 +418,10 @@
         <feature>insight-log</feature>
         <feature>fabric-zookeeper</feature>
         <feature>fabric-groups</feature>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jts/1.13_1-SNAPSHOT</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.elasticsearch/1.2.1_1-SNAPSHOT</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-elasticsearch-fabric-discovery/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-elasticsearch-indices-management/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-storage/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-elasticsearch/${project.version}</bundle>
         <bundle>mvn:com.google.guava/guava/${guava-version}</bundle>

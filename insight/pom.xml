@@ -44,6 +44,8 @@
     <module>insight-metrics-mvel</module>
     <module>insight-metrics</module>
     <module>insight-elasticsearch</module>
+    <module>insight-elasticsearch-fabric-discovery</module>
+    <module>insight-elasticsearch-indices-management</module>
     <module>insight-rhq-metrics</module>
   </modules>
 

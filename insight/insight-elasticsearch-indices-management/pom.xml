@@ -24,52 +24,27 @@
         <version>1.1.0-SNAPSHOT</version>
     </parent>
 
-  <artifactId>insight-elasticsearch</artifactId>
+  <artifactId>insight-elasticsearch-indices-management</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: Insight :: Elastic Search</name>
+  <name>Fabric8 :: Insight :: Elasticsearch Indices Management</name>
   
   <properties>
       <fuse.osgi.import.additional>
       </fuse.osgi.import.additional>
       <fuse.osgi.export>
-          io.fabric8.insight.elasticsearch;version=${project.version}
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
-          io.fabric8.insight.elasticsearch.command,
-          io.fabric8.insight.elasticsearch.impl,
-          io.fabric8.insight.elasticsearch.pojo
+          io.fabric8.insight.elasticsearch.indices.management
       </fuse.osgi.private.pkg>
       <fuse.osgi.services.export>
-          org.elasticsearch.node.Node,
-          io.fabric8.insight.elasticsearch.ElasticRest,
-          io.fabric8.insight.storage.StorageService,
-          io.fabric8.insight.metrics.model.MetricsStorageService
       </fuse.osgi.services.export>
+      <fuse.osgi.fragment.host>
+          org.apache.servicemix.bundles.elasticsearch
+      </fuse.osgi.fragment.host>
   </properties>
 
   <dependencies>
-      <dependency>
-          <groupId>io.fabric8</groupId>
-          <artifactId>fabric-groups</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>io.fabric8</groupId>
-          <artifactId>fabric-zookeeper</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>io.fabric8.insight</groupId>
-          <artifactId>insight-storage</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>io.fabric8.insight</groupId>
-          <artifactId>insight-metrics-model</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>io.fabric8.insight</groupId>
-          <artifactId>insight-metrics-mvel</artifactId>
-      </dependency>
-
       <dependency>
           <groupId>org.osgi</groupId>
           <artifactId>org.osgi.core</artifactId>
@@ -84,25 +59,6 @@
           <artifactId>elasticsearch</artifactId>
           <version>1.2.1</version>
       </dependency>
-
-      <dependency>
-          <groupId>log4j</groupId>
-          <artifactId>log4j</artifactId>
-          <version>1.2.16</version>
-      </dependency>
-
-      <dependency>
-          <groupId>org.jboss.netty</groupId>
-          <artifactId>netty</artifactId>
-          <version>3.2.3.Final</version>
-      </dependency>
-
-      <dependency>
-          <groupId>javax.servlet</groupId>
-          <artifactId>servlet-api</artifactId>
-          <scope>provided</scope>
-      </dependency>
-
   </dependencies>
 
   <build>
