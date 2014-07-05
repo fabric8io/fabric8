@@ -30,6 +30,11 @@ public interface DataStore {
     public static final String DEFAULT_DATASTORE_TYPE = "caching-git";
 
     /**
+     * Gets the fabric release version, eg such as 1.1.0
+     */
+    String getFabricVersion();
+
+    /**
      * Return the DataStore type.
      * @return
      */

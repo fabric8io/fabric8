@@ -49,7 +49,7 @@ import io.fabric8.common.util.ObjectUtils;
 import io.fabric8.common.util.Strings;
 import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.DataStoreUtils;
-import io.fabric8.utils.SystemProperties;
+import io.fabric8.utils.FabricVersionUtils;
 import io.fabric8.zookeeper.ZkDefs;
 import io.fabric8.zookeeper.ZkPath;
 import org.apache.curator.framework.CuratorFramework;
@@ -150,6 +150,11 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     protected TreeCache getTreeCache() {
         assertValid();
         return treeCache;
+    }
+
+    @Override
+    public String getFabricVersion() {
+        return FabricVersionUtils.getVersion();
     }
 
     @Override

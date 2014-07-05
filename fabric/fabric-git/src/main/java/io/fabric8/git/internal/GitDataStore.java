@@ -51,7 +51,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
-import io.fabric8.api.FabricVersionService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -139,7 +138,6 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
     private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
     private final ValidatingReference<GitProxyService> gitProxyService = new ValidatingReference<GitProxyService>();
-    //private final ValidatingReference<FabricVersionService> fabricVersionService = new ValidatingReference<FabricVersionService>();
 
     private final ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
 
@@ -1359,9 +1357,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         assertValid();
         // we cannot use fabricService as it has not been initialized yet, so we can only support
         // dynamic version of one token ${version:fabric} in the urls
-//        String fabricVersion = fabricVersionService.get().getVersion();
-        // TODO: fix me
-        String fabricVersion = "1.1.0-SNAPSHOT";
+        String fabricVersion = getFabricVersion();
 
         File profilesDirectory = getProfilesDirectory(git);
         for (String profileZipUrl : profileZipUrls) {
@@ -1654,15 +1650,6 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     void unbindGitProxyService(GitProxyService service) {
         this.gitProxyService.unbind(service);
     }
-
-//    @VisibleForTesting
-//    public void bindFabricVersionService(FabricVersionService service) {
-//        this.fabricVersionService.bind(service);
-//    }
-//
-//    void unbindFabricVersionService(FabricVersionService service) {
-//        this.fabricVersionService.unbind(service);
-//    }
 
     class GitDataStoreListener implements GitListener {
 
