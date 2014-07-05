@@ -139,7 +139,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
     private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
     private final ValidatingReference<GitProxyService> gitProxyService = new ValidatingReference<GitProxyService>();
-    private final ValidatingReference<FabricVersionService> fabricVersionService = new ValidatingReference<FabricVersionService>();
+    //private final ValidatingReference<FabricVersionService> fabricVersionService = new ValidatingReference<FabricVersionService>();
 
     private final ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
 
@@ -1359,7 +1359,9 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         assertValid();
         // we cannot use fabricService as it has not been initialized yet, so we can only support
         // dynamic version of one token ${version:fabric} in the urls
-        String fabricVersion = fabricVersionService.get().getVersion();
+//        String fabricVersion = fabricVersionService.get().getVersion();
+        // TODO: fix me
+        String fabricVersion = "1.1.0-SNAPSHOT";
 
         File profilesDirectory = getProfilesDirectory(git);
         for (String profileZipUrl : profileZipUrls) {
@@ -1653,14 +1655,14 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         this.gitProxyService.unbind(service);
     }
 
-    @VisibleForTesting
-    public void bindFabricVersionService(FabricVersionService service) {
-        this.fabricVersionService.bind(service);
-    }
-
-    void unbindFabricVersionService(FabricVersionService service) {
-        this.fabricVersionService.unbind(service);
-    }
+//    @VisibleForTesting
+//    public void bindFabricVersionService(FabricVersionService service) {
+//        this.fabricVersionService.bind(service);
+//    }
+//
+//    void unbindFabricVersionService(FabricVersionService service) {
+//        this.fabricVersionService.unbind(service);
+//    }
 
     class GitDataStoreListener implements GitListener {
 
