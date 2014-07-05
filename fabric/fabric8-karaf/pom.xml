@@ -25,7 +25,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fabric8-karaf</artifactId>
-    <name>Fabric8 :: Binary Distribution</name>
+    <name>Fabric8 :: Distro :: Karaf</name>
     <packaging>pom</packaging>
 
         <dependencies>

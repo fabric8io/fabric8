@@ -21,15 +21,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.fabric8.itests</groupId>
-        <artifactId>fabric-itests</artifactId>
+    	<groupId>io.fabric8.itests.paxexam</groupId>
+        <artifactId>fabric-itests-paxexam</artifactId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric-itests-common</artifactId>
+    <artifactId>fabric-itests-paxexam-common</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fabric8 :: Integration Tests :: Common</name>
+    <name>Fabric8 :: Integration Tests :: PaxExam (Deprecated) :: Common</name>
     
     <properties>
         <fuse.osgi.dynamic>*,org.apache.felix.service.*;status=provisional</fuse.osgi.dynamic>

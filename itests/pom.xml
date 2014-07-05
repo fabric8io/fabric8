@@ -20,36 +20,22 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>io.fabric8.runtime</groupId>
-        <artifactId>fabric-runtime</artifactId>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-project</artifactId>
         <version>1.1.0-SNAPSHOT</version>
+        <relativePath>../parent</relativePath>
     </parent>
 
-    <artifactId>fabric-runtime-itests</artifactId>
+    <groupId>io.fabric8.itests</groupId>
+    <artifactId>fabric-itests</artifactId>
     <packaging>pom</packaging>
     
-    <name>Fabric8 :: Runtime :: Integration Tests</name>
+    <name>Fabric8 :: Integration Tests</name>
 
     <modules>
         <module>common</module>
-        <module>embedded</module>
-        <module>karaf</module>
+        <module>smoke</module>
     </modules>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.configadmin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.metatype</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr</artifactId>
-        </dependency>
-    </dependencies>
 
     <build>
         <plugins>
@@ -71,8 +57,19 @@
                 </property>
             </activation>
             <modules>
-                <module>tomcat</module>
-                <module>wildfly</module>
+                <module>extra</module>
+                <module>paxexam</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ts.basic</id>
+            <activation>
+                <property>
+                    <name>ts.basic</name>
+                </property>
+            </activation>
+            <modules>
+                <module>paxexam</module>
             </modules>
         </profile>
         <profile>
@@ -83,7 +80,7 @@
                 </property>
             </activation>
             <modules>
-                <module>tomcat</module>
+                <module>extra</module>
             </modules>
         </profile>
         <profile>
@@ -94,7 +91,7 @@
                 </property>
             </activation>
             <modules>
-                <module>wildfly</module>
+                <module>extra</module>
             </modules>
         </profile>
     </profiles>

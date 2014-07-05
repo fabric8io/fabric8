@@ -72,13 +72,18 @@
         <module>fabric-rest</module>
         <module>fabric-redirect</module>
         <module>fabric-utils</module>
+        <module>fabric-vertx</module>
         <module>fabric-web</module>
         <module>fabric-zeroconf</module>
         <module>fabric-zookeeper</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-zookeeper-commands</module>
         <module>fabric8-karaf</module>
-        <module>fabric-vertx</module>
+        <!-- 
+        	Modules that are relevant for the default distribution
+        	and are verified as part of the smoke tests go here.
+        	Everything else goes into respective profiles!
+         -->
     </modules>
 
     <profiles>
@@ -94,7 +99,6 @@
                 <module>fabric-docker-provider</module>
                 <module>fabric-dynamic-jaxb</module>
                 <module>fabric-hadoop</module>
-                <module>fabric-itests</module>
                 <module>fabric-ldap</module>
                 <module>fabric-openshift</module>
                 <module>fabric-osgimetadata</module>

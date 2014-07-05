@@ -20,14 +20,14 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>io.fabric8.runtime</groupId>
-        <artifactId>fabric-runtime-itests</artifactId>
+	    <groupId>io.fabric8.itests</groupId>
+	    <artifactId>fabric-itests</artifactId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric-runtime-itests-common</artifactId>
+    <artifactId>fabric-itests-common</artifactId>
     
-    <name>Fabric8 :: Runtime :: Integration Tests :: Common</name>
+    <name>Fabric8 :: Integration Tests :: Common</name>
 
     <dependencies>
         <dependency>

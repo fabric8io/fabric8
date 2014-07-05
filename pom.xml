@@ -571,11 +571,6 @@
                 <artifactId>fabric-zookeeper-spring</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>io.fabric8.itests</groupId>
-                <artifactId>fabric-itests-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <dependency>             
                 <groupId>io.fabric8.tooling.testing</groupId>
                 <artifactId>pax-exam-karaf</artifactId>
@@ -3360,6 +3355,12 @@
         <module>process</module>
         <module>runtime</module>
         <module>gateway</module>
+        <module>itests</module>
+        <!-- 
+        	Modules that are relevant for the default distribution
+        	and are verified as part of the smoke tests go here.
+        	Everything else goes into respective profiles!
+         -->
     </modules>
 
     <profiles>

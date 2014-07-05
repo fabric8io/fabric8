@@ -25,14 +25,14 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>io.fabric8.runtime</groupId>
-        <artifactId>fabric-runtime-itests</artifactId>
+	    <groupId>io.fabric8.itests</groupId>
+	    <artifactId>fabric-itests-smoke</artifactId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fabric-runtime-itests-embedded</artifactId>
+    <artifactId>fabric-itests-smoke-embedded</artifactId>
     
-    <name>Fabric8 :: Runtime :: Integration Tests :: Embedded</name>
+    <name>Fabric8 :: Integration Tests :: Smoke :: Embedded</name>
 
     <properties>
         <runtime.home>${project.build.directory}/runtime</runtime.home>
@@ -44,8 +44,8 @@
             <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fabric8.runtime</groupId>
-            <artifactId>fabric-runtime-itests-common</artifactId>
+            <groupId>io.fabric8.itests</groupId>
+            <artifactId>fabric-itests-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
