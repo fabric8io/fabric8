@@ -222,7 +222,7 @@ public class FabricTestSupport extends FabricKarafTestSupport {
                 KarafDistributionOption.editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
                 KarafDistributionOption.editConfigurationFilePut("etc/config.properties", "karaf.startup.message", "Loading Fabric from: ${runtime.home}"),
                 KarafDistributionOption.editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
-                CoreOptions.mavenBundle("io.fabric8.itests", "fabric-itests-common").versionAsInProject(),
+                CoreOptions.mavenBundle("io.fabric8.itests.paxexam", "fabric-itests-paxexam-common").versionAsInProject(),
                 CoreOptions.mavenBundle("io.fabric8.tooling.testing", "pax-exam-karaf").versionAsInProject(), new DoNotModifyLogOption(),
                 KarafDistributionOption.keepRuntimeFolder(),
 
@@ -245,7 +245,7 @@ public class FabricTestSupport extends FabricKarafTestSupport {
                         "mvn:io.fabric8.tooling.testing/pax-exam-karaf/" + MavenUtils.getArtifactVersion("io.fabric8.tooling.testing", "pax-exam-karaf")),
                 KarafDistributionOption.editConfigurationFilePut("fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties",
                         "bundle.itests-common",
-                        "mvn:io.fabric8.itest/fabric-itests-common/" + MavenUtils.getArtifactVersion("io.fabric8.itests", "fabric-itests-common")), };
+                        "mvn:io.fabric8.itest.paxexam/fabric-itests-paxexam-common/" + MavenUtils.getArtifactVersion("io.fabric8.itests.paxexam", "fabric-itests-paxexam-common")), };
     }
 
     private Object getMBean(Container container, ObjectName mbeanName, Class clazz) throws Exception {
