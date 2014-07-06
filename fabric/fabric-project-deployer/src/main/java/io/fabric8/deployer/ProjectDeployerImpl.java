@@ -157,6 +157,11 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         FabricService fabric = getFabricService();
         Version version = getOrCreateVersion(requirements);
         Profile profile = getOrCreateProfile(version, requirements);
+        if (requirements.isAbstractProfile()) {
+            profile.setAttribute(Profile.ABSTRACT, "true");
+        } else {
+            profile.setAttribute(Profile.ABSTRACT, "false");
+        }
 
         ProjectRequirements oldRequirements = writeRequirementsJson(requirements, profile);
         updateProfileConfiguration(version, profile, requirements, oldRequirements);

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 public class ProjectRequirements {
     private String profileId;
+    private boolean abstractProfile;
     private String version;
     private String baseVersion;
     private String description;
@@ -33,7 +34,6 @@ public class ProjectRequirements {
     private List<String> featureRepositories;
     private Integer minimumInstances;
     private DependencyDTO rootDependency;
-
 
     @Override
     public String toString() {
@@ -46,6 +46,14 @@ public class ProjectRequirements {
 
     public void setProfileId(String profileId) {
         this.profileId = profileId;
+    }
+
+    public boolean isAbstractProfile() {
+        return abstractProfile;
+    }
+
+    public void setAbstractProfile(boolean abstractProfile) {
+        this.abstractProfile = abstractProfile;
     }
 
     public String getVersion() {

@@ -534,7 +534,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     protected DeployResults uploadRequirements(J4pClient client, ProjectRequirements requirements) throws Exception {
         String json = DtoHelper.getMapper().writeValueAsString(requirements);
         ObjectName mbeanName = ProjectDeployerImpl.OBJECT_NAME;
-        getLog().info("Updating profile: " + requirements.getProfileId() + " with parent profile(s): " + requirements.getParentProfiles());
+        getLog().info("Updating " + (requirements.isAbstractProfile() ? "abstract " : "") + "profile: " + requirements.getProfileId() + " with parent profile(s): " + requirements.getParentProfiles());
         getLog().info("About to invoke mbean " + mbeanName + " on jolokia URL: " + jolokiaUrl + " with user: " + fabricServer.getUsername());
         getLog().debug("JSON: " + json);
         try {
