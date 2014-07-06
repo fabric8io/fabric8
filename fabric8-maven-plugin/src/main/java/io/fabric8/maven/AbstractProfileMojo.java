@@ -130,6 +130,12 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     private String profile;
 
     /**
+     * Whether the profile is abstract
+     */
+    @Parameter(property = "fabric8.abstractProfile", defaultValue = "false")
+    private boolean abstractProfile;
+
+    /**
      * The profile version to deploy to. If not specified then the current latest version is used.
      */
     @Parameter(property = "fabric8.profileVersion")
@@ -315,6 +321,8 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         } else {
             requirements.setProfileId(project.getGroupId() + "-" + project.getArtifactId());
         }
+        requirements.setAbstractProfile(abstractProfile);
+
         String description = project.getDescription();
         if (Strings.isNotBlank(description)) {
             requirements.setDescription(description);

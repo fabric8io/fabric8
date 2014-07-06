@@ -277,6 +277,10 @@ Or specify the command line:
 <td>The name of the fabric profile to deploy your project to. If not specified it defaults to the groupId-artifactId of your project.</td>
 </tr>
 <tr>
+<td>abstractProfile</td>
+<td>Whether the profile is marked as abstract. Defaults to <b>false</b></td>
+</tr>
+<tr>
 <td>serverId</td>
 <td>The server ID used to lookup in <b>~/.m2/settings/xml</b> for the &lt;server&gt; element to find the username / password to login to the fabric. Defaults to <b>fabric8.upload.repo</b></td>
 </tr>
