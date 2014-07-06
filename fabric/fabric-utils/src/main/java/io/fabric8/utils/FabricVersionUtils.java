@@ -25,7 +25,10 @@ public class FabricVersionUtils {
 
     private static String version;
 
-    public static synchronized String getVersion() {
+    /**
+     * Gets the fabric release version such as <tt>1.1.0</tt>
+     */
+    public static synchronized String getReleaseVersion() {
         if (version != null) {
             return version;
         }

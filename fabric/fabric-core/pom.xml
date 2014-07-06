@@ -70,7 +70,6 @@
             OSGI-INF/io.fabric8.service.FabricCompleteService.xml,
             OSGI-INF/io.fabric8.service.FabricMBeanRegistrationListener.xml,
             OSGI-INF/io.fabric8.service.FabricServiceImpl.xml,
-            OSGI-INF/io.fabric8.service.FabricVersionServiceImpl.xml,
             OSGI-INF/io.fabric8.service.PortPlaceholderResolver.xml,
             OSGI-INF/io.fabric8.service.ProfilePropertyPointerResolver.xml,
             OSGI-INF/io.fabric8.service.MvelUrlHandler.xml,

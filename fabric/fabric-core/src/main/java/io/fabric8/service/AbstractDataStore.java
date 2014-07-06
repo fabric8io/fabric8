@@ -153,8 +153,8 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     }
 
     @Override
-    public String getFabricVersion() {
-        return FabricVersionUtils.getVersion();
+    public String getFabricReleaseVersion() {
+        return FabricVersionUtils.getReleaseVersion();
     }
 
     @Override

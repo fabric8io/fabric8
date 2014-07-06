@@ -32,7 +32,7 @@ public interface DataStore {
     /**
      * Gets the fabric release version, eg such as 1.1.0
      */
-    String getFabricVersion();
+    String getFabricReleaseVersion();
 
     /**
      * Return the DataStore type.

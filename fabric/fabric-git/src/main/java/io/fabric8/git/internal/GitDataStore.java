@@ -1357,7 +1357,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         assertValid();
         // we cannot use fabricService as it has not been initialized yet, so we can only support
         // dynamic version of one token ${version:fabric} in the urls
-        String fabricVersion = getFabricVersion();
+        String fabricVersion = getFabricReleaseVersion();
 
         File profilesDirectory = getProfilesDirectory(git);
         for (String profileZipUrl : profileZipUrls) {
