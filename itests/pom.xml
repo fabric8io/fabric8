@@ -50,6 +50,13 @@
 
     <profiles>
         <profile>
+            <id>all</id>
+            <modules>
+                <module>extra</module>
+                <module>paxexam</module>
+            </modules>
+        </profile>
+        <profile>
             <id>ts.all</id>
             <activation>
                 <property>

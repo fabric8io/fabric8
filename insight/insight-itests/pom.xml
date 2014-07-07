@@ -33,6 +33,13 @@
   <dependencies>
 
         <dependency>
+            <groupId>io.fabric8.itests.paxexam</groupId>
+            <artifactId>fabric-itests-paxexam-common</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>test</scope>
@@ -42,14 +49,6 @@
             <artifactId>org.osgi.enterprise</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>io.fabric8.itests.paxexam</groupId>
-            <artifactId>fabric-itests-paxexam-common</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric8-karaf</artifactId>
