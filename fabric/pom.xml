@@ -111,5 +111,16 @@
                 <module>watcher-spring-context</module>
             </modules>
         </profile>
+        <profile>
+            <id>tomcat</id>
+            <activation>
+                <property>
+                    <name>tomcat</name>
+                </property>
+            </activation>
+            <modules>
+                <module>fabric8-profiles</module>
+            </modules>
+        </profile>
     </profiles>
 </project>
