@@ -38,4 +38,10 @@
         </service-properties>
     </service>
 
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+        <command name="elasticsearch/esrest">
+            <action class="io.fabric8.insight.elasticsearch.command.EsRest"/>
+        </command>
+    </command-bundle>
+
 </blueprint>

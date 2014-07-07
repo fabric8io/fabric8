@@ -418,9 +418,9 @@
         <feature>insight-log</feature>
         <feature>fabric-zookeeper</feature>
         <feature>fabric-groups</feature>
+        <bundle dependency="true">mvn:com.google.guava/guava/${guava-version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-storage/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-elasticsearch/${project.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava-version}</bundle>
     </feature>
 
     <feature name="insight-kibana" version="${project.version}" resolver="(obr)">

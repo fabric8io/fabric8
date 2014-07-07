@@ -38,17 +38,20 @@
           io.fabric8.insight.elasticsearch;version=${project.version}
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
-          org.apache.lucene*;-split-package:=merge-first,
-          org.tartarus*,
+          io.fabric8.insight.elasticsearch.command,
           io.fabric8.insight.elasticsearch.impl,
-          org.elasticsearch.discovery.fabric,
-          org.elasticsearch.pojo,
-          META-INF.services;-split-package:=first
+          io.fabric8.insight.elasticsearch.pojo,
+          io.fabric8.insight.elasticsearch.indices,
+          org.apache.lucene*;-split-package:=merge-last,
+          org.tartarus.snowball*,
+          org.apache.regexp,
+          META-INF.*
       </fuse.osgi.private.pkg>
       <fuse.osgi.services.export>
           org.elasticsearch.node.Node,
           io.fabric8.insight.elasticsearch.ElasticRest,
-          io.fabric8.insight.storage.StorageService
+          io.fabric8.insight.storage.StorageService,
+          io.fabric8.insight.metrics.model.MetricsStorageService
       </fuse.osgi.services.export>
   </properties>
 
@@ -87,11 +90,6 @@
           <groupId>org.elasticsearch</groupId>
           <artifactId>elasticsearch</artifactId>
           <version>1.2.1</version>
-      </dependency>
-      <dependency>
-          <groupId>org.elasticsearch</groupId>
-          <artifactId>elasticsearch-repository-hdfs</artifactId>
-          <version>2.0.0</version>
       </dependency>
 
       <dependency>

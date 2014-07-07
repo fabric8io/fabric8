@@ -15,6 +15,7 @@
  */
 package org.elasticsearch.pojo;
 
+import io.fabric8.insight.metrics.model.MetricsStorageService;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.internal.InternalNode;
@@ -50,9 +51,10 @@ public class NodeFactory extends BaseManagedServiceFactory<ExtendedInternalNode>
     }
 
     protected ExtendedInternalNode doCreateInternal(Dictionary properties) {
+        Thread.currentThread().setContextClassLoader(Node.class.getClassLoader());
         ImmutableSettings.Builder builder = ImmutableSettings.settingsBuilder();
         builder.put(settings);
-        builder.classLoader(NodeFactory.class.getClassLoader());
+        builder.classLoader(Node.class.getClassLoader());
         if (properties != null) {
             for (Enumeration e = properties.keys(); e.hasMoreElements();) {
                 String key = e.nextElement().toString();
@@ -78,7 +80,12 @@ public class NodeFactory extends BaseManagedServiceFactory<ExtendedInternalNode>
 
     @Override
     protected String[] getExposedClasses(ExtendedInternalNode node) {
-        return new String[] { Node.class.getName(), ElasticRest.class.getName(), StorageService.class.getName() };
+        return new String[] {
+                Node.class.getName(),
+                ElasticRest.class.getName(),
+                StorageService.class.getName(),
+                MetricsStorageService.class.getName()
+        };
     }
 
 }

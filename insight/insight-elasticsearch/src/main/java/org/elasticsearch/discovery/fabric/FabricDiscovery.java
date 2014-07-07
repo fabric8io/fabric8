@@ -16,8 +16,11 @@
 package org.elasticsearch.discovery.fabric;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -27,8 +30,14 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.elasticsearch.ElasticsearchException;
+import com.google.common.base.Objects;
+import io.fabric8.groups.Group;
+import io.fabric8.groups.GroupFactory;
+import io.fabric8.groups.GroupListener;
+import io.fabric8.groups.NodeState;
+import io.fabric8.groups.internal.ZooKeeperGroupFactory;
 import org.apache.curator.framework.CuratorFramework;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchIllegalStateException;
 import org.elasticsearch.Version;
 import org.elasticsearch.cluster.ClusterName;
@@ -50,6 +59,7 @@ import org.elasticsearch.common.inject.internal.Nullable;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.common.util.concurrent.ConcurrentCollections;
 import org.elasticsearch.discovery.Discovery;
 import org.elasticsearch.discovery.DiscoverySettings;
 import org.elasticsearch.discovery.InitialStateDiscoveryListener;
@@ -59,11 +69,6 @@ import org.elasticsearch.node.service.NodeService;
 import org.elasticsearch.node.settings.NodeSettingsService;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.TransportService;
-import io.fabric8.groups.GroupListener;
-import io.fabric8.groups.GroupFactory;
-import io.fabric8.groups.NodeState;
-import io.fabric8.groups.Group;
-import io.fabric8.groups.internal.ZooKeeperGroupFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -122,6 +127,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
 
     @Override
     protected void doStart() throws ElasticsearchException {
+        logger.debug("Starting FabricDiscovery");
         Map<String, String> nodeAttributes = discoveryNodeService.buildAttributes();
         // note, we rely on the fact that its a new id each time we start, see FD and "kill -9" handling
         String nodeId = UUID.randomUUID().toString();
@@ -134,17 +140,23 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
             localNode = new DiscoveryNode(settings.get("name"), nodeId, transportService.boundAddress().publishAddress(), nodeAttributes, Version.CURRENT);
         }
         tracker.open();
+        logger.debug("FabricDiscovery started");
     }
 
     @Override
     protected void doStop() throws ElasticsearchException {
+        logger.debug("Stopping FabricDiscovery");
         tracker.close();
         initialStateSent.set(false);
+        logger.debug("FabricDiscovery stopped");
     }
 
     @Override
     protected void doClose() throws ElasticsearchException {
+        logger.debug("Closing FabricDiscovery");
+        tracker.close();
         publishClusterState.close();
+        logger.debug("Closed FabricDiscovery");
     }
 
     @Override
@@ -179,11 +191,13 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
 
     @Override
     public void publish(ClusterState clusterState, AckListener ackListener) {
+        logger.debug("Publishing cluster state");
         if (!singleton.isMaster()) {
             throw new ElasticsearchIllegalStateException("Shouldn't publish state when not master");
         }
         latestDiscoNodes = clusterState.nodes();
         publishClusterState.publish(clusterState, ackListener);
+        logger.debug("Cluster state published");
     }
 
     @Override
@@ -206,6 +220,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     public CuratorFramework addingService(ServiceReference<CuratorFramework> reference) {
         CuratorFramework curator = context.getService(reference);
         try {
+            logger.debug("CuratorFramework found, starting group");
             GroupFactory factory = new ZooKeeperGroupFactory(curator);
             singleton = factory.createGroup("/fabric/registry/clusters/elasticsearch/" + clusterName.value(), ESNode.class);
             singleton.add(this);
@@ -223,6 +238,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
 
     @Override
     public void removedService(ServiceReference<CuratorFramework> reference, CuratorFramework service) {
+        logger.debug("CuratorFramework lost, closing group");
         try {
             singleton.close();
         } catch (IOException e) {
@@ -250,7 +266,15 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
             // Ignore if not joined
         }
         if (singleton.isMaster()) {
-            clusterService.submitStateUpdateTask("fabric-discovery", Priority.URGENT, new ProcessedClusterStateUpdateTask() {
+            if (logger.isDebugEnabled()) {
+                String master = singleton.master() != null ? singleton.master().node.name() : null;
+                List<String> slaves = new ArrayList<String>();
+                for (ESNode s : singleton.slaves()) {
+                    slaves.add(s.node.name());
+                }
+                logger.debug("Updating cluster: master {}, slaves {}", master, slaves);
+            }
+            clusterService.submitStateUpdateTask("fabric-discovery-master", Priority.URGENT, new ProcessedClusterStateUpdateTask() {
                 @Override
                 public ClusterState execute(ClusterState currentState) {
                     // Rebuild state
@@ -280,6 +304,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
 
                 @Override
                 public void clusterStateProcessed(String source, ClusterState oldState, ClusterState newState) {
+                    logger.debug("Cluster updated");
                     sendInitialStateEventIfNeeded();
                 }
 
@@ -300,31 +325,93 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
 
     }
 
+    static class ProcessClusterState {
+        final ClusterState clusterState;
+        final PublishClusterStateAction.NewClusterStateListener.NewStateProcessed newStateProcessed;
+        volatile boolean processed;
+
+        ProcessClusterState(ClusterState clusterState, PublishClusterStateAction.NewClusterStateListener.NewStateProcessed newStateProcessed) {
+            this.clusterState = clusterState;
+            this.newStateProcessed = newStateProcessed;
+        }
+    }
+
+    private final BlockingQueue<ProcessClusterState> processNewClusterStates = ConcurrentCollections.newBlockingQueue();
+
     @Override
-    public void onNewClusterState(final ClusterState newState, NewStateProcessed newStateProcessed) {
+    public void onNewClusterState(final ClusterState newState, final NewStateProcessed newStateProcessed) {
         if (singleton.isMaster()) {
             logger.warn("master should not receive new cluster state from [{}]", newState.nodes().masterNode());
         } else {
             if (newState.nodes().localNode() == null) {
                 logger.warn("received a cluster state from [{}] and not part of the cluster, should not happen", newState.nodes().masterNode());
             } else {
-                clusterService.submitStateUpdateTask("zen-disco-receive(from master [" + newState.nodes().masterNode() + "])", new ProcessedClusterStateUpdateTask() {
+                if (logger.isDebugEnabled()) {
+                    String master = singleton.master() != null ? singleton.master().node.name() : null;
+                    List<String> slaves = new ArrayList<String>();
+                    for (ESNode s : singleton.slaves()) {
+                        slaves.add(s.node.name());
+                    }
+                    logger.debug("Cluster state received: master {}, slaves {}", master, slaves);
+                }
+                final ProcessClusterState processClusterState = new ProcessClusterState(newState, newStateProcessed);
+                processNewClusterStates.add(processClusterState);
+                clusterService.submitStateUpdateTask("fabric-discovery-slave", new ProcessedClusterStateUpdateTask() {
                     @Override
                     public ClusterState execute(ClusterState currentState) {
-                        latestDiscoNodes = newState.nodes();
+                        // we already processed it in a previous event
+                        if (processClusterState.processed) {
+                            return currentState;
+                        }
 
-                        ClusterState.Builder builder = ClusterState.builder(newState);
+                        // try and get the state with the highest version out of all the ones with the same master node id
+                        ProcessClusterState stateToProcess = processNewClusterStates.poll();
+                        if (stateToProcess == null) {
+                            return currentState;
+                        }
+                        stateToProcess.processed = true;
+                        while (true) {
+                            ProcessClusterState potentialState = processNewClusterStates.peek();
+                            // nothing else in the queue, bail
+                            if (potentialState == null) {
+                                break;
+                            }
+                            // if its not from the same master, then bail
+                            if (!Objects.equal(stateToProcess.clusterState.nodes().masterNodeId(), potentialState.clusterState.nodes().masterNodeId())) {
+                                break;
+                            }
+
+                            // we are going to use it for sure, poll (remove) it
+                            potentialState = processNewClusterStates.poll();
+                            potentialState.processed = true;
+
+                            if (potentialState.clusterState.version() > stateToProcess.clusterState.version()) {
+                                // we found a new one
+                                stateToProcess = potentialState;
+                            }
+                        }
+
+                        ClusterState updatedState = stateToProcess.clusterState;
+
+                        // if the new state has a smaller version, and it has the same master node, then no need to process it
+                        if (updatedState.version() < currentState.version() && Objects.equal(updatedState.nodes().masterNodeId(), currentState.nodes().masterNodeId())) {
+                            return currentState;
+                        }
+
+                        latestDiscoNodes = updatedState.nodes();
+
+                        ClusterState.Builder builder = ClusterState.builder(updatedState);
                         // if the routing table did not change, use the original one
-                        if (newState.routingTable().version() == currentState.routingTable().version()) {
+                        if (updatedState.routingTable().version() == currentState.routingTable().version()) {
                             builder.routingTable(currentState.routingTable());
                         }
                         // same for metadata
-                        if (newState.metaData().version() == currentState.metaData().version()) {
+                        if (updatedState.metaData().version() == currentState.metaData().version()) {
                             builder.metaData(currentState.metaData());
                         } else {
                             // if its not the same version, only copy over new indices or ones that changed the version
-                            MetaData.Builder metaDataBuilder = MetaData.builder(newState.metaData()).removeAllIndices();
-                            for (IndexMetaData indexMetaData : newState.metaData()) {
+                            MetaData.Builder metaDataBuilder = MetaData.builder(updatedState.metaData()).removeAllIndices();
+                            for (IndexMetaData indexMetaData : updatedState.metaData()) {
                                 IndexMetaData currentIndexMetaData = currentState.metaData().index(indexMetaData.index());
                                 if (currentIndexMetaData == null || currentIndexMetaData.version() != indexMetaData.version()) {
                                     metaDataBuilder.put(indexMetaData, false);
@@ -340,12 +427,15 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
 
                     @Override
                     public void clusterStateProcessed(String s, ClusterState clusterState, ClusterState clusterState2) {
+                        logger.debug("Cluster state processed");
                         sendInitialStateEventIfNeeded();
+                        newStateProcessed.onNewClusterStateProcessed();
                     }
 
                     @Override
-                    public void onFailure(String s, Throwable throwable) {
-                        // TODO
+                    public void onFailure(String source, Throwable t) {
+                        logger.error("unexpected failure during [{}]", t, source);
+                        newStateProcessed.onNewClusterStateFailed(t);
                     }
                 });
             }
@@ -354,6 +444,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
 
     private void sendInitialStateEventIfNeeded() {
         if (initialStateSent.compareAndSet(false, true)) {
+            logger.debug("Sending initial state event");
             for (InitialStateDiscoveryListener listener : initialStateListeners) {
                 listener.initialStateProcessed();
             }
