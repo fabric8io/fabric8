@@ -42,6 +42,7 @@ import io.fabric8.deployer.dto.DeployResults;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.internal.Objects;
+import io.fabric8.service.child.ChildConstants;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -207,6 +208,19 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         profile.setBundles(bundles);
         profile.setFeatures(features);
         profile.setRepositories(repositories);
+        String webContextPath = requirements.getWebContextPath();
+        if (!Strings.isEmpty(webContextPath)) {
+            Map<String, String> contextPathConfig = profile.getConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID);
+            if (contextPathConfig == null) {
+                contextPathConfig = new HashMap<String, String>();
+            }
+            String key = requirements.getGroupId() + "/" + requirements.getArtifactId();
+            String current = contextPathConfig.get(key);
+            if (!Objects.equal(current, webContextPath)) {
+                contextPathConfig.put(key, webContextPath);
+                profile.setConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID, contextPathConfig);
+            }
+        }
         String description = requirements.getDescription();
         if (!Strings.isEmpty(description)) {
             String fileName = "Summary.md";

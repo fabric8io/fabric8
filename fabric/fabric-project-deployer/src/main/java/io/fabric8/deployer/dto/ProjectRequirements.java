@@ -34,6 +34,7 @@ public class ProjectRequirements {
     private List<String> featureRepositories;
     private Integer minimumInstances;
     private DependencyDTO rootDependency;
+    private String webContextPath;
 
     @Override
     public String toString() {
@@ -142,5 +143,13 @@ public class ProjectRequirements {
 
     public void setMinimumInstances(Integer minimumInstances) {
         this.minimumInstances = minimumInstances;
+    }
+
+    public String getWebContextPath() {
+        return webContextPath;
+    }
+
+    public void setWebContextPath(String webContextPath) {
+        this.webContextPath = webContextPath;
     }
 }

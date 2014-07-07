@@ -336,6 +336,10 @@ Or specify the command line:
 <td>includeReadMe</td>
 <td>Whether or not to include the project readme file (if exists). Notice that if there is already a readme file in <b>profileConfigDir</b>, then that file is included, and <b>not</b> the project readme file. Defaults to true.</td>
 </tr>
+<tr>
+<td>webContextPath</td>
+<td>For web applications (projects with *war* packaging) this property specifies the context path to use for the web application; such as "/" or "/myapp". This value defaults to the archetype id.</td>
+</tr>
 </table>
 
 ### Generating Karaf shell scripts for each profile

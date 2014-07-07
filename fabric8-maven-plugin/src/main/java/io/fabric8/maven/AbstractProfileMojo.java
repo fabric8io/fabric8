@@ -201,6 +201,12 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     @Parameter(property = "fabric8.generateSummaryFile", defaultValue = "true")
     protected boolean generateSummaryFile;
 
+    /**
+     * The context path to use for web applications for projects using the <code>war</code> packacing
+     */
+    @Parameter(property = "fabric8.webContextPath", defaultValue = "${project.artifactId}")
+    private String webContextPath;
+
     protected static boolean isFile(File file) {
         return file != null && file.exists() && file.isFile();
     }
@@ -289,6 +295,14 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         return ignoreProject;
     }
 
+    public String getWebContextPath() {
+        return webContextPath;
+    }
+
+    public void setWebContextPath(String webContextPath) {
+        this.webContextPath = webContextPath;
+    }
+
     protected static List<String> parameterToStringList(String parameterValue) {
         List<String> answer = new ArrayList<String>();
         if (Strings.isNotBlank(parameterValue)) {
@@ -332,6 +346,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         }
         if (Strings.isNotBlank(baseVersion)) {
             requirements.setBaseVersion(baseVersion);
+        }
+        if (Strings.isNotBlank(webContextPath)) {
+            requirements.setWebContextPath(webContextPath);
         }
         List<String> bundleList = parameterToStringList(bundles);
         if (parentProfiles == null || parentProfiles.length() <= 0) {
