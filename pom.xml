@@ -87,7 +87,7 @@
             org.springframework.osgi.*;version="[1.2,2)",
             org.springframework.*;version="[3.1,4)",
             org.apache.commons.logging.*;version="[1.1,2)",
-            org.apache.camel.*;version="[2.12,3)",
+            org.apache.camel.*;version="[2.13,3)",
             org.apache.felix.gogo.commands.*;version="[0.10,1)",
             org.apache.felix.service.command.*;version="[0.10,1)",
             scala*;version="[2.11,2.12)"
@@ -149,8 +149,8 @@
         <blueprint-web-version>1.0.0</blueprint-web-version>
         <bndlib-version>1.43.0</bndlib-version>
         <bouncycastle-version>1.49</bouncycastle-version>
-        <camel-version-range>[2.12,3)</camel-version-range>
-        <camel-version>2.13.1</camel-version>
+        <camel-version-range>[2.13,3)</camel-version-range>
+        <camel-version>2.13.2</camel-version>
         <cassandra-version>2.0.7</cassandra-version>
         <codahale-metrics-version>3.0.1</codahale-metrics-version>
         <commons-beanutils-version>1.8.3</commons-beanutils-version>
