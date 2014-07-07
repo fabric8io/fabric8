@@ -15,13 +15,13 @@
  */
 package org.elasticsearch.discovery.fabric;
 
+import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.discovery.Discovery;
-import org.elasticsearch.discovery.zen.ZenDiscoveryModule;
 
-public class FabricDiscoveryModule extends ZenDiscoveryModule {
+public class FabricDiscoveryModule extends AbstractModule {
 
     @Override
-    protected void bindDiscovery() {
+    protected void configure() {
         bind(Discovery.class).to(FabricDiscovery.class).asEagerSingleton();
     }
 }

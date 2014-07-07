@@ -16,6 +16,8 @@
 package org.elasticsearch.pojo;
 
 import io.fabric8.common.util.JMXUtils;
+import io.fabric8.insight.metrics.model.MetricsStorageService;
+import io.fabric8.insight.metrics.model.QueryResult;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
@@ -42,7 +44,7 @@ import javax.servlet.ServletException;
  * Instead of registering 3 different services, we use a single wrapper which delegate to the
  * three services.  It helps management of service registration.
  */
-public class ExtendedInternalNode implements Node, io.fabric8.insight.elasticsearch.ElasticRest, StorageService {
+public class ExtendedInternalNode implements Node, io.fabric8.insight.elasticsearch.ElasticRest, StorageService, MetricsStorageService {
 
     private final BundleContext bundleContext;
     private final ServiceTracker<HttpService, HttpService> httpServiceTracker;
@@ -107,6 +109,7 @@ public class ExtendedInternalNode implements Node, io.fabric8.insight.elasticsea
                             JMXUtils.unregisterMBean(service, OBJECT_NAME);
                         } catch (Exception e) {
                             // Ignore
+                            e.printStackTrace();
                         }
                     }
                 });
@@ -135,7 +138,7 @@ public class ExtendedInternalNode implements Node, io.fabric8.insight.elasticsea
 
     @Override
     public void close() {
-        this.storage.destroy();
+        stop();
         this.node.close();
     }
 
@@ -182,5 +185,10 @@ public class ExtendedInternalNode implements Node, io.fabric8.insight.elasticsea
     @Override
     public void store(String type, long timestamp, String jsonData) {
         this.storage.store(type, timestamp, jsonData);
+    }
+
+    @Override
+    public void store(String type, long timestamp, QueryResult queryResult) {
+        this.storage.store(type, timestamp, queryResult);
     }
 }
