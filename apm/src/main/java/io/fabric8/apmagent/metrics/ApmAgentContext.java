@@ -167,28 +167,14 @@ public class ApmAgentContext {
     public void shutDown() {
         if (initialized.compareAndSet(true, false)) {
             stop();
-            if (mBeanServer != null) {
-                if (configurationObjectName != null) {
-                    try {
-                        mBeanServer.unregisterMBean(configurationObjectName);
-                    } catch (Throwable e) {
-                        LOG.error("Failed to unregister mbean: " + configurationObjectName, e);
-                    }
-                }
-                if (agentObjectName != null) {
-                    try {
-                        mBeanServer.unregisterMBean(agentObjectName);
-                    } catch (Throwable e) {
-                        LOG.error("Failed to unregister mbean: " + agentObjectName, e);
-                    }
-                }
-                if (jolokiaServer != null) {
-                    jolokiaServer.stop();
-                    jolokiaServer = null;
+            unregisterMBean(configurationObjectName);
+            unregisterMBean(agentObjectName);
+            if (jolokiaServer != null) {
+                jolokiaServer.stop();
+                jolokiaServer = null;
 
-                }
-                mBeanServer = null;
             }
+            mBeanServer = null;
         }
     }
 
@@ -336,12 +322,16 @@ public class ApmAgentContext {
 
     void unregisterThreadContextMethodMetricsMBean(ThreadContextMethodMetrics threadMetrics) {
         ObjectName objectName = objectNameMap.remove(threadMetrics);
+        unregisterMBean(objectName);
+    }
+
+    private void unregisterMBean(ObjectName objectName) {
         MBeanServer beanServer = getMBeanServer();
         if (objectName != null && beanServer != null && beanServer.isRegistered(objectName)) {
             try {
                 beanServer.unregisterMBean(objectName);
             } catch (Throwable e) {
-                LOG.error("Failed to unregister " + threadMetrics, e);
+                LOG.error("Failed to unregister " + objectName, e);
             }
         }
     }
@@ -362,13 +352,7 @@ public class ApmAgentContext {
 
     void unregisterMethodMetricsMBean(MethodMetrics methodMetrics) {
         ObjectName objectName = objectNameMap.remove(methodMetrics);
-        if (objectName != null) {
-            try {
-                getMBeanServer().unregisterMBean(objectName);
-            } catch (Throwable e) {
-                LOG.error("Failed to unregister " + methodMetrics, e);
-            }
-        }
+        unregisterMBean(objectName);
     }
 
     private synchronized MBeanServer getMBeanServer() {
