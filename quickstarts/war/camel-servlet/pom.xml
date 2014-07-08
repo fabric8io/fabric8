@@ -60,6 +60,7 @@
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-war-camel.servlet</fabric8.profile>
     <fabric8.parentProfiles>containers-tomcat</fabric8.parentProfiles>
+    <fabric8.webContextPath>camel-servlet</fabric8.webContextPath>
   </properties>
 
   <licenses>
