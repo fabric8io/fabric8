@@ -15,18 +15,17 @@
  */
 package io.fabric8.process.spring.boot.registry;
 
-import java.util.Map;
+import org.springframework.core.env.PropertySource;
 
-public class RegistryProperties {
+public class ProcessRegistryPropertySource extends PropertySource<ProcessRegistry> {
 
-    private final Map<String,Object> properties;
-
-    public RegistryProperties(Map<String, Object> properties) {
-        this.properties = properties;
+    public ProcessRegistryPropertySource(ProcessRegistry processRegistry) {
+        super("Process registry property source: " + processRegistry, processRegistry);
     }
 
-    public Map<String,Object> properties() {
-        return properties;
+    @Override
+    public Object getProperty(String name) {
+        return getSource().readProperty(name);
     }
 
 }

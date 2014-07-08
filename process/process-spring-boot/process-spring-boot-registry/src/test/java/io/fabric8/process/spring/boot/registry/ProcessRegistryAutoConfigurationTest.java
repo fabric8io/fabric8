@@ -19,20 +19,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
-import org.springframework.test.context.web.ServletTestExecutionListener;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = ProcessRegistryAutoConfigurationTest.class)
@@ -42,16 +32,22 @@ public class ProcessRegistryAutoConfigurationTest extends Assert {
     @Autowired
     ProcessRegistry registry;
 
-    @Bean
-    RegistryProperties processRegistryProperties() {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("foo", "bar");
-        return new RegistryProperties(properties);
+    @Value("${foo}")
+    String fooValue;
+
+    @Test
+    public void shouldResolveFromSystemProperties() {
+        assertEquals("bar", fooValue);
     }
 
     @Test
-    public void shouldUseRegisteredMap() {
-        assertEquals("bar", registry.readProperty("foo"));
+    public void propertyResolverShouldDelegateToProcessRegistry() {
+        try {
+            System.setProperty("baz", "qux");
+            assertEquals("qux", registry.readProperty("baz"));
+        } finally {
+            System.clearProperty("baz");
+        }
     }
 
 }

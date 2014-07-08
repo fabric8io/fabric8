@@ -15,17 +15,23 @@
  */
 package io.fabric8.process.spring.boot.registry;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+public class CompositeProcessRegistry implements ProcessRegistry {
 
-import static io.fabric8.process.spring.boot.registry.ProcessRegistryPropertySourceApplicationContextInitializer.processRegistry;
+    private final ProcessRegistry[] registries;
 
-@Configuration
-public class ProcessRegistryAutoConfiguration {
+    public CompositeProcessRegistry(ProcessRegistry... registries) {
+        this.registries = registries;
+    }
 
-    @Bean
-    ProcessRegistry inMemoryProcessRegistry() {
-        return processRegistry();
+    @Override
+    public String readProperty(String key) {
+        for(ProcessRegistry processRegistry : registries) {
+            String propertyValue = processRegistry.readProperty(key);
+            if(propertyValue != null) {
+                return propertyValue;
+            }
+        }
+        return null;
     }
 
 }
