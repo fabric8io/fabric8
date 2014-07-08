@@ -146,7 +146,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
-            <version>2.8</version>
+            <version>${maven-dependency-plugin-version}</version>
             <executions>
               <execution>
                 <id>fuse-fabric-deploy-webapps</id>
