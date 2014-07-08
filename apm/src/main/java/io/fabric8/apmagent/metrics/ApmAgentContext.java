@@ -22,7 +22,10 @@ import org.jolokia.jvmagent.JolokiaServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
@@ -107,18 +110,18 @@ public class ApmAgentContext {
     public void initialize() {
         if (initialized.compareAndSet(false, true)) {
             try {
-                ObjectName objectName = new ObjectName(DEFAULT_DOMAIN, "type", "apmAgent");
-                ObjectInstance objectInstance = getMBeanServer().registerMBean(apmAgent, objectName);
-                agentObjectName = objectInstance.getObjectName();
+                agentObjectName = new ObjectName(DEFAULT_DOMAIN, "type", "apmAgent");
+                registerMBean(agentObjectName, apmAgent);
                 ApmConfiguration configuration = apmAgent.getConfiguration();
-                objectName = new ObjectName(DEFAULT_DOMAIN, "type", "configuration");
-                objectInstance = getMBeanServer().registerMBean(configuration, objectName);
-                configurationObjectName = objectInstance.getObjectName();
+
+                configurationObjectName = new ObjectName(DEFAULT_DOMAIN, "type", "configuration");
+                registerMBean(configurationObjectName, configuration);
             } catch (Throwable e) {
                 LOG.error("Failed to register apmAgent mbeans with mBeanServer ", e);
             }
         }
     }
+
 
     public void start() {
         if (initialized.get()) {
@@ -307,8 +310,8 @@ public class ApmAgentContext {
                     + ",threadName=" + ObjectName.quote(threadMetrics.getThreadName())
                     // + ",threadId=" + threadMetrics.getThreadId()
             );
-            ObjectInstance objectInstance = getMBeanServer().registerMBean(threadMetrics, objectName);
-            objectNameMap.put(threadMetrics, objectInstance.getObjectName());
+            registerMBean(objectName, threadMetrics);
+            objectNameMap.put(threadMetrics, objectName);
         } catch (Throwable e) {
             LOG.error("Failed to register mbean " + threadMetrics.toString(), e);
         }
@@ -319,7 +322,15 @@ public class ApmAgentContext {
         unregisterMBean(objectName);
     }
 
-    private void unregisterMBean(ObjectName objectName) {
+    protected ObjectInstance registerMBean(ObjectName objectName, Object object) throws InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {
+        MBeanServer server = getMBeanServer();
+        if (server != null && !server.isRegistered(objectName)) {
+            return server.registerMBean(object, objectName);
+        }
+        return null;
+    }
+
+    protected void unregisterMBean(ObjectName objectName) {
         MBeanServer beanServer = getMBeanServer();
         if (objectName != null && beanServer != null && beanServer.isRegistered(objectName)) {
             try {
@@ -337,8 +348,8 @@ public class ApmAgentContext {
                     ",name=" + ObjectName.quote(methodMetrics.getName())
                     // "methodId" + System.identityHashCode(methodMetrics))
             );
-            ObjectInstance objectInstance = getMBeanServer().registerMBean(methodMetrics, objectName);
-            objectNameMap.put(methodMetrics, objectInstance.getObjectName());
+            registerMBean(objectName, methodMetrics);
+            objectNameMap.put(methodMetrics, objectName);
         } catch (Throwable e) {
             LOG.error("Failed to register mbean " + methodMetrics.toString(), e);
         }
