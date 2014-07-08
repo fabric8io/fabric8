@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 /**
  */
-@Ignore
+@Ignore("[FABRIC-1092] Fix Docker API tests")
 public class ExtractProgressIdTest {
     @Test
     public void testExtractId() throws Exception {

@@ -22,7 +22,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 
-@Ignore
+@Ignore("[FABRIC-1092] Fix Docker API tests")
 public class DockerTest {
 
     @Test

@@ -56,60 +56,6 @@ import org.ops4j.pax.exam.spi.reactors.PerMethod;
 public class MQProfileTest extends FabricTestSupport {
 
     @Test
-    @Ignore("Fix me later as people create brokers using the mq-create command and not assign a profile, so this test is obsolete")
-    public void testLocalChildCreation() throws Exception {
-        System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
-        //System.out.println(executeCommand("shell:info"));
-        //System.out.println(executeCommand("fabric:info"));
-        //System.out.println(executeCommand("fabric:profile-list"));
-
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
-        try {
-            Set<ContainerProxy> containers= ContainerBuilder.create(fabricProxy, 2).withName("child").withProfiles("mq-default").assertProvisioningResult().build();
-            try {
-                LinkedList<Container> containerList = new LinkedList<Container>(containers);
-                Container broker = containerList.removeLast();
-
-                Profile brokerProfile = broker.getVersion().getProfile("mq-default");
-                broker.setProfiles(new Profile[]{brokerProfile});
-
-                Provision.provisioningSuccess(Arrays.asList(broker), PROVISION_TIMEOUT);
-
-                waitForBroker("default");
-
-                // check jmx stats
-                final BrokerViewMBean bean = (BrokerViewMBean)Provision.getMBean(broker, new ObjectName("org.apache.activemq:type=Broker,brokerName=" + broker.getId()), BrokerViewMBean.class, 120000);
-                Assert.assertNotNull("Cannot get BrokerViewMBean from JMX", bean);
-                Assert.assertEquals("Producer not present", 0, bean.getTotalProducerCount());
-                Assert.assertEquals("Consumer not present", 0, bean.getTotalConsumerCount());
-
-                for (Container c : containerList) {
-                    Profile exampleProfile = broker.getVersion().getProfile("example-mq");
-                    c.setProfiles(new Profile[]{exampleProfile});
-                }
-
-                Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
-
-                Provision.waitForCondition(new Callable<Boolean>() {
-                    @Override
-                    public Boolean call() throws Exception {
-                        while(bean.getTotalProducerCount() == 0 || bean.getTotalConsumerCount() == 0) {
-                            Thread.sleep(1000);
-                        }
-                        return true;
-                    }
-                }, 120000L);
-                Assert.assertEquals("Producer not present", 1, bean.getTotalProducerCount());
-                Assert.assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
-            } finally {
-                ContainerBuilder.destroy(containers);
-            }
-        } finally {
-            fabricProxy.close();
-        }
-    }
-
-    @Test
     public void testMQCreateBasic() throws Exception {
         System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
         //System.out.println(executeCommand("shell:info"));

@@ -30,8 +30,8 @@ import static org.junit.Assert.assertNotNull;
 
 public class ContainerTest extends DockerBaseTest {
 
-    @Ignore
     @Test
+    @Ignore("[FABRIC-1092] Fix Docker API tests")
     public void testListContainers() throws IOException {
         recordResponse("container/containers-all");
         List<Container> containers = docker.containers(1, 1, null, null, 1);

@@ -32,12 +32,12 @@ import org.sonatype.aether.graph.DependencyNode;
 
 import static org.junit.Assert.assertTrue;
 
+@Ignore("[FABRIC-1094] Fix insight-maven tests")
 public class ProjectResolveTest extends LocalBuildTestSupport {
 
     private Map<String, ArtifactVersions> idNoVersionMap = new TreeMap<String, ArtifactVersions>();
 
     @Test
-    @Ignore
     public void aetherTest() throws Exception {
         String postfix = "insight-maven/pom.xml";
         // lets find the fuse project dir

@@ -187,7 +187,8 @@ public class MavenProxyServletSupportTest {
     }
 
     @Test
-    @Ignore("Will work when https://jira.codehaus.org/browse/WAGON-416 will be fixed")
+    @Ignore("[FABRIC-1093] Fix fabric-maven-proxy tests")
+    // Will work when https://jira.codehaus.org/browse/WAGON-416 will be fixed")
     public void testDownloadUsingAuthenticatedProxy() throws Exception {
         testDownload(new AbstractHandler() {
             @Override
