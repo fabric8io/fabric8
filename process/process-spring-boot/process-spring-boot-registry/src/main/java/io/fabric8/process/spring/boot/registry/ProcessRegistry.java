@@ -17,6 +17,12 @@ package io.fabric8.process.spring.boot.registry;
 
 public interface ProcessRegistry {
 
+    /**
+     * Reads property from the process registry.
+     *
+     * @param key identifies uniquely property to be resolved
+     * @return value of the property or {@code null} if property is not available
+     */
     String readProperty(String key);
 
 }
