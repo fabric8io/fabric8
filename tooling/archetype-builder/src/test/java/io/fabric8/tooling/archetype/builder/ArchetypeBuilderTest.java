@@ -54,7 +54,6 @@ public class ArchetypeBuilderTest {
     }
 
     @Test
-//    @Ignore("Removed the hello world archetype as it should not be in our way")
     public void buildAllExampleArchetypes() throws Exception {
         File srcDir = new File(basedir, "../examples").getCanonicalFile();
 
@@ -103,7 +102,7 @@ public class ArchetypeBuilderTest {
     }
 
     @Test
-    @Ignore("TODO: Fix me")
+    @Ignore("[FABRIC-1096] Fix archetype-builder tests")
     public void relativePaths() throws Exception {
         File base = new File("/tmp/x");
         File nested = new File("/tmp/x/y");

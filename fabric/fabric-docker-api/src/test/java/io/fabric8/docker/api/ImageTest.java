@@ -67,8 +67,8 @@ public class ImageTest extends DockerBaseTest {
         //assertEquals(response.getError(), "Invalid...");
     }
 
-    @Ignore
     @Test
+    @Ignore("[FABRIC-1092] Fix Docker API tests")
     public void testImageInspect() throws IOException {
         recordResponse("image/image-inspect");
         ImageInfo response = docker.imageInspect("b750fe79269d");
@@ -84,8 +84,8 @@ public class ImageTest extends DockerBaseTest {
         assertEquals(history.size(), 2);
     }
 
-    @Ignore
     @Test
+    @Ignore("[FABRIC-1092] Fix Docker API tests")
     public void testImagePush() throws IOException, InterruptedException {
         recordResponse("image/image-push");
         final Auth auth = new Auth();
@@ -101,8 +101,8 @@ public class ImageTest extends DockerBaseTest {
         assertEquals(auth.getEmail(), requestAuth.getEmail());
     }
 
-    @Ignore
     @Test
+    @Ignore("[FABRIC-1092] Fix Docker API tests")
     public void testImageDelete() throws IOException {
         String json = Resources.toString(getResource("image/image-delete.json"), Charsets.UTF_8);
         MockWebServer server = new MockWebServer();
