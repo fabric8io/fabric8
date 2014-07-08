@@ -321,14 +321,13 @@ public class ApmAgentContext {
   }
 
   void registerThreadContextMethodMetricsMBean(ThreadContextMethodMetrics threadMetrics) {
-    Hashtable<String, String> properties = new Hashtable<>();
-    properties.put("type", "threadContextMetrics");
-    properties.put("name", ObjectName.quote(threadMetrics.getName()));
-    properties.put("threadName", ObjectName.quote(threadMetrics.getThreadName()));
-    properties.put("threadId", String.valueOf(threadMetrics.getThreadId()));
-
     try {
-      ObjectName objectName = new ObjectName(DEFAULT_DOMAIN, properties);
+        ObjectName objectName = new ObjectName(DEFAULT_DOMAIN + ":"
+                + "type=ThreadContextMetrics"
+                + ",name=" + ObjectName.quote(threadMetrics.getName())
+                + ",threadName=" + ObjectName.quote(threadMetrics.getThreadName())
+                // + ",threadId=" + threadMetrics.getThreadId()
+        );
       ObjectInstance objectInstance = getMBeanServer().registerMBean(threadMetrics, objectName);
       objectNameMap.put(threadMetrics, objectInstance.getObjectName());
     } catch (Throwable e) {
@@ -338,9 +337,10 @@ public class ApmAgentContext {
 
   void unregisterThreadContextMethodMetricsMBean(ThreadContextMethodMetrics threadMetrics) {
     ObjectName objectName = objectNameMap.remove(threadMetrics);
-    if (objectName != null) {
+      MBeanServer beanServer = getMBeanServer();
+    if (objectName != null && beanServer != null && beanServer.isRegistered(objectName)) {
       try {
-        getMBeanServer().unregisterMBean(objectName);
+          beanServer.unregisterMBean(objectName);
       } catch (Throwable e) {
         LOG.error("Failed to unregister " + threadMetrics, e);
       }
@@ -348,13 +348,12 @@ public class ApmAgentContext {
   }
 
   void registerMethodMetricsMBean(MethodMetrics methodMetrics) {
-    Hashtable<String, String> properties = new Hashtable<>();
-    properties.put("type", "MethodMetrics");
-    properties.put("name", ObjectName.quote(methodMetrics.getName()));
-    //properties.put("methodId", String.valueOf(System.identityHashCode(methodMetrics)));
-
     try {
-      ObjectName objectName = new ObjectName(DEFAULT_DOMAIN, properties);
+      ObjectName objectName = new ObjectName(DEFAULT_DOMAIN + ":" +
+        "type=MethodMetrics" +
+        ",name=" + ObjectName.quote(methodMetrics.getName())
+        // "methodId" + System.identityHashCode(methodMetrics))
+      );
       ObjectInstance objectInstance = getMBeanServer().registerMBean(methodMetrics, objectName);
       objectNameMap.put(methodMetrics, objectInstance.getObjectName());
     } catch (Throwable e) {
