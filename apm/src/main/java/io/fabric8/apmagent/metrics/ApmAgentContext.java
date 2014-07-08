@@ -149,16 +149,10 @@ public class ApmAgentContext {
             if (oldValue != null) {
                 oldValue.cancel();
             }
-            if (mBeanServer != null) {
-                for (ObjectName objectName : objectNameMap.values()) {
-                    try {
-                        mBeanServer.unregisterMBean(objectName);
-                    } catch (Throwable e) {
-                        LOG.error("Failed to unregister mbean: " + objectName, e);
-                    }
-                }
-                objectNameMap.clear();
+            for (ObjectName objectName : objectNameMap.values()) {
+               unregisterMBean(objectName);
             }
+            objectNameMap.clear();
             methodMetricsMap.clear();
             threadMetricsMap.clear();
         }
