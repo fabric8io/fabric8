@@ -3374,6 +3374,7 @@
         <profile>
             <id>all</id>
             <modules>
+                <module>apm</module>
                 <module>patch</module>
                 <module>security</module>
                 <module>tooling</module>
