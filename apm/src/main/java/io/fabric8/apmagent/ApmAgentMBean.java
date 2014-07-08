@@ -19,21 +19,21 @@ import java.util.List;
 
 public interface ApmAgentMBean {
 
-  void startMetrics();
+    void startMetrics();
 
-  void stopMetrics();
+    void stopMetrics();
 
-  void shutDown();
+    void shutDown();
 
-  /**
-   * @return List of <className>@<methodName>
-   */
-  List<String> getTransformedMethods();
+    /**
+     * @return List of <className>@<methodName>
+     */
+    List<String> getTransformedMethods();
 
-  /**
-   * @return List of all <className>@<methodName>
-   */
-  List <String> getAllMethods();
+    /**
+     * @return List of all <className>@<methodName>
+     */
+    List<String> getAllMethods();
 
-  List<ThreadMetrics> getThreadMetrics();
+    List<ThreadMetrics> getThreadMetrics();
 }

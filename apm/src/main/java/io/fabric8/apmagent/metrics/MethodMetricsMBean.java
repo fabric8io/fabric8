@@ -15,38 +15,38 @@ package io.fabric8.apmagent.metrics;
 
 public interface MethodMetricsMBean {
 
-  String getName();
+    String getName();
 
-  long getCount();
+    long getCount();
 
-  double getMeanRate();
+    double getMeanRate();
 
-  double getOneMinuteRate();
+    double getOneMinuteRate();
 
-  double getFiveMinuteRate();
+    double getFiveMinuteRate();
 
-  double getFifteenMinuteRate();
+    double getFifteenMinuteRate();
 
-  double getMin();
+    double getMin();
 
-  double getMax();
+    double getMax();
 
-  double getMean();
+    double getMean();
 
-  double getStdDev();
+    double getStdDev();
 
-  double get50thPercentile();
+    double get50thPercentile();
 
-  double get75thPercentile();
+    double get75thPercentile();
 
-  double get95thPercentile();
+    double get95thPercentile();
 
-  double get98thPercentile();
+    double get98thPercentile();
 
-  double get99thPercentile();
+    double get99thPercentile();
 
-  double get999thPercentile();
+    double get999thPercentile();
 
-  long[] values();
+    long[] values();
 
 }

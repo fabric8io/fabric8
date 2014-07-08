@@ -17,5 +17,5 @@ package io.fabric8.testApp;
  * Created by rajdavies on 09/06/2014.
  */
 public enum TestValues {
-  ONE, TWO, THREE, FOUR
+    ONE, TWO, THREE, FOUR
 }

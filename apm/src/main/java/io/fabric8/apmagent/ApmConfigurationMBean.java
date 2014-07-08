@@ -13,28 +13,28 @@
 package io.fabric8.apmagent;
 
 public interface ApmConfigurationMBean {
-  String getWhiteList();
+    String getWhiteList();
 
-  void setWhiteList(String whiteList);
+    void setWhiteList(String whiteList);
 
-  String getBlackList();
+    String getBlackList();
 
-  void setBlackList(String blackList);
+    void setBlackList(String blackList);
 
-  void addToBlackList(String className);
+    void addToBlackList(String className);
 
-  void addToWhiteList(String className);
+    void addToWhiteList(String className);
 
-  boolean isTrace();
+    boolean isTrace();
 
-  void setTrace(boolean trace);
+    void setTrace(boolean trace);
 
-  boolean isDebug();
+    boolean isDebug();
 
-  void setDebug(boolean debug);
+    void setDebug(boolean debug);
 
-  boolean isAsyncTransformation();
+    boolean isAsyncTransformation();
 
-  void setAsyncTransformation(boolean asyncTransformation);
+    void setAsyncTransformation(boolean asyncTransformation);
 
 }

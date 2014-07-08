@@ -15,42 +15,42 @@ package io.fabric8.apmagent.metrics;
 
 class ThreadContextMethodMetricsStack {
 
-  private ThreadContextMethodMetrics[] stack;
-  private int pointer;
+    private ThreadContextMethodMetrics[] stack;
+    private int pointer;
 
-  ThreadContextMethodMetricsStack() {
-    stack = new ThreadContextMethodMetrics[2];
-  }
-
-  ThreadContextMethodMetrics push(ThreadContextMethodMetrics value) {
-    if (pointer + 1 >= stack.length) {
-      resizeStack(stack.length * 2);
+    ThreadContextMethodMetricsStack() {
+        stack = new ThreadContextMethodMetrics[2];
     }
-    stack[pointer++] = value;
-    return value;
-  }
 
-  ThreadContextMethodMetrics pop() {
-    final ThreadContextMethodMetrics result = stack[--pointer];
-    stack[pointer] = null;
-    return result;
-  }
-
-  private void resizeStack(int newCapacity) {
-    ThreadContextMethodMetrics[] newStack = new ThreadContextMethodMetrics[newCapacity];
-    System.arraycopy(stack, 0, newStack, 0, Math.min(pointer, newCapacity));
-    stack = newStack;
-  }
-
-  public String toString() {
-    StringBuilder result = new StringBuilder("[");
-    for (int i = 0; i < pointer; i++) {
-      if (i > 0) {
-        result.append(", ");
-      }
-      result.append(stack[i].getName());
+    ThreadContextMethodMetrics push(ThreadContextMethodMetrics value) {
+        if (pointer + 1 >= stack.length) {
+            resizeStack(stack.length * 2);
+        }
+        stack[pointer++] = value;
+        return value;
     }
-    result.append(']');
-    return result.toString();
-  }
+
+    ThreadContextMethodMetrics pop() {
+        final ThreadContextMethodMetrics result = stack[--pointer];
+        stack[pointer] = null;
+        return result;
+    }
+
+    private void resizeStack(int newCapacity) {
+        ThreadContextMethodMetrics[] newStack = new ThreadContextMethodMetrics[newCapacity];
+        System.arraycopy(stack, 0, newStack, 0, Math.min(pointer, newCapacity));
+        stack = newStack;
+    }
+
+    public String toString() {
+        StringBuilder result = new StringBuilder("[");
+        for (int i = 0; i < pointer; i++) {
+            if (i > 0) {
+                result.append(", ");
+            }
+            result.append(stack[i].getName());
+        }
+        result.append(']');
+        return result.toString();
+    }
 }

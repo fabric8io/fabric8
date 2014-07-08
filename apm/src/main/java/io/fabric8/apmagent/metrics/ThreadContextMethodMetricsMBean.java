@@ -13,6 +13,7 @@
 package io.fabric8.apmagent.metrics;
 
 public interface ThreadContextMethodMetricsMBean extends MethodMetricsMBean {
-  String getThreadName();
-  long getThreadId();
+    String getThreadName();
+
+    long getThreadId();
 }
