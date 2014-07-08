@@ -18,51 +18,51 @@ import com.codahale.metrics.Timer;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ThreadContextMethodMetrics extends MethodMetrics implements ThreadContextMethodMetricsMBean {
-  private final Thread thread;
-  private final AtomicReference<ThreadContextMethodMetricsStack> stackRef;
-  private Timer.Context timerContext;
+    private final Thread thread;
+    private final AtomicReference<ThreadContextMethodMetricsStack> stackRef;
+    private Timer.Context timerContext;
 
-  public ThreadContextMethodMetrics(Thread thread, AtomicReference<ThreadContextMethodMetricsStack> stackRef, String name) {
-    super(name);
-    this.thread = thread;
-    this.stackRef = stackRef;
-  }
-
-  public String getThreadName() {
-    return thread.getName();
-  }
-
-  public long getThreadId() {
-    return thread.getId();
-  }
-
-
-  public void onEnter() {
-    timerContext = timer.time();
-    stackRef.get().push(this);
-  }
-
-  public long onExit(){
-    long result = -1;
-    ThreadContextMethodMetrics last = stackRef.get().pop();
-    if (last == this){
-      result = timerContext.stop();
-    }else {
-      //the exit could have jumped a few methods if its
-      //caused by an exception
-      while (last != null && last != this) {
-        result = last.timerContext.stop();
-        last = stackRef.get().pop();
-      }
-      if (last == this){
-        result = timerContext.stop();
-      }
+    public ThreadContextMethodMetrics(Thread thread, AtomicReference<ThreadContextMethodMetricsStack> stackRef, String name) {
+        super(name);
+        this.thread = thread;
+        this.stackRef = stackRef;
     }
-    return result;
-  }
 
-  public String toString() {
-    return "ThreadContextMethodMetrics:" + getName();
-  }
+    public String getThreadName() {
+        return thread.getName();
+    }
+
+    public long getThreadId() {
+        return thread.getId();
+    }
+
+
+    public void onEnter() {
+        timerContext = timer.time();
+        stackRef.get().push(this);
+    }
+
+    public long onExit() {
+        long result = -1;
+        ThreadContextMethodMetrics last = stackRef.get().pop();
+        if (last == this) {
+            result = timerContext.stop();
+        } else {
+            //the exit could have jumped a few methods if its
+            //caused by an exception
+            while (last != null && last != this) {
+                result = last.timerContext.stop();
+                last = stackRef.get().pop();
+            }
+            if (last == this) {
+                result = timerContext.stop();
+            }
+        }
+        return result;
+    }
+
+    public String toString() {
+        return "ThreadContextMethodMetrics:" + getName();
+    }
 }
 

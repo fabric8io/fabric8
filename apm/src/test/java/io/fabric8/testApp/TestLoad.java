@@ -18,62 +18,62 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class TestLoad implements Runnable {
 
-  private final int MAX_ITERATIONS;
-  private AtomicBoolean started = new AtomicBoolean();
-  private AtomicLong count = new AtomicLong();
-  private String name;
-  private Thread thread;
+    private final int MAX_ITERATIONS;
+    private AtomicBoolean started = new AtomicBoolean();
+    private AtomicLong count = new AtomicLong();
+    private String name;
+    private Thread thread;
 
-  public TestLoad(String name) {
-    this(name, Integer.MAX_VALUE);
-  }
-
-  public TestLoad(String name, int maxIterations) {
-    this.name = name;
-    this.MAX_ITERATIONS = maxIterations;
-  }
-
-  public void doStart() {
-    started.set(true);
-    this.thread = new Thread(this, name);
-    this.thread.start();
-  }
-
-  public void doStop() {
-    started.set(false);
-    if (this.thread != null) {
-      try {
-        this.thread.join();
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
+    public TestLoad(String name) {
+        this(name, Integer.MAX_VALUE);
     }
-  }
 
-  public long getCount() {
-    return count.get();
-  }
-
-  public void load(TestValues value) {
-    sleep(10);
-    count.incrementAndGet();
-  }
-
-  public void run() {
-    for (int i = 0; i < MAX_ITERATIONS && started.get(); i++) {
-      for (TestValues value : TestValues.values()) {
-        load(value);
-      }
+    public TestLoad(String name, int maxIterations) {
+        this.name = name;
+        this.MAX_ITERATIONS = maxIterations;
     }
-    System.err.println("TestLoad(" + name + ") stopping");
-  }
 
-  private void sleep(long sleepTime) {
-    try {
-      Thread.sleep(sleepTime);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    public void doStart() {
+        started.set(true);
+        this.thread = new Thread(this, name);
+        this.thread.start();
     }
-  }
+
+    public void doStop() {
+        started.set(false);
+        if (this.thread != null) {
+            try {
+                this.thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public long getCount() {
+        return count.get();
+    }
+
+    public void load(TestValues value) {
+        sleep(10);
+        count.incrementAndGet();
+    }
+
+    public void run() {
+        for (int i = 0; i < MAX_ITERATIONS && started.get(); i++) {
+            for (TestValues value : TestValues.values()) {
+                load(value);
+            }
+        }
+        System.err.println("TestLoad(" + name + ") stopping");
+    }
+
+    private void sleep(long sleepTime) {
+        try {
+            Thread.sleep(sleepTime);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

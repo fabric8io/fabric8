@@ -14,47 +14,47 @@
 package io.fabric8.apmagent;
 
 public class FilterItem {
-  private String className;
-  private String methodName;
+    private String className;
+    private String methodName;
 
-  public String getClassName() {
-    return className;
-  }
-
-  public void setClassName(String className) {
-    this.className = className;
-    if (className != null) {
-      this.className = className.replace('/', '.');
+    public String getClassName() {
+        return className;
     }
-  }
 
-  public String getMethodName() {
-    return methodName;
-  }
-
-  public void setMethodName(String methodName) {
-    this.methodName = methodName;
-  }
-
-  public boolean matches(String className) {
-    className = className.replace('/', '.');
-    return className != null && (className.startsWith(getClassName()) || className.matches(getClassName()));
-  }
-
-  public boolean matches(String className, String method, boolean matchIfNoFilterMethod) {
-    boolean result = matches(className);
-    if (result) {
-      result = false;
-      if (method == null || method.isEmpty()) {
-        if (getMethodName() == null || getMethodName().isEmpty()) {
-          result = true;
+    public void setClassName(String className) {
+        this.className = className;
+        if (className != null) {
+            this.className = className.replace('/', '.');
         }
-      } else if (method != null && getMethodName() != null && !getMethodName().isEmpty()) {
-        result = method.matches(getMethodName());
-      } else {
-        result = matchIfNoFilterMethod;
-      }
     }
-    return result;
-  }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
+    public boolean matches(String className) {
+        className = className.replace('/', '.');
+        return className != null && (className.startsWith(getClassName()) || className.matches(getClassName()));
+    }
+
+    public boolean matches(String className, String method, boolean matchIfNoFilterMethod) {
+        boolean result = matches(className);
+        if (result) {
+            result = false;
+            if (method == null || method.isEmpty()) {
+                if (getMethodName() == null || getMethodName().isEmpty()) {
+                    result = true;
+                }
+            } else if (method != null && getMethodName() != null && !getMethodName().isEmpty()) {
+                result = method.matches(getMethodName());
+            } else {
+                result = matchIfNoFilterMethod;
+            }
+        }
+        return result;
+    }
 }

@@ -18,28 +18,28 @@ import org.objectweb.asm.MethodVisitor;
 import static org.objectweb.asm.Opcodes.*;
 
 public class ApmMethodVisitor extends MethodVisitor {
-  private final String fullMethodName;
+    private final String fullMethodName;
 
-  public ApmMethodVisitor(MethodVisitor mv, String className, String methodName) {
-    super(ASM5, mv);
-    this.fullMethodName =  className + "@" + methodName;
-  }
-
-  @Override
-  public void visitCode() {
-    super.visitCode();
-    super.visitLdcInsn(fullMethodName);
-    super.visitMethodInsn(INVOKESTATIC, "io/fabric8/apmagent/ApmAgent",
-        "enterMethod", "(Ljava/lang/String;)V", false);
-  }
-
-  @Override
-  public void visitInsn(int opcode) {
-    if ((opcode >= IRETURN && opcode <= RETURN) || opcode == ATHROW) {
-      super.visitLdcInsn(fullMethodName);
-      super.visitMethodInsn(INVOKESTATIC, "io/fabric8/apmagent/ApmAgent",
-          "exitMethod", "(Ljava/lang/String;)V", false);
+    public ApmMethodVisitor(MethodVisitor mv, String className, String methodName) {
+        super(ASM5, mv);
+        this.fullMethodName = className + "@" + methodName;
     }
-    super.visitInsn(opcode);
-  }
+
+    @Override
+    public void visitCode() {
+        super.visitCode();
+        super.visitLdcInsn(fullMethodName);
+        super.visitMethodInsn(INVOKESTATIC, "io/fabric8/apmagent/ApmAgent",
+                "enterMethod", "(Ljava/lang/String;)V", false);
+    }
+
+    @Override
+    public void visitInsn(int opcode) {
+        if ((opcode >= IRETURN && opcode <= RETURN) || opcode == ATHROW) {
+            super.visitLdcInsn(fullMethodName);
+            super.visitMethodInsn(INVOKESTATIC, "io/fabric8/apmagent/ApmAgent",
+                    "exitMethod", "(Ljava/lang/String;)V", false);
+        }
+        super.visitInsn(opcode);
+    }
 }

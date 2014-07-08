@@ -22,88 +22,88 @@ import org.slf4j.LoggerFactory;
 import static org.objectweb.asm.Opcodes.ASM5;
 
 public class ApmClassVisitor extends ClassVisitor {
-  private static final Logger LOG = LoggerFactory.getLogger(ApmAgent.class);
-  private final ApmAgent apmAgent;
-  private final ClassInfo classInfo;
+    private static final Logger LOG = LoggerFactory.getLogger(ApmAgent.class);
+    private final ApmAgent apmAgent;
+    private final ClassInfo classInfo;
 
-  public ApmClassVisitor(ApmAgent agent, ClassVisitor cv, ClassInfo classInfo) {
-    super(ASM5, cv);
-    this.apmAgent = agent;
-    this.classInfo = classInfo;
-  }
-
-  public void visit(int version,
-                    int access,
-                    String name,
-                    String signature,
-                    String superName,
-                    String[] interfaces) {
-    super.visit(version, access, name, signature, superName, interfaces);
-  }
-
-  public MethodVisitor visitMethod(int access,
-                                   String name,
-                                   String desc,
-                                   String signature,
-                                   String[] exceptions) {
-
-    try {
-      String methodDescription = getDescription(desc);
-      classInfo.addMethod(name,methodDescription);
-
-      if (canProfileMethod(name, desc) && apmAgent.getConfiguration().isAudit(classInfo.getClassName(), name)) {
-        MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-
-        ApmMethodVisitor methodVisitor = new ApmMethodVisitor(mv, classInfo.getClassName(),name + methodDescription);
-        classInfo.addTransformedMethod(name,methodDescription);
-        return methodVisitor;
-      }
-
-    } catch (Throwable e) {
-      e.printStackTrace();
-      LOG.error("Failed to visitMethod " + name, e);
+    public ApmClassVisitor(ApmAgent agent, ClassVisitor cv, ClassInfo classInfo) {
+        super(ASM5, cv);
+        this.apmAgent = agent;
+        this.classInfo = classInfo;
     }
 
-    return super.visitMethod(access, name, desc, signature, exceptions);
-  }
-
-  private boolean canProfileMethod(String methodName, String methodDescriptor) {
-    if (methodDescriptor != null) {
-
-      Type[] parameterTypes = Type.getArgumentTypes(methodDescriptor);
-
-      if (methodName.equals("<init>") || methodName.equals("<clinit>")) {
-        return false;
-      }
-      if (methodName.startsWith("is") || methodName.startsWith("get") && (parameterTypes == null || parameterTypes.length == 0)) {
-        return false;
-      }
-      return !(methodName.startsWith("set") && parameterTypes != null && parameterTypes.length == 1);
+    public void visit(int version,
+                      int access,
+                      String name,
+                      String signature,
+                      String superName,
+                      String[] interfaces) {
+        super.visit(version, access, name, signature, superName, interfaces);
     }
-    return false;
-  }
 
-  private String getDescription (String desc){
-    Type[] parameterTypes = Type.getArgumentTypes(desc);
-    String result;
-    if (parameterTypes == null || parameterTypes.length == 0) {
-      result = "()";
-    } else {
-      result = "(";
-      for (int i = 0; i < parameterTypes.length; i++) {
-        result += parameterTypes[i].getClassName();
-        if ((i + 1) < parameterTypes.length) {
-          result += ",";
+    public MethodVisitor visitMethod(int access,
+                                     String name,
+                                     String desc,
+                                     String signature,
+                                     String[] exceptions) {
+
+        try {
+            String methodDescription = getDescription(desc);
+            classInfo.addMethod(name, methodDescription);
+
+            if (canProfileMethod(name, desc) && apmAgent.getConfiguration().isAudit(classInfo.getClassName(), name)) {
+                MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+
+                ApmMethodVisitor methodVisitor = new ApmMethodVisitor(mv, classInfo.getClassName(), name + methodDescription);
+                classInfo.addTransformedMethod(name, methodDescription);
+                return methodVisitor;
+            }
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+            LOG.error("Failed to visitMethod " + name, e);
         }
-      }
-      result += ")";
+
+        return super.visitMethod(access, name, desc, signature, exceptions);
     }
-    Type type = Type.getReturnType(desc);
-    if (type == null) {
-      result += " void";
-    } else {
-      result += " " + type.getClassName();
+
+    private boolean canProfileMethod(String methodName, String methodDescriptor) {
+        if (methodDescriptor != null) {
+
+            Type[] parameterTypes = Type.getArgumentTypes(methodDescriptor);
+
+            if (methodName.equals("<init>") || methodName.equals("<clinit>")) {
+                return false;
+            }
+            if (methodName.startsWith("is") || methodName.startsWith("get") && (parameterTypes == null || parameterTypes.length == 0)) {
+                return false;
+            }
+            return !(methodName.startsWith("set") && parameterTypes != null && parameterTypes.length == 1);
+        }
+        return false;
     }
-    return result;
-  }
+
+    private String getDescription(String desc) {
+        Type[] parameterTypes = Type.getArgumentTypes(desc);
+        String result;
+        if (parameterTypes == null || parameterTypes.length == 0) {
+            result = "()";
+        } else {
+            result = "(";
+            for (int i = 0; i < parameterTypes.length; i++) {
+                result += parameterTypes[i].getClassName();
+                if ((i + 1) < parameterTypes.length) {
+                    result += ",";
+                }
+            }
+            result += ")";
+        }
+        Type type = Type.getReturnType(desc);
+        if (type == null) {
+            result += " void";
+        } else {
+            result += " " + type.getClassName();
+        }
+        return result;
+    }
 }

@@ -22,54 +22,54 @@ import java.io.IOException;
 
 public class ApmAgentLauncher {
 
-  public static void main(String[] args) {
-    if (args.length > 0) {
-      try {
-        System.err.println("Attaching to process: " + args[0]);
-        String options = "";
-        for (int i = 1; i < args.length; i++) {
-          options += args[i];
-          if (i < (args.length - 1)) {
-            options += ",";
-          }
+    public static void main(String[] args) {
+        if (args.length > 0) {
+            try {
+                System.err.println("Attaching to process: " + args[0]);
+                String options = "";
+                for (int i = 1; i < args.length; i++) {
+                    options += args[i];
+                    if (i < (args.length - 1)) {
+                        options += ",";
+                    }
+                }
+                loadAgent(args[0], options);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("Usage is " + ApmAgentLauncher.class.getName() + " pid");
         }
-        loadAgent(args[0], options);
-      } catch (Throwable e) {
-        e.printStackTrace();
-      }
-    } else {
-      System.err.println("Usage is " + ApmAgentLauncher.class.getName() + " pid");
+
     }
 
-  }
+    public static void loadAgent(String pid, String args) throws IOException {
+        VirtualMachine vm = null;
+        try {
+            vm = VirtualMachine.attach(pid);
+        } catch (AttachNotSupportedException x) {
+            IOException ioe = new IOException(x.getMessage());
+            ioe.initCause(x);
+            throw ioe;
+        }
 
-  public static void loadAgent(String pid, String args) throws IOException {
-    VirtualMachine vm = null;
-    try {
-      vm = VirtualMachine.attach(pid);
-    } catch (AttachNotSupportedException x) {
-      IOException ioe = new IOException(x.getMessage());
-      ioe.initCause(x);
-      throw ioe;
+        try {
+            String agent = ApmAgentLauncher.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            System.err.println("Trying to load agent " + agent);
+            vm.loadAgent(agent, args);
+            System.out.println("Agent successfully loaded");
+        } catch (AgentLoadException x) {
+            IOException ioe = new IOException(x.getMessage());
+            ioe.initCause(x);
+            throw ioe;
+        } catch (AgentInitializationException x) {
+            IOException ioe = new IOException(x.getMessage());
+            ioe.initCause(x);
+            throw ioe;
+        } finally {
+            if (vm != null) {
+                vm.detach();
+            }
+        }
     }
-
-    try {
-      String agent = ApmAgentLauncher.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-      System.err.println("Trying to load agent " + agent);
-      vm.loadAgent(agent, args);
-      System.out.println("Agent successfully loaded");
-    } catch (AgentLoadException x) {
-      IOException ioe = new IOException(x.getMessage());
-      ioe.initCause(x);
-      throw ioe;
-    } catch (AgentInitializationException x) {
-      IOException ioe = new IOException(x.getMessage());
-      ioe.initCause(x);
-      throw ioe;
-    } finally {
-      if (vm != null) {
-        vm.detach();
-      }
-    }
-  }
 }
