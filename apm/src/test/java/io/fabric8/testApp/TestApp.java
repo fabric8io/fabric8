@@ -47,6 +47,7 @@ public class TestApp {
             for (int i = 0; i < COUNT; i++) {
                 TestLoad testLoad = new TestLoad("TestLoad:" + i);
                 testLoad.doStart();
+                checkEnabledMetrics();
             }
             TestLoad testLoad = new TestLoad("CreateDeath", 1000);
             testLoad.doStart();
@@ -60,10 +61,9 @@ public class TestApp {
         if (mBeanServer != null) {
             if (mBeanServer.isRegistered(AGENT_MBEAN_NAME)) {
                 if (enabledAgent.compareAndSet(false, true)) {
-                    System.out.println("==== HAS AGENT!");
                     try {
                         mBeanServer.invoke(AGENT_MBEAN_NAME, "startMetrics", new Object[0], new String[0]);
-                        System.out.println("Enabled agent " + AGENT_MBEAN_NAME);
+                        System.out.println("Enabled agent metrics " + AGENT_MBEAN_NAME);
                     } catch (Exception e) {
                         System.out.println("Failed to invoke the mbean: " + AGENT_MBEAN_NAME);
                         e.printStackTrace();
