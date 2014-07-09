@@ -17,6 +17,7 @@ package io.fabric8.commands;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.boot.commands.support.FabricCommand;
 import io.fabric8.commands.support.ContainerUpgradeSupport;
@@ -41,10 +42,12 @@ public final class ContainerRollbackAction extends AbstractAction {
     @Argument(index = 1, name = "container", description = "The list of containers to roll back. An empty list implies the current container.", required = false, multiValued = true)
     private List<String> containerIds;
 
-    protected final FabricService fabricService;
+    private final FabricService fabricService;
+    private final ProfileService profileService;
 
     ContainerRollbackAction(FabricService fabricService) {
         this.fabricService = fabricService;
+        this.profileService = fabricService.adapt(ProfileService.class);
     }
 
     @Override
@@ -52,7 +55,7 @@ public final class ContainerRollbackAction extends AbstractAction {
         FabricValidations.validateContainerNames(containerIds);
 
         // check and validate version
-        Version version = fabricService.getVersion(this.version);
+        Version version = profileService.getRequiredVersion(this.version);
 
         if (containerIds == null || containerIds.isEmpty()) {
             if (all) {
@@ -103,7 +106,7 @@ public final class ContainerRollbackAction extends AbstractAction {
         }
 
 		if (all) {
-			fabricService.setDefaultVersion(version);
+			fabricService.setDefaultVersion(version.getId());
 			System.out.println("Changed default version to " + version);
 		}
 

@@ -24,6 +24,7 @@ import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Constants;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
@@ -36,11 +37,9 @@ import java.util.concurrent.ExecutorService;
  * Helper class for creating a DownloadManager.
  */
 public class DownloadManagers {
+    
     /**
      * Creates a {@link io.fabric8.agent.mvn.MavenConfiguration} based on the specified {@link java.util.Properties}.
-     *
-     * @param properties
-     * @return
      */
     public static MavenConfiguration createMavenConfiguration(FabricService fabricService, Properties properties) {
         AgentUtils.addMavenProxies(properties, fabricService);
@@ -56,8 +55,9 @@ public class DownloadManagers {
      * Creates a download manager using the current container's maven configuration
      */
     public static DownloadManager createDownloadManager(FabricService fabricService, ExecutorService executorService) throws MalformedURLException {
-        Profile currentContainerOverlayProfile = fabricService.getCurrentContainer().getOverlayProfile();
-        return createDownloadManager(fabricService, currentContainerOverlayProfile, executorService);
+        Profile overlayProfile = fabricService.getCurrentContainer().getOverlayProfile();
+        Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService, overlayProfile);
+        return createDownloadManager(fabricService, effectiveProfile, executorService);
     }
 
     /**

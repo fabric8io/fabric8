@@ -15,6 +15,30 @@
  */
 package io.fabric8.deployer;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.Containers;
+import io.fabric8.api.DataStore;
+import io.fabric8.api.VersionBuilder;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
+import io.fabric8.api.Version;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.JMXUtils;
+import io.fabric8.deployer.dto.DependencyDTO;
+import io.fabric8.deployer.dto.DeployResults;
+import io.fabric8.deployer.dto.DtoHelper;
+import io.fabric8.deployer.dto.ProjectRequirements;
+import io.fabric8.insight.log.support.Strings;
+import io.fabric8.internal.Objects;
+import io.fabric8.service.child.ChildConstants;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -32,31 +56,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.api.Container;
-import io.fabric8.api.Containers;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.FabricRequirements;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.ProfileRequirements;
-import io.fabric8.api.Profiles;
-import io.fabric8.api.Version;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.Configurer;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.JMXUtils;
-import io.fabric8.deployer.dto.DependencyDTO;
-import io.fabric8.deployer.dto.DeployResults;
-import io.fabric8.deployer.dto.DtoHelper;
-import io.fabric8.deployer.dto.ProjectRequirements;
-import io.fabric8.insight.log.support.Strings;
-import io.fabric8.internal.Objects;
-import io.fabric8.service.child.ChildConstants;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -71,6 +75,8 @@ import org.codehaus.plexus.util.IOUtil;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Allows projects to be deployed into a profile using Jolokia / REST or build plugins such as a maven plugin
@@ -95,16 +101,13 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     @Reference
     private Configurer configurer;
 
-    @Reference(referenceInterface = FabricService.class, bind = "bindFabricService", unbind = "unbindFabricService")
+    @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
-
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
 
     private BundleContext bundleContext;
-
     private Map<String, String> servicemixBundles;
-
     private int downloadThreads;
 
     @Activate
@@ -143,7 +146,6 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
 
     @Override
     public DeployResults deployProject(ProjectRequirements requirements) throws Exception {
-        FabricService fabric = getFabricService();
         Version version = getOrCreateVersion(requirements);
 
         // validate that all the parent profiles exists
@@ -154,38 +156,39 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         }
 
         Profile profile = getOrCreateProfile(version, requirements);
-        if (requirements.isAbstractProfile()) {
-            profile.setAttribute(Profile.ABSTRACT, "true");
-        } else {
-            profile.setAttribute(Profile.ABSTRACT, "false");
-        }
+        boolean isAbstract = requirements.isAbstractProfile();
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
+        builder.addAttribute(Profile.ABSTRACT, "" + isAbstract);
+        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
+        profile = profileService.updateProfile(profile);
 
         ProjectRequirements oldRequirements = writeRequirementsJson(requirements, profile);
         updateProfileConfiguration(version, profile, requirements, oldRequirements);
 
-        Profile overlay = profile.getOverlay(true);
+        Profile overlayProfile = profileService.getOverlayProfile(profile);
+        Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), overlayProfile);
 
         Container container = null;
         try {
-            container = fabric.getCurrentContainer();
+            container = fabricService.get().getCurrentContainer();
         } catch (Exception e) {
             // ignore
         }
 
         Integer minimumInstances = requirements.getMinimumInstances();
         if (minimumInstances != null) {
-            FabricRequirements fabricRequirements = fabric.getRequirements();
+            FabricRequirements fabricRequirements = fabricService.get().getRequirements();
             ProfileRequirements profileRequirements = fabricRequirements.getOrCreateProfileRequirement(profile.getId());
             profileRequirements.setMinimumInstances(minimumInstances);
-            fabric.setRequirements(fabricRequirements);
+            fabricService.get().setRequirements(fabricRequirements);
         }
-        return resolveProfileDeployments(requirements, fabric, container, profile, overlay);
+        return resolveProfileDeployments(requirements, fabricService.get(), container, profile, effectiveProfile);
     }
 
     /**
      * Removes any old parents / features / repos and adds any new parents / features / repos to the profile
      */
-    protected void updateProfileConfiguration(Version version, Profile profile, ProjectRequirements requirements, ProjectRequirements oldRequirements) {
+    private void updateProfileConfiguration(Version version, Profile profile, ProjectRequirements requirements, ProjectRequirements oldRequirements) {
         List<String> parentProfiles = Containers.getParentProfileIds(profile);
         List<String> bundles = profile.getBundles();
         List<String> features = profile.getFeatures();
@@ -200,10 +203,12 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         addAll(bundles, requirements.getBundles());
         addAll(features, requirements.getFeatures());
         addAll(repositories, requirements.getFeatureRepositories());
-        Containers.setParentProfileIds(version, profile, parentProfiles);
-        profile.setBundles(bundles);
-        profile.setFeatures(features);
-        profile.setRepositories(repositories);
+        // Modify the profile through the {@link ProfileBuilder}
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
+        setParentProfileIds(builder, version, profile, parentProfiles);
+        builder.setBundles(bundles);
+        builder.setFeatures(features);
+        builder.setRepositories(repositories);
         String webContextPath = requirements.getWebContextPath();
         if (!Strings.isEmpty(webContextPath)) {
             Map<String, String> contextPathConfig = profile.getConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID);
@@ -214,7 +219,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
             String current = contextPathConfig.get(key);
             if (!Objects.equal(current, webContextPath)) {
                 contextPathConfig.put(key, webContextPath);
-                profile.setConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID, contextPathConfig);
+                builder.addConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID, contextPathConfig);
             }
         }
         String description = requirements.getDescription();
@@ -222,12 +227,33 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
             String fileName = "Summary.md";
             byte[] data = profile.getFileConfiguration(fileName);
             if (data == null || data.length == 0 || new String(data).trim().length() == 0) {
-                profile.setConfigurationFile(fileName, description.getBytes());
+                builder.addConfigurationFile(fileName, description.getBytes());
             }
         }
+        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
+        profile = profileService.updateProfile(builder.getProfile());
     }
 
-    protected void addAll(List<String> list, List<String> values) {
+    /**
+     * Sets the list of parent profile IDs
+     */
+    private void setParentProfileIds(ProfileBuilder builder, Version version, Profile profile, List<String> parentProfileIds) {
+        List<Profile> list = new ArrayList<>();
+        for (String parentProfileId : parentProfileIds) {
+            Profile parentProfile = null;
+            if (version.hasProfile(parentProfileId)) {
+                parentProfile = version.getRequiredProfile(parentProfileId);
+            }
+            if (parentProfile != null) {
+                list.add(parentProfile);
+            } else {
+                LOG.warn("Could not find parent profile: " + parentProfileId + " in version " + version.getId());
+            }
+        }
+        builder.setParents(list);
+    }
+    
+    private void addAll(List<String> list, List<String> values) {
         if (list != null && values != null) {
             for (String value : values) {
                 if (!list.contains(value)) {
@@ -237,13 +263,13 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         }
     }
 
-    protected void removeAll(List<String> list, List<String> values) {
+    private void removeAll(List<String> list, List<String> values) {
         if (list != null && values != null) {
             list.removeAll(values);
         }
     }
 
-    protected DeployResults resolveProfileDeployments(ProjectRequirements requirements, FabricService fabric, Container container, Profile profile, Profile overlay) throws Exception {
+    private DeployResults resolveProfileDeployments(ProjectRequirements requirements, FabricService fabric, Container container, Profile profile, Profile overlay) throws Exception {
         DependencyDTO rootDependency = requirements.getRootDependency();
 
         List<Feature> allFeatures = new ArrayList<Feature>();
@@ -307,9 +333,11 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
                 }
             }
 
-            profile.setBundles(bundles);
-            profile.setOptionals(optionals);
-            profile.setFeatures(features);
+            // Modify the profile through the {@link ProfileBuilder}
+            ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
+            builder.setBundles(bundles).setOptionals(optionals).setFeatures(features);
+            ProfileService profileService = fabricService.get().adapt(ProfileService.class);
+            profile = profileService.updateProfile(builder.getProfile());
         }
 
         // lets find a hawtio profile and version
@@ -328,7 +356,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     /**
      * Finds a hawtio URL in the fabric
      */
-    protected String findHawtioUrl(FabricService fabric) {
+    private String findHawtioUrl(FabricService fabric) {
         Container[] containers = null;
         try {
             containers = fabric.getContainers();
@@ -374,51 +402,50 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     // Implementation methods
     //-------------------------------------------------------------------------
 
-    protected Profile getOrCreateProfile(Version version, ProjectRequirements requirements) {
+    private Profile getOrCreateProfile(Version version, ProjectRequirements requirements) {
         String profileId = getProfileId(requirements);
         if (Strings.isEmpty(profileId)) {
             throw new IllegalArgumentException("No profile ID could be deduced for requirements: " + requirements);
         }
+        Profile profile;
         if (!version.hasProfile(profileId)) {
-            version.createProfile(profileId);
             LOG.info("Creating new profile " + profileId + " version " + version + " for requirements: " + requirements);
+            String versionId = version.getId();
+            ProfileService profileService = fabricService.get().adapt(ProfileService.class);
+            ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
+            profile = profileService.createProfile(builder.getProfile());
         } else {
-            LOG.info("Updating profile " + profileId + " version " + version + " for requirements: " + requirements);
+            profile = version.getRequiredProfile(profileId);
         }
-        Profile profile = version.getProfile(profileId);
-        Objects.notNull(profile, "Profile could not be created");
         return profile;
     }
 
-    protected Version getOrCreateVersion(ProjectRequirements requirements) {
-        FabricService fabric = getFabricService();
+    private Version getOrCreateVersion(ProjectRequirements requirements) {
+        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
         String versionId = getVersionId(requirements);
-        Version version = findVersion(fabric, versionId);
+        Version version = findVersion(fabricService.get(), versionId);
         if (version == null) {
             String baseVersionId = requirements.getBaseVersion();
-            baseVersionId = getVersionOrDefaultVersion(fabric, baseVersionId);
-            Version baseVersion = findVersion(fabric, baseVersionId);
+            baseVersionId = getVersionOrDefaultVersion(fabricService.get(), baseVersionId);
+            Version baseVersion = findVersion(fabricService.get(), baseVersionId);
             if (baseVersion != null) {
-                version = fabric.createVersion(baseVersion, versionId);
+                version = VersionBuilder.Factory.create(versionId).parent(baseVersion.getId()).getVersion();
+                version = profileService.createVersion(version);
             } else {
-                version = fabric.createVersion(versionId);
+                version = VersionBuilder.Factory.create(versionId).getVersion();
+                version = profileService.createVersion(version);
             }
         }
         return version;
     }
 
-    protected Version findVersion(FabricService fabric, String versionId) {
-        Version version = null;
-        try {
-            version = fabric.getVersion(versionId);
-        } catch (Exception e) {
-            LOG.debug("Ignoring error looking up version " + versionId + ". It probably doesn't exist yet: " + e, e);
-        }
-        return version;
+    private Version findVersion(FabricService fabricService, String versionId) {
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        return profileService.getVersion(versionId);
     }
 
 
-    protected String getVersionId(ProjectRequirements requirements) {
+    private String getVersionId(ProjectRequirements requirements) {
         FabricService fabric = getFabricService();
         String version = requirements.getVersion();
         return getVersionOrDefaultVersion(fabric, version);
@@ -438,7 +465,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     }
 
 
-    protected String getProfileId(ProjectRequirements requirements) {
+    private String getProfileId(ProjectRequirements requirements) {
         FabricService fabric = getFabricService();
         String profileId = requirements.getProfileId();
         if (Strings.isEmpty(profileId)) {
@@ -458,7 +485,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     }
 
 
-    protected ProjectRequirements writeRequirementsJson(ProjectRequirements requirements, Profile profile) throws IOException {
+    private ProjectRequirements writeRequirementsJson(ProjectRequirements requirements, Profile profile) throws IOException {
         ObjectMapper mapper = DtoHelper.getMapper();
         byte[] json = mapper.writeValueAsBytes(requirements);
         String name = DtoHelper.getRequirementsConfigFileName(requirements);

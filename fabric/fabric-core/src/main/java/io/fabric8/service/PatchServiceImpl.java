@@ -15,6 +15,14 @@
  */
 package io.fabric8.service;
 
+import io.fabric8.api.FabricService;
+import io.fabric8.api.PatchService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Version;
+import io.fabric8.utils.Base64Encoder;
+
 import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -31,11 +39,6 @@ import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import io.fabric8.api.FabricService;
-import io.fabric8.api.PatchService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.utils.Base64Encoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,17 +52,19 @@ public class PatchServiceImpl implements PatchService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PatchServiceImpl.class);
 
-    private final FabricService fabric;
+    private final ProfileService profileService;
+    private final FabricService fabricService;
 
-    public PatchServiceImpl(FabricService fabric) {
-        this.fabric = fabric;
+    public PatchServiceImpl(FabricService fabricService) {
+        this.profileService = fabricService.adapt(ProfileService.class);
+        this.fabricService = fabricService;
     }
 
     @Override
     public void applyPatch(Version version, URL patch, String login, String password) {
         try {
             // Load patch
-            URI uploadUri = fabric.getMavenRepoUploadURI();
+            URI uploadUri = fabricService.getMavenRepoUploadURI();
             List<PatchDescriptor> descriptors = new ArrayList<PatchDescriptor>();
             ZipInputStream zis = new ZipInputStream(new BufferedInputStream(patch.openStream()));
             try {
@@ -115,7 +120,7 @@ public class PatchServiceImpl implements PatchService {
                 close(zis);
             }
             // Create patch profile
-            Profile[] profiles = version.getProfiles();
+            List<Profile> profiles = version.getProfiles();
             for (PatchDescriptor descriptor : descriptors) {
                 String profileId = "patch-" + descriptor.getId();
                 Profile profile = null;
@@ -126,13 +131,17 @@ public class PatchServiceImpl implements PatchService {
                     }
                 }
                 if (profile == null) {
-                    profile = version.createProfile(profileId);
-                    profile.setOverrides(descriptor.getBundles());
-                    Profile defaultProfile = version.getProfile("default");
-                    List<Profile> parents = new ArrayList<Profile>(Arrays.asList(defaultProfile.getParents()));
+                    String versionId = version.getId();
+                    ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
+                    builder.setOverrides(descriptor.getBundles());
+                    profile = profileService.createProfile(builder.getProfile());
+                    Profile defaultProfile = version.getRequiredProfile("default");
+                    List<Profile> parents = defaultProfile.getParents();
                     if (!parents.contains(profile)) {
                         parents.add(profile);
-                        defaultProfile.setParents(parents.toArray(new Profile[parents.size()]));
+                        builder = ProfileBuilder.Factory.createFrom(defaultProfile);
+                        builder.setParents(parents);
+                        profileService.updateProfile(builder.getProfile());
                     }
                 } else {
                     LOGGER.info("The patch {} has already been applied to version {}, ignoring.", descriptor.getId(), version.getId());

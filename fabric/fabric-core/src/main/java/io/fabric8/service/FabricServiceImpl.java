@@ -50,16 +50,18 @@ import io.fabric8.api.PatchService;
 import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.PortService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
+import io.fabric8.api.VersionBuilder;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.api.visibility.VisibleForTesting;
 import io.fabric8.internal.ContainerImpl;
-import io.fabric8.internal.VersionImpl;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.SystemProperties;
@@ -70,6 +72,7 @@ import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -77,6 +80,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
@@ -99,6 +103,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 
 /**
@@ -153,6 +159,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     private final ValidatingReference<DataStore> dataStore = new ValidatingReference<DataStore>();
     @Reference(referenceInterface = PortService.class)
     private final ValidatingReference<PortService> portService = new ValidatingReference<PortService>();
+    @Reference(referenceInterface = ProfileService.class)
+    private final ValidatingReference<ProfileService> profileService = new ValidatingReference<>();
     @Reference(referenceInterface = ContainerProvider.class, bind = "bindProvider", unbind = "unbindProvider", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
     @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -178,6 +186,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         assertValid();
         if (type.isAssignableFrom(CuratorFramework.class)) {
             return (T) curator.get();
+        } else if (type.isAssignableFrom(ProfileService.class)) {
+            return (T) profileService.get();
         }
         return null;
     }
@@ -260,6 +270,20 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         }
         return containers.values().toArray(new Container[containers.size()]);
     }
+
+	@Override
+	public Container[] getAssociatedContainers(String versionId, String profileId) {
+		assertValid();
+        List<Container> containers = new ArrayList<>();
+        for (Container container : getContainers()) {
+        	for (Profile profile : Arrays.asList(container.getProfiles())) {
+            	if (profile.getId().equals(profileId)) {
+            		containers.add(container);
+            	}
+        	}
+        }
+        return containers.toArray(new Container[containers.size()]);
+	}
 
     @Override
     public Container getContainer(String name) {
@@ -880,7 +904,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
             if (curator.get().getZookeeperClient().isConnected()) {
                 Version defaultVersion = getDefaultVersion();
                 if (defaultVersion != null) {
-                    Profile profile = defaultVersion.getProfile("default");
+                    Profile profile = defaultVersion.getRequiredProfile("default");
                     if (profile != null) {
                         Map<String, String> zookeeperConfig = profile.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
                         if (zookeeperConfig != null) {
@@ -905,97 +929,17 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     @Override
-    public Version getDefaultVersion() {
+	public Version getDefaultVersion() {
         assertValid();
-        return new VersionImpl(getDataStore().getDefaultVersion(), this);
-    }
+        String versionId = dataStore.get().getDefaultVersion();
+		return profileService.get().getRequiredVersion(versionId);
+	}
 
-    @Override
-    public void setDefaultVersion(Version version) {
+	@Override
+	public void setDefaultVersion(String versionId) {
         assertValid();
-        setDefaultVersion(version.getId());
-    }
-
-    public void setDefaultVersion(String versionId) {
-        assertValid();
-        getDataStore().setDefaultVersion(versionId);
-    }
-
-    @Override
-    public Version createVersion(String version) {
-        assertValid();
-        getDataStore().createVersion(version);
-        return new VersionImpl(version, this);
-    }
-
-    @Override
-    public Version createVersion(Version parent, String toVersion) {
-        assertValid();
-        return createVersion(parent.getId(), toVersion);
-    }
-
-    // FIXME public access on the impl
-    public Version createVersion(String parentVersionId, String toVersion) {
-        assertValid();
-        getDataStore().createVersion(parentVersionId, toVersion);
-        return new VersionImpl(toVersion, this);
-    }
-
-    // FIXME public access on the impl
-    @Override
-    public void deleteVersion(String version) {
-        assertValid();
-        getVersion(version).delete();
-    }
-
-    @Override
-    public Version[] getVersions() {
-        assertValid();
-        List<Version> versions = new ArrayList<Version>();
-        List<String> children = getDataStore().getVersions();
-        for (String child : children) {
-            versions.add(new VersionImpl(child, this));
-        }
-        Collections.sort(versions);
-        return versions.toArray(new Version[versions.size()]);
-    }
-
-    @Override
-    public Version getVersion(String name) {
-        assertValid();
-        if (getDataStore().hasVersion(name)) {
-            return new VersionImpl(name, this);
-        }
-        throw new FabricException("Version '" + name + "' does not exist");
-    }
-
-    @Override
-    public Profile[] getProfiles(String version) {
-        assertValid();
-        return getVersion(version).getProfiles();
-    }
-
-    @Override
-    public Profile getProfile(String version, String name) {
-        assertValid();
-        return getVersion(version).getProfile(name);
-    }
-
-    @Override
-    public Profile createProfile(String version, String name) {
-        assertValid();
-        return getVersion(version).createProfile(name);
-    }
-
-    @Override
-    public void deleteProfile(Profile profile) {
-        assertValid();
-        deleteProfile(profile.getVersion(), profile.getId());
-    }
-
-    private void deleteProfile(String versionId, String profileId) {
-        getDataStore().deleteProfile(versionId, profileId);
-    }
+        dataStore.get().setDefaultVersion(versionId);
+	}
 
     @Override
     public void setRequirements(FabricRequirements requirements) throws IOException {
@@ -1008,18 +952,13 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
      * Validates that the requirements are valid; to ensure the profiles exist etc
      */
     public static void validateRequirements(FabricService fabricService, FabricRequirements requirements) {
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
         String versionId = requirements.getVersion();
         Version version;
         if (!Strings.isNullOrEmpty(versionId)) {
-            version = fabricService.getVersion(versionId);
-            if (version == null) {
-                throw new IllegalStateException("Version " + versionId + " could not be found");
-            }
+            version = profileService.getRequiredVersion(versionId);
         } else {
             version = fabricService.getDefaultVersion();
-            if (version == null) {
-                throw new IllegalStateException("No version specified and no default version for the fabric");
-            }
         }
         Set<String> profileIds = new HashSet<String>(Profiles.profileIds(version.getProfiles()));
         List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
@@ -1082,18 +1021,12 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public String getConfigurationValue(String versionId, String profileId, String pid, String key) {
         assertValid();
-        Version v = getVersion(versionId);
-        if (v == null)
-            throw new FabricException("No version found: " + versionId);
-        Profile pr = v.getProfile(profileId);
-        if (pr == null)
-            throw new FabricException("No profile found: " + profileId);
+        Profile pr = profileService.get().getRequiredProfile(versionId, profileId);
         Map<String, byte[]> configs = pr.getFileConfigurations();
 
         byte[] b = configs.get(pid);
 
         Properties p = null;
-
         try {
             if (b != null) {
                 p = DataStoreUtils.toProperties(b);
@@ -1110,31 +1043,27 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public void setConfigurationValue(String versionId, String profileId, String pid, String key, String value) {
         assertValid();
-        Version v = getVersion(versionId);
-        if (v == null)
-            throw new FabricException("No version found: " + versionId);
-        Profile pr = v.getProfile(profileId);
-        if (pr == null)
-            throw new FabricException("No profile found: " + profileId);
-        Map<String, byte[]> configs = pr.getFileConfigurations();
-
-        byte[] b = configs.get(pid);
-
-        Properties p = null;
-
+        Version version = profileService.get().getRequiredVersion(versionId);
+        Profile profile = version.getRequiredProfile(profileId);
+        
+        Map<String, byte[]> configs = profile.getFileConfigurations();
+        byte[] bytes = configs.get(pid);
+        Properties properties;
         try {
-            if (b != null) {
-                p = DataStoreUtils.toProperties(b);
+            if (bytes != null) {
+                properties = DataStoreUtils.toProperties(bytes);
             } else {
-                p = new Properties();
+                properties = new Properties();
             }
-            p.setProperty(key, value);
-            b = DataStoreUtils.toBytes(p);
-            configs.put(pid, b);
-            pr.setFileConfigurations(configs);
-        } catch (Throwable t) {
-            throw new FabricException(t);
+            properties.setProperty(key, value);
+            bytes = DataStoreUtils.toBytes(properties);
+            configs.put(pid, bytes);
+        } catch (IOException ex) {
+            throw new FabricException(ex);
         }
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
+        builder.setFileConfigurations(configs);
+        profileService.get().updateProfile(builder.getProfile());
     }
 
     @Override
@@ -1186,12 +1115,12 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     /**
      * Performs substitution to configuration based on the registered {@link PlaceholderResolver} instances.
      */
-    public void substituteConfigurations(final Map<String, Map<String, String>> configs) {
+    public Map<String, Map<String, String>> substituteConfigurations(final Map<String, Map<String, String>> configurations) {
 
         final Map<String, PlaceholderResolver> resolversSnapshot = new HashMap<String, PlaceholderResolver>(placeholderResolvers);
 
         // Check that all resolvers are available
-        Set<String> requiredSchemes = getSchemesForProfileConfigurations(configs);
+        Set<String> requiredSchemes = getSchemesForProfileConfigurations(configurations);
         Set<String> availableSchemes = resolversSnapshot.keySet();
         if (!availableSchemes.containsAll(requiredSchemes)) {
             StringBuilder sb = new StringBuilder();
@@ -1204,8 +1133,15 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
             throw new FabricException(sb.toString());
         }
 
+        final Map<String, Map<String, String>> mutableConfigurations = new HashMap<>();
+        for (Entry<String, Map<String, String>> entry : configurations.entrySet()) {
+            String key = entry.getKey();
+            Map<String, String> value = new HashMap<>(entry.getValue());
+            mutableConfigurations.put(key, value);
+        }
+        
         final FabricService fabricService = this;
-        for (Map.Entry<String, Map<String, String>> entry : configs.entrySet()) {
+        for (Map.Entry<String, Map<String, String>> entry : mutableConfigurations.entrySet()) {
             final String pid = entry.getKey();
             Map<String, String> props = entry.getValue();
             for (Map.Entry<String, String> e : props.entrySet()) {
@@ -1215,19 +1151,20 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                     public String getValue(String toSubstitute) {
                         if (toSubstitute != null && toSubstitute.contains(":")) {
                             String scheme = toSubstitute.substring(0, toSubstitute.indexOf(":"));
-                            return resolversSnapshot.get(scheme).resolve(fabricService, configs, pid, key, toSubstitute);
+                            return resolversSnapshot.get(scheme).resolve(fabricService, mutableConfigurations, pid, key, toSubstitute);
                         }
                         return substituteBundleProperty(toSubstitute, bundleContext);
                     }
                 }));
             }
         }
+        
+        return mutableConfigurations;
     }
 
     void bindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.bind(service);
     }
-
     void unbindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.unbind(service);
     }
@@ -1236,7 +1173,6 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     public void bindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.bind(service);
     }
-
     void unbindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.unbind(service);
     }
@@ -1245,7 +1181,6 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     public void bindCurator(CuratorFramework curator) {
         this.curator.bind(curator);
     }
-
     void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
     }
@@ -1254,7 +1189,6 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     public void bindDataStore(DataStore dataStore) {
         this.dataStore.bind(dataStore);
     }
-
     void unbindDataStore(DataStore dataStore) {
         this.dataStore.unbind(dataStore);
     }
@@ -1262,15 +1196,20 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     void bindPortService(PortService portService) {
         this.portService.bind(portService);
     }
-
     void unbindPortService(PortService portService) {
         this.portService.unbind(portService);
     }
 
+    void bindProfileService(ProfileService service) {
+        profileService.bind(service);
+    }
+    void unbindProfileService(ProfileService service) {
+        profileService.unbind(service);
+    }
+    
     void bindProvider(ContainerProvider provider) {
         providers.put(provider.getScheme(), provider);
     }
-
     void unbindProvider(ContainerProvider provider) {
         providers.remove(provider.getScheme());
     }
@@ -1280,7 +1219,6 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         String resolverScheme = resolver.getScheme();
         placeholderResolvers.put(resolverScheme, resolver);
     }
-
     void unbindPlaceholderResolver(PlaceholderResolver resolver) {
         String resolverScheme = resolver.getScheme();
         placeholderResolvers.remove(resolverScheme);

@@ -16,6 +16,7 @@
 package io.fabric8.core.jmx;
 
 import org.apache.commons.beanutils.PropertyUtils;
+
 import io.fabric8.api.*;
 
 import java.beans.PropertyDescriptor;
@@ -80,7 +81,7 @@ public class BeanUtils {
         }
     }
 
-    public static Map<String, Object> convertProfileToMap(FabricService service, Profile profile, List<String> fields) {
+    public static Map<String, Object> convertProfileToMap(FabricService fabricService, Profile profile, List<String> fields) {
 
         Map<String, Object> answer = new HashMap<String, Object>();
 
@@ -93,16 +94,16 @@ public class BeanUtils {
 
             } else if (field.equalsIgnoreCase("childIds")) {
 
-                answer.put(field, fetchChildIds(service, profile));
+                answer.put(field, fetchChildIds(fabricService, profile));
 
             } else if (field.equalsIgnoreCase("containers") ||
                        field.equalsIgnoreCase("associatedContainers")) {
 
-                answer.put(field, fetchContainers(service, profile));
+                answer.put(field, fetchContainers(fabricService, profile));
 
             } else if (field.equalsIgnoreCase("containerCount")) {
 
-                answer.put(field, fetchContainerCount(profile));
+                answer.put(field, fetchContainerCount(fabricService, profile));
 
             } else if (field.equalsIgnoreCase("parentIds") ||
                        field.equalsIgnoreCase("parents")) {
@@ -132,7 +133,7 @@ public class BeanUtils {
         }
     }
 
-    public static Map<String, Object> convertContainerToMap(FabricService service, Container container, List<String> fields) {
+    public static Map<String, Object> convertContainerToMap(FabricService fabricService, Container container, List<String> fields) {
         Map<String, Object> answer = new HashMap<String, Object>();
 
         for(String field: fields) {
@@ -159,7 +160,9 @@ public class BeanUtils {
 
             } else if (field.equalsIgnoreCase("overlayProfile")) {
 
-                answer.put(field, convertProfileToMap(service, container.getOverlayProfile(), getFields(Profile.class)));
+                Profile overlayProfile = container.getOverlayProfile();
+                Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService, overlayProfile);
+                answer.put(field, convertProfileToMap(fabricService, effectiveProfile, getFields(Profile.class)));
 
             } else {
                 addProperty(container, field, answer);
@@ -199,9 +202,10 @@ public class BeanUtils {
     }
 
 
-    public static List<String> fetchChildIds(FabricService service, Profile self) {
+    public static List<String> fetchChildIds(FabricService fabricService, Profile self) {
         List<String> ids = new ArrayList<String>();
-        for(Profile p : service.getVersion(self.getVersion()).getProfiles()) {
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        for(Profile p : profileService.getRequiredVersion(self.getVersion()).getProfiles()) {
             for (Profile parent : p.getParents()) {
                 if (parent.getId().equals(self.getId())) {
                     ids.add(p.getId());
@@ -213,17 +217,21 @@ public class BeanUtils {
     }
 
 
-    public static List<String> fetchContainers(FabricService service, Profile self) {
+    public static List<String> fetchContainers(FabricService fabricService, Profile self) {
         List<String> answer = new ArrayList<String>();
-        for (Container c : self.getAssociatedContainers()) {
+    	String versionId = self.getVersion();
+    	String profileId = self.getId();
+        for (Container c : fabricService.getAssociatedContainers(versionId, profileId)) {
             answer.add(c.getId());
         }
         return answer;
     }
 
 
-    public static int fetchContainerCount(Profile self) {
-        return self.getAssociatedContainers().length;
+    public static int fetchContainerCount(FabricService fabricService, Profile self) {
+    	String versionId = self.getVersion();
+    	String profileId = self.getId();
+        return fabricService.getAssociatedContainers(versionId, profileId).length;
     }
 
 

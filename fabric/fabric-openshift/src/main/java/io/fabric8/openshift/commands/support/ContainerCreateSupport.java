@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.FabricAuthenticationException;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
@@ -35,7 +36,7 @@ import org.osgi.framework.ServiceReference;
 @Deprecated // See {@link AbstractContainerCreateAction}
 public abstract class ContainerCreateSupport extends FabricCommand {
     @Option(name = "--version", description = "The version of the new container (must be an existing version). Defaults to the current default version.")
-    protected String version;
+    protected String versionId;
     @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new container(s). For multiple profiles, specify the flag multiple times. Defaults to the profile named, default.")
     protected Set<String> profiles;
     @Option(name = "--resolver", multiValued = false, required = false, description = "The resolver policy for this container(s). Possible values are: localip, localhostname, publicip, publichostname, manualip. Defaults to the fabric's default resolver policy.")
@@ -90,8 +91,9 @@ public abstract class ContainerCreateSupport extends FabricCommand {
             }
 
             // get the profiles for the given version
-            Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-            Profile[] profiles = ver.getProfiles();
+            ProfileService profileService = fabricService.adapt(ProfileService.class);
+            Version ver = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getDefaultVersion();
+            List<Profile> profiles = ver.getProfiles();
 
             // validate profiles exists before creating a new container
             Set<String> names = getProfileNames();
@@ -145,8 +147,8 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         }
     }
 
-    private static Profile getProfile(Profile[] profiles, String name, Version version) {
-        if (profiles == null || profiles.length == 0) {
+    private static Profile getProfile(List<Profile> profiles, String name, Version version) {
+        if (profiles == null || profiles.size() == 0) {
             return null;
         }
 

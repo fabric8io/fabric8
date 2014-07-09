@@ -16,7 +16,9 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
+import io.fabric8.api.ProfileService;
 import io.fabric8.utils.FabricValidations;
 
 import org.apache.felix.gogo.commands.Argument;
@@ -29,7 +31,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 public class ProfileRenameAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version to rename. Defaults to the current default version.")
-    private String version;
+    private String versionParam;
 
     @Option(name = "-f", aliases = "--force", description = "Flag to allow replacing the target profile (if exists).")
     private boolean force;
@@ -42,33 +44,32 @@ public class ProfileRenameAction extends AbstractAction {
     @CompleterValues(index = 1)
     private String newName;
 
+    private final ProfileService profileService;
     private final FabricService fabricService;
 
     ProfileRenameAction(FabricService fabricService) {
+        this.profileService = fabricService.adapt(ProfileService.class);
         this.fabricService = fabricService;
-    }
-
-    public FabricService getFabricService() {
-        return fabricService;
     }
 
     @Override
     protected Object doExecute() throws Exception {
         FabricValidations.validateProfileName(profileName);
         FabricValidations.validateProfileName(newName);
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+        Version version = versionParam != null ? profileService.getRequiredVersion(versionParam) : fabricService.getDefaultVersion();
+        String versionId = version.getId();
 
-        if (!ver.hasProfile(profileName)) {
+        if (!version.hasProfile(profileName)) {
             System.out.println("Profile " + profileName + " not found.");
             return null;
-        } else if (ver.hasProfile(newName)) {
+        } else if (version.hasProfile(newName)) {
             if (!force) {
                 System.out.println("New name " + newName + " already exists. Use --force if you want to overwrite.");
                 return null;
             }
         }
 
-        ver.renameProfile(profileName, newName, force);
+        Profiles.renameProfile(fabricService, versionId, profileName, newName, force);
         return null;
     }
 

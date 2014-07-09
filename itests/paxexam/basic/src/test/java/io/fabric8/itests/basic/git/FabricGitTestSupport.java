@@ -18,7 +18,9 @@ package io.fabric8.itests.basic.git;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
+import io.fabric8.api.VersionBuilder;
 import io.fabric8.common.util.Files;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 
@@ -77,23 +79,19 @@ public class FabricGitTestSupport extends FabricTestSupport {
     /**
      * Create a profile in the registry and check that its bridged to git.
      */
-    protected void createAndTestProfileInDataStore(FabricService fabricService, CuratorFramework curator, Git git, String version, String profile) throws Exception {
+    protected void createAndTestProfileInDataStore(FabricService fabricService, CuratorFramework curator, Git git, String versionId, String profile) throws Exception {
         System.out.println("Create test profile:" + profile + " in datastore.");
-        List<String> versions = Lists.transform(Arrays.<Version>asList(fabricService.getVersions()), new Function<Version, String>() {
-
-            @Override
-            public String apply(Version version) {
-                return version.getId();
-            }
-        });
-
-        if (!versions.contains(version)) {
-            fabricService.createVersion(version);
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        List<String> versions = profileService.getVersions();
+        
+        if (!versions.contains(versionId)) {
+            Version version = VersionBuilder.Factory.create(versionId).getVersion();
+            profileService.createVersion(version);
         }
 
-        fabricService.getDataStore().createProfile(version, profile);
-        GitUtils.waitForBranchUpdate(curator, version);
-        GitUtils.checkoutBranch(git, "origin", version);
+        fabricService.getDataStore().createProfile(versionId, profile);
+        GitUtils.waitForBranchUpdate(curator, versionId);
+        GitUtils.checkoutBranch(git, "origin", versionId);
         PullResult pullResult = git.pull().setCredentialsProvider(getCredentialsProvider()).setRebase(true).call();
         assertTrue(pullResult.isSuccessful());
         String relativeProfileDir = "fabric/profiles/" + profile + ".profile";

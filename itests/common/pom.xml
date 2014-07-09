@@ -41,17 +41,14 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-boot-commands</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-git</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fabric8.runtime</groupId>

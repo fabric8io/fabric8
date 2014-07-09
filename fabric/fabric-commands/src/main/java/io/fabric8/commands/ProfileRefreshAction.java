@@ -17,6 +17,8 @@ package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.api.ZkDefs;
 import io.fabric8.utils.FabricValidations;
@@ -40,19 +42,16 @@ public class ProfileRefreshAction extends AbstractAction {
         this.fabricService = fabricService;
     }
 
-    public FabricService getFabricService() {
-        return fabricService;
-    }
-
 	@Override
 	protected Object doExecute() throws Exception {
 		FabricValidations.validateProfileName(profileName);
-		Version version = versionName != null ? fabricService.getVersion(versionName) : fabricService.getDefaultVersion();
-		Profile profile = version.getProfile(profileName);
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+		Version version = versionName != null ? profileService.getVersion(versionName) : fabricService.getDefaultVersion();
+		Profile profile = version.getRequiredProfile(profileName);
 		if (profile == null) {
 			throw new IllegalArgumentException("No profile found with name:" + profileName + " and version:" + version.getId());
 		}
-        profile.refresh();
+        Profiles.refreshProfile(fabricService, profile);
 		return null;
 	}
 }

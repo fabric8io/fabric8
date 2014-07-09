@@ -24,7 +24,9 @@ import io.fabric8.agent.download.ProfileDownloader;
 import io.fabric8.agent.download.ProfileDownloaderListener;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
@@ -57,15 +59,17 @@ public class ProfileDownloadArtifactsAction extends AbstractAction {
     private File target;
 
     private final FabricService fabricService;
+    private final ProfileService profileService;
     private ExecutorService executorService;
 
     ProfileDownloadArtifactsAction(FabricService fabricService) {
         this.fabricService = fabricService;
+        this.profileService = fabricService.adapt(ProfileService.class);
     }
 
     @Override
     protected Object doExecute() throws Exception {
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+        Version ver = version != null ? profileService.getRequiredVersion(version) : fabricService.getDefaultVersion();
         if (ver == null) {
             if (version != null) {
                 System.out.println("version " + version + " does not exist!");
@@ -107,7 +111,7 @@ public class ProfileDownloadArtifactsAction extends AbstractAction {
         if (profile != null) {
             Profile profileObject = null;
             if (ver.hasProfile(profile)) {
-                profileObject = ver.getProfile(profile);
+                profileObject = ver.getRequiredProfile(profile);
             }
             if (profileObject == null) {
                 System.out.println("Source profile " + profile + " not found.");

@@ -16,7 +16,9 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
@@ -36,14 +38,16 @@ public class ProfileImportAction extends AbstractAction {
     private List<String> profileUrls;
 
     private final FabricService fabricService;
+    private final ProfileService profileService;
 
     ProfileImportAction(FabricService fabricService) {
         this.fabricService = fabricService;
+        this.profileService = fabricService.adapt(ProfileService.class);
     }
 
     @Override
     protected Object doExecute() throws Exception {
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+        Version ver = version != null ? profileService.getVersion(version) : fabricService.getDefaultVersion();
         if (ver == null) {
             if (version != null) {
                 System.out.println("Version " + version + " does not exist!");

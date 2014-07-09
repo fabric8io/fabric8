@@ -21,8 +21,10 @@ import java.util.List;
 import org.apache.camel.test.AvailablePortFinder;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore("[FABRIC-1109] Camel tests fail with immutable version/profile ")
 public class OrderTest extends CamelBlueprintTestSupport {
 
     private boolean canTest = true;

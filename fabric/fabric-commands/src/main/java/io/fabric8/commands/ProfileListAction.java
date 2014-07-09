@@ -15,16 +15,18 @@
  */
 package io.fabric8.commands;
 
-import java.io.PrintStream;
-
+import static io.fabric8.commands.support.CommandUtils.sortProfiles;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Version;
+
+import java.io.PrintStream;
+import java.util.List;
+
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
 import org.apache.karaf.shell.console.AbstractAction;
-
-import static io.fabric8.commands.support.CommandUtils.sortProfiles;
 
 @Command(name = "profile-list", scope = "fabric", description = "Lists all profiles that belong to the specified version (where the version defaults to the current default version)")
 public class ProfileListAction extends AbstractAction {
@@ -47,37 +49,24 @@ public class ProfileListAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-        Profile[] profiles = ver.getProfiles();
-        // we want the list to be sorted
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        Version ver = version != null ? profileService.getVersion(version) : fabricService.getDefaultVersion();
+        List<Profile> profiles = ver.getProfiles();
         profiles = sortProfiles(profiles);
-        printProfiles(profiles, System.out);
+        printProfiles(profileService, profiles, System.out);
         return null;
     }
 
-    protected void printProfiles(Profile[] profiles, PrintStream out) {
+    protected void printProfiles(ProfileService profileService, List<Profile> profiles, PrintStream out) {
         out.println(String.format("%-50s %-14s %s", "[id]", "[# containers]", "[parents]"));
         for (Profile profile : profiles) {
+        	String versionId = profile.getVersion();
+        	String profileId = profile.getId();
             // skip profiles that do not exists (they may have been deleted)
-            if (profile.exists() && (hidden || !profile.isHidden())) {
-                int active = profile.getAssociatedContainers().length;
-                out.println(String.format("%-50s %-14s %s", profile.getId(), active, toString(profile.getParents())));
+            if (profileService.hasProfile(versionId, profileId) && (hidden || !profile.isHidden())) {
+                int active = fabricService.getAssociatedContainers(versionId, profileId).length;
+                out.println(String.format("%-50s %-14s %s", profileId, active, profile.getParents()));
             }
         }
     }
-
-    protected static String toString(Profile[] profiles) {
-        if (profiles == null) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < profiles.length; i++) {
-            if (i != 0) {
-                sb.append(", ");
-            }
-            sb.append(profiles[i].getId());
-        }
-        return sb.toString();
-    }
-
 }

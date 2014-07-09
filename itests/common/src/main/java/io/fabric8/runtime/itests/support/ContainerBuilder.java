@@ -193,8 +193,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * Create the containers.
      */
     public Set<Container> build() {
-        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-        ServiceLocator.awaitService(moduleContext, ContainerRegistration.class);
+        ServiceLocator.awaitService(ContainerRegistration.class);
         return build(Arrays.<B> asList(getOptionsBuilder()));
     }
 
