@@ -104,7 +104,7 @@ public final class ContainerUpgradeAction extends AbstractAction {
         }
 
         if (all) {
-            fabricService.setDefaultVersion(version);
+            fabricService.setDefaultVersion(version.getId());
             System.out.println("Changed default version to " + version);
         }
 

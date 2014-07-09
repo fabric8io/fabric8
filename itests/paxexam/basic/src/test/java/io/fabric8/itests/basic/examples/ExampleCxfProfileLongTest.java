@@ -18,12 +18,13 @@ package io.fabric8.itests.basic.examples;
 import java.util.Set;
 
 import io.fabric8.api.FabricService;
-import io.fabric8.api.ServiceLocator;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.demo.cxf.Hello;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
+import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.api;
+package io.fabric8.tooling.testing.pax.exam.karaf;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

@@ -15,12 +15,12 @@
  */
 package io.fabric8.rest;
 
-import io.fabric8.api.Containers;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A DTO for the profile metadata
@@ -35,8 +35,7 @@ public class ProfileDTO {
     private boolean locked;
     private boolean hidden;
     private Map<String, String> attributes;
-    private List<String> configurations;
-    private List<String> associatedContainers;
+    private Set<String> configurations;
     private List<String> bundles;
     private List<String> fabs;
     private List<String> features;
@@ -67,7 +66,8 @@ public class ProfileDTO {
         this.fabs = profile.getFabs();
         this.overrides = profile.getOverrides();
 
-        this.associatedContainers = Containers.containerIds(profile.getAssociatedContainers());
+    	String versionId = profile.getVersion();
+    	String profileId = profile.getId();
         this.configurations = profile.getConfigurationFileNames();
     }
 
@@ -158,20 +158,12 @@ public class ProfileDTO {
         this.attributes = attributes;
     }
 
-    public List<String> getConfigurations() {
+    public Set<String> getConfigurations() {
         return configurations;
     }
 
-    public void setConfigurations(List<String> configurations) {
+    public void setConfigurations(Set<String> configurations) {
         this.configurations = configurations;
-    }
-
-    public List<String> getAssociatedContainers() {
-        return associatedContainers;
-    }
-
-    public void setAssociatedContainers(List<String> associatedContainers) {
-        this.associatedContainers = associatedContainers;
     }
 
     public List<String> getBundles() {

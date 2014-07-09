@@ -17,6 +17,8 @@ package io.fabric8.service;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.PlaceholderResolver;
+import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.common.util.Strings;
@@ -89,7 +91,9 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
             return configuration.get(key);
         } else {
             // lets default to the current container if a version doesn't exist in a different profile
-            configuration = fabricService.getCurrentContainer().getOverlayProfile().getConfiguration(pid);
+            Profile overlayProfile = fabricService.getCurrentContainer().getOverlayProfile();
+            Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService, overlayProfile);
+            configuration = effectiveProfile.getConfiguration(pid);
             if (configuration != null && configuration.containsKey(key)) {
                 return configuration.get(key);
             } else {

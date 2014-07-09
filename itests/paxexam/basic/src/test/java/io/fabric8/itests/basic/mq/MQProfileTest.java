@@ -70,7 +70,7 @@ public class MQProfileTest extends FabricTestSupport {
                 LinkedList<Container> containerList = new LinkedList<Container>(containers);
                 Container broker = containerList.removeLast();
 
-                Profile brokerProfile = broker.getVersion().getProfile("mq-broker-default.mq");
+                Profile brokerProfile = broker.getVersion().getRequiredProfile("mq-broker-default.mq");
                 broker.setProfiles(new Profile[]{brokerProfile});
 
                 Provision.provisioningSuccess(Arrays.asList(broker), PROVISION_TIMEOUT);
@@ -83,7 +83,7 @@ public class MQProfileTest extends FabricTestSupport {
                 System.out.println(executeCommand("container-list"));
 
                 for (Container c : containerList) {
-                    Profile exampleProfile = broker.getVersion().getProfile("example-mq");
+                    Profile exampleProfile = broker.getVersion().getRequiredProfile("example-mq");
                     c.setProfiles(new Profile[]{exampleProfile});
                 }
 
@@ -125,10 +125,10 @@ public class MQProfileTest extends FabricTestSupport {
                 Container eastBroker = containerList.removeLast();
                 Container westBroker = containerList.removeLast();
 
-                Profile eastBrokerProfile = eastBroker.getVersion().getProfile("mq-broker-us-east.us-east");
+                Profile eastBrokerProfile = eastBroker.getVersion().getRequiredProfile("mq-broker-us-east.us-east");
                 eastBroker.setProfiles(new Profile[]{eastBrokerProfile});
 
-                Profile westBrokerProfile = eastBroker.getVersion().getProfile("mq-broker-us-west.us-west");
+                Profile westBrokerProfile = eastBroker.getVersion().getRequiredProfile("mq-broker-us-west.us-west");
                 westBroker.setProfiles(new Profile[]{westBrokerProfile});
 
                 Provision.provisioningSuccess(Arrays.asList(westBroker, eastBroker), PROVISION_TIMEOUT);

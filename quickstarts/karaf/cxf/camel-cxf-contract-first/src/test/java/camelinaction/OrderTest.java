@@ -21,8 +21,10 @@ import java.util.List;
 import org.apache.camel.test.AvailablePortFinder;
 import org.apache.camel.test.blueprint.CamelBlueprintTestSupport;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore("Intermittently fails in Jenkins - passes locally")
 public class OrderTest extends CamelBlueprintTestSupport {
 
     private boolean canTest = true;

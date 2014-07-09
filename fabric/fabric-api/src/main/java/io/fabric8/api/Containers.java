@@ -16,6 +16,7 @@
 package io.fabric8.api;
 
 import io.fabric8.api.scr.support.Strings;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,18 +154,16 @@ public class Containers {
      */
     public static List<Profile> overlayProfiles(Container container) {
         Set<Profile> set = new LinkedHashSet<Profile>();
-        Profile[] profiles = container.getProfiles();
+        List<Profile> profiles = Arrays.asList(container.getProfiles());
         recursiveAddProfiles(set, profiles);
         return new ArrayList<Profile>(set);
     }
 
-    protected static void recursiveAddProfiles(Set<Profile> set, Profile[] profiles) {
+    protected static void recursiveAddProfiles(Set<Profile> set, List<Profile> profiles) {
         for (Profile profile : profiles) {
             set.add(profile);
-            Profile[] parents = profile.getParents();
-            if (parents != null) {
-                recursiveAddProfiles(set, parents);
-            }
+            List<Profile> parents = profile.getParents();
+            recursiveAddProfiles(set, parents);
         }
     }
 
@@ -210,36 +209,12 @@ public class Containers {
      * Returns a list of parent profile Ids for the given profile
      */
     public static List<String> getParentProfileIds(Profile profile) {
-        List<String> answer = new ArrayList<String>();
-        Profile[] parents = profile.getParents();
-        if (parents != null) {
-            for (Profile parent : parents) {
-                answer.add(parent.getId());
-            }
+        List<String> answer = new ArrayList<>();
+        List<Profile> parents = profile.getParents();
+        for (Profile parent : parents) {
+            answer.add(parent.getId());
         }
         return answer;
-    }
-
-    /**
-     * Sets the list of parent profile IDs
-     */
-    public static void setParentProfileIds(Version version, Profile profile, List<String> parentProfileIds) {
-        List<Profile> list = new ArrayList<Profile>();
-        for (String parentProfileId : parentProfileIds) {
-            if (!Strings.isNullOrBlank(parentProfileId)) {
-                Profile parentProfile = null;
-                if (version.hasProfile(parentProfileId)) {
-                    parentProfile = version.getProfile(parentProfileId);
-                }
-                if (parentProfile != null) {
-                    list.add(parentProfile);
-                } else {
-                    LOG.warn("Could not find parent profile: " + parentProfileId + " in version " + version.getId());
-                }
-            }
-        }
-        Profile[] parents = list.toArray(new Profile[list.size()]);
-        profile.setParents(parents);
     }
 
     /**

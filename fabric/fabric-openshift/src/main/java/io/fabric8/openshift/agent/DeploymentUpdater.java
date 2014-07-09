@@ -17,12 +17,14 @@ package io.fabric8.openshift.agent;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.common.util.Files;
+
 import org.apache.karaf.features.Feature;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
+
 import io.fabric8.common.util.LoggingOutputStream;
 import io.fabric8.common.util.Strings;
 import io.fabric8.agent.download.DownloadManager;
@@ -31,7 +33,9 @@ import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 import io.fabric8.git.internal.GitHelpers;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -39,6 +43,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -90,14 +95,15 @@ public class DeploymentUpdater {
     public void updateDeployment(Git git, File baseDir, CredentialsProvider credentials) throws Exception {
         Set<String> bundles = new LinkedHashSet<String>();
         Set<Feature> features = new LinkedHashSet<Feature>();
-        Profile profile = container.getOverlayProfile();
-        bundles.addAll(profile.getBundles());
-        AgentUtils.addFeatures(features, fabricService, downloadManager, profile);
+        Profile overlayProfile = container.getOverlayProfile();
+        Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService, overlayProfile);
+        bundles.addAll(effectiveProfile.getBundles());
+        AgentUtils.addFeatures(features, fabricService, downloadManager, effectiveProfile);
 
         if (copyFilesIntoGit) {
             copyDeploymentsIntoGit(git, baseDir, bundles, features);
         } else {
-            addDeploymentsIntoPom(git, baseDir, profile, bundles, features);
+            addDeploymentsIntoPom(git, baseDir, effectiveProfile, bundles, features);
         }
 
         // now lets do a commit

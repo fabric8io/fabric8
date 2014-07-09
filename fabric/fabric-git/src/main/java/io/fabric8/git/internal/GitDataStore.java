@@ -53,6 +53,7 @@ import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.VersionSequence;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.api.visibility.VisibleForTesting;
@@ -66,6 +67,7 @@ import io.fabric8.internal.RequirementsJson;
 import io.fabric8.service.AbstractDataStore;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.zookeeper.ZkPath;
+
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.shared.SharedCount;
@@ -508,7 +510,16 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     @Override
     public List<String> getVersions() {
         assertValid();
-        return new ArrayList<String>(versions);
+        List<VersionSequence> sequences = new ArrayList<>();
+        for (String versionId : versions) {
+            sequences.add(new VersionSequence(versionId));
+        }
+        Collections.sort(sequences);
+        List<String> verlist = new ArrayList<>();
+        for (VersionSequence seq : sequences) {
+            verlist.add(seq.getName());
+        }
+        return Collections.unmodifiableList(verlist);
     }
 
     protected List<String> forceGetVersions() {

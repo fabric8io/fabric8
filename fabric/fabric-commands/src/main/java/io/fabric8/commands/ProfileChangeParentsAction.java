@@ -15,12 +15,16 @@
  */
 package io.fabric8.commands;
 
-import java.util.List;
-
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.boot.commands.support.FabricCommand;
+
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -30,15 +34,17 @@ import org.apache.karaf.shell.console.AbstractAction;
 public class ProfileChangeParentsAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version. Defaults to the current default version.")
-    private String version;
+    private String versionId;
     @Argument(index = 0, required = true, name = "profile", description = "Name of the profile.")
-    private String name;
+    private String profileId;
     @Argument(index = 1, name = "parents", description = "The list of new parent profiles.", required = true, multiValued = true)
-    private List<String> parents;
+    private List<String> parentIds;
 
+    private final ProfileService profileService;
     private final FabricService fabricService;
 
     ProfileChangeParentsAction(FabricService fabricService) {
+        this.profileService = fabricService.adapt(ProfileService.class);
         this.fabricService = fabricService;
     }
 
@@ -48,12 +54,14 @@ public class ProfileChangeParentsAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-
-        Profile prof = FabricCommand.getProfile(ver, name);
+        Version version = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getDefaultVersion();
+        Profile profile = version.getRequiredProfile(profileId);
+        
         // we can only change parents to existing profiles
-        Profile[] profs = FabricCommand.getExistingProfiles(fabricService, ver, parents);
-        prof.setParents(profs);
+        Profile[] parents = FabricCommand.getExistingProfiles(fabricService, version, parentIds);
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
+        builder.setParents(Arrays.asList(parents));
+        profileService.updateProfile(builder.getProfile());
         return null;
     }
 

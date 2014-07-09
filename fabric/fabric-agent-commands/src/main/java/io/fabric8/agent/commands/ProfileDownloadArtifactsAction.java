@@ -107,7 +107,7 @@ public class ProfileDownloadArtifactsAction extends AbstractAction {
         if (profile != null) {
             Profile profileObject = null;
             if (ver.hasProfile(profile)) {
-                profileObject = ver.getProfile(profile);
+                profileObject = ver.getRequiredProfile(profile);
             }
             if (profileObject == null) {
                 System.out.println("Source profile " + profile + " not found.");

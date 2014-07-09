@@ -22,10 +22,12 @@ import io.fabric8.api.Container;
 import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Closeables;
 import io.fabric8.common.util.Strings;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -57,6 +59,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -181,34 +184,27 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
     }
 
     protected synchronized void updateInternal() {
-        Profile profile = null;
-        FabricService fabric = null;
-        Provisioner provisionService = null;
-
+        Profile effectiveProfile;
         try {
-            fabric = fabricService.get();
-            Container container = fabric.getCurrentContainer();
-            profile = container.getOverlayProfile();
-            provisionService = provisioner.get();
+            Profile overlayProfile = fabricService.get().getCurrentContainer().getOverlayProfile();
+            effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), overlayProfile);
         } catch (Exception ex) {
-            LOGGER.debug("Failed to read container profile. This exception will be ignored..", ex);
+            LOGGER.warn("Failed to read container profile. This exception will be ignored..", ex);
             return;
         }
 
-        if (profile != null && fabric != null && provisionService != null) {
-            List<String> resources = null;
-            try {
-                Map<String, File> artifacts = downloadProfileArtifacts(fabric, profile);
-                populateExplodedWar(artifacts);
-                resources = updateProvisioning(artifacts, provisionService);
-                updateStatus(Container.PROVISION_SUCCESS, null, resources);
-            } catch (Throwable e) {
-                if (isValid()) {
-                    LOGGER.warn("Exception updating provisioning: " + e, e);
-                    updateStatus(Container.PROVISION_ERROR, e, resources);
-                } else {
-                    LOGGER.debug("Exception updating provisioning: " + e, e);
-                }
+        List<String> resources = null;
+        try {
+            Map<String, File> artifacts = downloadProfileArtifacts(fabricService.get(), effectiveProfile);
+            populateExplodedWar(artifacts);
+            resources = updateProvisioning(artifacts, provisioner.get());
+            updateStatus(Container.PROVISION_SUCCESS, null, resources);
+        } catch (Throwable e) {
+            if (isValid()) {
+                LOGGER.warn("Exception updating provisioning: " + e, e);
+                updateStatus(Container.PROVISION_ERROR, e, resources);
+            } else {
+                LOGGER.debug("Exception updating provisioning: " + e, e);
             }
         }
     }

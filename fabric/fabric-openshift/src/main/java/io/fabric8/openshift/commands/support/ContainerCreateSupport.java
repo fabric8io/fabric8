@@ -91,7 +91,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
 
             // get the profiles for the given version
             Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-            Profile[] profiles = ver.getProfiles();
+            List<Profile> profiles = ver.getProfiles();
 
             // validate profiles exists before creating a new container
             Set<String> names = getProfileNames();
@@ -145,8 +145,8 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         }
     }
 
-    private static Profile getProfile(Profile[] profiles, String name, Version version) {
-        if (profiles == null || profiles.length == 0) {
+    private static Profile getProfile(List<Profile> profiles, String name, Version version) {
+        if (profiles == null || profiles.size() == 0) {
             return null;
         }
 

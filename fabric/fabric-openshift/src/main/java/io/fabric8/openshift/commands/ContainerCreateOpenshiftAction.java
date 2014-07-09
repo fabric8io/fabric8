@@ -54,7 +54,7 @@ public class ContainerCreateOpenshiftAction extends ContainerCreateSupport {
     protected int number = 0;
 
     ContainerCreateOpenshiftAction(FabricService fabricService) {
-        setFabricService(fabricService);
+        this.fabricService = fabricService;
     }
 
     @Override

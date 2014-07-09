@@ -17,6 +17,8 @@ package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.utils.FabricValidations;
 
@@ -50,11 +52,14 @@ public class ProfileDeleteAction extends AbstractAction {
     @Override
     protected Object doExecute() throws Exception {
         FabricValidations.validateProfileName(name);
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        Version ver = version != null ? profileService.getVersion(version) : fabricService.getDefaultVersion();
 
         for (Profile profile : ver.getProfiles()) {
-            if (name.equals(profile.getId())) {
-                profile.delete(force);
+        	String versionId = profile.getVersion();
+            String profileId = profile.getId();
+			if (name.equals(profileId)) {
+                Profiles.deleteProfile(fabricService, versionId, profileId, force);
             }
         }
         return null;

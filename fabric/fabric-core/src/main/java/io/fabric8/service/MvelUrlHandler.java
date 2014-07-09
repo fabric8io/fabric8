@@ -33,6 +33,8 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.Validatable;
@@ -116,7 +118,8 @@ public final class MvelUrlHandler extends AbstractURLStreamHandlerService implem
             URL url = new URL(path);
             CompiledTemplate compiledTemplate = TemplateCompiler.compileTemplate(url.openStream());
             Map<String, Object> data = new HashMap<String, Object>();
-            data.put("profile", fabricService.get().getCurrentContainer().getOverlayProfile());
+            Profile overlayProfile = fabricService.get().getCurrentContainer().getOverlayProfile();
+            data.put("profile", Profiles.getEffectiveProfile(fabricService.get(), overlayProfile));
             data.put("runtime", runtimeProperties.get());
             String content = TemplateRuntime.execute(compiledTemplate, data).toString();
             return new ByteArrayInputStream(content.getBytes());

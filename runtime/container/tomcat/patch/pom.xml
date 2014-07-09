@@ -70,6 +70,13 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric8-profiles</artifactId>
+            <version>${project.version}</version>
+            <type>pom</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>io.fabric8.runtime</groupId>
             <artifactId>fabric-runtime-container-tomcat-webapp</artifactId>
             <version>${project.version}</version>

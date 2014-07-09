@@ -36,6 +36,8 @@ import java.util.concurrent.Executors;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.scr.AbstractComponent;
@@ -48,6 +50,7 @@ import io.fabric8.gateway.fabric.haproxy.model.OnValue;
 import io.fabric8.gateway.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.handlers.http.MappedServices;
 import io.fabric8.internal.Objects;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -258,8 +261,9 @@ public class FabricHaproxyGateway extends AbstractComponent {
         // lets lazy load template text from the fabric so we can configure it
         // explicitly to make testing outside of fabric easier
         if (templateText == null && fabricService != null) {
-            Container current = fabricService.getCurrentContainer();
-            byte[] bytes = current.getOverlayProfile().getFileConfiguration(TEMPLATE_FILE_NAME);
+            Profile overlayProfile = fabricService.getCurrentContainer().getOverlayProfile();
+            Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService, overlayProfile);
+            byte[] bytes = effectiveProfile.getFileConfiguration(TEMPLATE_FILE_NAME);
             if (bytes != null) {
                 templateText = new String(bytes);
             }

@@ -17,7 +17,7 @@ package io.fabric8.itests.paxexam.support;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.ServiceLocator;
+import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
 
 import java.util.Collection;
 import java.util.HashMap;

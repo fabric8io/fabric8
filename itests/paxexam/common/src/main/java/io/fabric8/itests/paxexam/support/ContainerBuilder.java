@@ -22,10 +22,10 @@ import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.ServiceLocator;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.service.jclouds.CreateJCloudsContainerOptions;
 import io.fabric8.service.ssh.CreateSshContainerOptions;
+import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
 
 import java.util.Arrays;
 import java.util.Collection;

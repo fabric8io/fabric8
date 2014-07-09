@@ -388,25 +388,22 @@ public class ProcessManagerController implements ChildContainerController {
         if (fabricService != null) {
             Container container = fabricService.getCurrentContainer();
             if (container != null) {
-                Profile currentContainerOverlayProfile = fabricService.getCurrentContainer().getOverlayProfile();
-                if (currentContainerOverlayProfile != null) {
-                    final DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, downloadExecutor);
-                    return new DownloadStrategy() {
-                        @Override
-                        public File downloadContent(URL sourceUrl, File installDir) throws IOException {
-                            DownloadFuture future = downloadManager.download(sourceUrl.toString());
-                            File file = AgentUtils.waitForFileDownload(future);
-                            if (file != null && file.exists() && file.isFile()) {
-                                // now lest copy it to the install dir
-                                File newFile = new File(installDir, file.getName());
-                                Files.copy(file, newFile);
-                                return newFile;
-                            } else {
-                                throw new IOException("Could not download " + sourceUrl);
-                            }
+                final DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, downloadExecutor);
+                return new DownloadStrategy() {
+                    @Override
+                    public File downloadContent(URL sourceUrl, File installDir) throws IOException {
+                        DownloadFuture future = downloadManager.download(sourceUrl.toString());
+                        File file = AgentUtils.waitForFileDownload(future);
+                        if (file != null && file.exists() && file.isFile()) {
+                            // now lest copy it to the install dir
+                            File newFile = new File(installDir, file.getName());
+                            Files.copy(file, newFile);
+                            return newFile;
+                        } else {
+                            throw new IOException("Could not download " + sourceUrl);
                         }
-                    };
-                }
+                    }
+                };
             }
         }
         return null;
@@ -520,7 +517,7 @@ public class ProcessManagerController implements ChildContainerController {
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
         InstallTask answer = null;
         if (layout != null) {
-            Map<String, String> configuration = ProcessUtils.getProcessLayout(profiles, layout);
+            Map<String, String> configuration = ProcessUtils.getProcessLayout(fabricService, profiles, layout);
             if (configuration != null && !configuration.isEmpty()) {
                 Map variables = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.TEMPLATE_VARIABLES_PID);
                 if (variables == null) {
