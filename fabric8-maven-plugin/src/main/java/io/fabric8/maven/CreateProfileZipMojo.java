@@ -26,7 +26,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.common.util.Files;
@@ -34,6 +36,7 @@ import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
+import io.fabric8.service.child.ChildConstants;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
@@ -326,6 +329,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                 writeProfileRequirements(requirements, profileBuildDir);
             }
             generateFabricAgentProperties(requirements, new File(profileBuildDir, "io.fabric8.agent.properties"));
+            generateFabricContextPathProperties(requirements, new File(profileBuildDir, ChildConstants.WEB_CONTEXT_PATHS_PID + ".properties"));
 
             Zips.createZipFile(getLog(), buildDir, outputFile);
 
@@ -449,12 +453,43 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         }
     }
 
+    protected void generateFabricContextPathProperties(ProjectRequirements requirements, File file) throws MojoExecutionException, IOException {
+        String webContextPath = requirements.getWebContextPath();
+        if (Strings.isNullOrBlank(webContextPath)) {
+            // no file need to be generated
+            return;
+        }
+
+        file.getParentFile().mkdirs();
+        PrintWriter writer = new PrintWriter(new FileWriter(file));
+        try {
+            // the path must start with a leading slash
+            String path = leadingSlash(webContextPath);
+            String key = project.getGroupId() + "/" + project.getArtifactId();
+            writer.println(escapeAgentPropertiesKey(key) + " = " + escapeAgentPropertiesValue(path));
+        } finally {
+            try {
+                writer.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
     protected String escapeAgentPropertiesKey(String text) {
         return text.replaceAll("\\:", "\\\\:");
     }
 
     protected String escapeAgentPropertiesValue(String text) {
         return escapeAgentPropertiesKey(text);
+    }
+
+    protected static String leadingSlash(String path) {
+        if (path.startsWith("/")) {
+            return path;
+        } else {
+            return "/" + path;
+        }
     }
 
 }
