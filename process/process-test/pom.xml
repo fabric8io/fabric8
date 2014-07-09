@@ -34,6 +34,13 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
+            <exclusions>
+                <!-- We are Spring Boot friendly by default. Spring provides log4j-over-slf4j. -->
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
