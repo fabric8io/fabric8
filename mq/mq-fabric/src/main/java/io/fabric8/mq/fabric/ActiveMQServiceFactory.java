@@ -546,12 +546,17 @@ public class ActiveMQServiceFactory implements ManagedServiceFactory, ServiceTra
                                 }
                                 started = true;
                             } catch (Throwable e) {
+                                if (start_future.isCancelled() || Thread.currentThread().isInterrupted()) {
+                                    info("Broker %s interrupted while starting", name);
+                                    break;
+                                }
                                 info("Broker %s failed to start.  Will try again in 10 seconds", name);
                                 LOG.error("Exception on start: " + e.getMessage(), e);
                                 try {
                                     Thread.sleep(1000 * 10);
                                 } catch (InterruptedException ignore) {
-                                    // ignore
+                                    info("Broker %s interrupted while starting", name);
+                                    break;
                                 }
                             }
                         }
@@ -650,17 +655,19 @@ public class ActiveMQServiceFactory implements ManagedServiceFactory, ServiceTra
                 if (discoveryAgent != null) {
                     discoveryAgent.stop();
                 }
-                if (started.compareAndSet(true, false)) {
+                if (started.get()) {
                     stop();
                 }
             }
-            waitForStop();
+            if (started.compareAndSet(true, false)) {
+                waitForStop();
+            }
             executor.shutdownNow();
         }
 
         public synchronized void stop() {
+            interruptAndWaitForStart();
             if (stop_future == null || stop_future.isDone()) {
-                interruptAndWaitForStart();
                 stop_future = executor.submit(new Runnable() {
                     @Override
                     public void run() {
