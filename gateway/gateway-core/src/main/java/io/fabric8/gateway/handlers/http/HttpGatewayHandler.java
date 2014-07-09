@@ -127,6 +127,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                     }
 
                     LOG.info("Proxying request " + uri + " to service path: " + servicePath + " on service: " + proxyServiceUrl + " reverseServiceUrl: " + reverseServiceUrl);
+                    final HttpClient finalClient = client;
                     Handler<HttpClientResponse> responseHandler = new Handler<HttpClientResponse>() {
                         public void handle(HttpClientResponse clientResponse) {
                             if (LOG.isDebugEnabled()) {
@@ -146,6 +147,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                             clientResponse.endHandler(new VoidHandler() {
                                 public void handle() {
                                     request.response().end();
+                                    finalClient.close();
                                 }
                             });
                         }

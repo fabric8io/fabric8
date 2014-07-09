@@ -18,6 +18,8 @@ package io.fabric8.gateway;
 
 import io.fabric8.common.util.ShutdownTracker;
 import io.fabric8.gateway.handlers.detecting.DetectingGateway;
+import io.fabric8.gateway.handlers.detecting.DetectingGatewayWebSocketHandler;
+import io.fabric8.gateway.handlers.detecting.FutureHandler;
 import io.fabric8.gateway.handlers.detecting.Protocol;
 import io.fabric8.gateway.handlers.detecting.protocol.amqp.AmqpProtocol;
 import io.fabric8.gateway.handlers.detecting.protocol.http.HttpProtocol;
@@ -26,8 +28,10 @@ import io.fabric8.gateway.handlers.detecting.protocol.openwire.OpenwireProtocol;
 import io.fabric8.gateway.handlers.detecting.protocol.ssl.SslConfig;
 import io.fabric8.gateway.handlers.detecting.protocol.ssl.SslProtocol;
 import io.fabric8.gateway.handlers.detecting.protocol.stomp.StompProtocol;
+import io.fabric8.gateway.handlers.http.*;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.loadbalancer.LoadBalancers;
+import io.fabric8.gateway.loadbalancer.RoundRobinLoadBalancer;
 import org.apache.activemq.apollo.broker.Broker;
 import org.apache.activemq.apollo.dto.AcceptingConnectorDTO;
 import org.apache.activemq.apollo.dto.BrokerDTO;
@@ -39,21 +43,26 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vertx.java.core.AsyncResult;
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
+import org.vertx.java.core.http.HttpServer;
+import org.vertx.java.core.http.HttpServerRequest;
 
 import javax.jms.*;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -114,6 +123,31 @@ public class ExtendedBurnIn {
         }
     }
 
+    HttpServer restEndpointServer;
+    public HttpServer startRestEndpoint() throws InterruptedException {
+        restEndpointServer = vertx.createHttpServer();
+        restEndpointServer.requestHandler(new Handler<HttpServerRequest>() {
+            @Override
+            public void handle(HttpServerRequest request) {
+                request.response().putHeader("content-type", "text/plain");
+                request.response().end("Hello World!");
+            }
+        });
+
+        FutureHandler<AsyncResult<HttpServer>> future = new FutureHandler<>();
+        restEndpointServer.listen(8181, "0.0.0.0", future);
+        future.await();
+        return restEndpointServer;
+    }
+
+    @After
+    public void endRestEndpoint() throws InterruptedException {
+        if( restEndpointServer !=null ) {
+            restEndpointServer.close();
+            restEndpointServer = null;
+        }
+    }
+
     @After
     public void stopBrokers() {
         for (Broker broker : brokers) {
@@ -121,15 +155,6 @@ public class ExtendedBurnIn {
         }
         brokers.clear();
     }
-
-    @After
-    public void stopGateways() {
-        for (DetectingGateway gateway : gateways) {
-            gateway.destroy();
-        }
-        gateways.clear();
-    }
-
 
     int portOfBroker(int broker) {
         return ((InetSocketAddress)brokers.get(broker).get_socket_address()).getPort();
@@ -170,59 +195,67 @@ public class ExtendedBurnIn {
         }
     }
 
-    @Test
-    public void lotsOfClientLoad() throws Exception {
-
-        DetectingGateway gateway = createGateway();
-
-        final ShutdownTracker tracker = new ShutdownTracker();
-
-        // Run some concurrent load against the broker via the gateway...
-        final StompJmsConnectionFactory factory = new StompJmsConnectionFactory();
-        factory.setBrokerURI("tcp://localhost:"+gateway.getBoundPort());
-        for(int client=0; client<10; client++) {
-            new Thread("Client: "+client) {
-                @Override
-                public void run() {
-                    while(tracker.attemptRetain()) {
-                        try {
-                            Connection connection = factory.createConnection();
-                            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                            MessageConsumer consumer = session.createConsumer(session.createTopic("FOO"));
-                            MessageProducer producer = session.createProducer(session.createTopic("FOO"));
-                            producer.send(session.createTextMessage("Hello"));
-                            consumer.receive(1000);
-                            connection.close();
-                        } catch (JMSException e) {
-                            e.printStackTrace();
-                        } finally {
-                            tracker.release();
-                        }
-                    }
-                }
-            }.start();
-        }
-
-        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        // Lets monitor memory usage for 5 min..
-        for( int i=0; i < 60*5;i++ ) {
-            Thread.sleep(900);
-            Runtime.getRuntime().gc();
-            Thread.sleep(100);
-            long usedMB = ((Long)((CompositeData)mBeanServer.getAttribute(new ObjectName("java.lang:type=Memory"), "HeapMemoryUsage")).get("used")).longValue()/(1024*1024);
-            System.out.println("Using "+usedMB+" MB of heap.");
-
-        }
-        tracker.stop();
-
-    }
-
-
     private int getConnectionsOnBroker(int brokerIdx) {
         return brokers.get(brokerIdx).connections().size();
     }
 
-    public DetectingGateway createGateway() {
+    final HashMap<String, MappedServices> mappedServices = new HashMap<String, MappedServices>();
+
+    HttpGatewayServer httpGatewayServer;
+    public HttpGatewayServer startHttpGateway() {
+
+
+        if( restEndpointServer!=null ) {
+            LoadBalancer loadBalancer=new RoundRobinLoadBalancer();
+
+            ServiceDTO serviceDetails = new ServiceDTO();
+            serviceDetails.setContainer("local");
+            serviceDetails.setVersion("1");
+
+            mappedServices.put("/hello/world", new MappedServices("http://localhost:8181", serviceDetails, loadBalancer, false));
+        }
+
+        DetectingGatewayWebSocketHandler websocketHandler = new DetectingGatewayWebSocketHandler();
+        HttpGatewayHandler handler = new HttpGatewayHandler(vertx, new HttpGateway(){
+            @Override
+            public void addMappingRuleConfiguration(HttpMappingRule mappingRule) {
+            }
+
+            @Override
+            public void removeMappingRuleConfiguration(HttpMappingRule mappingRule) {
+            }
+
+            @Override
+            public Map<String, MappedServices> getMappedServices() {
+                return mappedServices;
+            }
+
+            @Override
+            public boolean isEnableIndex() {
+                return true;
+            }
+
+            @Override
+            public InetSocketAddress getLocalAddress() {
+                return new InetSocketAddress("0.0.0.0", 8080);
+            }
+        });
+        websocketHandler.setPathPrefix("");
+        httpGatewayServer = new HttpGatewayServer(vertx, handler, websocketHandler, 8080);
+        httpGatewayServer.setHost("localhost");
+        httpGatewayServer.init();
+        return httpGatewayServer;
+    }
+
+    @After
+    public void stopHttpGateway(){
+        if( httpGatewayServer!=null ) {
+            httpGatewayServer.destroy();
+            httpGatewayServer = null;
+        }
+    }
+
+    public DetectingGateway startDetectingGateway() {
 
         String loadBalancerType = LoadBalancers.STICKY_LOAD_BALANCER;
         int stickyLoadBalancerCacheSize = LoadBalancers.STICKY_LOAD_BALANCER_DEFAULT_CACHE_SIZE;
@@ -247,11 +280,24 @@ public class ExtendedBurnIn {
         gateway.setServiceLoadBalancer(serviceLoadBalancer);
         gateway.setDefaultVirtualHost("broker1");
         gateway.setConnectionTimeout(5000);
+        if( httpGatewayServer!=null ) {
+            gateway.setHttpGateway(new InetSocketAddress("localhost", httpGatewayServer.getPort()));
+        }
         gateway.init();
 
         gateways.add(gateway);
         return gateway;
     }
+
+
+    @After
+    public void stopGateways() {
+        for (DetectingGateway gateway : gateways) {
+            gateway.destroy();
+        }
+        gateways.clear();
+    }
+
 
     protected File basedir() {
         try {
@@ -265,6 +311,86 @@ public class ExtendedBurnIn {
         } catch (Throwable e){
             return new File(".");
         }
+    }
+
+    @Test
+    public void lotsOfClientLoad() throws Exception {
+
+        startRestEndpoint();
+        startHttpGateway();
+        DetectingGateway gateway = startDetectingGateway();
+
+        final ShutdownTracker tracker = new ShutdownTracker();
+
+        // Run some concurrent load against the broker via the gateway...
+        final StompJmsConnectionFactory factory = new StompJmsConnectionFactory();
+        factory.setBrokerURI("tcp://localhost:"+gateway.getBoundPort());
+
+        for(int client=0; client<10; client++) {
+            new Thread("JMS Client: "+client) {
+                @Override
+                public void run() {
+                    while(tracker.attemptRetain()) {
+                        try {
+                            Connection connection = factory.createConnection();
+                            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                            MessageConsumer consumer = session.createConsumer(session.createTopic("FOO"));
+                            MessageProducer producer = session.createProducer(session.createTopic("FOO"));
+                            producer.send(session.createTextMessage("Hello"));
+                            consumer.receive(1000);
+                            connection.close();
+                        } catch (JMSException e) {
+                            e.printStackTrace();
+                        } finally {
+                            tracker.release();
+                        }
+                    }
+                }
+            }.start();
+        }
+
+        int httpPort = gateway.getBoundPort();
+        final URL httpUrl = new URL("http://localhost:" + httpPort + "/hello/world");
+        for(int client=0; client<10; client++) {
+            new Thread("HTTP Client: "+client) {
+                @Override
+                public void run() {
+                    while(tracker.attemptRetain()) {
+                        try {
+                            InputStream is = httpUrl.openConnection().getInputStream();
+                            try {
+                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                int c =0;
+                                while( (c=is.read()) >= 0 ) {
+                                    baos.write(c);
+                                }
+                                assertEquals("Hello World!", new String(baos.toByteArray()));
+                            } finally {
+                                is.close();
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            tracker.release();
+                        }
+                    }
+                }
+            }.start();
+        }
+
+        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        // Lets monitor memory usage for 5 min..
+        for( int i=0; i < 60*5;i++ ) {
+            Thread.sleep(900);
+            Runtime.getRuntime().gc();
+            Thread.sleep(100);
+            long usedMB = ((Long)((CompositeData)mBeanServer.getAttribute(new ObjectName("java.lang:type=Memory"), "HeapMemoryUsage")).get("used")).longValue()/(1024*1024);
+            System.out.println("Using "+usedMB+" MB of heap.");
+
+        }
+        tracker.stop();
+
     }
 
 }
