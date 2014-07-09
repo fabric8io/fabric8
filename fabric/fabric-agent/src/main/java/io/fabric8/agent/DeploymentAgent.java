@@ -1037,6 +1037,8 @@ public class DeploymentAgent implements ManagedService {
                 latch.countDown();
             }
         });
+        
+        // Block until either FrameworkEvent.ERROR or FrameworkEvent.PACKAGES_REFRESHED is received 
         latch.await();
     }
 

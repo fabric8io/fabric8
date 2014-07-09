@@ -19,29 +19,24 @@ import io.fabric8.api.Container;
 import io.fabric8.api.Containers;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.ProfileRequirements;
-import io.fabric8.api.Profiles;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.api.jmx.FabricStatusDTO;
 import io.fabric8.common.util.Strings;
 
-import org.apache.cxf.jaxrs.ext.MessageContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents the root fabric resource.
@@ -105,7 +100,8 @@ public class FabricResource extends ResourceSupport {
     public Map<String,String> versions() {
         FabricService fabricService = getFabricService();
         if (fabricService != null) {
-            List<String> versionIds = Profiles.versionIds(fabricService.getVersions());
+            ProfileService profileService = fabricService.adapt(ProfileService.class);
+            List<String> versionIds = profileService.getVersions();
             return mapToLinks(versionIds, "/version/");
         } else {
             noFabricService();
@@ -120,7 +116,8 @@ public class FabricResource extends ResourceSupport {
     public VersionResource version(@PathParam("versionId") String versionId) {
         FabricService fabricService = getFabricService();
         if (fabricService != null && Strings.isNotBlank(versionId)) {
-            Version version = fabricService.getVersion(versionId);
+            ProfileService profileService = fabricService.adapt(ProfileService.class);
+            Version version = profileService.getRequiredVersion(versionId);
             if (version != null) {
                 return new VersionResource(this, version);
             } else {

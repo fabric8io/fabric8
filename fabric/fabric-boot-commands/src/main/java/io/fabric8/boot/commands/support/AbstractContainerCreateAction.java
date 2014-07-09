@@ -19,6 +19,7 @@ import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricAuthenticationException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.utils.FabricValidations;
@@ -57,10 +58,12 @@ public abstract class AbstractContainerCreateAction extends AbstractAction {
     protected String[] dataStoreOption;
 
     protected final FabricService fabricService;
+    protected final ProfileService profileService;
     protected final ZooKeeperClusterService clusterService;
 
     protected AbstractContainerCreateAction(FabricService fabricService, ZooKeeperClusterService clusterService) {
         this.fabricService = fabricService;
+        this.profileService = fabricService.adapt(ProfileService.class);
         this.clusterService = clusterService;
     }
 
@@ -94,8 +97,8 @@ public abstract class AbstractContainerCreateAction extends AbstractAction {
             }
 
             // get the profiles for the given version
-            Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-            Profile[] profiles = ver.getProfiles();
+            Version ver = version != null ? profileService.getRequiredVersion(version) : fabricService.getDefaultVersion();
+            List<Profile> profiles = ver.getProfiles();
 
             // validate profiles exists before creating a new container
             Set<String> names = getProfileNames();
@@ -160,17 +163,15 @@ public abstract class AbstractContainerCreateAction extends AbstractAction {
         return options;
     }
 
-    private static Profile getProfile(Profile[] profiles, String name, Version version) {
-        if (profiles == null || profiles.length == 0) {
+    private static Profile getProfile(List<Profile> profiles, String name, Version version) {
+        if (profiles == null || profiles.size() == 0) {
             return null;
         }
-
         for (Profile profile : profiles) {
             if (profile.getId().equals(name) && profile.getVersion().equals(version.getId())) {
                 return profile;
             }
         }
-
         return null;
     }
 }

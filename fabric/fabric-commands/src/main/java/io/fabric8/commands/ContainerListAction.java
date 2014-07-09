@@ -15,15 +15,17 @@
  */
 package io.fabric8.commands;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.DataStore;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Version;
+import io.fabric8.commands.support.CommandUtils;
+
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Locale;
 
-import io.fabric8.api.Container;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Version;
-import io.fabric8.commands.support.CommandUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -46,9 +48,11 @@ public class ContainerListAction extends AbstractAction {
     private String filter = null;
 
     private final FabricService fabricService;
+    private final ProfileService profileService;
 
     ContainerListAction(FabricService fabricService) {
         this.fabricService = fabricService;
+        this.profileService = fabricService.adapt(ProfileService.class);
     }
 
     @Override
@@ -65,7 +69,7 @@ public class ContainerListAction extends AbstractAction {
         Version ver = null;
         if (version != null) {
             // limit containers to only with same version
-            ver = fabricService.getVersion(version);
+            ver = profileService.getRequiredVersion(version);
         }
 
         if (verbose) {

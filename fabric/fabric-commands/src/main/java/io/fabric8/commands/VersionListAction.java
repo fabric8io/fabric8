@@ -15,45 +15,46 @@
  */
 package io.fabric8.commands;
 
-import java.io.PrintStream;
-
-import io.fabric8.api.FabricService;
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.api.Container;
-import io.fabric8.api.Version;
-import org.apache.karaf.shell.console.AbstractAction;
-
 import static io.fabric8.commands.support.CommandUtils.countContainersByVersion;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Version;
+
+import java.io.PrintStream;
+import java.util.List;
+
+import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.console.AbstractAction;
 
 @Command(name = "version-list", scope = "fabric", description = "List the existing versions")
 public class VersionListAction extends AbstractAction {
 
     private static final String CONSOLE_FORMAT="%-15s %-9s %-14s %s";
 
+    private final ProfileService profileService;
     private final FabricService fabricService;
 
     VersionListAction(FabricService fabricService) {
+        this.profileService = fabricService.adapt(ProfileService.class);
         this.fabricService = fabricService;
-    }
-
-    public FabricService getFabricService() {
-        return fabricService;
     }
 
     @Override
     protected Object doExecute() throws Exception {
-        Container[] containers = getFabricService().getContainers();
-        Version[] versions = getFabricService().getVersions();
-        printVersions(containers, versions, getFabricService().getDefaultVersion(), System.out);
+        Container[] containers = fabricService.getContainers();
+        List<String> versions = profileService.getVersions();
+        printVersions(containers, versions, fabricService.getDefaultVersion(), System.out);
         return null;
     }
 
-    protected void printVersions(Container[] containers, Version[] versions, Version defaultVersion, PrintStream out) {
+    protected void printVersions(Container[] containers, List<String> versions, Version defaultVersion, PrintStream out) {
         out.println(String.format(CONSOLE_FORMAT, "[version]", "[default]", "[# containers]", "[description]"));
 
         // they are sorted in the correct order by default
-        for (Version version : versions) {
-            boolean isDefault = defaultVersion.getId().equals(version.getId());
+        for (String versionId : versions) {
+            boolean isDefault = defaultVersion.getId().equals(versionId);
+            Version version = profileService.getRequiredVersion(versionId);
             int active = countContainersByVersion(containers, version);
             String description = version.getAttributes().get(Version.DESCRIPTION);
             out.println(String.format(CONSOLE_FORMAT, version.getId(), (isDefault ? "true" : "false"), active, (description != null ? description : "")));

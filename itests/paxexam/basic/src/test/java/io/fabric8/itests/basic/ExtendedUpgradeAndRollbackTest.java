@@ -17,13 +17,13 @@ package io.fabric8.itests.basic;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.ServiceLocator;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import io.fabric8.itests.paxexam.support.WaitForConfigurationChange;
+import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
 import java.util.Set;

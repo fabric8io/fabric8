@@ -16,7 +16,10 @@
 package io.fabric8.process.manager.support;
 
 import com.google.common.collect.Maps;
+
+import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
 import io.fabric8.common.util.Closeables;
 import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Filters;
@@ -329,17 +332,19 @@ public class ProcessUtils {
     }
 
 
-    public static Map<String, String> getProcessLayout(List<Profile> profiles, String layoutPath) {
+    public static Map<String, String> getProcessLayout(FabricService fabricService, List<Profile> profiles, String layoutPath) {
         Map<String, String> answer = new HashMap<String, String>();
         for (Profile profile : profiles) {
-            Map<String, String> map = getProcessLayout(profile, layoutPath);
+            Map<String, String> map = getProcessLayout(fabricService, profile, layoutPath);
             answer.putAll(map);
         }
         return answer;
     }
 
-    public static Map<String, String> getProcessLayout(Profile profile, String layoutPath) {
-        return ByteToStringValues.INSTANCE.apply(Maps.filterKeys(profile.getOverlay().getFileConfigurations(), new LayOutPredicate(layoutPath)));
+    public static Map<String, String> getProcessLayout(FabricService fabricService, Profile profile, String layoutPath) {
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        Profile overlay = profileService.getOverlayProfile(profile);
+        return ByteToStringValues.INSTANCE.apply(Maps.filterKeys(overlay.getFileConfigurations(), new LayOutPredicate(layoutPath)));
     }
 
 }

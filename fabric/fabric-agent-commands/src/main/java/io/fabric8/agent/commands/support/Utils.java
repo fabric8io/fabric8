@@ -22,8 +22,11 @@ import java.util.Properties;
 
 import io.fabric8.agent.mvn.Parser;
 import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
 import io.fabric8.common.util.ChecksumUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,9 +49,11 @@ public class Utils {
         }
     }
 
-    public static Properties findProfileChecksums(Profile profile) {
+    public static Properties findProfileChecksums(FabricService fabricService, Profile profile) {
         Properties checksums = null;
-        Container[] containers = profile.getAssociatedContainers();
+    	String versionId = profile.getVersion();
+    	String profileId = profile.getId();
+        Container[] containers = fabricService.getAssociatedContainers(versionId, profileId);
         if (containers != null) {
             for (Container container : containers) {
                 checksums = container.getProvisionChecksums();

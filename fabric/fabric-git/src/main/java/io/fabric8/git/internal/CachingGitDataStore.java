@@ -48,8 +48,10 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.gitective.core.CommitUtils;
+import org.jboss.gravia.utils.IllegalStateAssertion;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -154,7 +156,10 @@ public final class CachingGitDataStore extends GitDataStore {
             }
         }
 
-        String revision = git.getRepository().getRefDatabase().getRef(version).getObjectId().getName();
+        Ref versionRef = git.getRepository().getRefDatabase().getRef(version);
+        IllegalStateAssertion.assertNotNull(versionRef, "Cannot get version ref for: " + version);
+        
+        String revision = versionRef.getObjectId().getName();
         String path = convertProfileIdToDirectory(profile);
         RevCommit commit = CommitUtils.getLastCommit(git.getRepository(), revision, CONFIGS_PROFILES + File.separator + path);
         String lastModified = commit != null ? commit.getId().abbreviate(GIT_COMMIT_SHORT_LENGTH).name() : "";

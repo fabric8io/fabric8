@@ -18,11 +18,11 @@ package io.fabric8.itests.basic.git;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import io.fabric8.api.ContainerRegistration;
-import io.fabric8.api.ServiceLocator;
 import io.fabric8.git.GitNode;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.internal.ZooKeeperGroup;
+import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
 import io.fabric8.zookeeper.ZkPath;
 
 import java.io.IOException;

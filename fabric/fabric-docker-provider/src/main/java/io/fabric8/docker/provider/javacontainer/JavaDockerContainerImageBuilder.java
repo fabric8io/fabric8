@@ -188,7 +188,7 @@ public class JavaDockerContainerImageBuilder {
         String layout = javaConfig.getOverlayFolder();
         if (layout != null) {
             for (Profile profile : profiles) {
-                Map<String, String> configuration = ProcessUtils.getProcessLayout(profile, layout);
+                Map<String, String> configuration = ProcessUtils.getProcessLayout(fabricService, profile, layout);
                 if (configuration != null && !configuration.isEmpty()) {
                     String profileRestApi = restAPI + "/version/" + profile.getVersion() + "/profile/"
                             + profile.getId() + "/overlay/file/" + layout + (layout.endsWith("/") ? "" : "/");
