@@ -60,6 +60,8 @@
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-war-rest</fabric8.profile>
     <fabric8.parentProfiles>containers-tomcat</fabric8.parentProfiles>
+    <!-- we can define what the context path should be using a fixed name -->
+    <fabric8.webContextPath>rest</fabric8.webContextPath>
   </properties>
 
   <licenses>
