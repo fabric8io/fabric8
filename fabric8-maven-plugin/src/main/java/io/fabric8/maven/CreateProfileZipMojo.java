@@ -27,8 +27,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.common.util.Files;
@@ -265,10 +267,16 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
             request.setRecursive(false);
             request.setInteractive(false);
 
-            String opts = String.format("-Dfile=target/profile.zip -DgroupId=%s -DartifactId=%s -Dversion=%s -Dclassifier=profile -Dpackaging=zip", rootProject.getGroupId(), rootProject.getArtifactId(), rootProject.getVersion());
-            request.setMavenOpts(opts);
+            Properties props = new Properties();
+            props.setProperty("file", "target/profile.zip");
+            props.setProperty("groupId", rootProject.getGroupId());
+            props.setProperty("artifactId", rootProject.getArtifactId());
+            props.setProperty("version", rootProject.getVersion());
+            props.setProperty("classifier", "profile");
+            props.setProperty("packaging", "zip");
+            request.setProperties(props);
 
-            getLog().info("Installing aggregated zip using: mvn install:install-file " + opts);
+            getLog().info("Installing aggregated zip using: mvn install:install-file" + serializeMvnProperties(props));
             Invoker invoker = new DefaultInvoker();
             try {
                 InvocationResult result = invoker.execute(request);
@@ -490,6 +498,21 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         } else {
             return "/" + path;
         }
+    }
+
+    private String serializeMvnProperties(Properties properties) {
+      StringBuilder sb = new StringBuilder();
+      if (properties != null) {
+        for (Iterator it = properties.entrySet().iterator(); it.hasNext();) {
+          Map.Entry entry = (Map.Entry) it.next();
+
+          String key = (String) entry.getKey();
+          String value = (String) entry.getValue();
+
+          sb.append(" -D").append(key).append('=').append(value);
+        }
+      }
+      return sb.toString();
     }
 
 }
