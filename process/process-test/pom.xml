@@ -44,6 +44,7 @@
             <artifactId>pax-url-mvn</artifactId>
         </dependency>
 
+        <!-- Libraries -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -63,15 +64,14 @@
             <groupId>com.jayway.awaitility</groupId>
             <artifactId>awaitility</artifactId>
         </dependency>
+        <!-- MockServer -->
         <dependency>
             <groupId>org.mock-server</groupId>
             <artifactId>mockserver-client-java</artifactId>
-            <version>3.4</version>
         </dependency>
         <dependency>
             <groupId>org.mock-server</groupId>
             <artifactId>mockserver-netty</artifactId>
-            <version>3.4</version>
         </dependency>
         <!-- Spring Web provides REST template -->
         <dependency>
