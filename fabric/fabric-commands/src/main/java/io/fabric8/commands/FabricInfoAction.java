@@ -38,7 +38,7 @@ public class FabricInfoAction extends AbstractAction {
 
 	@Override
 	protected Object doExecute() throws Exception {
-        System.out.println(String.format(FORMAT, "Fabric Version:", emptyIfNull(FabricVersionUtils.getReleaseVersion())));
+        System.out.println(String.format(FORMAT, "Fabric Release:", emptyIfNull(FabricVersionUtils.getReleaseVersion())));
         System.out.println(String.format(FORMAT, "Web Console:", emptyIfNull(fabricService.getWebConsoleUrl())));
         System.out.println(String.format(FORMAT, "Rest API:", emptyIfNull(fabricService.getRestAPI())));
         System.out.println(String.format(FORMAT, "Git URL:", emptyIfNull(fabricService.getGitUrl())));
