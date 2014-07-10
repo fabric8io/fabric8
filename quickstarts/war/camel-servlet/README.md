@@ -68,7 +68,7 @@ To use the application be sure to have deployed the quickstart in fabric8 as des
 1. Click the Runtime button in the navigation bar
 1. Select the `mychild` container in the containers list, and click the *open* button right next to the container name.
 1. A new window opens and connects to the container.
-1. Click the *Tomcat* button, which lists all the WAR applications deployed. Click the url link for the `war-camel-servlet` application, which opens a web page, with further instructions how to try this example.
+1. Click the *Tomcat* button, which lists all the WAR applications deployed. Click the url link for the `camel-servlet` application, which opens a web page, with further instructions how to try this example.
 1. From the web console you can also click the *Camel* button to see various Camel information, such as from the Camel tree, expand the `Routes` node, and select the first node, which is the `helloRoute` route. And click the *Diagram* button to see a visual representation of the route (similar to the first figure shown in this readme file).
 1. You can also click the *Log* button the navigation bar to see the business logging.
 

@@ -68,5 +68,6 @@
     <modules>
         <module>camel-cdi</module>
         <module>camel-spring</module>
+        <module>cxf-cdi</module>
     </modules>
 </project>

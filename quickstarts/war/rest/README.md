@@ -54,7 +54,7 @@ Login to the web console
 
 In the web console you should see a list of containers. Click the open button for the `mychild` container, which opens a new tab.
 
-Click the Tomcat button, which lists all the WAR applications deployed. Click the url link for the `rest-war` application,
+Click the Tomcat button, which lists all the WAR applications deployed. Click the url link for the `rest` application,
 which opens a web page, that allows you to try this example. On the web page there is links to GET and UPDATE a customer etc.
 
 ### Access services using a web browser
@@ -65,11 +65,11 @@ Notice: As fabric8 assigns a free dynamic port to Tomcat, the port number may va
 
 Use this URL to display the XML representation for customer 123:
 
-    http://192.168.1.3:9004/rest-war/cxf/customerservice/customers/123
+    http://192.168.1.3:9004/rest/cxf/customerservice/customers/123
 
 You can also access the XML representation for order 223 ...
 
-    http://192.168.1.3:9004/rest-war/cxf/customerservice/orders/223
+    http://192.168.1.3:9004/rest/cxf/customerservice/orders/223
 
 **Note:** if you use Safari, you will only see the text elements but not the XML tags - you can view the entire document with 'View Source'
 
@@ -77,24 +77,26 @@ You can also access the XML representation for order 223 ...
 
 You can use a command-line utility, such as cURL or wget, to perform the HTTP requests.  We have provided a few files with sample XML representations in `src/test/resources`, so we will use those for testing our services.
 
+Notice: As fabric8 assigns a free dynamic port to Tomcat, the port number may vary on your system.
+
 1. Open a command prompt and change directory to `rest`.
 2. Run the following curl commands (curl commands may not be available on all platforms):
 
     * Create a customer
 
-            curl -X POST -T src/test/resources/add_customer.xml -H "Content-Type: text/xml" http://192.168.1.3:9004/rest-war/cxf/customerservice/customers
+            curl -X POST -T src/test/resources/add_customer.xml -H "Content-Type: text/xml" http://192.168.1.3:9004/rest/cxf/customerservice/customers
 
     * Retrieve the customer instance with id 123
 
-            curl http://192.168.1.3:9004/rest-war/cxf/customerservice/customers/123
+            curl http://192.168.1.3:9004/rest/cxf/customerservice/customers/123
 
     * Update the customer instance with id 123
 
-            curl -X PUT -T src/test/resources/update_customer.xml -H "Content-Type: text/xml" http://192.168.1.3:9004/rest-war/cxf/customerservice/customers
+            curl -X PUT -T src/test/resources/update_customer.xml -H "Content-Type: text/xml" http://192.168.1.3:9004/rest/cxf/customerservice/customers
 
     * Delete the customer instance with id 123
 
-             curl -X DELETE http://192.168.1.3:9004/rest-war/cxf/customerservice/customers/123
+             curl -X DELETE http://192.168.1.3:9004/rest/cxf/customerservice/customers/123
 
 
 ## Undeploy this example
