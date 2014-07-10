@@ -29,7 +29,7 @@ public class VersionInfoAction extends AbstractAction {
 
     static final String FORMAT = "%-30s %s";
 
-    @Argument(index = 0, name = "version", description = "The version name.", required = false, multiValued = false)
+    @Argument(index = 0, name = "version", description = "The version name.", required = true, multiValued = false)
     private String versionName;
 
     private final FabricService fabricService;
@@ -43,7 +43,7 @@ public class VersionInfoAction extends AbstractAction {
     @Override
     protected Object doExecute() throws Exception {
         if (!versionExists(versionName)) {
-            System.out.println("Container " + versionName + " does not exists!");
+            System.out.println("Version " + versionName + " does not exist");
             return null;
         }
         Version version = fabricService.getVersion(versionName);
@@ -70,7 +70,6 @@ public class VersionInfoAction extends AbstractAction {
                 sbProfiles.append(", ");
             }
             sbProfiles.append(profiles[i].getId());
-
         }
 
         System.out.println(String.format(FORMAT, "Name:", version.getId()));
@@ -85,7 +84,7 @@ public class VersionInfoAction extends AbstractAction {
     private boolean versionExists(String versionName) {
         Version[] versions = fabricService.getVersions();
         for (Version v : versions) {
-            if (versionName.equals(v.getId())) {
+            if (versionName != null && versionName.equals(v.getId())) {
                 return true;
             }
         }
