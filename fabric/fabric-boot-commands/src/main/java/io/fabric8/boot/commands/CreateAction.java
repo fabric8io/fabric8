@@ -104,7 +104,7 @@ class CreateAction extends AbstractAction {
     private String newUser;
     @Option(name = "--new-user-password", multiValued = false, description = "The password of the new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUserPassword;
-    @Option(name = "--external-git-url", multiValued = false, description = "Specify an external git url.")
+    @Option(name = "--external-git-url", multiValued = false, description = "Specify an external git URL.")
     private String externalGitUrl;
     @Option(name = "--external-git-user", multiValued = false, description = "Specify an external git user.")
     private String externalGitUser;
