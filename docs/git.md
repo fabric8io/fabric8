@@ -43,6 +43,18 @@ You should then have the version 1.0 branch checked out where you can edit the v
 
 And hey presto, fabric8 should update and any containers running the version/branch and profiles you modified should update.
 
+### Working with the external git repositories
+
+Instead of using clustered git repository provided by the Fabric8, you can store your configuration in the external 
+git repository of your choice. You can specify external repository URL when creating new container.
+
+    container-create-child --external-git-url git@github.com:john/johnsproject.git root my-child-container
+    
+Keep in mind that although you introduce a single point of failure (single external Git repository), Fabric8 can still
+operate even if the repository is down for the moment. All the changes performed by containers on their local
+repositories (i.e. all changes to the configuration) will be pushed and distributed to the other containers as soon as 
+the external Git repository becomes available again.
+
 ### Using a HTTP proxy with the git cluster
 
 Using the built-in git cluster in fabric will communicate directly between the nodes over HTTP. If a HTTP proxy is required for communication, then you can configure the git proxy in fabric by configuring the ```GitProxyService```.
