@@ -58,6 +58,7 @@
             <modules>
               <module>java-camel-cdi-archetype</module>
               <module>java-camel-spring-archetype</module>
+              <module>java-cxf-cdi-archetype</module>
               <module>karaf-camel-amq-archetype</module>
               <module>karaf-camel-dozer-wiki-archetype</module>
               <module>karaf-camel-drools-archetype</module>
