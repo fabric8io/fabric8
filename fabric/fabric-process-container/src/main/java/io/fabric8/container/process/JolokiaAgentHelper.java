@@ -18,10 +18,6 @@ package io.fabric8.container.process;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.Container;
-import io.fabric8.api.CreateChildContainerMetadata;
-import io.fabric8.api.CreateChildContainerOptions;
-import io.fabric8.api.CreateContainerMetadata;
-import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
 import io.fabric8.common.util.Objects;
@@ -30,12 +26,10 @@ import io.fabric8.deployer.JavaContainers;
 import io.fabric8.groovy.GroovyPlaceholderResolver;
 import io.fabric8.internal.JsonHelper;
 import io.fabric8.service.child.ChildConstants;
-import io.fabric8.service.child.ChildContainers;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
-import io.fabric8.zookeeper.ZkDefs;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.InterpolationHelper;
-import io.fabric8.zookeeper.utils.ZooKeeperUtils;
+import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
@@ -377,7 +371,7 @@ public class JolokiaAgentHelper {
     /**
      * Checks the container is still alive and updates its provision list if its changed
      */
-    public static void jolokiaKeepAliveCheck(CuratorFramework curator, FabricService fabric, String jolokiaUrl, String containerName) {
+    public static void jolokiaKeepAliveCheck(ZooKeeperMasterCache zkMasterCache, FabricService fabric, String jolokiaUrl, String containerName) {
         Container container = null;
         try {
             container = fabric.getContainer(containerName);
@@ -388,14 +382,14 @@ public class JolokiaAgentHelper {
             if (!Objects.equal(jolokiaUrl, container.getJolokiaUrl())) {
                 container.setJolokiaUrl(jolokiaUrl);
             }
-            jolokiaKeepAliveCheck(curator, fabric, container, null);
+            jolokiaKeepAliveCheck(zkMasterCache, fabric, container, null);
         }
     }
 
     /**
      * Checks the container is still alive and updates its provision list if its changed
      */
-    public static List<String> jolokiaKeepAliveCheck(CuratorFramework curator, FabricService fabric, Container container, Map<String, String> envVars) {
+    public static List<String> jolokiaKeepAliveCheck(ZooKeeperMasterCache zkMasterCache, FabricService fabric, Container container, Map<String, String> envVars) {
         List<String> newZkContainerPaths = new ArrayList<>();
         String jolokiaUrl = container.getJolokiaUrl();
         if (Strings.isNullOrBlank(jolokiaUrl)) {
@@ -445,7 +439,7 @@ public class JolokiaAgentHelper {
         if (debugLog) {
             LOG.debug("Current provision result: " + provisionResult + " valid: " + valid);
         }
-        valid = valid && performExtraJolokiaChecks(curator, fabric, container, jmxDomains, url, envVars, newZkContainerPaths);
+        valid = valid && performExtraJolokiaChecks(zkMasterCache, fabric, container, jmxDomains, url, envVars, newZkContainerPaths);
         if (valid) {
             if (!Objects.equal(Container.PROVISION_SUCCESS, provisionResult) || !container.isAlive()) {
                 container.setProvisionResult(Container.PROVISION_SUCCESS);
@@ -474,8 +468,8 @@ public class JolokiaAgentHelper {
      *
      * @return true if the container is deemed to still be valid after performing the checks
      */
-    protected static boolean performExtraJolokiaChecks(CuratorFramework curator, FabricService fabric, Container container, List<String> jmxDomains, String url, Map<String, String> envVars, List<String> newZkContainerPaths) {
-        if (curator != null) {
+    protected static boolean performExtraJolokiaChecks(ZooKeeperMasterCache zkMasterCache, FabricService fabric, Container container, List<String> jmxDomains, String url, Map<String, String> envVars, List<String> newZkContainerPaths) {
+        if (zkMasterCache != null) {
             for (String jmxDomain : jmxDomains) {
                 // check for tomcat web contexts
                 if (jmxDomain.startsWith("Catalina") || jmxDomain.startsWith("Tomcat")) {
@@ -499,7 +493,7 @@ public class JolokiaAgentHelper {
                                     path = "/";
                                 }
                                 Object displayName = getValue(node, "displayName");
-                                updateZookeeperEntry(curator, fabric, container, envVars, path, stateName, startTime, displayName, newZkContainerPaths);
+                                updateZookeeperEntry(zkMasterCache, fabric, container, envVars, path, stateName, startTime, displayName, newZkContainerPaths);
                             }
                         }
                     }
@@ -509,7 +503,7 @@ public class JolokiaAgentHelper {
         return true;
     }
 
-    protected static void updateZookeeperEntry(CuratorFramework curator, FabricService fabric, Container container, Map<String, String> envVars, String path, Object stateName, Object startTime, Object displayName, List<String> newZkContainerPaths) {
+    protected static void updateZookeeperEntry(ZooKeeperMasterCache zkMasterCache, FabricService fabric, Container container, Map<String, String> envVars, String path, Object stateName, Object startTime, Object displayName, List<String> newZkContainerPaths) {
         String matchedZkPath = null;
         Map<String, String> configuration = container.getOverlayProfile().getConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID);
         if (configuration != null) {
@@ -548,8 +542,9 @@ public class JolokiaAgentHelper {
                         + ", \"container\":" + JsonHelper.jsonEncodeString(id)
                         + ", \"services\":[" + JsonHelper.jsonEncodeString(url) + "]"
                         + "}";
+
                 try {
-                    ZooKeeperUtils.setData(curator, zkPath, json, CreateMode.EPHEMERAL);
+                    zkMasterCache.setStringData(zkPath, json, CreateMode.EPHEMERAL);
                     newZkContainerPaths.add(zkPath);
                 } catch (Exception e) {
                     LOG.warn("Failed to register web app json at path " + path + " json: " + json + ". " + e, e);
@@ -557,10 +552,7 @@ public class JolokiaAgentHelper {
             } else {
                 // lets delete the ZK entry if it exists
                 try {
-                    if (ZooKeeperUtils.exists(curator, path) != null) {
-                        LOG.info("unregistered web app at " + path);
-                        ZooKeeperUtils.deleteSafe(curator, path);
-                    }
+                    zkMasterCache.deleteData(zkPath);
                 } catch (Exception e) {
                     LOG.warn("Failed to remove web app json at path " + path + ". " + e, e);
                 }
