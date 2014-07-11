@@ -51,15 +51,11 @@ If you are using the Tomcat or TomEE distribution type:
 
 Once the container has started up, you have a working Fabric and you can connect to the console
 
-### Use the console
+### Use the web console
 
-Then open the [hawtio based](http://hawt.io/) console via the Karaf web console, which runs on [port 8181](http://localhost:8181/)
+Then open the [hawtio based](http://hawt.io/) console via the Karaf web console, which runs on [port 8181](http://localhost:8181/):
 
     http://localhost:8181/
-
-If you are using the Tomcat or TomEE distribution then the console is on [port 8080](http://localhost:8080/hawtio/)
-
-    http://localhost:8080/hawtio/
 
 Then check out the documentation in the [embedded fabric8 wiki](http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles) to guide you through all the available [profiles](profiles.html) you can create in a new container or add to an existing container.
 
@@ -67,6 +63,12 @@ Or check out:
 
  * [how to use the command shell](agent.html)
  * [how to use git with fabric8](git.html)
+
+#### Web console for Tomcat or TomEE distributions
+
+If you are using the Tomcat or TomEE distribution then the console is on [port 8080](http://localhost:8080/hawtio/), and the console is deployed under the `hawtio` context path. The url for the web console is therefore:
+
+    http://localhost:8080/hawtio/   
 
 #### View a demo
 
