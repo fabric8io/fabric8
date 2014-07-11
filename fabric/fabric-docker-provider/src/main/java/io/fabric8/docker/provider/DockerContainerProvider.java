@@ -45,6 +45,7 @@ import io.fabric8.docker.provider.javacontainer.JavaDockerContainerImageBuilder;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.zookeeper.ZkDefs;
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -94,6 +95,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+
+    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
@@ -563,7 +567,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                         try {
                             String jolokiaUrl = containerMetadata.getJolokiaUrl();
                             String containerName = containerMetadata.getContainerName();
-                            JolokiaAgentHelper.jolokiaKeepAliveCheck(getFabricService(), jolokiaUrl, containerName);
+                            JolokiaAgentHelper.jolokiaKeepAliveCheck(getCuratorFramework(), getFabricService(), jolokiaUrl, containerName);
 
                         } catch (Exception e) {
                             LOG.warn("Jolokia keep alive check failed for container " + containerMetadata.getId() + ". " + e, e);
@@ -596,6 +600,10 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     public Class<CreateDockerContainerMetadata> getMetadataType() {
         assertValid();
         return CreateDockerContainerMetadata.class;
+    }
+
+    CuratorFramework getCuratorFramework() {
+        return curator.get();
     }
 
     public Docker getDocker() {
@@ -631,6 +639,14 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
     void unbindFabricService(FabricService fabricService) {
         this.fabricService.unbind(fabricService);
+    }
+
+    void bindCurator(CuratorFramework curator) {
+        this.curator.bind(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.unbind(curator);
     }
 
     void bindConfigurer(Configurer configurer) {
