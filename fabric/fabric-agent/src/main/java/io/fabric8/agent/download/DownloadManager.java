@@ -23,6 +23,8 @@ import java.util.concurrent.ExecutorService;
 import io.fabric8.agent.mvn.MavenConfiguration;
 import io.fabric8.agent.mvn.MavenRepositoryURL;
 
+import static io.fabric8.agent.download.DownloadManagerHelper.removeInlinedMavenRepositoryUrl;
+import static io.fabric8.agent.download.DownloadManagerHelper.stripInlinedMavenRepositoryUrl;
 import static io.fabric8.agent.download.DownloadManagerHelper.stripUrl;
 
 public class DownloadManager {
@@ -75,7 +77,15 @@ public class DownloadManager {
         String mvnUrl = stripUrl(url);
 
         if (mvnUrl.startsWith("mvn:")) {
-            MavenDownloadTask task = new MavenDownloadTask(mvnUrl, cache, system, configuration, executor);
+            MavenRepositoryURL inlined = null;
+
+            String inlinedMavenRepoUrl = stripInlinedMavenRepositoryUrl(mvnUrl);
+            if (inlinedMavenRepoUrl != null) {
+                inlined = new MavenRepositoryURL(inlinedMavenRepoUrl);
+                mvnUrl = removeInlinedMavenRepositoryUrl(mvnUrl);
+            }
+
+            MavenDownloadTask task = new MavenDownloadTask(mvnUrl, cache, system, inlined, configuration, executor);
             executor.submit(task);
             if (!mvnUrl.equals(url)) {
                 final DummyDownloadTask download = new DummyDownloadTask(url, executor);
