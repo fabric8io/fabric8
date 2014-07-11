@@ -18,6 +18,10 @@ package io.fabric8.container.process;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.Container;
+import io.fabric8.api.CreateChildContainerMetadata;
+import io.fabric8.api.CreateChildContainerOptions;
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
 import io.fabric8.common.util.Objects;
@@ -384,14 +388,14 @@ public class JolokiaAgentHelper {
             if (!Objects.equal(jolokiaUrl, container.getJolokiaUrl())) {
                 container.setJolokiaUrl(jolokiaUrl);
             }
-            jolokiaKeepAliveCheck(curator, fabric, container);
+            jolokiaKeepAliveCheck(curator, fabric, container, null);
         }
     }
 
     /**
      * Checks the container is still alive and updates its provision list if its changed
      */
-    public static void jolokiaKeepAliveCheck(CuratorFramework curator, FabricService fabric, Container container) {
+    public static void jolokiaKeepAliveCheck(CuratorFramework curator, FabricService fabric, Container container, Map<String, String> envVars) {
         String jolokiaUrl = container.getJolokiaUrl();
         if (Strings.isNullOrBlank(jolokiaUrl)) {
             return;
@@ -440,7 +444,7 @@ public class JolokiaAgentHelper {
         if (debugLog) {
             LOG.debug("Current provision result: " + provisionResult + " valid: " + valid);
         }
-        valid = valid && performExtraJolokiaChecks(curator, fabric, container, jmxDomains, url);
+        valid = valid && performExtraJolokiaChecks(curator, fabric, container, jmxDomains, url, envVars);
         if (valid) {
             if (!Objects.equal(Container.PROVISION_SUCCESS, provisionResult) || !container.isAlive()) {
                 container.setProvisionResult(Container.PROVISION_SUCCESS);
@@ -468,7 +472,7 @@ public class JolokiaAgentHelper {
      *
      * @return true if the container is deemed to still be valid after performing the checks
      */
-    protected static boolean performExtraJolokiaChecks(CuratorFramework curator, FabricService fabric, Container container, List<String> jmxDomains, String url) {
+    protected static boolean performExtraJolokiaChecks(CuratorFramework curator, FabricService fabric, Container container, List<String> jmxDomains, String url, Map<String, String> envVars) {
         if (curator != null) {
             for (String jmxDomain : jmxDomains) {
                 // check for tomcat web contexts
@@ -493,7 +497,7 @@ public class JolokiaAgentHelper {
                                     path = "/";
                                 }
                                 Object displayName = getValue(node, "displayName");
-                                updateZookeeperEntry(curator, fabric, container, path, stateName, startTime, displayName);
+                                updateZookeeperEntry(curator, fabric, container, envVars, path, stateName, startTime, displayName);
                             }
                         }
                     }
@@ -503,7 +507,7 @@ public class JolokiaAgentHelper {
         return true;
     }
 
-    protected static void updateZookeeperEntry(CuratorFramework curator, FabricService fabric, Container container, String path, Object stateName, Object startTime, Object displayName) {
+    protected static void updateZookeeperEntry(CuratorFramework curator, FabricService fabric, Container container, Map<String, String> envVars, String path, Object stateName, Object startTime, Object displayName) {
         String matchedZkPath = null;
         Map<String, String> configuration = container.getOverlayProfile().getConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID);
         if (configuration != null) {
@@ -521,8 +525,24 @@ public class JolokiaAgentHelper {
                 // lets write a new ZK entry...
                 String id = container.getId();
                 String httpUrl = container.getHttpUrl();
-                // TODO calculate httpURl....
-                String url = "" + (httpUrl != null ? httpUrl : "") + path;
+                // TODO we should update this so its always set?
+                // lets try calculate it
+                if (Strings.isNullOrBlank(httpUrl)) {
+                    if (envVars != null) {
+                        String portText = envVars.get("FABRIC8_HTTP_PROXY_PORT");
+                        if (Strings.isNotBlank(portText)) {
+                            String ip = container.getIp();
+                            if (Strings.isNotBlank(ip)) {
+                                httpUrl = "http://" + ip + ":" + portText;
+                            }
+                        }
+                    }
+                    if (httpUrl == null) {
+                        httpUrl = "";
+                    }
+                }
+                String url = httpUrl + path;
+                System.out.println("Got http URL: " + httpUrl);
                 String json = "{\"id\":" + JsonHelper.jsonEncodeString(id)
                         + ", \"container\":" + JsonHelper.jsonEncodeString(id)
                         + ", \"services\":[" + JsonHelper.jsonEncodeString(url) + "]"

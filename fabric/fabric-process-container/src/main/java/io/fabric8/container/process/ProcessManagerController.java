@@ -174,19 +174,7 @@ public class ProcessManagerController implements ChildContainerController {
      * A profile may have changed so lets double check that there have been no changes to the installation
      */
     public void updateInstallation(final Container container, final Installation installation) throws Exception {
-        Map<String,String> initialEnvironmentVariables = new HashMap<String, String>();
-        ProcessConfig currentConfig = getProcessConfig(installation);
-        if (currentConfig != null) {
-            // lets preserve the ports allocated
-            Map<String, String> environment = currentConfig.getEnvironment();
-            for (Map.Entry<String, String> entry : environment.entrySet()) {
-                String key = entry.getKey();
-                if (key.endsWith("_PROXY_PORT")) {
-                    String value = entry.getValue();
-                    initialEnvironmentVariables.put(key, value);
-                }
-            }
-        }
+        Map<String, String> initialEnvironmentVariables = getInstallationProxyPorts(installation);
 
         CreateContainerMetadata<?> containerMetadata = container.getMetadata();
         if (containerMetadata instanceof CreateChildContainerMetadata) {
@@ -246,6 +234,23 @@ public class ProcessManagerController implements ChildContainerController {
         }
     }
 
+    public static Map<String, String> getInstallationProxyPorts(Installation installation) {
+        Map<String,String> initialEnvironmentVariables = new HashMap<String, String>();
+        ProcessConfig currentConfig = getProcessConfig(installation);
+        if (currentConfig != null) {
+            // lets preserve the ports allocated
+            Map<String, String> environment = currentConfig.getEnvironment();
+            for (Map.Entry<String, String> entry : environment.entrySet()) {
+                String key = entry.getKey();
+                if (key.endsWith("_PROXY_PORT")) {
+                    String value = entry.getValue();
+                    initialEnvironmentVariables.put(key, value);
+                }
+            }
+        }
+        return initialEnvironmentVariables;
+    }
+
     protected void updateInstallation(Container container, final Installation installation, InstallOptions parameters, InstallTask postInstall) throws Exception {
         boolean requiresRestart = false;
         ProcessConfig processConfig = processManager.loadProcessConfig(parameters);
@@ -278,7 +283,7 @@ public class ProcessManagerController implements ChildContainerController {
         }
     }
 
-    protected ProcessConfig getProcessConfig(Installation installation) {
+    protected static ProcessConfig getProcessConfig(Installation installation) {
         ProcessController controller = installation.getController();
         return controller.getConfig();
     }
