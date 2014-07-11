@@ -45,6 +45,7 @@ import io.fabric8.docker.provider.javacontainer.JavaDockerContainerImageBuilder;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.zookeeper.ZkDefs;
+import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -106,6 +107,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             label = "The Jolokia Keep Alive Timer Poll Period", description = "The number of milliseconds after which the jolokia agents for any docker containers which expose jolokia will be polled to check for the container status and discover any container resources.")
     private long jolokiaKeepAlivePollTime = 10000;
 
+    private ZooKeeperMasterCache zkMasterCache;
 
     private ObjectName objectName;
     private DockerFacade mbean;
@@ -155,6 +157,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             if (mbeanServer.isRegistered(objectName)) {
                 mbeanServer.unregisterMBean(objectName);
             }
+        }
+        if (zkMasterCache != null) {
+            zkMasterCache = null;
         }
         deactivateComponent();
     }
@@ -567,7 +572,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                         try {
                             String jolokiaUrl = containerMetadata.getJolokiaUrl();
                             String containerName = containerMetadata.getContainerName();
-                            JolokiaAgentHelper.jolokiaKeepAliveCheck(getCuratorFramework(), getFabricService(), jolokiaUrl, containerName);
+                            JolokiaAgentHelper.jolokiaKeepAliveCheck(zkMasterCache, getFabricService(), jolokiaUrl, containerName);
 
                         } catch (Exception e) {
                             LOG.warn("Jolokia keep alive check failed for container " + containerMetadata.getId() + ". " + e, e);
@@ -643,6 +648,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
     void bindCurator(CuratorFramework curator) {
         this.curator.bind(curator);
+        zkMasterCache = new ZooKeeperMasterCache(curator);
     }
 
     void unbindCurator(CuratorFramework curator) {

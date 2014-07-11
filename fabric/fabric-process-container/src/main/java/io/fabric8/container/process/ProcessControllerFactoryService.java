@@ -33,6 +33,7 @@ import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.service.child.ProcessControllerFactory;
+import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -96,6 +97,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
     };
 
     private final ConcurrentMap<String, Set<String>> containerToZKPathMap = new ConcurrentHashMap<>();
+    private ZooKeeperMasterCache zkMasterCache;
 
 
     @Activate
@@ -120,6 +122,9 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
 
     @Deactivate
     void deactivate() {
+        if (zkMasterCache != null) {
+            zkMasterCache = null;
+        }
         DataStore dataStore = getDataStore();
         if (dataStore != null) {
             dataStore.untrackConfiguration(configurationChangeHandler);
@@ -368,6 +373,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
 
     void bindCurator(CuratorFramework curator) {
         this.curator.bind(curator);
+        zkMasterCache = new ZooKeeperMasterCache(curator);
     }
 
     void unbindCurator(CuratorFramework curator) {
@@ -419,7 +425,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
                             aliveIds.add(id);
 
                             Map<String, String> envVars = ProcessManagerController.getInstallationProxyPorts(installation);
-                            List<String> newZkPaths = JolokiaAgentHelper.jolokiaKeepAliveCheck(curator.get(), fabric, container, envVars);
+                            List<String> newZkPaths = JolokiaAgentHelper.jolokiaKeepAliveCheck(zkMasterCache, fabric, container, envVars);
                             if (!newZkPaths.isEmpty()) {
                                 ChildContainerController controller = getControllerForContainer(container);
                                 if (controller instanceof ProcessManagerController) {
