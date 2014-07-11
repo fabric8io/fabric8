@@ -338,7 +338,8 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
                                 container.setProvisionResult(Container.PROVISION_SUCCESS);
                             }
 
-                            JolokiaAgentHelper.jolokiaKeepAliveCheck(curator.get(), fabric, container);
+                            Map<String, String> envVars = ProcessManagerController.getInstallationProxyPorts(installation);
+                            JolokiaAgentHelper.jolokiaKeepAliveCheck(curator.get(), fabric, container, envVars);
                         }
                     }
                 } catch (Exception e) {
