@@ -25,14 +25,12 @@ import java.util.TreeMap;
 import io.fabric8.insight.maven.aether.AetherJarOrPom;
 import io.fabric8.insight.maven.aether.AetherPomResult;
 import io.fabric8.insight.maven.aether.AetherResult;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.DependencyNode;
 
 import static org.junit.Assert.assertTrue;
 
-@Ignore("[FABRIC-1094] Fix insight-maven tests")
 public class ProjectResolveTest extends LocalBuildTestSupport {
 
     private Map<String, ArtifactVersions> idNoVersionMap = new TreeMap<String, ArtifactVersions>();
