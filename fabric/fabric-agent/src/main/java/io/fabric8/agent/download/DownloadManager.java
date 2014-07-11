@@ -79,7 +79,7 @@ public class DownloadManager {
         if (mvnUrl.startsWith("mvn:")) {
             MavenRepositoryURL inlined = null;
 
-            String inlinedMavenRepoUrl = stripInlinedMavenRepositoryUrl(mvnUrl);
+            final String inlinedMavenRepoUrl = stripInlinedMavenRepositoryUrl(mvnUrl);
             if (inlinedMavenRepoUrl != null) {
                 inlined = new MavenRepositoryURL(inlinedMavenRepoUrl);
                 mvnUrl = removeInlinedMavenRepositoryUrl(mvnUrl);
@@ -96,6 +96,10 @@ public class DownloadManager {
                             final String mvn = future.getUrl();
                             String file = future.getFile().toURI().toURL().toString();
                             String real = url.replace(mvn, file);
+                            // if we used an inlined maven repo, then we need to strip that off the real url
+                            if (inlinedMavenRepoUrl != null) {
+                                real = removeInlinedMavenRepositoryUrl(real);
+                            }
                             SimpleDownloadTask task = new SimpleDownloadTask(real, executor, tmpPath);
                             executor.submit(task);
                             task.addListener(new FutureListener<DownloadFuture>() {
