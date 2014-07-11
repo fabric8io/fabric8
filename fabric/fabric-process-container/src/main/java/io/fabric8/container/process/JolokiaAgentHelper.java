@@ -24,16 +24,33 @@ import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.JavaContainers;
 import io.fabric8.groovy.GroovyPlaceholderResolver;
+import io.fabric8.internal.JsonHelper;
+import io.fabric8.service.child.ChildConstants;
+import io.fabric8.service.child.ChildContainers;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
+import io.fabric8.zookeeper.ZkDefs;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.InterpolationHelper;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Helper code to extract the Jolokia URL from the Java Agent settings
@@ -112,6 +129,7 @@ public class JolokiaAgentHelper {
 
     public interface EnvironmentVariableOverride {
         public String getKey();
+
         public String getValue(String originalValue);
     }
 
@@ -121,6 +139,7 @@ public class JolokiaAgentHelper {
 
     /**
      * Returns an environment variable override to update the container's advertised Jolokia port
+     *
      * @param jolokiaPort
      * @return
      */
@@ -138,6 +157,7 @@ public class JolokiaAgentHelper {
 
     /**
      * Returns an environment variable override to update the container's advertised Jolokia agentId
+     *
      * @param prefix
      * @return
      */
@@ -160,6 +180,7 @@ public class JolokiaAgentHelper {
 
     /**
      * Substitutes environment variables for the javaAgent, jvmArguments and arguments settings
+     *
      * @param javaConfig
      * @param environmentVariables
      * @param isJavaContainer
@@ -233,7 +254,7 @@ public class JolokiaAgentHelper {
                 }
                 if (curator != null) {
                     // replace Groovy / ZooKeeper expressions
-                    text = InterpolationHelper.substVars(text, "dummy", null, Collections.EMPTY_MAP,  new InterpolationHelper.SubstitutionCallback() {
+                    text = InterpolationHelper.substVars(text, "dummy", null, Collections.EMPTY_MAP, new InterpolationHelper.SubstitutionCallback() {
                         @Override
                         public String getValue(String key) {
                             if (key.startsWith("zk:")) {
@@ -251,7 +272,8 @@ public class JolokiaAgentHelper {
                             }
                             return null;
                         }
-                    });                }
+                    });
+                }
                 if (!Objects.equal(oldText, text)) {
                     map.put(key, text);
                 }
@@ -281,14 +303,15 @@ public class JolokiaAgentHelper {
         substituteEnvironmentVariableExpressions(answer, environmentVariables, null, null);
         return answer;
     }
-    
+
 
     /**
      * Helper to convert an array of overrides into a map for quicker lookup of overrides for environment variables
+     *
      * @param overrides
      * @return
      */
-    private static Map<String, EnvironmentVariableOverride> getStringEnvironmentVariableOverrideMap(EnvironmentVariableOverride ... overrides) {
+    private static Map<String, EnvironmentVariableOverride> getStringEnvironmentVariableOverrideMap(EnvironmentVariableOverride... overrides) {
         Map<String, EnvironmentVariableOverride> overridesMap = new HashMap<String, EnvironmentVariableOverride>();
         for (EnvironmentVariableOverride override : overrides) {
             overridesMap.put(override.getKey(), override);
@@ -298,6 +321,7 @@ public class JolokiaAgentHelper {
 
     /**
      * Helper to update the java main class arguments
+     *
      * @param javaConfig
      * @param environmentVariables
      * @param isJavaContainer
@@ -314,6 +338,7 @@ public class JolokiaAgentHelper {
 
     /**
      * Helper to update the JVM arguments
+     *
      * @param javaConfig
      * @param environmentVariables
      * @param isJavaContainer
@@ -330,6 +355,7 @@ public class JolokiaAgentHelper {
 
     /**
      * Helper to update the java agent argument for the container
+     *
      * @param javaConfig
      * @param environmentVariables
      * @param isJavaContainer
@@ -347,7 +373,7 @@ public class JolokiaAgentHelper {
     /**
      * Checks the container is still alive and updates its provision list if its changed
      */
-    public static void jolokiaKeepAliveCheck(FabricService fabric, String jolokiaUrl, String containerName) {
+    public static void jolokiaKeepAliveCheck(CuratorFramework curator, FabricService fabric, String jolokiaUrl, String containerName) {
         Container container = null;
         try {
             container = fabric.getContainer(containerName);
@@ -358,14 +384,14 @@ public class JolokiaAgentHelper {
             if (!Objects.equal(jolokiaUrl, container.getJolokiaUrl())) {
                 container.setJolokiaUrl(jolokiaUrl);
             }
-            jolokiaKeepAliveCheck(fabric, container);
+            jolokiaKeepAliveCheck(curator, fabric, container);
         }
     }
 
     /**
      * Checks the container is still alive and updates its provision list if its changed
      */
-    public static void jolokiaKeepAliveCheck(FabricService fabric, Container container) {
+    public static void jolokiaKeepAliveCheck(CuratorFramework curator, FabricService fabric, Container container) {
         String jolokiaUrl = container.getJolokiaUrl();
         if (Strings.isNullOrBlank(jolokiaUrl)) {
             return;
@@ -387,12 +413,11 @@ public class JolokiaAgentHelper {
         if (!url.endsWith("/")) {
             url += "/";
         }
-        url += "list/?maxDepth=1";
-
+        String listUrl = url + "list/?maxDepth=1";
         List<String> jmxDomains = new ArrayList<String>();
         boolean valid = false;
         try {
-            URL theUrl = new URL(url);
+            URL theUrl = new URL(listUrl);
             JsonNode jsonNode = jolokiaMapper.readTree(theUrl);
             if (jsonNode != null) {
                 JsonNode value = jsonNode.get("value");
@@ -408,13 +433,14 @@ public class JolokiaAgentHelper {
                 }
             }
         } catch (IOException e) {
-            LOG.warn("Failed to query: " + url + ". " + e, e);
+            LOG.warn("Failed to query: " + listUrl + ". " + e, e);
         }
 
         String provisionResult = container.getProvisionResult();
         if (debugLog) {
             LOG.debug("Current provision result: " + provisionResult + " valid: " + valid);
         }
+        valid = valid && performExtraJolokiaChecks(curator, fabric, container, jmxDomains, url);
         if (valid) {
             if (!Objects.equal(Container.PROVISION_SUCCESS, provisionResult) || !container.isAlive()) {
                 container.setProvisionResult(Container.PROVISION_SUCCESS);
@@ -435,4 +461,142 @@ public class JolokiaAgentHelper {
         }
     }
 
+    /**
+     * Based on the container's configuration we may decide to perform extra additional checks
+     * for things inside the JVM; such as checking if any web applications or CXF endpoints are created and
+     * registering them automatically into the ZK registry.
+     *
+     * @return true if the container is deemed to still be valid after performing the checks
+     */
+    protected static boolean performExtraJolokiaChecks(CuratorFramework curator, FabricService fabric, Container container, List<String> jmxDomains, String url) {
+        if (curator != null) {
+            for (String jmxDomain : jmxDomains) {
+                // check for tomcat web contexts
+                if (jmxDomain.startsWith("Catalina") || jmxDomain.startsWith("Tomcat")) {
+                    // get get the port from the ports...
+                    String tomcatUrl = url + "?maxDepth=6&maxCollectionSize=500&ignoreErrors=true&canonicalNaming=false";
+                    String json = "{\"type\":\"read\",\"mbean\":\"*:j2eeType=WebModule,*\",\"attribute\":[\"displayName\",\"path\",\"stateName\",\"startTime\"]}";
+
+                    JsonNode jsonNode = postJson(tomcatUrl, json);
+                    if (jsonNode != null) {
+                        List<JsonNode> values = jsonNode.findValues("value");
+                        for (JsonNode value : values) {
+                            Iterator<Map.Entry<String, JsonNode>> fields = value.fields();
+                            while (fields.hasNext()) {
+                                Map.Entry<String, JsonNode> next = fields.next();
+                                JsonNode node = next.getValue();
+                                Object startTime = getValue(node, "startTime");
+                                Object stateName = getValue(node, "stateName");
+                                Object pathObject = getValue(node, "path");
+                                String path = pathObject != null ? pathObject.toString() : "/";
+                                if (path.length() == 0) {
+                                    path = "/";
+                                }
+                                Object displayName = getValue(node, "displayName");
+                                updateZookeeperEntry(curator, fabric, container, path, stateName, startTime, displayName);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    protected static void updateZookeeperEntry(CuratorFramework curator, FabricService fabric, Container container, String path, Object stateName, Object startTime, Object displayName) {
+        String matchedZkPath = null;
+        Map<String, String> configuration = container.getOverlayProfile().getConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID);
+        if (configuration != null) {
+            for (Map.Entry<String, String> entry : configuration.entrySet()) {
+                if (entry.getValue().equals(path)) {
+                    matchedZkPath = entry.getKey();
+                    break;
+                }
+            }
+        }
+        if (matchedZkPath != null) {
+            // lets combine it with the container id and make the ZK entry....
+            String zkPath = ZkPath.WEBAPPS_CLUSTER.getPath(matchedZkPath);
+            if (isWebAppActive(stateName)) {
+                // lets write a new ZK entry...
+                String id = container.getId();
+                String httpUrl = container.getHttpUrl();
+                // TODO calculate httpURl....
+                String url = "" + (httpUrl != null ? httpUrl : "") + path;
+                String json = "{\"id\":" + JsonHelper.jsonEncodeString(id)
+                        + ", \"container\":" + JsonHelper.jsonEncodeString(id)
+                        + ", \"services\":[" + JsonHelper.jsonEncodeString(url) + "]"
+                        + "}";
+                try {
+                    ZooKeeperUtils.setData(curator, zkPath, json, CreateMode.EPHEMERAL);
+                } catch (Exception e) {
+                    LOG.warn("Failed to register web app json at path " + path + " json: " + json + ". " + e, e);
+                }
+            } else {
+                // lets delete the ZK entry if it exists
+                try {
+                    if (ZooKeeperUtils.exists(curator, path) != null) {
+                        LOG.info("unregistered web app at " + path);
+                        ZooKeeperUtils.deleteSafe(curator, path);
+                    }
+                } catch (Exception e) {
+                    LOG.warn("Failed to remove web app json at path " + path + ". " + e, e);
+                }
+            }
+        }
+    }
+
+    protected static boolean isWebAppActive(Object stateName) {
+        if (stateName != null) {
+            String text = stateName.toString().toLowerCase();
+            return text.contains("start");
+        }
+        return false;
+    }
+
+    /**
+     * A Helper method to get the value from the JsonNode as a primitive type value
+     */
+    protected static Object getValue(JsonNode node, String key) {
+        JsonNode jsonNode = node.get(key);
+        if (jsonNode != null) {
+            if (jsonNode.isTextual()) {
+                return jsonNode.textValue();
+            } else if (jsonNode.isLong()) {
+                return jsonNode.asLong();
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * Posts a blob of JSON to a URL and returns the JSON object
+     */
+    protected static JsonNode postJson(String url, String json) {
+        try {
+            URL theUrl = new URL(url);
+            URLConnection connection = theUrl.openConnection();
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            connection.setConnectTimeout(50000);
+            connection.setReadTimeout(5000);
+            connection.connect();
+            OutputStream os = connection.getOutputStream();
+            OutputStreamWriter writer = new OutputStreamWriter(os);
+            writer.write(json);
+            writer.close();
+            if (connection instanceof HttpURLConnection) {
+                int code = ((HttpURLConnection) connection).getResponseCode();
+                if (code < 200 || code >= 300) {
+                    LOG.warn("Got a " + code + " when posting to URL " + url + " with JSON: " + json);
+                } else {
+                    return jolokiaMapper.readTree(connection.getInputStream());
+                }
+            }
+        } catch (IOException e) {
+            LOG.warn("Failed ot post to " + url + " with JSON: " + json + ". " + e, e);
+        }
+        return null;
+    }
 }

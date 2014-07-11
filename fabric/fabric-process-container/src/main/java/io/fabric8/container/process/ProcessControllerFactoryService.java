@@ -338,7 +338,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
                                 container.setProvisionResult(Container.PROVISION_SUCCESS);
                             }
 
-                            JolokiaAgentHelper.jolokiaKeepAliveCheck(fabric, container);
+                            JolokiaAgentHelper.jolokiaKeepAliveCheck(curator.get(), fabric, container);
                         }
                     }
                 } catch (Exception e) {
