@@ -33,6 +33,7 @@ import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.service.child.ProcessControllerFactory;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -44,10 +45,14 @@ import org.apache.felix.scr.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  */
@@ -89,6 +94,9 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
             onConfigurationChanged();
         }
     };
+
+    private final ConcurrentMap<String, Set<String>> containerToZKPathMap = new ConcurrentHashMap<>();
+
 
     @Activate
     void activate() {
@@ -248,6 +256,76 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
 
     }
 
+    /**
+     * Loads the list of ZooKeeper paths written for the given container.
+     *
+     * Since we write them as ephemeral nodes; we can use RAM to cache these since they are only
+     * required to eagerly remove the ZK entries
+     */
+    public Set<String> loadZooKeeperPaths(Installation installation, Container container) {
+        String id = container.getId();
+        return loadZooKeeperPaths(id);
+    }
+
+    protected Set<String> loadZooKeeperPaths(String id) {
+        HashSet<String> newValue = new HashSet<String>();
+        Set<String> oldValue = containerToZKPathMap.putIfAbsent(id, newValue);
+        return oldValue != null ? oldValue : newValue;
+    }
+
+    public void saveZooKeeperPaths(Installation installation, Container container, Set<String> zkPaths) {
+        String id = container.getId();
+        containerToZKPathMap.put(id, zkPaths);
+    }
+
+    public void addZooKeeperPaths(Installation installation, Container container, List<String> newZkPaths) {
+        Set<String> allZkPaths = loadZooKeeperPaths(installation, container);
+        boolean changed = false;
+        for (String newZkPath : newZkPaths) {
+            if (allZkPaths.add(newZkPath)) {
+                changed = true;
+            }
+        }
+        if (changed) {
+            saveZooKeeperPaths(installation, container, allZkPaths);
+        }
+    }
+
+    public void deleteContainerZooKeeperPaths(Installation installation, Container container) {
+        String id = container.getId();
+        deleteContainerZooKeeperPaths(id);
+    }
+
+    protected void deleteContainerPathsForDeadContainers(Set<String> aliveIds) {
+        Set<String> containerIds = new HashSet<String>(containerToZKPathMap.keySet());
+        containerIds.removeAll(aliveIds);
+        for (String id : containerIds) {
+            deleteContainerZooKeeperPaths(id);
+        }
+    }
+
+    public void deleteContainerZooKeeperPaths(String id) {
+        Set<String> zkPaths =  containerToZKPathMap.remove(id);
+        if (zkPaths != null) {
+            deleteZooKeeperPaths(zkPaths);
+        }
+    }
+
+    protected void deleteZooKeeperPaths(Set<String> zkPaths) {
+        for (String path : zkPaths) {
+            try {
+                CuratorFramework curatorFramework = getCuratorFramework();
+                if (ZooKeeperUtils.exists(curatorFramework, path) != null) {
+                    LOG.info("unregistered container entry at ZK path: " + path);
+                    ZooKeeperUtils.deleteSafe(curatorFramework, path);
+                }
+            } catch (Exception e) {
+                LOG.warn("Failed to remove web app json at path " + path + ". " + e, e);
+            }
+
+        }
+    }
+
     protected ProcessManagerController createProcessManagerController() {
         return new ProcessManagerController(this, configurer, getProcessManager(), getFabricService(), getCuratorFramework());
     }
@@ -309,6 +387,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
         ProcessManager manager = getProcessManager();
         FabricService fabric = getFabricService();
         if (manager != null && fabric != null) {
+            Set<String> aliveIds = new HashSet<>();
             ImmutableMap<String, Installation> map = manager.listInstallationMap();
             ImmutableSet<Map.Entry<String, Installation>> entries = map.entrySet();
             for (Map.Entry<String, Installation> entry : entries) {
@@ -337,15 +416,24 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
                             if (!Objects.equal(container.getProvisionResult(), Container.PROVISION_SUCCESS)) {
                                 container.setProvisionResult(Container.PROVISION_SUCCESS);
                             }
+                            aliveIds.add(id);
 
                             Map<String, String> envVars = ProcessManagerController.getInstallationProxyPorts(installation);
-                            JolokiaAgentHelper.jolokiaKeepAliveCheck(curator.get(), fabric, container, envVars);
+                            List<String> newZkPaths = JolokiaAgentHelper.jolokiaKeepAliveCheck(curator.get(), fabric, container, envVars);
+                            if (!newZkPaths.isEmpty()) {
+                                ChildContainerController controller = getControllerForContainer(container);
+                                if (controller instanceof ProcessManagerController) {
+                                    ProcessManagerController processManagerController = (ProcessManagerController) controller;
+                                    addZooKeeperPaths(installation, container, newZkPaths);
+                                }
+                            }
                         }
                     }
                 } catch (Exception e) {
                     LOG.warn("Failed to get PID for process " + id + ". " + e, e);
                 }
             }
+            deleteContainerPathsForDeadContainers(aliveIds);
         }
     }
 }

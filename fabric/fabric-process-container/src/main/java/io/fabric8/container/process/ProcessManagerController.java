@@ -55,6 +55,7 @@ import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -93,6 +97,7 @@ public class ProcessManagerController implements ChildContainerController {
     private final FabricService fabricService;
     private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
     private final CuratorFramework curator;
+
 
     public ProcessManagerController(ProcessControllerFactoryService owner, Configurer configurer, ProcessManager processManager, FabricService fabricService, CuratorFramework curator) {
         this.owner = owner;
@@ -151,6 +156,7 @@ public class ProcessManagerController implements ChildContainerController {
             try {
                 installation.getController().stop();
                 container.setProvisionResult(Container.PROVISION_STOPPED);
+                owner.deleteContainerZooKeeperPaths(installation, container);
             } catch (Exception e) {
                 handleException("Stopping container " + container.getId(), e);
             }
@@ -163,6 +169,7 @@ public class ProcessManagerController implements ChildContainerController {
         if (installation != null) {
             try {
                 installation.getController().stop();
+                owner.deleteContainerZooKeeperPaths(installation, container);
             } catch (Exception e) {
                 LOG.info("Failed to stop process for container " + container.getId() + ". " + e, e);
             }
@@ -674,4 +681,5 @@ public class ProcessManagerController implements ChildContainerController {
     protected void handleException(String message, Exception cause) {
         throw new RuntimeException(message + ". " + cause, cause);
     }
+
 }
