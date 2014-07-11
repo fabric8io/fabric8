@@ -148,6 +148,16 @@ public class MQCreateAction extends AbstractAction {
                         builder = childBuilder.jmxUser(username).jmxPassword(password);
                     }
                     metadatas = fabricService.createContainers(builder.build());
+
+                    // check if there was a FabricAuthenticationException as failure then we can try again
+                    if (metadatas != null) {
+                        for (CreateContainerMetadata meta : metadatas) {
+                            if (meta.getFailure() != null && meta.getFailure() instanceof FabricAuthenticationException) {
+                                throw (FabricAuthenticationException) meta.getFailure();
+                            }
+                        }
+                    }
+
                     ShellUtils.storeFabricCredentials(session, username, password);
                 } catch (FabricAuthenticationException fae) {
                     //If authentication fails, prompts for credentials and try again.
