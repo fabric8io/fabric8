@@ -72,6 +72,11 @@ public class SimpleDownloadTask extends AbstractDownloadTask {
         }
 
         try {
+            basePath.mkdirs();
+            if (!basePath.isDirectory()) {
+                throw new IOException("Unable to create directory " + basePath.toString());
+            }
+
             URL urlObj = new URL(s);
             File file = new File(basePath, getFileName(urlObj.getFile()));
             if (file.exists()) {
@@ -119,7 +124,9 @@ public class SimpleDownloadTask extends AbstractDownloadTask {
     // we only want the filename itself, not the whole path
     private String getFileName(String url) {
         // ENTESB-1394: we do not want all these decorators from wrap: protocol
+        // or any inlined maven repos
         url = DownloadManagerHelper.stripUrl(url);
+        url = DownloadManagerHelper.removeInlinedMavenRepositoryUrl(url);
         int unixPos = url.lastIndexOf('/');
         int windowsPos = url.lastIndexOf('\\');
         return url.substring(Math.max(unixPos, windowsPos) + 1);
