@@ -89,6 +89,29 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
         return value != null ? value.toString() : "";
     }
 
+    // Builder DSL
+    //-------------------------------------------------------------------------
+    public ProfileRequirements dependentProfiles(List<String> profiles) {
+        setDependentProfiles(profiles);
+        return this;
+    }
+
+    public ProfileRequirements dependentProfiles(String... profiles) {
+        return dependentProfiles(Arrays.asList(profiles));
+    }
+
+    public ProfileRequirements minimumInstances(Integer value) {
+        setMinimumInstances(value);
+        return this;
+    }
+    public ProfileRequirements maximumInstances(Integer value) {
+        setMaximumInstances(value);
+        return this;
+    }
+
+    // Properties
+    //-------------------------------------------------------------------------
+
     public String getProfile() {
         return profile;
     }
