@@ -38,7 +38,7 @@ import org.apache.felix.service.command.Function;
 public class ContainerDefaultJvmOptions extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-default-jmv-options";
+    public static final String FUNCTION_VALUE =  "container-default-jvm-options";
     public static final String DESCRIPTION = "Get or set the default JVM options to use when creating a new container";
 
     @Reference(referenceInterface = FabricService.class)
