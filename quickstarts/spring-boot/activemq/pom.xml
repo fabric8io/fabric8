@@ -150,11 +150,6 @@
             <artifactId>spring-boot-starter</artifactId>
             <version>${spring-boot-version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-            <version>${spring-boot-version}</version>
-        </dependency>
 
         <!-- TODO this runtime dependency should be inherited in the base profile -->
         <dependency>
