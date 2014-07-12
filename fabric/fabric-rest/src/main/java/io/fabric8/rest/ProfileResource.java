@@ -22,10 +22,12 @@ import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.jmx.ProfileDTO;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -73,6 +75,17 @@ public class ProfileResource extends ResourceSupport {
             return requirements.getOrCreateProfileRequirement(profile.getId());
         }
         return null;
+    }
+
+    @POST
+    @Path("requirements")
+    public void setRequirements(ProfileRequirements profileRequirements) throws IOException {
+        FabricService service = getFabricService();
+        FabricRequirements requirements = service.getRequirements();
+        if (requirements != null) {
+            requirements.addOrUpdateProfileRequirements(profileRequirements);
+            service.setRequirements(requirements);
+        }
     }
 
     @GET

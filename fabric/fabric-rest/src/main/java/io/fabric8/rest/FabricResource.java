@@ -17,7 +17,9 @@ package io.fabric8.rest;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.Containers;
+import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.api.jmx.FabricDTO;
@@ -30,9 +32,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +58,7 @@ public class FabricResource extends ResourceSupport {
     public FabricDTO details() {
         FabricService fabricService = getFabricService();
         if (fabricService != null) {
-            return new FabricDTO(fabricService, getLink("/containers"), getLink("/versions"), getLink("/status"));
+            return new FabricDTO(fabricService, getLink("/containers"), getLink("/versions"), getLink("/status"), getLink("/requirements"));
         } else {
             noFabricService();
         }
@@ -136,5 +140,16 @@ public class FabricResource extends ResourceSupport {
         return null;
     }
 
+    @GET
+    @Path("requirements")
+    public FabricRequirements requirements() {
+        return getFabricService().getRequirements();
+    }
 
+    @POST
+    @Path("requirements")
+    public void setRequirements(FabricRequirements requirements) throws IOException {
+        FabricService service = getFabricService();
+        service.setRequirements(requirements);
+    }
 }

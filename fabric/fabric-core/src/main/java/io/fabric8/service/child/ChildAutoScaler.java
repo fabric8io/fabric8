@@ -75,6 +75,7 @@ public class ChildAutoScaler implements ContainerAutoScaler {
         Container[] containers = fabricService.getContainers();
         if (containers != null) {
             String parent = null;
+            // TODO allow the requirements to customise which root to use...
             for (Container container : containers) {
                 if (container.isRoot()) {
                     parent = container.getId();
