@@ -15,6 +15,8 @@
  */
 package io.fabric8.api;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,6 +26,7 @@ import java.util.List;
  * Represents the requirements to successfully provision a profile such as the minimum instances required
  * and which other profiles should be profiled before hand.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProfileRequirements implements Comparable<ProfileRequirements> {
     private String profile;
     private Integer minimumInstances;

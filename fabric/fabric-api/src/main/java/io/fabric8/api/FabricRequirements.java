@@ -15,6 +15,8 @@
  */
 package io.fabric8.api;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -24,6 +26,7 @@ import java.util.List;
  * Allows the requirements of a profile to be defined so that we can do automatic provisioning,
  * can ensure that required services stay running and can provide health checks
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FabricRequirements {
     private List<ProfileRequirements> profileRequirements = new ArrayList<ProfileRequirements>();
     private String version;
