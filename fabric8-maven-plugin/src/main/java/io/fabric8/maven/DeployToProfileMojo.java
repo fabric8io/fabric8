@@ -493,7 +493,9 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             J4pExecRequest request = new J4pExecRequest(mbeanName, "setConfigurationFile", versionId, profileId, relativePath, data);
             J4pResponse<J4pExecRequest> response = client.execute(request, "POST");
             Object value = response.getValue();
-            getLog().info("Got result: " + value);
+            if (value != null) {
+                getLog().info("Upload returned result: " + value);
+            }
         } catch (J4pException e) {
             if (e.getMessage().contains(".InstanceNotFoundException")) {
                 throw new MojoExecutionException("Could not find the mbean " + mbeanName + " in the JVM for " + jolokiaUrl + ". Are you sure this JVM is running the Fabric8 console?");
