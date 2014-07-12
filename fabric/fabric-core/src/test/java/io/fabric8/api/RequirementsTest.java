@@ -30,10 +30,12 @@ public class RequirementsTest {
     @Test
     public void saveAndLoad() throws Exception {
         List<ProfileRequirements> profiles = new ArrayList<ProfileRequirements>();
-        ProfileRequirements dummy = new ProfileRequirements("dummy", 1, null, "mq");
+        String mqProfileId = "mq-default";
+        String exampleProfileId = "quickstarts-karaf-camel-amq";
+        ProfileRequirements dummy = new ProfileRequirements("dummy", 1, null, mqProfileId);
         profiles.add(dummy);
-        profiles.add(new ProfileRequirements("mq", 1, 5));
-        profiles.add(new ProfileRequirements("example-camel", 1, null, "mq"));
+        profiles.add(new ProfileRequirements(mqProfileId, 1, 5));
+        profiles.add(new ProfileRequirements(exampleProfileId, 1, null, mqProfileId));
 
         // lets check we can make it empty
         assertEquals(false, dummy.checkIsEmpty());
@@ -55,16 +57,16 @@ public class RequirementsTest {
         List<ProfileRequirements> profileRequirements = actual.getProfileRequirements();
         assertEquals("size", 2, profileRequirements.size());
 
-        ProfileRequirements profileMq = profileRequirements.get(1);
-        assertEquals("name", "mq", profileMq.getProfile());
+        ProfileRequirements profileMq = profileRequirements.get(0);
+        assertEquals("name", mqProfileId, profileMq.getProfile());
         assertEquals("minimumInstances", new Integer(1), profileMq.getMinimumInstances());
         assertEquals("maximumInstances", new Integer(5), profileMq.getMaximumInstances());
 
-        ProfileRequirements profileCamel = profileRequirements.get(0);
-        assertEquals("name", "example-camel", profileCamel.getProfile());
+        ProfileRequirements profileCamel = profileRequirements.get(1);
+        assertEquals("name", exampleProfileId, profileCamel.getProfile());
         assertEquals("minimumInstances", new Integer(1), profileCamel.getMinimumInstances());
         assertEquals("maximumInstances", null, profileCamel.getMaximumInstances());
-        assertEquals("profiles", new ArrayList<String>(Arrays.asList("mq")), profileCamel.getDependentProfiles());
+        assertEquals("profiles", new ArrayList<String>(Arrays.asList(mqProfileId)), profileCamel.getDependentProfiles());
     }
 
     @Test
