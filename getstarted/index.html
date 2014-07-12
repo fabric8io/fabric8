@@ -128,7 +128,7 @@
 unzip fabric8-karaf-1.1.0.CR2.tar.gz
 cd fabric8-karaf-1.1.0.CR2</code></pre>
 
-<p>Or you could <a href="https://github.com/fabric8io/fabric8/blob/master/readme-build.md">build the project</a> with <a href="http://maven.apache.org/">maven</a> via:</p>
+<p>Or, <a href="https://github.com/fabric8io/fabric8/blob/master/readme-build.md">build the project</a> with <a href="http://maven.apache.org/">maven</a> via:</p>
 
 <pre><code>mvn -DskipTests clean install -Pall
 cd fabric/fabric8-karaf/target
@@ -144,21 +144,17 @@ This can be changed by editing the <code>etc/users.properties</code> file before
 
 <pre><code>bin/fabric8</code></pre>
 
-<p>if you are using the Tomcat or TomEE distribution type:</p>
+<p>If you are using the Tomcat or TomEE distribution type:</p>
 
 <pre><code>bin/fabric8 run</code></pre>
 
 <p>Once the container has started up, you have a working Fabric and you can connect to the console</p>
 
-<h3 id = "Use_the_console">Use the console</h3>
+<h3 id = "Use_the_web_console">Use the web console</h3>
 
-<p>Then open the <a href="http://hawt.io/">hawtio based</a> console via the Karaf web console, which runs on <a href="http://localhost:8181/">port 8181</a></p>
+<p>Then open the <a href="http://hawt.io/">hawtio based</a> console via the Karaf web console, which runs on <a href="http://localhost:8181/">port 8181</a>:</p>
 
 <pre><code>http://localhost:8181/</code></pre>
-
-<p>If you are using the Tomcat or TomEE distribution then the console is on <a href="http://localhost:8080/hawtio/">port 8080</a></p>
-
-<pre><code>http://localhost:8080/hawtio/</code></pre>
 
 <p>Then check out the documentation in the <a href="http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles">embedded fabric8 wiki</a> to guide you through all the available <a href="profiles.html">profiles</a> you can create in a new container or add to an existing container.</p>
 
@@ -169,15 +165,21 @@ This can be changed by editing the <code>etc/users.properties</code> file before
 <li><a href="git.html">how to use git with fabric8</a></li>
 </ul>
 
+<h4 id = "Web_console_for_Tomcat_or_TomEE_distributions">Web console for Tomcat or TomEE distributions</h4>
+
+<p>If you are using the Tomcat or TomEE distribution then the console is on <a href="http://localhost:8080/hawtio/">port 8080</a>, and the console is deployed under the <code>hawtio</code> context path. The url for the web console is therefore:</p>
+
+<pre><code>http://localhost:8080/hawtio/</code></pre>
+
 <h4 id = "View_a_demo">View a demo</h4>
 
-<p>To help you get started you could watch one of the demos in the  <a class="btn" href="https://vimeo.com/album/2635012">JBoss Fuse and JBoss A-MQ demo album</a></p>
+<p>To help you get started you could watch one of the demos in the  <a class="btn btn-success" href="https://vimeo.com/album/2635012">JBoss Fuse and JBoss A-MQ demo album</a></p>
 
-<p>For example try this: <a class="btn" href="https://vimeo.com/80625940">JBoss Fuse 6.1 Demo</a></p>
+<p>For example try the <a class="btn btn-success" href="https://vimeo.com/80625940">JBoss Fuse 6.1 Demo</a></p>
 
 <h4 id = "Try_QuickStarts">Try QuickStarts</h4>
 
-<p>New users to Fabric8 is recommended to try some of the <a href="http://fabric8.io/gitbook/quickstarts.html">QuickStarts</a>.</p>
+<p>New users to Fabric8 should try the <a href="http://fabric8.io/gitbook/quickstarts.html">QuickStarts</a>.</p>
 
 <h4 id = "Read_the_documentation">Read the documentation</h4>
 

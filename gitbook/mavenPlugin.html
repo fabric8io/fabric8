@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.2" data-basepath="." data-revision="1404253093786">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.2" data-basepath="." data-revision="1405154533935">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -483,9 +483,9 @@
             
         </li>
     
-        <li class="chapter " data-level="7" data-path="techologies.html">
+        <li class="chapter " data-level="7" data-path="technologies.html">
             
-            <a href="./techologies.html">
+            <a href="./technologies.html">
                 <i class="fa fa-check"></i> <b>7.</b> Technologies
             </a>
             
@@ -694,7 +694,7 @@
     
         <a href="./urlHandlers.html" title="URL Handlers" class="chapter  " data-progress="6.9" style="left: 75%;"></a>
     
-        <a href="./techologies.html" title="Technologies" class="chapter  new-chapter" data-progress="7" style="left: 77.27272727272727%;"></a>
+        <a href="./technologies.html" title="Technologies" class="chapter  new-chapter" data-progress="7" style="left: 77.27272727272727%;"></a>
     
         <a href="./activemq.html" title="Apache ActiveMQ" class="chapter  " data-progress="7.1" style="left: 79.54545454545455%;"></a>
     
@@ -921,6 +921,10 @@ PID: my.pid
 <td>The name of the fabric profile to deploy your project to. If not specified it defaults to the groupId-artifactId of your project.</td>
 </tr>
 <tr>
+<td>abstractProfile</td>
+<td>Whether the profile is marked as abstract. Defaults to <b>false</b></td>
+</tr>
+<tr>
 <td>serverId</td>
 <td>The server ID used to lookup in <b>~/.m2/settings/xml</b> for the &lt;server&gt; element to find the username / password to login to the fabric. Defaults to <b>fabric8.upload.repo</b></td>
 </tr>
@@ -975,6 +979,10 @@ PID: my.pid
 <tr>
 <td>includeReadMe</td>
 <td>Whether or not to include the project readme file (if exists). Notice that if there is already a readme file in <b>profileConfigDir</b>, then that file is included, and <b>not</b> the project readme file. Defaults to true.</td>
+</tr>
+<tr>
+<td>webContextPath</td>
+<td>For web applications (projects with <em>war</em> packaging) this property specifies the context path to use for the web application; such as &quot;/&quot; or &quot;/myapp&quot;. This value defaults to the archetype id.</td>
 </tr>
 </table>
 

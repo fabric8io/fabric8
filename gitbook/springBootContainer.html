@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.4" data-basepath="." data-revision="1404253093786">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.4" data-basepath="." data-revision="1405154533935">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -483,9 +483,9 @@
             
         </li>
     
-        <li class="chapter " data-level="7" data-path="techologies.html">
+        <li class="chapter " data-level="7" data-path="technologies.html">
             
-            <a href="./techologies.html">
+            <a href="./technologies.html">
                 <i class="fa fa-check"></i> <b>7.</b> Technologies
             </a>
             
@@ -694,7 +694,7 @@
     
         <a href="./urlHandlers.html" title="URL Handlers" class="chapter  " data-progress="6.9" style="left: 75%;"></a>
     
-        <a href="./techologies.html" title="Technologies" class="chapter  new-chapter" data-progress="7" style="left: 77.27272727272727%;"></a>
+        <a href="./technologies.html" title="Technologies" class="chapter  new-chapter" data-progress="7" style="left: 77.27272727272727%;"></a>
     
         <a href="./activemq.html" title="Apache ActiveMQ" class="chapter  " data-progress="7.1" style="left: 79.54545454545455%;"></a>
     
@@ -728,11 +728,11 @@
 Boot utilities and starters are especially useful if you plan to run your system in a microservices-manner backed by
 the Spring Boot micro-containers and Fabric-related middleware (Camel, ActiveMQ, CXF and so forth).</p>
 <h3 id="spring-boot-quickstarts"><a name="spring-boot-quickstarts" class="anchor" href="#spring-boot-quickstarts"><span class="fa fa-link"></span></a>Spring Boot Quickstarts</h3>
-<p>Before we dig into the glorious details of Fabric8 support for Spring Boot application, keep in mind tha the easiest way 
-to start developing Spring Boot applications with Fabric8 is to use <em>Quickstarts</em>. Quickstarts are our reference
-Maven Archtypes we recommend to use as a base for your projects.</p>
+<p>Before we dig into the glorious details of the Fabric8 support for the Spring Boot applications, keep in mind that the 
+easiest way to start developing Spring Boot applications with Fabric8 is to use <em>Quickstarts</em>. Quickstarts are our 
+opinionated Maven Archtypes that we highly recommend to use as a base for your projects.</p>
 <p>For example to create and run the basic Spring Boot REST module follow these steps:</p>
-<p><strong>Step 1:</strong> Create new Maven project from Quickstart</p>
+<p><strong>Step 1:</strong> Create the new Maven project from the Quickstart.</p>
 <pre><code>$ mvn archetype:generate -Dfilter=io.fabric8.archetypes:springboot-webmvc-archetype 
 </code></pre><p>After executing the command above, you should see a similar output:</p>
 <pre><code>[INFO] Scanning for projects...
@@ -751,7 +751,9 @@ Define value for property &apos;package&apos;:  com.myapp: :
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-</code></pre><p><strong>Step 2:</strong> Test and install your new module</p>
+</code></pre><p><strong>Step 2:</strong> Test and install your new module.</p>
+<p>In the previous step we created new maven project with artifactId <code>my-spring-boot-rest-module</code>. Let&apos;s step into a 
+directory of our new module and build it, using the following commands:</p>
 <pre><code>$ cd my-spring-boot-rest-module 
 $ mvn install
 </code></pre><p>After executing the commands above, you should see a similar output:</p>
@@ -790,7 +792,10 @@ Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
 [INFO] Installing /home/hekonsek/tmp/my-spring-boot-rest-module/pom.xml to /home/hekonsek/.m2/repository/com/myapp/my-spring-boot-rest-module/1.0-SNAPSHOT/my-spring-boot-rest-module-1.0-SNAPSHOT.pom
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
-</code></pre><p><strong>Step 3:</strong> Start Fabric8 server</p>
+[INFO] ------------------------------------------------------------------------
+</code></pre><p><strong>Step 3:</strong> Start Fabric8 server.</p>
+<p>Now we need to start the Fabric8 server which we would like to provision and manage our brand new Spring Boot
+application.</p>
 <pre><code>$ cd fabric8-karaf-1.1.0
 $ bin/fabric8
 </code></pre><p>After executing the commands above, you should see a similar output:</p>
@@ -806,7 +811,9 @@ Fabric8 Container (1.1.0)
 http://fabric8.io/
 
 Fabric8:karaf@root&gt; 
-</code></pre><p><strong>Step 4:</strong> Deploy profile of your application into the Fabric8</p>
+</code></pre><p><strong>Step 4:</strong> Deploy profile of your application into the Fabric8.</p>
+<p>With the Fabric8 server up and running we can go back to the directory of our new project and execute the following Maven
+goal in order to deploy the profile describing our Spring application:</p>
 <pre><code>.../my-spring-boot-rest-module $ mvn fabric8:deploy -DskipTests
 </code></pre><p>After executing the command above, you should see a similar output:</p>
 <pre><code>[INFO] Uploading file /home/hekonsek/tmp/my-spring-boot-rest-module/pom.xml
@@ -819,8 +826,12 @@ Uploaded: http://192.168.2.12:8181/maven/upload/com/myapp/my-spring-boot-rest-mo
 ...
 [INFO] Profile page: http://192.168.2.12:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/quickstarts/spring.boot/webmvc.profile
 ...
+[INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
-</code></pre><p><strong>Step 5:</strong> Provision your Spring Boot container as a standalone JVM process managed by the Fabric8</p>
+[INFO] ------------------------------------------------------------------------
+</code></pre><p>Now your Fabric8 configuration registry contains the profile describing your Spring Boot application. In the next step 
+we will use that profile to provision our Spring application.</p>
+<p><strong>Step 5:</strong> Provision your Spring Boot container as a standalone JVM process managed by the Fabric8.</p>
 <pre><code>Fabric8:karaf@root&gt; container-create-child --profile quickstarts-spring.boot-webmvc root my-spring-boot-rest
 </code></pre><p>After executing the command above, you should see a similar output:</p>
 <pre><code>Starting process
@@ -828,7 +839,7 @@ Running java  -javaagent:jolokia-agent.jar=host=0.0.0.0,port=9018,agentId=my-spr
 process is now running (11904)
 The following containers have been created successfully:
     Container: my-spring-boot-rest.
-</code></pre><p><strong>Step 6:</strong> Find the HTTP port number assigned by Fabric8 to your application</p>
+</code></pre><p><strong>Step 6:</strong> Find the HTTP port number assigned by Fabric8 to your application.</p>
 <pre><code>Fabric8:karaf@root&gt; environment my-spring-boot-rest | grep HTTP_PROXY
 FABRIC8_HTTP_PROXY_PORT                       9017
 </code></pre><p><strong>Step 7:</strong> Enjoy your application being up and running!</p>

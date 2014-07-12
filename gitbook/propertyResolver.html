@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="6.8" data-basepath="." data-revision="1404253093786">
+    <div class="book" data-github="fabric8io/fabric8" data-level="6.8" data-basepath="." data-revision="1405154533935">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -483,9 +483,9 @@
             
         </li>
     
-        <li class="chapter " data-level="7" data-path="techologies.html">
+        <li class="chapter " data-level="7" data-path="technologies.html">
             
-            <a href="./techologies.html">
+            <a href="./technologies.html">
                 <i class="fa fa-check"></i> <b>7.</b> Technologies
             </a>
             
@@ -694,7 +694,7 @@
     
         <a href="./urlHandlers.html" title="URL Handlers" class="chapter  " data-progress="6.9" style="left: 75%;"></a>
     
-        <a href="./techologies.html" title="Technologies" class="chapter  new-chapter" data-progress="7" style="left: 77.27272727272727%;"></a>
+        <a href="./technologies.html" title="Technologies" class="chapter  new-chapter" data-progress="7" style="left: 77.27272727272727%;"></a>
     
         <a href="./activemq.html" title="Apache ActiveMQ" class="chapter  " data-progress="7.1" style="left: 79.54545454545455%;"></a>
     
@@ -726,7 +726,7 @@
                         <h2 id="property-resolving"><a name="property-resolving" class="anchor" href="#property-resolving"><span class="fa fa-link"></span></a>Property Resolving</h2>
 <p>When using properties files in Fabric8 for implementing a distributed OSGi Config Admin; we support a number of different property resolvers.</p>
 <p>So there is normal variable expansion for system properties. e.g. </p>
-<pre><code>myDir = ${karaf.data}/cheese
+<pre><code>myDir = ${runtime.data}/cheese
 </code></pre><p>would default to the data directory of the current container plus &quot;/cheese&quot;. However there are a number of additional property resolvers available using the ${...:...} format.</p>
 <h3 id="container"><a name="container" class="anchor" href="#container"><span class="fa fa-link"></span></a>Container</h3>
 <p>When you wish to refer to the current containers network settings; such as its ip, local host name or bind address:</p>
