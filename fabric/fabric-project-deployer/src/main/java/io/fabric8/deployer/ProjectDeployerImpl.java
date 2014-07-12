@@ -15,56 +15,6 @@
  */
 package io.fabric8.deployer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import io.fabric8.agent.download.DownloadManager;
-import io.fabric8.agent.download.DownloadManagers;
-import io.fabric8.agent.mvn.Parser;
-import io.fabric8.agent.utils.AgentUtils;
-import io.fabric8.api.Container;
-import io.fabric8.api.Containers;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.FabricRequirements;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.GeoLocationService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.ProfileRequirements;
-import io.fabric8.api.Profiles;
-import io.fabric8.api.Version;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.Configurer;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.JMXUtils;
-import io.fabric8.deployer.dto.DependencyDTO;
-import io.fabric8.deployer.dto.DeployResults;
-import io.fabric8.deployer.dto.DtoHelper;
-import io.fabric8.deployer.dto.ProjectRequirements;
-import io.fabric8.internal.Objects;
-import io.fabric8.service.child.ChildConstants;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.Reference;
-import io.fabric8.insight.log.support.Strings;
-import org.apache.felix.scr.annotations.Service;
-import org.apache.karaf.features.BundleInfo;
-import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.FeaturesService;
-import org.apache.karaf.features.Repository;
-import org.apache.karaf.features.internal.RepositoryImpl;
-import org.codehaus.plexus.util.IOUtil;
-import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -80,9 +30,47 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.api.Container;
+import io.fabric8.api.Containers;
+import io.fabric8.api.DataStore;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.Profiles;
+import io.fabric8.api.Version;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.JMXUtils;
+import io.fabric8.deployer.dto.DependencyDTO;
+import io.fabric8.deployer.dto.DeployResults;
+import io.fabric8.deployer.dto.DtoHelper;
+import io.fabric8.deployer.dto.ProjectRequirements;
+import io.fabric8.insight.log.support.Strings;
+import io.fabric8.internal.Objects;
+import io.fabric8.service.child.ChildConstants;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.karaf.features.BundleInfo;
+import org.apache.karaf.features.Feature;
+import org.apache.karaf.features.internal.RepositoryImpl;
+import org.codehaus.plexus.util.IOUtil;
+import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Allows projects to be deployed into a profile using Jolokia / REST or build plugins such as a maven plugin
@@ -157,6 +145,14 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     public DeployResults deployProject(ProjectRequirements requirements) throws Exception {
         FabricService fabric = getFabricService();
         Version version = getOrCreateVersion(requirements);
+
+        // validate that all the parent profiles exists
+        for (String parent : requirements.getParentProfiles()) {
+            if (!version.hasProfile(parent)) {
+                throw new IllegalArgumentException("Parent profile " + parent + " does not exists in version " + version.getId());
+            }
+        }
+
         Profile profile = getOrCreateProfile(version, requirements);
         if (requirements.isAbstractProfile()) {
             profile.setAttribute(Profile.ABSTRACT, "true");
