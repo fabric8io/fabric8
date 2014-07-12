@@ -15,6 +15,7 @@
  */
 package io.fabric8.service.child;
 
+import io.fabric8.api.AutoScaleRequest;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.Containers;
@@ -43,9 +44,12 @@ public class ChildAutoScaler implements ContainerAutoScaler {
     }
 
     @Override
-    public void createContainers(String version, String profile, int count) throws Exception {
+    public void createContainers(AutoScaleRequest request) throws Exception {
+        int count = request.getDelta();
+        String profile = request.getProfile();
+        String version = request.getVersion();
+        FabricService fabricService = request.getFabricService();
         CreateChildContainerOptions.Builder builder = null;
-        FabricService fabricService = containerProvider.getFabricService();
         if (fabricService != null) {
             builder = createAuthoScaleOptions(fabricService);
         }

@@ -25,10 +25,13 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import io.fabric8.api.Container;
+import io.fabric8.api.ContainerAutoScaler;
+import io.fabric8.api.ContainerAutoScalerFactory;
 import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.FabricException;
+import io.fabric8.service.child.ChildAutoScaler;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -49,7 +52,7 @@ import static io.fabric8.internal.ContainerProviderUtils.buildUninstallScript;
 @Properties(
         @Property(name = "fabric.container.protocol", value = SshContainerProvider.SCHEME)
 )
-public class SshContainerProvider implements ContainerProvider<CreateSshContainerOptions, CreateSshContainerMetadata> {
+public class SshContainerProvider implements ContainerProvider<CreateSshContainerOptions, CreateSshContainerMetadata>, ContainerAutoScalerFactory {
 
     static final String SCHEME = "ssh";
 
@@ -160,6 +163,12 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
     @Override
     public Class<CreateSshContainerMetadata> getMetadataType() {
         return CreateSshContainerMetadata.class;
+    }
+
+
+    @Override
+    public ContainerAutoScaler createAutoScaler() {
+        return new SshAutoScaler(this);
     }
 
     protected void runScriptOnHost(CreateSshContainerOptions options, String script) throws Exception {

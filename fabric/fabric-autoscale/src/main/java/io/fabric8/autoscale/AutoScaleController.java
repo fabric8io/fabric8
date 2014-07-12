@@ -15,6 +15,7 @@
  */
 package io.fabric8.autoscale;
 
+import io.fabric8.api.AutoScaleRequest;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.Containers;
@@ -213,8 +214,10 @@ public final class AutoScaleController extends AbstractComponent implements Grou
                 } else if (delta > 0) {
                     if (requirementsSatisfied(requirements, profileRequirement)) {
                         // TODO should we figure out the version from the requirements?
-                        String version = fabricService.get().getDefaultVersion().getId();
-                        autoScaler.createContainers(version, profile, delta);
+                        FabricService service = fabricService.get();
+                        String version = service.getDefaultVersion().getId();
+                        AutoScaleRequest command = new AutoScaleRequest(service, version, profile, delta, requirements, profileRequirement);
+                        autoScaler.createContainers(command);
                     }
                 }
             } catch (Exception e) {
