@@ -52,6 +52,10 @@ To find the REST API URL type:
 
 The default API is at [http://localhost:8181/api/fabric8/](http://localhost:8181/api/fabric8/) though this depends on your fabric.
 
+For example the following curl command line will post an example set of requirements:
+
+    curl -X POST -H "Content-type: application/json" -d '{"profileRequirements":[{"profile":"mq-default","minimumInstances":1,"maximumInstances":5},{"profile":"quickstarts-karaf-camel-amq","minimumInstances":1,"dependentProfiles":["mq-default"]}],"version":"1.0"}' http://localhost:8181/api/fabric8/requirements
+
 Then the REST endpoint to GET or POST the fabric requirements is something like [http://localhost:8181/api/fabric8/requirements](http://localhost:8181/api/fabric8/requirements).
 
 You can also navigate around the REST API following the links to find a version, a profile and then its requirements. e.g. the link for the mq-default profile for version 1.0 is something like [http://localhost:8181/api/fabric8/version/1.0/profile/mq-default/requirements](http://localhost:8181/api/fabric8/version/1.0/profile/mq-default/requirements)
