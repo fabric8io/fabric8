@@ -38,7 +38,7 @@ public final class RequirementsJson {
         //Utility Class
     }
     static {
-        mapper.getSerializationConfig().withSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.getSerializationConfig().withSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     public static void writeRequirements(OutputStream out, FabricRequirements value) throws IOException {
