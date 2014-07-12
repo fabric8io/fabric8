@@ -24,7 +24,7 @@
     * [Cloud Containers](cloudContainers.md)
 * [Features](features.md)
     * [Gateway](gateway.md)
-    * [Requirements](requirements.md)
+    * [Auto Scaling](requirements.md)
     * [Rolling Upgrade](rollingUpgrade.md)
     * [Offline Repository](offlineRepo.md)
     * [Partition](partition.md)

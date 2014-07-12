@@ -1,6 +1,8 @@
 ## Requirements
 
-Fabric8 makes it easy to add requirements on a Profile. For example that a service _foo_ requires at least 2 instances and that it depends on a profile _bar_ to be running. Once requirements are defined the tooling can report the health of the system and make it easy to auto-scale or manually scale your system.
+Fabric8 makes it easy to add requirements on a Profile. For example that a service _foo_ requires at least 2 instances and that it depends on a profile _bar_ to be running.
+
+Once requirements are defined the tooling can report the health of the system and make it easy to automatically or manually scale your system.
 
 ### Defining requirements
 
