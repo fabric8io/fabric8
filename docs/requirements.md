@@ -24,6 +24,37 @@ From the command line shell type the **fabric:status** command:
 
 Which should report on the health (100% indicates full health of each profile requirements).
 
+You can view the full requirements details via:
+
+    requirements-list
+
+### Importing and exporting
+
+You can use the **requirements-export** command to export the current requirements as a JSON file to the file system
+
+    requirements-export /tmp/requirements.json
+
+You can then edit them and them import them back again later or import them into a different fabric instance
+
+    requirements-import /tmp/requirements.json
+
+The **requirements-import** command can also taka URL as the command line argument; so you can host this file on a wiki, website or maven repository etc.
+
+#### Using the REST API
+
+You can also use the REST API to GET or POST requirements as JSON.
+
+To find the REST API URL type:
+
+    fabric:info
+
+The default API is at [http://localhost:8181/api/fabric8/](http://localhost:8181/api/fabric8/) though this depends on your fabric.
+
+Then the REST endpoint to GET or POST the fabric requirements is something like [http://localhost:8181/api/fabric8/requirements](http://localhost:8181/api/fabric8/requirements).
+
+You can also navigate around the REST API following the links to find a version, a profile and then its requirements. e.g. the link for the mq-default profile for version 1.0 is something like [http://localhost:8181/api/fabric8/version/1.0/profile/mq-default/requirements](http://localhost:8181/api/fabric8/version/1.0/profile/mq-default/requirements)
+
+
 ### Auto Scaling
 
 When using Fabric8 on OpenShift we have an out of the box auto-scaler which uses the requirements to automatically create the required number of instances of each profile.
