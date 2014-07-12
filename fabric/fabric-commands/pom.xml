@@ -88,6 +88,7 @@
             OSGI-INF/io.fabric8.commands.ProfileScale.xml,
             OSGI-INF/io.fabric8.commands.RequirementsExport.xml,
             OSGI-INF/io.fabric8.commands.RequirementsImport.xml,
+            OSGI-INF/io.fabric8.commands.RequirementsList.xml,
             OSGI-INF/io.fabric8.commands.RequireProfileDelete.xml,
             OSGI-INF/io.fabric8.commands.RequireProfileList.xml,
             OSGI-INF/io.fabric8.commands.RequireProfileSet.xml,
