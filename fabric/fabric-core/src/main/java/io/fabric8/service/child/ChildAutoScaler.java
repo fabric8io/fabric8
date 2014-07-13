@@ -16,12 +16,17 @@
 package io.fabric8.service.child;
 
 import io.fabric8.api.AutoScaleRequest;
+import io.fabric8.api.ChildScalingRequirements;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.Containers;
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.NameValidator;
+import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.scr.support.Strings;
+import io.fabric8.common.util.Filter;
+import io.fabric8.common.util.Filters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +56,7 @@ public class ChildAutoScaler implements ContainerAutoScaler {
         FabricService fabricService = request.getFabricService();
         CreateChildContainerOptions.Builder builder = null;
         if (fabricService != null) {
-            builder = createAuthoScaleOptions(fabricService);
+            builder = createAuthoScaleOptions(request, fabricService);
         }
         if (builder != null) {
             Container[] containers = fabricService.getContainers();
@@ -70,24 +75,53 @@ public class ChildAutoScaler implements ContainerAutoScaler {
         }
     }
 
-    protected CreateChildContainerOptions.Builder createAuthoScaleOptions(FabricService fabricService) {
+    protected CreateChildContainerOptions.Builder createAuthoScaleOptions(AutoScaleRequest request, FabricService fabricService) {
         CreateChildContainerOptions.Builder builder = CreateChildContainerOptions.builder();
         Container[] containers = fabricService.getContainers();
         if (containers != null) {
-            String parent = null;
-            // TODO allow the requirements to customise which root to use...
-            for (Container container : containers) {
-                if (container.isRoot()) {
-                    parent = container.getId();
-                    builder = builder.parent(parent);
-                    break;
-                }
+            List<String> containerIds = Containers.rootContainerIds(containers);
+            // allow the requirements to customise which root to use...
+            if (containerIds.isEmpty()) {
+                throw new IllegalStateException("No root containers are available!");
+            }
+            String rootContainer = null;
+            if (containerIds.size() == 1) {
+                rootContainer = containerIds.get(0);
+            } else {
+                rootContainer = chooseRootContainer(request, containerIds);
+            }
+            if (Strings.isNullOrBlank(rootContainer)) {
+                throw new IllegalStateException("Could not choose a root container from the possible IDs: " + containerIds + " with requirements: " +  getChildScalingRequirements(request));
+            } else {
+                builder = builder.parent(rootContainer);
             }
         }
         String zookeeperUrl = fabricService.getZookeeperUrl();
         String zookeeperPassword = fabricService.getZookeeperPassword();
         return builder.jmxUser("admin").jmxPassword(zookeeperPassword).
                 zookeeperUrl(zookeeperUrl).zookeeperPassword(zookeeperPassword);
+    }
+
+    protected String chooseRootContainer(AutoScaleRequest request, List<String> containerIds) {
+        ChildScalingRequirements scalingRequirements = getChildScalingRequirements(request);
+        if (scalingRequirements != null) {
+            List<String> rootContainerPatterns = scalingRequirements.getRootContainerPatterns();
+            if (rootContainerPatterns != null && !rootContainerPatterns.isEmpty()) {
+                Filter<String> filter = Filters.createStringFilters(rootContainerPatterns);
+                List<String> matchingRootContainers = Filters.filter(containerIds, filter);
+                return Filters.matchRandomElement(matchingRootContainers);
+            }
+        }
+        return Filters.matchRandomElement(containerIds);
+    }
+
+    protected ChildScalingRequirements getChildScalingRequirements(AutoScaleRequest request) {
+        ChildScalingRequirements scalingRequirements = null;
+        ProfileRequirements profileRequirements = request.getProfileRequirements();
+        if (profileRequirements != null) {
+            scalingRequirements = profileRequirements.getChildScalingRequirements();
+        }
+        return scalingRequirements;
     }
 
     @Override

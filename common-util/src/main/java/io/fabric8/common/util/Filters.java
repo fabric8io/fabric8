@@ -15,6 +15,8 @@
  */
 package io.fabric8.common.util;
 
+import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -84,6 +86,10 @@ public class Filters {
     }
 
     public static <T> Filter<T> or(final Filter<T>... filters) {
+        return or(Arrays.asList(filters));
+    }
+
+    public static <T> Filter<T> or(final List<Filter<T>> filters) {
         return new Filter<T>() {
             public boolean matches(T t) {
                 for (Filter filter : filters) {
@@ -162,5 +168,50 @@ public class Filters {
                 }
             }
         }
+    }
+
+    /**
+     * Returns a filter if any of the String patterns match (using ! for not and * for any characters)
+     */
+    public static Filter<String> createStringFilters(Iterable<String> patterns) {
+        List<Filter<String>> filters = new ArrayList<>();
+        for (String pattern : patterns) {
+            Filter<String> filter = createStringFilter(pattern);
+            filters.add(filter);
+        }
+        return or(filters);
+    }
+
+
+    /**
+     * Returns null if the list is empty or the first element for a size of 1 or returns a random element value
+     */
+    public static <T> T matchRandomElement(List<T> list) {
+        int size = list.size();
+        if (size < 1) {
+            return null;
+        } else if (size == 1) {
+            return list.get(0);
+        } else {
+            while (true) {
+                int index = (int) Math.round(Math.random() * size);
+                if (index >= 0 && index < size) {
+                    return list.get(index);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the string values which match the given filter
+     */
+    public static <T> List<T> filter(Iterable<T> values, Filter<T> filter) {
+        List<T> answer = new ArrayList<T>();
+        for (T value : values) {
+            if (filter.matches(value)) {
+                answer.add(value);
+            }
+        }
+        return answer;
     }
 }

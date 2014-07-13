@@ -32,6 +32,10 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
     private Integer minimumInstances;
     private Integer maximumInstances;
     private List<String> dependentProfiles;
+    private ChildScalingRequirements childScalingRequirements;
+    private SshScalingRequirements sshScalingRequirements;
+    private DockerScalingRequirements dockerScalingRequirements;
+    private OpenShiftScalingRequirements openShiftScalingRequirements;
 
     public ProfileRequirements() {
     }
@@ -107,10 +111,52 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
         setMinimumInstances(value);
         return this;
     }
+
     public ProfileRequirements maximumInstances(Integer value) {
         setMaximumInstances(value);
         return this;
     }
+
+    /**
+     * Lazily creates the scaling requirements for the child container provider
+     */
+    public ChildScalingRequirements childScaling() {
+        if (childScalingRequirements == null) {
+            childScalingRequirements = new ChildScalingRequirements();
+        }
+        return getChildScalingRequirements();
+    }
+
+    /**
+     * Lazily creates the scaling requirements for the ssh container provider
+     */
+    public SshScalingRequirements sshScaling() {
+        if (sshScalingRequirements == null) {
+            sshScalingRequirements = new SshScalingRequirements();
+        }
+        return getSshScalingRequirements();
+    }
+
+    /**
+     * Lazily creates the scaling requirements for the docker container provider
+     */
+    public DockerScalingRequirements dockerScaling() {
+        if (dockerScalingRequirements == null) {
+            dockerScalingRequirements = new DockerScalingRequirements();
+        }
+        return getDockerScalingRequirements();
+    }
+
+    /**
+     * Lazily creates the scaling requirements for the OpenShift container provider
+     */
+    public OpenShiftScalingRequirements openShiftScaling() {
+        if (openShiftScalingRequirements == null) {
+            openShiftScalingRequirements = new OpenShiftScalingRequirements();
+        }
+        return getOpenShiftScalingRequirements();
+    }
+
 
     // Properties
     //-------------------------------------------------------------------------
@@ -145,6 +191,38 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
 
     public void setMinimumInstances(Integer minimumInstances) {
         this.minimumInstances = minimumInstances;
+    }
+
+    public ChildScalingRequirements getChildScalingRequirements() {
+        return childScalingRequirements;
+    }
+
+    public void setChildScalingRequirements(ChildScalingRequirements childScalingRequirements) {
+        this.childScalingRequirements = childScalingRequirements;
+    }
+
+    public SshScalingRequirements getSshScalingRequirements() {
+        return sshScalingRequirements;
+    }
+
+    public void setSshScalingRequirements(SshScalingRequirements sshScalingRequirements) {
+        this.sshScalingRequirements = sshScalingRequirements;
+    }
+
+    public DockerScalingRequirements getDockerScalingRequirements() {
+        return dockerScalingRequirements;
+    }
+
+    public void setDockerScalingRequirements(DockerScalingRequirements dockerScalingRequirements) {
+        this.dockerScalingRequirements = dockerScalingRequirements;
+    }
+
+    public OpenShiftScalingRequirements getOpenShiftScalingRequirements() {
+        return openShiftScalingRequirements;
+    }
+
+    public void setOpenShiftScalingRequirements(OpenShiftScalingRequirements openShiftScalingRequirements) {
+        this.openShiftScalingRequirements = openShiftScalingRequirements;
     }
 
     /**

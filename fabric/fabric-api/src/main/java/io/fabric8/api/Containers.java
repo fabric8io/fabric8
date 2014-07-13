@@ -242,4 +242,19 @@ public class Containers {
         profile.setParents(parents);
     }
 
+    /**
+     * Returns a list of all the root container ids
+     */
+    public static List<String> rootContainerIds(Container[] containers) {
+        List<String> answer = new ArrayList<String>();
+        for (Container container : containers) {
+            if (container.isRoot()) {
+                String id = container.getId();
+                if (!answer.contains(id)) {
+                    answer.add(id);
+                }
+            }
+        }
+        return answer;
+    }
 }
