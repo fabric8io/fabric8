@@ -85,9 +85,9 @@ public class VersionInfoAction extends AbstractAction {
         } else {
             for (int i = 0; i < profiles.length; i++) {
                 if (i == 0) {
-                    System.out.println(String.format(FORMAT, "Profiles (" + profiles.length + "):", profiles[i].toString()));
+                    System.out.println(String.format(FORMAT, "Profiles (" + profiles.length + "):", profiles[i].getId()));
                 } else {
-                    System.out.println(String.format(FORMAT, "", profiles[i].toString()));
+                    System.out.println(String.format(FORMAT, "", profiles[i].getId()));
                 }
             }
         }
