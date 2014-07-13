@@ -18,7 +18,6 @@ package io.fabric8.agent.commands;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
-import io.fabric8.boot.commands.support.ProfileCompleter;
 import io.fabric8.boot.commands.support.VersionCompleter;
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
@@ -46,8 +45,6 @@ public class ProfileExport extends AbstractCommandComponent {
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     // Completers
-    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
-    private ProfileCompleter profileCompleter; // dummy field
     @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
     private VersionCompleter versionCompleter; // dummy field
 
@@ -73,14 +70,6 @@ public class ProfileExport extends AbstractCommandComponent {
 
     void unbindFabricService(FabricService fabricService) {
         this.fabricService.unbind(fabricService);
-    }
-
-    void bindProfileCompleter(ProfileCompleter completer) {
-        bindOptionalCompleter(completer);
-    }
-
-    void unbindProfileCompleter(ProfileCompleter completer) {
-        unbindOptionalCompleter(completer);
     }
 
     void bindVersionCompleter(VersionCompleter completer) {

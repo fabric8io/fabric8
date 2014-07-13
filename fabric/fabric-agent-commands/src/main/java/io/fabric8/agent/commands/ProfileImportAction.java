@@ -17,7 +17,6 @@ package io.fabric8.agent.commands;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Version;
-import io.fabric8.api.scr.support.Strings;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
@@ -32,9 +31,6 @@ public class ProfileImportAction extends AbstractAction {
     @Option(name = "--version", description = "The profile version to import the profiles into. Defaults to the current default version if none specified.")
     private String version;
 
-    @Option(name = "-n", aliases = "--new", description = "Forces a new version to be created if no version option is specified")
-    private boolean newVersion;
-
     @Argument(index = 0, required = true, multiValued = true, name = "profileUrls", description = "The URLs for one or more profile ZIP files to install; usually of the form mvn:groupId/artifactId/version/zip/profile")
     @CompleterValues(index = 0)
     private List<String> profileUrls;
@@ -47,15 +43,10 @@ public class ProfileImportAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        if (Strings.isNullOrBlank(version)) {
-            if (newVersion) {
-                // TODO create a new version
-            }
-        }
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
         if (ver == null) {
             if (version != null) {
-                System.out.println("version " + version + " does not exist!");
+                System.out.println("Version " + version + " does not exist!");
             } else {
                 System.out.println("No default version available!");
             }
@@ -63,6 +54,8 @@ public class ProfileImportAction extends AbstractAction {
         }
 
         fabricService.getDataStore().importProfiles(ver.getId(), profileUrls);
+        System.out.println("Imported profiles into version " + ver.getId());
+
         return null;
     }
 }
