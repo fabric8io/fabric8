@@ -15,6 +15,10 @@
  */
 package io.fabric8.commands;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.RuntimeProperties;
@@ -48,35 +52,45 @@ public class VersionInfoAction extends AbstractAction {
         }
         Version version = fabricService.getVersion(versionName);
         String description = version.getAttributes().get(Version.DESCRIPTION);
-
-        StringBuilder sbContainers = new StringBuilder("");
-        for (String c : fabricService.getDataStore().getContainers()) {
-            if (version.getId().equals(fabricService.getContainer(c).getVersion().getId())) {
-                sbContainers.append(c);
-                sbContainers.append(", ");
-            }
-        }
-        String containers = sbContainers.toString();
-        if (containers.endsWith(", ")) {
-            containers = containers.substring(0, containers.lastIndexOf(", "));
-        }
-
+        String derivedFrom = version.getDerivedFrom() != null ? version.getDerivedFrom().getId() : null;
         boolean defaultVersion = version.getId().equals(fabricService.getDefaultVersion().getId());
-
         Profile[] profiles = CommandUtils.sortProfiles(version.getProfiles());
-        StringBuilder sbProfiles = new StringBuilder("");
-        for (int i = 0; i < profiles.length; i++) {
-            if (i != 0) {
-                sbProfiles.append(", ");
+
+        List<Container> containerList = new ArrayList<Container>();
+        for (String c : fabricService.getDataStore().getContainers()) {
+            Container container = fabricService.getContainer(c);
+            if (version.getId().equals(container.getVersion().getId())) {
+                containerList.add(container);
             }
-            sbProfiles.append(profiles[i].getId());
         }
+        Container[] containers = CommandUtils.sortContainers(containerList.toArray(new io.fabric8.api.Container[containerList.size()]));
 
         System.out.println(String.format(FORMAT, "Name:", version.getId()));
         System.out.println(String.format(FORMAT, "Description:", (description != null ? description : "")));
+        System.out.println(String.format(FORMAT, "Derived From:", (derivedFrom) != null ? derivedFrom : ""));
         System.out.println(String.format(FORMAT, "Default Version:", defaultVersion));
-        System.out.println(String.format(FORMAT, "Containers:", containers));
-        System.out.println(String.format(FORMAT, "Profiles:", sbProfiles.toString()));
+        if (containers.length == 0) {
+            System.out.println(String.format(FORMAT, "Containers:", ""));
+        } else {
+            for (int i = 0; i < containers.length; i++) {
+                if (i == 0) {
+                    System.out.println(String.format(FORMAT, "Containers (" + containers.length + "):", containers[i].getId()));
+                } else {
+                    System.out.println(String.format(FORMAT, "", containers[i].getId()));
+                }
+            }
+        }
+        if (profiles.length == 0) {
+            System.out.println(String.format(FORMAT, "Profiles:", ""));
+        } else {
+            for (int i = 0; i < profiles.length; i++) {
+                if (i == 0) {
+                    System.out.println(String.format(FORMAT, "Profiles (" + profiles.length + "):", profiles[i].toString()));
+                } else {
+                    System.out.println(String.format(FORMAT, "", profiles[i].toString()));
+                }
+            }
+        }
 
         return null;
     }
