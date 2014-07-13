@@ -54,7 +54,7 @@ The default API is at [http://localhost:8181/api/fabric8/](http://localhost:8181
 
 For example the following curl command line will post an example set of requirements:
 
-    curl -X POST -H "Content-type: application/json" -d '{"profileRequirements":[{"profile":"mq-default","minimumInstances":1,"maximumInstances":5},{"profile":"quickstarts-karaf-camel-amq","minimumInstances":1,"dependentProfiles":["mq-default"]}],"version":"1.0"}' http://localhost:8181/api/fabric8/requirements
+    curl -X POST -H "Content-type: application/json" -d '{"profileRequirements":[{"profile":"mq-default","minimumInstances":1,"maximumInstances":5},{"profile":"quickstarts-karaf-camel.amq","minimumInstances":1,"dependentProfiles":["mq-default"]}],"version":"1.0"}' http://localhost:8181/api/fabric8/requirements
 
 Then the REST endpoint to GET or POST the fabric requirements is something like [http://localhost:8181/api/fabric8/requirements](http://localhost:8181/api/fabric8/requirements).
 
