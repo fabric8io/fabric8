@@ -168,7 +168,9 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
 
     @Override
     public ContainerAutoScaler createAutoScaler() {
-        return new SshAutoScaler(this);
+        // TODO
+        //return new SshAutoScaler(this);
+        return null;
     }
 
     protected void runScriptOnHost(CreateSshContainerOptions options, String script) throws Exception {
