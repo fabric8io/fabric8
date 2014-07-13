@@ -83,9 +83,13 @@ You can specify a specific version to use:
 
     profile-import -v 1.1 mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR2/zip/profile
 
-Or force a new version to be created before importing it:
+Or if you want to import to a new version, you would need to create the new version first using `create-version`
 
-    profile-import -n mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR2/zip/profile
+    create-version 1.2
+
+and then import to new version with
+
+    profile-import -v 1.2 mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR2/zip/profile
 
 Once the profiles are imported you should be able to use them from the command line; or you should be able to view them in the Wiki in the web console and create containers or migrate them etc.
 
