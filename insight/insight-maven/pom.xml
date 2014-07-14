@@ -188,7 +188,7 @@
                         <!--<exclude>**/AetherTest.*</exclude>-->
                         <!--<exclude>**/AetherPomTest.*</exclude>-->
                         <!--<exclude>**/CompareTest.*</exclude>-->
-                        <!--<exclude>**/ProjectResolveTest.*</exclude>-->
+                        <exclude>**/ProjectResolveTest.*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
