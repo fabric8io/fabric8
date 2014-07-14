@@ -1,3 +1,12 @@
+### 1.1.0.CR3
+
+* New top level Profiles tab in the web console makes it nice and easy to view and search all profiles; filtering by text or tag with nice icons and summary text coming from icon.(svg,png,jpg) and Summary.md files in the wiki
+* First spike of Fabric DNS support
+* [AutoScaler](http://fabric8.io/gitbook/requirements.html) can now properly recreate  [Java Container](http://fabric8.io/gitbook/javaContainer.html) and [Process Container](http://fabric8.io/gitbook/processContainer.html) instances if the process is explicitly killed
+* The feature name for the [amq: endpoint](http://fabric8.io/gitbook/camelEndpointAmq.html), mq-fabric-camel has been renamed to camel-amq which is more usual name for camel feature names
+* Deploying WARs to Tomcat, TomEE, Jetty or WildFly can now have their context path configured via the [webContextPath](http://fabric8.io/gitbook/mavenPlugin.html#property-reference) property in the maven plugin or in the [io.fabric8.web.contextPath.properties file](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/drools/execution.server.profile/io.fabric8.web.contextPath.properties#L2-2) in a profile
+* Fixes [these 132 issues and enhancements](https://github.com/fabric8io/fabric8/issues?milestone=10&page=1&state=closed)
+
 ### 1.1.0.CR2
 
 * Renamed CLI command `fabric:profile-download` to `fabric:profile-download-artifacts`
