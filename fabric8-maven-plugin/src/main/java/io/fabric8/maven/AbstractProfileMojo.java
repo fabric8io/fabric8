@@ -18,7 +18,6 @@ package io.fabric8.maven;
 import java.io.Console;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
@@ -27,8 +26,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,7 +35,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -54,29 +50,20 @@ import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.artifact.handler.ArtifactHandler;
-import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.apache.maven.artifact.metadata.ArtifactMetadata;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.metadata.RepositoryMetadataStoreException;
 import org.apache.maven.artifact.resolver.ArtifactCollector;
 import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
-import org.apache.maven.artifact.versioning.ArtifactVersion;
-import org.apache.maven.artifact.versioning.OverConstrainedVersionException;
-import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.legacy.metadata.AbstractArtifactMetadata;
 import org.apache.maven.shared.dependency.tree.DependencyNode;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
@@ -734,6 +721,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
 
         // we may want to include readme files for pom projects
         if (includeReadMe) {
+
+            Map<String, File> pomNames = new HashMap<String, File>();
+
             for (MavenProject pomProjects : pomZipProjects) {
                 File src = pomProjects.getFile().getParentFile();
 
@@ -747,7 +737,35 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 relativePath = pathToProfilePath(relativePath);
 
                 File outDir = new File(projectBuildDir, relativePath);
-                copyReadMe(src, outDir);
+                File copiedFile = copyReadMe(src, outDir);
+
+                if (copiedFile != null) {
+                    System.out.println("*** " + copiedFile);
+                    System.out.println("    " + relativePath);
+                    String key = getReadMeFileKey(relativePath);
+                    System.out.println("    " + key);
+                    pomNames.put(key, copiedFile);
+                }
+            }
+
+            // now parse each readme file and replace github links
+            for (Map.Entry<String, File> entry : pomNames.entrySet()) {
+                File file = entry.getValue();
+
+                boolean changed = false;
+                List<String> lines = Files.readLines(file);
+                for (int i = 0; i < lines.size(); i++) {
+                    String line = lines.get(i);
+                    String newLine = replaceGithubLinks(pomNames.keySet(), line);
+                    if (newLine != null) {
+                        lines.set(i, newLine);
+                        changed = true;
+                    }
+                }
+                if (changed) {
+                    Files.writeLines(file, lines);
+                    System.out.println("*** updated file " + file);
+                }
             }
         }
 
@@ -764,7 +782,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         return path.replace('-', '.');
     }
 
-    protected static void copyReadMe(File src, File profileBuildDir) throws IOException {
+    protected static File copyReadMe(File src, File profileBuildDir) throws IOException {
         File[] files = src.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
@@ -775,6 +793,75 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             File readme = files[0];
             File outFile = new File(profileBuildDir, readme.getName());
             Files.copy(readme, outFile);
+            return outFile;
+        }
+
+        return null;
+    }
+
+    private String getReadMeFileKey(String relativePath) {
+        String answer = relativePath;
+
+        if (Strings.isNullOrBlank(answer)) {
+            return "<root>";
+        }
+
+        // remove leading path which can be either unix or windows style
+        int pos = relativePath.indexOf('/');
+        int pos2 = relativePath.indexOf('\\');
+        if (pos > 0 && pos2 > 0) {
+            pos = Math.max(pos, pos2);
+        } else if (pos2 > 0) {
+            pos = pos2;
+        }
+        if (pos > -1) {
+            answer = relativePath.substring(pos);
+        }
+
+        // and remove any leading path separators
+        answer = Files.stripLeadingSeparator(answer);
+
+        if (Strings.isNullOrBlank(answer)) {
+            answer = "<root>";
+        }
+        return answer;
+    }
+
+    public static void main(String[] args) {
+        String s = "* [beginner](/fabric/profiles/quickstarts/karaf/beginner) - a set of beginner quickstarts that new users to fabric, is recommended to try first.";
+        String s2 = "* [beginner](/fabric/profiles/quickstarts/karaf/beginner) - a set of beginner quickstarts * [beginner](/fabric/profiles/quickstarts/karaf/beginner) that new users to fabric, is recommended to try first.";
+        String t = replaceGithubLinks(null, s2);
+        System.out.println(t);
+    }
+
+    public static String replaceGithubLinks(Set<String> names, String line) {
+        boolean changed = false;
+        Pattern pattern = Pattern.compile("\\[(.*)\\]\\((.*)\\)");
+        Matcher matcher = pattern.matcher(line);
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            String s2 = matcher.group(2);
+            if (s2.startsWith("http:") || s2.startsWith("https:")) {
+                // leave it as-is
+                matcher.appendReplacement(sb, "[$1]($2)");
+            } else {
+                if (names.contains(s2)) {
+                    // its a directory
+                    String prefix = "/fabric/profiles/quickstarts/";
+                    matcher.appendReplacement(sb, "[$1](" + prefix + "$2)");
+                } else {
+                    // its a profile
+                    String prefix = "/fabric/profiles/quickstarts/";
+                    matcher.appendReplacement(sb, "[$1](" + prefix + "$2.profile)");
+                }
+                changed = true;
+            }
+        }
+        matcher.appendTail(sb);
+        if (changed) {
+            return sb.toString();
+        } else {
+            return null;
         }
     }
 
