@@ -128,7 +128,13 @@ public final class ContainerProviderUtils {
             sb.append("install_telnet").append("\n");
         }
         sb.append("validate_requirements").append("\n");
-        extractZipIntoDirectory(sb, options.getProxyUri(), "io.fabric8", "fabric8-karaf", FabricConstants.FABRIC_VERSION);
+        List<String> fallbackRepositories = new ArrayList<String>();
+        List<String> optionsRepos = options.getFallbackRepositories();
+        if (optionsRepos != null) {
+            fallbackRepositories.addAll(optionsRepos);
+        }
+        fallbackRepositories.addAll(Arrays.asList(FALLBACK_REPOS));
+        extractZipIntoDirectory(sb, options.getProxyUri(), "io.fabric8", "fabric8-karaf", FabricConstants.FABRIC_VERSION, fallbackRepositories);
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         sb.append("run chmod +x bin/*").append("\n");
         List<String> lines = new ArrayList<String>();
@@ -353,7 +359,7 @@ public final class ContainerProviderUtils {
         sb.append(marker).append("\n");
     }
 
-    private static void extractZipIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version) throws URISyntaxException {
+    private static void extractZipIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version, Iterable<String> fallbackRepos) throws URISyntaxException {
         String file = artifactId + "-" + version + ".zip";
         //TODO: There may be cases where this is not good enough
         if (proxy != null) {
@@ -367,7 +373,7 @@ public final class ContainerProviderUtils {
                     .append("zip").append("\n");
         }
 
-        for (String fallbackRepo : FALLBACK_REPOS) {
+        for (String fallbackRepo : fallbackRepos) {
             sb.append("if [ ! -f " + file + " ] ; then ").append("maven_download ").append(fallbackRepo).append(" ")
                     .append(groupId).append(" ")
                     .append(artifactId).append(" ")

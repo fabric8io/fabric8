@@ -33,7 +33,7 @@ import java.util.Map;
 public class FabricRequirements {
     private List<ProfileRequirements> profileRequirements = new ArrayList<ProfileRequirements>();
     private String version;
-    private SshHostsConfiguration sshConfiguration;
+    private SshConfiguration sshConfiguration;
 
     public FabricRequirements() {
     }
@@ -71,11 +71,11 @@ public class FabricRequirements {
         this.version = version;
     }
 
-    public SshHostsConfiguration getSshConfiguration() {
+    public SshConfiguration getSshConfiguration() {
         return sshConfiguration;
     }
 
-    public void setSshConfiguration(SshHostsConfiguration sshConfiguration) {
+    public void setSshConfiguration(SshConfiguration sshConfiguration) {
         this.sshConfiguration = sshConfiguration;
     }
 
@@ -161,9 +161,9 @@ public class FabricRequirements {
      * The host name will be defaulted to the same hostAlias value for cases when the alias is the same as the actual host name
      */
     public SshHostConfiguration sshHost(String hostAlias) {
-        SshHostsConfiguration config = getSshConfiguration();
+        SshConfiguration config = getSshConfiguration();
         if (config == null) {
-            config = new SshHostsConfiguration();
+            config = new SshConfiguration();
             setSshConfiguration(config);
         }
         Map<String, SshHostConfiguration> hosts = config.getHosts();
@@ -189,10 +189,10 @@ public class FabricRequirements {
     /**
      * Returns the ssh configuration; lazily creating one if it does not exist yet
      */
-    public SshHostsConfiguration sshConfiguration() {
-        SshHostsConfiguration answer = getSshConfiguration();
+    public SshConfiguration sshConfiguration() {
+        SshConfiguration answer = getSshConfiguration();
         if (answer == null) {
-            answer = new SshHostsConfiguration();
+            answer = new SshConfiguration();
             setSshConfiguration(answer);
         }
         return answer;

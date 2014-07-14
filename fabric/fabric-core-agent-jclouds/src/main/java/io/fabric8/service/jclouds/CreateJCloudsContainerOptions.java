@@ -80,19 +80,21 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
 
     @JsonProperty
     private final Map<String, String> environmentalVariables; // keep immutable
+    @JsonProperty
+    private final List<String> fallbackRepositories;
 
     CreateJCloudsContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp,
-                                         int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort,
-                                         String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled,
-                                         String importPath, Map<String, String> users, String name, String parent,
-                                         String providerType, boolean ensembleServer, String preferredAddress,
-                                         Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl,
-                                         String jvmOpts, boolean adminAccess, boolean clean,
-                                         String osFamily, String osVersion, String imageId,
-                                         String hardwareId, String locationId, String group, String user, String password,
-                                         String contextName, String providerName, String apiName, String endpoint,
-                                         JCloudsInstanceType instanceType, String identity, String credential, String owner, Map<String, String> serviceOptions, Map<String, String> nodeOptions, int servicePort, String publicKeyFile,
-                                         ComputeService computeService, String path, Map<String, String> environmentalVariables) {
+                                  int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort,
+                                  String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled,
+                                  String importPath, Map<String, String> users, String name, String parent,
+                                  String providerType, boolean ensembleServer, String preferredAddress,
+                                  Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl,
+                                  String jvmOpts, boolean adminAccess, boolean clean,
+                                  String osFamily, String osVersion, String imageId,
+                                  String hardwareId, String locationId, String group, String user, String password,
+                                  String contextName, String providerName, String apiName, String endpoint,
+                                  JCloudsInstanceType instanceType, String identity, String credential, String owner, Map<String, String> serviceOptions, Map<String, String> nodeOptions, int servicePort, String publicKeyFile,
+                                  ComputeService computeService, String path, Map<String, String> environmentalVariables, List<String> fallbackRepositories) {
 
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort,
                 zookeeperPassword,ensembleStart, agentEnabled,false, 0, autoImportEnabled, importPath, users, name, parent, providerType,
@@ -120,6 +122,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         this.publicKeyFile = publicKeyFile;
         this.computeService = computeService;
         this.path = path;
+        this.fallbackRepositories = fallbackRepositories;
         this.environmentalVariables = Collections.unmodifiableMap(new HashMap<String, String>(environmentalVariables));
     }
 
@@ -132,7 +135,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                 osFamily, osVersion, imageId, hardwareId, locationId,
                 group, newUser != null ? newUser : user, newPassword != null ? newPassword : password,
                 contextName, providerName, apiName, endpoint, instanceType, identity, credential,
-                owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables);
+                owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables, fallbackRepositories);
     }
 
     CreateJCloudsContainerOptions updateComputeService(ComputeService computeService) {
@@ -142,7 +145,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                 getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(),
                 osFamily, osVersion, imageId, hardwareId, locationId,
                 group, user, password, contextName, providerName, apiName, endpoint, instanceType, identity, credential,
-                owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables);
+                owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables, fallbackRepositories);
     }
 
 
@@ -247,6 +250,9 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         return computeService;
     }
 
+    public List<String> getFallbackRepositories() {
+        return fallbackRepositories;
+    }
 
     public CreateJCloudsContainerOptions clone() throws CloneNotSupportedException {
         return (CreateJCloudsContainerOptions) super.clone();
@@ -311,6 +317,8 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         private String path = "~/containers/";
         @JsonProperty
         private Map<String, String> environmentalVariables = new HashMap<String, String>();
+        @JsonProperty
+        private List<String> fallbackRepositories = new ArrayList<String>();
 
 
         public Builder osVersion(final String osVersion) {
@@ -476,6 +484,11 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
             return this;
         }
 
+        public Builder fallbackRepositories(final List<String> fallbackRepositories) {
+            this.fallbackRepositories = fallbackRepositories;
+            return this;
+        }
+
         public void setComputeService(ComputeService computeService) {
             this.computeService = computeService;
         }
@@ -572,6 +585,14 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
             this.environmentalVariables = environmentalVariables;
         }
 
+        public List<String> getFallbackRepositories() {
+            return fallbackRepositories;
+        }
+
+        public void setFallbackRepositories(List<String> fallbackRepositories) {
+            this.fallbackRepositories = fallbackRepositories;
+        }
+
         public CreateJCloudsContainerOptions build() {
             return new CreateJCloudsContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                     getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isAutoImportEnabled(),
@@ -579,7 +600,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                     getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(),
                     osFamily, osVersion, imageId, hardwareId, locationId,
                     group, user, password, contextName, providerName, apiName, endpoint, instanceType, identity, credential,
-                    owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables);
+                    owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables, fallbackRepositories);
         }
     }
 }

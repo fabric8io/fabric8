@@ -35,7 +35,6 @@ import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.SshHostConfiguration;
-import io.fabric8.api.SshHostsConfiguration;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;

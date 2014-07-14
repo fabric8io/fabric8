@@ -15,6 +15,7 @@
  */
 package io.fabric8.api;
 
+import java.util.List;
 import java.util.Map;
 
 public interface CreateRemoteContainerOptions extends CreateContainerOptions {
@@ -23,4 +24,5 @@ public interface CreateRemoteContainerOptions extends CreateContainerOptions {
     Map<String, String> getUsers();
     Map<String, String> getEnvironmentalVariables();
     Map<String, String> getDataStoreProperties();
+    List<String> getFallbackRepositories();
 }

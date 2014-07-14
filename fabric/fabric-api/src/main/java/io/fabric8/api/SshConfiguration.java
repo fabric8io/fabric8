@@ -19,19 +19,22 @@ package io.fabric8.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Represents the host configurations used when the autoscaler creates containers via ssh
+ * Represents the configuration used when the autoscaler creates containers via ssh
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SshHostsConfiguration {
+public class SshConfiguration {
     private Map<String,SshHostConfiguration> hosts = new HashMap<String,SshHostConfiguration>();
     private String defaultPath;
     private Integer defaultPort;
     private String defaultUsername;
     private String defaultPassword;
+    private List<String> fallbackRepositories;
 
     public Map<String, SshHostConfiguration> getHosts() {
         return hosts;
@@ -40,24 +43,33 @@ public class SshHostsConfiguration {
 
     // Fluid API to make configuration easier
     //-------------------------------------------------------------------------
-    public SshHostsConfiguration defaultPort(Integer defaultPort) {
+    public SshConfiguration defaultPort(Integer defaultPort) {
         setDefaultPort(defaultPort);
         return this;
     }
 
-    public SshHostsConfiguration defaultPath(String defaultPath) {
+    public SshConfiguration defaultPath(String defaultPath) {
         setDefaultPath(defaultPath);
         return this;
     }
 
-    public SshHostsConfiguration defaultUsername(final String defaultUsername) {
+    public SshConfiguration defaultUsername(final String defaultUsername) {
         this.defaultUsername = defaultUsername;
         return this;
     }
 
-    public SshHostsConfiguration defaultPassword(final String defaultPassword) {
+    public SshConfiguration defaultPassword(final String defaultPassword) {
         this.defaultPassword = defaultPassword;
         return this;
+    }
+
+    public SshConfiguration fallbackRepositories(final List<String> fallbackRepositories) {
+        this.fallbackRepositories = fallbackRepositories;
+        return this;
+    }
+
+    public SshConfiguration fallbackRepositories(final String... fallbackRepositories) {
+        return fallbackRepositories(Arrays.asList(fallbackRepositories));
     }
 
     // Properties
@@ -97,5 +109,13 @@ public class SshHostsConfiguration {
 
     public void setDefaultPassword(String defaultPassword) {
         this.defaultPassword = defaultPassword;
+    }
+
+    public List<String> getFallbackRepositories() {
+        return fallbackRepositories;
+    }
+
+    public void setFallbackRepositories(List<String> fallbackRepositories) {
+        this.fallbackRepositories = fallbackRepositories;
     }
 }
