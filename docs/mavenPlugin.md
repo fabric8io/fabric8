@@ -340,6 +340,10 @@ Or specify the command line:
 <td>webContextPath</td>
 <td>For web applications (projects with *war* packaging) this property specifies the context path to use for the web application; such as "/" or "/myapp". This value defaults to the archetype id.</td>
 </tr>
+<tr>
+<td>replaceReadmeLinksPrefix</td>
+<td>Used by the `zip` goal, which allows to prefix any links in the `readme.md` files to make the links work in both github and as links in the fabric wiki. For example the fabric quickstarts uses this, by prefixing with `/fabric/profiles/quickstarts/`.</td>
+</tr>
 </table>
 
 ### Generating Karaf shell scripts for each profile
