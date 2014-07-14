@@ -852,11 +852,17 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 if (names.contains(s2) || names.contains(relativePath + s2) || names.contains(relativePath + "/" + s2)) {
                     // need to ensure path is profile friendly
                     s2 = pathToProfilePath(s2);
+                    if (relativePath != null && !"<root>".equals(relativePath)) {
+                        s2 = addToPath(relativePath, s2);
+                    }
                     // its a directory
                     matcher.appendReplacement(sb, "[$1](" + replaceReadmeLinksPrefix + s2 + ")");
                 } else {
                     // need to ensure path is profile friendly
                     s2 = pathToProfilePath(s2);
+                    if (relativePath != null && !"<root>".equals(relativePath)) {
+                        s2 = addToPath(relativePath, s2);
+                    }
                     // its a profile
                     matcher.appendReplacement(sb, "[$1](" + replaceReadmeLinksPrefix + s2 + ".profile)");
                 }
@@ -868,6 +874,14 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             return sb.toString();
         } else {
             return null;
+        }
+    }
+
+    private static String addToPath(String path, String add) {
+        if (add.startsWith("/") || path.endsWith("/")) {
+            return path + add;
+        } else {
+            return path + "/" + add;
         }
     }
 
