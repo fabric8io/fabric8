@@ -89,7 +89,7 @@
             </execution>
           </executions>
           <configuration>
-            <githubLinks>true</githubLinks>
+            <replaceReadmeLinksPrefix>/fabric/profiles/quickstarts/</replaceReadmeLinksPrefix>
           </configuration>
         </plugin>
       </plugins>
