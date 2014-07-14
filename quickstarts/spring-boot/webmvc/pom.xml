@@ -22,14 +22,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>io.fabric8</groupId>
-    <artifactId>process-spring-boot-bom</artifactId>
+    <groupId>io.fabric8.quickstarts</groupId>
+    <artifactId>fabric8-quickstarts-springboot-parent</artifactId>
     <version>1.1.0-SNAPSHOT</version>
-    <relativePath>../../../process/process-spring-boot/process-spring-boot-bom</relativePath>
   </parent>
 
-  <groupId>io.fabric8.quickstarts</groupId>
-  <version>1.1.0-SNAPSHOT</version>
   <artifactId>springboot-webmvc</artifactId>
 
   <name>Fabric8 :: Quickstarts :: Spring-Boot :: WebMVC</name>
@@ -45,12 +42,16 @@
     <version.compiler.plugin>2.3.1</version.compiler.plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
 
+    <!-- the version of the BOM, defining all the dependency versions -->
+    <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
+    <fabric.version>1.1.0-SNAPSHOT</fabric.version>
+
+    <spring-version>4.0.5.RELEASE</spring-version>
+    <spring-boot-version>1.1.1.RELEASE</spring-boot-version>
+
     <!-- maven-compiler-plugin -->
     <maven.compiler.target>1.7</maven.compiler.target>
     <maven.compiler.source>1.7</maven.compiler.source>
-
-    <!-- Fabric8 version -->
-    <fabric.version>1.1.0-SNAPSHOT</fabric.version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-spring.boot-webmvc</fabric8.profile>
@@ -70,7 +71,16 @@
     </dependencyManagement>
 
   <dependencies>
-        <!-- Fabric8 -->
+        <!-- BOMs -->
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-parent</artifactId>
+          <version>${spring-boot-version}</version>
+          <type>pom</type>
+          <scope>import</scope>
+        </dependency>
+
+          <!-- Fabric8 -->
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>process-spring-boot-container</artifactId>
