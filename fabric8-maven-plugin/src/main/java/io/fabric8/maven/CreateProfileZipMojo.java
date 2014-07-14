@@ -337,7 +337,10 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                 writeProfileRequirements(requirements, profileBuildDir);
             }
             generateFabricAgentProperties(requirements, new File(profileBuildDir, "io.fabric8.agent.properties"));
-            generateFabricContextPathProperties(requirements, new File(profileBuildDir, ChildConstants.WEB_CONTEXT_PATHS_PID + ".properties"));
+            // only generate if its a WAR project
+            if ("war".equals(project.getPackaging())) {
+                generateFabricContextPathProperties(requirements, new File(profileBuildDir, ChildConstants.WEB_CONTEXT_PATHS_PID + ".properties"));
+            }
 
             Zips.createZipFile(getLog(), buildDir, outputFile);
 
