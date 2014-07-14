@@ -22,8 +22,10 @@ import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.EnvironmentVariables;
+import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -633,7 +635,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     }
 
     @Override
-    public ContainerAutoScaler createAutoScaler() {
+    public ContainerAutoScaler createAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
         return new DockerAutoScaler(this);
     }
 

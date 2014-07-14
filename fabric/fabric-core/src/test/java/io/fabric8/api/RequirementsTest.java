@@ -27,11 +27,12 @@ import static junit.framework.Assert.assertEquals;
 /**
  */
 public class RequirementsTest {
+    String mqProfileId = "mq-default";
+    String exampleProfileId = "quickstarts-karaf-camel-amq";
+
     @Test
     public void saveAndLoad() throws Exception {
         List<ProfileRequirements> profiles = new ArrayList<ProfileRequirements>();
-        String mqProfileId = "mq-default";
-        String exampleProfileId = "quickstarts-karaf-camel-amq";
         ProfileRequirements dummy = new ProfileRequirements("dummy", 1, null, mqProfileId);
         profiles.add(dummy);
         profiles.add(new ProfileRequirements(mqProfileId, 1, 5));
@@ -68,6 +69,21 @@ public class RequirementsTest {
         assertEquals("maximumInstances", null, profileCamel.getMaximumInstances());
         assertEquals("profiles", new ArrayList<String>(Arrays.asList(mqProfileId)), profileCamel.getDependentProfiles());
     }
+
+    @Test
+    public void sshRequirements() throws Exception {
+        FabricRequirements requirements = new FabricRequirements();
+        requirements.sshConfiguration().defaultPath("/opt/fuse").defaultUsername("root").defaultPassword("adminuser");
+        requirements.sshHost("foo").hostName("foo.cheese.com").path("/opt/thingy");
+        requirements.sshHost("bar").hostName("bar.cheese.com").path("/opt/another");
+        requirements.sshHost("another").hostName("another.cheese.com").username("foo").password("bar");
+        requirements.profile(mqProfileId).minimumInstances(1).sshScaling().hostPatterns("foo");
+        requirements.profile(exampleProfileId).minimumInstances(1).dependentProfiles(mqProfileId).sshScaling().hostPatterns("!foo*");
+
+        System.out.println("SSH JSON:");
+        System.out.println(RequirementsJson.toJSON(requirements));
+    }
+
 
     @Test
     public void healthNumbers() throws Exception {

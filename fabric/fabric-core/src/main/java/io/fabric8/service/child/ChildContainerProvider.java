@@ -26,9 +26,11 @@ import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.DataStore;
+import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.PortService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
@@ -135,7 +137,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     }
 
     @Override
-    public ContainerAutoScaler createAutoScaler() {
+    public ContainerAutoScaler createAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
         assertValid();
         return new ChildAutoScaler(this);
     }

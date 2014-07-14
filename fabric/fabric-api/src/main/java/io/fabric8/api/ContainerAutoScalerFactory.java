@@ -24,6 +24,8 @@ public interface ContainerAutoScalerFactory {
     /**
      * Returns a newly created {@link io.fabric8.api.ContainerAutoScaler} or null
      * if there is insufficient configuration information available to create an auto-scaler
+     * @param requirements
+     * @param profileRequirements
      */
-    ContainerAutoScaler createAutoScaler();
+    ContainerAutoScaler createAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements);
 }

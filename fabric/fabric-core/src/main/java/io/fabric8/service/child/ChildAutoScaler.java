@@ -56,7 +56,7 @@ public class ChildAutoScaler implements ContainerAutoScaler {
         FabricService fabricService = request.getFabricService();
         CreateChildContainerOptions.Builder builder = null;
         if (fabricService != null) {
-            builder = createAuthoScaleOptions(request, fabricService);
+            builder = createAutoScaleOptions(request, fabricService);
         }
         if (builder != null) {
             Container[] containers = fabricService.getContainers();
@@ -75,7 +75,7 @@ public class ChildAutoScaler implements ContainerAutoScaler {
         }
     }
 
-    protected CreateChildContainerOptions.Builder createAuthoScaleOptions(AutoScaleRequest request, FabricService fabricService) {
+    protected CreateChildContainerOptions.Builder createAutoScaleOptions(AutoScaleRequest request, FabricService fabricService) {
         CreateChildContainerOptions.Builder builder = CreateChildContainerOptions.builder();
         Container[] containers = fabricService.getContainers();
         if (containers != null) {

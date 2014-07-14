@@ -19,7 +19,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.CreateRemoteContainerOptions;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.SshHostConfiguration;
+import io.fabric8.api.SshHostsConfiguration;
 import io.fabric8.api.jcip.NotThreadSafe;
+import io.fabric8.common.util.Strings;
 
 import java.io.File;
 import java.net.URI;
@@ -42,6 +47,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     static final int DEFAULT_SSH_RETRIES = 1;
     static final int DEFAULT_SSH_PORT = 22;
+    public static final String DEFAULT_PATH = "~/containers/";
 
     @JsonProperty
     private final String username;
@@ -163,7 +169,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         @JsonProperty
         private String passPhrase;
         @JsonProperty
-        private String path = "~/containers/";
+        private String path = DEFAULT_PATH;
         @JsonProperty
         private Map<String, String> environmentalVariables = new HashMap<String, String>();
 
@@ -323,6 +329,56 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
                     getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isAutoImportEnabled(),
                     getImportPath(), getUsers(), getName(), getParent(), "ssh", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
                     getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), false, username, password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
+        }
+
+        /**
+         * Configures the builder from the requirements and chosen host configuration
+         */
+        public void configure(SshHostConfiguration sshHostConfig, FabricRequirements requirements, ProfileRequirements profileRequirements, String containerName) {
+            SshHostsConfiguration sshHosts = requirements.getSshConfiguration();
+            host = sshHostConfig.getHostName();
+            if (Strings.isNullOrBlank(host)) {
+                throw new IllegalArgumentException("Missing host property in the ssh configuration: " + sshHostConfig);
+            }
+            path = sshHostConfig.getPath();
+            if (Strings.isNullOrBlank(path)) {
+                if (sshHosts != null) {
+                    path = sshHosts.getDefaultPath();
+                }
+                if (Strings.isNullOrBlank(path)) {
+                    path = DEFAULT_PATH;
+                }
+            }
+            // TODO add container name?
+            //path += "/" + containerName;
+
+            Integer portValue = sshHostConfig.getPort();
+            if (portValue == null) {
+                if (sshHosts != null) {
+                    portValue = sshHosts.getDefaultPort();
+                }
+            }
+            port = portValue != null ? portValue : DEFAULT_SSH_PORT;
+
+            username = sshHostConfig.getUsername();
+            if (Strings.isNullOrBlank(username)) {
+                if (sshHosts != null) {
+                    username = sshHosts.getDefaultUsername();
+                }
+                if (Strings.isNullOrBlank(username)) {
+                    throw new IllegalArgumentException("Missing username property in the ssh configuration: " + sshHostConfig);
+                }
+            }
+
+            password = sshHostConfig.getPassword();
+            if (Strings.isNullOrBlank(password)) {
+                if (sshHosts != null) {
+                    password = sshHosts.getDefaultPassword();
+                }
+                if (Strings.isNullOrBlank(password)) {
+                    throw new IllegalArgumentException("Missing password property in the ssh configuration: " + sshHostConfig);
+                }
+            }
         }
     }
 }

@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Map;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
@@ -31,7 +32,10 @@ import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.FabricException;
-import io.fabric8.service.child.ChildAutoScaler;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.SshHostConfiguration;
+import io.fabric8.api.SshHostsConfiguration;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -167,9 +171,12 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
 
 
     @Override
-    public ContainerAutoScaler createAutoScaler() {
-        // TODO
-        //return new SshAutoScaler(this);
+    public ContainerAutoScaler createAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
+        // only create an auto-scaler if the requirements specify at least one ssh host configuration
+        Map<String, SshHostConfiguration> hosts = requirements.getSshHostsMap();
+        if (hosts != null && hosts.size() > 0) {
+            return new SshAutoScaler(this);
+        }
         return null;
     }
 

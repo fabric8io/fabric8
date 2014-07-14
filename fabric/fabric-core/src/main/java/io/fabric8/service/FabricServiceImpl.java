@@ -1149,14 +1149,14 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     @Override
-    public ContainerAutoScaler createContainerAutoScaler() {
+    public ContainerAutoScaler createContainerAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
         Collection<ContainerProvider> providerCollection = getProviders().values();
         for (ContainerProvider containerProvider : providerCollection) {
             // lets pick the highest weighted autoscaler (e.g. to prefer openshift to docker to child
             SortedMap<Integer, ContainerAutoScaler> sortedAutoScalers = new TreeMap<Integer, ContainerAutoScaler>();
             if (containerProvider instanceof ContainerAutoScalerFactory) {
                 ContainerAutoScalerFactory provider = (ContainerAutoScalerFactory) containerProvider;
-                ContainerAutoScaler autoScaler = provider.createAutoScaler();
+                ContainerAutoScaler autoScaler = provider.createAutoScaler(requirements, profileRequirements);
                 if (autoScaler != null) {
                     int weight = autoScaler.getWeight();
                     sortedAutoScalers.put(weight, autoScaler);

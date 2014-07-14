@@ -306,7 +306,9 @@ public interface FabricService {
      * using the available container providers to determine the best way to auto-scale;
      * or null if there are no suitable {@link ContainerPRovider} instances available
      * with the correct configuration to enable this capability.
+     * @param requirements
+     * @param profileRequirements
      */
-    ContainerAutoScaler createContainerAutoScaler();
+    ContainerAutoScaler createContainerAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements);
 
 }

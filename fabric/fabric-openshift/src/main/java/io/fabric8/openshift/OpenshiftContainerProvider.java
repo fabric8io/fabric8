@@ -27,6 +27,8 @@ import com.openshift.client.IGearProfile;
 import com.openshift.client.OpenShiftTimeoutException;
 
 import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.scr.Configurer;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -64,12 +66,9 @@ import com.openshift.client.cartridge.IEmbeddableCartridge;
 import com.openshift.client.cartridge.StandaloneCartridge;
 import com.openshift.internal.client.GearProfile;
 
-import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
 @ThreadSafe
@@ -376,7 +375,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     }
 
     @Override
-    public ContainerAutoScaler createAutoScaler() {
+    public ContainerAutoScaler createAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
         return new OpenShiftAutoScaler(this);
     }
 

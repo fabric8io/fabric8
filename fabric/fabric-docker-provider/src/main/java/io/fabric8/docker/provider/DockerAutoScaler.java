@@ -39,7 +39,7 @@ public class DockerAutoScaler implements ContainerAutoScaler {
 
     @Override
     public int getWeight() {
-        return 10;
+        return 80;
     }
 
     @Override

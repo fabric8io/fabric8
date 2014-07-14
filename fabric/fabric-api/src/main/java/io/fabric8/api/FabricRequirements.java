@@ -15,12 +15,15 @@
  */
 package io.fabric8.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Allows the requirements of a profile to be defined so that we can do automatic provisioning,
@@ -30,6 +33,7 @@ import java.util.List;
 public class FabricRequirements {
     private List<ProfileRequirements> profileRequirements = new ArrayList<ProfileRequirements>();
     private String version;
+    private SshHostsConfiguration sshConfiguration;
 
     public FabricRequirements() {
     }
@@ -65,6 +69,23 @@ public class FabricRequirements {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public SshHostsConfiguration getSshConfiguration() {
+        return sshConfiguration;
+    }
+
+    public void setSshConfiguration(SshHostsConfiguration sshConfiguration) {
+        this.sshConfiguration = sshConfiguration;
+    }
+
+    @JsonIgnore
+    public Map<String, SshHostConfiguration> getSshHostsMap() {
+        if (sshConfiguration != null) {
+            return sshConfiguration.getHosts();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -130,4 +151,50 @@ public class FabricRequirements {
         return false;
     }
 
+
+
+    // Fluid API to make constructing requirements easier
+    //-------------------------------------------------------------------------
+
+    /**
+     * Looks up and lazily creates if required a SSH host configuration for the given host alias.
+     * The host name will be defaulted to the same hostAlias value for cases when the alias is the same as the actual host name
+     */
+    public SshHostConfiguration sshHost(String hostAlias) {
+        SshHostsConfiguration config = getSshConfiguration();
+        if (config == null) {
+            config = new SshHostsConfiguration();
+            setSshConfiguration(config);
+        }
+        Map<String, SshHostConfiguration> hosts = config.getHosts();
+        if (hosts == null) {
+            hosts = new HashMap<String, SshHostConfiguration>();
+            config.setHosts(hosts);
+        }
+        SshHostConfiguration answer = hosts.get(hostAlias);
+        if (answer == null) {
+            answer = new SshHostConfiguration(hostAlias);
+            hosts.put(hostAlias, answer);
+        }
+        return answer;
+    }
+
+    /**
+     * Returns the requirements for the given profile; lazily creating requirements if none exist yet.
+     */
+    public ProfileRequirements profile(String profileId) {
+        return getOrCreateProfileRequirement(profileId);
+    }
+
+    /**
+     * Returns the ssh configuration; lazily creating one if it does not exist yet
+     */
+    public SshHostsConfiguration sshConfiguration() {
+        SshHostsConfiguration answer = getSshConfiguration();
+        if (answer == null) {
+            answer = new SshHostsConfiguration();
+            setSshConfiguration(answer);
+        }
+        return answer;
+    }
 }

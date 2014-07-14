@@ -397,7 +397,7 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
-    public ContainerAutoScaler createContainerAutoScaler() {
+    public ContainerAutoScaler createContainerAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
         throw new UnsupportedOperationException();
     }
 

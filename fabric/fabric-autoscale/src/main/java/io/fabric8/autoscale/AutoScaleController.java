@@ -64,9 +64,6 @@ public final class AutoScaleController extends AbstractComponent implements Grou
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = FabricService.class, bind = "bindFabricService", unbind = "unbindFabricService")
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
-    @Reference(referenceInterface = ContainerAutoScaler.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY,
-            bind = "bindContainerAutoScaler", unbind = "unbindContainerAutoScaler")
-    private final ValidatingReference<ContainerAutoScaler> containerAutoScaler = new ValidatingReference<ContainerAutoScaler>();
 
     @Property(name = "pollTime", longValue = 10000,
             label = "Poll period",
@@ -130,8 +127,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
                 } else {
                     LOGGER.info("Not valid with master: " + group.isMaster()
                             + " fabric: " + fabricService.get()
-                            + " curator: " + curator.get()
-                            + " containerAutoScaler: " + containerAutoScaler.get());
+                            + " curator: " + curator.get());
                 }
                 break;
             case DISCONNECTED:
@@ -167,37 +163,26 @@ public final class AutoScaleController extends AbstractComponent implements Grou
     }
 
     private void autoScale() {
-        ContainerAutoScaler autoScaler = getContainerAutoScaler();
-        if (autoScaler != null) {
-            FabricRequirements requirements = fabricService.get().getRequirements();
-            List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
-            for (ProfileRequirements profileRequirement : profileRequirements) {
+        FabricRequirements requirements = fabricService.get().getRequirements();
+        List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
+        for (ProfileRequirements profileRequirement : profileRequirements) {
+            ContainerAutoScaler autoScaler = createAutoScaler(requirements, profileRequirement);
+            if (autoScaler != null) {
                 autoScaleProfile(autoScaler, requirements, profileRequirement);
+            } else {
+                LOGGER.warn("No ContainerAutoScaler available for profile " + profileRequirement.getProfile());
             }
-        } else {
-            LOGGER.warn("No ContainerAutoScaler available");
         }
     }
 
-    private ContainerAutoScaler getContainerAutoScaler() {
-        ContainerAutoScaler answer = null;
-        if (containerAutoScaler != null) {
-            answer = containerAutoScaler.getOptional();
-            if (answer == null) {
-                // lets create one based on the current container providers
-                // FIXME impl call SCR method
-                FabricService service = fabricService.getOptional();
-                if (service != null) {
-                    answer = service.createContainerAutoScaler();
-                    containerAutoScaler.bind(answer);
-                    LOGGER.info("Creating auto scaler " + answer);
-                }
-            }
+    private ContainerAutoScaler createAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
+        FabricService service = fabricService.getOptional();
+        if (service != null) {
+            return service.createContainerAutoScaler(requirements, profileRequirements);
+        } else {
+            LOGGER.warn("No FabricService available so cannot autoscale");
+            return null;
         }
-        if (containerAutoScaler == null) {
-            LOGGER.warn("No containerAutoScaler injected or could be created");
-        }
-        return answer;
     }
 
     private void autoScaleProfile(ContainerAutoScaler autoScaler, FabricRequirements requirements, ProfileRequirements profileRequirement) {
@@ -285,13 +270,5 @@ public final class AutoScaleController extends AbstractComponent implements Grou
 
     void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
-    }
-
-    void bindContainerAutoScaler(ContainerAutoScaler containerAutoScaler) {
-        this.containerAutoScaler.bind(containerAutoScaler);
-    }
-
-    void unbindContainerAutoScaler(ContainerAutoScaler containerAutoScaler) {
-        this.containerAutoScaler.unbind(containerAutoScaler);
     }
 }

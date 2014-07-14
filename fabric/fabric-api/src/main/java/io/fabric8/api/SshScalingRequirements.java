@@ -17,8 +17,45 @@
  */
 package io.fabric8.api;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Defines the scaling requirements for ssh containers
  */
 public class SshScalingRequirements {
-}
+    private List<String> hostPatterns;
+
+    @Override
+    public String toString() {
+        return "SshScalingRequirements{" +
+                "hostPatterns=" + hostPatterns +
+                '}';
+    }
+
+    // Fluent API for configuring the requirements
+    //-------------------------------------------------------------------------
+
+    public SshScalingRequirements hostPatterns(List<String> rootContainerPatterns) {
+        setHostPatterns(rootContainerPatterns);
+        return this;
+    }
+
+    public SshScalingRequirements hostPatterns(String... rootContainerPatterns) {
+        return hostPatterns(Arrays.asList(rootContainerPatterns));
+    }
+
+
+    // Properties
+    //-------------------------------------------------------------------------
+
+    /**
+     * Returns a list of patterns to match host names or aliases used for creating ssh containers
+     */
+    public List<String> getHostPatterns() {
+        return hostPatterns;
+    }
+
+    public void setHostPatterns(List<String> hostPatterns) {
+        this.hostPatterns = hostPatterns;
+    }}
