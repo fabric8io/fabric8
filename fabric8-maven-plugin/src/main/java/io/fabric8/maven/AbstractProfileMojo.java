@@ -195,10 +195,10 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     private String webContextPath;
 
     /**
-     * Whether or not we should generate a <code>Summary.md</code> file from the pom.xml &lt;description&gt; element text value.
+     * If provided then any links in the readme.md files will be replaced to include the given prefix
      */
-    @Parameter(property = "fabric8.githubLinks", defaultValue = "false")
-    protected boolean githubLinks;
+    @Parameter(property = "fabric8.replaceReadmeLinksPrefix")
+    protected String replaceReadmeLinksPrefix;
 
     protected static boolean isFile(File file) {
         return file != null && file.exists() && file.isFile();
@@ -751,7 +751,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 }
             }
 
-            if (githubLinks) {
+            if (replaceReadmeLinksPrefix != null) {
 
                 // now parse each readme file and replace github links
                 for (Map.Entry<String, File> entry : pomNames.entrySet()) {
@@ -850,13 +850,15 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 matcher.appendReplacement(sb, "[$1]($2)");
             } else {
                 if (names.contains(s2) || names.contains(relativePath + s2) || names.contains(relativePath + "/" + s2)) {
+                    // need to ensure path is profile friendly
+                    s2 = pathToProfilePath(s2);
                     // its a directory
-                    String prefix = "/fabric/profiles/quickstarts/";
-                    matcher.appendReplacement(sb, "[$1](" + prefix + "$2)");
+                    matcher.appendReplacement(sb, "[$1](" + replaceReadmeLinksPrefix + s2 + ")");
                 } else {
+                    // need to ensure path is profile friendly
+                    s2 = pathToProfilePath(s2);
                     // its a profile
-                    String prefix = "/fabric/profiles/quickstarts/";
-                    matcher.appendReplacement(sb, "[$1](" + prefix + "$2.profile)");
+                    matcher.appendReplacement(sb, "[$1](" + replaceReadmeLinksPrefix + s2 + ".profile)");
                 }
                 changed = true;
             }
