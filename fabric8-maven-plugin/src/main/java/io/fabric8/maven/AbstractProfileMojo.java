@@ -189,7 +189,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     protected boolean generateSummaryFile;
 
     /**
-     * The context path to use for web applications for projects using the <code>war</code> packacing
+     * The context path to use for web applications for projects using the <code>war</code> packaging
      */
     @Parameter(property = "fabric8.webContextPath", defaultValue = "${project.artifactId}")
     private String webContextPath;
