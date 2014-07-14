@@ -33,7 +33,7 @@
     <form>
       <table class="form-horizontal" style="margin-bottom:5px;">
         <tr><td class="small">Queries</td></tr>      
-        <tr ng-repeat="q in panel.query" style="margin-bottom:10px">
+        <tr ng-repeat="q in panel.query track by $index" style="margin-bottom:10px">
           <td width="99%">
             <span style="position:relative">
               <i class="icon-remove-sign pointer" style="position:absolute;left:10px;top:3px" ng-show="panel.query.length > 1" ng-click="remove_query($index);send_query(panel.query)"></i>
