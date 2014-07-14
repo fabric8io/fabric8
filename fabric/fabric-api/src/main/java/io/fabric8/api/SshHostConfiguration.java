@@ -29,6 +29,8 @@ public class SshHostConfiguration {
     private Integer port;
     private String username;
     private String password;
+    private String passPhrase;
+    private String privateKeyFile;
 
     public SshHostConfiguration() {
     }
@@ -64,6 +66,16 @@ public class SshHostConfiguration {
 
     public SshHostConfiguration password(final String password) {
         this.password = password;
+        return this;
+    }
+
+    public SshHostConfiguration passPhrase(final String passPhrase) {
+        this.passPhrase = passPhrase;
+        return this;
+    }
+
+    public SshHostConfiguration privateKeyFile(final String privateKeyFile) {
+        this.privateKeyFile = privateKeyFile;
         return this;
     }
 
@@ -108,5 +120,22 @@ public class SshHostConfiguration {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+
+    public String getPassPhrase() {
+        return passPhrase;
+    }
+
+    public void setPassPhrase(String passPhrase) {
+        this.passPhrase = passPhrase;
+    }
+
+    public String getPrivateKeyFile() {
+        return privateKeyFile;
+    }
+
+    public void setPrivateKeyFile(String privateKeyFile) {
+        this.privateKeyFile = privateKeyFile;
     }
 }

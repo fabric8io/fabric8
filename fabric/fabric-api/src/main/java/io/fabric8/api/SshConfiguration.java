@@ -35,6 +35,8 @@ public class SshConfiguration {
     private String defaultUsername;
     private String defaultPassword;
     private List<String> fallbackRepositories;
+    private String defaultPassPhrase;
+    private String defaultPrivateKeyFile;
 
     public Map<String, SshHostConfiguration> getHosts() {
         return hosts;
@@ -60,6 +62,16 @@ public class SshConfiguration {
 
     public SshConfiguration defaultPassword(final String defaultPassword) {
         this.defaultPassword = defaultPassword;
+        return this;
+    }
+
+    public SshConfiguration defaultPassPhrase(final String defaultPassPhrase) {
+        this.defaultPassPhrase = defaultPassPhrase;
+        return this;
+    }
+
+    public SshConfiguration defaultPrivateKeyFile(final String defaultPrivateKeyFile) {
+        this.defaultPrivateKeyFile = defaultPrivateKeyFile;
         return this;
     }
 
@@ -117,5 +129,21 @@ public class SshConfiguration {
 
     public void setFallbackRepositories(List<String> fallbackRepositories) {
         this.fallbackRepositories = fallbackRepositories;
+    }
+
+    public String getDefaultPassPhrase() {
+        return defaultPassPhrase;
+    }
+
+    public void setDefaultPassPhrase(String defaultPassPhrase) {
+        this.defaultPassPhrase = defaultPassPhrase;
+    }
+
+    public String getDefaultPrivateKeyFile() {
+        return defaultPrivateKeyFile;
+    }
+
+    public void setDefaultPrivateKeyFile(String defaultPrivateKeyFile) {
+        this.defaultPrivateKeyFile = defaultPrivateKeyFile;
     }
 }

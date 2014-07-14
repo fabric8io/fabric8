@@ -184,7 +184,6 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         private List<String> fallbackRepositories = new ArrayList<String>();
 
 
-
         public Builder username(final String username) {
             this.username = username;
             return this;
@@ -405,6 +404,26 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
             if (sshHosts != null) {
                 fallbackRepositories = sshHosts.getFallbackRepositories();
+            }
+
+            passPhrase = sshHostConfig.getPassPhrase();
+            if (Strings.isNullOrBlank(passPhrase)) {
+                if (sshHosts != null) {
+                    passPhrase = sshHosts.getDefaultPassPhrase();
+                }
+                if (Strings.isNullOrBlank(passPhrase)) {
+                    throw new IllegalArgumentException("Missing passPhrase property in the ssh configuration: " + sshHostConfig);
+                }
+            }
+
+            privateKeyFile = sshHostConfig.getPrivateKeyFile();
+            if (Strings.isNullOrBlank(privateKeyFile)) {
+                if (sshHosts != null) {
+                    privateKeyFile = sshHosts.getDefaultPrivateKeyFile();
+                }
+                if (Strings.isNullOrBlank(privateKeyFile)) {
+                    throw new IllegalArgumentException("Missing privateKeyFile property in the ssh configuration: " + sshHostConfig);
+                }
             }
         }
     }

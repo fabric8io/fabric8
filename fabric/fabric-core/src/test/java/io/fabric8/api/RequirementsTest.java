@@ -73,7 +73,7 @@ public class RequirementsTest {
     @Test
     public void sshRequirements() throws Exception {
         FabricRequirements requirements = new FabricRequirements();
-        requirements.sshConfiguration().defaultPath("/opt/fuse").defaultUsername("root").defaultPassword("adminuser");
+        requirements.sshConfiguration().defaultPath("/opt/fuse").defaultUsername("root").defaultPassword("adminuser").defaultPassPhrase("cheese");
         requirements.sshHost("foo").hostName("foo.cheese.com").path("/opt/thingy");
         requirements.sshHost("bar").hostName("bar.cheese.com").path("/opt/another");
         requirements.sshHost("another").hostName("another.cheese.com").username("foo").password("bar");
