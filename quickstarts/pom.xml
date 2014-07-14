@@ -88,6 +88,9 @@
               </goals>
             </execution>
           </executions>
+          <configuration>
+            <githubLinks>true</githubLinks>
+          </configuration>
         </plugin>
       </plugins>
     <pluginManagement>
