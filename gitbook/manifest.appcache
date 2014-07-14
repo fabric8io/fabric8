@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Revision 1405279432979
+# Revision 1405365861151
 
 CACHE:
 features.html
@@ -16,8 +16,8 @@ camelEndpointMaster.html
 cloudContainers.html
 containers.html
 continuousDeployment.html
-cxf.html
 cxfFabric.html
+cxf.html
 dataTransform.html
 debugging.html
 developer.html
