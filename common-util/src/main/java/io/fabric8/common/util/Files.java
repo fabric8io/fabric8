@@ -86,6 +86,19 @@ public class Files {
     }
 
     /**
+     * Strip any leading separators
+     */
+    public static String stripLeadingSeparator(String name) {
+        if (name == null) {
+            return null;
+        }
+        while (name.startsWith("/") || name.startsWith(File.separator)) {
+            name = name.substring(1);
+        }
+        return name;
+    }
+
+    /**
      * Creates a temporary file.
      *
      * @return
