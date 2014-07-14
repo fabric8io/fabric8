@@ -194,6 +194,12 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     @Parameter(property = "fabric8.webContextPath", defaultValue = "${project.artifactId}")
     private String webContextPath;
 
+    /**
+     * Whether or not we should generate a <code>Summary.md</code> file from the pom.xml &lt;description&gt; element text value.
+     */
+    @Parameter(property = "fabric8.githubLinks", defaultValue = "false")
+    protected boolean githubLinks;
+
     protected static boolean isFile(File file) {
         return file != null && file.exists() && file.isFile();
     }
@@ -740,31 +746,32 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 File copiedFile = copyReadMe(src, outDir);
 
                 if (copiedFile != null) {
-                    System.out.println("*** " + copiedFile);
-                    System.out.println("    " + relativePath);
                     String key = getReadMeFileKey(relativePath);
-                    System.out.println("    " + key);
                     pomNames.put(key, copiedFile);
                 }
             }
 
-            // now parse each readme file and replace github links
-            for (Map.Entry<String, File> entry : pomNames.entrySet()) {
-                File file = entry.getValue();
+            if (githubLinks) {
 
-                boolean changed = false;
-                List<String> lines = Files.readLines(file);
-                for (int i = 0; i < lines.size(); i++) {
-                    String line = lines.get(i);
-                    String newLine = replaceGithubLinks(pomNames.keySet(), line);
-                    if (newLine != null) {
-                        lines.set(i, newLine);
-                        changed = true;
+                // now parse each readme file and replace github links
+                for (Map.Entry<String, File> entry : pomNames.entrySet()) {
+                    File file = entry.getValue();
+                    String key = entry.getKey();
+
+                    boolean changed = false;
+                    List<String> lines = Files.readLines(file);
+                    for (int i = 0; i < lines.size(); i++) {
+                        String line = lines.get(i);
+                        String newLine = replaceGithubLinks(pomNames.keySet(), key, line);
+                        if (newLine != null) {
+                            lines.set(i, newLine);
+                            changed = true;
+                        }
                     }
-                }
-                if (changed) {
-                    Files.writeLines(file, lines);
-                    System.out.println("*** updated file " + file);
+                    if (changed) {
+                        Files.writeLines(file, lines);
+                        getLog().info("Replaced github links to fabric profiles in reaadme file: " + file);
+                    }
                 }
             }
         }
@@ -827,16 +834,13 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         return answer;
     }
 
-    public static void main(String[] args) {
-        String s = "* [beginner](/fabric/profiles/quickstarts/karaf/beginner) - a set of beginner quickstarts that new users to fabric, is recommended to try first.";
-        String s2 = "* [beginner](/fabric/profiles/quickstarts/karaf/beginner) - a set of beginner quickstarts * [beginner](/fabric/profiles/quickstarts/karaf/beginner) that new users to fabric, is recommended to try first.";
-        String t = replaceGithubLinks(null, s2);
-        System.out.println(t);
-    }
 
-    public static String replaceGithubLinks(Set<String> names, String line) {
+    /**
+     * Replacing github links with fabric profiles links for our quickstarts
+     */
+    protected String replaceGithubLinks(Set<String> names, String relativePath, String line) {
         boolean changed = false;
-        Pattern pattern = Pattern.compile("\\[(.*)\\]\\((.*)\\)");
+        Pattern pattern = Pattern.compile("\\[(.*?)\\]\\((.*?)\\)");
         Matcher matcher = pattern.matcher(line);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
@@ -845,7 +849,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 // leave it as-is
                 matcher.appendReplacement(sb, "[$1]($2)");
             } else {
-                if (names.contains(s2)) {
+                if (names.contains(s2) || names.contains(relativePath + s2) || names.contains(relativePath + "/" + s2)) {
                     // its a directory
                     String prefix = "/fabric/profiles/quickstarts/";
                     matcher.appendReplacement(sb, "[$1](" + prefix + "$2)");
