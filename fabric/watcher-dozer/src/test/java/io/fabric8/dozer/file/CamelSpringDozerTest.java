@@ -19,12 +19,10 @@ import org.apache.camel.TypeConverter;
 import org.apache.camel.test.spring.CamelSpringTestSupport;
 import org.foo.NewCustomer;
 import org.foo.OldCustomer;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-@Ignore("[FABRIC-623] Fix fabric watcher-dozer CamelSpringDozerTest")
 public class CamelSpringDozerTest extends CamelSpringTestSupport {
 
     @Test
