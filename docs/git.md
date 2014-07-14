@@ -46,9 +46,9 @@ And hey presto, fabric8 should update and any containers running the version/bra
 ### Working with the external git repositories
 
 Instead of using clustered git repository provided by the Fabric8, you can store your configuration in the external 
-git repository of your choice. You can specify external repository URL when creating new container.
+git repository of your choice. You can specify external repository URL when creating new Fabric8 instance.
 
-    container-create-child --external-git-url git@github.com:john/johnsproject.git root my-child-container
+    fabric8:create --external-git-url=git@github.com:john/johnsproject.git
     
 Keep in mind that although you introduce a single point of failure (single external Git repository), Fabric8 can still
 operate even if the repository is down for the moment. All the changes performed by containers on their local
