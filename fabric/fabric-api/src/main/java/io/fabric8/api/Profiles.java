@@ -278,4 +278,13 @@ public class Profiles {
         }
         return answer;
     }
+
+    /**
+     * Asserts that the given profile ID is in the given set of profile IDs, throwing an exception if its not valid
+     */
+    public static void assertValidProfileId(Set<String> profileIds, String profileId) {
+        if (!profileIds.contains(profileId)) {
+            throw new IllegalArgumentException("Profile " + profileId + " is not valid");
+        }
+    }
 }

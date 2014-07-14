@@ -15,6 +15,7 @@
  */
 package io.fabric8.service;
 
+import static io.fabric8.api.Profiles.assertValidProfileId;
 import static io.fabric8.internal.PlaceholderResolverHelpers.getSchemesForProfileConfigurations;
 import static io.fabric8.utils.DataStoreUtils.substituteBundleProperty;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
@@ -48,10 +49,10 @@ import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.PortService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
 import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.jmx.MQBrokerStatusDTO;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.api.visibility.VisibleForTesting;
@@ -994,7 +995,42 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public void setRequirements(FabricRequirements requirements) throws IOException {
         assertValid();
+        validateRequirements(this, requirements);
         getDataStore().setRequirements(requirements);
+    }
+
+    /**
+     * Validates that the requirements are valid; to ensure the profiles exist etc
+     */
+    public static void validateRequirements(FabricService fabricService, FabricRequirements requirements) {
+        String versionId = requirements.getVersion();
+        Version version;
+        if (!Strings.isNullOrEmpty(versionId)) {
+            version = fabricService.getVersion(versionId);
+            if (version == null) {
+                throw new IllegalStateException("Version " + versionId + " could not be found");
+            }
+        } else {
+            version = fabricService.getDefaultVersion();
+            if (version == null) {
+                throw new IllegalStateException("No version specified and no default version for the fabric");
+            }
+        }
+        Set<String> profileIds = new HashSet<String>(Profiles.profileIds(version.getProfiles()));
+        List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
+        for (ProfileRequirements profileRequirement : profileRequirements) {
+            validateProfileRequirements(fabricService, requirements, profileRequirement, profileIds);
+        }
+    }
+
+    protected static void validateProfileRequirements(FabricService fabricService, FabricRequirements requirements, ProfileRequirements profileRequirement, Set<String> profileIds) {
+        assertValidProfileId(profileIds, profileRequirement.getProfile());
+        List<String> dependentProfiles = profileRequirement.getDependentProfiles();
+        if (dependentProfiles != null) {
+            for (String dependentProfile : dependentProfiles) {
+                assertValidProfileId(profileIds, dependentProfile);
+            }
+        }
     }
 
     @Override
