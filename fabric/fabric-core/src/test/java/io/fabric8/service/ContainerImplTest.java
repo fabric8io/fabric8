@@ -16,17 +16,21 @@
 package io.fabric8.service;
 
 import com.google.common.collect.Maps;
+
 import io.fabric8.internal.ProfileImpl;
+
 import org.apache.zookeeper.KeeperException;
+
 import io.fabric8.api.Container;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.internal.ContainerImpl;
 import io.fabric8.internal.VersionImpl;
-import io.fabric8.zookeeper.ZkDefs;
+
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;

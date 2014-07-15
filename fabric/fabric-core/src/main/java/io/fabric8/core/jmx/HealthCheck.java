@@ -13,22 +13,27 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.api.jmx;
+package io.fabric8.core.jmx;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.FabricStatus;
 import io.fabric8.api.ProfileStatus;
+import io.fabric8.api.jmx.HealthCheckMBean;
+import io.fabric8.api.jmx.HealthStatus;
 import io.fabric8.common.util.ShutdownTracker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.StandardMBean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An MBean for checking the health of a Fabric
@@ -61,7 +66,8 @@ public class HealthCheck implements HealthCheckMBean {
         try {
             ObjectName name = getObjectName();
 			if (!mbeanServer.isRegistered(name)) {
-				mbeanServer.registerMBean(shutdownTracker.mbeanProxy(this), name);
+                StandardMBean mbean = new StandardMBean(this, HealthCheckMBean.class);
+				mbeanServer.registerMBean(mbean, name);
 			}
 		} catch (Exception e) {
             LOG.warn("An error occured during mbean server registration: " + e, e);

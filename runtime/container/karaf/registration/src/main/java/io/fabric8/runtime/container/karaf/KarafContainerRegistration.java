@@ -16,6 +16,7 @@
 package io.fabric8.runtime.container.karaf;
 
 import io.fabric8.api.GeoLocationService;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
@@ -27,11 +28,13 @@ import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
+
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
@@ -39,8 +42,8 @@ import io.fabric8.internal.ContainerImpl;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.SystemProperties;
-import io.fabric8.zookeeper.ZkDefs;
 import io.fabric8.zookeeper.ZkPath;
+
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;

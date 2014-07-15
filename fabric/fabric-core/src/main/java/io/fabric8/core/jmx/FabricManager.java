@@ -13,7 +13,28 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.api.jmx;
+package io.fabric8.core.jmx;
+
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+import io.fabric8.api.Constants;
+import io.fabric8.api.Container;
+import io.fabric8.api.ContainerProvider;
+import io.fabric8.api.CreateContainerBasicOptions;
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.CreateContainerOptions;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.Ids;
+import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
+import io.fabric8.api.Version;
+import io.fabric8.api.jmx.FabricManagerMBean;
+import io.fabric8.api.jmx.FabricStatusDTO;
+import io.fabric8.api.jmx.ServiceStatusDTO;
+import io.fabric8.common.util.ShutdownTracker;
+import io.fabric8.insight.log.support.Strings;
+import io.fabric8.service.FabricServiceImpl;
 
 import java.io.BufferedInputStream;
 import java.io.Closeable;
@@ -33,36 +54,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.StandardMBean;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.fabric8.api.Constants;
-import io.fabric8.api.Container;
-import io.fabric8.api.ContainerProvider;
-import io.fabric8.api.CreateContainerBasicOptions;
-import io.fabric8.api.CreateContainerMetadata;
-import io.fabric8.api.CreateContainerOptions;
-import io.fabric8.api.FabricException;
-import io.fabric8.api.FabricRequirements;
-import io.fabric8.api.Ids;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Profiles;
-import io.fabric8.api.Version;
-import io.fabric8.common.util.ShutdownTracker;
-import io.fabric8.insight.log.support.Strings;
-import io.fabric8.service.FabricServiceImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.curator.framework.CuratorFramework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  */
@@ -93,7 +99,8 @@ public class FabricManager implements FabricManagerMBean {
         try {
             ObjectName name = getObjectName();
 			if (!mbeanServer.isRegistered(name)) {
-				mbeanServer.registerMBean(shutdownTracker.mbeanProxy(this), name);
+		        StandardMBean mbean = new StandardMBean(this, FabricManagerMBean.class);
+				mbeanServer.registerMBean(mbean, name);
 			}
 		} catch (Exception e) {
             LOG.warn("An error occured during mbean server registration: " + e, e);

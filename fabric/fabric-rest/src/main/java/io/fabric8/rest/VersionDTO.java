@@ -13,11 +13,18 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.api.locks;
+package io.fabric8.rest;
 
-import org.apache.curator.framework.recipes.locks.InterProcessLock;
+/**
+ */
+public class VersionDTO {
+    private final String profilesLink;
 
-public interface LockService {
+    public VersionDTO(String profilesLink) {
+        this.profilesLink = profilesLink;
+    }
 
-    InterProcessLock getLock(String path);
+    public String getProfilesLink() {
+        return profilesLink;
+    }
 }

@@ -15,8 +15,8 @@
  */
 package io.fabric8.api.jmx;
 
-import io.fabric8.common.util.Strings;
-import io.fabric8.zookeeper.ZkDefs;
+import io.fabric8.api.ZkDefs;
+import io.fabric8.api.scr.support.Strings;
 
 import java.util.HashMap;
 import java.util.List;

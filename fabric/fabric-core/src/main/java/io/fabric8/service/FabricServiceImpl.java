@@ -27,6 +27,7 @@ import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MUL
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;

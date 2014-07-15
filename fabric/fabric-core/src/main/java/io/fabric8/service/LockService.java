@@ -13,26 +13,11 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.api.jmx;
+package io.fabric8.service;
 
-/**
- */
-public interface ZooKeeperFacadeMXBean {
-    /**
-     * Reads the contents of a path
-     */
-    ZkContents read(String path) throws Exception;
+import org.apache.curator.framework.recipes.locks.InterProcessLock;
 
-    /**
-     * Returns the content of the given path, assuming the path refers to a file
-     */
-    String getContents(String path) throws Exception;
+public interface LockService {
 
-/*
-    void write(String path, String commitMessage,
-               String authorName, String authorEmail, String contents);
-
-    void remove(String branch, String path, String commitMessage,
-                String authorName, String authorEmail);
-*/
+    InterProcessLock getLock(String path);
 }

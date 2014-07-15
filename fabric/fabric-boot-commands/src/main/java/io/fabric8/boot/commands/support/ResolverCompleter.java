@@ -15,11 +15,11 @@
  */
 package io.fabric8.boot.commands.support;
 
-import static io.fabric8.zookeeper.ZkDefs.LOCAL_HOSTNAME;
-import static io.fabric8.zookeeper.ZkDefs.LOCAL_IP;
-import static io.fabric8.zookeeper.ZkDefs.MANUAL_IP;
-import static io.fabric8.zookeeper.ZkDefs.PUBLIC_HOSTNAME;
-import static io.fabric8.zookeeper.ZkDefs.PUBLIC_IP;
+import static io.fabric8.api.ZkDefs.LOCAL_HOSTNAME;
+import static io.fabric8.api.ZkDefs.LOCAL_IP;
+import static io.fabric8.api.ZkDefs.MANUAL_IP;
+import static io.fabric8.api.ZkDefs.PUBLIC_HOSTNAME;
+import static io.fabric8.api.ZkDefs.PUBLIC_IP;
 
 import java.util.Arrays;
 import java.util.List;

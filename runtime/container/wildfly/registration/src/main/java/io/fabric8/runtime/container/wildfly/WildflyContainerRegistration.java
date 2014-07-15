@@ -21,14 +21,15 @@ import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.GeoLocationService;
 import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.internal.ContainerImpl;
 import io.fabric8.utils.HostUtils;
-import io.fabric8.zookeeper.ZkDefs;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;

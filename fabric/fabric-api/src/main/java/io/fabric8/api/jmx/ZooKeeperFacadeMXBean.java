@@ -15,16 +15,25 @@
  */
 package io.fabric8.api.jmx;
 
+
 /**
  */
-public class VersionDTO {
-    private final String profilesLink;
+public interface ZooKeeperFacadeMXBean {
+    /**
+     * Reads the contents of a path
+     */
+    ZkContents read(String path) throws Exception;
 
-    public VersionDTO(String profilesLink) {
-        this.profilesLink = profilesLink;
-    }
+    /**
+     * Returns the content of the given path, assuming the path refers to a file
+     */
+    String getContents(String path) throws Exception;
 
-    public String getProfilesLink() {
-        return profilesLink;
-    }
+/*
+    void write(String path, String commitMessage,
+               String authorName, String authorEmail, String contents);
+
+    void remove(String branch, String path, String commitMessage,
+                String authorName, String authorEmail);
+*/
 }

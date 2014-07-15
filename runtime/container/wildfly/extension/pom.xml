@@ -154,10 +154,10 @@
                         <manifestEntries>
                             <Gravia-Identity>${project.artifactId};version=${project.version}</Gravia-Identity>
                             <Service-Component>
-                                OSGI-INF/io.fabric8.api.jmx.ClusterBootstrapManager.xml,
-                                OSGI-INF/io.fabric8.api.jmx.ClusterServiceManager.xml,
-                                OSGI-INF/io.fabric8.api.jmx.MetaTypeFacade.xml,
-                                OSGI-INF/io.fabric8.api.jmx.MQManager.xml,
+                                OSGI-INF/io.fabric8.core.jmx.ClusterBootstrapManager.xml,
+                                OSGI-INF/io.fabric8.core.jmx.ClusterServiceManager.xml,
+                                OSGI-INF/io.fabric8.core.jmx.MetaTypeFacade.xml,
+                                OSGI-INF/io.fabric8.core.jmx.MQManager.xml,
                                 OSGI-INF/io.fabric8.git.internal.CachingGitDataStore.xml,
                                 OSGI-INF/io.fabric8.git.internal.FabricGitServiceImpl.xml,
                                 OSGI-INF/io.fabric8.git.internal.GitMasterListener.xml,

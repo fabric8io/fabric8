@@ -22,10 +22,9 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
-import io.fabric8.api.jmx.FabricDTO;
 import io.fabric8.api.jmx.FabricStatusDTO;
-import io.fabric8.api.jmx.ProfileDTO;
 import io.fabric8.common.util.Strings;
+
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +35,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;

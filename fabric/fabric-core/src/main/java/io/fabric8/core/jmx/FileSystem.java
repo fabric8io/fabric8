@@ -13,7 +13,11 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.api.jmx;
+package io.fabric8.core.jmx;
+
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.jmx.FileSystemMBean;
+import io.fabric8.common.util.ShutdownTracker;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,10 +25,8 @@ import java.io.IOException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.StandardMBean;
 
-import io.fabric8.api.RuntimeProperties;
-import io.fabric8.common.util.ShutdownTracker;
-import io.fabric8.utils.SystemProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +95,8 @@ public class FileSystem implements FileSystemMBean {
         try {
             ObjectName name = getObjectName();
             if (!mbeanServer.isRegistered(name)) {
-                mbeanServer.registerMBean(shutdownTracker.mbeanProxy(this), name);
+                StandardMBean mbean = new StandardMBean(this, FileSystemMBean.class);
+                mbeanServer.registerMBean(mbean, name);
             }
         } catch (Exception e) {
             LOG.warn("An error occured during mbean server registration: " + e, e);

@@ -20,6 +20,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
+
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
@@ -28,14 +29,15 @@ import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.locks.LockService;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.partition.TaskContext;
 import io.fabric8.partition.WorkItem;
 import io.fabric8.partition.Worker;
+import io.fabric8.service.LockService;
 import io.fabric8.utils.SystemProperties;
+
 import org.apache.curator.framework.recipes.locks.InterProcessLock;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;

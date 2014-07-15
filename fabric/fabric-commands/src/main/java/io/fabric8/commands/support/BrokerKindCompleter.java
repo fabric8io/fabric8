@@ -16,6 +16,7 @@
 package io.fabric8.commands.support;
 
 import org.apache.karaf.shell.console.completer.StringsCompleter;
+
 import io.fabric8.api.jmx.BrokerKind;
 
 /**

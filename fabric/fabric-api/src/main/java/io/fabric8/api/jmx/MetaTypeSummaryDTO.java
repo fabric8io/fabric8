@@ -15,14 +15,14 @@
  */
 package io.fabric8.api.jmx;
 
-import org.osgi.framework.Bundle;
-import org.osgi.service.metatype.MetaTypeInformation;
-import org.osgi.service.metatype.ObjectClassDefinition;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.osgi.framework.Bundle;
+import org.osgi.service.metatype.MetaTypeInformation;
+import org.osgi.service.metatype.ObjectClassDefinition;
 
 /**
  */
@@ -68,11 +68,24 @@ public class MetaTypeSummaryDTO {
                 } else {
                     summary.getPidBundleIds().add(bundleId);
                 }
-                ObjectClassDefinition objectClassDefinition = MetaTypeFacade.tryGetObjectClassDefinition(info, pid, locale);
+                ObjectClassDefinition objectClassDefinition = MetaTypeSummaryDTO.tryGetObjectClassDefinition(info, pid, locale);
                 if (objectClassDefinition != null) {
                     summary.appendObjectDefinition(objectClassDefinition);
                 }
             }
         }
+    }
+
+    /**
+     * Attempts to get the object definition ignoring any failures of missing declarations
+     */
+    public static ObjectClassDefinition tryGetObjectClassDefinition(MetaTypeInformation info, String pid, String locale) {
+        ObjectClassDefinition object = null;
+        try {
+            object = info.getObjectClassDefinition(pid, locale);
+        } catch (Exception e) {
+            // ignore missing definition
+        }
+        return object;
     }
 }

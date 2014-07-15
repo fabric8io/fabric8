@@ -15,33 +15,6 @@
  */
 package io.fabric8.runtime.embedded.registration;
 
-import io.fabric8.api.ContainerRegistration;
-import io.fabric8.api.GeoLocationService;
-import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.utils.HostUtils;
-import io.fabric8.utils.SystemProperties;
-import io.fabric8.zookeeper.ZkDefs;
-import io.fabric8.zookeeper.ZkPath;
-import io.fabric8.zookeeper.utils.ZooKeeperUtils;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.framework.state.ConnectionStateListener;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.data.Stat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.List;
-
 import static io.fabric8.zookeeper.ZkPath.CONFIG_CONTAINER;
 import static io.fabric8.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_ADDRESS;
@@ -55,6 +28,32 @@ import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MAX;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MIN;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_RESOLVER;
+import io.fabric8.api.ContainerRegistration;
+import io.fabric8.api.GeoLocationService;
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.ZkDefs;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.utils.HostUtils;
+import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.data.Stat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.container.registration.embedded", label = "Fabric8 Embedded Registration", immediate = true, metatype = false)

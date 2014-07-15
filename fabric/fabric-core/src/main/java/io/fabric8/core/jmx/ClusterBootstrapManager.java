@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.api.jmx;
+package io.fabric8.core.jmx;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,22 +23,28 @@ import java.util.Map;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.StandardMBean;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.fabric8.common.util.JMXUtils;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
+
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.jmx.ClusterBootstrapManagerMBean;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.zookeeper.ZkDefs;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +74,8 @@ public final class ClusterBootstrapManager extends AbstractComponent implements 
 
     @Activate
     void activate() throws Exception {
-        JMXUtils.registerMBean(this, mbeanServer.get(), OBJECT_NAME);
+        StandardMBean mbean = new StandardMBean(this, ClusterBootstrapManagerMBean.class);
+        JMXUtils.registerMBean(mbean, mbeanServer.get(), OBJECT_NAME);
         activateComponent();
     }
 

@@ -18,20 +18,23 @@ package io.fabric8.commands;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.common.util.Strings;
+import io.fabric8.core.jmx.MQManager;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
+
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricAuthenticationException;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jmx.BrokerKind;
 import io.fabric8.api.jmx.MQBrokerConfigDTO;
-import io.fabric8.api.jmx.MQManager;
 import io.fabric8.utils.shell.ShellUtils;
-import io.fabric8.zookeeper.ZkDefs;
+
 import org.apache.karaf.shell.console.AbstractAction;
 
 import java.io.IOException;

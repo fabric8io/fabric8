@@ -13,11 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.api.jmx;
+package io.fabric8.rest;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.Containers;
 import io.fabric8.api.Profiles;
+import io.fabric8.core.jmx.Links;
 
 import java.util.List;
 import java.util.Map;

@@ -17,13 +17,15 @@ package io.fabric8.rest;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.common.util.Strings;
-import io.fabric8.api.jmx.Links;
+import io.fabric8.core.jmx.Links;
+
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
 import javax.ws.rs.core.UriInfo;
+
 import java.net.URI;
 import java.util.Map;
 

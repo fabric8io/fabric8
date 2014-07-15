@@ -40,6 +40,7 @@ import io.fabric8.api.DataStoreRegistrationHandler;
 import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
@@ -50,8 +51,8 @@ import io.fabric8.common.util.Strings;
 import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.utils.FabricVersionUtils;
-import io.fabric8.zookeeper.ZkDefs;
 import io.fabric8.zookeeper.ZkPath;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;

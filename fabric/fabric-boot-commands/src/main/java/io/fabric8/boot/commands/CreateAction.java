@@ -20,13 +20,13 @@ import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ServiceProxy;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.utils.shell.ShellUtils;
-import io.fabric8.zookeeper.ZkDefs;
 
 import java.io.File;
 import java.io.IOException;

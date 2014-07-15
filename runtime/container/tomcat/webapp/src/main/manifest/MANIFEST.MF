@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Gravia-Identity: ${project.artifactId};
  version=${project.version}
 Service-Component: OSGI-INF/
- io.fabric8.api.jmx.ClusterBootstrapManager.xml,
- OSGI-INF/io.fabric8.api.jmx.ClusterServiceManager.xml,
- OSGI-INF/io.fabric8.api.jmx.MetaTypeFacade.xml,
- OSGI-INF/io.fabric8.api.jmx.MQManager.xml,
+ io.fabric8.core.jmx.ClusterBootstrapManager.xml,
+ OSGI-INF/io.fabric8.core.jmx.ClusterServiceManager.xml,
+ OSGI-INF/io.fabric8.core.jmx.MetaTypeFacade.xml,
+ OSGI-INF/io.fabric8.core.jmx.MQManager.xml,
  OSGI-INF/io.fabric8.boot.BootstrapCompleteService.xml,
  OSGI-INF/io.fabric8.boot.commands.CreateCommand.xml,
  OSGI-INF/io.fabric8.boot.commands.JoinCommand.xml,

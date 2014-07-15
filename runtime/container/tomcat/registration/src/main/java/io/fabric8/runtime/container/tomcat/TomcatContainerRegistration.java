@@ -21,14 +21,15 @@ import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.GeoLocationService;
 import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.internal.ContainerImpl;
 import io.fabric8.utils.HostUtils;
-import io.fabric8.zookeeper.ZkDefs;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
+
 import org.apache.catalina.Server;
 import org.apache.catalina.connector.Connector;
 import org.apache.curator.framework.CuratorFramework;
@@ -52,6 +53,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;

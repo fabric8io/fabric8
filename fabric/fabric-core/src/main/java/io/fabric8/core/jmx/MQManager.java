@@ -13,48 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.api.jmx;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.api.Container;
-import io.fabric8.api.ContainerProvider;
-import io.fabric8.api.Containers;
-import io.fabric8.api.CreateContainerBasicOptions;
-import io.fabric8.api.FabricRequirements;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.MQService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.ProfileRequirements;
-import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.Version;
-import io.fabric8.common.util.JMXUtils;
-import io.fabric8.common.util.Maps;
-import io.fabric8.common.util.Strings;
-import io.fabric8.internal.Objects;
-import io.fabric8.service.MQServiceImpl;
-import io.fabric8.zookeeper.ZkPath;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package io.fabric8.core.jmx;
 
 import static io.fabric8.api.MQService.Config.CONFIG_URL;
 import static io.fabric8.api.MQService.Config.DATA;
@@ -69,6 +28,54 @@ import static io.fabric8.api.MQService.Config.REPLICAS;
 import static io.fabric8.api.MQService.Config.SSL;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+import io.fabric8.api.Container;
+import io.fabric8.api.ContainerProvider;
+import io.fabric8.api.Containers;
+import io.fabric8.api.CreateContainerBasicOptions;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.MQService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.Version;
+import io.fabric8.api.jmx.BrokerKind;
+import io.fabric8.api.jmx.MQBrokerConfigDTO;
+import io.fabric8.api.jmx.MQBrokerStatusDTO;
+import io.fabric8.api.jmx.MQManagerMXBean;
+import io.fabric8.common.util.JMXUtils;
+import io.fabric8.common.util.Maps;
+import io.fabric8.common.util.Strings;
+import io.fabric8.internal.Objects;
+import io.fabric8.service.MQServiceImpl;
+import io.fabric8.zookeeper.ZkPath;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.StandardMBean;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * An MBean for working with the global A-MQ topology configuration inside the Fabric profiles
@@ -103,7 +110,8 @@ public class MQManager implements MQManagerMXBean {
         Objects.notNull(fabricService, "fabricService");
         mqService = createMQService(fabricService, runtimeProperties);
         if (mbeanServer != null) {
-            JMXUtils.registerMBean(this, mbeanServer, OBJECT_NAME);
+            StandardMBean mbean = new StandardMBean(this, MQManagerMXBean.class);
+            JMXUtils.registerMBean(mbean, mbeanServer, OBJECT_NAME);
         }
     }
 
