@@ -26,8 +26,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.fabric8.runtime</groupId>
-    <artifactId>fabric8-runtime-container-tomcat-registration</artifactId>
+    <artifactId>fabric-runtime-container-tomcat-registration</artifactId>
     <name>Fabric8 :: Runtime :: Container :: Tomcat :: Registration</name>
     <packaging>bundle</packaging>
 
