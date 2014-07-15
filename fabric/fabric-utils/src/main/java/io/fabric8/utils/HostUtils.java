@@ -15,6 +15,9 @@
  */
 package io.fabric8.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -26,6 +29,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public class HostUtils {
+    private static final transient Logger LOG = LoggerFactory.getLogger(HostUtils.class);
 
     public static final String PREFERED_ADDRESS_PROPERTY_NAME = "preferred.network.address";
 
@@ -103,11 +107,25 @@ public class HostUtils {
             try {
                 InetAddress preferredAddress = InetAddress.getByName(preferred);
                 if (addresses != null && addresses.contains(preferredAddress)) {
+                    LOG.info("preferred address is " + preferredAddress.getHostAddress() + " for host " + preferredAddress.getHostName());
                     return preferredAddress;
                 }
             } catch (UnknownHostException e) {
                 //noop
             }
+            for (InetAddress address : addresses) {
+                if (preferred.equals(address.getHostName())) {
+                    return address;
+                }
+            }
+            StringBuffer hostNameBuffer = new StringBuffer();
+            for (InetAddress address : addresses) {
+                if (hostNameBuffer.length() > 0) {
+                    hostNameBuffer.append(", ");
+                }
+                hostNameBuffer.append(address.getHostName() + "/" + address.getHostAddress());
+            }
+            LOG.warn("Could not find network address for preferred '" + preferred + "' when the addresses were: " + hostNameBuffer);
         }
         if (addresses.contains(InetAddress.getLocalHost())) {
             //Then if local host address is not bound to a loop-back interface, use it.
