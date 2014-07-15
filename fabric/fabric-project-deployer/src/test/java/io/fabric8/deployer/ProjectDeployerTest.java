@@ -15,31 +15,15 @@
  */
 package io.fabric8.deployer;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.management.ManagementFactory;
-import java.nio.file.Paths;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
-import java.net.URLStreamHandlerFactory;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import io.fabric8.api.Containers;
-import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
@@ -55,13 +39,31 @@ import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry;
 import io.fabric8.zookeeper.spring.ZKServerFactoryBean;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.management.ManagementFactory;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
 import org.easymock.EasyMock;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -69,19 +71,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.hamcrest.CoreMatchers.any;
-import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 public class ProjectDeployerTest {
+    
     private static final transient Logger LOG = LoggerFactory.getLogger(ProjectDeployerTest.class);
 
     private ZKServerFactoryBean sfb;
@@ -208,7 +199,7 @@ public class ProjectDeployerTest {
     }
 
     @Test
-    @Ignore("[#1890] Mocked test makes invalid assumption on the implementation")
+    @Ignore("[FABRIC-1110] Mocked test makes invalid assumption on the implementation")
     public void testProfileDeploy() throws Exception {
         String groupId = "foo";
         String artifactId = "bar";

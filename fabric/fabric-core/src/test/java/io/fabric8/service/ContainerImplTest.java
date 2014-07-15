@@ -86,7 +86,7 @@ public class ContainerImplTest {
     }
 
     @Test
-    @Ignore("[#1890] Mocked test makes invalid assumption on the implementation")
+    @Ignore("[FABRIC-1110] Mocked test makes invalid assumption on the implementation")
     public void testGetWithNoProfile() throws Exception {
         String v = "1.0";
         Version version = null; //new VersionImpl(v, fabricService);
@@ -110,7 +110,7 @@ public class ContainerImplTest {
     }
 
     @Test
-    @Ignore("[#1890] Mocked test makes invalid assumption on the implementation")
+    @Ignore("[FABRIC-1110] Mocked test makes invalid assumption on the implementation")
     public void testGetSingleProfile() throws Exception {
         String v = "1.0";
         String profileId = "feature-camel";
@@ -134,7 +134,7 @@ public class ContainerImplTest {
     }
 
     @Test
-    @Ignore("[#1890] Mocked test makes invalid assumption on the implementation")
+    @Ignore("[FABRIC-1110] Mocked test makes invalid assumption on the implementation")
     public void testGetMultipleProfiles() throws Exception {
         String v = "1.0";
         String profile1Id = "feature-camel";
@@ -164,7 +164,7 @@ public class ContainerImplTest {
     //We should be able to remove a profile that doesn't exist from a container.
     //A missing profile may be added to a container during startup (not possible to validate) or after an upgrade / rollback operation.
     @Test
-    @Ignore("[#1890] Mocked test makes invalid assumption on the implementation")
+    @Ignore("[FABRIC-1110] Mocked test makes invalid assumption on the implementation")
     public void testRemoveMissingProfile() throws Exception {
         String v = "1.0";
         String profile1Id = "feature-camel";
@@ -193,7 +193,7 @@ public class ContainerImplTest {
     }
 
     @Test
-    @Ignore("[#1890] Mocked test makes invalid assumption on the implementation")
+    @Ignore("[FABRIC-1110] Mocked test makes invalid assumption on the implementation")
     public void testContainerProfileWithMissingParents() throws Exception {
         String v = "1.0";
         String profile1Id = "feature-camel";
@@ -222,7 +222,7 @@ public class ContainerImplTest {
     }
 
     @Test
-    @Ignore("[#1890] Mocked test makes invalid assumption on the implementation")
+    @Ignore("[FABRIC-1110] Mocked test makes invalid assumption on the implementation")
     public void testGetContainerProfileOverlay() throws Exception {
 
         String v = "1.0";

@@ -188,19 +188,19 @@ public class FabricServiceFacadeTest {
     }
 
     @Test
-    @Ignore("ProfileService incompatible")
     public void testCreatingVersion() {
         // this can only be run if you have a fabric running...
         Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
 
-        FabricService service = getFabricService();
+        FabricService fabricService = getFabricService();
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
 
-        Version version = service.createVersion("1.5");
-        service.setDefaultVersion(version.getId());
-        Version one_dot_oh = service.getVersion("1.0");
-        service.setDefaultVersion(one_dot_oh.getId());
-        //version.adapt(ProfileService.class).deleteVersion(version.getId());
-
+        Version version = VersionBuilder.Factory.create("1.5").getVersion();
+        version = profileService.createVersion(version);
+        fabricService.setDefaultVersion(version.getId());
+        Version one_dot_oh = profileService.getRequiredVersion("1.0");
+        fabricService.setDefaultVersion(one_dot_oh.getId());
+        profileService.deleteVersion(version.getId());
     }
 
     @Test
