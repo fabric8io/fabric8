@@ -39,7 +39,6 @@ import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,7 +189,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
         Integer minimumInstances = profileRequirement.getMinimumInstances();
         if (minimumInstances != null) {
             // lets check if we need to provision more
-            List<Container> containers = containersForProfile(profile);
+            List<Container> containers = aliveOrPendingContainersForProfile(profile);
             int count = containers.size();
             int delta = minimumInstances - count;
             try {
@@ -218,7 +217,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
                 ProfileRequirements dependentProfileRequirements = requirements.getOrCreateProfileRequirement(dependentProfile);
                 Integer minimumInstances = dependentProfileRequirements.getMinimumInstances();
                 if (minimumInstances != null) {
-                    List<Container> containers = containersForProfile(dependentProfile);
+                    List<Container> containers = aliveAndSuccessfulContainersForProfile(dependentProfile);
                     int dependentSize = containers.size();
                     if (minimumInstances > dependentSize) {
                         LOGGER.info("Cannot yet auto-scale profile " + profileRequirement.getProfile()
@@ -233,19 +232,40 @@ public final class AutoScaleController extends AbstractComponent implements Grou
     }
 
     /**
-     * Returns all the current alive profiles for the given profile
+     * Returns all the current alive or pending profiles for the given profile
      */
-    private List<Container> containersForProfile(String profile) {
+    private List<Container> aliveOrPendingContainersForProfile(String profile) {
+        return containersForProfile(profile, true);
+    }
+
+    /**
+     * Returns all the current alive successful profiles for the given profile
+     */
+    private List<Container> aliveAndSuccessfulContainersForProfile(String profile) {
+        return containersForProfile(profile, false);
+    }
+
+    protected List<Container> containersForProfile(String profile, boolean includePending) {
         List<Container> answer = new ArrayList<Container>();
         List<Container> containers = Containers.containersForProfile(fabricService.get().getContainers(), profile);
         for (Container container : containers) {
             boolean alive = container.isAlive();
             boolean provisioningPending = container.isProvisioningPending();
-            if (alive || provisioningPending) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Container " + container.getId() + " is alive " + alive + " provision is pending " + provisioningPending);
+            if (includePending) {
+                if (alive || provisioningPending) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Container " + container.getId() + " is alive " + alive + " provision is pending " + provisioningPending);
+                    }
+                    answer.add(container);
                 }
-                answer.add(container);
+            } else {
+                String provisionResult = container.getProvisionResult();
+                if (alive && Container.PROVISION_SUCCESS.equals(provisionResult)) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Container " + container.getId() + " is alive " + alive + " provision is complete");
+                    }
+                    answer.add(container);
+                }
             }
         }
         return answer;

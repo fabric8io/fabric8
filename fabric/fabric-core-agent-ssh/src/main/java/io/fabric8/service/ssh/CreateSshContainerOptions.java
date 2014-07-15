@@ -371,9 +371,6 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
                     path = DEFAULT_PATH;
                 }
             }
-            // TODO add container name?
-            //path += "/" + containerName;
-
             Integer portValue = sshHostConfig.getPort();
             if (portValue == null) {
                 if (sshHosts != null) {
