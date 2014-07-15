@@ -99,7 +99,7 @@ public class FileSystem implements FileSystemMBean {
                 mbeanServer.registerMBean(mbean, name);
             }
         } catch (Exception e) {
-            LOG.warn("An error occured during mbean server registration: " + e, e);
+            LOG.warn("An error occurred during mbean server registration: " + e, e);
         }
     }
 
@@ -111,7 +111,7 @@ public class FileSystem implements FileSystemMBean {
                     mbeanServer.unregisterMBean(name);
                 }
             } catch (Exception e) {
-                LOG.warn("An error occured during mbean server registration: " + e, e);
+                LOG.warn("An error occurred during mbean server registration: " + e, e);
             }
         }
     }
