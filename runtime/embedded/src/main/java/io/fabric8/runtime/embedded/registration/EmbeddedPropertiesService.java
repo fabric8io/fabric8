@@ -36,12 +36,14 @@ import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.jboss.gravia.runtime.Runtime;
+import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.osgi.service.component.ComponentContext;
 
 import java.nio.file.Path;
@@ -110,10 +112,8 @@ public class EmbeddedPropertiesService extends AbstractComponent implements Runt
 
     private String getRequiredProperty(String propName) {
         String result = getPropertyInternal(propName, null);
-        if (result != null) {
-            return result;
-        }
-        throw new IllegalStateException("Cannot obtain required property: " + propName);
+        IllegalStateAssertion.assertNotNull(result, "Cannot obtain required property: " + propName);
+        return result;
     }
 
     void bindRuntime(Runtime service) {

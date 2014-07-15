@@ -2968,6 +2968,11 @@
                 <version>${arquillian-osgi-version}</version>
             </dependency>
             <dependency>
+	            <groupId>org.jboss.gravia</groupId>
+	            <artifactId>gravia-arquillian-container-embedded</artifactId>
+                <version>${gravia-version}</version>
+        	</dependency>
+            <dependency>
                 <groupId>org.jboss.gravia</groupId>
                 <artifactId>gravia-container-common</artifactId>
                 <version>${gravia-version}</version>

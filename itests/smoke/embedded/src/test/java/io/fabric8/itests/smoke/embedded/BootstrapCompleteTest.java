@@ -13,11 +13,10 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.test.fabric.runtime.embedded;
+package io.fabric8.itests.smoke.embedded;
 
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.git.GitService;
-import io.fabric8.test.fabric.runtime.embedded.support.AbstractEmbeddedTest;
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 
 import org.jboss.arquillian.junit.Arquillian;
@@ -30,7 +29,7 @@ import org.junit.runner.RunWith;
  * Test fabric-core servies
  */
 @RunWith(Arquillian.class)
-public class BootstrapCompleteTest extends AbstractEmbeddedTest {
+public class BootstrapCompleteTest {
 
     @Test
     public void testBootstrapConfiguration() {

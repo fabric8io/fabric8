@@ -38,8 +38,9 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * File utilities
  */
-public class Files {
+public final class Files {
 
     private static final ThreadLocal<LinkedHashSet<URL>> ACTIVE_DOWNLOADS = new ThreadLocal<LinkedHashSet<URL>>();
     private static final AtomicLong lastTmpFileId = new AtomicLong(System.currentTimeMillis());
@@ -100,9 +101,6 @@ public class Files {
 
     /**
      * Creates a temporary file.
-     *
-     * @return
-     * @throws IOException
      */
     public static File createTempFile(String path) throws IOException {
         File dataDir = new File(path);
@@ -138,11 +136,6 @@ public class Files {
 
     /**
      * Reads a {@link File} and returns a {@String}.
-     *
-     * @param file
-     * @param charset
-     * @return
-     * @throws IOException
      */
     public static String toString(File file, Charset charset) throws IOException {
         byte[] bytes = readBytes(file);
@@ -156,8 +149,6 @@ public class Files {
 
     /**
      * Reads an {@link InputStream} and returns a {@String}.
-     *
-     * @throws IOException
      */
     public static String toString(InputStream inputStream) throws IOException {
         return toString(inputStream, null);
@@ -166,8 +157,6 @@ public class Files {
 
     /**
      * Reads an {@link InputStream} and returns a {@String}.
-     *
-     * @throws IOException
      */
     public static String toString(InputStream inputStream, Charset charset) throws IOException {
         byte[] bytes = readBytes(inputStream);
@@ -216,8 +205,6 @@ public class Files {
 
     /**
      * Reads a {@link File} and returns the data as a byte array
-     *
-     * @throws IOException
      */
     public static byte[] readBytes(File file) throws IOException {
         FileInputStream fis = null;
@@ -242,8 +229,6 @@ public class Files {
 
     /**
      * Reads an {@link InputStream} and returns the data as a byte array
-     *
-     * @throws IOException
      */
     public static byte[] readBytes(InputStream in) throws IOException {
         ByteArrayOutputStream bos = null;
@@ -266,10 +251,6 @@ public class Files {
 
     /**
      * Reads a {@link File} and returns a {@String}.
-     *
-     * @param file
-     * @return
-     * @throws IOException
      */
     public static String toString(File file) throws IOException {
         return toString(file, null);
@@ -277,11 +258,6 @@ public class Files {
 
     /**
      * Writes {@link String} content to {@link File}.
-     *
-     * @param file
-     * @param content
-     * @param charset
-     * @throws IOException
      */
     public static void writeToFile(File file, String content, Charset charset) throws IOException {
         FileOutputStream fos = null;
@@ -305,10 +281,6 @@ public class Files {
 
     /**
      * Writes {@link String} content to {@link File}.
-     *
-     * @param file
-     * @param content
-     * @throws IOException
      */
     public static void writeToFile(File file, byte[] content) throws IOException {
         FileOutputStream fos = null;
@@ -327,10 +299,6 @@ public class Files {
 
     /**
      * Copy the source {@link File} to the target {@link File}.
-     *
-     * @param source
-     * @param target
-     * @throws IOException
      */
     public static void copy(File source, File target) throws IOException {
         if (!source.exists()) {
@@ -347,10 +315,6 @@ public class Files {
 
     /**
      * Copy the {@link InputStream} to the {@link OutputStream}.
-     *
-     * @param is
-     * @param os
-     * @throws IOException
      */
     public static void copy(InputStream is, OutputStream os) throws IOException {
         try {
@@ -440,8 +404,9 @@ public class Files {
         }
     }
 
-    public static class DownloadCycle extends IOException {
-        public DownloadCycle(String s) {
+    @SuppressWarnings("serial")
+    public static class DownloadCycleException extends IOException {
+        public DownloadCycleException(String s) {
             super(s);
         }
     }
@@ -458,7 +423,7 @@ public class Files {
         }
         try {
             if (downloads.contains(url)) {
-                throw new DownloadCycle("Download cycle detected: " + downloads);
+                throw new DownloadCycleException("Download cycle detected: " + downloads);
             }
             downloads.add(url);
             try {

@@ -19,7 +19,7 @@
 <!--
     Set these VM properties in your IDE debugger
      
-    -Dlog4j.configuration=file://${workspace_loc:fabric-runtime-itests-embedded}/src/test/resources/logging.properties
+    -Dlog4j.configuration=file://${workspace_loc:fabric-itests-smoke-embedded}/src/test/resources/logging.properties
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -55,7 +55,7 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.gravia</groupId>
-            <artifactId>gravia-runtime-embedded</artifactId>
+            <artifactId>gravia-arquillian-container-embedded</artifactId>
         </dependency>
         
         <!-- Provided Dependencies -->
@@ -93,7 +93,12 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-        
+		<dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-runtime-embedded</artifactId>
+            <scope>provided</scope>
+        </dependency>
+                
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.jboss.arquillian.junit</groupId>
@@ -151,7 +156,7 @@
                             <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${runtime.home}/system/modules</outputDirectory>
+                            <outputDirectory>target/modules</outputDirectory>
                             <stripVersion>true</stripVersion>
                             <artifactItems>
                                 <artifactItem>
@@ -183,6 +188,21 @@
                                     <groupId>io.fabric8.runtime</groupId>
                                     <artifactId>fabric-runtime-embedded</artifactId>
                                     <version>${project.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jboss.gravia</groupId>
+                                    <artifactId>gravia-provision</artifactId>
+                                    <version>${version.jboss.gravia}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jboss.gravia</groupId>
+                                    <artifactId>gravia-resolver</artifactId>
+                                    <version>${version.jboss.gravia}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jboss.gravia</groupId>
+                                    <artifactId>gravia-repository</artifactId>
+                                    <version>${version.jboss.gravia}</version>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
