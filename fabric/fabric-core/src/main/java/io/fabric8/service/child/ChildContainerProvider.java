@@ -31,6 +31,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.PortService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
@@ -39,7 +40,6 @@ import io.fabric8.internal.ProfileOverlayImpl;
 import io.fabric8.service.ContainerTemplate;
 import io.fabric8.utils.AuthenticationUtils;
 import io.fabric8.utils.Ports;
-import io.fabric8.zookeeper.ZkDefs;
 
 import java.util.Collection;
 import java.util.HashMap;

@@ -15,11 +15,11 @@
  */
 package io.fabric8.api.jmx;
 
-import org.osgi.service.metatype.AttributeDefinition;
-import org.osgi.service.metatype.ObjectClassDefinition;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.osgi.service.metatype.AttributeDefinition;
+import org.osgi.service.metatype.ObjectClassDefinition;
 
 /**
  */

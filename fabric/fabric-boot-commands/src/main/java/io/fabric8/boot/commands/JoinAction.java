@@ -20,12 +20,12 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.FabricConstants;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.utils.BundleUtils;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.utils.shell.ShellUtils;
-import io.fabric8.zookeeper.ZkDefs;
 import io.fabric8.zookeeper.ZkPath;
 
 import java.io.File;

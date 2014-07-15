@@ -18,8 +18,8 @@ package io.fabric8.commands;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.utils.FabricValidations;
-import io.fabric8.zookeeper.ZkDefs;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;

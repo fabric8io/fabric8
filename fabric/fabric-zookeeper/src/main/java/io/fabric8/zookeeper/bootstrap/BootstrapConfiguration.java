@@ -59,12 +59,12 @@ import org.apache.felix.utils.properties.Properties;
 import io.fabric8.api.Constants;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.DataStoreRegistrationHandler;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;
-import io.fabric8.zookeeper.ZkDefs;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;

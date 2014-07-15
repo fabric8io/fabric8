@@ -13,12 +13,21 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.api.jmx;
+package io.fabric8.core.jmx;
 
-import io.fabric8.api.FabricService;
+import io.fabric8.api.jmx.MetaTypeFacadeMXBean;
+import io.fabric8.api.jmx.MetaTypeInformationDTO;
+import io.fabric8.api.jmx.MetaTypeObjectDTO;
+import io.fabric8.api.jmx.MetaTypeSummaryDTO;
 import io.fabric8.common.util.JMXUtils;
 import io.fabric8.internal.Objects;
 import io.fabric8.utils.BundleUtils;
+
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.StandardMBean;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -31,10 +40,6 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 
 /**
  * An MBean for interacting with the OSGi MetaType API
@@ -68,7 +73,8 @@ public class MetaTypeFacade implements MetaTypeFacadeMXBean {
         Objects.notNull(metaTypeService, "metaTypeService");
         Objects.notNull(bundleContext, "bundleContext");
         if (mbeanServer != null) {
-            JMXUtils.registerMBean(this, mbeanServer, OBJECT_NAME);
+            StandardMBean mbean = new StandardMBean(this, MetaTypeFacadeMXBean.class);
+            JMXUtils.registerMBean(mbean, mbeanServer, OBJECT_NAME);
         }
     }
 
@@ -116,7 +122,7 @@ public class MetaTypeFacade implements MetaTypeFacadeMXBean {
         for (Bundle bundle : bundles) {
             MetaTypeInformation info = getMetaTypeInformation(bundle);
             if (info != null) {
-                ObjectClassDefinition object = tryGetObjectClassDefinition(info, pid, locale);
+                ObjectClassDefinition object = MetaTypeSummaryDTO.tryGetObjectClassDefinition(info, pid, locale);
                 if (object != null) {
                     if (answer == null) {
                         answer = new MetaTypeObjectDTO(object);
@@ -127,19 +133,6 @@ public class MetaTypeFacade implements MetaTypeFacadeMXBean {
             }
         }
         return answer;
-    }
-
-    /**
-     * Attempts to get the object definition ignoring any failures of missing declarations
-     */
-    public static ObjectClassDefinition tryGetObjectClassDefinition(MetaTypeInformation info, String pid, String locale) {
-        ObjectClassDefinition object = null;
-        try {
-            object = info.getObjectClassDefinition(pid, locale);
-        } catch (Exception e) {
-            // ignore missing definition
-        }
-        return object;
     }
 
     @Override

@@ -15,7 +15,6 @@
  */
 package io.fabric8.api.jmx;
 
-import io.fabric8.common.util.Strings;
 
 /**
  * Represents the kinds of broker
@@ -32,7 +31,7 @@ public enum BrokerKind {
      * Returns the configured kind from a configuration value or returns the {@link #DEFAULT} value
      */
     public static BrokerKind fromValue(String text) {
-        if (Strings.isNotBlank(text)) {
+        if (text != null && text.length() > 0) {
             return BrokerKind.valueOf(text);
         }
         return DEFAULT;

@@ -28,6 +28,7 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
@@ -46,8 +47,8 @@ import io.fabric8.docker.provider.javacontainer.JavaContainerOptions;
 import io.fabric8.docker.provider.javacontainer.JavaDockerContainerImageBuilder;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainers;
-import io.fabric8.zookeeper.ZkDefs;
 import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -68,6 +69,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;

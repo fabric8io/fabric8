@@ -13,23 +13,29 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.api.jmx;
+package io.fabric8.core.jmx;
+
+import static io.fabric8.internal.Objects.notNull;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
+import io.fabric8.api.jmx.ZkContents;
+import io.fabric8.api.jmx.ZooKeeperFacadeMXBean;
+import io.fabric8.common.util.ShutdownTracker;
+import io.fabric8.service.FabricServiceImpl;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
 import java.util.List;
+
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.StandardMBean;
 
-import io.fabric8.common.util.ShutdownTracker;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.data.Stat;
-import io.fabric8.service.FabricServiceImpl;
-import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static io.fabric8.internal.Objects.notNull;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.*;
 
 /**
  */
@@ -60,7 +66,8 @@ public class ZooKeeperFacade implements ZooKeeperFacadeMXBean {
         try {
             ObjectName name = getObjectName();
 			if (!mbeanServer.isRegistered(name)) {
-				mbeanServer.registerMBean(shutdownTracker.mbeanProxy(this), name);
+	            StandardMBean mbean = new StandardMBean(this, ZooKeeperFacadeMXBean.class);
+				mbeanServer.registerMBean(mbean, name);
 			}
 		} catch (Exception e) {
             LOG.warn("An error occured during mbean server registration: " + e, e);

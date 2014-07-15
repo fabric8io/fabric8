@@ -24,11 +24,12 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.ModuleStatus;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.api.data.BundleInfo;
 import io.fabric8.api.data.ServiceInfo;
 import io.fabric8.common.util.Strings;
 import io.fabric8.service.ContainerTemplate;
-import io.fabric8.zookeeper.ZkDefs;
+
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;

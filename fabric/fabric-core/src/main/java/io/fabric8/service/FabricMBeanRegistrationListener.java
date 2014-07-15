@@ -16,6 +16,11 @@
 package io.fabric8.service;
 
 import io.fabric8.common.util.ShutdownTracker;
+import io.fabric8.core.jmx.FabricManager;
+import io.fabric8.core.jmx.FileSystem;
+import io.fabric8.core.jmx.HealthCheck;
+import io.fabric8.core.jmx.ZooKeeperFacade;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
@@ -26,17 +31,15 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
+
 import io.fabric8.api.FabricService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.jmx.FabricManager;
-import io.fabric8.api.jmx.FileSystem;
-import io.fabric8.api.jmx.HealthCheck;
-import io.fabric8.api.jmx.ZooKeeperFacade;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

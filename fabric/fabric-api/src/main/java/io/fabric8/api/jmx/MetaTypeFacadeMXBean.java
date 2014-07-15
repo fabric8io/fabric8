@@ -15,6 +15,7 @@
  */
 package io.fabric8.api.jmx;
 
+
 /**
  * A JMX API for working with the OSGi MetaType API
  */

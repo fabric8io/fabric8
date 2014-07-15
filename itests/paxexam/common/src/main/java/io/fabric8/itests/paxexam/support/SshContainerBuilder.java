@@ -20,8 +20,8 @@ import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceLocator;
 import io.fabric8.api.ServiceProxy;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.service.ssh.CreateSshContainerOptions;
-import io.fabric8.zookeeper.ZkDefs;
 
 import java.util.ArrayList;
 import java.util.HashSet;

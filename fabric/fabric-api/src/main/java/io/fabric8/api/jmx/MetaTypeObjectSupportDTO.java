@@ -15,7 +15,6 @@
  */
 package io.fabric8.api.jmx;
 
-import io.fabric8.insight.log.support.Strings;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
 /**
@@ -40,14 +39,14 @@ public abstract class MetaTypeObjectSupportDTO {
     }
 
     public void appendObjectDefinition(ObjectClassDefinition objectDef) {
-        if (Strings.isEmpty(id)) {
-            this.id = objectDef.getID();
+        if (id == null || id.length() == 0) {
+            id = objectDef.getID();
         }
-        if (Strings.isEmpty(name)) {
-            this.name = objectDef.getName();
+        if (name == null || name.length() == 0) {
+            name = objectDef.getName();
         }
-        if (Strings.isEmpty(description)) {
-            this.description = objectDef.getDescription();
+        if (description == null || description.length() == 0) {
+            description = objectDef.getDescription();
         }
     }
 

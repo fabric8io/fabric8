@@ -24,13 +24,15 @@ import java.util.Set;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.io.Resources;
+
 import io.fabric8.api.CreationStateListener;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.internal.ContainerProviderUtils;
 import io.fabric8.service.jclouds.firewall.FirewallManager;
 import io.fabric8.service.jclouds.firewall.FirewallManagerFactory;
 import io.fabric8.service.jclouds.firewall.FirewallNotSupportedOnProviderException;
 import io.fabric8.service.jclouds.firewall.Rule;
-import io.fabric8.zookeeper.ZkDefs;
+
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ExecResponse;
 import org.jclouds.compute.domain.NodeMetadata;
@@ -40,7 +42,6 @@ import org.jclouds.rest.AuthorizationException;
 import org.jclouds.ssh.SshException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import static io.fabric8.internal.ContainerProviderUtils.buildInstallAndStartScript;
 
