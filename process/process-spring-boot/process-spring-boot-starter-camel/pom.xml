@@ -24,7 +24,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>process-spring-boot-bom</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.1.0.CR3</version>
         <relativePath>../process-spring-boot-bom</relativePath>
     </parent>
 
