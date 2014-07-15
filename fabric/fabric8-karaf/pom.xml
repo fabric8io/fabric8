@@ -378,15 +378,18 @@
                                    <feature>karaf</feature>
                                    <feature>scr</feature>
                                    <feature>war</feature>
+                                   <feature>fabric-autoscale</feature>
                                    <feature>fabric-agent</feature>
                                    <feature>fabric-agent-commands</feature>
                                    <feature>fabric-boot-commands</feature>
                                    <feature>fabric-commands</feature>
+                                   <feature>fabric-docker-provider</feature>
                                    <feature>fabric-zookeeper-commands</feature>
                                    <feature>fabric-ssh</feature>
                                    <feature>fabric-git</feature>
                                    <feature>fabric-git-server</feature>
                                    <feature>fabric-maven-proxy</feature>
+                                   <feature>fabric-openshift</feature>
                                    <feature>fabric-camel</feature>
                                    <feature>fabric-dosgi</feature>
                                    <feature>fabric-bundle</feature>
