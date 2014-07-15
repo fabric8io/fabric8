@@ -411,9 +411,6 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
                 if (sshHosts != null) {
                     passPhrase = sshHosts.getDefaultPassPhrase();
                 }
-                if (Strings.isNullOrBlank(passPhrase)) {
-                    throw new IllegalArgumentException("Missing passPhrase property in the ssh configuration: " + sshHostConfig);
-                }
             }
 
             privateKeyFile = sshHostConfig.getPrivateKeyFile();
@@ -422,7 +419,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
                     privateKeyFile = sshHosts.getDefaultPrivateKeyFile();
                 }
                 if (Strings.isNullOrBlank(privateKeyFile)) {
-                    throw new IllegalArgumentException("Missing privateKeyFile property in the ssh configuration: " + sshHostConfig);
+                    privateKeyFile = DEFAULT_PRIVATE_KEY_FILE;
                 }
             }
         }
