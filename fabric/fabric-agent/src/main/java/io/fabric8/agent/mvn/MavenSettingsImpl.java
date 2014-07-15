@@ -407,35 +407,34 @@ public class MavenSettingsImpl
     public Map<String, Map<String, String>> getProxySettings() {
         if (m_proxySettings == null) {
             m_proxySettings = new HashMap<String, Map<String, String>>();
-            readSettings();
-            if( m_document != null )
-            {
-                List<Element> proxies = XmlUtils.getElements( m_document, PROXY_TAG );
-                if( proxies != null )
-                {
-                    for( Element proxy : proxies )
-                    {
-                        String active = getSetting( proxy, "active", "false" );
-                        String protocol = getSetting( proxy, "protocol", "http" );
+            try {
+                readSettings();
+                if (m_document != null) {
+                    List<Element> proxies = XmlUtils.getElements(m_document, PROXY_TAG);
+                    if (proxies != null) {
+                        for (Element proxy : proxies) {
+                            String active = getSetting(proxy, "active", "false");
+                            String protocol = getSetting(proxy, "protocol", "http");
 
-                        if( !m_proxySettings.containsKey( protocol ) || "true".equalsIgnoreCase( active ) )
-                        {
-                            Map<String, String> proxyDetails = new HashMap<String, String>();
+                            if (!m_proxySettings.containsKey(protocol) || "true".equalsIgnoreCase(active)) {
+                                Map<String, String> proxyDetails = new HashMap<String, String>();
 
-                            proxyDetails.put( "user", getSetting( proxy, "username", "" ) );
-                            proxyDetails.put( "pass", getSetting( proxy, "password", "" ) );
-                            proxyDetails.put( "host", getSetting( proxy, "host", "127.0.0.1" ) );
-                            proxyDetails.put( "port", getSetting( proxy, "port", "8080" ) );
+                                proxyDetails.put("user", getSetting(proxy, "username", ""));
+                                proxyDetails.put("pass", getSetting(proxy, "password", ""));
+                                proxyDetails.put("host", getSetting(proxy, "host", "127.0.0.1"));
+                                proxyDetails.put("port", getSetting(proxy, "port", "8080"));
 
-                            proxyDetails.put( "nonProxyHosts", getSetting( proxy, "nonProxyHosts", "" ) );
+                                proxyDetails.put("nonProxyHosts", getSetting(proxy, "nonProxyHosts", ""));
 
-                            m_proxySettings.put( protocol, proxyDetails );
+                                m_proxySettings.put(protocol, proxyDetails);
+                            }
                         }
                     }
                 }
+            } catch (Exception e) {
+                LOGGER.warn("Could not read maven proxy settings: " + e, e);
             }
         }
-
         return Collections.unmodifiableMap(m_proxySettings);
     }
 }
