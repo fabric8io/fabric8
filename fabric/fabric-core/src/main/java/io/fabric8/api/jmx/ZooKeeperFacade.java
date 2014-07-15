@@ -63,7 +63,7 @@ public class ZooKeeperFacade implements ZooKeeperFacadeMXBean {
 				mbeanServer.registerMBean(shutdownTracker.mbeanProxy(this), name);
 			}
 		} catch (Exception e) {
-            LOG.warn("An error occured during mbean server registration: " + e, e);
+            LOG.warn("An error occurred during mbean server registration: " + e, e);
         }
     }
 
@@ -75,7 +75,7 @@ public class ZooKeeperFacade implements ZooKeeperFacadeMXBean {
 					mbeanServer.unregisterMBean(name);
 				}
 			} catch (Exception e) {
-                LOG.warn("An error occured during mbean server registration: " + e, e);
+                LOG.warn("An error occurred during mbean server registration: " + e, e);
             }
         }
     }

@@ -96,7 +96,7 @@ public class FabricManager implements FabricManagerMBean {
 				mbeanServer.registerMBean(shutdownTracker.mbeanProxy(this), name);
 			}
 		} catch (Exception e) {
-            LOG.warn("An error occured during mbean server registration: " + e, e);
+            LOG.warn("An error occurred during mbean server registration: " + e, e);
         }
     }
 
@@ -108,7 +108,7 @@ public class FabricManager implements FabricManagerMBean {
 					mbeanServer.unregisterMBean(name);
 				}
 			} catch (Exception e) {
-                LOG.warn("An error occured during mbean server registration: " + e, e);
+                LOG.warn("An error occurred during mbean server registration: " + e, e);
             }
         }
     }

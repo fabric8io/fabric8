@@ -26,6 +26,7 @@ import io.fabric8.api.scr.AbstractComponent;
 
 import java.util.Map;
 
+import io.fabric8.utils.PasswordEncoder;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -81,7 +82,9 @@ public final class EncryptedPropertyResolver extends AbstractComponent implement
 
     private String getPassword(FabricService fabricService) {
         try {
-            return getStringData(fabricService.adapt(CuratorFramework.class), AUTHENTICATION_CRYPT_PASSWORD.getPath());
+            String pw = getStringData(fabricService.adapt(CuratorFramework.class), AUTHENTICATION_CRYPT_PASSWORD.getPath());
+            // the password may be encoded, so we need to decode if needed
+            return PasswordEncoder.decode(pw);
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
         }
