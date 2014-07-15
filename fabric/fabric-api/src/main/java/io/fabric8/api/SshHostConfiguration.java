@@ -31,6 +31,7 @@ public class SshHostConfiguration {
     private String password;
     private String passPhrase;
     private String privateKeyFile;
+    private String preferredAddress;
 
     public SshHostConfiguration() {
     }
@@ -76,6 +77,11 @@ public class SshHostConfiguration {
 
     public SshHostConfiguration privateKeyFile(final String privateKeyFile) {
         this.privateKeyFile = privateKeyFile;
+        return this;
+    }
+
+    public SshHostConfiguration preferredAddress(final String preferredAddress) {
+        this.preferredAddress = preferredAddress;
         return this;
     }
 
@@ -137,5 +143,13 @@ public class SshHostConfiguration {
 
     public void setPrivateKeyFile(String privateKeyFile) {
         this.privateKeyFile = privateKeyFile;
+    }
+
+    public String getPreferredAddress() {
+        return preferredAddress;
+    }
+
+    public void setPreferredAddress(String preferredAddress) {
+        this.preferredAddress = preferredAddress;
     }
 }

@@ -362,6 +362,14 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
             if (Strings.isNullOrBlank(host)) {
                 throw new IllegalArgumentException("Missing host property in the ssh configuration: " + sshHostConfig);
             }
+            String preferredAddress = getPreferredAddress();
+            if (Strings.isNullOrBlank(preferredAddress)) {
+                preferredAddress = sshHostConfig.getPreferredAddress();
+                if (Strings.isNullOrBlank(preferredAddress)) {
+                    preferredAddress = host;
+                }
+                preferredAddress(preferredAddress);
+            }
             path = sshHostConfig.getPath();
             if (Strings.isNullOrBlank(path)) {
                 if (sshHosts != null) {
@@ -393,9 +401,6 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
             if (Strings.isNullOrBlank(password)) {
                 if (sshHosts != null) {
                     password = sshHosts.getDefaultPassword();
-                }
-                if (Strings.isNullOrBlank(password)) {
-                    throw new IllegalArgumentException("Missing password property in the ssh configuration: " + sshHostConfig);
                 }
             }
 
