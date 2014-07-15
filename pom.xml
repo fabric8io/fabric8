@@ -130,13 +130,13 @@
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <antlr-version>3.3</antlr-version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
-        <aries-blueprint-api-version>1.0.0</aries-blueprint-api-version>
-        <aries-blueprint-cm-version>1.0.3</aries-blueprint-cm-version>
-        <aries-blueprint-core-version>1.4.1-SNAPSHOT</aries-blueprint-core-version>
+        <aries-blueprint-api-version>1.0.1</aries-blueprint-api-version>
+        <aries-blueprint-cm-version>1.0.4</aries-blueprint-cm-version>
+        <aries-blueprint-core-version>1.4.1</aries-blueprint-core-version>
         <aries-blueprint-version>1.1.0</aries-blueprint-version>
         <aries-jmx-version>1.1.0</aries-jmx-version>
-        <aries-proxy-api-version>1.0.0</aries-proxy-api-version>
-        <aries-proxy-impl-version>1.0.3-SNAPSHOT</aries-proxy-impl-version>
+        <aries-proxy-api-version>1.0.1</aries-proxy-api-version>
+        <aries-proxy-impl-version>1.0.3</aries-proxy-impl-version>
         <aries-proxy-version>1.0.1</aries-proxy-version>
         <aries-util-version>1.1.0</aries-util-version>
         <arquillian-core-version>1.1.1.Final</arquillian-core-version>
