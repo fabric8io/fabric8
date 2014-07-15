@@ -540,7 +540,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             Integer timeToWait = null;
             try {
                 docker.containerStop(id, timeToWait);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOG.info("Could not stop container " + id + ": " + e + Dockers.dockerErrorMessage(e), e);
                 throw e;
             }
