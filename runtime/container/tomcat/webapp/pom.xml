@@ -188,7 +188,7 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8.runtime</groupId>
-            <artifactId>fabric8-runtime-container-tomcat-registration</artifactId>
+            <artifactId>fabric-runtime-container-tomcat-registration</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -309,7 +309,7 @@
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>io.fabric8.runtime</groupId>
-                                    <artifactId>fabric8-runtime-container-tomcat-registration</artifactId>
+                                    <artifactId>fabric-runtime-container-tomcat-registration</artifactId>
                                     <version>${project.version}</version>
                                     <includes>OSGI-INF/io.fabric8.**</includes>
                                 </artifactItem>
