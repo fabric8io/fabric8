@@ -53,6 +53,28 @@ public class EncryptedPropertyResolverTest {
         verify(getDataBuilder);
     }
 
+    @Test
+    public void testResolveZkEnc() throws Exception {
+        CuratorFramework curator = createMock(CuratorFramework.class);
+        GetDataBuilder getDataBuilder = createMock(GetDataBuilder.class);
+
+        expect(curator.getData()).andReturn(getDataBuilder).anyTimes();
+        expect(getDataBuilder.forPath(AUTHENTICATION_CRYPT_ALGORITHM.getPath())).andReturn("PBEWithMD5AndDES".getBytes()).anyTimes();
+        expect(getDataBuilder.forPath(AUTHENTICATION_CRYPT_PASSWORD.getPath())).andReturn("ZKENC=bXlwYXNzd29yZA==".getBytes()).anyTimes();
+
+        replay(curator);
+        replay(getDataBuilder);
+
+        FabricService fabricService = createMock(FabricService.class);
+        expect(fabricService.adapt(CuratorFramework.class)).andReturn(curator).anyTimes();
+        replay(fabricService);
+
+        PlaceholderResolver resolver = getEncryptedPropertyResolver();
+        assertEquals("encryptedpassword",resolver.resolve(fabricService, null, null, null, "crypt:URdoo9++D3tsoC9ODrTfLNK5WzviknO3Ig6qbI2HuvQ="));
+        verify(curator);
+        verify(getDataBuilder);
+    }
+
     private PlaceholderResolver getEncryptedPropertyResolver() {
         EncryptedPropertyResolver resolver = new EncryptedPropertyResolver();
         resolver.activate();
