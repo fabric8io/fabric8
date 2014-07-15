@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="6.2" data-basepath="." data-revision="1405365861149">
+    <div class="book" data-github="fabric8io/fabric8" data-level="6.2" data-basepath="." data-revision="1405452241225">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -755,11 +755,12 @@
 </code></pre><p>Then the REST endpoint to GET or POST the fabric requirements is something like <a href="http://localhost:8181/api/fabric8/requirements" target="_blank">http://localhost:8181/api/fabric8/requirements</a>.</p>
 <p>You can also navigate around the REST API following the links to find a version, a profile and then its requirements. e.g. the link for the mq-default profile for version 1.0 is something like <a href="http://localhost:8181/api/fabric8/version/1.0/profile/mq-default/requirements" target="_blank">http://localhost:8181/api/fabric8/version/1.0/profile/mq-default/requirements</a></p>
 <h3 id="auto-scaling"><a name="auto-scaling" class="anchor" href="#auto-scaling"><span class="fa fa-link"></span></a>Auto Scaling</h3>
-<p>When using Fabric8 on OpenShift we have an out of the box auto-scaler which uses the requirements to automatically create the required number of instances of each profile.</p>
-<p>Under the covers a container is elected leader; which then watches for changes to the requirements in the Fabric configuration; when that changes the master then creates the necessary OpenShift cartridges to match the requirements.</p>
+<p>To enable the Auto Scaler just add the <strong>autoscale</strong> profile to the root container; or enable the following environment variable before you start the fabric process:</p>
+<pre><code>export FABRIC8_PROFILES=autoscale
+</code></pre><p>Once the <strong>autoscale</strong> profile is running internally a container is elected leader; which then watches for changes to the requirements in the Fabric configuration; when that changes the master then creates the necessary containers to match the requirements.</p>
 <h3 id="sla-based-auto-scaling-with-jon"><a name="sla-based-auto-scaling-with-jon" class="anchor" href="#sla-based-auto-scaling-with-jon"><span class="fa fa-link"></span></a>SLA based Auto Scaling with JON</h3>
-<p>When using Fabric and JON together; all profiles metrics are automatically aggregated together globally. So you can then create JON alerts based on SLA or other metrics to decide when to scale up or down the number of instances of a Profile.</p>
-<p>The JON alert can then use the above profile-scale operation (which is available on the <a href="https://github.com/jboss-fuse/fuse/blob/master/fabric/fabric-core/src/main/java/io/fabric8/api/jmx/FabricManagerMBean.java#L223-223" target="_blank">scaleProfile() method on the FabricManagerMBean</a> to scale up or down the profile requirements.</p>
+<p>When using Fabric8 and RHQ together; all profiles metrics are automatically aggregated together globally. So you can then create RHQ alerts based on SLA or other metrics to decide when to scale up or down the number of instances of a Profile.</p>
+<p>The JON alert can then use the above profile-scale operation (which is available on the <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric-core/src/main/java/io/fabric8/api/jmx/FabricManagerMBean.java#L223-223" target="_blank">scaleProfile() method on the FabricManagerMBean</a> to scale up or down the profile requirements.</p>
 
                     
                     </section>

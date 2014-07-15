@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.2" data-basepath="." data-revision="1405365861149">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.2" data-basepath="." data-revision="1405452241225">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -983,6 +983,10 @@ PID: my.pid
 <tr>
 <td>webContextPath</td>
 <td>For web applications (projects with <em>war</em> packaging) this property specifies the context path to use for the web application; such as &quot;/&quot; or &quot;/myapp&quot;. This value defaults to the archetype id.</td>
+</tr>
+<tr>
+<td>replaceReadmeLinksPrefix</td>
+<td>Used by the <code>zip</code> goal, which allows to prefix any links in the <code>readme.md</code> files to make the links work in both github and as links in the fabric wiki. For example the fabric quickstarts uses this, by prefixing with <code>/fabric/profiles/quickstarts/</code>.</td>
 </tr>
 </table>
 

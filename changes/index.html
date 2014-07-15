@@ -98,7 +98,18 @@
       <div class="col-md-12">
       <h1>Change Log</h1></p>
 
-<p>  ### 1.1.0.CR2</p>
+<p>  ### 1.1.0.CR3</p>
+
+<ul>
+<li>New top level Profiles tab in the web console makes it nice and easy to view and search all profiles; filtering by text or tag with nice icons and summary text coming from icon.(svg,png,jpg) and Summary.md files in the wiki</li>
+<li>First spike of Fabric DNS support</li>
+<li><a href="http://fabric8.io/gitbook/requirements.html">AutoScaler</a> can now properly recreate  <a href="http://fabric8.io/gitbook/javaContainer.html">Java Container</a> and <a href="http://fabric8.io/gitbook/processContainer.html">Process Container</a> instances if the process is explicitly killed</li>
+<li>The feature name for the <a href="http://fabric8.io/gitbook/camelEndpointAmq.html">amq: endpoint</a>, mq-fabric-camel has been renamed to camel-amq which is more usual name for camel feature names</li>
+<li>Deploying WARs to Tomcat, TomEE, Jetty or WildFly can now have their context path configured via the <a href="http://fabric8.io/gitbook/mavenPlugin.html#property-reference">webContextPath</a> property in the maven plugin or in the <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/drools/execution.server.profile/io.fabric8.web.contextPath.properties#L2-2">io.fabric8.web.contextPath.properties file</a> in a profile</li>
+<li>Fixes <a href="https://github.com/fabric8io/fabric8/issues?milestone=10&amp;page=1&amp;state=closed">these 132 issues and enhancements</a></li>
+</ul>
+
+<h3 id = "1_1_0_CR2">1.1.0.CR2</h3>
 
 <ul>
 <li>Renamed CLI command <code>fabric:profile-download</code> to <code>fabric:profile-download-artifacts</code></li>
