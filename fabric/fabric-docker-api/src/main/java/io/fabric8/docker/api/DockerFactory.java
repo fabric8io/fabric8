@@ -72,6 +72,7 @@ public class DockerFactory {
 
         ResteasyClientBuilder builder = new ResteasyClientBuilder();
         builder.providerFactory(providerFactory);
+        builder.connectionPoolSize(Integer.parseInt(System.getProperty("docker.connection.pool", "3")));
         Client client = builder.build();
         ResteasyWebTarget target = (ResteasyWebTarget) client.target(address);
         return target.proxy(Docker.class);
