@@ -91,6 +91,9 @@ public class SshAutoScaler implements ContainerAutoScaler {
         builder.configure(sshHostConfig, requirements, profileRequirements, containerName);
         String zookeeperUrl = fabricService.getZookeeperUrl();
         String zookeeperPassword = fabricService.getZookeeperPassword();
+        if (builder.getProxyUri() == null) {
+            builder.proxyUri(fabricService.getMavenRepoURI());
+        }
         return builder.zookeeperUrl(zookeeperUrl).zookeeperPassword(zookeeperPassword);
     }
 
