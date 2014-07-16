@@ -43,3 +43,4 @@
     * [master: endpoint](camelEndpointMaster.md)
   * [Apache CXF](cxf.md)
     * [CXF Fabric](cxfFabric.md)
+  * [Spring framework](spring.md)
