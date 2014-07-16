@@ -3326,7 +3326,7 @@
             <dependency>
                 <groupId>org.apache.servicemix</groupId>
                 <artifactId>servicemix-utils</artifactId>
-                <version>${servicemix-nmr-version}</version>
+                <version>${servicemix-utils-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.servicemix</groupId>
