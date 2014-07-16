@@ -43,7 +43,7 @@ public class RequireProfileListAction extends RequirementsListSupport {
         }
     }
 
-    protected Object getStringOrBlank(Object value) {
+    public static String getStringOrBlank(Object value) {
         if (value == null) {
             return "";
         } else {

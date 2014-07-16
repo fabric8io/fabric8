@@ -321,6 +321,18 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
+    public AutoScaleStatus getAutoScaleStatus() {
+        JSONObject obj = Helpers.exec(getJolokiaClient(), "autoScaleStatus()");
+        AutoScaleStatus answer = null;
+        try {
+            answer = Helpers.getObjectMapper().readValue(obj.toJSONString(), AutoScaleStatus.class);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return answer;
+    }
+
+    @Override
     public void setRequirements(FabricRequirements fabricRequirements) throws IOException {
         throw new UnsupportedOperationException();
     }

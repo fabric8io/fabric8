@@ -48,6 +48,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.fabric8.api.AutoScaleStatus;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
@@ -1017,6 +1018,25 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             }
             if (answer == null) {
                 answer = new FabricRequirements();
+            }
+            return answer;
+        } catch (Exception e) {
+            throw FabricException.launderThrowable(e);
+        }
+    }
+
+    @Override
+    public AutoScaleStatus getAutoScaleStatus() {
+        assertValid();
+        try {
+            AutoScaleStatus answer = null;
+            String zkPath = ZkPath.AUTO_SCALE_STATUS.getPath();
+            if (getTreeCache().getCurrentData(zkPath) != null) {
+                String json = getStringData(getTreeCache(), zkPath);
+                answer = RequirementsJson.autoScaleStatusFromJSON(json);
+            }
+            if (answer == null) {
+                answer = new AutoScaleStatus();
             }
             return answer;
         } catch (Exception e) {

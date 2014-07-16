@@ -87,6 +87,7 @@ public interface DataStore {
     void setContainerAlive(String id, boolean flag);
 
 
+
     public enum ContainerAttribute {
         BlueprintStatus,
         SpringStatus,
@@ -220,6 +221,8 @@ public interface DataStore {
 
     FabricRequirements getRequirements();
     void setRequirements(FabricRequirements requirements) throws IOException;
+
+    AutoScaleStatus getAutoScaleStatus();
 
     //Ensemble
     String getClusterId();

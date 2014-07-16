@@ -235,6 +235,12 @@ public interface FabricService {
     FabricRequirements getRequirements();
 
     /**
+     * Returns the status of the fabric <a href="http://fabric8.io/gitbook/requirements.html">auto scaler</a>
+     */
+    AutoScaleStatus getAutoScaleStatus();
+
+
+    /**
      * Stores the fabric provisioning requirements
      */
     void setRequirements(FabricRequirements requirements) throws IOException;

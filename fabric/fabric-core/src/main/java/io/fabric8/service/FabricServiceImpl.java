@@ -28,6 +28,7 @@ import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MUL
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.fabric8.api.AutoScaleStatus;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
@@ -1047,6 +1048,12 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
             requirements.setVersion(defaultVersion.getId());
         }
         return requirements;
+    }
+
+    @Override
+    public AutoScaleStatus getAutoScaleStatus() {
+        assertValid();
+        return getDataStore().getAutoScaleStatus();
     }
 
     @Override
