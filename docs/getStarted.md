@@ -1,20 +1,19 @@
-
 ## Getting Started
 
 ### Download
 
 <div class="row">
   <div class="col-md-4 text-center">
-    <a class="btn btn-large btn-success" href="http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.1.0.CR2/fabric8-karaf-1.1.0.CR2.zip">fabric8-karaf-1.1.0.CR2.zip</a>
+    <a class="btn btn-large btn-success" href="http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.1.0.CR3/fabric8-karaf-1.1.0.CR3.zip">fabric8-karaf-1.1.0.CR3.zip</a>
   </div>
   <!-- TODO these are not ready yet
   Note that the [Apache Tomcat](https://tomcat.apache.org/) and [Apache TomEE](http://tomee.apache.org/) distributions are still experimental; the [Apache Karaf](http://karaf.apache.org/) based distro is currently rock solid and complete ;) -->
   <div class="col-md-4 text-center">
-    <a class="btn btn-large btn-warning" title="Warning!  Expiremental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.1.0.CR2/fabric8-tomcat-1.1.0.CR2.zip">fabric8-tomcat-1.1.0.CR2.zip</a>
+    <a class="btn btn-large btn-warning" title="Warning!  Expiremental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.1.0.CR3/fabric8-tomcat-1.1.0.CR3.zip">fabric8-tomcat-1.1.0.CR3.zip</a>
     <p><small><em>This distro is still expiremental</em></small></p>
   </div>
   <div class="col-md-4 text-center">
-    <a class="btn btn-large btn-warning" title="Warning!  Expiremental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.1.0.CR2/fabric8-tomee-1.1.0.CR2.zip">fabric8-tomee-1.1.0.CR2.zip</a>
+    <a class="btn btn-large btn-warning" title="Warning!  Expiremental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.1.0.CR3/fabric8-tomee-1.1.0.CR3.zip">fabric8-tomee-1.1.0.CR3.zip</a>
     <p><small><em>This distro is still expiremental</em></small></p>
   </div>
 </div>
@@ -26,8 +25,8 @@ If you've used a previous version you may want to check out the [Change Log](htt
 Unpack the tarball:
 
     cd ~/Downloads
-    unzip fabric8-karaf-1.1.0.CR2.tar.gz
-    cd fabric8-karaf-1.1.0.CR2
+    unzip fabric8-karaf-1.1.0.CR3.tar.gz
+    cd fabric8-karaf-1.1.0.CR3
 
 Or, [build the project](https://github.com/fabric8io/fabric8/blob/master/readme-build.md) with [maven](http://maven.apache.org/) via:
 
