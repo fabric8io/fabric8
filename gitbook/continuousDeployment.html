@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.4" data-basepath="." data-revision="1405452241225">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.4" data-basepath="." data-revision="1405528582062">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -769,15 +769,15 @@
 </code></pre><h4 id="importing-profile-zips"><a name="importing-profile-zips" class="anchor" href="#importing-profile-zips"><span class="fa fa-link"></span></a>Importing profile zips</h4>
 <p>The main way to use a profile zip right now is to install them in a fabric via the <em>profile-import</em> command. This command takes a URL of one or more profile zips; usually using the maven coordinate URL.</p>
 <p>e.g. to upload a single profile as a zip</p>
-<pre><code>profile-import mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR2/zip/profile
+<pre><code>profile-import mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR3/zip/profile
 </code></pre><p>or to upload all of the quickstarts:</p>
-<pre><code>profile-import mvn:io.fabric8.quickstarts.fabric/fabric8-quickstarts-parent/1.1.0.CR2/zip/profile
+<pre><code>profile-import mvn:io.fabric8.quickstarts.fabric/fabric8-quickstarts-parent/1.1.0.CR3/zip/profile
 </code></pre><p>You can specify a specific version to use:</p>
-<pre><code>profile-import -v 1.1 mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR2/zip/profile
+<pre><code>profile-import -v 1.1 mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR3/zip/profile
 </code></pre><p>Or if you want to import to a new version, you would need to create the new version first using <code>create-version</code></p>
 <pre><code>create-version 1.2
 </code></pre><p>and then import to new version with</p>
-<pre><code>profile-import -v 1.2 mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR2/zip/profile
+<pre><code>profile-import -v 1.2 mvn:io.fabric8.quickstarts.fabric/camel-cdi/1.1.0.CR3/zip/profile
 </code></pre><p>Once the profiles are imported you should be able to use them from the command line; or you should be able to view them in the Wiki in the web console and create containers or migrate them etc.</p>
 <h4 id="combining-profile-zips-into-a-new-branch-in-a-fabric-s-git-repo"><a name="combining-profile-zips-into-a-new-branch-in-a-fabric-s-git-repo" class="anchor" href="#combining-profile-zips-into-a-new-branch-in-a-fabric-s-git-repo"><span class="fa fa-link"></span></a>Combining profile zips into a new branch in a fabric&apos;s git repo</h4>
 <p>Another approach to moving profile zips from one environment to another is to use a maven build to aggregate a number of different profile zip files (usually released by different teams on different schedules) together in a <em>Continuous Integration</em> build to make a new branch in a git repository for an environment.</p>
