@@ -36,6 +36,7 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
     private SshScalingRequirements sshScalingRequirements;
     private DockerScalingRequirements dockerScalingRequirements;
     private OpenShiftScalingRequirements openShiftScalingRequirements;
+    private Integer maximumInstancesPerHost;
 
     public ProfileRequirements() {
     }
@@ -157,6 +158,14 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
         return getOpenShiftScalingRequirements();
     }
 
+    /**
+     * Specifies the maximum number of instances of this profile per host. e.g. set to 1 to ensure that only 1 instance of a profile is provisioned per host
+     */
+    public ProfileRequirements maximumInstancesPerHost(final Integer maximumInstancesPerHost) {
+        this.maximumInstancesPerHost = maximumInstancesPerHost;
+        return this;
+    }
+
 
     // Properties
     //-------------------------------------------------------------------------
@@ -225,6 +234,15 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
         this.openShiftScalingRequirements = openShiftScalingRequirements;
     }
 
+
+    public Integer getMaximumInstancesPerHost() {
+        return maximumInstancesPerHost;
+    }
+
+    public void setMaximumInstancesPerHost(Integer maximumInstancesPerHost) {
+        this.maximumInstancesPerHost = maximumInstancesPerHost;
+    }
+
     /**
      * Returns the health as a percentage for tools based on the current number of instances and the requirements
      */
@@ -267,4 +285,5 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
     public boolean hasMinimumInstances() {
         return minimumInstances != null && minimumInstances.intValue() > 0;
     }
+
 }

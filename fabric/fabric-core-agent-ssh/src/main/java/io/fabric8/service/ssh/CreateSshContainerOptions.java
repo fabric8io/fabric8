@@ -356,7 +356,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         /**
          * Configures the builder from the requirements and chosen host configuration
          */
-        public void configure(SshHostConfiguration sshHostConfig, FabricRequirements requirements, ProfileRequirements profileRequirements, String containerName) {
+        public void configure(SshHostConfiguration sshHostConfig, FabricRequirements requirements, ProfileRequirements profileRequirements) {
             SshConfiguration sshHosts = requirements.getSshConfiguration();
             host = sshHostConfig.getHostName();
             if (Strings.isNullOrBlank(host)) {

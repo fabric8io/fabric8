@@ -23,14 +23,17 @@ import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.NameValidator;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.SshHostConfiguration;
 import io.fabric8.api.SshScalingRequirements;
 import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Filters;
+import io.fabric8.common.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,13 +62,16 @@ public class SshAutoScaler implements ContainerAutoScaler {
         FabricService fabricService = request.getFabricService();
 
         Container[] containers = fabricService.getContainers();
+        HostProfileCounter hostProfileCounter = new HostProfileCounter();
+        Map<String,CountingMap> hostToProfileCounts = createHostToProfileScaleMap(fabricService, containers, request, hostProfileCounter);
+
         for (int i = 0; i < count; i++) {
             CreateSshContainerOptions.Builder builder = null;
             NameValidator nameValidator = Containers.createNameValidator(containers);
             String name = Containers.createContainerName(containers, profile, containerProvider.getScheme(), nameValidator);
 
             if (fabricService != null) {
-                builder = createAutoScaleOptions(request, fabricService, name);
+                builder = createAutoScaleOptions(request, fabricService, hostProfileCounter);
             }
             if (builder != null) {
                 final CreateSshContainerOptions.Builder configuredBuilder = builder.number(1).version(version).profiles(profile);
@@ -77,18 +83,9 @@ public class SshAutoScaler implements ContainerAutoScaler {
         }
     }
 
-    protected CreateSshContainerOptions.Builder createAutoScaleOptions(AutoScaleRequest request, FabricService fabricService, String containerName) {
-        CreateSshContainerOptions.Builder builder = CreateSshContainerOptions.builder();
-        FabricRequirements requirements = request.getFabricRequirements();
-        ProfileRequirements profileRequirements = request.getProfileRequirements();
-        SshScalingRequirements sshScalingRequirements = profileRequirements.getSshScalingRequirements();
-        List<SshHostConfiguration> sshHostConfigurations = filterHosts(requirements, sshScalingRequirements);
-        SshHostConfiguration sshHostConfig = Filters.matchRandomElement(sshHostConfigurations);
-        if (sshHostConfig == null ){
-            LOG.warn("Could not create version " + request.getVersion() + " profile " + request.getProfile() + " as no matching hosts could be found for " + sshScalingRequirements);
-            return null;
-        }
-        builder.configure(sshHostConfig, requirements, profileRequirements, containerName);
+    protected CreateSshContainerOptions.Builder createAutoScaleOptions(AutoScaleRequest request, FabricService fabricService, HostProfileCounter hostProfileCounter) {
+        CreateSshContainerOptions.Builder builder = chooseHostContainerOptions(request, hostProfileCounter);
+        if (builder == null) return null;
         String zookeeperUrl = fabricService.getZookeeperUrl();
         String zookeeperPassword = fabricService.getZookeeperPassword();
         if (builder.getProxyUri() == null) {
@@ -98,19 +95,93 @@ public class SshAutoScaler implements ContainerAutoScaler {
     }
 
     /**
+     * This method is public for easier testing
+     */
+    public static CreateSshContainerOptions.Builder chooseHostContainerOptions(AutoScaleRequest request, HostProfileCounter hostProfileCounter) {
+        CreateSshContainerOptions.Builder builder = CreateSshContainerOptions.builder();
+        FabricRequirements requirements = request.getFabricRequirements();
+        ProfileRequirements profileRequirements = request.getProfileRequirements();
+        SshScalingRequirements sshScalingRequirements = profileRequirements.getSshScalingRequirements();
+        List<SshHostConfiguration> sshHostConfigurations = filterHosts(requirements, profileRequirements, sshScalingRequirements, hostProfileCounter);
+        SshHostConfiguration sshHostConfig = Filters.matchRandomElement(sshHostConfigurations);
+        if (sshHostConfig == null) {
+            LOG.warn("Could not create version " + request.getVersion() + " profile " + request.getProfile() + " as no matching hosts could be found for " + sshScalingRequirements);
+            return null;
+        }
+        builder.configure(sshHostConfig, requirements, profileRequirements);
+        return builder;
+    }
+
+    protected Map<String,CountingMap> createHostToProfileScaleMap(FabricService fabricService, Container[] containers, AutoScaleRequest request, HostProfileCounter hostContainerCounts) {
+        Map<String, CountingMap> answer = new HashMap<String, CountingMap>();
+        FabricRequirements requirements = request.getFabricRequirements();
+        Map<String, SshHostConfiguration> sshHostsMap = requirements.getSshHostsMap();
+        if (sshHostsMap != null && containers != null) {
+            if (containers != null) {
+                for (Container container : containers) {
+                    String hostAlias = findHostAlias(sshHostsMap, container);
+                    if (hostAlias != null) {
+                        hostContainerCounts.incrementContainers(hostAlias);
+                        List<String> profileIds = Profiles.profileIds(container.getProfiles());
+                        hostContainerCounts.incrementProfilesCount(hostAlias, profileIds);
+                    }
+                }
+            }
+        }
+        return answer;
+    }
+
+    /**
+     * Tries to find the host alias for the given container by matching on local and public host names and IP addresses etc
+     */
+    protected String findHostAlias(Map<String, SshHostConfiguration> sshHostsMap, Container container) {
+        for (Map.Entry<String, SshHostConfiguration> entry : sshHostsMap.entrySet()) {
+            SshHostConfiguration config = entry.getValue();
+            String hostName = config.getHostName();
+            if (Objects.equal(hostName, container.getLocalHostname()) ||
+                    Objects.equal(hostName, container.getLocalIp()) ||
+                    Objects.equal(hostName, container.getPublicHostname()) ||
+                    Objects.equal(hostName, container.getIp()) ||
+                    Objects.equal(hostName, container.getManualIp())) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    /**
      * Filters the available host configurations
      */
-    protected List<SshHostConfiguration> filterHosts(FabricRequirements requirements, SshScalingRequirements sshScalingRequirements) {
+    public static List<SshHostConfiguration> filterHosts(FabricRequirements requirements, ProfileRequirements profileRequirements, SshScalingRequirements sshScalingRequirements, HostProfileCounter hostProfileCounter) {
         List<SshHostConfiguration> answer = new ArrayList<SshHostConfiguration>();
         Map<String, SshHostConfiguration> hosts = requirements.getSshHostsMap();
         if (hosts != null) {
-            Filter<String> filter = Filters.createStringFilters(sshScalingRequirements.getHostPatterns());
+            Filter<String> filter = sshScalingRequirements != null ? Filters.createStringFilters(sshScalingRequirements.getHostPatterns()) : Filters.<String>trueFilter();
             Set<Map.Entry<String, SshHostConfiguration>> entries = hosts.entrySet();
             for (Map.Entry<String, SshHostConfiguration> entry : entries) {
                 String hostAlias = entry.getKey();
                 if (filter.matches(hostAlias)) {
                     SshHostConfiguration config = entry.getValue();
-                    answer.add(config);
+                    boolean valid = true;
+                    Integer maximumContainerCount = config.getMaximumContainerCount();
+                    if (maximumContainerCount != null) {
+                        int count = hostProfileCounter.containerCount(hostAlias);
+                        if (count >= maximumContainerCount) {
+                            valid = false;
+                        }
+                    }
+                    if (valid) {
+                        Integer maximumInstancesPerHost = profileRequirements.getMaximumInstancesPerHost();
+                        if (maximumInstancesPerHost != null) {
+                            int count = hostProfileCounter.profileCount(hostAlias, profileRequirements.getProfile());
+                            if (count >= maximumInstancesPerHost) {
+                                valid = false;
+                            }
+                        }
+                    }
+                    if (valid) {
+                        answer.add(config);
+                    }
                 }
             }
         }
