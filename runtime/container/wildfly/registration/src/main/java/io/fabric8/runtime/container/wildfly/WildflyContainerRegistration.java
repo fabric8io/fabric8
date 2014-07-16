@@ -25,9 +25,11 @@ import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.Strings;
 import io.fabric8.internal.ContainerImpl;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -60,9 +62,14 @@ import static io.fabric8.zookeeper.ZkPath.CONTAINER_IP;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_JMX;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_HOSTNAME;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_MANUAL_IP;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MAX;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MIN;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_RESOLVER;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.createDefault;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
 @Component(name = "io.fabric8.container.registration.widlfly", label = "Fabric8 Wildfly Container Registration", immediate = true, metatype = false)
@@ -88,6 +95,8 @@ public final class WildflyContainerRegistration extends AbstractComponent implem
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = GeoLocationService.class)
     private final ValidatingReference<GeoLocationService> geoLocationService = new ValidatingReference<GeoLocationService>();
+    @Reference(referenceInterface = BootstrapConfiguration.class)
+    private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
 
 
     @Activate
@@ -122,12 +131,19 @@ public final class WildflyContainerRegistration extends AbstractComponent implem
                 ZooKeeperUtils.deleteSafe(curator.get(), domainsNode);
             }
 
-            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_BINDADDRESS.getPath(runtimeIdentity), sysprops.getProperty(ZkDefs.BIND_ADDRESS, "0.0.0.0"));
-            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_RESOLVER.getPath(runtimeIdentity), getContainerResolutionPolicy(sysprops, curator.get(), runtimeIdentity));
+            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_BINDADDRESS.getPath(runtimeIdentity), bootstrapConfiguration.get().getBindAddress());
+            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_RESOLVER.getPath(runtimeIdentity), getContainerResolutionPolicy(curator.get(), runtimeIdentity));
             ZooKeeperUtils.setData(curator.get(), CONTAINER_LOCAL_HOSTNAME.getPath(runtimeIdentity), HostUtils.getLocalHostName());
             ZooKeeperUtils.setData(curator.get(), CONTAINER_LOCAL_IP.getPath(runtimeIdentity), HostUtils.getLocalIp());
-            ZooKeeperUtils.setData(curator.get(), CONTAINER_IP.getPath(runtimeIdentity), getContainerPointer(curator.get(), runtimeIdentity));
-            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_GEOLOCATION.getPath(runtimeIdentity), geoLocationService.get().getGeoLocation());
+            //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
+            //Mostly usable for adding values when creating containers without an existing ensemble.
+            for (String resolver : ZkDefs.VALID_RESOLVERS) {
+                String address = String.valueOf(bootstrapConfiguration.get().getConfiguration().get(resolver));
+                if (address != null && !address.isEmpty() && exists(curator.get(), CONTAINER_ADDRESS.getPath(runtimeIdentity, resolver)) == null) {
+                    setData(curator.get(), CONTAINER_ADDRESS.getPath(runtimeIdentity, resolver), address);
+                }
+            }
+            createDefault(curator.get(), CONTAINER_GEOLOCATION.getPath(runtimeIdentity), geoLocationService.get().getGeoLocation());
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
             for (String resolver : ZkDefs.VALID_RESOLVERS) {
@@ -245,21 +261,13 @@ public final class WildflyContainerRegistration extends AbstractComponent implem
     /**
      * Returns the container specific resolution policy.
      */
-    private String getContainerResolutionPolicy(RuntimeProperties sysprops, CuratorFramework zooKeeper, String container) throws Exception {
+    private String getContainerResolutionPolicy(CuratorFramework zooKeeper, String container) throws Exception {
         String policy = null;
         List<String> validResolverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
-        if (ZooKeeperUtils.exists(zooKeeper, CONTAINER_RESOLVER.getPath(container)) != null) {
-            policy = ZooKeeperUtils.getStringData(zooKeeper, CONTAINER_RESOLVER.getPath(container));
-        } else if (sysprops.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY) != null && validResolverList.contains(sysprops.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY))) {
-            policy = sysprops.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY);
-        }
-
-        if (policy == null) {
-            policy = getGlobalResolutionPolicy(sysprops, zooKeeper);
-        }
-
-        if (policy != null && ZooKeeperUtils.exists(zooKeeper, CONTAINER_RESOLVER.getPath(container)) == null) {
-            ZooKeeperUtils.setData(zooKeeper, CONTAINER_RESOLVER.getPath(container), policy);
+        if (exists(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container)) != null) {
+            policy = getStringData(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container));
+        } else if (bootstrapConfiguration.get().getLocalResolver() != null && validResolverList.contains(bootstrapConfiguration.get().getLocalResolver())) {
+            policy = bootstrapConfiguration.get().getLocalResolver();
         }
         return policy;
     }
@@ -330,5 +338,13 @@ public final class WildflyContainerRegistration extends AbstractComponent implem
 
     void unbindGeoLocationService(GeoLocationService service) {
         this.geoLocationService.unbind(service);
+    }
+
+    void bindBootstrapConfiguration(BootstrapConfiguration service) {
+        this.bootstrapConfiguration.bind(service);
+    }
+
+    void unbindBootstrapConfiguration(BootstrapConfiguration service) {
+        this.bootstrapConfiguration.unbind(service);
     }
 }

@@ -76,14 +76,31 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
         PropertiesProvider envPropertiesProvider = new EnvPropertiesProvider("FABRIC8_");
         PropertiesProvider systemPropertiesProvider = new SystemPropertiesProvider();
         final Runtime runtime = this.runtime.get();
+
+        final PropertiesProvider runtimeProperties = new PropertiesProvider() {
+            @Override
+            public Object getProperty(String key) {
+                return runtime.getProperty(key);
+            }
+
+            @Override
+            public Object getRequiredProperty(String key) {
+                return runtime.getRequiredProperty(key);
+            }
+
+            @Override
+            public Object getProperty(String key, Object defaultValue) {
+                return runtime.getProperty(key, defaultValue);
+            }
+        };
+
         final PropertiesProvider configurationProvider = new MapPropertiesProvider((Map<String, Object>) configuration);
-        final PropertiesProvider fallbackPropertiesProvider = new CompositePropertiesProvider(systemPropertiesProvider, envPropertiesProvider);
-        final PropertiesProvider[] propertiesProviders = new PropertiesProvider[]{configurationProvider, fallbackPropertiesProvider};
+        final PropertiesProvider[] propertiesProviders = new PropertiesProvider[]{configurationProvider, systemPropertiesProvider, envPropertiesProvider, runtimeProperties};
 
         PropertiesProvider provider = new SubstitutionPropertiesProvider(new PropertiesProvider() {
             @Override
             public Object getProperty(String key) {
-                return runtime.getProperty(key);
+                return getProperty(key, null);
             }
 
             @Override

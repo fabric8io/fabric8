@@ -32,9 +32,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -44,6 +47,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import com.google.common.base.Strings;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 @Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
 class CreateAction extends AbstractAction {
@@ -117,13 +122,15 @@ class CreateAction extends AbstractAction {
     private List<String> containers;
 
     private static final String ROLE_DELIMITER = ",";
-
+    
     private final BundleContext bundleContext;
+    private final ConfigurationAdmin configAdmin;
     private final ZooKeeperClusterBootstrap bootstrap;
     private final RuntimeProperties runtimeProperties;
 
-    CreateAction(BundleContext bundleContext, ZooKeeperClusterBootstrap bootstrap, RuntimeProperties runtimeProperties) {
+    CreateAction(BundleContext bundleContext, ConfigurationAdmin configAdmin, ZooKeeperClusterBootstrap bootstrap, RuntimeProperties runtimeProperties) {
         this.bundleContext = bundleContext;
+        this.configAdmin = configAdmin;
         this.bootstrap = bootstrap;
         this.runtimeProperties = runtimeProperties;
 
@@ -140,6 +147,12 @@ class CreateAction extends AbstractAction {
             System.out.println("Current container " + fabricService.getCurrentContainerName() + " is already in the current fabric ensemble. Cannot create fabric.");
             System.out.println("You can use the --force option, if you want to force re-create the fabric.");
             return null;
+        }
+
+        Configuration bootConfiguration = configAdmin.getConfiguration(BootstrapConfiguration.COMPONENT_PID, null);
+        Dictionary<String, Object> bootProperties = bootConfiguration.getProperties();
+        if (bootProperties == null) {
+            bootProperties = new Hashtable<>();
         }
 
         String runtimeIdentity = runtimeProperties.getRuntimeIdentity();
@@ -166,28 +179,28 @@ class CreateAction extends AbstractAction {
 
         if (globalResolver != null) {
             builder.globalResolver(globalResolver);
-            System.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, globalResolver);
+            bootProperties.put(ZkDefs.GLOBAL_RESOLVER_PROPERTY, globalResolver);
         }
 
         if (resolver != null) {
             builder.resolver(resolver);
-            System.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, resolver);
+            bootProperties.put(ZkDefs.LOCAL_RESOLVER_PROPERTY, resolver);
         }
 
         if (manualIp != null) {
             builder.manualIp(manualIp);
-            System.setProperty(ZkDefs.MANUAL_IP, manualIp);
+            bootProperties.put(ZkDefs.MANUAL_IP, manualIp);
         }
 
         if (bindAddress != null) {
             if (!bindAddress.contains(":")) {
                 builder.bindAddress(bindAddress);
-                System.setProperty(ZkDefs.BIND_ADDRESS, bindAddress);
+                bootProperties.put(ZkDefs.BIND_ADDRESS, bindAddress);
             } else {
                 String[] parts = bindAddress.split(":");
                 builder.bindAddress(parts[0]);
                 builder.zooKeeperServerPort(Integer.parseInt(parts[1]));
-                System.setProperty(ZkDefs.BIND_ADDRESS, parts[0]);
+                bootProperties.put(ZkDefs.BIND_ADDRESS, parts[0]);
             }
         }
 
@@ -222,8 +235,8 @@ class CreateAction extends AbstractAction {
 
         builder.minimumPort(minimumPort);
         builder.minimumPort(maximumPort);
-        System.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
-        System.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
+        bootProperties.put(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
+        bootProperties.put(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
         newUser = newUser != null ? newUser : ShellUtils.retrieveFabricUser(session);
         newUserPassword = newUserPassword != null ? newUserPassword : ShellUtils.retrieveFabricUserPassword(session);
@@ -264,6 +277,7 @@ class CreateAction extends AbstractAction {
             builder.zookeeperPassword(zookeeperPassword);
         }
 
+        bootConfiguration.update(bootProperties);
         CreateEnsembleOptions options = builder.users(userProps)
                                                .withUser(newUser, newUserPassword , newUserRole)
                                                .build();

@@ -50,7 +50,9 @@ import io.fabric8.utils.PasswordEncoder;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
@@ -74,14 +76,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = BootstrapConfiguration.COMPONENT_NAME, label = "Fabric8 Bootstrap Configuration", immediate = true, metatype = false)
+@Component(name = BootstrapConfiguration.COMPONENT_NAME, configurationPid = BootstrapConfiguration.COMPONENT_PID, policy = ConfigurationPolicy.OPTIONAL, label = "Fabric8 Bootstrap Configuration", immediate = true, metatype = false)
 @Service(BootstrapConfiguration.class)
 public class BootstrapConfiguration extends AbstractComponent {
 
     static final Logger LOGGER = LoggerFactory.getLogger(BootstrapConfiguration.class);
 
     public static final String ENSEMBLE_MARKER = "ensemble-created.properties";
-    public static final String COMPONENT_NAME = "io.fabric8.zookeeper.configuration";
+    public static final String COMPONENT_PID = "io.fabric8.bootstrap.configuration";
+    public static final String COMPONENT_NAME = COMPONENT_PID;
 
     public static final String DEFAULT_ADMIN_USER = "admin";
     public static final String DEFAULT_ADMIN_ROLE = "admin";
@@ -126,10 +129,13 @@ public class BootstrapConfiguration extends AbstractComponent {
     @Property(name = "version", value = "${version}")
     private String version = ContainerOptions.DEFAULT_VERSION;
 
-    @Property(name = "resolver", label = "Global Resolver", description = "The global resolver", value = "${global.resolver}")
-    private String resolver = "localhostname";
+    @Property(name = "local.resolver", label = "Resolver", description = "The container resolver", value = "${local.resolver}")
+    private String localResolver;
 
-    @Property(name = "manualip", label = "Global Resolver", description = "The global resolver", value = "${manualip}")
+    @Property(name = "global.resolver", label = "Global Resolver", description = "The global resolver", value = "${global.resolver}")
+    private String globalResolver = "localhostname";
+
+    @Property(name = "manualip", label = "Global Resolver", description = "The manally set ip", value = "${manualip}")
     private String manualip;
 
     @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${runtime.id}", propertyPrivate = true)
@@ -144,11 +150,34 @@ public class BootstrapConfiguration extends AbstractComponent {
     private String zookeeperUrl;
 
     private ComponentContext componentContext;
+    private Map<String, ?> configuration;
 
     @Activate
-    void activate(ComponentContext componentContext, Map<String, ?> configuration) throws Exception {
+    void activate(ComponentContext componentContext, Map<String, ?> conf) throws Exception {
         this.componentContext = componentContext;
-        configurer.configure(configuration, this);
+        configureInternal(conf);
+        bootIfNeeded();
+        activateComponent();
+    }
+
+    @Modified
+    void modified(Map<String, ?> conf) throws Exception {
+        configureInternal(conf);
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    void configureInternal(Map<String, ?> conf) throws Exception {
+        configuration = conf;
+        configurer.configure(conf, this);
+
+
+        if (Strings.isNullOrBlank(localResolver)) {
+            localResolver = globalResolver;
+        }
 
         String decodedZookeeperPassword = null;
 
@@ -175,8 +204,10 @@ public class BootstrapConfiguration extends AbstractComponent {
 
         options = CreateEnsembleOptions.builder().bindAddress(bindAddress).agentEnabled(agentAutoStart).ensembleStart(ensembleAutoStart).zookeeperPassword(decodedZookeeperPassword)
                 .zooKeeperServerPort(zookeeperServerPort).zooKeeperServerConnectionPort(zookeeperServerConnectionPort).autoImportEnabled(profilesAutoImport)
-                .importPath(profilesAutoImportPath).users(userProps).profiles(profiles).version(version).build();
+                .importPath(profilesAutoImportPath).resolver(localResolver).globalResolver(globalResolver).users(userProps).profiles(profiles).version(version).build();
+    }
 
+    void bootIfNeeded() throws IOException {
         BundleContext bundleContext = componentContext.getBundleContext();
         boolean isCreated = checkCreated(bundleContext);
 
@@ -190,13 +221,6 @@ public class BootstrapConfiguration extends AbstractComponent {
 
             markCreated(bundleContext);
         }
-
-        activateComponent();
-    }
-
-    @Deactivate
-    void deactivate() {
-        deactivateComponent();
     }
 
     public ComponentContext getComponentContext() {
@@ -287,7 +311,7 @@ public class BootstrapConfiguration extends AbstractComponent {
     }
 
     private String getConnectionAddress(CreateEnsembleOptions options) throws UnknownHostException {
-        String oResolver = Strings.isNotBlank(options.getResolver()) ? options.getResolver() : resolver;
+        String oResolver = Strings.isNotBlank(options.getResolver()) ? options.getResolver() : localResolver;
         String oManualIp = Strings.isNotBlank(options.getManualIp()) ? options.getManualIp() : manualip;
 
         if (oResolver.equals(ZkDefs.LOCAL_HOSTNAME)) {
@@ -320,6 +344,34 @@ public class BootstrapConfiguration extends AbstractComponent {
                 }
             }
         }
+    }
+
+    public String getLocalResolver() {
+        return localResolver;
+    }
+
+    public String getGlobalResolver() {
+        return globalResolver;
+    }
+
+    public String getManualip() {
+        return manualip;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public Set<String> getProfiles() {
+        return Collections.unmodifiableSet(profiles);
+    }
+
+    public String getBindAddress() {
+        return bindAddress;
+    }
+
+    public Map<String, ?> getConfiguration() {
+        return Collections.unmodifiableMap(configuration);
     }
 
     void bindConfigAdmin(ConfigurationAdmin service) {
