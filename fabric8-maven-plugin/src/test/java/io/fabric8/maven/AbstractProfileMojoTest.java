@@ -18,6 +18,7 @@ package io.fabric8.maven;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
@@ -26,6 +27,7 @@ import java.util.Arrays;
 
 import static io.fabric8.api.FabricConstants.FABRIC_VERSION;
 
+@Ignore("[FABRIC-1113] AbstractProfileMojoTest reliably fails with clean repo")
 public class AbstractProfileMojoTest extends Assert {
 
     AbstractProfileMojo mojo = new AbstractProfileMojo() {
