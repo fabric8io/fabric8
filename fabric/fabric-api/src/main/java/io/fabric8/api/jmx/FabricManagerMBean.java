@@ -15,6 +15,7 @@
  */
 package io.fabric8.api.jmx;
 
+import io.fabric8.api.AutoScaleStatus;
 import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.FabricRequirements;
 
@@ -243,6 +244,8 @@ public interface FabricManagerMBean {
 
     */
     FabricRequirements requirements();
+
+    AutoScaleStatus autoScaleStatus();
 
     Map<String, Object> getVersion(String versionId);
 

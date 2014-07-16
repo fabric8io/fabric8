@@ -17,6 +17,8 @@ package io.fabric8.core.jmx;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+
+import io.fabric8.api.AutoScaleStatus;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerProvider;
@@ -998,6 +1000,11 @@ public class FabricManager implements FabricManagerMBean {
     @Override
     public FabricRequirements requirements() {
         return getFabricService().getRequirements();
+    }
+
+    @Override
+    public AutoScaleStatus autoScaleStatus() {
+        return getFabricService().getAutoScaleStatus();
     }
 
     @Override
