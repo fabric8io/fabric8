@@ -31,6 +31,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import static com.google.common.collect.Iterables.transform;
+import static io.fabric8.process.spring.boot.registry.ProcessRegistries.serviceUrlProperty;
 import static java.util.Arrays.asList;
 
 public class TemplateRestRepository<T, ID extends java.io.Serializable> implements RestRepository<T, ID> {
@@ -60,7 +61,7 @@ public class TemplateRestRepository<T, ID extends java.io.Serializable> implemen
 
     public static <T, ID extends java.io.Serializable> TemplateRestRepository<T, ID> forRegistrySymbol(
             ProcessRegistry processRegistry, String serviceSymbol, Class<T> entityClass, String entityResource) {
-        String serviceUrl = processRegistry.readProperty(String.format("service.%s.url", serviceSymbol));
+        String serviceUrl = processRegistry.readProperty(serviceUrlProperty(serviceSymbol));
         try {
             return new TemplateRestRepository<>(entityClass, serviceUrl + "/" + entityResource);
         } catch (MalformedURLException e) {

@@ -20,14 +20,28 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.Properties;
 
+/**
+ * Process registry reading information from the properties file located under the certain location in the classpath
+ * ({@code META-INF/io/fabric8/process/spring/boot/registry/registry.properties}).
+ * <br><br>
+ * In order to feed the managed process with the classpath registry, just include
+ * {@code META-INF/io/fabric8/process/spring/boot/registry/registry.properties} file(s) in your classpath. Keep in mind
+ * that your classpath can contain many jars providing the
+ * {@code META-INF/io/fabric8/process/spring/boot/registry/registry.properties} file. Properties from all of those will
+ * be added into the registry.
+ */
 public class ClassPathProcessRegistry implements ProcessRegistry {
+
+    private static final String REGISTRY_FILE_PATH =
+            "META-INF/io/fabric8/process/spring/boot/registry/registry.properties";
 
     private final Properties registry = new Properties();
 
+    // Constructors
+
     public ClassPathProcessRegistry() {
         try {
-            Enumeration<URL> registryProperties =
-                    getClass().getClassLoader().getResources("META-INF/io/fabric8/process/spring/boot/registry/registry.properties");
+            Enumeration<URL> registryProperties = getClass().getClassLoader().getResources(REGISTRY_FILE_PATH);
             while (registryProperties.hasMoreElements()) {
                 registry.load(registryProperties.nextElement().openStream());
             }
@@ -35,6 +49,8 @@ public class ClassPathProcessRegistry implements ProcessRegistry {
             throw new RuntimeException(e);
         }
     }
+
+    // Implementations
 
     @Override
     public String readProperty(String key) {
