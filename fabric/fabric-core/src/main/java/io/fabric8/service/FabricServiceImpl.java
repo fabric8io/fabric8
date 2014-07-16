@@ -361,7 +361,11 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         } finally {
             try {
                 if (destroyed || force) {
-                    portService.get().unregisterPort(container);
+                    try {
+                        portService.get().unregisterPort(container);
+                    } catch (Exception e) {
+                        LOGGER.warn("Failed to cleanup container {} entries due to: {}. This will be ignored.", containerId, e.getMessage());
+                    }
                     getDataStore().deleteContainer(container.getId());
                 }
             } catch (Exception e) {
