@@ -1,5 +1,6 @@
 ### Articles and presentations on fabric8
 
+* [An Introduction to Fabric8 and Why It's So Important for Integration](http://java.dzone.com/articles/introduction-fabric8-and-why) by [Steven Fisher](http://java.dzone.com/users/stevef1uk99)
 * [Meet Fabric8: An open-source integration platform based on Camel and ActiveMQ](http://www.christianposta.com/blog/?p=376) by [Christian Posta](http://www.christianposta.com/blog/)
 * [Fabric8 Introduction](http://fabric8.io/presentations/devnation-2014-intro/index.html#/) at [DevNation](http://devnation.org) 2014 by [Ioannis Canellos](http://twitter.com/iocanel) and [James Strachan](http://twitter.com/jstrachan)
 * [Fabric8 Deep Dive](http://fabric8.io/presentations/devnation-2014-deepdive/index.html#/) at [DevNation](http://devnation.org) 2014 by [Ioannis Canellos](http://twitter.com/iocanel) and [James Strachan](http://twitter.com/jstrachan)
