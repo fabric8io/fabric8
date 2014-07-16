@@ -16,6 +16,7 @@
 package io.fabric8.process.spring.boot.data;
 
 import com.google.common.base.Function;
+import io.fabric8.process.spring.boot.registry.ProcessRegistry;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,6 +43,8 @@ public class TemplateRestRepository<T, ID extends java.io.Serializable> implemen
 
     private final RestTemplate restTemplate;
 
+    // Constructors
+
     public TemplateRestRepository(Class<T> entityClass, String url) throws MalformedURLException {
        this(entityClass, new URL(url));
     }
@@ -52,6 +55,26 @@ public class TemplateRestRepository<T, ID extends java.io.Serializable> implemen
         this.url = url;
         restTemplate = new RestTemplate();
     }
+
+    // Factory methods
+
+    public static <T, ID extends java.io.Serializable> TemplateRestRepository<T, ID> forRegistrySymbol(
+            ProcessRegistry processRegistry, String serviceSymbol, Class<T> entityClass, String entityResource) {
+        String serviceUrl = processRegistry.readProperty(String.format("service.%s.url", serviceSymbol));
+        try {
+            return new TemplateRestRepository<>(entityClass, serviceUrl + "/" + entityResource);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T, ID extends java.io.Serializable> TemplateRestRepository<T, ID> forRegistrySymbol(
+            ProcessRegistry processRegistry, String serviceSymbol, Class<T> entityClass) {
+        String entityResource = entityClass.getSimpleName().toLowerCase();
+        return forRegistrySymbol(processRegistry, serviceSymbol, entityClass,entityResource);
+    }
+
+    // Repository operations
 
     @Override
     public Iterable<T> findByQuery(AbstractQuery query) {

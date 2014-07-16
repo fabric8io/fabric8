@@ -17,8 +17,10 @@ package io.fabric8.process.spring.boot.data;
 
 import io.fabric8.process.spring.boot.data.domain.Invoice;
 import io.fabric8.process.spring.boot.data.repository.InvoiceQuery;
+import io.fabric8.process.spring.boot.registry.ProcessRegistry;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +38,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static io.fabric8.process.spring.boot.data.TemplateRestRepository.forRegistrySymbol;
 import static java.util.UUID.randomUUID;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {InvoicingRestApiTest.class, InvoicingConfiguration.class})
-@IntegrationTest("server.port:0")
+@IntegrationTest("server.port:6667")
 @WebAppConfiguration
 @EnableAutoConfiguration
 @ComponentScan
@@ -50,27 +53,19 @@ public class InvoicingRestApiTest extends Assert {
 
     RestRepository<Invoice, Long> restRepository;
 
-    // Collaborators fixtures
-
-    @Autowired
-    EmbeddedWebApplicationContext tomcat;
-
-    int port;
-
-    String baseUri;
-
     // Data fixtures
 
     Invoice invoice;
 
     // Fixtures setup
 
+    @Autowired
+    ProcessRegistry processRegistry;
+
     @Before
     public void before() throws MalformedURLException {
-        port = tomcat.getEmbeddedServletContainer().getPort();
-        baseUri = "http://localhost:" + port + "/invoice";
 
-        restRepository = new TemplateRestRepository<>(Invoice.class, baseUri);
+        restRepository = forRegistrySymbol(processRegistry, "invoicing", Invoice.class);
 
         invoice = new Invoice().invoiceId(randomUUID().toString());
         invoice = restRepository.save(invoice);
