@@ -96,6 +96,10 @@
                <groupId>io.fabric8</groupId>
                <artifactId>fabric-agent-commands</artifactId>
            </dependency>
+          <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>fabric-autoscale</artifactId>
+          </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
                <artifactId>fabric-camel</artifactId>
