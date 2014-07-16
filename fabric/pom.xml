@@ -43,6 +43,7 @@
     <modules>
         <module>fabric-agent</module>
         <module>fabric-agent-commands</module>
+        <module>fabric-autoscale</module>
         <module>fabric-api</module>
         <module>fabric-boot-commands</module>
         <module>fabric-branding</module>
@@ -95,7 +96,6 @@
             <id>all</id>
             <modules>
                 <module>dynamic-jaxb</module>
-                <module>fabric-autoscale</module>
                 <module>fabric-camel-autotest</module>
                 <module>fabric-client</module>
                 <module>fabric-core-agent-jclouds</module>
