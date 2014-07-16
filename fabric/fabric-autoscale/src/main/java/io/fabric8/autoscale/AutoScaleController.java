@@ -15,7 +15,9 @@
  */
 package io.fabric8.autoscale;
 
+import io.fabric8.api.AutoScaleProfileStatus;
 import io.fabric8.api.AutoScaleRequest;
+import io.fabric8.api.AutoScaleStatus;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.Containers;
@@ -28,10 +30,13 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Closeables;
+import io.fabric8.common.util.Strings;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.internal.ZooKeeperGroup;
+import io.fabric8.internal.RequirementsJson;
 import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -39,6 +44,7 @@ import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,18 +86,23 @@ public final class AutoScaleController extends AbstractComponent implements Grou
             onConfigurationChanged();
         }
     };
+    private ZooKeeperMasterCache zkMasterCache;
 
     @Activate
     void activate() {
-        group = new ZooKeeperGroup<AutoScalerNode>(curator.get(), ZkPath.AUTO_SCALE.getPath(), AutoScalerNode.class);
+        CuratorFramework curator = this.curator.get();
+        enableMasterZkCache(curator);
+        group = new ZooKeeperGroup<AutoScalerNode>(curator, ZkPath.AUTO_SCALE_CLUSTER.getPath(), AutoScalerNode.class);
         group.add(this);
         group.update(createState());
         group.start();
         activateComponent();
     }
 
+
     @Deactivate
     void deactivate() {
+        disableMasterZkCache();
         disableTimer();
         deactivateComponent();
         group.remove(this);
@@ -109,6 +120,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
                     AutoScalerNode state = createState();
                     try {
                         if (group.isMaster()) {
+                            enableMasterZkCache(curator.get());
                             LOGGER.info("AutoScaleController is the master");
                             group.update(state);
                             dataStore.trackConfiguration(runnable);
@@ -119,6 +131,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
                             group.update(state);
                             disableTimer();
                             dataStore.untrackConfiguration(runnable);
+                            disableMasterZkCache();
                         }
                     } catch (IllegalStateException e) {
                         // Ignore
@@ -131,6 +144,17 @@ public final class AutoScaleController extends AbstractComponent implements Grou
                 break;
             case DISCONNECTED:
                 dataStore.untrackConfiguration(runnable);
+        }
+    }
+
+
+    protected void enableMasterZkCache(CuratorFramework curator) {
+        zkMasterCache = new ZooKeeperMasterCache(curator);
+    }
+
+    protected void disableMasterZkCache() {
+        if (zkMasterCache != null) {
+            zkMasterCache = null;
         }
     }
 
@@ -164,12 +188,26 @@ public final class AutoScaleController extends AbstractComponent implements Grou
     private void autoScale() {
         FabricRequirements requirements = fabricService.get().getRequirements();
         List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
-        for (ProfileRequirements profileRequirement : profileRequirements) {
-            ContainerAutoScaler autoScaler = createAutoScaler(requirements, profileRequirement);
-            if (autoScaler != null) {
-                autoScaleProfile(autoScaler, requirements, profileRequirement);
+        if (profileRequirements != null && !profileRequirements.isEmpty()) {
+            AutoScaleStatus status = new AutoScaleStatus();
+            for (ProfileRequirements profileRequirement : profileRequirements) {
+                ContainerAutoScaler autoScaler = createAutoScaler(requirements, profileRequirement);
+                if (autoScaler != null) {
+                    autoScaleProfile(autoScaler, requirements, profileRequirement, status);
+                } else {
+                    LOGGER.warn("No ContainerAutoScaler available for profile " + profileRequirement.getProfile());
+                }
+            }
+            if (zkMasterCache != null) {
+                try {
+                    String json = RequirementsJson.toJSON(status);
+                    String zkPath = ZkPath.AUTO_SCALE_STATUS.getPath();
+                    zkMasterCache.setStringData(zkPath, json, CreateMode.EPHEMERAL);
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to write autoscale status " + e, e);
+                }
             } else {
-                LOGGER.warn("No ContainerAutoScaler available for profile " + profileRequirement.getProfile());
+                LOGGER.warn("No ZooKeeperMasterCache!");
             }
         }
     }
@@ -184,8 +222,8 @@ public final class AutoScaleController extends AbstractComponent implements Grou
         }
     }
 
-    private void autoScaleProfile(ContainerAutoScaler autoScaler, FabricRequirements requirements, ProfileRequirements profileRequirement) {
-        String profile = profileRequirement.getProfile();
+    private void autoScaleProfile(final ContainerAutoScaler autoScaler, FabricRequirements requirements, ProfileRequirements profileRequirement, AutoScaleStatus status) {
+        final String profile = profileRequirement.getProfile();
         Integer minimumInstances = profileRequirement.getMinimumInstances();
         if (minimumInstances != null) {
             // lets check if we need to provision more
@@ -193,16 +231,30 @@ public final class AutoScaleController extends AbstractComponent implements Grou
             int count = containers.size();
             int delta = minimumInstances - count;
             try {
+                AutoScaleProfileStatus profileStatus = status.profileStatus(profile);
                 if (delta < 0) {
+                    profileStatus.destroyingContainer();
                     autoScaler.destroyContainers(profile, -delta, containers);
                 } else if (delta > 0) {
-                    if (requirementsSatisfied(requirements, profileRequirement)) {
-                        // TODO should we figure out the version from the requirements?
-                        FabricService service = fabricService.get();
-                        String version = service.getDefaultVersion().getId();
-                        AutoScaleRequest command = new AutoScaleRequest(service, version, profile, delta, requirements, profileRequirement);
-                        autoScaler.createContainers(command);
+                    if (requirementsSatisfied(requirements, profileRequirement, status)) {
+                        profileStatus.creatingContainer();
+                        final FabricService service = fabricService.get();
+                        String requirementsVersion = requirements.getVersion();
+                        final String version = Strings.isNotBlank(requirementsVersion) ? requirementsVersion : service.getDefaultVersion().getId();
+                        final AutoScaleRequest command = new AutoScaleRequest(service, version, profile, delta, requirements, profileRequirement, status);
+                        new Thread("Creating container for " + command.getProfile()) {
+                            @Override
+                            public void run() {
+                                try {
+                                    autoScaler.createContainers(command);
+                                } catch (Exception e) {
+                                    LOGGER.error("Failed to create container of profile: " + profile + ". Caught: " + e, e);
+                                }
+                            }
+                        }.start();
                     }
+                } else {
+                    profileStatus.provisioned();
                 }
             } catch (Exception e) {
                 LOGGER.error("Failed to auto-scale " + profile + ". Caught: " + e, e);
@@ -210,7 +262,8 @@ public final class AutoScaleController extends AbstractComponent implements Grou
         }
     }
 
-    private boolean requirementsSatisfied(FabricRequirements requirements, ProfileRequirements profileRequirement) {
+    private boolean requirementsSatisfied(FabricRequirements requirements, ProfileRequirements profileRequirement, AutoScaleStatus status) {
+        String profile = profileRequirement.getProfile();
         List<String> dependentProfiles = profileRequirement.getDependentProfiles();
         if (dependentProfiles != null) {
             for (String dependentProfile : dependentProfiles) {
@@ -220,9 +273,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
                     List<Container> containers = aliveAndSuccessfulContainersForProfile(dependentProfile);
                     int dependentSize = containers.size();
                     if (minimumInstances > dependentSize) {
-                        LOGGER.info("Cannot yet auto-scale profile " + profileRequirement.getProfile()
-                                + " since dependent profile " + dependentProfile + " has only " + dependentSize
-                                + " container(s) when it requires " + minimumInstances + " container(s)");
+                        status.profileStatus(profile).missingDependency(dependentProfile, dependentSize, minimumInstances);
                         return false;
                     }
                 }

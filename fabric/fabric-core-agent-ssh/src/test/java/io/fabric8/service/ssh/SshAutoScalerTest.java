@@ -18,6 +18,7 @@
 package io.fabric8.service.ssh;
 
 import io.fabric8.api.AutoScaleRequest;
+import io.fabric8.api.AutoScaleStatus;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.SshHostConfiguration;
@@ -84,6 +85,10 @@ public class SshAutoScalerTest {
     }
 
     public static HostProfileCounter assertSshAutoScale(FabricRequirements requirements) {
+        return assertSshAutoScale(requirements, new AutoScaleStatus());
+    }
+
+    public static HostProfileCounter assertSshAutoScale(FabricRequirements requirements, AutoScaleStatus status) {
         HostProfileCounter hostProfileCounter = new HostProfileCounter();
         String version = requirements.getVersion();
         if (Strings.isEmpty(version)) {
@@ -95,7 +100,7 @@ public class SshAutoScalerTest {
             if (minimumInstances != null) {
                 for (int i = 0; i < minimumInstances; i++) {
                     String profileId = profileRequirement.getProfile();
-                    AutoScaleRequest request = new AutoScaleRequest(null, version, profileId, 1, requirements, profileRequirement);
+                    AutoScaleRequest request = new AutoScaleRequest(null, version, profileId, 1, requirements, profileRequirement, status);
                     CreateSshContainerOptions.Builder builder = chooseHostContainerOptions(request, hostProfileCounter);
                     assertNotNull("Should have found a builder for " + profileId, builder);
                     String host = builder.getHost();
