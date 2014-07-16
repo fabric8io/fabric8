@@ -32,6 +32,7 @@ public class SshHostConfiguration {
     private String passPhrase;
     private String privateKeyFile;
     private String preferredAddress;
+    private Integer maximumContainerCount;
 
     public SshHostConfiguration() {
     }
@@ -82,6 +83,11 @@ public class SshHostConfiguration {
 
     public SshHostConfiguration preferredAddress(final String preferredAddress) {
         this.preferredAddress = preferredAddress;
+        return this;
+    }
+
+    public SshHostConfiguration maximumContainerCount(final Integer maximumContainerCount) {
+        this.maximumContainerCount = maximumContainerCount;
         return this;
     }
 
@@ -151,5 +157,13 @@ public class SshHostConfiguration {
 
     public void setPreferredAddress(String preferredAddress) {
         this.preferredAddress = preferredAddress;
+    }
+
+    public Integer getMaximumContainerCount() {
+        return maximumContainerCount;
+    }
+
+    public void setMaximumContainerCount(Integer maximumContainerCount) {
+        this.maximumContainerCount = maximumContainerCount;
     }
 }
