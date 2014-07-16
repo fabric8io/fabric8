@@ -126,6 +126,14 @@
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
+               <artifactId>fabric-docker-api</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>io.fabric8</groupId>
+               <artifactId>fabric-docker-provider</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>io.fabric8</groupId>
                <artifactId>fabric-dosgi</artifactId>
            </dependency>
            <dependency>
@@ -163,6 +171,10 @@
            <dependency>
                <groupId>io.fabric8</groupId>
                <artifactId>fabric-ldap</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>io.fabric8</groupId>
+               <artifactId>fabric-openshift</artifactId>
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
