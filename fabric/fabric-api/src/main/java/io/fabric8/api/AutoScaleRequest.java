@@ -27,14 +27,16 @@ public class AutoScaleRequest {
     private final int delta;
     private final FabricRequirements fabricRequirements;
     private final ProfileRequirements profileRequirements;
+    private final AutoScaleStatus status;
 
-    public AutoScaleRequest(FabricService fabricService, String version, String profile, int delta, FabricRequirements fabricRequirements, ProfileRequirements profileRequirements) {
+    public AutoScaleRequest(FabricService fabricService, String version, String profile, int delta, FabricRequirements fabricRequirements, ProfileRequirements profileRequirements, AutoScaleStatus status) {
         this.fabricService = fabricService;
         this.version = version;
         this.profile = profile;
         this.delta = delta;
         this.fabricRequirements = fabricRequirements;
         this.profileRequirements = profileRequirements;
+        this.status = status;
     }
 
     public FabricService getFabricService() {
@@ -59,5 +61,13 @@ public class AutoScaleRequest {
 
     public ProfileRequirements getProfileRequirements() {
         return profileRequirements;
+    }
+
+    public AutoScaleStatus getStatus() {
+        return status;
+    }
+
+    public AutoScaleProfileStatus getProfileAutoScaleStatus() {
+        return status.profileStatus(profile);
     }
 }

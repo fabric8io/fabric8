@@ -17,6 +17,7 @@ package io.fabric8.internal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.api.AutoScaleStatus;
 import io.fabric8.api.FabricRequirements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,10 +47,18 @@ public final class RequirementsJson {
     }
 
 
-    public static String toJSON(FabricRequirements answer) throws IOException {
+    public static String toJSON(FabricRequirements value) throws IOException {
+        return valueToJSON(value);
+    }
+
+    public static String toJSON(AutoScaleStatus value) throws IOException {
+        return valueToJSON(value);
+    }
+
+    protected static String valueToJSON(Object value) throws IOException {
         try {
             StringWriter writer = new StringWriter();
-            mapper.writeValue(writer, answer);
+            mapper.writeValue(writer, value);
 
             return writer.toString();
         } catch (IOException e) {
@@ -58,13 +67,24 @@ public final class RequirementsJson {
         }
     }
 
-
     public static FabricRequirements readRequirements(InputStream in) throws IOException {
         return mapper.readValue(in, FabricRequirements.class);
     }
 
+    public static AutoScaleStatus readAutoScaleStatus(InputStream in) throws IOException {
+        return mapper.readValue(in, AutoScaleStatus.class);
+    }
+
 
     public static FabricRequirements fromJSON(String json) throws IOException {
+        return valueFromJSON(json, FabricRequirements.class);
+    }
+
+    public static AutoScaleStatus autoScaleStatusFromJSON(String json) throws IOException {
+        return valueFromJSON(json, AutoScaleStatus.class);
+    }
+
+    protected static <T> T valueFromJSON(String json, Class<T> clazz) throws IOException {
         if (json == null) {
             return null;
         }
@@ -72,6 +92,7 @@ public final class RequirementsJson {
         if (trimmedJson.length() == 0 || trimmedJson.equals("{}")) {
             return null;
         }
-        return mapper.reader(FabricRequirements.class).readValue(trimmedJson);
+        return mapper.reader(clazz).readValue(trimmedJson);
     }
+
 }
