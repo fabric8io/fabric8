@@ -20,11 +20,13 @@ import io.fabric8.api.CreateChildContainerMetadata;
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.scr.support.Strings;
 import io.fabric8.common.util.Objects;
 import io.fabric8.process.manager.DownloadStrategy;
 import io.fabric8.process.manager.InstallOptions;
+
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 
@@ -81,7 +83,9 @@ public class ProcessContainerConfig {
         String versionId = options.getVersion();
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
         for (Profile profile : profiles) {
-            jsonData = profile.getOverlay().getFileConfiguration(controllerPath);
+            ProfileService profileService = fabricService.adapt(ProfileService.class);
+            Profile overlay = profileService.getOverlayProfile(profile);
+            jsonData = overlay.getFileConfiguration(controllerPath);
             if (jsonData != null) {
                 break;
             }

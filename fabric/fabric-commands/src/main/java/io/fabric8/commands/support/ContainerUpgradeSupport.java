@@ -35,7 +35,7 @@ public final class ContainerUpgradeSupport {
         List<Profile> list = new ArrayList<Profile>(existingProfiles.length);
         for (Profile old : existingProfiles) {
             // get new profile
-            Profile newProfile = targetVersion.getProfile(old.getId());
+            Profile newProfile = targetVersion.getRequiredProfile(old.getId());
             if (newProfile != null) {
                 list.add(newProfile);
             } else {

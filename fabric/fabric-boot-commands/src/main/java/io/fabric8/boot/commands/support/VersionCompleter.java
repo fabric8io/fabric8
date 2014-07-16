@@ -16,7 +16,7 @@
 package io.fabric8.boot.commands.support;
 
 import io.fabric8.api.FabricService;
-import io.fabric8.api.Version;
+import io.fabric8.api.ProfileService;
 
 import java.util.List;
 
@@ -53,9 +53,10 @@ public final class VersionCompleter extends AbstractCompleterComponent {
     @Override
     public int complete(String buffer, int cursor, List<String> candidates) {
         StringsCompleter delegate = new StringsCompleter();
-        Version[] versions = fabricService.getVersions();
-        for (Version version : versions) {
-            delegate.getStrings().add(version.getId());
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        List<String> versions = profileService.getVersions();
+        for (String version : versions) {
+            delegate.getStrings().add(version);
         }
         return delegate.complete(buffer, cursor, candidates);
     }

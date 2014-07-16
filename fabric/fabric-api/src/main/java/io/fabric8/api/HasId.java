@@ -18,5 +18,6 @@ package io.fabric8.api;
 /**
  */
 public interface HasId {
+	
     String getId();
 }

@@ -39,14 +39,12 @@ public final class CommandUtils {
      * @param profiles the profiles
      * @return the sorted profiles
      */
-    public static Profile[] sortProfiles(Profile[] profiles) {
-        if (profiles == null || profiles.length <= 1) {
+    public static List<Profile> sortProfiles(List<Profile> profiles) {
+        if (profiles == null || profiles.size() <= 1) {
             return profiles;
         }
-        List<Profile> list = new ArrayList<Profile>(profiles.length);
-        list.addAll(Arrays.asList(profiles));
-
-        Collections.sort(list, new Comparator<Profile>() {
+        List<Profile> sorted = new ArrayList<>(profiles);
+        Collections.sort(sorted, new Comparator<Profile>() {
             @Override
             public int compare(Profile p1, Profile p2) {
                 if (p1 == null) {
@@ -57,8 +55,7 @@ public final class CommandUtils {
                 return p1.getId().compareTo(p2.getId());
             }
         });
-
-        return list.toArray(new Profile[0]);
+        return Collections.unmodifiableList(sorted);
     }
 
     /**

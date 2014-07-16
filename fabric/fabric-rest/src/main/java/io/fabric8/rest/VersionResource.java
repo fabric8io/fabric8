@@ -75,7 +75,7 @@ public class VersionResource extends ResourceSupport {
     @Path("profile/{profileId}")
     public ProfileResource version(@PathParam("profileId") String profileId) {
         if (Strings.isNotBlank(profileId) && version != null && version.hasProfile(profileId)) {
-            Profile profile = version.getProfile(profileId);
+            Profile profile = version.getRequiredProfile(profileId);
             if (profile != null) {
                 return new ProfileResource(this, profile);
             }

@@ -74,13 +74,13 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
                 LinkedList<Container> servers = new LinkedList<Container>(containerList);
 
                 for (Container c : servers) {
-                    Profile p = c.getVersion().getProfile("example-camel-cluster.server");
+                    Profile p = c.getVersion().getRequiredProfile("example-camel-cluster.server");
                     c.setProfiles(new Profile[]{p});
                 }
 
                 Provision.provisioningSuccess(servers, PROVISION_TIMEOUT);
 
-                Profile p = client.getVersion().getProfile("example-camel-cluster.client");
+                Profile p = client.getVersion().getRequiredProfile("example-camel-cluster.client");
                 client.setProfiles(new Profile[]{p});
 
                 Provision.provisioningSuccess(Arrays.asList(new Container[]{client}), PROVISION_TIMEOUT);

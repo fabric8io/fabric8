@@ -15,7 +15,6 @@
  */
 package io.fabric8.deployer;
 
-import io.fabric8.agent.download.DownloadFuture;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.mvn.Parser;
@@ -23,11 +22,13 @@ import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,25 +59,13 @@ public class JavaContainers {
         return artifacts;
     }
 
-    public static Map<String, File> getJavaContainerArtifactsFiles(FabricService fabric, List<Profile> profileList, ExecutorService downloadExecutor) throws Exception {
-        final DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
-        final Map<String, File> answer = new HashMap<String, File>();
+    public static Map<String, File> getJavaContainerArtifactsFiles(FabricService fabricService, List<Profile> profileList, ExecutorService downloadExecutor) throws Exception {
+        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, downloadExecutor);
+        Map<String, File> answer = new HashMap<String, File>();
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
         for (Profile profile : profileList) {
-            Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(fabric, downloadManager, profile.getOverlay(), new AgentUtils.Callback<String>(){
-                @Override
-                public void call(String location) {
-                    try {
-                        DownloadFuture future = downloadManager.download(location);
-                        File file = AgentUtils.waitForFileDownload(future);
-                        if (file != null) {
-                            answer.put(location, file);
-                        }
-                        LOGGER.info("downloaded file " + file + " for location: " + location);
-                    } catch (Exception e) {
-                        LOGGER.warn("Error downloading " + location + ". " + e, e);
-                    }
-                }
-            });
+            Profile overlay = profileService.getOverlayProfile(profile);
+            Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(fabricService, downloadManager, overlay);
             appendMavenDependencies(profileArtifacts, profile);
             Set<String> rawUrls = profileArtifacts.keySet();
             List<String> cleanUrlsToDownload = new ArrayList<String>();
@@ -109,7 +98,7 @@ public class JavaContainers {
     }
 
     protected static void appendMavenDependencies(Map<String, Parser> artifacts, Profile profile) {
-        List<String> configurationFileNames = profile.getConfigurationFileNames();
+        Set<String> configurationFileNames = profile.getConfigurationFileNames();
         for (String configurationFileName : configurationFileNames) {
             if (configurationFileName.startsWith("dependencies/") && configurationFileName.endsWith("-requirements.json")) {
                 byte[] data = profile.getFileConfiguration(configurationFileName);

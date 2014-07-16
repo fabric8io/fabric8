@@ -37,6 +37,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.MQService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
 import io.fabric8.api.jmx.BrokerKind;
@@ -290,9 +291,9 @@ public class MQManager implements MQManagerMXBean {
                 dto.setBrokerName(brokerName);
                 String version = profile.getVersion();
                 dto.setVersion(version);
-                Profile[] parents = profile.getParents();
-                if (parents != null && parents.length > 0) {
-                    dto.setParentProfile(parents[0].getId());
+                List<Profile> parents = profile.getParents();
+                if (parents.size() > 0) {
+                    dto.setParentProfile(parents.get(0).getId());
                 }
                 if (configuration != null) {
                     dto.setData(configuration.get(DATA));
@@ -328,13 +329,15 @@ public class MQManager implements MQManagerMXBean {
         Objects.notNull(fabricService, "fabricService");
         List<Profile> answer = new ArrayList<Profile>();
         if (version != null) {
-            Profile[] profiles = version.getProfiles();
+            ProfileService profileService = fabricService.adapt(ProfileService.class);
+            List<Profile> profiles = version.getProfiles();
             for (Profile profile : profiles) {
                 // ignore if we don't have any requirements or instances as it could be profiles such
                 // as the out of the box mq-default / mq-amq etc
-                String profileId = profile.getId();
-                if (requirements.hasMinimumInstances(profileId) || profile.getAssociatedContainers().length > 0) {
-                    Profile overlay = profile.getOverlay();
+            	String versionId = profile.getVersion();
+            	String profileId = profile.getId();
+                if (requirements.hasMinimumInstances(profileId) || fabricService.getAssociatedContainers(versionId, profileId).length > 0) {
+                    Profile overlay = profileService.getOverlayProfile(profile);
                     Map<String, Map<String, String>> configurations = overlay.getConfigurations();
                     Set<Map.Entry<String, Map<String, String>>> entries = configurations.entrySet();
                     for (Map.Entry<String, Map<String, String>> entry : entries) {

@@ -45,6 +45,7 @@ import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.gravia.itests.support.AnnotatedContextListener;
 import org.jboss.gravia.itests.support.ArchiveBuilder;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;

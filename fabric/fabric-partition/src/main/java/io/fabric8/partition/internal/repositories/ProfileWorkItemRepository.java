@@ -74,7 +74,7 @@ public class ProfileWorkItemRepository extends BaseWorkItemRepository implements
         try {
             String version = dataStore.getContainerVersion(name);
             Version v = fabricService.getVersion(version);
-            Profile p = v.getProfile(profile);
+            Profile p = v.getRequiredProfile(profile);
             for (String f : p.getFileConfigurations().keySet()) {
                 if (f.startsWith(folderPath)) {
                     items.add(f);

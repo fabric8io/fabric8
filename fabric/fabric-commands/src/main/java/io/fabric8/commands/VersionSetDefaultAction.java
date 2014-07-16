@@ -48,7 +48,7 @@ public class VersionSetDefaultAction extends AbstractAction {
         if (version.compareTo(currentDefault) == 0) {
             System.out.println("Version " + version + " is already default version.");
         } else {
-            getFabricService().setDefaultVersion(version);
+            getFabricService().setDefaultVersion(version.getId());
             System.out.println("Changed default version to " + version);
         }
 

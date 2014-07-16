@@ -71,7 +71,7 @@ public abstract class AbstractProfileCompleter extends AbstractComponent impleme
                 }
             }
 
-            Profile[] profiles = version.getProfiles();
+            List<Profile> profiles = version.getProfiles();
             List<String> allProfileNames = new LinkedList<String>();
             if (containerProfiles != null) {
                 for (Profile p : profiles) {

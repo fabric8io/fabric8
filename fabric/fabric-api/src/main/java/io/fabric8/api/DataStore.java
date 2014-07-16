@@ -132,6 +132,9 @@ public interface DataStore {
     // Version management
     //
 
+    /**
+     * Get the ordered list of available versions
+     */
     List<String> getVersions();
 
     boolean hasVersion(String name);

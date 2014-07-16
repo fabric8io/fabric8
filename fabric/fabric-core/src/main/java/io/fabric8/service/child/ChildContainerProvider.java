@@ -31,12 +31,13 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.PortService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.internal.ContainerImpl;
-import io.fabric8.internal.ProfileOverlayImpl;
 import io.fabric8.service.ContainerTemplate;
 import io.fabric8.utils.AuthenticationUtils;
 import io.fabric8.utils.Ports;
@@ -266,9 +267,11 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             jvmOptsBuilder.append(" -D" + ZkDefs.MANUAL_IP + "=" + options.getManualIp());
         }
 
-        FabricService fservice = fabricService.get();
+        DataStore dataStore = fabricService.get().getDataStore();
+        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
+        
         Map<String, String> dataStoreProperties = new HashMap<String, String>(options.getDataStoreProperties());
-        dataStoreProperties.put(DataStore.DATASTORE_TYPE_PROPERTY, fservice.getDataStore().getType());
+        dataStoreProperties.put(DataStore.DATASTORE_TYPE_PROPERTY, dataStore.getType());
 
         for (Map.Entry<String, String> dataStoreEntries : options.getDataStoreProperties().entrySet()) {
             String key = dataStoreEntries.getKey();
@@ -276,9 +279,9 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             jvmOptsBuilder.append(" -D" + Constants.DATASTORE_TYPE_PID + "." + key + "=" + value);
         }
 
-        Profile profile = parent.getVersion().getProfile("default");
-        Profile defaultProfile = new ProfileOverlayImpl(profile, fservice.getEnvironment(), true, fservice);
-        String featuresUrls = collectionAsString(defaultProfile.getRepositories());
+        Profile profile = parent.getVersion().getRequiredProfile("default");
+        Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), profileService.getOverlayProfile(profile));
+        String featuresUrls = collectionAsString(effectiveProfile.getRepositories());
         Set<String> features = new LinkedHashSet<String>();
 
         features.add("fabric-agent");
@@ -286,7 +289,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         //features.addAll(defaultProfile.getFeatures());
         String containerName = options.getName();
 
-        PortService portService = fservice.getPortService();
+        PortService portService = fabricService.get().getPortService();
         Set<Integer> usedPorts = portService.findUsedPortByHost(parent);
 
         CreateChildContainerMetadata metadata = new CreateChildContainerMetadata();
@@ -296,12 +299,12 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         int minimumPort = parent.getMinimumPort();
         int maximumPort = parent.getMaximumPort();
 
-        fservice.getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMin, String.valueOf(minimumPort));
-        fservice.getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMax, String.valueOf(maximumPort));
-        inheritAddresses(fservice, parent.getId(), containerName, options);
+        dataStore.setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMin, String.valueOf(minimumPort));
+        dataStore.setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMax, String.valueOf(maximumPort));
+        inheritAddresses(fabricService.get(), parent.getId(), containerName, options);
 
         //We are creating a container instance, just for the needs of port registration.
-        Container child = new ContainerImpl(parent, containerName, fservice) {
+        Container child = new ContainerImpl(parent, containerName, fabricService.get()) {
             @Override
             public String getIp() {
                 return parent.getIp();

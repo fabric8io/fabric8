@@ -15,15 +15,16 @@
  */
 package io.fabric8.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
-import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.commands.support.CommandUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
@@ -34,27 +35,27 @@ public class VersionInfoAction extends AbstractAction {
     static final String FORMAT = "%-30s %s";
 
     @Argument(index = 0, name = "version", description = "The version name.", required = true, multiValued = false)
-    private String versionName;
+    private String versionId;
 
+    private final ProfileService profileService;
     private final FabricService fabricService;
-    private final RuntimeProperties runtimeProperties;
 
-    VersionInfoAction(FabricService fabricService, RuntimeProperties runtimeProperties) {
+    VersionInfoAction(FabricService fabricService) {
+        this.profileService = fabricService.adapt(ProfileService.class);
         this.fabricService = fabricService;
-        this.runtimeProperties = runtimeProperties;
     }
 
     @Override
     protected Object doExecute() throws Exception {
-        if (!versionExists(versionName)) {
-            System.out.println("Version " + versionName + " does not exist");
+        if (!profileService.hasVersion(versionId)) {
+            System.out.println("Version " + versionId + " does not exists!");
             return null;
         }
-        Version version = fabricService.getVersion(versionName);
+        Version version = profileService.getRequiredVersion(versionId);
         String description = version.getAttributes().get(Version.DESCRIPTION);
-        String derivedFrom = version.getDerivedFrom() != null ? version.getDerivedFrom().getId() : null;
+        String derivedFrom = null;
         boolean defaultVersion = version.getId().equals(fabricService.getDefaultVersion().getId());
-        Profile[] profiles = CommandUtils.sortProfiles(version.getProfiles());
+        List<Profile> profiles = CommandUtils.sortProfiles(version.getProfiles());
 
         List<Container> containerList = new ArrayList<Container>();
         for (String c : fabricService.getDataStore().getContainers()) {
@@ -80,28 +81,18 @@ public class VersionInfoAction extends AbstractAction {
                 }
             }
         }
-        if (profiles.length == 0) {
+        if (profiles.size() == 0) {
             System.out.println(String.format(FORMAT, "Profiles:", ""));
         } else {
-            for (int i = 0; i < profiles.length; i++) {
+            for (int i = 0; i < profiles.size(); i++) {
                 if (i == 0) {
-                    System.out.println(String.format(FORMAT, "Profiles (" + profiles.length + "):", profiles[i].getId()));
+                    System.out.println(String.format(FORMAT, "Profiles (" + profiles.size() + "):", profiles.get(i).getId()));
                 } else {
-                    System.out.println(String.format(FORMAT, "", profiles[i].getId()));
+                    System.out.println(String.format(FORMAT, "", profiles.get(i).getId()));
                 }
             }
         }
 
         return null;
-    }
-
-    private boolean versionExists(String versionName) {
-        Version[] versions = fabricService.getVersions();
-        for (Version v : versions) {
-            if (versionName != null && versionName.equals(v.getId())) {
-                return true;
-            }
-        }
-        return false;
     }
 }

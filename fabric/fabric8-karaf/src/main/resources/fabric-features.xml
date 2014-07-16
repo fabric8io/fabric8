@@ -192,10 +192,10 @@
 
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">
         <feature>scr</feature>
-        <feature>gravia</feature>
         <bundle>mvn:io.fabric8/fabric-api/${project.version}</bundle>
         <feature version="${project.version}">fabric-git</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
+        <feature version="${gravia-version}">gravia</feature>
         <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
@@ -738,14 +738,13 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.json4s/${json4s-version}</bundle>
     </feature>
 
-    <feature name="gravia" version="${project.version}" resolver="(obr)">
+    <feature name="gravia" version="${gravia-version}" resolver="(obr)">
         <bundle start-level="36">mvn:org.jboss.gravia/gravia-resource/${gravia-version}</bundle>
         <bundle start-level="36">mvn:org.jboss.gravia/gravia-runtime-api/${gravia-version}</bundle>
         <bundle start-level="36">mvn:org.jboss.gravia/gravia-runtime-osgi/${gravia-version}</bundle>
         <bundle start-level="36">mvn:org.jboss.gravia/gravia-repository/${gravia-version}</bundle>
         <bundle start-level="37">mvn:org.jboss.gravia/gravia-resolver/${gravia-version}</bundle>
         <bundle start-level="38">mvn:org.jboss.gravia/gravia-provision/${gravia-version}</bundle>
-
     </feature>
 
 </features>

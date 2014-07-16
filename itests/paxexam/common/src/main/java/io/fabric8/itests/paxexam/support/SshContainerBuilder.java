@@ -15,16 +15,14 @@
  */
 package io.fabric8.itests.paxexam.support;
 
-import io.fabric8.api.Container;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.ServiceLocator;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.api.ZkDefs;
 import io.fabric8.service.ssh.CreateSshContainerOptions;
+import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 

@@ -19,10 +19,12 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
+
 import io.fabric8.api.Constants;
 import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
@@ -110,18 +112,19 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
     }
 
     private synchronized void updateInternal() {
-        Profile profile = null;
-
+        
+        Profile effectiveProfile;
         try {
-            profile = fabricService.get().getCurrentContainer().getOverlayProfile();
+            Profile overlayProfile = fabricService.get().getCurrentContainer().getOverlayProfile();
+            effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), overlayProfile);
         } catch (Exception ex) {
-            LOGGER.debug("Failed to read container profile. This exception will be ignored..", ex);
+            LOGGER.warn("Failed to read container profile. This exception will be ignored..", ex);
             return;
         }
 
         try {
 
-            final Map<String, Map<String, String>> pidProperties = profile.getConfigurations();
+            final Map<String, Map<String, String>> pidProperties = effectiveProfile.getConfigurations();
             List<Configuration> configs = asList(configAdmin.get().listConfigurations("(" + FABRIC_ZOOKEEPER_PID + "=*)"));
             // FABRIC-803: the agent may use the configuration provided by features definition if not managed
             //   by fabric.  However, in order for this to work, we need to make sure managed configurations
@@ -140,7 +143,7 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
                 if (pid.equals(Constants.AGENT_PID)) {
                     Hashtable<String, Object> c = new Hashtable<String, Object>();
                     c.putAll(pidProperties.get(pid));
-                    c.put(Profile.HASH, String.valueOf(profile.getProfileHash()));
+                    c.put(Profile.HASH, String.valueOf(effectiveProfile.getProfileHash()));
                     updateConfig(configs, pid, c);
                 }
             }

@@ -26,6 +26,7 @@ import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.api.ZkDefs;
@@ -49,27 +50,6 @@ import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.Properties;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -84,6 +64,27 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.docker", label = "Fabric8 Docker Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
@@ -214,12 +215,13 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         List<Profile> profileOverlays = new ArrayList<>();
         Version version = null;
         if (profileIds != null && versionId != null) {
-            version = service.getVersion(versionId);
+            ProfileService profileService = fabricService.get().adapt(ProfileService.class);
+            version = profileService.getVersion(versionId);
             if (version != null) {
                 for (String profileId : profileIds) {
-                    Profile profile = version.getProfile(profileId);
+                    Profile profile = version.getRequiredProfile(profileId);
                     if (profile != null) {
-                        Profile overlay = profile.getOverlay();
+                        Profile overlay = profileService.getOverlayProfile(profile);
                         profileOverlays.add(overlay);
                         Map<String, String> dockerConfig = overlay.getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
                         if (dockerConfig != null) {
@@ -231,9 +233,10 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                     }
                 }
                 if (version.hasProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID)) {
-                    Profile profile = version.getProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID);
+                    Profile profile = version.getRequiredProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID);
                     if (profile != null) {
-                        Map<String, String> dockerConfig = profile.getOverlay().getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
+                        Profile overlay = profileService.getOverlayProfile(profile);
+                        Map<String, String> dockerConfig = overlay.getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
                         if (dockerConfig != null) {
                             dockerProviderConfig.putAll(dockerConfig);
                         }
@@ -246,7 +249,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             if (version == null) {
                 version = service.getDefaultVersion();
             }
-            Profile dockerProfile = version.getProfile("docker");
+            Profile dockerProfile = version.getRequiredProfile("docker");
             ports = dockerProfile.getConfiguration(ChildConstants.PORTS_PID);
             if (ports == null || ports.size() == 0) {
                 LOG.warn("Could not a docker ports configuration for: " + ChildConstants.PORTS_PID);
