@@ -852,7 +852,7 @@ public class DeploymentAgent implements ManagedService {
         if (!resourcesWithUrlHandlers.isEmpty()) {
             LOGGER.info("Waiting for URL handlers...");
             long t0 = System.currentTimeMillis();
-            while (!resourcesWithUrlHandlers.isEmpty() && t0 - System.currentTimeMillis() < 30 * 1000) {
+            while (!resourcesWithUrlHandlers.isEmpty() && System.currentTimeMillis() - t0 < 30 * 1000) {
                 for (Iterator<Resource> it = resourcesWithUrlHandlers.iterator(); it.hasNext(); ) {
                     Resource resource = it.next();
                     Bundle bundle = resToBnd.get(resource);
@@ -880,8 +880,12 @@ public class DeploymentAgent implements ManagedService {
                     }
                 }
                 if (!resourcesWithUrlHandlers.isEmpty()) {
+                    LOGGER.debug("Still waiting for URL handlers provided by {}", resourcesWithUrlHandlers);
                     Thread.sleep(100);
                 }
+            }
+            if (!resourcesWithUrlHandlers.isEmpty()) {
+                LOGGER.warn("Gave up waiting for URL handlers provided by {}", resourcesWithUrlHandlers);
             }
             LOGGER.info("Starting bundles:");
         }
