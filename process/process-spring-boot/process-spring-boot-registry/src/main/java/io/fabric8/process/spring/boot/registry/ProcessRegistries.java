@@ -15,17 +15,15 @@
  */
 package io.fabric8.process.spring.boot.registry;
 
-/**
- * Provides unified way to access registry shared by the managed processes.
- */
-public interface ProcessRegistry {
+import static java.lang.String.format;
 
-    /**
-     * Reads property from the process registry.
-     *
-     * @param key identifies uniquely property to be resolved
-     * @return value of the property or {@code null} if property is not available
-     */
-    String readProperty(String key);
+public final class ProcessRegistries {
+
+    private ProcessRegistries() {
+    }
+
+    public static String serviceUrlProperty(String serviceSymbol) {
+        return format("service.%s.url", serviceSymbol);
+    }
 
 }
