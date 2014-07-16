@@ -32,6 +32,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.gravia.runtime.ServiceLocator;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.Configuration;
@@ -41,6 +42,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
  * Test fabric-core servies
  */
 @RunWith(Arquillian.class)
+@Ignore("[FABRIC-1112] Cannot reliably authenticate with Zookeeper from GitDataStore")
 public class FabricBootstrapTest {
 
     private static final String SYSTEM_PASSWORD = "systempassword";
