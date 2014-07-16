@@ -110,7 +110,7 @@ public class ProfileResource extends ResourceSupport {
         return Response.ok(bytes, mediaType).build();
     }
 
-    protected String guessMediaType(String fileName) {
+    public static String guessMediaType(String fileName) {
         // TODO isn't there a helper method in jaxrs/cxf/somewhere to do this?
         if (fileName.endsWith(".xml")) {
             return "application/xml";

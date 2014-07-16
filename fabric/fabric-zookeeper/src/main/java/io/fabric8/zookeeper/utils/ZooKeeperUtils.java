@@ -193,6 +193,17 @@ public final class ZooKeeperUtils {
         }
     }
 
+    /**
+     * Returns the data for the given path or null if it doesn not exist
+     */
+    public static byte[] getData(CuratorFramework curator, String path) throws Exception {
+        if (curator.checkExists().forPath(path) != null) {
+            return curator.getData().forPath(path);
+        }
+        return null;
+    }
+
+
     public static void setData(CuratorFramework curator, String path, String value) throws Exception {
         setData(curator, path, value != null ? value.getBytes(UTF_8) : null);
     }

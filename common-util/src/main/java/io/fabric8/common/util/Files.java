@@ -100,6 +100,33 @@ public final class Files {
     }
 
     /**
+     * Returns the file name part of the path
+     */
+    public static String getFileName(String path) {
+        if (path != null) {
+            return new File(path).getName();
+        }
+        return null;
+    }
+
+    /**
+     * Returns the file extension of the file name of the path or null
+     */
+    public static String getFileExtension(String path) {
+        String fileName = getFileName(path);
+        if (fileName  != null) {
+            int idx = fileName.lastIndexOf('.');
+            if (idx > 1) {
+                String answer = fileName.substring(idx + 1);
+                if (answer.length() > 0) {
+                    return answer;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Creates a temporary file.
      */
     public static File createTempFile(String path) throws IOException {

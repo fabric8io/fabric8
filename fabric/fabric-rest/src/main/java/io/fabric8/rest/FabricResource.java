@@ -58,7 +58,7 @@ public class FabricResource extends ResourceSupport {
     public FabricDTO details() {
         FabricService fabricService = getFabricService();
         if (fabricService != null) {
-            return new FabricDTO(fabricService, getLink("/containers"), getLink("/versions"), getLink("/status"), getLink("/requirements"));
+            return new FabricDTO(fabricService, getLink("/containers"), getLink("/versions"), getLink("/status"), getLink("/requirements"), getLink("/registry"), getLink("/zookeeper"));
         } else {
             noFabricService();
         }
@@ -151,5 +151,15 @@ public class FabricResource extends ResourceSupport {
     public void setRequirements(FabricRequirements requirements) throws IOException {
         FabricService service = getFabricService();
         service.setRequirements(requirements);
+    }
+
+    @Path("registry")
+    public RegistryResource registry() {
+        return new RegistryResource(this, "/registry/", RegistryResource.FABRIC_ZK_PREFIX);
+    }
+
+    @Path("zookeeper")
+    public RegistryResource zookeeper() {
+        return new RegistryResource(this, "/zookeeper/", RegistryResource.ROOT_ZK_PREFIX);
     }
 }

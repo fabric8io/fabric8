@@ -19,6 +19,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.common.util.Strings;
 import io.fabric8.core.jmx.Links;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,7 @@ public abstract class ResourceSupport {
     private MessageContext messageContext;
 
     private FabricService fabricService;
+    private CuratorFramework curator;
     private String baseUri;
 
     public ResourceSupport() {
@@ -53,6 +55,7 @@ public abstract class ResourceSupport {
         this.parent = parent;
         this.messageContext = parent.messageContext;
         this.fabricService = parent.getFabricService();
+        this.curator = parent.getCurator();
         this.baseUri = parent.getBaseUri();
         if (baseUri == null) {
             baseUri = "";
@@ -70,6 +73,13 @@ public abstract class ResourceSupport {
         this.fabricService = fabricService;
     }
 
+    public CuratorFramework getCurator() {
+        return curator;
+    }
+
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
+    }
 
     /**
      * Returns a relative link to the current resource

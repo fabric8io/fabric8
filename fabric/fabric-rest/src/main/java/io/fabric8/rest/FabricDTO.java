@@ -35,6 +35,8 @@ public class FabricDTO {
     private String versionsLink;
     private String statusLink;
     private String requirementsLink;
+    private String registryLink;
+    private String zooKeeperLink;
 
     public FabricDTO(FabricService fabricService, URI baseUri) {
     }
@@ -49,12 +51,14 @@ public class FabricDTO {
         this.defaultJvmOptions = fabricService.getDefaultJvmOptions();
     }
 
-    public FabricDTO(FabricService fabricService, String containersLink, String versionsLink, String statusLink, String requirementsLink) {
+    public FabricDTO(FabricService fabricService, String containersLink, String versionsLink, String statusLink, String requirementsLink, String registryLink, String zooKeeperLink) {
         this(fabricService);
         this.containersLink = containersLink;
         this.versionsLink = versionsLink;
         this.statusLink = statusLink;
         this.requirementsLink = requirementsLink;
+        this.registryLink = registryLink;
+        this.zooKeeperLink = zooKeeperLink;
     }
 
     @Override
@@ -154,6 +158,22 @@ public class FabricDTO {
 
     public void setRequirementsLink(String requirementsLink) {
         this.requirementsLink = requirementsLink;
+    }
+
+    public String getRegistryLink() {
+        return registryLink;
+    }
+
+    public void setRegistryLink(String registryLink) {
+        this.registryLink = registryLink;
+    }
+
+    public String getZooKeeperLink() {
+        return zooKeeperLink;
+    }
+
+    public void setZooKeeperLink(String zooKeeperLink) {
+        this.zooKeeperLink = zooKeeperLink;
     }
 
     protected static String asString(URI uri) {
