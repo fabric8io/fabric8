@@ -55,6 +55,7 @@ public class JoinCommand extends AbstractCommandComponent implements JoinAvailab
     @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
+
     private BundleContext bundleContext;
 
     @Activate

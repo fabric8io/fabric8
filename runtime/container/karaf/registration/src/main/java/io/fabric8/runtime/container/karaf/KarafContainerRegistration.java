@@ -16,6 +16,9 @@
 package io.fabric8.runtime.container.karaf;
 
 import io.fabric8.api.GeoLocationService;
+import io.fabric8.common.util.Strings;
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
@@ -69,6 +72,7 @@ import static io.fabric8.zookeeper.ZkPath.CONTAINER_IP;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_JMX;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_HOSTNAME;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_MANUAL_IP;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MAX;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MIN;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_RESOLVER;
@@ -119,6 +123,8 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = GeoLocationService.class)
     private final ValidatingReference<GeoLocationService> geoLocationService = new ValidatingReference<GeoLocationService>();
+    @Reference(referenceInterface = BootstrapConfiguration.class)
+    private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
 
     @Activate
     void activate() {
@@ -152,20 +158,20 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                 deleteSafe(curator.get(), domainsNode);
             }
 
-            createDefault(curator.get(), CONTAINER_BINDADDRESS.getPath(runtimeIdentity), sysprops.getProperty(ZkDefs.BIND_ADDRESS, "0.0.0.0"));
-            createDefault(curator.get(), CONTAINER_RESOLVER.getPath(runtimeIdentity), getContainerResolutionPolicy(sysprops, curator.get(), runtimeIdentity));
+            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_BINDADDRESS.getPath(runtimeIdentity), bootstrapConfiguration.get().getBindAddress());
+            ZooKeeperUtils.createDefault(curator.get(), CONTAINER_RESOLVER.getPath(runtimeIdentity), getContainerResolutionPolicy(curator.get(), runtimeIdentity));
             setData(curator.get(), CONTAINER_LOCAL_HOSTNAME.getPath(runtimeIdentity), HostUtils.getLocalHostName());
             setData(curator.get(), CONTAINER_LOCAL_IP.getPath(runtimeIdentity), HostUtils.getLocalIp());
             setData(curator.get(), CONTAINER_IP.getPath(runtimeIdentity), getContainerPointer(curator.get(), runtimeIdentity));
-            createDefault(curator.get(), CONTAINER_GEOLOCATION.getPath(runtimeIdentity), geoLocationService.get().getGeoLocation());
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
             for (String resolver : ZkDefs.VALID_RESOLVERS) {
-                String address = sysprops.getProperty(resolver);
+                String address = String.valueOf(bootstrapConfiguration.get().getConfiguration().get(resolver));
                 if (address != null && !address.isEmpty() && exists(curator.get(), CONTAINER_ADDRESS.getPath(runtimeIdentity, resolver)) == null) {
                     setData(curator.get(), CONTAINER_ADDRESS.getPath(runtimeIdentity, resolver), address);
                 }
             }
+            createDefault(curator.get(), CONTAINER_GEOLOCATION.getPath(runtimeIdentity), geoLocationService.get().getGeoLocation());
 
             //We are creating a dummy container object, since this might be called before the actual container is ready.
             Container current = getContainer();
@@ -410,39 +416,13 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         }
     }
 
-    /**
-     * Returns the global resolution policy.
-     */
-    private String getGlobalResolutionPolicy(RuntimeProperties sysprops, CuratorFramework zooKeeper) throws Exception {
-        String policy = ZkDefs.LOCAL_HOSTNAME;
-        List<String> validResolverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
-        if (exists(zooKeeper, ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
-            policy = getStringData(zooKeeper, ZkPath.POLICIES.getPath(ZkDefs.RESOLVER));
-        } else if (sysprops.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY) != null && validResolverList.contains(sysprops.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY))) {
-            policy = sysprops.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY);
-            setData(zooKeeper, ZkPath.POLICIES.getPath("resolver"), policy);
-        }
-        return policy;
-    }
-
-    /**
-     * Returns the container specific resolution policy.
-     */
-    private String getContainerResolutionPolicy(RuntimeProperties sysprops, CuratorFramework zooKeeper, String container) throws Exception {
+    private String getContainerResolutionPolicy(CuratorFramework zooKeeper, String container) throws Exception {
         String policy = null;
         List<String> validResolverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
         if (exists(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container)) != null) {
             policy = getStringData(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container));
-        } else if (sysprops.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY) != null && validResolverList.contains(sysprops.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY))) {
-            policy = sysprops.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY);
-        }
-
-        if (policy == null) {
-            policy = getGlobalResolutionPolicy(sysprops, zooKeeper);
-        }
-
-        if (policy != null && exists(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container)) == null) {
-            setData(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container), policy);
+        } else if (bootstrapConfiguration.get().getLocalResolver() != null && validResolverList.contains(bootstrapConfiguration.get().getLocalResolver())) {
+            policy = bootstrapConfiguration.get().getLocalResolver();
         }
         return policy;
     }
@@ -595,5 +575,13 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
 
     void unbindGeoLocationService(GeoLocationService service) {
         this.geoLocationService.unbind(service);
+    }
+
+    void bindBootstrapConfiguration(BootstrapConfiguration service) {
+        this.bootstrapConfiguration.bind(service);
+    }
+
+    void unbindBootstrapConfiguration(BootstrapConfiguration service) {
+        this.bootstrapConfiguration.unbind(service);
     }
 }

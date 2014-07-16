@@ -30,8 +30,10 @@ import io.fabric8.zookeeper.ZkPath;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Dictionary;
 import java.util.Hashtable;
 
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
@@ -86,12 +88,12 @@ final class JoinAction extends AbstractAction {
     @Argument(required = false, index = 1, multiValued = false, description = "Container name to use in fabric. By default a karaf name will be used")
     private String containerName;
 
-    private final ConfigurationAdmin configurationAdmin;
+    private final ConfigurationAdmin configAdmin;
     private final BundleContext bundleContext;
     private final RuntimeProperties runtimeProperties;
 
-    JoinAction(BundleContext bundleContext, ConfigurationAdmin configurationAdmin, RuntimeProperties runtimeProperties) {
-        this.configurationAdmin = configurationAdmin;
+    JoinAction(BundleContext bundleContext, ConfigurationAdmin configAdmin, RuntimeProperties runtimeProperties) {
+        this.configAdmin = configAdmin;
         this.bundleContext = bundleContext;
         this.runtimeProperties = runtimeProperties;
     }
@@ -103,16 +105,22 @@ final class JoinAction extends AbstractAction {
             containerName = oldName;
         }
 
+        Configuration bootConfiguration = configAdmin.getConfiguration(BootstrapConfiguration.COMPONENT_PID, null);
+        Dictionary<String, Object> bootProperties = bootConfiguration.getProperties();
+        if (bootProperties == null) {
+            bootProperties = new Hashtable<>();
+        }
+
         if (resolver != null) {
-            System.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, resolver);
+            bootProperties.put(ZkDefs.LOCAL_RESOLVER_PROPERTY, resolver);
         }
 
         if (manualIp != null) {
-            System.setProperty(ZkDefs.MANUAL_IP, manualIp);
+            bootProperties.put(ZkDefs.MANUAL_IP, manualIp);
         }
 
         if (bindAddress != null) {
-            System.setProperty(ZkDefs.BIND_ADDRESS, bindAddress);
+            bootProperties.put(ZkDefs.BIND_ADDRESS, bindAddress);
         }
 
         zookeeperPassword = zookeeperPassword != null ? zookeeperPassword : ShellUtils.retrieveFabricZookeeperPassword(session);
@@ -130,8 +138,8 @@ final class JoinAction extends AbstractAction {
         log.debug("Encoding ZooKeeper password.");
         String encodedPassword = PasswordEncoder.encode(zookeeperPassword);
 
-        System.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
-        System.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
+        bootProperties.put(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
+        bootProperties.put(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
         if (!containerName.equals(oldName)) {
             if (force || permissionToRenameContainer()) {
@@ -140,10 +148,10 @@ final class JoinAction extends AbstractAction {
                     return null;
                 }
 
-                System.setProperty(SystemProperties.KARAF_NAME, containerName);
+                bootProperties.put(SystemProperties.KARAF_NAME, containerName);
                 //Ensure that if we bootstrap CuratorFramework via RuntimeProperties password is set before the URL.
-                System.setProperty("zookeeper.password", encodedPassword);
-                System.setProperty("zookeeper.url", zookeeperUrl);
+                bootProperties.put("zookeeper.password", encodedPassword);
+                bootProperties.put("zookeeper.url", zookeeperUrl);
                 //Rename the container
                 String karafEtc = runtimeProperties.getProperty(SystemProperties.KARAF_ETC);
                 File file = new File(karafEtc, "system.properties");
@@ -158,8 +166,9 @@ final class JoinAction extends AbstractAction {
                     installBundles();
                 }
                 //Restart the container
-                System.setProperty("karaf.restart", "true");
-                System.setProperty("karaf.restart.clean", "false");
+                bootProperties.put("karaf.restart", "true");
+                bootProperties.put("karaf.restart.clean", "false");
+                bootConfiguration.update(bootProperties);
                 bundleContext.getBundle(0).stop();
 
                 return null;
@@ -167,11 +176,12 @@ final class JoinAction extends AbstractAction {
                 return null;
             }
         } else {
+            bootConfiguration.update(bootProperties);
             if (!registerContainer(containerName, zookeeperPassword, profile, force)) {
                 System.err.println("A container with the name: " + containerName + " is already member of the cluster. You can specify a different name as an argument.");
                 return null;
             }
-            Configuration config = configurationAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
+            Configuration config = configAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
             Hashtable<String, Object> properties = new Hashtable<String, Object>();
             properties.put("zookeeper.url", zookeeperUrl);
             properties.put("zookeeper.password", PasswordEncoder.encode(encodedPassword));

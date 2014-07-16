@@ -26,6 +26,7 @@ import io.fabric8.utils.SystemProperties;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -113,6 +114,7 @@ public class ZooKeeperServerFactory extends AbstractComponent {
             dataDir = runtimeProperties.get().getHomePath().resolve(dataDir).toFile().getAbsolutePath();
             props.setProperty("dataDir", dataDir);
         }
+        props.put("clientPortAddress", bootstrapConfiguration.get().getBindAddress());
 
         // Create myid file
         String serverId = (String) props.get("server.id");

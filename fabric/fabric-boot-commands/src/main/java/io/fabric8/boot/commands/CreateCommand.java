@@ -34,6 +34,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.service.command.Function;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 @Command(name = CreateCommand.FUNCTION_VALUE, scope = CreateCommand.SCOPE_VALUE, description = CreateCommand.DESCRIPTION, detailedDescription = "classpath:create.txt")
 @Component(immediate = true)
@@ -56,6 +57,8 @@ public class CreateCommand extends AbstractCommandComponent implements CreateAva
     private final ValidatingReference<ZooKeeperClusterBootstrap> bootstrap = new ValidatingReference<ZooKeeperClusterBootstrap>();
     @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
+    @Reference(referenceInterface = ConfigurationAdmin.class)
+    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
 
     // Optional Completers
     @Reference(referenceInterface = ResolverCompleter.class, bind = "bindResolverCompleter", unbind = "unbindResolverCompleter")
@@ -77,7 +80,7 @@ public class CreateCommand extends AbstractCommandComponent implements CreateAva
     @Override
     public Action createNewAction() {
         assertValid();
-        return new CreateAction(bundleContext, bootstrap.get(), runtimeProperties.get());
+        return new CreateAction(bundleContext, configAdmin.get(), bootstrap.get(), runtimeProperties.get());
     }
 
     void bindBootstrap(ZooKeeperClusterBootstrap bootstrap) {
@@ -102,5 +105,13 @@ public class CreateCommand extends AbstractCommandComponent implements CreateAva
 
     void unbindResolverCompleter(ResolverCompleter completer) {
         unbindOptionalCompleter(completer);
+    }
+
+    void bindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.bind(service);
+    }
+
+    void unbindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.unbind(service);
     }
 }
