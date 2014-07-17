@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 
-import aQute.lib.osgi.Macro;
-import aQute.lib.osgi.Processor;
+import aQute.bnd.osgi.Macro;
+import aQute.bnd.osgi.Processor;
 import org.apache.felix.framework.Felix;
 import org.apache.karaf.features.Repository;
 import io.fabric8.agent.DeploymentBuilder;

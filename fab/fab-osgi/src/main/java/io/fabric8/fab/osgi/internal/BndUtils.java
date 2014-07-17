@@ -38,13 +38,17 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import aQute.lib.osgi.Analyzer;
-import aQute.lib.osgi.Constants;
-import aQute.lib.osgi.FileResource;
-import aQute.lib.osgi.Jar;
-import aQute.lib.osgi.Processor;
-import aQute.lib.osgi.Resource;
-import aQute.lib.osgi.URLResource;
+import aQute.bnd.header.Attrs;
+import aQute.bnd.header.Parameters;
+import aQute.bnd.osgi.Analyzer;
+import aQute.bnd.osgi.Constants;
+import aQute.bnd.osgi.Descriptors;
+import aQute.bnd.osgi.FileResource;
+import aQute.bnd.osgi.Jar;
+import aQute.bnd.osgi.Processor;
+import aQute.bnd.osgi.Resource;
+import aQute.bnd.osgi.URLResource;
+import aQute.lib.spring.SpringComponent;
 import aQute.lib.spring.SpringXMLType;
 import org.apache.felix.bundleplugin.BlueprintPlugin;
 import io.fabric8.fab.osgi.ServiceConstants;
@@ -224,16 +228,26 @@ public class BndUtils
             }
             checkMandatoryProperties(analyzer, jar, jarInfo);
 
-            analyzer.calcManifest();
+            Manifest newManifest = analyzer.calcManifest();
+            jar.setManifest( newManifest );
 
             Attributes main = jar.getManifest().getMainAttributes();
 
+            // Hack to add back META-INF imports
+            String importPackage = main.getValue(Analyzer.IMPORT_PACKAGE);
+            for (Descriptors.PackageRef key : analyzer.getReferred().keySet()) {
+                if (key.getFQN().startsWith("META-INF.")) {
+                    importPackage += "," + key.getFQN();
+                }
+            }
+            main.putValue(Analyzer.IMPORT_PACKAGE, importPackage);
+
             String importPackages = emptyIfNull(main.getValue(Analyzer.IMPORT_PACKAGE));
-            Map<String, Map<String, String>> values = new Analyzer().parseHeader(importPackages);
+            Parameters values = new Analyzer().parseHeader(importPackages);
 
             // add any missing version clauses
             if (versionResolver != null) {
-                for (Map.Entry<String, Map<String, String>> entry : values.entrySet()) {
+                for (Map.Entry<String, Attrs> entry : values.entrySet()) {
                     String packageName = entry.getKey();
                     Map<String, String> packageValues = entry.getValue();
                     if (!packageValues.containsKey("version")) {
@@ -253,7 +267,9 @@ public class BndUtils
                 } else {
                     original.putAll(entry.getValue());
                 }
-                values.put(entry.getKey(), original);
+                Attrs newAttrs = new Attrs();
+                newAttrs.putAll(original);
+                values.put(entry.getKey(), newAttrs);
             }
 
             // lets remove any excluded import packages
@@ -292,7 +308,7 @@ public class BndUtils
             }
 
             // lets remove optional dependency if they are exported from a non-optional dependency...
-            for (Map.Entry<String, Map<String, String>> entry : values.entrySet()) {
+            for (Map.Entry<String, Attrs> entry : values.entrySet()) {
                 String packageName = entry.getKey();
                 Map<String, String> map = entry.getValue();
                 String res = map.get("resolution:");
@@ -311,15 +327,15 @@ public class BndUtils
             // TODO do we really need to filter out any of the attribute values?
             // we were filtering out everything bar resolution:
             //importPackages  = Processor.printClauses(values, "resolution:");
-            importPackages = Processor.printClauses(values, ALLOWED_PACKAGE_CLAUSES);
+            importPackages = Processor.printClauses(values /*, ALLOWED_PACKAGE_CLAUSES */);
             if (notEmpty(importPackages)) {
                 main.putValue(Analyzer.IMPORT_PACKAGE, importPackages);
             }
 
 
             String exportPackages = emptyIfNull(main.getValue(Analyzer.EXPORT_PACKAGE));
-            Map<String, Map<String, String>> exports = new Analyzer().parseHeader(exportPackages);
-            for (Map.Entry<String, Map<String, String>> entry : exports.entrySet()) {
+            Parameters exports = new Analyzer().parseHeader(exportPackages);
+            for (Map.Entry<String, Attrs> entry : exports.entrySet()) {
                 String packageName = entry.getKey();
                 Map<String, String> map = entry.getValue();
                 String version = map.get("version");
@@ -330,7 +346,7 @@ public class BndUtils
                     }
                 }
             }
-            exportPackages = Processor.printClauses(exports, ALLOWED_PACKAGE_CLAUSES);
+            exportPackages = Processor.printClauses(exports /*, ALLOWED_PACKAGE_CLAUSES */);
             if (notEmpty(exportPackages)) {
                 main.putValue(Analyzer.EXPORT_PACKAGE, exportPackages);
             }

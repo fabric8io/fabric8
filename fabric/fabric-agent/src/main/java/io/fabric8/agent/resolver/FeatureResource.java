@@ -15,8 +15,8 @@
  */
 package io.fabric8.agent.resolver;
 
-import aQute.lib.osgi.Macro;
-import aQute.lib.osgi.Processor;
+import aQute.bnd.osgi.Macro;
+import aQute.bnd.osgi.Processor;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
 import org.apache.karaf.features.BundleInfo;

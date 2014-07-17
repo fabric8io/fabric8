@@ -15,7 +15,7 @@
  */
 package io.fabric8.process.manager.support;
 
-import aQute.lib.osgi.Jar;
+import aQute.bnd.osgi.Jar;
 import com.google.common.base.Throwables;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;

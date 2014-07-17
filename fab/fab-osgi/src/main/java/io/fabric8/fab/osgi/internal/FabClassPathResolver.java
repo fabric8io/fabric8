@@ -28,7 +28,9 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import aQute.lib.osgi.Analyzer;
+import aQute.bnd.header.Attrs;
+import aQute.bnd.header.Parameters;
+import aQute.bnd.osgi.Analyzer;
 import org.apache.felix.utils.version.VersionCleaner;
 import io.fabric8.common.util.*;
 import io.fabric8.fab.*;
@@ -392,8 +394,8 @@ public class FabClassPathResolver implements FabConfiguration {
         try {
             String text = dependencyTree.getManifestEntry(ServiceConstants.INSTR_EXPORT_PACKAGE);
             if (text != null && text.length() > 0) {
-                Map<String, Map<String, String>> map = new Analyzer().parseHeader(text);
-                for (Map.Entry<String, Map<String, String>> entry : map.entrySet()) {
+                Parameters map = new Analyzer().parseHeader(text);
+                for (Map.Entry<String, Attrs> entry : map.entrySet()) {
                     String key = entry.getKey();
                     Map<String, String> values = entry.getValue();
                     // TODO add optional resolution if this dependency is otional??
