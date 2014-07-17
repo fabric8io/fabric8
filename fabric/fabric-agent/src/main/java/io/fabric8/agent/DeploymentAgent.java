@@ -581,7 +581,7 @@ public class DeploymentAgent implements ManagedService {
         return true;
     }
 
-    private boolean getResolveOptionalImports(Map<String, String> config) {
+    public static boolean getResolveOptionalImports(Map<String, String> config) {
         if (config != null) {
             String str = config.get(OBR_RESOLVE_OPTIONAL_IMPORTS);
             if (str == null) {
@@ -594,7 +594,7 @@ public class DeploymentAgent implements ManagedService {
         return false;
     }
 
-    private long getUrlHandlersTimeout(Map<String, String> config) {
+    public static long getUrlHandlersTimeout(Map<String, String> config) {
         if (config != null) {
             Object timeout = config.get(URL_HANDLERS_TIMEOUT);
             if (timeout instanceof Number) {
@@ -606,7 +606,7 @@ public class DeploymentAgent implements ManagedService {
         return TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES);
     }
 
-    private Set<String> getPrefixedProperties(Map<String, String> properties, String prefix) {
+    public static Set<String> getPrefixedProperties(Map<String, String> properties, String prefix) {
         Set<String> result = new HashSet<String>();
         for (String key : properties.keySet()) {
             if (key.startsWith(prefix)) {
@@ -1132,12 +1132,12 @@ public class DeploymentAgent implements ManagedService {
 
     }
 
-    class FabricFabConfiguration extends PropertyStore implements Configuration {
+    public static class FabricFabConfiguration extends PropertyStore implements Configuration {
 
         final DictionaryPropertyResolver propertyResolver;
         final MavenConfigurationImpl config;
 
-        FabricFabConfiguration(MavenConfigurationImpl config, DictionaryPropertyResolver propertyResolver) {
+        public FabricFabConfiguration(MavenConfigurationImpl config, DictionaryPropertyResolver propertyResolver) {
             this.propertyResolver = propertyResolver;
             this.config = config;
         }

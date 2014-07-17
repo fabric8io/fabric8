@@ -354,49 +354,51 @@ public class DeploymentBuilder {
                 throw new IOException("Error parsing requirement", e);
             }
         } else {
-            try {
-                // Find needed service ldap filters
-                List<String> filters = new ArrayList<String>();
-                int oldSize = -1;
-                String tmpUrl = location;
-                while (filters.size() > oldSize) {
-                    oldSize = filters.size();
-                    for (String protocol : PROTOCOLS) {
-                        if (tmpUrl.startsWith(protocol + ":")) {
-                            tmpUrl = tmpUrl.substring(protocol.length() + 1);
-                            String filter = "(&(objectClass=org.osgi.service.url.URLStreamHandlerService)(url.handler.protocol=" + protocol + "))";
-                            filters.add(filter);
-                            break;
+            if (urlHandlersTimeout >= 0) {
+                try {
+                    // Find needed service ldap filters
+                    List<String> filters = new ArrayList<String>();
+                    int oldSize = -1;
+                    String tmpUrl = location;
+                    while (filters.size() > oldSize) {
+                        oldSize = filters.size();
+                        for (String protocol : PROTOCOLS) {
+                            if (tmpUrl.startsWith(protocol + ":")) {
+                                tmpUrl = tmpUrl.substring(protocol.length() + 1);
+                                String filter = "(&(objectClass=org.osgi.service.url.URLStreamHandlerService)(url.handler.protocol=" + protocol + "))";
+                                filters.add(filter);
+                                break;
+                            }
                         }
                     }
-                }
-                // Wait for services if needed
-                if (!filters.isEmpty()) {
-                    BundleContext context = FrameworkUtil.getBundle(getClass()).getBundleContext();
-                    List<ServiceTracker> trackers = new ArrayList<ServiceTracker>();
-                    for (String filter : filters) {
-                        Filter flt = FrameworkUtil.createFilter(filter);
-                        ServiceTracker tracker = new ServiceTracker(context, flt, null);
-                        tracker.open();
-                        trackers.add(tracker);
-                    }
-                    long t0 = System.currentTimeMillis();
-                    boolean hasAll = false;
-                    while (!hasAll && (System.currentTimeMillis() - t0) < urlHandlersTimeout) {
-                        hasAll = true;
+                    // Wait for services if needed
+                    if (!filters.isEmpty()) {
+                        BundleContext context = FrameworkUtil.getBundle(getClass()).getBundleContext();
+                        List<ServiceTracker> trackers = new ArrayList<ServiceTracker>();
+                        for (String filter : filters) {
+                            Filter flt = FrameworkUtil.createFilter(filter);
+                            ServiceTracker tracker = new ServiceTracker(context, flt, null);
+                            tracker.open();
+                            trackers.add(tracker);
+                        }
+                        long t0 = System.currentTimeMillis();
+                        boolean hasAll = false;
+                        while (!hasAll && (System.currentTimeMillis() - t0) < urlHandlersTimeout) {
+                            hasAll = true;
+                            for (ServiceTracker tracker : trackers) {
+                                hasAll &= tracker.waitForService(100) != null;
+                            }
+                        }
                         for (ServiceTracker tracker : trackers) {
-                            hasAll &= tracker.waitForService(100) != null;
+                            tracker.close();
+                        }
+                        if (!hasAll) {
+                            throw new TimeoutException("Timed out waiting for URL handlers: ");
                         }
                     }
-                    for (ServiceTracker tracker : trackers) {
-                        tracker.close();
-                    }
-                    if (!hasAll) {
-                        throw new TimeoutException("Timed out waiting for URL handlers: ");
-                    }
+                } catch (Exception e) {
+                    throw new IOException("Unable to download " + location, e);
                 }
-            } catch (Exception e) {
-                throw new IOException("Unable to download " + location, e);
             }
             downloader.download(location, new AgentUtils.DownloadCallback() {
                 @Override
