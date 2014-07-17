@@ -66,6 +66,7 @@ import io.fabric8.fab.MavenResolverImpl;
 import io.fabric8.fab.osgi.ServiceConstants;
 import io.fabric8.fab.osgi.internal.Configuration;
 import io.fabric8.fab.osgi.internal.FabResolverFactoryImpl;
+
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.karaf.features.Repository;
@@ -82,6 +83,8 @@ import org.osgi.framework.namespace.PackageNamespace;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.framework.wiring.BundleWire;
+import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.framework.wiring.FrameworkWiring;
 import org.osgi.resource.Resource;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -959,35 +962,48 @@ public class DeploymentAgent implements ManagedService {
         }
         // Second pass: for each bundle, check if there is any unresolved optional package that could be resolved
         for (Bundle bundle : bundles) {
-            BundleRevision rev = bundle.adapt(BundleRevision.class);
-            boolean matches = false;
-            if (rev != null) {
-                for (BundleRequirement req : rev.getDeclaredRequirements(null)) {
-                    if (PackageNamespace.PACKAGE_NAMESPACE.equals(req.getNamespace())
-                            && PackageNamespace.RESOLUTION_OPTIONAL.equals(req.getDirectives().get(PackageNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE))) {
-                        // This requirement is an optional import package
-                        for (Bundle provider : toRefresh) {
-                            BundleRevision providerRev = provider.adapt(BundleRevision.class);
-                            if (providerRev != null) {
-                                for (BundleCapability cap : providerRev.getDeclaredCapabilities(null)) {
-                                    if (req.matches(cap)) {
-                                        matches = true;
-                                        break;
-                                    }
+            matchBundleWithOptionalImport(bundle, toRefresh);
+        }
+    }
+
+    private void matchBundleWithOptionalImport(Bundle bundle, Set<Bundle> toRefresh) {
+        BundleRevision revision = bundle.adapt(BundleRevision.class);
+        for (BundleRequirement req : revision.getDeclaredRequirements(PackageNamespace.PACKAGE_NAMESPACE)) {
+            if (PackageNamespace.RESOLUTION_OPTIONAL.equals(req.getDirectives().get(PackageNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE))) {
+                
+                // Find the wire for this optional package import
+                BundleWiring wiring = bundle.adapt(BundleWiring.class);
+                BundleWire reqwire = null;
+                if (wiring != null) {
+                    for (BundleWire wire : wiring.getRequiredWires(PackageNamespace.PACKAGE_NAMESPACE)) {
+                        if (req.equals(wire.getRequirement())) {
+                            BundleCapability cap = wire.getCapability();
+                            BundleRevision provider = wire.getProvider();
+                            LOGGER.debug("Optional requirement {} from {} wires to capability {} provided by {}", req, bundle, cap, provider);
+                            reqwire = wire;
+                            break;
+                        }
+                    }
+                } 
+                
+                // If the requirement is already wired we don't need to do anything
+                // the refresh algorithm will compute the transitive graph of refresh candidates
+                if (reqwire == null) {
+                    
+                    // Compute the set of possible providers 
+                    for (Bundle provider : toRefresh) {
+                        BundleRevision providerRev = provider.adapt(BundleRevision.class);
+                        if (providerRev != null) {
+                            for (BundleCapability cap : providerRev.getDeclaredCapabilities(PackageNamespace.PACKAGE_NAMESPACE)) {
+                                if (req.matches(cap)) {
+                                    LOGGER.info("Found possible provider for unwired optional requirement {} from {}: {}", req, bundle, provider);
+                                    toRefresh.add(bundle);
+                                    return;
                                 }
-                            }
-                            if (matches) {
-                                break;
                             }
                         }
                     }
-                    if (matches) {
-                        break;
-                    }
-                }
-            }
-            if (matches) {
-                toRefresh.add(bundle);
+                } 
             }
         }
     }
