@@ -76,9 +76,6 @@
         <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.core/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.management/${karaf-version}</bundle>
 
-        <bundle>mvn:io.fabric8/fabric-features-service/${project.version}</bundle>
-        <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.command/${karaf-version}</bundle>
-        <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.management/${karaf-version}</bundle>
 
         <!-- TODO: Either decouple diagonstic common from org.apache.karaf.features or provide a dummy FeatureServiceImpl.
              Till then we need to comment this out.-->
@@ -194,6 +191,10 @@
         <feature version="${project.version}">fabric-rest</feature>
         <feature version="${project.version}">fabric-commands</feature>
         <feature version="${project.version}">fabric-agent</feature>
+
+        <bundle>mvn:io.fabric8/fabric-features-service/${project.version}</bundle>
+        <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.command/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.management/${karaf-version}</bundle>
     </feature>
 
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">
