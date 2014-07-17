@@ -24,16 +24,18 @@ import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreateContainerOptions;
-import io.fabric8.api.VersionBuilder;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.Ids;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
+import io.fabric8.api.VersionBuilder;
 import io.fabric8.api.VersionSequence;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.jmx.FabricManagerMBean;
 import io.fabric8.api.jmx.FabricStatusDTO;
 import io.fabric8.api.jmx.ServiceStatusDTO;
@@ -80,7 +82,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 /**
  * [TODO] Review FabricManager for profile consistentcy
  */
-public class FabricManager implements FabricManagerMBean {
+public final class FabricManager implements FabricManagerMBean {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricManager.class);
 
     private final ProfileService profileService;
@@ -130,16 +132,12 @@ public class FabricManager implements FabricManagerMBean {
         }
     }
 
-    protected FabricServiceImpl getFabricService() {
-        return fabricService;
-    }
-
     // Management API
     // -------------------------------------------------------------------------
 
     @Override
     public String getFabricEnvironment() {
-        return getFabricService().getEnvironment();
+        return fabricService.getEnvironment();
     }
 
     @Override
@@ -155,7 +153,7 @@ public class FabricManager implements FabricManagerMBean {
     public ServiceStatusDTO getFabricServiceStatus() {
         ServiceStatusDTO rc = new ServiceStatusDTO();
 
-        CuratorFramework curator = getFabricService().adapt(CuratorFramework.class);
+        CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
         try {
             rc.setClientValid(curator != null);
         } catch (Throwable t) {
@@ -173,7 +171,7 @@ public class FabricManager implements FabricManagerMBean {
 
             if (rc.isClientValid() && rc.isClientConnected()) {
 
-                Container c = getFabricService().getCurrentContainer();
+                Container c = fabricService.getCurrentContainer();
 
                 try {
                     rc.setManaged(c.isManaged());
@@ -222,8 +220,8 @@ public class FabricManager implements FabricManagerMBean {
 
         builder = mapper.convertValue(options, builder.getClass());
 
-        builder.zookeeperPassword(getFabricService().getZookeeperPassword());
-        builder.zookeeperUrl(getFabricService().getZookeeperUrl());
+        builder.zookeeperPassword(fabricService.getZookeeperPassword());
+        builder.zookeeperUrl(fabricService.getZookeeperUrl());
 
         Object profileObject = options.get("profiles");
 
@@ -238,7 +236,7 @@ public class FabricManager implements FabricManagerMBean {
             LOG.debug("Created container options: " + build + " with profiles " + build.getProfiles());
         }
 
-        CreateContainerMetadata<?> metadatas[] = getFabricService().createContainers(build);
+        CreateContainerMetadata<?> metadatas[] = fabricService.createContainers(build);
 
         Map<String, String> rc = new HashMap<String, String>();
 
@@ -261,7 +259,7 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public void importProfiles(String versionId, List<String> profileZipUrls) {
-        getFabricService().getDataStore().importProfiles(versionId, profileZipUrls);
+        fabricService.adapt(ProfileRegistry.class).importProfiles(versionId, profileZipUrls);
     }
 
     @Override
@@ -290,13 +288,13 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public String profileWebAppURL(String webAppId, String profileId, String versionId) {
-        return getFabricService().profileWebAppURL(webAppId, profileId, versionId);
+        return fabricService.profileWebAppURL(webAppId, profileId, versionId);
 
     }
 
     @Override
     public String containerWebAppURL(String webAppId, String name) {
-        return getFabricService().containerWebAppURL(webAppId, name);
+        return fabricService.containerWebAppURL(webAppId, name);
     }
 
     @Override
@@ -342,7 +340,7 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public void destroyContainer(String containerId) {
-        getFabricService().destroyContainer(containerId);
+        fabricService.destroyContainer(containerId);
     }
 
     @Override
@@ -352,13 +350,13 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public Map<String, Object> getContainer(String name, List<String> fields) {
-        Container c = getFabricService().getContainer(name);
-        return BeanUtils.convertContainerToMap(getFabricService(), c, fields);
+        Container c = fabricService.getContainer(name);
+        return BeanUtils.convertContainerToMap(fabricService, c, fields);
     }
 
     @Override
     public List<String> getContainerProvisionList(String name) {
-        Container container = getFabricService().getContainer(name);
+        Container container = fabricService.getContainer(name);
         if (container != null) {
             return new ArrayList<String>();
         }
@@ -369,7 +367,7 @@ public class FabricManager implements FabricManagerMBean {
     public void applyVersionToContainers(String version, List<String> containers) {
         Version v = profileService.getVersion(version);
         for (String container : containers) {
-            getFabricService().getContainer(container).setVersion(v);
+            fabricService.getContainer(container).setVersion(v);
         }
     }
 
@@ -377,19 +375,19 @@ public class FabricManager implements FabricManagerMBean {
     public void applyProfilesToContainers(String version, List<String> profiles, List<String> containers) {
         Profile[] p = stringsToProfiles(version, profiles);
         for (String container : containers) {
-            getFabricService().getContainer(container).setProfiles(p);
+            fabricService.getContainer(container).setProfiles(p);
         }
     }
 
     @Override
     public void addProfilesToContainer(String container, List<String> profiles) {
-        Container cont = getFabricService().getContainer(container);
+        Container cont = fabricService.getContainer(container);
         cont.addProfiles(stringsToProfiles(cont.getVersion(), profiles));
     }
 
     @Override
     public void removeProfilesFromContainer(String container, List<String> profileIds) {
-        Container cont = getFabricService().getContainer(container);
+        Container cont = fabricService.getContainer(container);
         cont.removeProfiles(profileIds.toArray(new String[profileIds.size()]));
     }
 
@@ -401,8 +399,8 @@ public class FabricManager implements FabricManagerMBean {
     @Override
     public List<Map<String, Object>> containers(List<String> fields) {
         List<Map<String, Object>> answer = new ArrayList<Map<String, Object>>();
-        for (Container c : getFabricService().getContainers()) {
-            answer.add(BeanUtils.convertContainerToMap(getFabricService(), c, fields));
+        for (Container c : fabricService.getContainers()) {
+            answer.add(BeanUtils.convertContainerToMap(fabricService, c, fields));
         }
         return answer;
     }
@@ -410,11 +408,11 @@ public class FabricManager implements FabricManagerMBean {
     @Override
     public List<Map<String, Object>> containers(List<String> fields, List<String> profileFields) {
         List<Map<String, Object>> answer = new ArrayList<Map<String, Object>>();
-        for (Container c : getFabricService().getContainers()) {
-            Map<String, Object> map = BeanUtils.convertContainerToMap(getFabricService(), c, fields);
+        for (Container c : fabricService.getContainers()) {
+            Map<String, Object> map = BeanUtils.convertContainerToMap(fabricService, c, fields);
             List<Map<String, Object>> profiles = new ArrayList<Map<String, Object>>();
             for (Profile p : c.getProfiles()) {
-                profiles.add(BeanUtils.convertProfileToMap(getFabricService(), p, profileFields));
+                profiles.add(BeanUtils.convertProfileToMap(fabricService, p, profileFields));
             }
             map.put("profiles", profiles);
             answer.add(map);
@@ -423,7 +421,7 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     private CreateContainerMetadata<?> getContainerMetaData(String id) {
-        Container container = getFabricService().getContainer(id);
+        Container container = fabricService.getContainer(id);
         return container.getMetadata();
     }
 
@@ -568,13 +566,13 @@ public class FabricManager implements FabricManagerMBean {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Create container metadata: " + metadata);
         }
-        getFabricService().getDataStore().setContainerMetadata(metadata);
+        fabricService.adapt(DataStore.class).setContainerMetadata(metadata);
     }
 
     @Override
     public String[] containerIds() {
         List<String> answer = new ArrayList<String>();
-        for (Container container : getFabricService().getContainers()) {
+        for (Container container : fabricService.getContainers()) {
             answer.add(container.getId());
         }
         return answer.toArray(new String[answer.size()]);
@@ -598,10 +596,10 @@ public class FabricManager implements FabricManagerMBean {
         Profile profile = version != null ? version.getRequiredProfile(profileId) : null;
         List<Map<String, Object>> answer = new ArrayList<Map<String, Object>>();
         if (profile != null) {
-            for (Container c : getFabricService().getContainers()) {
+            for (Container c : fabricService.getContainers()) {
                 for (Profile p : c.getProfiles()) {
                     if (p.equals(profile)) {
-                        answer.add(BeanUtils.convertContainerToMap(getFabricService(), c, fields));
+                        answer.add(BeanUtils.convertContainerToMap(fabricService, c, fields));
                     }
                 }
             }
@@ -626,9 +624,9 @@ public class FabricManager implements FabricManagerMBean {
         Version version = profileService.getVersion(versionId);
         List<Map<String, Object>> answer = new ArrayList<Map<String, Object>>();
         if (version != null) {
-            for (Container c : getFabricService().getContainers()) {
+            for (Container c : fabricService.getContainers()) {
                 if (c.getVersion().equals(version)) {
-                    answer.add(BeanUtils.convertContainerToMap(getFabricService(), c, fields));
+                    answer.add(BeanUtils.convertContainerToMap(fabricService, c, fields));
                 }
             }
         }
@@ -637,7 +635,7 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public void setContainerProperty(String containerId, String property, Object value) {
-        Container container = getFabricService().getContainer(containerId);
+        Container container = fabricService.getContainer(containerId);
         BeanUtils.setValue(container, property, value);
     }
 
@@ -669,48 +667,48 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public Map<String, Object> currentContainer() {
-        return BeanUtils.convertContainerToMap(getFabricService(), getFabricService().getCurrentContainer(), BeanUtils.getFields(Container.class));
+        return BeanUtils.convertContainerToMap(fabricService, fabricService.getCurrentContainer(), BeanUtils.getFields(Container.class));
     }
 
     @Override
     public String getCurrentContainerName() {
-        return getFabricService().getCurrentContainerName();
+        return fabricService.getCurrentContainerName();
     }
 
     @Override
     public String getDefaultJvmOptions() {
-        return getFabricService().getDefaultJvmOptions();
+        return fabricService.getDefaultJvmOptions();
     }
 
     @Override
     public String getDefaultRepo() {
-        return getFabricService().getDefaultRepo();
+        return fabricService.getDefaultRepo();
     }
 
     @Override
     public Map<String, Object> defaultVersion() {
-        return BeanUtils.convertVersionToMap(getFabricService(), getFabricService().getRequiredDefaultVersion(), BeanUtils.getFields(Version.class));
+        return BeanUtils.convertVersionToMap(fabricService, fabricService.getRequiredDefaultVersion(), BeanUtils.getFields(Version.class));
     }
 
     @Override
     public String getDefaultVersion() {
-        return getFabricService().getDefaultVersionId();
+        return fabricService.getDefaultVersionId();
     }
 
     @Override
     public FabricStatusDTO fabricStatus() {
-        return new FabricStatusDTO(getFabricService().getFabricStatus());
+        return new FabricStatusDTO(fabricService.getFabricStatus());
     }
 
     @Override
     public String getMavenRepoUploadURI() {
-        URI answer = getFabricService().getMavenRepoUploadURI();
+        URI answer = fabricService.getMavenRepoUploadURI();
         return (answer != null) ? answer.toString() : null;
     }
 
     @Override
     public String getMavenRepoURI() {
-        URI answer = getFabricService().getMavenRepoURI();
+        URI answer = fabricService.getMavenRepoURI();
         return (answer != null) ? answer.toString() : null;
     }
 
@@ -797,7 +795,7 @@ public class FabricManager implements FabricManagerMBean {
 
     public Map<String, Object> getProfile(String versionId, String profileId, List<String> fields) {
         Profile profile = profileService.getVersion(versionId).getRequiredProfile(profileId);
-        return BeanUtils.convertProfileToMap(getFabricService(), profile, fields);
+        return BeanUtils.convertProfileToMap(fabricService, profile, fields);
     }
 
     @Override
@@ -846,7 +844,7 @@ public class FabricManager implements FabricManagerMBean {
     @Override
     public Map<String, String> currentContainerConfigurationFiles() {
         String containerName = getCurrentContainerName();
-        FabricServiceImpl service = getFabricService();
+        FabricServiceImpl service = fabricService;
         Container container = service.getContainer(containerName);
         if (container != null) {
             Profile[] profiles = container.getProfiles();
@@ -952,17 +950,17 @@ public class FabricManager implements FabricManagerMBean {
      */
     @Override
     public boolean scaleProfile(String profile, int numberOfInstances) throws IOException {
-        return getFabricService().scaleProfile(profile, numberOfInstances);
+        return fabricService.scaleProfile(profile, numberOfInstances);
     }
 
     @Override
     public FabricRequirements requirements() {
-        return getFabricService().getRequirements();
+        return fabricService.getRequirements();
     }
 
     @Override
     public AutoScaleStatus autoScaleStatus() {
-        return getFabricService().getAutoScaleStatus();
+        return fabricService.getAutoScaleStatus();
     }
 
     @Override
@@ -972,7 +970,7 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public Map<String, Object> getVersion(String versionId, List<String> fields) {
-        return BeanUtils.convertVersionToMap(getFabricService(), profileService.getVersion(versionId), fields);
+        return BeanUtils.convertVersionToMap(fabricService, profileService.getVersion(versionId), fields);
     }
 
     @Override
@@ -1017,52 +1015,52 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public String getZookeeperInfo(String name) {
-        return getFabricService().getZookeeperInfo(name);
+        return fabricService.getZookeeperInfo(name);
     }
 
     @Override
     public String webConsoleUrl() {
-        return getFabricService().getWebConsoleUrl();
+        return fabricService.getWebConsoleUrl();
     }
 
     @Override
     public String gitUrl() {
-        return getFabricService().getGitUrl();
+        return fabricService.getGitUrl();
     }
 
     @Override
     public String getZookeeperUrl() {
-        return getFabricService().getZookeeperUrl();
+        return fabricService.getZookeeperUrl();
     }
 
     @Override
     public void registerProvider(ContainerProvider provider, Map<String, Object> properties) {
-        getFabricService().registerProvider(provider, properties);
+        fabricService.registerProvider(provider, properties);
     }
 
     @Override
     public void registerProvider(String scheme, ContainerProvider provider) {
-        getFabricService().registerProvider(scheme, provider);
+        fabricService.registerProvider(scheme, provider);
     }
 
     @Override
     public void setDefaultJvmOptions(String jvmOptions) {
-        getFabricService().setDefaultJvmOptions(jvmOptions);
+        fabricService.setDefaultJvmOptions(jvmOptions);
     }
 
     @Override
     public void setDefaultRepo(String defaultRepo) {
-        getFabricService().setDefaultRepo(defaultRepo);
+        fabricService.setDefaultRepo(defaultRepo);
     }
 
     @Override
     public void setDefaultVersion(String versionId) {
-        getFabricService().setDefaultVersionId(versionId);
+        fabricService.setDefaultVersionId(versionId);
     }
 
     @Override
     public void requirements(FabricRequirements requirements) throws IOException {
-        getFabricService().setRequirements(requirements);
+        fabricService.setRequirements(requirements);
     }
 
     @Override
@@ -1080,7 +1078,7 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public void startContainer(String containerId) {
-        getFabricService().startContainer(containerId);
+        fabricService.startContainer(containerId);
     }
 
     @Override
@@ -1103,7 +1101,7 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public void stopContainer(String containerId) {
-        getFabricService().stopContainer(containerId);
+        fabricService.stopContainer(containerId);
     }
 
     @Override
@@ -1126,7 +1124,7 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public Map<String, String> registeredProviders() {
-        Map<String, ContainerProvider> providers = getFabricService().getProviders();
+        Map<String, ContainerProvider> providers = fabricService.getProviders();
 
         Map<String, String> answer = new HashMap<String, String>();
 
@@ -1138,12 +1136,12 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public void unregisterProvider(ContainerProvider provider, Map<String, Object> properties) {
-        getFabricService().unregisterProvider(provider, properties);
+        fabricService.unregisterProvider(provider, properties);
     }
 
     @Override
     public void unregisterProvider(String scheme) {
-        getFabricService().unregisterProvider(scheme);
+        fabricService.unregisterProvider(scheme);
     }
 
     @Override
@@ -1189,7 +1187,7 @@ public class FabricManager implements FabricManagerMBean {
                     continue;
                 }
                 LOG.info("Applying patch file {}", file);
-                getFabricService().getPatchService().applyPatch(targetVersion, file.toURI().toURL(), proxyUser, proxyPassword);
+                fabricService.getPatchService().applyPatch(targetVersion, file.toURI().toURL(), proxyUser, proxyPassword);
                 LOG.info("Successfully applied {}", file);
             }
         } catch (Throwable t) {
@@ -1214,17 +1212,17 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public String getConfigurationValue(String versionId, String profileId, String pid, String key) {
-        return getFabricService().getConfigurationValue(versionId, profileId, pid, key);
+        return fabricService.getConfigurationValue(versionId, profileId, pid, key);
     }
 
     @Override
     public void setConfigurationValue(String versionId, String profileId, String pid, String key, String value) {
-        getFabricService().setConfigurationValue(versionId, profileId, pid, key, value);
+        fabricService.setConfigurationValue(versionId, profileId, pid, key, value);
     }
 
     @Override
     public String mavenProxyDownloadUrl() {
-        URI uri = getFabricService().getMavenRepoURI();
+        URI uri = fabricService.getMavenRepoURI();
         if (uri != null) {
             return uri.toASCIIString();
         } else {
@@ -1234,7 +1232,7 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public String mavenProxyUploadUrl() {
-        URI uri = getFabricService().getMavenRepoUploadURI();
+        URI uri = fabricService.getMavenRepoUploadURI();
         if (uri != null) {
             return uri.toASCIIString();
         } else {
@@ -1244,7 +1242,7 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public String restApiUrl() {
-        return getFabricService().getRestAPI();
+        return fabricService.getRestAPI();
     }
 
     @Override
@@ -1261,7 +1259,7 @@ public class FabricManager implements FabricManagerMBean {
             }
         }
         Map<String, Object> answer = new HashMap<String, Object>();
-        CuratorFramework curator = getFabricService().adapt(CuratorFramework.class);
+        CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
         ObjectMapper mapper = new ObjectMapper();
         addChildrenToMap(answer, path, curator, mapper);
         return mapper.writeValueAsString(answer);

@@ -16,6 +16,7 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.Constants;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
@@ -458,7 +459,7 @@ public class ProfileEditAction extends AbstractAction {
         ConsoleEditor editor = editorFactory.create("simple",getTerminal(), System.in, System.out);
         editor.setTitle("Profile");
         editor.setOpenEnabled(false);
-        editor.setContentManager(new DatastoreContentManager(fabricService.getDataStore()));
+        editor.setContentManager(new DatastoreContentManager(fabricService));
         editor.open(location, id + " " + version);
         editor.start();
     }

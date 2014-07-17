@@ -70,14 +70,15 @@
             OSGI-INF/io.fabric8.service.FabricCompleteService.xml,
             OSGI-INF/io.fabric8.service.FabricMBeanRegistrationListener.xml,
             OSGI-INF/io.fabric8.service.FabricServiceImpl.xml,
+            OSGI-INF/io.fabric8.service.FreeGeoIpService.xml,
             OSGI-INF/io.fabric8.service.PortPlaceholderResolver.xml,
             OSGI-INF/io.fabric8.service.ProfilePropertyPointerResolver.xml,
             OSGI-INF/io.fabric8.service.MvelUrlHandler.xml,
             OSGI-INF/io.fabric8.service.ProfileUrlHandler.xml,
             OSGI-INF/io.fabric8.service.VersionPropertyPointerResolver.xml,
+            OSGI-INF/io.fabric8.service.ZkDataStoreImpl.xml,
             OSGI-INF/io.fabric8.service.ZookeeperPlaceholderResolver.xml,
-            OSGI-INF/io.fabric8.service.ZookeeperPortService.xml,
-            OSGI-INF/io.fabric8.service.FreeGeoIpService.xml
+            OSGI-INF/io.fabric8.service.ZookeeperPortService.xml
         </fuse.osgi.service.component>
     </properties>
 

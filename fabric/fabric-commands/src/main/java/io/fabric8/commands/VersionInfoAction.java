@@ -16,6 +16,7 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.Container;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileService;
@@ -39,9 +40,11 @@ public class VersionInfoAction extends AbstractAction {
 
     private final ProfileService profileService;
     private final FabricService fabricService;
+    private final DataStore dataStore;
 
     VersionInfoAction(FabricService fabricService) {
         this.profileService = fabricService.adapt(ProfileService.class);
+        this.dataStore = fabricService.adapt(DataStore.class);
         this.fabricService = fabricService;
     }
 
@@ -58,7 +61,7 @@ public class VersionInfoAction extends AbstractAction {
         List<Profile> profiles = CommandUtils.sortProfiles(version.getProfiles());
 
         List<Container> containerList = new ArrayList<Container>();
-        for (String c : fabricService.getDataStore().getContainers()) {
+        for (String c : dataStore.getContainers()) {
             Container container = fabricService.getContainer(c);
             if (version.getId().equals(container.getVersion().getId())) {
                 containerList.add(container);

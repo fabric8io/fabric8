@@ -21,11 +21,14 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.openshift.CreateOpenshiftContainerOptions;
 import io.fabric8.openshift.commands.support.ContainerCreateSupport;
 import io.fabric8.utils.FabricValidations;
 import io.fabric8.utils.shell.ShellUtils;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -75,8 +78,7 @@ public class ContainerCreateOpenshiftAction extends ContainerCreateSupport {
                 .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
                 .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
                 .profiles(getProfileNames())
-                .dataStoreProperties(getDataStoreProperties())
-                .dataStoreType(dataStoreType != null && isEnsembleServer ? dataStoreType : fabricService.getDataStore().getType());
+                .dataStoreProperties(getDataStoreProperties());
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(builder.build());
 

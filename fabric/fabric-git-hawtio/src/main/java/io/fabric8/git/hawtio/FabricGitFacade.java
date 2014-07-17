@@ -15,11 +15,27 @@
  */
 package io.fabric8.git.hawtio;
 
+import static io.fabric8.git.internal.GitHelpers.getRootGitDirectory;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.Validatable;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.api.scr.ValidationSupport;
+import io.fabric8.git.GitDataStore;
+import io.fabric8.git.internal.GitContext;
+import io.fabric8.git.internal.GitHelpers;
+import io.fabric8.git.internal.GitOperation;
+import io.hawt.git.CommitInfo;
+import io.hawt.git.CommitTreeInfo;
+import io.hawt.git.FileContents;
+import io.hawt.git.FileInfo;
+import io.hawt.git.GitFacadeMXBean;
+import io.hawt.git.GitFacadeSupport;
+import io.hawt.util.Strings;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import io.hawt.git.CommitTreeInfo;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -30,33 +46,14 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
-
-import io.fabric8.api.DataStore;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.Validatable;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.api.scr.ValidationSupport;
-import io.fabric8.git.internal.GitContext;
-import io.fabric8.git.internal.GitDataStore;
-import io.fabric8.git.internal.GitHelpers;
-import io.fabric8.git.internal.GitOperation;
-
-import io.hawt.git.CommitInfo;
-import io.hawt.git.FileContents;
-import io.hawt.git.FileInfo;
-import io.hawt.git.GitFacadeMXBean;
-import io.hawt.git.GitFacadeSupport;
-import io.hawt.util.Strings;
 import org.eclipse.jgit.util.Base64;
-
-import static io.fabric8.git.internal.GitHelpers.getRootGitDirectory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.git.hawtio", label = "Fabric8 Git Hawtio Service", immediate = true, metatype = false)
 @Service(GitFacadeMXBean.class)
 public final class FabricGitFacade extends GitFacadeSupport implements Validatable {
 
-    @Reference(referenceInterface = DataStore.class, target = "(|(type=git)(type=caching-git))")
+    @Reference(referenceInterface = GitDataStore.class)
     private final ValidatingReference<GitDataStore> gitDataStore = new ValidatingReference<GitDataStore>();
 
     private final ValidationSupport active = new ValidationSupport();
@@ -346,11 +343,11 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         activate();
     }
 
-    void bindGitDataStore(DataStore gitDataStore) {
-        this.gitDataStore.bind((GitDataStore) gitDataStore);
+    void bindGitDataStore(GitDataStore gitDataStore) {
+        this.gitDataStore.bind(gitDataStore);
     }
 
-    void unbindGitDataStore(DataStore gitDataStore) {
-        this.gitDataStore.unbind((GitDataStore) gitDataStore);
+    void unbindGitDataStore(GitDataStore gitDataStore) {
+        this.gitDataStore.unbind(gitDataStore);
     }
 }

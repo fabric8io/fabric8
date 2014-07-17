@@ -142,7 +142,7 @@ public final class OpenShiftDeployAgent extends AbstractComponent implements Gro
             try {
                 DataStore dataStore = null;
                 if (fabricService != null) {
-                    dataStore = fabricService.get().getDataStore();
+                    dataStore = fabricService.get().adapt(DataStore.class);
                 } else {
                     LOGGER.warn("No fabricService yet!");
                 }

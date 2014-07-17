@@ -113,7 +113,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
 
     @Override
     public void groupEvent(Group<AutoScalerNode> group, GroupEvent event) {
-        DataStore dataStore = fabricService.get().getDataStore();
+        DataStore dataStore = fabricService.get().adapt(DataStore.class);
         switch (event) {
             case CONNECTED:
             case CHANGED:

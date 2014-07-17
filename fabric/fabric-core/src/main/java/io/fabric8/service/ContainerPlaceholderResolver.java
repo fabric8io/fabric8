@@ -94,7 +94,8 @@ public final class ContainerPlaceholderResolver extends AbstractComponent implem
         if (NAME_ATTRIBUTE.equals(attribute)) {
             return container.getId();
         } else {
-            return fabricService.getDataStore().getContainerAttribute(container.getId(), attributes.get(attribute.toLowerCase()), "", false, true);
+            DataStore dataStore = fabricService.adapt(DataStore.class);
+            return dataStore.getContainerAttribute(container.getId(), attributes.get(attribute.toLowerCase()), "", false, true);
         }
     }
 }

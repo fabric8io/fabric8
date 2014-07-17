@@ -17,16 +17,16 @@ package io.fabric8.deployer;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.Containers;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.VersionBuilder;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
+import io.fabric8.api.VersionBuilder;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
@@ -482,13 +482,13 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         String name = DtoHelper.getRequirementsConfigFileName(requirements);
 
         // lets read the previous requirements if there are any
-        DataStore dataStore = fabricService.get().getDataStore();
+        ProfileRegistry profileRegistry = fabricService.get().adapt(ProfileRegistry.class);
         String version = profile.getVersion();
         String profileId = profile.getId();
-        byte[] oldData = dataStore.getFileConfiguration(version, profileId, name);
+        byte[] oldData = profileRegistry.getFileConfiguration(version, profileId, name);
 
         LOG.info("Writing file " + name + " to profile " + profile);
-        dataStore.setFileConfiguration(version, profileId, name, json);
+        profileRegistry.setFileConfiguration(version, profileId, name, json);
 
         if (oldData == null || oldData.length == 0) {
             return null;

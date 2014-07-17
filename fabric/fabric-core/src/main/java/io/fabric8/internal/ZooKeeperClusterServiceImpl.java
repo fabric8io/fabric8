@@ -26,12 +26,13 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreateEnsembleOptions.Builder;
-import io.fabric8.api.DataStore;
 import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.EnsembleModificationFailed;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -66,8 +67,6 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.zookeeper.cluster.service", label = "Fabric8 ZooKeeper Cluster Service", metatype = false)
@@ -77,20 +76,20 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
     @Reference(referenceInterface = ACLProvider.class)
     private final ValidatingReference<ACLProvider> aclProvider = new ValidatingReference<ACLProvider>();
     @Reference(referenceInterface = ConfigurationAdmin.class)
-    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
+    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = DataStore.class)
     private final ValidatingReference<DataStore> dataStore = new ValidatingReference<DataStore>();
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ProfileRegistry.class)
+    private final ValidatingReference<ProfileRegistry> profileRegistry = new ValidatingReference<>();
     @Reference(referenceInterface = RuntimeProperties.class)
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = ZooKeeperClusterBootstrap.class)
-    private final ValidatingReference<ZooKeeperClusterBootstrap> bootstrap = new ValidatingReference<ZooKeeperClusterBootstrap>();
+    private final ValidatingReference<ZooKeeperClusterBootstrap> bootstrap = new ValidatingReference<>();
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterServiceImpl.class);
-    
     @Activate
     void activate() {
         activateComponent();
@@ -136,7 +135,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
         String version = dataStore.get().getDefaultVersion();
         String profileId = "fabric-ensemble-" + clusterId;
         String ensembleConfigName = "io.fabric8.zookeeper.server-" + clusterId + ".properties";
-        return DataStoreUtils.toMap(dataStore.get().getFileConfigurations(version, profileId).get(ensembleConfigName));
+        return DataStoreUtils.toMap(profileRegistry.get().getFileConfigurations(version, profileId).get(ensembleConfigName));
      }
 
     public void createCluster(List<String> containers) {
@@ -191,7 +190,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 String profile = "fabric-ensemble-" + oldClusterId;
                 String pid = "io.fabric8.zookeeper.server-" + oldClusterId;
 
-                Map<String, String> p = dataStore.get().getConfiguration(version, profile, pid);
+                Map<String, String> p = profileRegistry.get().getConfiguration(version, profile, pid);
 
                 if (p == null) {
                     throw new EnsembleModificationFailed("Failed to find old cluster configuration for ID " + oldClusterId, EnsembleModificationFailed.Reason.ILLEGAL_STATE);
@@ -202,13 +201,13 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     if (node.startsWith("server.")) {
                         String data = getSubstitutedData(
                                 curator.get(),
-                                dataStore.get().getConfigurations(version, "fabric-ensemble-" + oldClusterId)
+                                profileRegistry.get().getConfigurations(version, "fabric-ensemble-" + oldClusterId)
                                         .get("io.fabric8.zookeeper.server-" + oldClusterId).get(node));
                         addUsedPorts(usedPorts, data);
                     }
                 }
 
-                Map<String, String> zkConfig = dataStore.get().getConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID);
+                Map<String, String> zkConfig = profileRegistry.get().getConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID);
                 if (zkConfig == null) {
                     throw new FabricException("Failed to find old zookeeper configuration in default profile");
                 }
@@ -226,9 +225,9 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             }
 
             // create new ensemble
-            String ensembleProfile = dataStore.get().getProfile(version, "fabric-ensemble-" + newClusterId, true);
-            dataStore.get().setProfileAttribute(version, ensembleProfile, "abstract", "true");
-            dataStore.get().setProfileAttribute(version, ensembleProfile, "hidden", "true");
+            String ensembleProfile = profileRegistry.get().getProfile(version, "fabric-ensemble-" + newClusterId, true);
+            profileRegistry.get().setProfileAttribute(version, ensembleProfile, "abstract", "true");
+            profileRegistry.get().setProfileAttribute(version, ensembleProfile, "hidden", "true");
 
             Properties ensembleProperties = new Properties();
             ensembleProperties.put("tickTime", String.valueOf(options.getZooKeeperServerTickTime()));
@@ -263,9 +262,9 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 Properties ensembleMemberProperties = new Properties();
 
                 // configure this server in the ensemble
-                String ensembleMemberProfile = dataStore.get().getProfile(version, "fabric-ensemble-" + newClusterId + "-" + Integer.toString(index), true);
-                dataStore.get().setProfileAttribute(version, ensembleMemberProfile, "hidden", "true");
-                dataStore.get().setProfileAttribute(version, ensembleMemberProfile, "parents", ensembleProfile);
+                String ensembleMemberProfile = profileRegistry.get().getProfile(version, "fabric-ensemble-" + newClusterId + "-" + Integer.toString(index), true);
+                profileRegistry.get().setProfileAttribute(version, ensembleMemberProfile, "hidden", "true");
+                profileRegistry.get().setProfileAttribute(version, ensembleMemberProfile, "parents", ensembleProfile);
 
                 String port1 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_SERVER_PORT, minimumPort, maximumPort)));
                 if (containers.size() > 1) {
@@ -277,7 +276,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 ensembleMemberProperties.put("clientPort", port1);
                 ensembleMemberProperties.put("clientPortAddress", bindAddress);
 
-                dataStore.get().setFileConfiguration(version, ensembleMemberProfile, ensembleMemberConfigName, DataStoreUtils.toBytes(ensembleMemberProperties));
+                profileRegistry.get().setFileConfiguration(version, ensembleMemberProfile, ensembleMemberConfigName, DataStoreUtils.toBytes(ensembleMemberProperties));
 
                 if (connectionUrl.length() > 0) {
                     connectionUrl += ",";
@@ -293,7 +292,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             }
 
             String ensembleConfigName = "io.fabric8.zookeeper.server-" + newClusterId + ".properties";
-            dataStore.get().setFileConfiguration(version, ensembleProfile, ensembleConfigName, DataStoreUtils.toBytes(ensembleProperties));
+            profileRegistry.get().setFileConfiguration(version, ensembleProfile, ensembleConfigName, DataStoreUtils.toBytes(ensembleProperties));
 
             index = 1;
             for (String container : containers) {
@@ -305,7 +304,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             }
 
             if (oldClusterId != null) {
-                Properties properties = DataStoreUtils.toProperties(dataStore.get().getConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID));
+                Properties properties = DataStoreUtils.toProperties(profileRegistry.get().getConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID));
                 properties.put("zookeeper.url", getSubstitutedData(curator.get(), realConnectionUrl));
                 properties.put("zookeeper.password", options.getZookeeperPassword());
                 CuratorFramework dst = CuratorFrameworkFactory.builder().connectString(realConnectionUrl).retryPolicy(new RetryOneTime(500))
@@ -325,7 +324,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     final AtomicReference<DataStore> result = new AtomicReference<DataStore>();
                     runtimeProperties.get().putRuntimeAttribute(DataStoreTemplate.class, new DataStoreTemplate() {
                         @Override
-                        public void doWith(DataStore dataStore) {
+                        public void doWith(ProfileRegistry profileRegistry, DataStore dataStore) {
                             synchronized (result) {
                                 result.set(dataStore);
                                 result.notifyAll();
@@ -369,10 +368,10 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     dst.close();
                 }
             } else {
-                Map<String, String> zkConfig = dataStore.get().getConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID);
+                Map<String, String> zkConfig = profileRegistry.get().getConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID);
                 zkConfig.put("zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
                 zkConfig.put("zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
-                dataStore.get().setConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID, zkConfig);
+                profileRegistry.get().setConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID, zkConfig);
             }
         } catch (Exception e) {
             throw EnsembleModificationFailed.launderThrowable(e);
@@ -511,14 +510,6 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
         this.configAdmin.unbind(service);
     }
 
-    void bindFabricService(FabricService fabricService) {
-        this.fabricService.bind(fabricService);
-    }
-
-    void unbindFabricService(FabricService fabricService) {
-        this.fabricService.unbind(fabricService);
-    }
-
     void bindCurator(CuratorFramework curator) {
         this.curator.bind(curator);
     }
@@ -533,5 +524,20 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
 
     void unbindDataStore(DataStore dataStore) {
         this.dataStore.unbind(dataStore);
+    }
+    
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
+    void bindProfileRegistry(ProfileRegistry service) {
+        this.profileRegistry.bind(service);
+    }
+    void unbindProfileRegistry(ProfileRegistry service) {
+        this.profileRegistry.unbind(service);
     }
 }

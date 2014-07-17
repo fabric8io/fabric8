@@ -23,6 +23,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.MQService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
@@ -48,12 +49,12 @@ public class MQServiceImpl implements MQService {
     private static final transient Logger LOG = LoggerFactory.getLogger(MQServiceImpl.class);
 
     private final ProfileService profileService;
-    private final FabricService fabricService;
+    private final ProfileRegistry profileRegistry;
     private final RuntimeProperties runtimeProperties;
 
     public MQServiceImpl(FabricService fabricService, RuntimeProperties runtimeProperties) {
         this.profileService = fabricService.adapt(ProfileService.class);
-        this.fabricService = fabricService;
+        this.profileRegistry = fabricService.adapt(ProfileRegistry.class);
         this.runtimeProperties = runtimeProperties;
     }
 
@@ -98,7 +99,7 @@ public class MQServiceImpl implements MQService {
 
             // Only generate the keystore file if it does not exist.
             // [TOOD] Fix direct data access! This should be part of the ProfileBuilder
-            byte[] keystore  = fabricService.getDataStore().getFileConfiguration(versionId, profileId, "keystore.jks");
+            byte[] keystore  = profileRegistry.getFileConfiguration(versionId, profileId, "keystore.jks");
             if( keystore==null ) {
                 try {
 
@@ -139,7 +140,7 @@ public class MQServiceImpl implements MQService {
                     LOG.info("Keystore generated");
 
                     // [TOOD] Fix direct data access! This should be part of the ProfileBuilder
-                    fabricService.getDataStore().setFileConfiguration(versionId, profileId, "keystore.jks", keystore);
+                    profileRegistry.setFileConfiguration(versionId, profileId, "keystore.jks", keystore);
                     configs.put("keystore.file", "profile:keystore.jks");
 
                 } catch (IOException e) {
@@ -149,7 +150,7 @@ public class MQServiceImpl implements MQService {
             }
 
             // [TOOD] Fix direct data access! This should be part of the ProfileBuilder
-            byte[] truststore = fabricService.getDataStore().getFileConfiguration(versionId, profileId, "truststore.jks");
+            byte[] truststore = profileRegistry.getFileConfiguration(versionId, profileId, "truststore.jks");
             if( truststore==null ) {
 
                 try {
@@ -194,7 +195,7 @@ public class MQServiceImpl implements MQService {
                     truststoreFile.delete();
                     
                     // [TOOD] Fix direct data access! This should be part of the ProfileBuilder
-                    fabricService.getDataStore().setFileConfiguration(versionId, profileId, "truststore.jks", truststore);
+                    profileRegistry.setFileConfiguration(versionId, profileId, "truststore.jks", truststore);
                     configs.put("truststore.file", "profile:truststore.jks");
 
                 } catch (IOException e) {

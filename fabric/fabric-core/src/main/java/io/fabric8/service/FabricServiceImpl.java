@@ -51,6 +51,7 @@ import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.PortService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
@@ -113,7 +114,7 @@ import com.google.common.base.Strings;
  * |_ PlaceholderResolver (optional,multiple)
  * |_ CuratorFramework (@see ManagedCuratorFramework)
  * |  |_ ACLProvider (@see CuratorACLManager)
- * |_ DataStore (@see CachingGitDataStore)
+ * |_ DataStore (@see GitDataStore)
  *    |_ CuratorFramework  --^
  *    |_ GitService (@see FabricGitServiceImpl)
  *    |_ ContainerProvider (optional,multiple) (@see ChildContainerProvider)
@@ -161,6 +162,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     private final ValidatingReference<PortService> portService = new ValidatingReference<PortService>();
     @Reference(referenceInterface = ProfileService.class)
     private final ValidatingReference<ProfileService> profileService = new ValidatingReference<>();
+    @Reference(referenceInterface = ProfileRegistry.class)
+    private final ValidatingReference<ProfileRegistry> profileRegistry = new ValidatingReference<>();
     @Reference(referenceInterface = ContainerProvider.class, bind = "bindProvider", unbind = "unbindProvider", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
     @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -186,15 +189,14 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         assertValid();
         if (type.isAssignableFrom(CuratorFramework.class)) {
             return (T) curator.get();
+        } else if (type.isAssignableFrom(DataStore.class)) {
+            return (T) dataStore.get();
         } else if (type.isAssignableFrom(ProfileService.class)) {
             return (T) profileService.get();
+        } else if (type.isAssignableFrom(ProfileRegistry.class)) {
+            return (T) profileRegistry.get();
         }
         return null;
-    }
-
-    @Override
-    public DataStore getDataStore() {
-        return dataStore.get();
     }
 
     public String getDefaultRepo() {
@@ -237,22 +239,22 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public void trackConfiguration(Runnable callback) {
         assertValid();
-        getDataStore().trackConfiguration(callback);
+        dataStore.get().trackConfiguration(callback);
     }
 
     @Override
     public void untrackConfiguration(Runnable callback) {
         assertValid();
-        getDataStore().untrackConfiguration(callback);
+        dataStore.get().untrackConfiguration(callback);
     }
 
     @Override
     public Container[] getContainers() {
         assertValid();
         Map<String, Container> containers = new HashMap<String, Container>();
-        List<String> containerIds = getDataStore().getContainers();
+        List<String> containerIds = dataStore.get().getContainers();
         for (String containerId : containerIds) {
-            String parentId = getDataStore().getContainerParent(containerId);
+            String parentId = dataStore.get().getContainerParent(containerId);
             if (parentId.isEmpty()) {
                 if (!containers.containsKey(containerId)) {
                     Container container = new ContainerImpl(null, containerId, this);
@@ -288,9 +290,9 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public Container getContainer(String name) {
         assertValid();
-        if (getDataStore().hasContainer(name)) {
+        if (dataStore.get().hasContainer(name)) {
             Container parent = null;
-            String parentId = getDataStore().getContainerParent(name);
+            String parentId = dataStore.get().getContainerParent(name);
             if (parentId != null && !parentId.isEmpty()) {
                 parent = getContainer(parentId);
             }
@@ -390,7 +392,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                     } catch (Exception e) {
                         LOGGER.warn("Failed to cleanup container {} entries due to: {}. This will be ignored.", containerId, e.getMessage());
                     }
-                    getDataStore().deleteContainer(container.getId());
+                    dataStore.get().deleteContainer(this, container.getId());
                 }
             } catch (Exception e) {
                 LOGGER.warn("Failed to cleanup container {} entries due to: {}. This will be ignored.", containerId, e.getMessage());
@@ -447,7 +449,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             Map optionsMap = mapper.readValue(mapper.writeValueAsString(options), Map.class);
-            String versionId = options.getVersion() != null ? options.getVersion() : getDataStore().getDefaultVersion();
+            String versionId = options.getVersion() != null ? options.getVersion() : dataStore.get().getDefaultVersion();
             Set<String> profileIds = options.getProfiles();
             if (profileIds == null || profileIds.isEmpty()) {
                 profileIds = new LinkedHashSet<String>();
@@ -472,7 +474,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
 
                 //Check if datastore configuration has been specified and fallback to current container settings.
                 if (!hasValidDataStoreProperties(optionsMap)) {
-                    optionsMap.put("dataStoreProperties", getDataStore().getDataStoreProperties());
+                    optionsMap.put("dataStoreProperties", profileRegistry.get().getDataStoreProperties());
                 }
                 Class cl = options.getClass().getClassLoader().loadClass(options.getClass().getName() + "$Builder");
                 CreateContainerBasicOptions.Builder builder = (CreateContainerBasicOptions.Builder) mapper.readValue(mapper.writeValueAsString(optionsMap), cl);
@@ -480,10 +482,11 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 builder = (CreateContainerBasicOptions.Builder) builder.zookeeperPassword(PasswordEncoder.encode(getZookeeperPassword()));
                 final CreateContainerOptions containerOptions = builder.build();
                 final CreationStateListener containerListener = listener;
+                final FabricService fabricService = this;
                 new Thread("Creating container " + containerName) {
                     public void run() {
                         try {
-                            getDataStore().createContainerConfig(containerOptions);
+                            dataStore.get().createContainerConfig(containerOptions);
                             CreateContainerMetadata metadata = provider.create(containerOptions, containerListener);
                             if (metadata.isSuccess()) {
                                 Container parent = containerOptions.getParent() != null ? getContainer(containerOptions.getParent()) : null;
@@ -491,7 +494,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                                 //In this case container config will be created by the newly created container.
                                 //TODO: We need to make sure that this entries are somehow added even to ensemble servers.
                                 if (!containerOptions.isEnsembleServer()) {
-                                    getDataStore().createContainerConfig(metadata);
+                                    dataStore.get().createContainerConfig(metadata);
                                 }
                                 ContainerImpl container = new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this);
                                 metadata.setContainer(container);
@@ -505,7 +508,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                             metadata.setCreateOptions(containerOptions);
                             metadata.setFailure(t);
                             metadatas.add(metadata);
-                            getDataStore().deleteContainer(containerOptions.getName());
+                            dataStore.get().deleteContainer(fabricService, containerOptions.getName());
                         } finally {
                             latch.countDown();
                         }
@@ -958,7 +961,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     public void setRequirements(FabricRequirements requirements) throws IOException {
         assertValid();
         validateRequirements(this, requirements);
-        getDataStore().setRequirements(requirements);
+        dataStore.get().setRequirements(requirements);
     }
 
     /**
@@ -993,7 +996,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public FabricRequirements getRequirements() {
         assertValid();
-        FabricRequirements requirements = getDataStore().getRequirements();
+        FabricRequirements requirements = dataStore.get().getRequirements();
         requirements.setVersion(getDefaultVersionId());
         return requirements;
     }
@@ -1001,7 +1004,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public AutoScaleStatus getAutoScaleStatus() {
         assertValid();
-        return getDataStore().getAutoScaleStatus();
+        return dataStore.get().getAutoScaleStatus();
     }
 
     @Override
@@ -1019,13 +1022,13 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public String getDefaultJvmOptions() {
         assertValid();
-        return getDataStore().getDefaultJvmOptions();
+        return dataStore.get().getDefaultJvmOptions();
     }
 
     @Override
     public void setDefaultJvmOptions(String jvmOptions) {
         assertValid();
-        getDataStore().setDefaultJvmOptions(jvmOptions);
+        dataStore.get().setDefaultJvmOptions(jvmOptions);
     }
 
     @Override
@@ -1188,26 +1191,26 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     @VisibleForTesting
-    public void bindCurator(CuratorFramework curator) {
-        this.curator.bind(curator);
+    public void bindCurator(CuratorFramework service) {
+        this.curator.bind(service);
     }
-    void unbindCurator(CuratorFramework curator) {
-        this.curator.unbind(curator);
+    void unbindCurator(CuratorFramework service) {
+        this.curator.unbind(service);
     }
 
     @VisibleForTesting
-    public void bindDataStore(DataStore dataStore) {
-        this.dataStore.bind(dataStore);
+    public void bindDataStore(DataStore service) {
+        this.dataStore.bind(service);
     }
-    void unbindDataStore(DataStore dataStore) {
-        this.dataStore.unbind(dataStore);
+    void unbindDataStore(DataStore service) {
+        this.dataStore.unbind(service);
     }
 
-    void bindPortService(PortService portService) {
-        this.portService.bind(portService);
+    void bindPortService(PortService service) {
+        this.portService.bind(service);
     }
-    void unbindPortService(PortService portService) {
-        this.portService.unbind(portService);
+    void unbindPortService(PortService service) {
+        this.portService.unbind(service);
     }
 
     void bindProfileService(ProfileService service) {
@@ -1215,6 +1218,13 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
     void unbindProfileService(ProfileService service) {
         profileService.unbind(service);
+    }
+    
+    void bindProfileRegistry(ProfileRegistry service) {
+        this.profileRegistry.bind(service);
+    }
+    void unbindProfileRegistry(ProfileRegistry service) {
+        this.profileRegistry.unbind(service);
     }
     
     void bindProvider(ContainerProvider provider) {
