@@ -40,6 +40,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import static io.fabric8.common.util.Filters.trueFilter;
+
 /**
  */
 public class SshAutoScaler implements ContainerAutoScaler {
@@ -164,12 +166,13 @@ public class SshAutoScaler implements ContainerAutoScaler {
         int index = 0;
         Map<String, SshHostConfiguration> hosts = requirements.getSshHostsMap();
         if (hosts != null) {
-            Filter<String> filter = sshScalingRequirements != null ? Filters.createStringFilters(sshScalingRequirements.getHostPatterns()) : Filters.<String>trueFilter();
+            Filter<String> hostFilter = createHostAliasFilter(sshScalingRequirements);
+            Filter<SshHostConfiguration> configFilter = createHostConfigFilter(sshScalingRequirements);
             Set<Map.Entry<String, SshHostConfiguration>> entries = hosts.entrySet();
             for (Map.Entry<String, SshHostConfiguration> entry : entries) {
                 String hostAlias = entry.getKey();
-                if (filter.matches(hostAlias)) {
-                    SshHostConfiguration config = entry.getValue();
+                SshHostConfiguration config = entry.getValue();
+                if (hostFilter.matches(hostAlias) && configFilter.matches(config)) {
                     String profile = profileRequirements.getProfile();
                     boolean valid = true;
                     Integer maximumContainerCount = config.getMaximumContainerCount();
@@ -195,6 +198,43 @@ public class SshAutoScaler implements ContainerAutoScaler {
             }
         }
         return answer;
+    }
+
+    protected static Filter<String> createHostAliasFilter(SshScalingRequirements sshScalingRequirements) {
+        if (sshScalingRequirements != null) {
+            List<String> hostPatterns = sshScalingRequirements.getHostPatterns();
+            if (hostPatterns != null && hostPatterns.size() > 0) {
+                return Filters.createStringFilters(hostPatterns);
+            }
+        }
+        return trueFilter();
+    }
+
+    protected static Filter<SshHostConfiguration> createHostConfigFilter(SshScalingRequirements sshScalingRequirements) {
+        if (sshScalingRequirements != null) {
+            final List<String> matchTags = sshScalingRequirements.getHostTags();
+            if (matchTags != null && matchTags.size() > 0) {
+                return new Filter<SshHostConfiguration>() {
+                    @Override
+                    public String toString() {
+                        return "Filter(SshHostConfiguration has tags: " + matchTags + ")";
+                    }
+
+                    @Override
+                    public boolean matches(SshHostConfiguration sshHostConfiguration) {
+                        List<String> tags = sshHostConfiguration.getTags();
+                        if (tags != null) {
+                            for (String matchTag : matchTags) {
+                                if (!tags.contains(matchTag)) return false;
+                            }
+                            return true;
+                        }
+                        return false;
+                    }
+                };
+            }
+        }
+        return trueFilter();
     }
 
     @Override

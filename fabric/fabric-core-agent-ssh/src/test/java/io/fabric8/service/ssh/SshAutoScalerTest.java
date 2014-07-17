@@ -68,6 +68,33 @@ public class SshAutoScalerTest {
         dumpHostProfiles(hostProfileCounter);
     }
 
+    @Test
+    public void testAllocateEquallyUsingTags() throws Exception {
+        String[] mqBoxes = {"mq1", "mq2"};
+        String[] esbBoxes = {"esb1", "esb2", "esb3", "esb4"};
+
+        FabricRequirements requirements = new FabricRequirements();
+        requirements.sshConfiguration().defaultUsername("root");
+
+        for (String box : mqBoxes) {
+            requirements.sshHost(box).tags("mq");
+        }
+        for (String box : esbBoxes) {
+            requirements.sshHost(box).tags("esb");
+        }
+        requirements.profile(mqProfileId).minimumInstances(2).sshScaling().hostTags("mq");
+        requirements.profile(exampleProfileId).minimumInstances(8).dependentProfiles(mqProfileId).sshScaling().hostTags("esb");
+
+        HostProfileCounter hostProfileCounter = assertSshAutoScale(requirements);
+        for (String box : mqBoxes) {
+            assertHostHasProfileCount(hostProfileCounter, box, mqProfileId, 1);
+        }
+        for (String box : esbBoxes) {
+            assertHostHasProfileCount(hostProfileCounter, box, exampleProfileId, 2);
+        }
+        dumpHostProfiles(hostProfileCounter);
+    }
+
     public static void assertHostHasProfileCount(HostProfileCounter hostProfileCounter, String hostAlias, String profileId, int expectedCount) {
         int actual = hostProfileCounter.profileCount(hostAlias, profileId);
         assertEquals("Host " + hostAlias + " instance count for profile " + profileId, expectedCount, actual);
