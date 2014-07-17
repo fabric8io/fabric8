@@ -21,7 +21,7 @@
 <web-app>
 
     <listener>
-        <listener-class>org.jboss.gravia.runtime.WebAppContextListener</listener-class>
+        <listener-class>org.jboss.gravia.container.tomcat.WebAppContextListener</listener-class>
     </listener>
 
 </web-app>

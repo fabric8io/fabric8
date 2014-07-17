@@ -16,7 +16,8 @@
 package io.fabric8.portable.runtime.tomcat;
 
 
-import java.io.File;
+import io.fabric8.api.BootstrapComplete;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -25,8 +26,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import io.fabric8.api.BootstrapComplete;
-import org.jboss.gravia.Constants;
+import org.jboss.gravia.container.tomcat.WebAppContextListener;
 import org.jboss.gravia.container.tomcat.support.TomcatResourceInstaller;
 import org.jboss.gravia.container.tomcat.support.TomcatRuntimeFactory;
 import org.jboss.gravia.provision.ResourceInstaller;
@@ -39,7 +39,6 @@ import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.ServiceEvent;
 import org.jboss.gravia.runtime.ServiceListener;
 import org.jboss.gravia.runtime.ServiceRegistration;
-import org.jboss.gravia.runtime.WebAppContextListener;
 import org.jboss.gravia.runtime.spi.PropertiesProvider;
 
 /**

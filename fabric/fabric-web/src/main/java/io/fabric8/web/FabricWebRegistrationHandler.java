@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import io.fabric8.api.Version;
 import io.fabric8.internal.JsonHelper;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
@@ -36,13 +37,16 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+
 import io.fabric8.api.Container;
+import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.zookeeper.ZkPath;
+
 import org.ops4j.pax.web.service.spi.ServletEvent;
 import org.ops4j.pax.web.service.spi.ServletListener;
 import org.ops4j.pax.web.service.spi.WebEvent;
@@ -58,10 +62,12 @@ public final class FabricWebRegistrationHandler extends AbstractComponent implem
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricWebRegistrationHandler.class);
 
-    @Reference(referenceInterface = FabricService.class)
-    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ContainerRegistration.class)
+    private final ValidatingReference<ContainerRegistration> containerRegistration = new ValidatingReference<>();
     @Reference(referenceInterface = CuratorFramework.class)
-    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<>();
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<>();
 
     @GuardedBy("ConcurrentMap") private final ConcurrentMap<Bundle, WebEvent> webEvents = new ConcurrentHashMap<Bundle, WebEvent>();
     @GuardedBy("ConcurrentMap") private final ConcurrentMap<Bundle, Map<String, ServletEvent>> servletEvents = new ConcurrentHashMap<Bundle, Map<String, ServletEvent>>();
@@ -264,19 +270,24 @@ public final class FabricWebRegistrationHandler extends AbstractComponent implem
         }
     }
 
-    void bindFabricService(FabricService fabricService) {
-        this.fabricService.bind(fabricService);
+    void bindContainerRegistration(ContainerRegistration service) {
+        this.containerRegistration.bind(service);
     }
-
-    void unbindFabricService(FabricService fabricService) {
-        this.fabricService.unbind(fabricService);
+    void unbindContainerRegistration(ContainerRegistration service) {
+        this.containerRegistration.unbind(service);
     }
-
+    
     void bindCurator(CuratorFramework curator) {
         this.curator.bind(curator);
     }
-
     void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
+    }
+    
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
     }
 }
