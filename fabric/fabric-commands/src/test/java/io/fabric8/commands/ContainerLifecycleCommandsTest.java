@@ -35,8 +35,10 @@ import java.util.Arrays;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.service.command.CommandSession;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore("[FABRIC-1110] Mocked test makes invalid assumption on the implementation")
 public class ContainerLifecycleCommandsTest {
 
     private ContainerStopAction stop;

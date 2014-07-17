@@ -18,8 +18,9 @@ package io.fabric8.partition.internal.repositories;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileService;
-import io.fabric8.git.internal.GitDataStore;
+import io.fabric8.api.DataStore;
 import io.fabric8.partition.internal.BaseWorkItemRepository;
 
 import java.net.URL;
@@ -37,19 +38,19 @@ public class ProfileWorkItemRepository extends BaseWorkItemRepository implements
     private static final Logger LOGGER = LoggerFactory.getLogger(ZkWorkItemRepository.class);
 
     private final String name;
-    private final ProfileService profileService;
-    private final GitDataStore dataStore;
-    private final String profileId;
+    private final FabricService fabricService;
+    private final DataStore dataStore;
+    private final String profile;
     private final String folderPath;
 
     private volatile String lastModified = "";
 
-    public ProfileWorkItemRepository(String name, GitDataStore dataStore, String partitionsPath, FabricService fabricService) {
+    public ProfileWorkItemRepository(String name, DataStore dataStore, String partitionsPath, FabricService fabricService) {
         this.name = name;
         this.dataStore = dataStore;
-        this.profileService = fabricService.adapt(ProfileService.class);
+        this.fabricService = fabricService;
         int index = partitionsPath.indexOf("/");
-        this.profileId = partitionsPath.substring((ProfileWorkItemRepositoryFactory.SCHME + ":").length(), index);
+        this.profile = partitionsPath.substring((ProfileWorkItemRepositoryFactory.SCHME + ":").length(), index);
         this.folderPath = partitionsPath.substring(index + 1);
     }
 
@@ -74,11 +75,12 @@ public class ProfileWorkItemRepository extends BaseWorkItemRepository implements
     public List<String> listWorkItemLocations() {
         List<String> items = Lists.newArrayList();
         try {
-            String versionId = dataStore.getContainerVersion(name);
-            Profile profile = profileService.getRequiredProfile(versionId, profileId);
-            for (String fileName : profile.getFileConfigurations().keySet()) {
-                if (fileName.startsWith(folderPath)) {
-                    items.add(fileName);
+            ProfileService profileService = fabricService.adapt(ProfileService.class);
+            String version = dataStore.getContainerVersion(name);
+            Profile p = profileService.getRequiredProfile(version, profile);
+            for (String f : p.getFileConfigurations().keySet()) {
+                if (f.startsWith(folderPath)) {
+                    items.add(f);
                 }
             }
         } catch (Exception e) {
@@ -99,7 +101,8 @@ public class ProfileWorkItemRepository extends BaseWorkItemRepository implements
 
     @Override
     public void run() {
-       String modifed = dataStore.getLastModified(dataStore.getContainerVersion(name), profileId);
+       ProfileRegistry profileRegistry = fabricService.adapt(ProfileRegistry.class);
+       String modifed = profileRegistry.getLastModified(dataStore.getContainerVersion(name), profile);
        if (!modifed.equals(lastModified)) {
            notifyListeners();
            lastModified = modifed;

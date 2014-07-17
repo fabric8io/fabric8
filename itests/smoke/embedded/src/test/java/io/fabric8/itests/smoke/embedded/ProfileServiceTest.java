@@ -13,9 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.test.fabric.runtime.embedded;
-
-import java.util.Collections;
+package io.fabric8.itests.smoke.embedded;
 
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreateEnsembleOptions.Builder;
@@ -25,7 +23,8 @@ import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.api.VersionBuilder;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
-import io.fabric8.test.fabric.runtime.embedded.support.AbstractEmbeddedTest;
+
+import java.util.Collections;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.gravia.runtime.ServiceLocator;
@@ -37,7 +36,7 @@ import org.junit.runner.RunWith;
  * Test the {@link ProfileService}
  */
 @RunWith(Arquillian.class)
-public class ProfileServiceTest extends AbstractEmbeddedTest {
+public class ProfileServiceTest {
 
     private static final String SYSTEM_PASSWORD = "systempassword";
 

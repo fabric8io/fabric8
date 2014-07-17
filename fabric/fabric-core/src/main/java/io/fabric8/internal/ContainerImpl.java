@@ -63,6 +63,7 @@ public class ContainerImpl implements Container {
     private final Container parent;
     private final String id;
     private final FabricService fabricService;
+    private final DataStore dataStore;
 
     private CreateContainerMetadata<?> metadata;
 
@@ -70,6 +71,7 @@ public class ContainerImpl implements Container {
         this.parent = parent;
         this.id = id;
         this.fabricService = fabricService;
+        this.dataStore = fabricService.adapt(DataStore.class);
     }
 
     public FabricService getFabricService() {
@@ -85,11 +87,11 @@ public class ContainerImpl implements Container {
     }
 
     public boolean isAlive() {
-        return fabricService.getDataStore().isContainerAlive(id);
+        return dataStore.isContainerAlive(id);
     }
 
     public void setAlive(boolean flag) {
-       fabricService.getDataStore().setContainerAlive(id, flag);
+       dataStore.setContainerAlive(id, flag);
     }
 
     public boolean isRoot() {
@@ -99,7 +101,7 @@ public class ContainerImpl implements Container {
     @Override
     public boolean isEnsembleServer() {
         try {
-            List<String> containers = fabricService.getDataStore().getEnsembleContainers();
+            List<String> containers = dataStore.getEnsembleContainers();
             for (String container : containers) {
                 if (id.equals(container)) {
                     return true;
@@ -175,7 +177,7 @@ public class ContainerImpl implements Container {
 
     @Override
     public Version getVersion() {
-        String versionId = fabricService.getDataStore().getContainerVersion(id);
+        String versionId = dataStore.getContainerVersion(id);
         ProfileService profileService = fabricService.adapt(ProfileService.class);
         return versionId != null ? profileService.getVersion(versionId) : null;
     }
@@ -185,15 +187,15 @@ public class ContainerImpl implements Container {
         if (version.compareTo(getVersion()) != 0) {
             if (requiresUpgrade(version) && isManaged()) {
                 String status = version.compareTo(getVersion()) > 0 ? "upgrading" : "downgrading";
-                fabricService.getDataStore().setContainerAttribute(id, DataStore.ContainerAttribute.ProvisionStatus, status);
+                dataStore.setContainerAttribute(id, DataStore.ContainerAttribute.ProvisionStatus, status);
             }
-            fabricService.getDataStore().setContainerVersion(id, version.getId());
+            dataStore.setContainerVersion(id, version.getId());
         }
     }
 
     @Override
     public Long getProcessId() {
-        String pid = fabricService.getDataStore().getContainerAttribute(id, DataStore.ContainerAttribute.ProcessId, null, false, false);
+        String pid = dataStore.getContainerAttribute(id, DataStore.ContainerAttribute.ProcessId, null, false, false);
         if( pid == null )
             return null;
         return Long.valueOf(pid);
@@ -201,7 +203,7 @@ public class ContainerImpl implements Container {
 
     public Profile[] getProfiles() {
         Version version = getVersion();
-        List<String> profileIds = fabricService.getDataStore().getContainerProfiles(id);
+        List<String> profileIds = dataStore.getContainerProfiles(id);
         List<Profile> profiles = new ArrayList<Profile>();
         for (String profileId : profileIds) {
             profiles.add(version.getRequiredProfile(profileId));
@@ -213,8 +215,8 @@ public class ContainerImpl implements Container {
     }
 
     public void setProfiles(Profile[] profiles) {
-        String versionId = fabricService.getDataStore().getContainerVersion(id);
-        List<String> currentProfileIds = fabricService.getDataStore().getContainerProfiles(id);
+        String versionId = dataStore.getContainerVersion(id);
+        List<String> currentProfileIds = dataStore.getContainerProfiles(id);
         List<String> profileIds = new ArrayList<String>();
         if (profiles != null) {
             for (Profile profile : profiles) {
@@ -233,7 +235,7 @@ public class ContainerImpl implements Container {
         if (profileIds.isEmpty()) {
             profileIds.add(ZkDefs.DEFAULT_PROFILE);
         }
-        fabricService.getDataStore().setContainerProfiles(id, profileIds);
+        dataStore.setContainerProfiles(id, profileIds);
     }
 
     @Override
@@ -261,7 +263,7 @@ public class ContainerImpl implements Container {
     public void removeProfiles(String... profileIds) {
         List<String> removedProfiles = Arrays.asList(profileIds);
         List<Profile> updatedProfileList = new LinkedList<>();
-        for (String profileId : fabricService.getDataStore().getContainerProfiles(id)) {
+        for (String profileId : dataStore.getContainerProfiles(id)) {
             if (!removedProfiles.contains(profileId)) {
                 Profile profile = getVersion().getProfile(profileId);
                 if (profile != null) {
@@ -617,7 +619,7 @@ public class ContainerImpl implements Container {
 
     private CreateContainerMetadata<?> getMetadata(ClassLoader classLoader) {
         try {
-            return fabricService.getDataStore().getContainerMetadata(id, classLoader);
+            return dataStore.getContainerMetadata(id, classLoader);
         } catch (Exception e) {
             logger.debug("Error while retrieving metadata. This exception will be ignored.", e);
             return null;
@@ -693,19 +695,19 @@ public class ContainerImpl implements Container {
     }
 
     private String getOptionalAttribute(DataStore.ContainerAttribute attribute, String def) {
-        return fabricService.getDataStore().getContainerAttribute(id, attribute, def, false, false);
+        return dataStore.getContainerAttribute(id, attribute, def, false, false);
     }
 
     private String getNullableSubstitutedAttribute(DataStore.ContainerAttribute attribute) {
-        return fabricService.getDataStore().getContainerAttribute(id, attribute, null, false, true);
+        return dataStore.getContainerAttribute(id, attribute, null, false, true);
     }
 
     private String getMandatorySubstitutedAttribute(DataStore.ContainerAttribute attribute) {
-        return fabricService.getDataStore().getContainerAttribute(id, attribute, null, true, true);
+        return dataStore.getContainerAttribute(id, attribute, null, true, true);
     }
 
     private void setAttribute(DataStore.ContainerAttribute attribute, String value) {
-        fabricService.getDataStore().setContainerAttribute(id, attribute, value);
+        dataStore.setContainerAttribute(id, attribute, value);
     }
 
     private String getExtenderStatus() {
@@ -732,7 +734,7 @@ public class ContainerImpl implements Container {
 		Version version = getVersion();
 		String profileId = "#container-" + getId();
 		ProfileBuilder builder = ProfileBuilder.Factory.create(profileId).version(version.getId());
-		ContainerProfileOptions optionsProvider = new ContainerProfileOptions(getId(), version, fabricService.getDataStore());
+		ContainerProfileOptions optionsProvider = new ContainerProfileOptions(getId(), version, dataStore);
 		return builder.addOptions(optionsProvider).getProfile();
 	}
 

@@ -16,6 +16,7 @@
 package io.fabric8.service.jclouds.commands;
 
 import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.boot.commands.support.AbstractContainerCreateAction;
@@ -155,7 +156,6 @@ public class ContainerCreateCloud extends AbstractContainerCreateAction {
         .withUser(newUser, newUserPassword, newUserRole)
         .profiles(getProfileNames())
         .dataStoreProperties(getDataStoreProperties())
-        .dataStoreType(dataStoreType != null && isEnsembleServer ? dataStoreType : fabricService.getDataStore().getType())
         .uploadDistribution(!distributionUploadDisable);
 
         if (path != null && !path.isEmpty()) {

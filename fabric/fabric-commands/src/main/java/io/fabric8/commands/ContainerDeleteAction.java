@@ -57,7 +57,7 @@ public class ContainerDeleteAction extends AbstractContainerLifecycleAction {
                 found.destroy(force);
             } else if (force) {
                 //We also want to try and delete any leftover entries
-                fabricService.adapt(DataStore.class).deleteContainer(containerName);
+                fabricService.adapt(DataStore.class).deleteContainer(fabricService, containerName);
             }
         }
         return null;

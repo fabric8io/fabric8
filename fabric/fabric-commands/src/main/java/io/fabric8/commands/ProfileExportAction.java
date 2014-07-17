@@ -18,6 +18,7 @@ package io.fabric8.commands;
 import java.io.File;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 
@@ -58,7 +59,7 @@ public class ProfileExportAction extends AbstractAction {
             return null;
         }
 
-        fabricService.getDataStore().exportProfiles(ver.getId(), outputZipFileName.getAbsolutePath(), wildcard);
+        fabricService.adapt(ProfileRegistry.class).exportProfiles(ver.getId(), outputZipFileName.getAbsolutePath(), wildcard);
         System.out.println("Exported profiles to " + outputZipFileName.getCanonicalPath());
         return null;
     }

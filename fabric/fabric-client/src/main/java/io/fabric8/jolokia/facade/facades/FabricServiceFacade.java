@@ -319,11 +319,6 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
-    public DataStore getDataStore() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String getDefaultJvmOptions() {
         return Helpers.read(getJolokiaClient(), "DefaultJvmOptions");
     }

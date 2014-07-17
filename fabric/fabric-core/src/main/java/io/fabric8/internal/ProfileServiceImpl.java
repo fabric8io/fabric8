@@ -15,7 +15,6 @@
  */
 package io.fabric8.internal;
 
-import io.fabric8.api.DataStore;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
@@ -23,6 +22,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.OptionsProvider;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
@@ -56,10 +56,10 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
 	
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileServiceImpl.class);
     
-    @Reference(referenceInterface = DataStore.class)
-    private final ValidatingReference<DataStore> dataStore = new ValidatingReference<>();
+    @Reference(referenceInterface = ProfileRegistry.class)
+    private final ValidatingReference<ProfileRegistry> profileRegistry = new ValidatingReference<>();
     @Reference(referenceInterface = RuntimeProperties.class)
-    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<>();
     
     @Activate
     void activate() throws Exception {
@@ -74,13 +74,13 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
 	@Override
 	public List<String> getVersions() {
         assertValid();
-        return dataStore.get().getVersions();
+        return profileRegistry.get().getVersions();
 	}
 
 	@Override
     public boolean hasVersion(String versionId) {
         assertValid();
-        return dataStore.get().hasVersion(versionId);
+        return profileRegistry.get().hasVersion(versionId);
     }
 
     @Override
@@ -88,14 +88,14 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         assertValid();
         
     	// [TODO] This is check-then-act -- make atomic using locks
-    	if (!dataStore.get().hasVersion(versionId))
+    	if (!profileRegistry.get().hasVersion(versionId))
     		return null;
     	
 		VersionBuilder builder = VersionBuilder.Factory.create(versionId);
-		builder.setAttributes(dataStore.get().getVersionAttributes(versionId));
+		builder.setAttributes(profileRegistry.get().getVersionAttributes(versionId));
 		
         HashMap<String, Profile> profiles = new HashMap<String, Profile>();
-        for (String profileId : dataStore.get().getProfiles(versionId)) {
+        for (String profileId : profileRegistry.get().getProfiles(versionId)) {
         	builder.addProfile(getProfileInternal(versionId, profileId, profiles));
         }
         
@@ -119,11 +119,11 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         // [TODO] make atomic using locks
         String versionId = version.getId();
         if (version.getParentId() != null) {
-    		dataStore.get().createVersion(version.getParentId(), versionId);
+    		profileRegistry.get().createVersion(version.getParentId(), versionId);
         } else {
-    		dataStore.get().createVersion(versionId);
+    		profileRegistry.get().createVersion(versionId);
             for (Entry<String, String> entry : version.getAttributes().entrySet()) {
-                dataStore.get().setVersionAttribute(versionId, entry.getKey(), entry.getValue());
+                profileRegistry.get().setVersionAttribute(versionId, entry.getKey(), entry.getValue());
             }
             for (Profile profile : version.getProfiles()) {
             	createOrUpdateProfile(profile, true);
@@ -152,14 +152,14 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         
         if (create) {
             LOGGER.info("createProfile: {}", profile);
-            dataStore.get().createProfile(versionId, profileId);
+            profileRegistry.get().createProfile(versionId, profileId);
         } else {
             LOGGER.info("updateProfile: {}", profile);
         }
         
         // Attributes
         for (Entry<String, String> entry : profile.getAttributes().entrySet()) {
-            dataStore.get().setProfileAttribute(versionId, profileId, entry.getKey(), entry.getValue());
+            profileRegistry.get().setProfileAttribute(versionId, profileId, entry.getKey(), entry.getValue());
         }
 
         // Parent Profiles
@@ -172,26 +172,26 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
                 }
                 sb.append(parent.getId());
             }
-            dataStore.get().setProfileAttribute(versionId, profileId, Profile.PARENTS, sb.toString());
+            profileRegistry.get().setProfileAttribute(versionId, profileId, Profile.PARENTS, sb.toString());
         }
         
         // FileConfigurations
         Map<String, byte[]> fileConfigurations = profile.getFileConfigurations();
         if (!fileConfigurations.isEmpty()) {
-            dataStore.get().setFileConfigurations(versionId, profileId, fileConfigurations);
+            profileRegistry.get().setFileConfigurations(versionId, profileId, fileConfigurations);
         }
         
         // Configurations
         Map<String, Map<String, String>> configurations = profile.getConfigurations();
         if (!configurations.isEmpty()) {
-            dataStore.get().setConfigurations(versionId, profileId, configurations);
+            profileRegistry.get().setConfigurations(versionId, profileId, configurations);
         }
     }
 
     @Override
 	public boolean hasProfile(String versionId, String profileId) {
     	assertValid();
-        return dataStore.get().hasProfile(versionId, profileId);
+        return profileRegistry.get().hasProfile(versionId, profileId);
 	}
 
     @Override
@@ -208,10 +208,10 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         Profile profile = profiles.get(profileId);
         if (profile == null) {
             // [TODO] This is check-then-act -- make atomic using locks
-            boolean hasProfile = dataStore.get().hasProfile(versionId, profileId);
+            boolean hasProfile = profileRegistry.get().hasProfile(versionId, profileId);
             IllegalStateAssertion.assertTrue(hasProfile, "Profile '" + profileId + "' does not exist in version: " + versionId);
             
-            Map<String, String> attributes = dataStore.get().getProfileAttributes(versionId, profileId);
+            Map<String, String> attributes = profileRegistry.get().getProfileAttributes(versionId, profileId);
             ProfileBuilder builder = ProfileBuilder.Factory.create(profileId).version(versionId).setAttributes(attributes);
             
             String parentsAttr = attributes.get(Profile.PARENTS);
@@ -225,9 +225,9 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
                 }
             }
 
-            builder.setFileConfigurations(dataStore.get().getFileConfigurations(versionId, profileId));
-            builder.setConfigurations(dataStore.get().getConfigurations(versionId, profileId));
-            builder.setLastModified(dataStore.get().getLastModified(versionId, profileId));
+            builder.setFileConfigurations(profileRegistry.get().getFileConfigurations(versionId, profileId));
+            builder.setConfigurations(profileRegistry.get().getConfigurations(versionId, profileId));
+            builder.setLastModified(profileRegistry.get().getLastModified(versionId, profileId));
             
             profile = builder.getProfile();
             profiles.put(profile.getId(), profile);
@@ -239,7 +239,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     public void deleteVersion(String versionId) {
     	assertValid();
         LOGGER.info("deleteVersion: {}", versionId);
-        dataStore.get().deleteVersion(versionId);
+        profileRegistry.get().deleteVersion(versionId);
     }
 
 	@Override
@@ -258,12 +258,12 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         // TODO: what about child profiles ?
         Container[] containers = fabricService.getAssociatedContainers(versionId, profileId);
         if (containers.length == 0) {
-            dataStore.get().deleteProfile(versionId, profileId);
+            profileRegistry.get().deleteProfile(versionId, profileId);
         } else if (force) {
             for (Container container : containers) {
                 container.removeProfiles(profileId);
             }
-            dataStore.get().deleteProfile(versionId, profileId);
+            profileRegistry.get().deleteProfile(versionId, profileId);
         } else {
             StringBuilder sb = new StringBuilder();
             sb.append("Cannot delete profile:").append(profileId).append(".");
@@ -297,20 +297,6 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
             overlayProfile = builder.getProfile();
         }
         return overlayProfile;
-    }
-    
-    void bindDataStore(DataStore service) {
-        this.dataStore.bind(service);
-    }
-    void unbindDataStore(DataStore service) {
-        this.dataStore.unbind(service);
-    }
-    
-    void bindRuntimeProperties(RuntimeProperties service) {
-        this.runtimeProperties.bind(service);
-    }
-    void unbindRuntimeProperties(RuntimeProperties service) {
-        this.runtimeProperties.unbind(service);
     }
     
     static class OverlayOptionsProvider implements OptionsProvider<ProfileBuilder> {
@@ -457,5 +443,19 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
             }
             return sb.toString();
         }
+    }
+
+    void bindProfileRegistry(ProfileRegistry service) {
+        this.profileRegistry.bind(service);
+    }
+    void unbindProfileRegistry(ProfileRegistry service) {
+        this.profileRegistry.unbind(service);
+    }
+    
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 }

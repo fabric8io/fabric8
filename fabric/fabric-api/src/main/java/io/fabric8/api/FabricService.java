@@ -212,11 +212,6 @@ public interface FabricService {
     PortService getPortService();
 
     /**
-     * Get the {@link DataStore}
-     */
-    DataStore getDataStore();
-
-    /**
      * Get the default JVM options used when creating containers
      */
     String getDefaultJvmOptions();

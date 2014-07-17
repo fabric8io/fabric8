@@ -16,6 +16,7 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 
@@ -57,7 +58,7 @@ public class ProfileImportAction extends AbstractAction {
             return null;
         }
 
-        fabricService.getDataStore().importProfiles(ver.getId(), profileUrls);
+        fabricService.adapt(ProfileRegistry.class).importProfiles(ver.getId(), profileUrls);
         System.out.println("Imported profiles into version " + ver.getId());
 
         return null;

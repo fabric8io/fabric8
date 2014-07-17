@@ -16,27 +16,26 @@
 package io.fabric8.commands.support;
 
 
-import io.fabric8.api.DataStore;
-import org.jledit.ContentManager;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileRegistry;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+
+import org.jledit.ContentManager;
 
 public class DatastoreContentManager implements ContentManager {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
 
-    private final DataStore dataStore;
+    private final ProfileRegistry profileRegistry;
 
-    public DatastoreContentManager(DataStore dataStore) {
-        this.dataStore = dataStore;
+    public DatastoreContentManager(FabricService fabricService) {
+        this.profileRegistry = fabricService.adapt(ProfileRegistry.class);
     }
 
     /**
      * Loads content from the specified location.
-     *
-     * @param location
-     * @return
      */
     @Override
     public String load(String location) throws IOException {
@@ -48,7 +47,7 @@ public class DatastoreContentManager implements ContentManager {
             String profile = parts[0];
             String version = parts[1];
             String resource = parts[2];
-            String data = new String(dataStore.getFileConfiguration(version, profile, resource));
+            String data = new String(profileRegistry.getFileConfiguration(version, profile, resource));
             return data != null ? data : "";
         } catch (Exception e) {
             throw new IOException("Failed to read data from zookeeper.", e);
@@ -57,10 +56,6 @@ public class DatastoreContentManager implements ContentManager {
 
     /**
      * Saves content to the specified location.
-     *
-     * @param content
-     * @param location
-     * @return
      */
     @Override
     public boolean save(String content, String location) {
@@ -72,7 +67,7 @@ public class DatastoreContentManager implements ContentManager {
             String profile = parts[0];
             String version = parts[1];
             String resource = parts[2];
-            dataStore.setFileConfiguration(version, profile, resource, content.getBytes());
+            profileRegistry.setFileConfiguration(version, profile, resource, content.getBytes());
         } catch (Exception e) {
             return false;
         }
@@ -81,11 +76,6 @@ public class DatastoreContentManager implements ContentManager {
 
     /**
      * Saves the {@link String} content to the specified location using the specified {@link java.nio.charset.Charset}.
-     *
-     * @param content
-     * @param charset
-     * @param location
-     * @return
      */
     @Override
     public boolean save(String content, Charset charset, String location) {
@@ -94,9 +84,6 @@ public class DatastoreContentManager implements ContentManager {
 
     /**
      * Detect the Charset of the content in the specified location.
-     *
-     * @param location
-     * @return
      */
     @Override
     public Charset detectCharset(String location) {

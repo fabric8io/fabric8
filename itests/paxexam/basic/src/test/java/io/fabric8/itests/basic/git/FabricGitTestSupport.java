@@ -18,6 +18,7 @@ package io.fabric8.itests.basic.git;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.api.VersionBuilder;
@@ -66,7 +67,7 @@ public class FabricGitTestSupport extends FabricTestSupport {
         git.push().setCredentialsProvider(getCredentialsProvider()).setPushAll().setRemote("origin").call();
         GitUtils.waitForBranchUpdate(curator, version);
         for (int i = 0; i < 5; i++) {
-            if (fabricService.getDataStore().hasProfile(version, profile)) {
+            if (fabricService.adapt(ProfileRegistry.class).hasProfile(version, profile)) {
                 return;
             } else {
                 Thread.sleep(1000);
@@ -89,7 +90,7 @@ public class FabricGitTestSupport extends FabricTestSupport {
             profileService.createVersion(version);
         }
 
-        fabricService.getDataStore().createProfile(versionId, profile);
+        fabricService.adapt(ProfileRegistry.class).createProfile(versionId, profile);
         GitUtils.waitForBranchUpdate(curator, versionId);
         GitUtils.checkoutBranch(git, "origin", versionId);
         PullResult pullResult = git.pull().setCredentialsProvider(getCredentialsProvider()).setRebase(true).call();

@@ -43,6 +43,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
+
 import io.fabric8.common.util.Maps;
 import io.fabric8.common.util.Strings;
 import io.fabric8.api.Container;
@@ -50,11 +51,13 @@ import io.fabric8.api.Containers;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.Profiles;
 import io.fabric8.jaxb.dynamic.CompileResults;
 import io.fabric8.jaxb.dynamic.CompileResultsHandler;
 import io.fabric8.jaxb.dynamic.DynamicCompiler;
 import io.fabric8.jaxb.dynamic.DynamicXJC;
+
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,7 +152,7 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
     }
 
     public DataStore getDataStore() {
-        return getFabricService().getDataStore();
+        return getFabricService().adapt(DataStore.class);
     }
 
     public BundleContext getBundleContext() {
@@ -210,7 +213,7 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
         String version = container.getVersion().getId();
         List<Profile> profiles = Containers.overlayProfiles(container);
         List<String> profileIds = Profiles.profileIds(profiles);
-        Collection<String> names = fabric.getDataStore().listFiles(version, profileIds, schemaPath);
+        Collection<String> names = fabric.adapt(ProfileRegistry.class).listFiles(version, profileIds, schemaPath);
         for (String name : names) {
             if (name.endsWith(".xsd")) {
                 String prefix = schemaPath;

@@ -15,6 +15,16 @@
  */
 package io.fabric8.openshift.commands.support;
 
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.FabricAuthenticationException;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRegistry;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Version;
+import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.utils.FabricValidations;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -22,14 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.fabric8.api.CreateContainerMetadata;
-import io.fabric8.api.ProfileService;
-import io.fabric8.api.FabricAuthenticationException;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.api.ZooKeeperClusterService;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.utils.FabricValidations;
 import org.apache.felix.gogo.commands.Option;
 import org.osgi.framework.ServiceReference;
 
@@ -51,8 +53,6 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     protected String zookeeperPassword;
     @Option(name = "--jvm-opts", multiValued = false, required = false, description = "Options to pass to the container's JVM.")
     protected String jvmOpts;
-    @Option(name = "--datastore-type", multiValued = false, required = false, description = "Options to pass to the container's datastore type.")
-    protected String dataStoreType;
     @Option(name = "--datastore-option", multiValued = true, required = false, description = "Options to pass to the container's datastore.")
     protected String[] dataStoreOption;
 
@@ -162,7 +162,8 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     }
 
     public Map<String, String> getDataStoreProperties() {
-        Map<String, String> options = new HashMap<String, String>(fabricService.getDataStore().getDataStoreProperties());
+        ProfileRegistry profileRegistry = fabricService.adapt(ProfileRegistry.class);
+        Map<String, String> options = new HashMap<String, String>(profileRegistry.getDataStoreProperties());
         if (dataStoreOption != null) {
             for (String opt : dataStoreOption) {
                 String[] parts = opt.trim().split(" +");

@@ -38,10 +38,12 @@ public class ContainerInfoAction extends AbstractAction {
 	private String containerName;
 
     private final FabricService fabricService;
+    private final DataStore dataStore;
     private final RuntimeProperties runtimeProperties;
 
     ContainerInfoAction(FabricService fabricService, RuntimeProperties runtimeProperties) {
         this.fabricService = fabricService;
+        this.dataStore = fabricService.adapt(DataStore.class);
         this.runtimeProperties = runtimeProperties;
     }
 
@@ -90,8 +92,8 @@ public class ContainerInfoAction extends AbstractAction {
                 System.out.println(String.format(FORMAT, "", id));
             }
         }
-        String blueprintStatus = fabricService.getDataStore().getContainerAttribute(containerName, DataStore.ContainerAttribute.BlueprintStatus, "", false, false);
-        String springStatus = fabricService.getDataStore().getContainerAttribute(containerName, DataStore.ContainerAttribute.SpringStatus, "", false, false);
+        String blueprintStatus = dataStore.getContainerAttribute(containerName, DataStore.ContainerAttribute.BlueprintStatus, "", false, false);
+        String springStatus = dataStore.getContainerAttribute(containerName, DataStore.ContainerAttribute.SpringStatus, "", false, false);
         if (!blueprintStatus.isEmpty()) {
             System.out.println(String.format(FORMAT, "Blueprint Status:", blueprintStatus.toLowerCase()));
         }
