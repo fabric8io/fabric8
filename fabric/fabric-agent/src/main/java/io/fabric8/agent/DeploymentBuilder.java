@@ -31,8 +31,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import aQute.lib.osgi.Macro;
-import aQute.lib.osgi.Processor;
+import aQute.bnd.osgi.Macro;
+import aQute.bnd.osgi.Processor;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.repository.AggregateRepository;
 import io.fabric8.agent.repository.StaticRepository;

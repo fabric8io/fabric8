@@ -113,7 +113,7 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>biz.aQute</groupId>
+      <groupId>biz.aQute.bnd</groupId>
       <artifactId>bndlib</artifactId>
       <version>${bndlib-version}</version>
     </dependency>

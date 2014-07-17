@@ -15,7 +15,7 @@
  */
 package io.fabric8.fab.osgi.bnd;
 
-import aQute.lib.osgi.Analyzer;
+import aQute.bnd.osgi.Analyzer;
 import aQute.lib.spring.XMLType;
 import aQute.lib.spring.XMLTypeProcessor;
 import org.slf4j.Logger;

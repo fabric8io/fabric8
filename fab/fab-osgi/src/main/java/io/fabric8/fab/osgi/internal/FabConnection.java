@@ -24,7 +24,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import aQute.lib.osgi.Analyzer;
+import aQute.bnd.header.Attrs;
+import aQute.bnd.header.Parameters;
+import aQute.bnd.osgi.Analyzer;
 import org.apache.karaf.features.FeaturesService;
 import io.fabric8.fab.DependencyTree;
 import io.fabric8.fab.PomDetails;
@@ -164,8 +166,8 @@ public class FabConnection extends URLConnection  {
                     // Expand the actual imports list with imports of our dependencies
                     String importPackages = dependency.getManifestEntry(Analyzer.IMPORT_PACKAGE);
                     if( notEmpty(importPackages) ) {
-                        Map<String, Map<String, String>> values = new Analyzer().parseHeader(importPackages);
-                        for (Map.Entry<String, Map<String, String>> entry : values.entrySet()) {
+                        Parameters values = new Analyzer().parseHeader(importPackages);
+                        for (Map.Entry<String, Attrs> entry : values.entrySet()) {
                             String res = entry.getValue().get("resolution:");
                             if( !"optional".equals(res) ) {
                                 // add all the non-optional deps..
