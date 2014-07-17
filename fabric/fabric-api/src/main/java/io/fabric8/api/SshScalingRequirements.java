@@ -25,11 +25,15 @@ import java.util.List;
  */
 public class SshScalingRequirements {
     private List<String> hostPatterns;
+    private List<String> hostTags;
 
     @Override
     public String toString() {
+        String hostPatternsText = hostPatterns != null && hostPatterns.size() > 0 ? "hostPatterns=" + hostPatterns : "";
+        String hostTagsText = hostTags != null && hostTags.size() > 0 ? "hostTags=" + hostTags : "";
+        String separator = hostPatternsText.length() > 0 &&  hostTagsText.length() > 0 ? ", "  : "";
         return "SshScalingRequirements{" +
-                "hostPatterns=" + hostPatterns +
+                hostPatternsText + separator + hostTagsText +
                 '}';
     }
 
@@ -45,6 +49,15 @@ public class SshScalingRequirements {
         return hostPatterns(Arrays.asList(rootContainerPatterns));
     }
 
+    public SshScalingRequirements hostTags(final List<String> hostTags) {
+        this.hostTags = hostTags;
+        return this;
+    }
+
+    public SshScalingRequirements hostTags(String... hostTags) {
+        return hostTags(Arrays.asList(hostTags));
+    }
+
 
     // Properties
     //-------------------------------------------------------------------------
@@ -58,4 +71,13 @@ public class SshScalingRequirements {
 
     public void setHostPatterns(List<String> hostPatterns) {
         this.hostPatterns = hostPatterns;
-    }}
+    }
+
+    public List<String> getHostTags() {
+        return hostTags;
+    }
+
+    public void setHostTags(List<String> hostTags) {
+        this.hostTags = hostTags;
+    }
+}

@@ -19,6 +19,9 @@ package io.fabric8.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Represents the configuration for a given host
  */
@@ -33,6 +36,7 @@ public class SshHostConfiguration {
     private String privateKeyFile;
     private String preferredAddress;
     private Integer maximumContainerCount;
+    private List<String> tags;
 
     public SshHostConfiguration() {
     }
@@ -89,6 +93,15 @@ public class SshHostConfiguration {
     public SshHostConfiguration maximumContainerCount(final Integer maximumContainerCount) {
         this.maximumContainerCount = maximumContainerCount;
         return this;
+    }
+
+    public SshHostConfiguration tags(final List<String> tags) {
+        this.tags = tags;
+        return this;
+    }
+
+    public SshHostConfiguration tags(String... tags) {
+        return tags(Arrays.asList(tags));
     }
 
     // Properties
@@ -165,5 +178,13 @@ public class SshHostConfiguration {
 
     public void setMaximumContainerCount(Integer maximumContainerCount) {
         this.maximumContainerCount = maximumContainerCount;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 }

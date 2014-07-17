@@ -49,6 +49,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     static final int DEFAULT_SSH_RETRIES = 1;
     static final int DEFAULT_SSH_PORT = 22;
     public static final String DEFAULT_PATH = "~/containers/";
+    public static final String DEFAULT_USERNAME = "root";
 
     @JsonProperty
     private final String username;
@@ -393,7 +394,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
                     username = sshHosts.getDefaultUsername();
                 }
                 if (Strings.isNullOrBlank(username)) {
-                    throw new IllegalArgumentException("Missing username property in the ssh configuration: " + sshHostConfig);
+                    username = DEFAULT_USERNAME;
                 }
             }
 
