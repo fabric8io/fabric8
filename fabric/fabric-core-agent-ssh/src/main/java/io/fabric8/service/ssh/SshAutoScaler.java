@@ -37,6 +37,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  */
@@ -102,8 +104,12 @@ public class SshAutoScaler implements ContainerAutoScaler {
         FabricRequirements requirements = request.getFabricRequirements();
         ProfileRequirements profileRequirements = request.getProfileRequirements();
         SshScalingRequirements sshScalingRequirements = profileRequirements.getSshScalingRequirements();
-        List<SshHostConfiguration> sshHostConfigurations = filterHosts(requirements, profileRequirements, sshScalingRequirements, hostProfileCounter);
-        SshHostConfiguration sshHostConfig = Filters.matchRandomElement(sshHostConfigurations);
+        SortedSet<LoadSortedSshHostConfiguration> sortedHostConfigurations = filterHosts(requirements, profileRequirements, sshScalingRequirements, hostProfileCounter);
+        SshHostConfiguration sshHostConfig = null;
+        if (!sortedHostConfigurations.isEmpty()) {
+            LoadSortedSshHostConfiguration first = sortedHostConfigurations.first();
+            sshHostConfig = first.getHostConfiguration();
+        }
         if (sshHostConfig == null) {
             LOG.warn("Could not create version " + request.getVersion() + " profile " + request.getProfile() + " as no matching hosts could be found for " + sshScalingRequirements);
             return null;
@@ -111,6 +117,7 @@ public class SshAutoScaler implements ContainerAutoScaler {
         builder.configure(sshHostConfig, requirements, profileRequirements);
         return builder;
     }
+
 
     protected Map<String,CountingMap> createHostToProfileScaleMap(FabricService fabricService, Container[] containers, AutoScaleRequest request, HostProfileCounter hostContainerCounts) {
         Map<String, CountingMap> answer = new HashMap<String, CountingMap>();
@@ -152,8 +159,9 @@ public class SshAutoScaler implements ContainerAutoScaler {
     /**
      * Filters the available host configurations
      */
-    public static List<SshHostConfiguration> filterHosts(FabricRequirements requirements, ProfileRequirements profileRequirements, SshScalingRequirements sshScalingRequirements, HostProfileCounter hostProfileCounter) {
-        List<SshHostConfiguration> answer = new ArrayList<SshHostConfiguration>();
+    public static SortedSet<LoadSortedSshHostConfiguration> filterHosts(FabricRequirements requirements, ProfileRequirements profileRequirements, SshScalingRequirements sshScalingRequirements, HostProfileCounter hostProfileCounter) {
+        SortedSet<LoadSortedSshHostConfiguration> answer = new TreeSet<>();
+        int index = 0;
         Map<String, SshHostConfiguration> hosts = requirements.getSshHostsMap();
         if (hosts != null) {
             Filter<String> filter = sshScalingRequirements != null ? Filters.createStringFilters(sshScalingRequirements.getHostPatterns()) : Filters.<String>trueFilter();
@@ -162,6 +170,7 @@ public class SshAutoScaler implements ContainerAutoScaler {
                 String hostAlias = entry.getKey();
                 if (filter.matches(hostAlias)) {
                     SshHostConfiguration config = entry.getValue();
+                    String profile = profileRequirements.getProfile();
                     boolean valid = true;
                     Integer maximumContainerCount = config.getMaximumContainerCount();
                     if (maximumContainerCount != null) {
@@ -173,14 +182,14 @@ public class SshAutoScaler implements ContainerAutoScaler {
                     if (valid) {
                         Integer maximumInstancesPerHost = profileRequirements.getMaximumInstancesPerHost();
                         if (maximumInstancesPerHost != null) {
-                            int count = hostProfileCounter.profileCount(hostAlias, profileRequirements.getProfile());
+                            int count = hostProfileCounter.profileCount(hostAlias, profile);
                             if (count >= maximumInstancesPerHost) {
                                 valid = false;
                             }
                         }
                     }
                     if (valid) {
-                        answer.add(config);
+                        answer.add(new LoadSortedSshHostConfiguration(hostAlias, config, profile, hostProfileCounter, index++));
                     }
                 }
             }
