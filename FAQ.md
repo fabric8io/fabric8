@@ -20,9 +20,14 @@ fabric8 (pronounced _fabricate_) lets you create and manage fabrics (or clusters
 
 Try reading the [overview](http://fabric8.io/gitbook/overview.html) to see if that helps give you an idea what fabric8 is.
 
+#### What Java versions is supported?
+
+Currently fabric8 only runs on Java 7. Support for Java 8 is planned and will be available later as part of needed upgrades to Apache Karaf (which is not ready yet).
+
 #### Deprecations
 
 FAB (Fuse Application Bundles) has been deprecated for the 1.1 release, and is scheduled to be removed in the following release. 
+
 
 ### Configuration questions
 
