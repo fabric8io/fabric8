@@ -13,11 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.agent.commands;
+package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.boot.commands.support.ProfileCompleter;
 import io.fabric8.boot.commands.support.VersionCompleter;
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
@@ -32,19 +33,21 @@ import org.apache.felix.service.command.Function;
 @Component(immediate = true)
 @Service({Function.class, AbstractCommand.class})
 @org.apache.felix.scr.annotations.Properties({
-        @Property(name = "osgi.command.scope", value = ProfileExport.SCOPE_VALUE),
-        @Property(name = "osgi.command.function", value = ProfileExport.FUNCTION_VALUE)
+        @Property(name = "osgi.command.scope", value = ProfileImport.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ProfileImport.FUNCTION_VALUE)
 })
-public class ProfileExport extends AbstractCommandComponent {
+public class ProfileImport extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE = "profile-export";
-    public static final String DESCRIPTION = "Exports all matching profile folders into the given output zip file.";
+    public static final String FUNCTION_VALUE = "profile-import";
+    public static final String DESCRIPTION = "Downloads the given profile zip(s) and installs them into either the current version or a newly created version.";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     // Completers
+    @Reference(referenceInterface = ProfileCompleter.class, bind = "bindProfileCompleter", unbind = "unbindProfileCompleter")
+    private ProfileCompleter profileCompleter; // dummy field
     @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter")
     private VersionCompleter versionCompleter; // dummy field
 
@@ -61,7 +64,7 @@ public class ProfileExport extends AbstractCommandComponent {
     @Override
     public Action createNewAction() {
         assertValid();
-        return new ProfileExportAction(fabricService.get());
+        return new ProfileImportAction(fabricService.get());
     }
 
     void bindFabricService(FabricService fabricService) {
@@ -70,6 +73,14 @@ public class ProfileExport extends AbstractCommandComponent {
 
     void unbindFabricService(FabricService fabricService) {
         this.fabricService.unbind(fabricService);
+    }
+
+    void bindProfileCompleter(ProfileCompleter completer) {
+        bindOptionalCompleter(completer);
+    }
+
+    void unbindProfileCompleter(ProfileCompleter completer) {
+        unbindOptionalCompleter(completer);
     }
 
     void bindVersionCompleter(VersionCompleter completer) {

@@ -13,32 +13,31 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.agent.commands;
-
-import java.io.File;
+package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Version;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "profile-export", scope = "fabric", description = ProfileExport.DESCRIPTION)
-public class ProfileExportAction extends AbstractAction {
+import java.util.List;
 
-    @Option(name = "--version", description = "The profile version to export profiles from. Defaults to the current version if none specified.")
+@Command(name = "profile-import", scope = "fabric", description = ProfileImport.DESCRIPTION)
+public class ProfileImportAction extends AbstractAction {
+
+    @Option(name = "--version", description = "The profile version to import the profiles into. Defaults to the current default version if none specified.")
     private String version;
 
-    @Argument(index = 0, required = true, name = "outputZipFileName", description = "The output file name of the generated ZIP of the profiles")
-    private File outputZipFileName;
-
-    @Argument(index = 1, required = false, name = "wildcard", description = "The file wildcard used to match the profile folders. e.g. 'examples/*'. If no wildcard is specified all profiles will be exported")
-    private String wildcard;
+    @Argument(index = 0, required = true, multiValued = true, name = "profileUrls", description = "The URLs for one or more profile ZIP files to install; usually of the form mvn:groupId/artifactId/version/zip/profile")
+    @CompleterValues(index = 0)
+    private List<String> profileUrls;
 
     private final FabricService fabricService;
 
-    ProfileExportAction(FabricService fabricService) {
+    ProfileImportAction(FabricService fabricService) {
         this.fabricService = fabricService;
     }
 
@@ -54,8 +53,9 @@ public class ProfileExportAction extends AbstractAction {
             return null;
         }
 
-        fabricService.getDataStore().exportProfiles(ver.getId(), outputZipFileName.getAbsolutePath(), wildcard);
-        System.out.println("Exported profiles to " + outputZipFileName.getCanonicalPath());
+        fabricService.getDataStore().importProfiles(ver.getId(), profileUrls);
+        System.out.println("Imported profiles into version " + ver.getId());
+
         return null;
     }
 }
