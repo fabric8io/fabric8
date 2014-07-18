@@ -69,7 +69,7 @@ public class ProfileDownloadArtifactsAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        Version ver = version != null ? profileService.getRequiredVersion(version) : fabricService.getDefaultVersion();
+        Version ver = version != null ? profileService.getVersion(version) : fabricService.getDefaultVersion();
         if (ver == null) {
             if (version != null) {
                 System.out.println("version " + version + " does not exist!");

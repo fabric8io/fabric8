@@ -101,12 +101,22 @@ public interface FabricService {
     /**
      * Returns the default {@link Version}.
      */
-    Version getDefaultVersion();
+    String getDefaultVersionId();
 
     /**
      * Sets the default {@link Version}.
      */
-    void setDefaultVersion(String versionId);
+    void setDefaultVersionId(String versionId);
+
+    /**
+     * Returns the default {@link Version}.
+     */
+    Version getDefaultVersion();
+
+    /**
+     * Returns the default {@link Version}.
+     */
+    Version getRequiredDefaultVersion();
 
     /**
      * Lookup a container provider by name

@@ -395,10 +395,6 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         this.fabricService.unbind(fabricService);
     }
 
-    public FabricService getFabricService() {
-        return fabricService.get();
-    }
-
     // Implementation methods
     //-------------------------------------------------------------------------
 
@@ -446,27 +442,22 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
 
 
     private String getVersionId(ProjectRequirements requirements) {
-        FabricService fabric = getFabricService();
         String version = requirements.getVersion();
-        return getVersionOrDefaultVersion(fabric, version);
+        return getVersionOrDefaultVersion(fabricService.get(), version);
     }
 
-    private String getVersionOrDefaultVersion(FabricService fabric, String version) {
-        if (Strings.isEmpty(version)) {
-            Version defaultVersion = fabric.getDefaultVersion();
-            if (defaultVersion != null) {
-                version = defaultVersion.getId();
-            }
-            if (Strings.isEmpty(version)) {
-                version = "1.0";
+    private String getVersionOrDefaultVersion(FabricService fabricService, String versionId) {
+        if (Strings.isEmpty(versionId)) {
+            versionId = fabricService.getDefaultVersionId();
+            if (Strings.isEmpty(versionId)) {
+                versionId = "1.0";
             }
         }
-        return version;
+        return versionId;
     }
 
 
     private String getProfileId(ProjectRequirements requirements) {
-        FabricService fabric = getFabricService();
         String profileId = requirements.getProfileId();
         if (Strings.isEmpty(profileId)) {
             // lets generate a project based on the group id / artifact id
@@ -491,7 +482,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         String name = DtoHelper.getRequirementsConfigFileName(requirements);
 
         // lets read the previous requirements if there are any
-        DataStore dataStore = getFabricService().getDataStore();
+        DataStore dataStore = fabricService.get().getDataStore();
         String version = profile.getVersion();
         String profileId = profile.getId();
         byte[] oldData = dataStore.getFileConfiguration(version, profileId, name);

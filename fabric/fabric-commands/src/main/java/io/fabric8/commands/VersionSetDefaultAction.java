@@ -20,16 +20,13 @@ import io.fabric8.api.ProfileService;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-
-import io.fabric8.api.Version;
-
 import org.apache.karaf.shell.console.AbstractAction;
 
 @Command(name = "version-set-default", scope = "fabric", description = "Set the new default version (must be one of the existing versions)", detailedDescription = "classpath:versionSetDefault.txt")
 public class VersionSetDefaultAction extends AbstractAction {
 
     @Argument(index = 0, description = "Version number to use as new default version.", required = true)
-    private String versionName;
+    private String versionId;
 
     private final FabricService fabricService;
     private final ProfileService profileService;
@@ -41,13 +38,13 @@ public class VersionSetDefaultAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        Version version = profileService.getRequiredVersion(versionName);
-        Version currentDefault = fabricService.getDefaultVersion();
-        if (version.compareTo(currentDefault) == 0) {
-            System.out.println("Version " + version + " is already default version.");
+        profileService.getRequiredVersion(versionId);
+        String defaultId = fabricService.getDefaultVersionId();
+        if (versionId.compareTo(defaultId) == 0) {
+            System.out.println("Version " + versionId + " is already default version.");
         } else {
-            fabricService.setDefaultVersion(version.getId());
-            System.out.println("Changed default version to " + version);
+            fabricService.setDefaultVersionId(versionId);
+            System.out.println("Changed default version to " + versionId);
         }
 
         return null;

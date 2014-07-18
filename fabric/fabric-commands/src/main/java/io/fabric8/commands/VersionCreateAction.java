@@ -92,7 +92,7 @@ public class VersionCreateAction extends AbstractAction {
         }
 
         if (defaultVersion == Boolean.TRUE) {
-            fabricService.setDefaultVersion(created.getId());
+            fabricService.setDefaultVersionId(created.getId());
         }
 
         return null;

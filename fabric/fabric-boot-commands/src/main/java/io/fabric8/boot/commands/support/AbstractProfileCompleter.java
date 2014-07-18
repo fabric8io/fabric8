@@ -55,7 +55,7 @@ public abstract class AbstractProfileCompleter extends AbstractComponent impleme
     public int complete(String buffer, int cursor, List<String> candidates) {
         StringsCompleter delegate = new StringsCompleter();
         try {
-            Version version = getFabricService().getDefaultVersion();
+            Version version = getFabricService().getRequiredDefaultVersion();
             Container container = getFabricService().getCurrentContainer();
             try{
                 container =  getFabricService().getContainer(getContainer(CommandSessionHolder.getSession(), containerArgumentIndex));

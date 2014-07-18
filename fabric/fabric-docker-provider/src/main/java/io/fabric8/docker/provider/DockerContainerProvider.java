@@ -250,7 +250,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         if (ports == null || ports.size() == 0) {
             // lets find the defaults from the docker profile
             if (version == null) {
-                version = service.getDefaultVersion();
+                version = service.getRequiredDefaultVersion();
             }
             Profile dockerProfile = version.getRequiredProfile("docker");
             ports = dockerProfile.getConfiguration(ChildConstants.PORTS_PID);

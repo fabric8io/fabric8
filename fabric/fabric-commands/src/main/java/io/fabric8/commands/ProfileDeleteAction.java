@@ -32,7 +32,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 public class ProfileDeleteAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version to delete. Defaults to the current default version.")
-    private String version;
+    private String versionId;
     @Option(name = "--force", description = "Force the removal of the profile from all assigned containers.")
     private boolean force;
     @Argument(index = 0, required = true, name = "profile", description = "Name of the profile to delete.")
@@ -53,9 +53,8 @@ public class ProfileDeleteAction extends AbstractAction {
     protected Object doExecute() throws Exception {
         FabricValidations.validateProfileName(name);
         ProfileService profileService = fabricService.adapt(ProfileService.class);
-        Version ver = version != null ? profileService.getVersion(version) : fabricService.getDefaultVersion();
-
-        for (Profile profile : ver.getProfiles()) {
+        Version version = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getRequiredDefaultVersion();
+        for (Profile profile : version.getProfiles()) {
         	String versionId = profile.getVersion();
             String profileId = profile.getId();
 			if (name.equals(profileId)) {

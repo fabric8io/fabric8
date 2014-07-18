@@ -31,7 +31,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 public class ProfileRenameAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version to rename. Defaults to the current default version.")
-    private String versionParam;
+    private String versionId;
 
     @Option(name = "-f", aliases = "--force", description = "Flag to allow replacing the target profile (if exists).")
     private boolean force;
@@ -56,9 +56,12 @@ public class ProfileRenameAction extends AbstractAction {
     protected Object doExecute() throws Exception {
         FabricValidations.validateProfileName(profileName);
         FabricValidations.validateProfileName(newName);
-        Version version = versionParam != null ? profileService.getRequiredVersion(versionParam) : fabricService.getDefaultVersion();
-        String versionId = version.getId();
-
+        Version version;
+        if (versionId != null) {
+            version = profileService.getRequiredVersion(versionId);
+        } else {
+            version = fabricService.getDefaultVersion();
+        }
         if (!version.hasProfile(profileName)) {
             System.out.println("Profile " + profileName + " not found.");
             return null;

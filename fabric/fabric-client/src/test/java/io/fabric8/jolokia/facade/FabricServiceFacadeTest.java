@@ -197,9 +197,9 @@ public class FabricServiceFacadeTest {
 
         Version version = VersionBuilder.Factory.create("1.5").getVersion();
         version = profileService.createVersion(version);
-        fabricService.setDefaultVersion(version.getId());
+        fabricService.setDefaultVersionId(version.getId());
         Version one_dot_oh = profileService.getRequiredVersion("1.0");
-        fabricService.setDefaultVersion(one_dot_oh.getId());
+        fabricService.setDefaultVersionId(one_dot_oh.getId());
         profileService.deleteVersion(version.getId());
     }
 

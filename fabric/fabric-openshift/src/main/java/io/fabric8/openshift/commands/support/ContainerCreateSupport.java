@@ -92,18 +92,18 @@ public abstract class ContainerCreateSupport extends FabricCommand {
 
             // get the profiles for the given version
             ProfileService profileService = fabricService.adapt(ProfileService.class);
-            Version ver = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getDefaultVersion();
-            List<Profile> profiles = ver.getProfiles();
+            Version version = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getRequiredDefaultVersion();
+            List<Profile> profiles = version.getProfiles();
 
             // validate profiles exists before creating a new container
             Set<String> names = getProfileNames();
             for (String profile : names) {
-                Profile prof = getProfile(profiles, profile, ver);
+                Profile prof = getProfile(profiles, profile, version);
                 if (prof == null) {
-                    throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getId() + " does not exist.");
+                    throw new IllegalArgumentException("Profile " + profile + " with version " + version.getId() + " does not exist.");
                 }
                 if (prof.isAbstract()) {
-                    throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getId() + " is abstract and can not be associated to containers.");
+                    throw new IllegalArgumentException("Profile " + profile + " with version " + version.getId() + " is abstract and can not be associated to containers.");
                 }
             }
         }
