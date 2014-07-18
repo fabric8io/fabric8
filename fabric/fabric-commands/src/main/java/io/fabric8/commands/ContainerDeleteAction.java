@@ -17,6 +17,7 @@ package io.fabric8.commands;
 
 import static io.fabric8.utils.FabricValidations.validateContainerName;
 import io.fabric8.api.Container;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.boot.commands.support.FabricCommand;
 
@@ -56,7 +57,7 @@ public class ContainerDeleteAction extends AbstractContainerLifecycleAction {
                 found.destroy(force);
             } else if (force) {
                 //We also want to try and delete any leftover entries
-                fabricService.getDataStore().deleteContainer(containerName);
+                fabricService.adapt(DataStore.class).deleteContainer(containerName);
             }
         }
         return null;

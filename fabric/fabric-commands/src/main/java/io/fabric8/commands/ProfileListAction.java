@@ -32,7 +32,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 public class ProfileListAction extends AbstractAction {
 
     @Option(name = "--version", description = "Specifies the version of the profiles to list. Defaults to the current default version.")
-    private String version;
+    private String versionId;
 
     @Option(name = "--hidden", description = "Display hidden profiles")
     private boolean hidden;
@@ -50,8 +50,8 @@ public class ProfileListAction extends AbstractAction {
     @Override
     protected Object doExecute() throws Exception {
         ProfileService profileService = fabricService.adapt(ProfileService.class);
-        Version ver = version != null ? profileService.getVersion(version) : fabricService.getDefaultVersion();
-        List<Profile> profiles = ver.getProfiles();
+        Version version = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getRequiredDefaultVersion();
+        List<Profile> profiles = version.getProfiles();
         profiles = sortProfiles(profiles);
         printProfiles(profileService, profiles, System.out);
         return null;

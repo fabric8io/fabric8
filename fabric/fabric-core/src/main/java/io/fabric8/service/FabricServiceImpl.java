@@ -929,14 +929,27 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     @Override
-	public Version getDefaultVersion() {
+    public String getDefaultVersionId() {
+        assertValid();
+        return dataStore.get().getDefaultVersion();
+    }
+
+    @Override
+    public Version getDefaultVersion() {
         assertValid();
         String versionId = dataStore.get().getDefaultVersion();
-		return profileService.get().getRequiredVersion(versionId);
-	}
+        return profileService.get().getVersion(versionId);
+    }
+
+    @Override
+    public Version getRequiredDefaultVersion() {
+        assertValid();
+        String versionId = dataStore.get().getDefaultVersion();
+        return profileService.get().getRequiredVersion(versionId);
+    }
 
 	@Override
-	public void setDefaultVersion(String versionId) {
+	public void setDefaultVersionId(String versionId) {
         assertValid();
         dataStore.get().setDefaultVersion(versionId);
 	}
@@ -981,10 +994,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     public FabricRequirements getRequirements() {
         assertValid();
         FabricRequirements requirements = getDataStore().getRequirements();
-        Version defaultVersion = getDefaultVersion();
-        if (defaultVersion != null) {
-            requirements.setVersion(defaultVersion.getId());
-        }
+        requirements.setVersion(getDefaultVersionId());
         return requirements;
     }
 

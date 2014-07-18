@@ -54,7 +54,7 @@ public class ProfileChangeParentsAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        Version version = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getDefaultVersion();
+        Version version = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getRequiredDefaultVersion();
         Profile profile = version.getRequiredProfile(profileId);
         
         // we can only change parents to existing profiles

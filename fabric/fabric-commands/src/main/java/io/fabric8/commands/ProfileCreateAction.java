@@ -35,7 +35,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 public class ProfileCreateAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version. Defaults to the current default version.")
-    private String versionParam;
+    private String versionId;
     @Option(name = "--parents", multiValued = true, required = false, description = "Optionally specifies one or multiple parent profiles. To specify multiple parent profiles, specify this flag multiple times on the command line. For example, --parents foo --parents bar.")
     private List<String> parents;
     @Argument(index = 0)
@@ -56,11 +56,14 @@ public class ProfileCreateAction extends AbstractAction {
     @Override
     protected Object doExecute() throws Exception {
         FabricValidations.validateProfileName(profileId);
-        Version version = versionParam != null ? profileService.getRequiredVersion(versionParam) : fabricService.getDefaultVersion();
-        String versionId = version.getId();
+        if (versionId != null) {
+            profileService.getRequiredVersion(versionId);
+        } else {
+            versionId = fabricService.getDefaultVersionId();
+        }
 
         // we can only use existing parent profiles
-        Profile[] parents = FabricCommand.getExistingProfiles(fabricService, version, this.parents);
+        Profile[] parents = FabricCommand.getExistingProfiles(fabricService, versionId, this.parents);
         ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
         builder.setParents(Arrays.asList(parents));
 		profileService.createProfile(builder.getProfile());

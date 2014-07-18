@@ -54,7 +54,7 @@ public class VersionInfoAction extends AbstractAction {
         Version version = profileService.getRequiredVersion(versionId);
         String description = version.getAttributes().get(Version.DESCRIPTION);
         String derivedFrom = null;
-        boolean defaultVersion = version.getId().equals(fabricService.getDefaultVersion().getId());
+        boolean defaultVersion = version.getId().equals(fabricService.getDefaultVersionId());
         List<Profile> profiles = CommandUtils.sortProfiles(version.getProfiles());
 
         List<Container> containerList = new ArrayList<Container>();

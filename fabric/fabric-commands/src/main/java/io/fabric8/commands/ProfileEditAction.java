@@ -127,7 +127,7 @@ public class ProfileEditAction extends AbstractAction {
     private String profileName;
 
     @Argument(index = 1, name = "version", description = "The version of the profile to edit. Defaults to the current default version.", required = false, multiValued = false)
-    private String versionName;
+    private String versionId;
 
     private final ProfileService profileService;
     private final FabricService fabricService;
@@ -148,7 +148,7 @@ public class ProfileEditAction extends AbstractAction {
             set = false;
         }
         
-        Version version = versionName != null ? profileService.getRequiredVersion(versionName) : fabricService.getDefaultVersion();
+        Version version = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getRequiredDefaultVersion();
         Profile profile = version.getProfile(profileName);
         if (profile != null) {
             editProfile(profile);
@@ -435,11 +435,11 @@ public class ProfileEditAction extends AbstractAction {
                 String key = configEntries.getKey();
                 String value = configEntries.getValue();
                 if (append) {
-                    System.out.println("Appending value:" + value + " key:" + key + " from config properties and profile:" + profile + " version:" + versionName);
+                    System.out.println("Appending value:" + value + " key:" + key + " from config properties and profile:" + profile + " version:" + versionId);
                 } else if (delete) {
-                    System.out.println("Deleting key:" + key + " from config properties and profile:" + profile + " version:" + versionName);
+                    System.out.println("Deleting key:" + key + " from config properties and profile:" + profile + " version:" + versionId);
                 } else if (set) {
-                    System.out.println("Setting value:" + value + " key:" + key + " from config properties and profile:" + profile + " version:" + versionName);
+                    System.out.println("Setting value:" + value + " key:" + key + " from config properties and profile:" + profile + " version:" + versionId);
                 }
                 updatedDelimitedList(conf, CONFIG_PREFIX + key, value, delimiter, set, delete, append, remove);
             }

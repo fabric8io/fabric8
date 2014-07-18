@@ -56,7 +56,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         sb.append("]");
 
         System.out.println("Testing profile:" + profileName + " on container:" + sb.toString() + " by adding feature:" + featureNames);
-        Version version = fabricService.getDefaultVersion();
+        Version version = fabricService.getRequiredDefaultVersion();
 
         Profile defaultProfile = version.getRequiredProfile("default");
         Profile targetProfile = version.getRequiredProfile(profileName);

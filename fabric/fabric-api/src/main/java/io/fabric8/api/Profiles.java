@@ -175,7 +175,7 @@ public final class Profiles {
         Map<String, String> overlayConfig = new HashMap<String, String>();
         Version version = null;
         if (versionId == null) {
-            version = fabricService.getDefaultVersion();
+            version = fabricService.getRequiredDefaultVersion();
         } else {
             version = profileService.getRequiredVersion(versionId);
         }
@@ -205,7 +205,7 @@ public final class Profiles {
         Map<String, Map<String, String>> answer = new HashMap<String, Map<String, String>>();
         Version version = null;
         if (versionId == null) {
-            version = fabricService.getDefaultVersion();
+            version = fabricService.getRequiredDefaultVersion();
         } else {
             version = profileService.getRequiredVersion(versionId);
         }
@@ -240,11 +240,11 @@ public final class Profiles {
      * Returns the {@link Profile} objects for the given list of profile ids for the given version
      */
     public static List<Profile> getProfiles(FabricService fabricService, Iterable<String> profileIds, String versionId) {
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
         Version version;
         if (versionId == null) {
-            version = fabricService.getDefaultVersion();
+            version = fabricService.getRequiredDefaultVersion();
         } else {
-            ProfileService profileService = fabricService.adapt(ProfileService.class);
             version = profileService.getRequiredVersion(versionId);
         }
         List<Profile> answer = new ArrayList<Profile>();

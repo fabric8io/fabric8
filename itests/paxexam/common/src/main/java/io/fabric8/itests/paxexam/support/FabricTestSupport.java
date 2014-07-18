@@ -64,13 +64,6 @@ public class FabricTestSupport extends FabricKarafTestSupport {
 
     static final String KARAF_VERSION = "2.3.0.redhat-610379";
 
-    /**
-     * Creates a child {@link Agent} with the given name.
-     */
-    private Container createChildContainer(FabricService fabricService, String name, String parent, String profileName) throws Exception {
-        return createChildContainer(fabricService, name, parent, profileName, null);
-    }
-
     private Container createChildContainer(FabricService fabricService, String name, String parent, String profileName, String jvmOpts) throws Exception {
 
         Thread.sleep(DEFAULT_WAIT);
@@ -92,7 +85,7 @@ public class FabricTestSupport extends FabricKarafTestSupport {
                 throw new Exception("Error creating child container:" + name, metadata[0].getFailure());
             }
             Container container = metadata[0].getContainer();
-            Version version = fabricService.getDefaultVersion();
+            Version version = fabricService.getRequiredDefaultVersion();
             Profile profile = version.getRequiredProfile(profileName);
             Assert.assertNotNull("Expected to find profile with name:" + profileName, profile);
             container.setProfiles(new Profile[] { profile });

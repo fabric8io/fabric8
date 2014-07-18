@@ -56,7 +56,7 @@ public class ProfileCopyAction extends AbstractAction {
     protected Object doExecute() throws Exception {
         FabricValidations.validateProfileName(source);
         FabricValidations.validateProfileName(target);
-        Version version = versionParam != null ? profileService.getRequiredVersion(versionParam) : fabricService.getDefaultVersion();
+        Version version = versionParam != null ? profileService.getRequiredVersion(versionParam) : fabricService.getRequiredDefaultVersion();
         String versionId = version.getId();
 
         if (!version.hasProfile(source)) {

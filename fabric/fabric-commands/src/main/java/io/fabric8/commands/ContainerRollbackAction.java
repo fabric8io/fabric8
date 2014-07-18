@@ -106,7 +106,7 @@ public final class ContainerRollbackAction extends AbstractAction {
         }
 
 		if (all) {
-			fabricService.setDefaultVersion(version.getId());
+			fabricService.setDefaultVersionId(version.getId());
 			System.out.println("Changed default version to " + version);
 		}
 

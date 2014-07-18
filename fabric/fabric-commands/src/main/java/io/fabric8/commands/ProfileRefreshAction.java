@@ -34,7 +34,7 @@ public class ProfileRefreshAction extends AbstractAction {
 	private String profileName;
 
 	@Argument(index = 1, name = "version", description = "The version of the profile to edit. Defaults to the current default version.", required = false, multiValued = false)
-	private String versionName = ZkDefs.DEFAULT_VERSION;
+	private String versionId = ZkDefs.DEFAULT_VERSION;
 
     private final FabricService fabricService;
 
@@ -46,11 +46,8 @@ public class ProfileRefreshAction extends AbstractAction {
 	protected Object doExecute() throws Exception {
 		FabricValidations.validateProfileName(profileName);
         ProfileService profileService = fabricService.adapt(ProfileService.class);
-		Version version = versionName != null ? profileService.getVersion(versionName) : fabricService.getDefaultVersion();
+		Version version = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getRequiredDefaultVersion();
 		Profile profile = version.getRequiredProfile(profileName);
-		if (profile == null) {
-			throw new IllegalArgumentException("No profile found with name:" + profileName + " and version:" + version.getId());
-		}
         Profiles.refreshProfile(fabricService, profile);
 		return null;
 	}

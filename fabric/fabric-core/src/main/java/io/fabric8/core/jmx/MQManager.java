@@ -71,6 +71,7 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
+import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -326,7 +327,7 @@ public class MQManager implements MQManagerMXBean {
     }
 
     private List<Profile> getActiveOrRequiredBrokerProfileMap(Version version, FabricRequirements requirements) {
-        Objects.notNull(fabricService, "fabricService");
+        IllegalArgumentAssertion.assertNotNull(fabricService, "fabricService");
         List<Profile> answer = new ArrayList<Profile>();
         if (version != null) {
             ProfileService profileService = fabricService.adapt(ProfileService.class);

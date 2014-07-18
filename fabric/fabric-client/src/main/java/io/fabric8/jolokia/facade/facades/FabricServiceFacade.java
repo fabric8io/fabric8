@@ -171,13 +171,23 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
+    public String getDefaultVersionId() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Version getRequiredDefaultVersion() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Version getDefaultVersion() {
         String id = Helpers.read(getJolokiaClient(), "DefaultVersion");
         return new VersionFacade(getJolokiaClient(), id);
     }
 
     @Override
-    public void setDefaultVersion(String versionId) {
+    public void setDefaultVersionId(String versionId) {
         Helpers.write(getJolokiaClient(), "DefaultVersion", versionId);
     }
 

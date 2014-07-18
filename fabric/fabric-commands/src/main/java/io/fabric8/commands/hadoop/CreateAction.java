@@ -116,7 +116,7 @@ public class CreateAction extends AbstractAction {
                                       "insight-hdfs-" + name)) {
             Profile profile = null;
             try {
-                profile = fabricService.getDefaultVersion().getProfile(p);
+                profile = fabricService.getRequiredDefaultVersion().getProfile(p);
             } catch (Throwable t) {
                 // Ignore
             }
@@ -131,7 +131,7 @@ public class CreateAction extends AbstractAction {
             }
         }
 
-        Version version = fabricService.getDefaultVersion();
+        Version version = fabricService.getRequiredDefaultVersion();
         Profile hadoop = version.getRequiredProfile("hadoop");
         Map<String, Map<String, String>> configs;
 

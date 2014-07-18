@@ -97,7 +97,7 @@ public abstract class AbstractContainerCreateAction extends AbstractAction {
             }
 
             // get the profiles for the given version
-            Version ver = version != null ? profileService.getRequiredVersion(version) : fabricService.getDefaultVersion();
+            Version ver = version != null ? profileService.getRequiredVersion(version) : fabricService.getRequiredDefaultVersion();
             List<Profile> profiles = ver.getProfiles();
 
             // validate profiles exists before creating a new container

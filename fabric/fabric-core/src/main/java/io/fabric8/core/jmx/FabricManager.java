@@ -689,12 +689,12 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public Map<String, Object> defaultVersion() {
-        return BeanUtils.convertVersionToMap(getFabricService(), getFabricService().getDefaultVersion(), BeanUtils.getFields(Version.class));
+        return BeanUtils.convertVersionToMap(getFabricService(), getFabricService().getRequiredDefaultVersion(), BeanUtils.getFields(Version.class));
     }
 
     @Override
     public String getDefaultVersion() {
-        return getFabricService().getDefaultVersion().getId();
+        return getFabricService().getDefaultVersionId();
     }
 
     @Override
@@ -1057,7 +1057,7 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public void setDefaultVersion(String versionId) {
-        getFabricService().setDefaultVersion(versionId);
+        getFabricService().setDefaultVersionId(versionId);
     }
 
     @Override

@@ -44,16 +44,16 @@ public class VersionListAction extends AbstractAction {
     protected Object doExecute() throws Exception {
         Container[] containers = fabricService.getContainers();
         List<String> versions = profileService.getVersions();
-        printVersions(containers, versions, fabricService.getDefaultVersion(), System.out);
+        printVersions(containers, versions, fabricService.getDefaultVersionId(), System.out);
         return null;
     }
 
-    protected void printVersions(Container[] containers, List<String> versions, Version defaultVersion, PrintStream out) {
+    protected void printVersions(Container[] containers, List<String> versions, String defaultVersionId, PrintStream out) {
         out.println(String.format(CONSOLE_FORMAT, "[version]", "[default]", "[# containers]", "[description]"));
 
         // they are sorted in the correct order by default
         for (String versionId : versions) {
-            boolean isDefault = defaultVersion.getId().equals(versionId);
+            boolean isDefault = versionId.equals(defaultVersionId);
             Version version = profileService.getRequiredVersion(versionId);
             int active = countContainersByVersion(containers, version);
             String description = version.getAttributes().get(Version.DESCRIPTION);

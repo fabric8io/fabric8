@@ -41,14 +41,14 @@ import com.google.common.base.Charsets;
 public class ProfileDisplayAction extends AbstractAction {
 
     @Option(name = "--version", description = "Select a specific profile version. Defaults to the current default version.")
-    private String version;
+    private String versionId;
     @Option(name = "--overlay", aliases = "-o", description = "Shows the effective profile settings, taking into account the settings inherited from parent profiles.")
     private Boolean overlay = false;
     @Option(name = "--display-resources", aliases = "-r", description = "Displays the content of additional profile resources.")
     private Boolean displayResources = false;
     @Argument(index = 0, required = true, name = "profile", description = "The name of the profile.")
     @CompleterValues(index = 0)
-    private String name;
+    private String profileId;
 
     private final FabricService fabricService;
     private final ProfileService profileService;
@@ -64,11 +64,10 @@ public class ProfileDisplayAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        FabricValidations.validateProfileName(name);
-        Version ver = version != null ? profileService.getRequiredVersion(version) : fabricService.getDefaultVersion();
-
-        for (Profile profile : ver.getProfiles()) {
-            if (name.equals(profile.getId())) {
+        FabricValidations.validateProfileName(profileId);
+        Version version = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getRequiredDefaultVersion();
+        for (Profile profile : version.getProfiles()) {
+            if (profileId.equals(profile.getId())) {
                 displayProfile(profile);
             }
         }

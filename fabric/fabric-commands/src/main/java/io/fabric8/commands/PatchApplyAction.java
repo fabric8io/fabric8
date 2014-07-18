@@ -67,7 +67,7 @@ public class PatchApplyAction extends AbstractAction {
                 versions.add(profileService.getRequiredVersion(versionId));
             }
         } else {
-            versions = Collections.singletonList(fabricService.getDefaultVersion());
+            versions = Collections.singletonList(fabricService.getRequiredDefaultVersion());
         }
         username = username != null && !username.isEmpty() ? username : ShellUtils.retrieveFabricUser(session);
         password = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
