@@ -252,7 +252,7 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     public List<String> getContainers() {
         assertValid();
         try {
-            return getChildren(getCurator(), ZkPath.CONFIGS_CONTAINERS.getPath());
+            return getChildrenSafe(curator.get(), ZkPath.CONFIGS_CONTAINERS.getPath());
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
         }

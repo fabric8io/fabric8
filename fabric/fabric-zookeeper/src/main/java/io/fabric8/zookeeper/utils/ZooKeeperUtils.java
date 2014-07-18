@@ -23,6 +23,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.data.Stat;
+
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
@@ -129,10 +130,8 @@ public final class ZooKeeperUtils {
      * Returns an empty list if the given path doesn't exist in curator
      */
     public static List<String> getChildrenSafe(CuratorFramework curator, String path) throws Exception {
-        if (curator.checkExists().forPath(path) == null) {
-            return Collections.EMPTY_LIST;
-        }
-        return curator.getChildren().forPath(path);
+        boolean pathExists = curator.checkExists().forPath(path) != null;
+        return pathExists ? curator.getChildren().forPath(path) : Collections.<String>emptyList();
     }
 
     public static List<String> getChildren(TreeCache cache, String path) throws Exception {
