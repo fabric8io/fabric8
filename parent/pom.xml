@@ -35,7 +35,7 @@
     <properties>
         <maven-assembly-plugin-version>2.4</maven-assembly-plugin-version>
         <maven-build-helper-plugin-version>1.8</maven-build-helper-plugin-version>
-        <maven-bundle-plugin-version>2.3.7</maven-bundle-plugin-version>
+        <maven-bundle-plugin-version>2.5.0</maven-bundle-plugin-version>
         <maven-javadoc-plugin-version>2.9.1</maven-javadoc-plugin-version>
         <maven-notices-plugin-version>1.32</maven-notices-plugin-version>
         <maven-surefire-plugin-version>2.17</maven-surefire-plugin-version>
