@@ -24,6 +24,21 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistry.autodetectZooKeeperProcessRegistry;
 
+/**
+ * {@code ApplicationContextInitializer} registering {@link ProcessRegistryPropertySource}.
+ * <br><br>
+ * After you add {@code process-spring-boot-registry} jar to its classpath, {@link ProcessRegistry} will be used to
+ * resolve Spring properties.
+ * <br><br>
+ * <pre>
+ *   {@literal @}Value("service.invoicing.url")
+ *   String host;
+ * </pre>
+ *
+ * {@link ProcessRegistry} will be attempted to be read before regular Spring property sources (for example before the
+ * {@code application.properties} file). If the desired value will not be found in the process registry, Spring will fallback
+ * to the other property sources.
+ */
 public class ProcessRegistryPropertySourceApplicationContextInitializer implements ApplicationContextInitializer {
 
     private static ProcessRegistry processRegistry;

@@ -466,7 +466,7 @@ Now you can use `JmsTemplate` with ActiveMQ without explicit configuration.
 
 Managed Spring Boot processes do not live in a separation. Instead those usually create a graph of microservices
 calling each other. In order to make communication between the processes easier, Fabric8 provides a unified way to 
-access information shared by the managed Spring Boot processes - **ProcessRegistry**.
+access information shared by the managed Spring Boot processes - `ProcessRegistry`.
 
 In order to start working with the Fabric8 process registry, add the following dependency to your project:
 
@@ -477,3 +477,15 @@ In order to start working with the Fabric8 process registry, add the following d
 
 From now on, you can enjoy your Spring Boot microservice sharing information with the other microservices managed by
 the Fabric8.
+
+#### Reading Spring properties from the Process Registry
+
+After you add `process-spring-boot-registry` jar to its classpath, `ProcessRegistry` will be used to resolve Spring
+properties. 
+
+    @Value("service.invoicing.url")
+    String host;
+
+`ProcessRegistry` will be attempted to be read before regular Spring property sources (for example before the 
+`application.properties` file). If the desired value will not be found in the process registry, Spring will fallback
+to the other property sources.
