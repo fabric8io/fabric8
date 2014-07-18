@@ -78,9 +78,9 @@ public class ResolverTest {
         properties = new Properties();
         properties.setProperty("org.osgi.framework.system.packages.extra", "org.apache.karaf.jaas.boot;version=\"2.4.0.SNAPSHOT\",org.apache.karaf.jaas.boot.principal;version=\"2.4.0.SNAPSHOT\",org.apache.karaf.management.boot;version=\"2.4.0.SNAPSHOT\"");
         properties.setProperty("org.osgi.framework.system.capabilities.extra",
-                "service-reference;effective:=active;objectClass=org.osgi.service.packageadmin.PackageAdmin," +
-                        "service-reference;effective:=active;objectClass=org.osgi.service.startlevel.StartLevel," +
-                        "service-reference;effective:=active;objectClass=org.osgi.service.url.URLHandlers");
+                        "osgi.service;effective:=active;objectClass=org.osgi.service.packageadmin.PackageAdmin," +
+                        "osgi.service;effective:=active;objectClass=org.osgi.service.startlevel.StartLevel," +
+                        "osgi.service;effective:=active;objectClass=org.osgi.service.url.URLHandlers");
         Framework felix = new Felix(properties);
         Collection<Resource> resources = builder.resolve(felix.adapt(BundleRevision.class), false);
 

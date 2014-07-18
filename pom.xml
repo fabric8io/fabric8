@@ -103,7 +103,7 @@
         </fuse.osgi.import.pkg>
         <fuse.osgi.activator />
         <fuse.osgi.failok>false</fuse.osgi.failok>
-        <fuse.osgi.private.pkg>!*</fuse.osgi.private.pkg>
+        <fuse.osgi.private.pkg></fuse.osgi.private.pkg>
         <fuse.osgi.export>io.fabric8.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
         <fuse.osgi.split.pkg>-split-package:=first</fuse.osgi.split.pkg>
         <fuse.osgi.import>${fuse.osgi.import.pkg}</fuse.osgi.import>
