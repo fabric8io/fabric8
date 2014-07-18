@@ -396,7 +396,7 @@ Or creating new route `RoutesBuilder` in your `@Configuration` class:
 
     }
 
-#### Auto-configured ActiveMQ client
+### Auto-configured ActiveMQ client
 
 Fabric comes with the auto-configuration class for the ActiveMQ client. It provides a pooled ActiveMQ
 `javax.jms.ConnectionFactory`. In order to use the `ActiveMQAutoConfiguration` in your application just add the
@@ -462,3 +462,18 @@ Now you can use `JmsTemplate` with ActiveMQ without explicit configuration.
 
     }
 
+### Process registry
+
+Managed Spring Boot processes do not live in a separation. Instead those usually create a graph of microservices
+calling each other. In order to make communication between the processes easier, Fabric8 provides a unified way to 
+access information shared by the managed Spring Boot processes - **ProcessRegistry**.
+
+In order to start working with the Fabric8 process registry, add the following dependency to your project:
+
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>process-spring-boot-registry</artifactId>
+    </dependency>
+
+From now on, you can enjoy your Spring Boot microservice sharing information with the other microservices managed by
+the Fabric8.
