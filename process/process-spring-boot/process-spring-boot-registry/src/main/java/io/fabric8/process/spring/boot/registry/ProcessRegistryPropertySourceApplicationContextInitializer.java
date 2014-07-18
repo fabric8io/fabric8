@@ -17,7 +17,12 @@ package io.fabric8.process.spring.boot.registry;
 
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.PropertySource;
+import org.springframework.util.ClassUtils;
+
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistry.autodetectZooKeeperProcessRegistry;
 
 public class ProcessRegistryPropertySourceApplicationContextInitializer implements ApplicationContextInitializer {
 
@@ -25,7 +30,13 @@ public class ProcessRegistryPropertySourceApplicationContextInitializer implemen
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
-        processRegistry = new CompositeProcessRegistry(new ClassPathProcessRegistry(), new InMemoryProcessRegistry());
+        List<ProcessRegistry> registries = newArrayList(new ClassPathProcessRegistry(), new InMemoryProcessRegistry());
+
+        if (ClassUtils.isPresent("org.apache.curator.framework.CuratorFramework", getClass().getClassLoader())) {
+            registries.add(autodetectZooKeeperProcessRegistry());
+        }
+
+        processRegistry = new CompositeProcessRegistry(registries);
         ProcessRegistryPropertySource propertySource = new ProcessRegistryPropertySource(processRegistry);
         applicationContext.getEnvironment().getPropertySources().addFirst(propertySource);
     }

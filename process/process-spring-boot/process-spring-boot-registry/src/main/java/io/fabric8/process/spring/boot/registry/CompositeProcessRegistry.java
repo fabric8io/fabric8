@@ -15,11 +15,18 @@
  */
 package io.fabric8.process.spring.boot.registry;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class CompositeProcessRegistry implements ProcessRegistry {
 
-    private final ProcessRegistry[] registries;
+    private final List<ProcessRegistry> registries;
 
     public CompositeProcessRegistry(ProcessRegistry... registries) {
+        this.registries = Arrays.asList(registries);
+    }
+
+    public CompositeProcessRegistry(List<ProcessRegistry> registries) {
         this.registries = registries;
     }
 
