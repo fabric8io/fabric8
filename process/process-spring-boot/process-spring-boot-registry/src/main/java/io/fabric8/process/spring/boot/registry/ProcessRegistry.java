@@ -16,7 +16,23 @@
 package io.fabric8.process.spring.boot.registry;
 
 /**
- * Provides unified way to access registry shared by the managed processes.
+ * provides a unified way to access information shared by the managed processes.
+ * <br><br>
+ * Managed Spring Boot processes do not live in a separation. Instead those usually create a graph of microservices
+ * calling each other. In order to make communication between the processes easier, Fabric8 provides a unified way to
+ * access information shared by the managed Spring Boot processes - {@code ProcessRegistry}.
+ * <br><br>
+ * In order to start working with the Fabric8 process registry, add the following dependency to your project:
+ * <br><br>
+ * <pre>
+ * &lt;dependency&gt;
+ *   &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+ *   &lt;artifactId&gt;process-spring-boot-registry&lt;/artifactId&gt;
+ * &lt;/dependency&gt;
+ * </pre>
+ * <br><br>
+ * From now on, you can enjoy your Spring Boot microservice sharing information with the other microservices managed by
+ * the Fabric8.
  */
 public interface ProcessRegistry {
 
