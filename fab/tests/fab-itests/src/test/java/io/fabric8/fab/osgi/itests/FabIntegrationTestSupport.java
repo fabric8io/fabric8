@@ -92,7 +92,7 @@ public abstract class FabIntegrationTestSupport {
             bootDelegationPackage("com.sun.*"),
 
             mavenBundle("org.ops4j.pax.logging", "pax-logging-api").versionAsInProject(),
-            mavenBundle("org.ops4j.pax.url", "pax-url-mvn").versionAsInProject(),
+            mavenBundle("org.ops4j.pax.url", "pax-url-aether").versionAsInProject(),
 
             mavenBundle("org.apache.felix", "org.apache.felix.fileinstall").versionAsInProject(),
             mavenBundle("org.apache.felix", "org.apache.felix.configadmin").versionAsInProject(),

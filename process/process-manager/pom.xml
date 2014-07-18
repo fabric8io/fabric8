@@ -85,11 +85,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.ops4j.pax.url</groupId>
-      <artifactId>pax-url-mvn</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-boot-commands</artifactId>
     </dependency>
@@ -140,6 +135,12 @@
       <groupId>io.fabric8.samples</groupId>
       <artifactId>process-sample-camel-spring</artifactId>
       <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.ops4j.pax.url</groupId>
+      <artifactId>pax-url-aether</artifactId>
+      <version>${pax.url.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
