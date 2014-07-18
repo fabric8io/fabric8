@@ -17,7 +17,6 @@ package io.fabric8.git.internal;
 
 import io.fabric8.api.Constants;
 import io.fabric8.api.DataStore;
-import io.fabric8.api.DataStoreRegistrationHandler;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
@@ -63,7 +62,6 @@ import com.google.common.cache.LoadingCache;
 @ThreadSafe
 @Component(name = Constants.DATASTORE_TYPE_PID, label = "Fabric8 Caching Git DataStore", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @References({
-        @Reference(referenceInterface = DataStoreRegistrationHandler.class, bind = "bindRegistrationHandler", unbind = "unbindRegistrationHandler"),
         @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator"),
         @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService"),
         @Reference(referenceInterface = GitProxyService.class, bind = "bindGitProxyService", unbind = "unbindGitProxyService"),

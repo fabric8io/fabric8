@@ -27,7 +27,6 @@ import io.fabric8.api.Container;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreateEnsembleOptions.Builder;
 import io.fabric8.api.DataStore;
-import io.fabric8.api.DataStoreRegistrationHandler;
 import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.EnsembleModificationFailed;
 import io.fabric8.api.FabricException;
@@ -41,7 +40,6 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Ports;
-import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
 
 import java.io.File;
@@ -76,20 +74,18 @@ import org.slf4j.LoggerFactory;
 @Service(ZooKeeperClusterService.class)
 public final class ZooKeeperClusterServiceImpl extends AbstractComponent implements ZooKeeperClusterService {
 
-    @Reference(referenceInterface = RuntimeProperties.class)
-    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
+    @Reference(referenceInterface = ACLProvider.class)
+    private final ValidatingReference<ACLProvider> aclProvider = new ValidatingReference<ACLProvider>();
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-    @Reference(referenceInterface = ACLProvider.class)
-    private final ValidatingReference<ACLProvider> aclProvider = new ValidatingReference<ACLProvider>();
-    @Reference(referenceInterface = FabricService.class)
-    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = DataStore.class)
     private final ValidatingReference<DataStore> dataStore = new ValidatingReference<DataStore>();
-    @Reference(referenceInterface = DataStoreRegistrationHandler.class)
-    private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = ZooKeeperClusterBootstrap.class)
     private final ValidatingReference<ZooKeeperClusterBootstrap> bootstrap = new ValidatingReference<ZooKeeperClusterBootstrap>();
 
@@ -327,7 +323,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
 
                     // Perform cleanup when the new datastore has been registered.
                     final AtomicReference<DataStore> result = new AtomicReference<DataStore>();
-                    registrationHandler.get().setRegistrationCallback(new DataStoreTemplate() {
+                    runtimeProperties.get().putRuntimeAttribute(DataStoreTemplate.class, new DataStoreTemplate() {
                         @Override
                         public void doWith(DataStore dataStore) {
                             synchronized (result) {
@@ -521,14 +517,6 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
 
     void unbindFabricService(FabricService fabricService) {
         this.fabricService.unbind(fabricService);
-    }
-
-    void bindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.bind(service);
-    }
-
-    void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.unbind(service);
     }
 
     void bindCurator(CuratorFramework curator) {

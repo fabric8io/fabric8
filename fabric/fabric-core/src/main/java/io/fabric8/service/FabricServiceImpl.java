@@ -109,7 +109,6 @@ import com.google.common.base.Strings;
  * |  |_ ACLProvider (@see CuratorACLManager)
  * |_ DataStore (@see CachingGitDataStore)
  *    |_ CuratorFramework  --^
- *    |_ DataStoreRegistrationHandler (@see DataStoreTemplateRegistry)
  *    |_ GitService (@see FabricGitServiceImpl)
  *    |_ ContainerProvider (optional,multiple) (@see ChildContainerProvider)
  *    |  |_ FabricService --^

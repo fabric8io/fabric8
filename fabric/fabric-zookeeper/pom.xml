@@ -66,7 +66,6 @@
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
             OSGI-INF/io.fabric8.zookeeper.bootstrap.BootstrapConfiguration.xml,
-            OSGI-INF/io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry.xml,
             OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperServerFactory.xml,
             OSGI-INF/io.fabric8.zookeeper.curator.CuratorACLManager.xml,
             OSGI-INF/io.fabric8.zookeeper.curator.ManagedCuratorFramework.xml,

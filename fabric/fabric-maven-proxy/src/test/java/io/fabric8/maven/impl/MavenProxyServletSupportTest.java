@@ -23,12 +23,15 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
+
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.scr.AbstractRuntimeProperties;
+
 import org.apache.commons.io.FileUtils;
 import org.easymock.EasyMock;
 import org.eclipse.jetty.server.Handler;
@@ -41,6 +44,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.sonatype.aether.repository.RemoteRepository;
+
 import static io.fabric8.maven.impl.MavenProxyServletSupport.*;
 import static org.junit.Assert.*;
 
@@ -280,36 +284,16 @@ public class MavenProxyServletSupportTest {
     /**
      * To satisfy new container-independent source of properties
      */
-    private static class MockRuntimeProperties implements RuntimeProperties {
-        @Override
-        public String getRuntimeIdentity() {
-            return null;
-        }
-
-        @Override
-        public Path getHomePath() {
-            return null;
-        }
-
-        @Override
-        public Path getConfPath() {
-            return null;
-        }
-
+    private static class MockRuntimeProperties extends AbstractRuntimeProperties {
+        
         @Override
         public Path getDataPath() {
             return Paths.get("target/tmp");
         }
 
         @Override
-        public String getProperty(String key) {
-            return null;
-        }
-
-        @Override
-        public String getProperty(String key, String defaultValue) {
+        protected String getPropertyInternal(String key, String defaultValue) {
             return null;
         }
     }
-
 }

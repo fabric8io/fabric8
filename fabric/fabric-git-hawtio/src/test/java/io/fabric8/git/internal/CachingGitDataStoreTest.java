@@ -15,23 +15,17 @@
  */
 package io.fabric8.git.internal;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import io.fabric8.api.Constants;
+import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.common.util.Strings;
 import io.fabric8.git.hawtio.FabricGitFacade;
-import io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry;
 import io.fabric8.zookeeper.spring.ZKServerFactoryBean;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.RetryOneTime;
-import org.easymock.EasyMock;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.StoredConfig;
-import org.gitective.core.RepositoryUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,10 +38,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.RetryOneTime;
+import org.easymock.EasyMock;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.StoredConfig;
+import org.gitective.core.RepositoryUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class CachingGitDataStoreTest {
 
@@ -62,7 +62,7 @@ public class CachingGitDataStoreTest {
     private Git remote;
     protected CachingGitDataStore dataStore;
     private String basedir;
-    private RuntimeProperties sysprops;
+    private RuntimeProperties runtimeProperties;
 
     @Before
     public void setUp() throws Exception {
@@ -70,11 +70,12 @@ public class CachingGitDataStoreTest {
         delete(sfb.getDataDir());
         delete(sfb.getDataLogDir());
         sfb.afterPropertiesSet();
-        sysprops = EasyMock.createMock(RuntimeProperties.class);
-        EasyMock.expect(sysprops.getRuntimeIdentity()).andReturn("root").anyTimes();
-        EasyMock.expect(sysprops.getHomePath()).andReturn(Paths.get("target")).anyTimes();
-        EasyMock.expect(sysprops.getDataPath()).andReturn(Paths.get("target/data")).anyTimes();
-        EasyMock.replay(sysprops);
+        runtimeProperties = EasyMock.createMock(RuntimeProperties.class);
+        EasyMock.expect(runtimeProperties.getRuntimeIdentity()).andReturn("root").anyTimes();
+        EasyMock.expect(runtimeProperties.getHomePath()).andReturn(Paths.get("target")).anyTimes();
+        EasyMock.expect(runtimeProperties.getDataPath()).andReturn(Paths.get("target/data")).anyTimes();
+        EasyMock.expect(runtimeProperties.removeRuntimeAttribute(DataStoreTemplate.class)).andReturn(null).anyTimes();
+        EasyMock.replay(runtimeProperties);
 
         CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
                 .connectString("localhost:" + sfb.getClientPortAddress().getPort())
@@ -105,20 +106,15 @@ public class CachingGitDataStoreTest {
 
 
         FabricGitServiceImpl gitService = new FabricGitServiceImpl();
-        gitService.bindRuntimeProperties(sysprops);
+        gitService.bindRuntimeProperties(runtimeProperties);
         gitService.activate();
         gitService.setGitForTesting(git);
-
-        DataStoreTemplateRegistry registrationHandler = new DataStoreTemplateRegistry();
-        registrationHandler.activateComponent();
 
         dataStore = new CachingGitDataStore();
         dataStore.bindCurator(curator);
         dataStore.bindGitService(gitService);
-        dataStore.bindRegistrationHandler(registrationHandler);
-        dataStore.bindRuntimeProperties(sysprops);
+        dataStore.bindRuntimeProperties(runtimeProperties);
         dataStore.bindConfigurer(new Configurer() {
-
 
             @Override
             public <T> Map<String, ?> configure(Map<String, ?> configuration, T target, String... ignorePrefix) throws Exception {
@@ -139,7 +135,7 @@ public class CachingGitDataStoreTest {
     public void tearDown() throws Exception {
         //dataStore.deactivate();
         sfb.destroy();
-        EasyMock.verify(sysprops);
+        EasyMock.verify(runtimeProperties);
     }
 
     @Test

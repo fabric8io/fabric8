@@ -184,7 +184,6 @@
                                 OSGI-INF/io.fabric8.service.ZookeeperPlaceholderResolver.xml,
                                 OSGI-INF/io.fabric8.service.ZookeeperPortService.xml,
                                 OSGI-INF/io.fabric8.zookeeper.bootstrap.BootstrapConfiguration.xml,
-                                OSGI-INF/io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry.xml,
                                 OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperServerFactory.xml,
                                 OSGI-INF/io.fabric8.zookeeper.curator.CuratorACLManager.xml,
                                 OSGI-INF/io.fabric8.zookeeper.curator.ManagedCuratorFramework.xml,

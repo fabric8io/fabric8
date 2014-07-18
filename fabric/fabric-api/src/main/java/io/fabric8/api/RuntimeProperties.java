@@ -16,7 +16,6 @@
 package io.fabric8.api;
 
 import java.nio.file.Path;
-import java.util.Map;
 
 /**
  * A runtime properties provider
@@ -53,5 +52,27 @@ public interface RuntimeProperties {
     String getProperty(String key);
 
     String getProperty(String key, String defaultValue);
+    
+    /**
+     * Add a runtime attribute for the given key.
+     * @throws IllegalStateException if an attribute with the given key 
+     */
+    <T> void putRuntimeAttribute(Class<T> key, T options);
 
+    /**
+     * Get a runtime attribute for the given key.
+     * @return null if the attribute does not exist 
+     */
+    <T> T getRuntimeAttribute(Class<T> key);
+    
+    /**
+     * Remove a runtime attribute for the given key. 
+     * @return null if the attribute does not exist 
+     */
+    <T> T removeRuntimeAttribute(Class<T> key);
+
+    /**
+     * Clears the runtime attributes. 
+     */
+    <T> void clearRuntimeAttributes();
 }

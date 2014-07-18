@@ -15,6 +15,36 @@
  */
 package io.fabric8.service;
 
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_DOMAIN;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.deleteSafe;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getByteData;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
+import io.fabric8.api.Constants;
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.CreateContainerOptions;
+import io.fabric8.api.DataStore;
+import io.fabric8.api.DataStoreTemplate;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.ZkDefs;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.api.visibility.VisibleForTesting;
+import io.fabric8.common.util.Closeables;
+import io.fabric8.common.util.ObjectUtils;
+import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Base64Encoder;
+import io.fabric8.utils.DataStoreUtils;
+import io.fabric8.utils.FabricVersionUtils;
+import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration.DataStoreOptions;
+import io.fabric8.zookeeper.bootstrap.DataStoreBootstrapTemplate;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InvalidClassException;
@@ -32,27 +62,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import io.fabric8.api.Constants;
-import io.fabric8.api.CreateContainerMetadata;
-import io.fabric8.api.CreateContainerOptions;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.DataStoreRegistrationHandler;
-import io.fabric8.api.DataStoreTemplate;
-import io.fabric8.api.FabricException;
-import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.ZkDefs;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.api.visibility.VisibleForTesting;
-import io.fabric8.common.util.Closeables;
-import io.fabric8.common.util.ObjectUtils;
-import io.fabric8.common.util.Strings;
-import io.fabric8.utils.Base64Encoder;
-import io.fabric8.utils.DataStoreUtils;
-import io.fabric8.utils.FabricVersionUtils;
-import io.fabric8.zookeeper.ZkPath;
-
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
@@ -60,16 +69,6 @@ import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_DOMAIN;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.deleteSafe;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getByteData;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
 public abstract class AbstractDataStore<T extends DataStore> extends AbstractComponent implements DataStore, PathChildrenCacheListener {
@@ -79,7 +78,6 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/io.fabric8.requirements.json";
     public static final String JVM_OPTIONS_PATH = "/fabric/configs/io.fabric8.containers.jvmOptions";
 
-    private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
@@ -133,8 +131,7 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
         treeCache.getListenable().addListener(this);
 
         // Call the bootstrap {@link DataStoreTemplate}
-        DataStoreRegistrationHandler templateRegistry = registrationHandler.get();
-        DataStoreTemplate template = templateRegistry.removeRegistrationCallback();
+        DataStoreTemplate template = runtimeProperties.get().removeRuntimeAttribute(DataStoreTemplate.class);
         if (template != null) {
             LOG.info("Using template: " + template);
             template.doWith(this);
@@ -762,14 +759,5 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
 
     protected void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
-    }
-
-    @VisibleForTesting
-    public void bindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.bind(service);
-    }
-
-    protected void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.unbind(service);
     }
 }

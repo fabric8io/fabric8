@@ -32,6 +32,21 @@ package io.fabric8.zookeeper.bootstrap;
  * limitations under the License.
  */
 
+import io.fabric8.api.Constants;
+import io.fabric8.api.ContainerOptions;
+import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.api.DataStoreTemplate;
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.ZkDefs;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.Strings;
+import io.fabric8.utils.HostUtils;
+import io.fabric8.utils.PasswordEncoder;
+import io.fabric8.utils.Ports;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,11 +58,6 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
-import io.fabric8.api.ContainerOptions;
-import io.fabric8.api.scr.Configurer;
-import io.fabric8.common.util.Strings;
-import io.fabric8.utils.PasswordEncoder;
-
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -57,17 +67,6 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.utils.properties.Properties;
-
-import io.fabric8.api.Constants;
-import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.api.DataStoreRegistrationHandler;
-import io.fabric8.api.ZkDefs;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.utils.HostUtils;
-import io.fabric8.utils.Ports;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -94,52 +93,39 @@ public class BootstrapConfiguration extends AbstractComponent {
     private Configurer configurer;
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
-    @Reference(referenceInterface = DataStoreRegistrationHandler.class)
-    private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
+    @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
     private CreateEnsembleOptions options;
 
     @Property(name = "ensemble.auto.start", label = "Ensemble Auto Start", description = "Flag to automatically start a zookeeper ensemble", value = "${ensemble.auto.start}")
     private boolean ensembleAutoStart;
-
     @Property(name = "agent.auto.start", label = "Agent Auto Start", description = "Flag to automatically start the provisioning agent", value = "${agent.auto.start}")
     private boolean agentAutoStart = true;
-
     @Property(name = "bind.address", label = "Bind Address", description = "The Bind Address", value = "${bind.address}")
     private String bindAddress = "0.0.0.0";
-
     @Property(name = "zookeeper.password", label = "ZooKeeper Password", description = "The zookeeper password", value = "${zookeeper.password}")
     private String zookeeperPassword = null;
-
     @Property(name = "zookeeper.server.port", label = "ZooKeeper Server Port", description = "The zookeeper server binding port", value = "${zookeeper.server.port}")
     private int zookeeperServerPort = 2181;
-
     @Property(name = "zookeeper.server.connection.port", label = "ZooKeeper Client Port", description = "The zookeeper server connection port", value = "${zookeeper.server.connection.port}")
     private int zookeeperServerConnectionPort = 2181;
-
     @Property(name = "profiles.auto.import", label = "Auto Import Enabled", description = "Flag to automatically import the default profiles", value = "${profiles.auto.import}")
     private boolean profilesAutoImport = true;
-
     @Property(name = "profiles.auto.import.path", label = "Auto Import Enabled", description = "Flag to automatically import the default profiles", value = "${profiles.auto.import.path}")
     private String profilesAutoImportPath = "fabric/import";
-
     @Property(name = "profiles", value = "${profiles}")
     private Set<String> profiles = Collections.emptySet();
-
     @Property(name = "version", value = "${version}")
     private String version = ContainerOptions.DEFAULT_VERSION;
-
     @Property(name = "local.resolver", label = "Resolver", description = "The container resolver", value = "${local.resolver}")
     private String localResolver;
-
     @Property(name = "global.resolver", label = "Global Resolver", description = "The global resolver", value = "${global.resolver}")
     private String globalResolver = "localhostname";
-
     @Property(name = "manualip", label = "Global Resolver", description = "The manally set ip", value = "${manualip}")
     private String manualip;
-
     @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${runtime.id}", propertyPrivate = true)
-    private String name;
+    private String containerId;
     @Property(name = "homeDir", label = "Container Home", description = "The homeDir directory of the container", value = "${runtime.home}", propertyPrivate = true)
     private File homeDir;
     @Property(name = "confDir", label = "Container Conf", description = "The configuration directory of the container", value = "${runtime.conf}", propertyPrivate = true)
@@ -213,7 +199,8 @@ public class BootstrapConfiguration extends AbstractComponent {
 
         if (!Strings.isNotBlank(zookeeperUrl) && !isCreated && options.isEnsembleStart()) {
             String connectionUrl = getConnectionUrl(options);
-            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(name, homeDir, connectionUrl, options));
+            DataStoreOptions bootOptions = new DataStoreOptions(containerId, homeDir, connectionUrl, options);
+            runtimeProperties.get().putRuntimeAttribute(DataStoreTemplate.class, new DataStoreBootstrapTemplate(bootOptions));
 
             createOrUpdateDataStoreConfig(options);
             createZooKeeeperServerConfig(options);
@@ -374,19 +361,42 @@ public class BootstrapConfiguration extends AbstractComponent {
         return Collections.unmodifiableMap(configuration);
     }
 
+    public static class DataStoreOptions {
+        private final String containerId;
+        private final File homeDir; 
+        private final String connectionUrl;
+        private final CreateEnsembleOptions options;
+        public DataStoreOptions(String containerId, File homeDir, String connectionUrl, CreateEnsembleOptions options) {
+            this.connectionUrl = connectionUrl;
+            this.containerId = containerId;
+            this.homeDir = homeDir;
+            this.options = options;
+        }
+        public String getContainerId() {
+            return containerId;
+        }
+        public File getHomeDir() {
+            return homeDir;
+        }
+        public String getConnectionUrl() {
+            return connectionUrl;
+        }
+        public CreateEnsembleOptions getCreateOptions() {
+            return options;
+        }
+    }
+    
     void bindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.bind(service);
     }
-
     void unbindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.unbind(service);
     }
 
-    void bindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.bind(service);
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
     }
-
-    void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.unbind(service);
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 }

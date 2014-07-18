@@ -18,6 +18,15 @@ package io.fabric8.zookeeper.bootstrap;
 import static io.fabric8.utils.Ports.mapPortToRange;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.createDefault;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
+import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.api.DataStore;
+import io.fabric8.api.DataStoreTemplate;
+import io.fabric8.api.FabricException;
+import io.fabric8.utils.DataStoreUtils;
+import io.fabric8.utils.PasswordEncoder;
+import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration.DataStoreOptions;
+import io.fabric8.zookeeper.curator.CuratorACLManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,14 +44,6 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryNTimes;
 import org.apache.karaf.jaas.modules.Encryption;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
-import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.DataStoreTemplate;
-import io.fabric8.api.FabricException;
-import io.fabric8.utils.PasswordEncoder;
-import io.fabric8.utils.DataStoreUtils;
-import io.fabric8.zookeeper.ZkPath;
-import io.fabric8.zookeeper.curator.CuratorACLManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -55,29 +56,20 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
     private final CreateEnsembleOptions options;
     private final String name;
     private final File homeDir;
-    private final String version;
     private final CuratorACLManager aclManager = new CuratorACLManager();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataStoreBootstrapTemplate.class);
     
-    public DataStoreBootstrapTemplate(String name, File homeDir, String connectionUrl, CreateEnsembleOptions options) {
-        this.name = name;
-        this.homeDir = homeDir;
-        this.connectionUrl = connectionUrl;
-        this.options = options;
-        this.version = options.getVersion();
-    }
-
-    @Override
-    public String toString() {
-        return "DataStoreBootstrapTemplate{" +
-                "name='" + name + '\'' +
-                ", connectionUrl='" + connectionUrl + '\'' +
-                '}';
+    public DataStoreBootstrapTemplate(DataStoreOptions bootOptions) {
+        this.name = bootOptions.getContainerId();
+        this.homeDir = bootOptions.getHomeDir();
+        this.connectionUrl = bootOptions.getConnectionUrl();
+        this.options = bootOptions.getCreateOptions();
     }
 
     @Override
     public void doWith(DataStore dataStore) {
+        String version = options.getVersion();
         int minimumPort = options.getMinimumPort();
         int maximumPort = options.getMaximumPort();
         String zooKeeperServerHost = options.getBindAddress();
@@ -260,5 +252,13 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
         createDefault(curator, "/fabric/authentication/users", allUsers);
 
         return encryptionSupport;
+    }
+
+    @Override
+    public String toString() {
+        return "DataStoreBootstrapTemplate{" +
+                "name='" + name + '\'' +
+                ", connectionUrl='" + connectionUrl + '\'' +
+                '}';
     }
 }
