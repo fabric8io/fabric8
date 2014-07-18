@@ -691,13 +691,10 @@
     </feature>
 
     <feature name="gateway-core" version="${project.version}" resolver="(obr)">
-        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
-        <bundle>mvn:io.fabric8/gateway-model/${project.version}</bundle>
-        <bundle>mvn:io.fabric8/gateway-core/${project.version}</bundle>
-<!--
-        we embed it for now since its not a bundle
-        <bundle>mvn:io.vertx/vertx-core/${vertx-version}</bundle>
--->
+      <feature version="${project.version}">fabric-vertx</feature>
+      <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
+      <bundle>mvn:io.fabric8/gateway-model/${project.version}</bundle>
+      <bundle>mvn:io.fabric8/gateway-core/${project.version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
