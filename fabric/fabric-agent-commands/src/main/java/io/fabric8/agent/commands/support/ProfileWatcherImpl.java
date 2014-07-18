@@ -21,6 +21,10 @@ import static io.fabric8.agent.commands.support.Utils.isSnapshot;
 import io.fabric8.agent.commands.ProfileWatcher;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
+import io.fabric8.agent.mvn.DictionaryPropertyResolver;
+import io.fabric8.agent.mvn.MavenConfiguration;
+import io.fabric8.agent.mvn.MavenConfigurationImpl;
+import io.fabric8.agent.mvn.MavenRepositoryURL;
 import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
@@ -72,11 +76,6 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.ops4j.pax.url.maven.commons.MavenConfiguration;
-import org.ops4j.pax.url.maven.commons.MavenConfigurationImpl;
-import org.ops4j.pax.url.maven.commons.MavenRepositoryURL;
-import org.ops4j.pax.url.mvn.ServiceConstants;
-import org.ops4j.util.property.DictionaryPropertyResolver;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -430,12 +429,12 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
     protected MavenConfiguration retrieveMavenConfiguration() {
         MavenConfiguration mavenConfiguration = null;
         try {
-            Configuration configuration = configurationAdmin.get().getConfiguration(ServiceConstants.PID);
+            Configuration configuration = configurationAdmin.get().getConfiguration("org.ops4j.pax.url.mvn");
             if (configuration != null) {
                 Dictionary dictonary = configuration.getProperties();
                 if (dictonary != null) {
                     DictionaryPropertyResolver resolver = new DictionaryPropertyResolver(dictonary);
-                    mavenConfiguration = new MavenConfigurationImpl(resolver, ServiceConstants.PID);
+                    mavenConfiguration = new MavenConfigurationImpl(resolver, "org.ops4j.pax.url.mvn");
                 }
             }
         } catch (IOException e) {

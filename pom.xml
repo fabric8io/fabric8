@@ -278,7 +278,7 @@
         <pax.logging.version>1.7.2</pax.logging.version>
         <pax.url.mvn.commons.version>${pax.url.version}</pax.url.mvn.commons.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
-        <pax.url.version>1.3.7</pax.url.version>
+        <pax.url.version>2.1.0</pax.url.version>
         <qpid-jms-version>0.28</qpid-jms-version>
         <reflections-version>0.9.8_1</reflections-version>
         <rhq-metrics-version>0.2.0.20140626-M2</rhq-metrics-version>
@@ -2236,11 +2236,6 @@
             <dependency>
                 <groupId>org.ops4j.pax.url</groupId>
                 <artifactId>pax-url-aether</artifactId>
-                <version>${pax.url.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ops4j.pax.url</groupId>
-                <artifactId>pax-url-mvn</artifactId>
                 <version>${pax.url.version}</version>
             </dependency>
             <dependency>
