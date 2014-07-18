@@ -15,16 +15,25 @@
  */
 package io.fabric8.process.spring.boot.registry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertySource;
 
+/**
+ * Property source reading properties values from the {@link io.fabric8.process.spring.boot.registry.ProcessRegistry}.
+ */
 public class ProcessRegistryPropertySource extends PropertySource<ProcessRegistry> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessRegistryPropertySource.class);
 
     public ProcessRegistryPropertySource(ProcessRegistry processRegistry) {
         super("Process registry property source: " + processRegistry, processRegistry);
+        LOG.debug("Created property source using registry: {}", processRegistry);
     }
 
     @Override
     public Object getProperty(String name) {
+        LOG.debug("Reading property: {}", name);
         return getSource().readProperty(name);
     }
 
