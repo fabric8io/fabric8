@@ -37,7 +37,7 @@
         <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/${felix-configadmin-version}</bundle>
 
         <bundle>mvn:org.ops4j.pax.url/pax-url-aether/${pax.url.version}</bundle>
-        <bundle>mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}</bundle>
+        <bundle>mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}/jar/uber</bundle>
 
         <bundle>mvn:org.ops4j.pax.logging/pax-logging-api/${pax.logging.version}</bundle>
         <bundle>mvn:org.ops4j.pax.logging/pax-logging-service/${pax.logging.version}</bundle>
@@ -154,7 +154,7 @@
         <feature version="${project.version}">fabric-agent</feature>
         <feature version="${project.version}">fabric-project-deployer</feature>
         <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-aether/${pax.url.version}</bundle>
-        <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}</bundle>
+        <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}/jar/uber</bundle>
         <bundle>mvn:io.fabric8/fabric-agent-commands/${project.version}</bundle>
     </feature>
 
@@ -167,7 +167,7 @@
     <feature name="fabric-project-deployer" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-agent</feature>
         <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-aether/${pax.url.version}</bundle>
-        <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}</bundle>
+        <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}/jar/uber</bundle>
         <bundle>mvn:io.fabric8/fabric-project-deployer/${project.version}</bundle>
         <bundle>mvn:io.fabric8.fab/fab-osgi/${project.version}</bundle>
     </feature>
