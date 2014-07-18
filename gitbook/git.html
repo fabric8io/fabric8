@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="4.4" data-basepath="." data-revision="1405625071136">
+    <div class="book" data-github="fabric8io/fabric8" data-level="4.4" data-basepath="." data-revision="1405689270398">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -767,8 +767,8 @@ git push
 </code></pre><p>And hey presto, fabric8 should update and any containers running the version/branch and profiles you modified should update.</p>
 <h3 id="working-with-the-external-git-repositories"><a name="working-with-the-external-git-repositories" class="anchor" href="#working-with-the-external-git-repositories"><span class="fa fa-link"></span></a>Working with the external git repositories</h3>
 <p>Instead of using clustered git repository provided by the Fabric8, you can store your configuration in the external 
-git repository of your choice. You can specify external repository URL when creating new container.</p>
-<pre><code>container-create-child --external-git-url git@github.com:john/johnsproject.git root my-child-container
+git repository of your choice. You can specify external repository URL when creating new Fabric8 instance.</p>
+<pre><code>fabric8:create --external-git-url=git@github.com:john/johnsproject.git
 </code></pre><p>Keep in mind that although you introduce a single point of failure (single external Git repository), Fabric8 can still
 operate even if the repository is down for the moment. All the changes performed by containers on their local
 repositories (i.e. all changes to the configuration) will be pushed and distributed to the other containers as soon as 
