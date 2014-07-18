@@ -15,26 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.service.ssh;
-
-import io.fabric8.api.SshHostConfiguration;
+package io.fabric8.internal.autoscale;
 
 /**
- * Represents a sorted ordering over {@link SshHostConfiguration} objects
- * using the usage values of the underlying container to find the least loaded container
+ * Represents a sorted set of host based configuration (could be SSH hosts, docker hosts or other cloud configurations)
+ * which are sorted to find the least loaded host configuration
  */
-public class LoadSortedSshHostConfiguration implements Comparable<LoadSortedSshHostConfiguration> {
+public class LoadSortedHostConfiguration<T> implements Comparable<LoadSortedHostConfiguration> {
     private final String hostAlias;
-    private final SshHostConfiguration hostConfiguration;
+    private final T configuration;
     private final String profile;
     private final HostProfileCounter hostProfileCounter;
     private final int index;
     private final int containerCount;
     private final int profileCount;
 
-    public LoadSortedSshHostConfiguration(String hostAlias, SshHostConfiguration hostConfiguration, String profile, HostProfileCounter hostProfileCounter, int index) {
+    public LoadSortedHostConfiguration(String hostAlias, T configuration, String profile, HostProfileCounter hostProfileCounter, int index) {
         this.hostAlias = hostAlias;
-        this.hostConfiguration = hostConfiguration;
+        this.configuration = configuration;
         this.profile = profile;
         this.hostProfileCounter = hostProfileCounter;
         this.index = index;
@@ -42,8 +40,8 @@ public class LoadSortedSshHostConfiguration implements Comparable<LoadSortedSshH
         this.profileCount = hostProfileCounter.profileCount(hostAlias, profile);
     }
 
-    public SshHostConfiguration getHostConfiguration() {
-        return hostConfiguration;
+    public T getConfiguration() {
+        return configuration;
     }
 
     public HostProfileCounter getHostProfileCounter() {
@@ -75,7 +73,7 @@ public class LoadSortedSshHostConfiguration implements Comparable<LoadSortedSshH
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        LoadSortedSshHostConfiguration that = (LoadSortedSshHostConfiguration) o;
+        LoadSortedHostConfiguration that = (LoadSortedHostConfiguration) o;
 
         if (index != that.index) return false;
         if (hostAlias != null ? !hostAlias.equals(that.hostAlias) : that.hostAlias != null) return false;
@@ -91,7 +89,7 @@ public class LoadSortedSshHostConfiguration implements Comparable<LoadSortedSshH
     }
 
     @Override
-    public int compareTo(LoadSortedSshHostConfiguration that) {
+    public int compareTo(LoadSortedHostConfiguration that) {
         int answer = this.containerCount - that.containerCount;
         if (answer == 0) {
             answer = this.profileCount - that.profileCount;

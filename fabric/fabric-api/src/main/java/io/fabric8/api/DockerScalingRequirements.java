@@ -20,5 +20,5 @@ package io.fabric8.api;
 /**
  * Defines the scaling requirements for docker containers
  */
-public class DockerScalingRequirements {
+public class DockerScalingRequirements  extends HostScalingRequirements<DockerScalingRequirements> {
 }

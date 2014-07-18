@@ -34,6 +34,7 @@ public class FabricRequirements {
     private List<ProfileRequirements> profileRequirements = new ArrayList<ProfileRequirements>();
     private String version;
     private SshConfiguration sshConfiguration;
+    private DockerConfiguration dockerConfiguration;
 
     public FabricRequirements() {
     }
@@ -79,12 +80,30 @@ public class FabricRequirements {
         this.sshConfiguration = sshConfiguration;
     }
 
+    public DockerConfiguration getDockerConfiguration() {
+        return dockerConfiguration;
+    }
+
+    public void setDockerConfiguration(DockerConfiguration dockerConfiguration) {
+        this.dockerConfiguration = dockerConfiguration;
+    }
+
     @JsonIgnore
-    public Map<String, SshHostConfiguration> getSshHostsMap() {
+    public List<SshHostConfiguration> getSshHosts() {
         if (sshConfiguration != null) {
             return sshConfiguration.getHosts();
         } else {
-            return null;
+            return new ArrayList<>();
+        }
+    }
+
+
+    @JsonIgnore
+    public List<DockerHostConfiguration> getDockerHosts() {
+        if (dockerConfiguration != null) {
+            return dockerConfiguration.getHosts();
+        } else {
+            return new ArrayList<>();
         }
     }
 
@@ -158,25 +177,20 @@ public class FabricRequirements {
 
     /**
      * Looks up and lazily creates if required a SSH host configuration for the given host alias.
-     * The host name will be defaulted to the same hostAlias value for cases when the alias is the same as the actual host name
+     * The host name will be defaulted to the same hostName value for cases when the alias is the same as the actual host name
      */
-    public SshHostConfiguration sshHost(String hostAlias) {
+    public SshHostConfiguration sshHost(String hostName) {
         SshConfiguration config = getSshConfiguration();
         if (config == null) {
             config = new SshConfiguration();
             setSshConfiguration(config);
         }
-        Map<String, SshHostConfiguration> hosts = config.getHosts();
+        List<SshHostConfiguration> hosts = config.getHosts();
         if (hosts == null) {
-            hosts = new HashMap<String, SshHostConfiguration>();
+            hosts = new ArrayList<>();
             config.setHosts(hosts);
         }
-        SshHostConfiguration answer = hosts.get(hostAlias);
-        if (answer == null) {
-            answer = new SshHostConfiguration(hostAlias);
-            hosts.put(hostAlias, answer);
-        }
-        return answer;
+        return config.host(hostName);
     }
 
     /**
@@ -197,4 +211,5 @@ public class FabricRequirements {
         }
         return answer;
     }
+
 }

@@ -15,7 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.service.ssh;
+package io.fabric8.internal.autoscale;
+
+import io.fabric8.utils.CountingMap;
 
 import java.util.HashMap;
 import java.util.List;

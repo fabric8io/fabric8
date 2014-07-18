@@ -21,8 +21,11 @@ import io.fabric8.api.AutoScaleRequest;
 import io.fabric8.api.AutoScaleStatus;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.SshConfiguration;
 import io.fabric8.api.SshHostConfiguration;
 import io.fabric8.insight.log.support.Strings;
+import io.fabric8.internal.autoscale.HostProfileCounter;
+import io.fabric8.utils.CountingMap;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,18 +47,15 @@ public class SshAutoScalerTest {
 
     @Test
     public void testMaximumProfileCountPerHost() throws Exception {
-        //String hostPostfix = ".cheese.com";
-        String hostPostfix = "";
-
         String hostSmall = "small";
         String hostMedium = "medium";
         String hostBig = "big";
 
         FabricRequirements requirements = new FabricRequirements();
         requirements.sshConfiguration().defaultPath("/opt/fuse").defaultUsername("root").defaultPassword("adminuser").defaultPassPhrase("cheese");
-        requirements.sshHost(hostSmall).hostName(hostSmall + hostPostfix).maximumContainerCount(1);
-        requirements.sshHost(hostMedium).hostName(hostMedium + hostPostfix).maximumContainerCount(2);
-        requirements.sshHost(hostBig).hostName(hostBig + hostPostfix).maximumContainerCount(8);
+        requirements.sshHost(hostSmall).hostName(hostSmall).maximumContainerCount(1);
+        requirements.sshHost(hostMedium).hostName(hostMedium).maximumContainerCount(2);
+        requirements.sshHost(hostBig).hostName(hostBig).maximumContainerCount(8);
         requirements.profile(mqProfileId).minimumInstances(2).maximumInstancesPerHost(1).sshScaling().hostPatterns("!small");
         requirements.profile(exampleProfileId).minimumInstances(5).dependentProfiles(mqProfileId);
 
@@ -92,6 +92,26 @@ public class SshAutoScalerTest {
         for (String box : esbBoxes) {
             assertHostHasProfileCount(hostProfileCounter, box, exampleProfileId, 2);
         }
+        dumpHostProfiles(hostProfileCounter);
+    }
+
+    @Test
+    public void testAllocateInHostListOrder() throws Exception {
+        String[] esbBoxes = {"esb1", "esb2", "esb3", "esb4"};
+
+        FabricRequirements requirements = new FabricRequirements();
+        requirements.sshConfiguration().defaultUsername("root");
+
+        for (String box : esbBoxes) {
+            requirements.sshHost(box);
+        }
+        requirements.profile(exampleProfileId).minimumInstances(2);
+
+        HostProfileCounter hostProfileCounter = assertSshAutoScale(requirements);
+        assertHostHasProfileCount(hostProfileCounter, "esb1", exampleProfileId, 1);
+        assertHostHasProfileCount(hostProfileCounter, "esb2", exampleProfileId, 1);
+        assertHostHasProfileCount(hostProfileCounter, "esb3", exampleProfileId, 0);
+        assertHostHasProfileCount(hostProfileCounter, "esb4", exampleProfileId, 0);
         dumpHostProfiles(hostProfileCounter);
     }
 
@@ -150,9 +170,9 @@ public class SshAutoScalerTest {
             String hostName = entry.getKey();
             CountingMap counts = entry.getValue();
             int total = counts.total();
-            Map<String, SshHostConfiguration> sshHostsMap = requirements.getSshHostsMap();
-            assertNotNull("Should have a hosts map!", sshHostsMap);
-            SshHostConfiguration hostConfiguration = sshHostsMap.get(hostName);
+            SshConfiguration sshConfiguration = requirements.getSshConfiguration();
+            assertNotNull("Should have a sshConfiguration!", sshConfiguration);
+            SshHostConfiguration hostConfiguration = sshConfiguration.getHost(hostName);
             assertNotNull("Should have a hosts configuration for host " + hostName, hostConfiguration);
             Integer maximumContainerCount = hostConfiguration.getMaximumContainerCount();
             if (maximumContainerCount != null) {

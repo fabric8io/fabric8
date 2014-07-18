@@ -18,37 +18,37 @@
 package io.fabric8.api;
 
 /**
- * Represents the configuration for a given host
+ * Represents the docker configuration for a given host
  */
-public class SshHostConfiguration extends HostConfiguration<SshHostConfiguration> {
+public class DockerHostConfiguration extends HostConfiguration<DockerHostConfiguration> {
     private String path;
     private String passPhrase;
     private String privateKeyFile;
     private String preferredAddress;
 
-    public SshHostConfiguration() {
+    public DockerHostConfiguration() {
     }
 
-    public SshHostConfiguration(String hostName) {
+    public DockerHostConfiguration(String hostName) {
         super(hostName);
     }
 
-    public SshHostConfiguration path(String path) {
+    public DockerHostConfiguration path(String path) {
         setPath(path);
         return this;
     }
 
-    public SshHostConfiguration passPhrase(final String passPhrase) {
+    public DockerHostConfiguration passPhrase(final String passPhrase) {
         this.passPhrase = passPhrase;
         return this;
     }
 
-    public SshHostConfiguration privateKeyFile(final String privateKeyFile) {
+    public DockerHostConfiguration privateKeyFile(final String privateKeyFile) {
         this.privateKeyFile = privateKeyFile;
         return this;
     }
 
-    public SshHostConfiguration preferredAddress(final String preferredAddress) {
+    public DockerHostConfiguration preferredAddress(final String preferredAddress) {
         this.preferredAddress = preferredAddress;
         return this;
     }

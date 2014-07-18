@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.List;
 import java.util.Map;
 
 import com.jcraft.jsch.ChannelExec;
@@ -172,8 +173,8 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
     @Override
     public ContainerAutoScaler createAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
         // only create an auto-scaler if the requirements specify at least one ssh host configuration
-        Map<String, SshHostConfiguration> hosts = requirements.getSshHostsMap();
-        if (hosts != null && hosts.size() > 0) {
+        List<SshHostConfiguration> hosts = requirements.getSshHosts();
+        if (!hosts.isEmpty()) {
             return new SshAutoScaler(this);
         }
         return null;

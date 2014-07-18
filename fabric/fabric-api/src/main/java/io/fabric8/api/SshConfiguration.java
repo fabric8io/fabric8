@@ -19,17 +19,16 @@ package io.fabric8.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Represents the configuration used when the autoscaler creates containers via ssh
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SshConfiguration {
-    private Map<String,SshHostConfiguration> hosts = new HashMap<String,SshHostConfiguration>();
+    private List<SshHostConfiguration> hosts = new ArrayList<>();
     private String defaultPath;
     private Integer defaultPort;
     private String defaultUsername;
@@ -38,13 +37,40 @@ public class SshConfiguration {
     private String defaultPassPhrase;
     private String defaultPrivateKeyFile;
 
-    public Map<String, SshHostConfiguration> getHosts() {
-        return hosts;
+    public SshHostConfiguration getHost(String hostName) {
+        if (hosts != null) {
+            for (SshHostConfiguration host : hosts) {
+                if (hostName.equals(host.getHostName())) {
+                    return host;
+                }
+            }
+        }
+        return null;
     }
 
 
+    public void addHost(SshHostConfiguration configuration) {
+        if (hosts == null) {
+            hosts = new ArrayList<>();
+        }
+        hosts.add(configuration);
+    }
+
     // Fluid API to make configuration easier
     //-------------------------------------------------------------------------
+
+    /**
+     * Returns the host configuration for the given host name; lazily creating a new one if one does not exist yet
+     */
+    public SshHostConfiguration host(String hostName) {
+        SshHostConfiguration answer = getHost(hostName);
+        if (answer == null) {
+            answer = new SshHostConfiguration(hostName);
+            addHost(answer);
+        }
+        return answer;
+    }
+
     public SshConfiguration defaultPort(Integer defaultPort) {
         setDefaultPort(defaultPort);
         return this;
@@ -87,7 +113,11 @@ public class SshConfiguration {
     // Properties
     //-------------------------------------------------------------------------
 
-    public void setHosts(Map<String, SshHostConfiguration> hosts) {
+    public List<SshHostConfiguration> getHosts() {
+        return hosts;
+    }
+
+    public void setHosts(List<SshHostConfiguration> hosts) {
         this.hosts = hosts;
     }
 
@@ -146,4 +176,5 @@ public class SshConfiguration {
     public void setDefaultPrivateKeyFile(String defaultPrivateKeyFile) {
         this.defaultPrivateKeyFile = defaultPrivateKeyFile;
     }
+
 }
