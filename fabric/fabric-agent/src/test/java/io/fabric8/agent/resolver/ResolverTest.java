@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 import aQute.bnd.osgi.Macro;
 import aQute.bnd.osgi.Processor;
 import org.apache.felix.framework.Felix;
+import org.apache.felix.utils.version.VersionRange;
 import org.apache.karaf.features.Repository;
 import io.fabric8.agent.DeploymentBuilder;
 import io.fabric8.agent.download.DownloadManager;
@@ -73,7 +74,8 @@ public class ResolverTest {
                          Collections.<String>emptySet(),
                          Collections.<String>emptySet(),
                          Collections.<String>emptySet(),
-                         Collections.<String>emptySet());
+                         Collections.<String>emptySet(),
+                         Collections.<String, Map<VersionRange, Map<String, String>>>emptyMap());
 
         properties = new Properties();
         properties.setProperty("org.osgi.framework.system.packages.extra", "org.apache.karaf.jaas.boot;version=\"2.4.0.SNAPSHOT\",org.apache.karaf.jaas.boot.principal;version=\"2.4.0.SNAPSHOT\",org.apache.karaf.management.boot;version=\"2.4.0.SNAPSHOT\"");

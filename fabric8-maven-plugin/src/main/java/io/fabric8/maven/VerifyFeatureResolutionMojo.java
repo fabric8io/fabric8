@@ -1,19 +1,25 @@
 package io.fabric8.maven;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeSet;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -42,6 +48,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.osgi.framework.Constants;
 import org.osgi.resource.Resource;
 
+import static io.fabric8.agent.DeploymentAgent.getMetadata;
 import static io.fabric8.agent.DeploymentAgent.getPrefixedProperties;
 import static io.fabric8.agent.DeploymentAgent.getResolveOptionalImports;
 import static io.fabric8.agent.utils.AgentUtils.loadRepositories;
@@ -67,8 +74,14 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
     @Parameter(property = "dist-dir")
     private String distDir;
 
+    @Parameter(property = "additional-metadata")
+    private File additionalMetadata;
+
     @Parameter(property = "fail")
     private String fail = "end";
+
+    @Parameter(property = "verify-transitive")
+    private boolean verifyTransitive = false;
 
     @Component
     protected PluginDescriptor pluginDescriptor;
@@ -80,7 +93,23 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
         System.setProperty("karaf.home", "target/karaf");
         System.setProperty("karaf.data", "target/karaf/data");
 
+        ExecutorService executor = Executors.newFixedThreadPool(8);
+
         Hashtable<String, String> properties = new Hashtable<String, String>();
+
+        if (additionalMetadata != null) {
+            try (Reader reader = new FileReader(additionalMetadata)) {
+                Properties metadata = new Properties();
+                metadata.load(reader);
+                for (Enumeration<?> e = metadata.propertyNames(); e.hasMoreElements(); ) {
+                    Object key = e.nextElement();
+                    Object val = metadata.get(key);
+                    properties.put(key.toString(), val.toString());
+                }
+            } catch (IOException e) {
+                throw new MojoExecutionException("Unable to load additional metadata from " + additionalMetadata, e);
+            }
+        }
 
         for (int i = 0; i < descriptors.size(); i++) {
             properties.put("repository." + i, descriptors.get(i));
@@ -90,14 +119,22 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
                 DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(properties);
                 MavenConfigurationImpl config = new MavenConfigurationImpl(propertyResolver, "org.ops4j.pax.url.mvn");
                 config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
-                ExecutorService executor = Executors.newFixedThreadPool(8);
                 DownloadManager manager = new DownloadManager(config, executor);
                 final Map<String, Repository> repositories = loadRepositories(manager, new HashSet<String>(descriptors));
 
                 features = new ArrayList<>();
-                for (Repository repo : repositories.values()) {
-                    for (Feature feature : repo.getFeatures()) {
-                        features.add(feature.getName() + "/" + feature.getVersion());
+                if (verifyTransitive) {
+                    for (Repository repo : repositories.values()) {
+                        for (Feature feature : repo.getFeatures()) {
+                            features.add(feature.getName() + "/" + feature.getVersion());
+                        }
+                    }
+                } else {
+                    for (String uri : descriptors) {
+                        Repository repo = repositories.get(uri);
+                        for (Feature feature : repo.getFeatures()) {
+                            features.add(feature.getName() + "/" + feature.getVersion());
+                        }
                     }
                 }
 
@@ -111,7 +148,7 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
         List<Throwable> failures = new ArrayList<>();
         for (int i = 0; i < features.size(); i++) {
             try {
-                verifyResolution(features.get(i), properties);
+                verifyResolution(features.get(i), properties, executor);
                 getLog().info("Verification of feature " + features.get(i) + " succeeded");
             } catch (Exception e) {
                 getLog().warn(e.getMessage());
@@ -126,14 +163,13 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
         }
     }
 
-    private void verifyResolution(String feature, Hashtable<String, String> properties) throws MojoExecutionException {
+    private void verifyResolution(String feature, Hashtable<String, String> properties, ExecutorService executor) throws MojoExecutionException {
         try {
             properties.put("feature.totest", feature);
 
             DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(properties);
             MavenConfigurationImpl config = new MavenConfigurationImpl(propertyResolver, "org.ops4j.pax.url.mvn");
             config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
-            ExecutorService executor = Executors.newFixedThreadPool(8);
             DownloadManager manager = new DownloadManager(config, executor);
 
             boolean resolveOptionalImports = getResolveOptionalImports(properties);
@@ -163,7 +199,8 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
                     getPrefixedProperties(properties, "fab."),
                     getPrefixedProperties(properties, "req."),
                     getPrefixedProperties(properties, "override."),
-                    getPrefixedProperties(properties, "optional.")
+                    getPrefixedProperties(properties, "optional."),
+                    getMetadata(properties, "metadata#")
             );
 
             // TODO: handle default range policy on feature requirements
