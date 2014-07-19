@@ -86,7 +86,12 @@
             <artifactId>spring-web</artifactId>
         </dependency>
 
-        <!--- API tests dependnecies -->
+        <!--- API tests dependencies -->
+        <dependency>
+            <groupId>io.fabric8.samples</groupId>
+            <artifactId>process-sample-camel-spring</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
