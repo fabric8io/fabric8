@@ -44,6 +44,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
+import aQute.bnd.osgi.Macro;
+import aQute.bnd.osgi.Processor;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.mvn.DictionaryPropertyResolver;
 import io.fabric8.agent.mvn.MavenConfigurationImpl;
@@ -69,6 +71,7 @@ import io.fabric8.fab.osgi.internal.FabResolverFactoryImpl;
 
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
+import org.apache.felix.utils.version.VersionTable;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.FeaturesServiceImpl;
 import org.osgi.framework.Bundle;
@@ -560,7 +563,8 @@ public class DeploymentAgent implements ManagedService {
                 getPrefixedProperties(properties, "fab."),
                 getPrefixedProperties(properties, "req."),
                 getPrefixedProperties(properties, "override."),
-                getPrefixedProperties(properties, "optional.")
+                getPrefixedProperties(properties, "optional."),
+                getMetadata(properties, "metadata#")
         );
 
         // TODO: handle default range policy on feature requirements
@@ -622,8 +626,40 @@ public class DeploymentAgent implements ManagedService {
         return result;
     }
 
-    private void install(Collection<Resource> allResources, Collection<String> ignoredBundles, Map<String, StreamProvider> providers) throws Exception {
+    public static Map<String, Map<VersionRange, Map<String, String>>> getMetadata(Map<String, String> properties, String prefix) {
+        Map<String, Map<VersionRange, Map<String, String>>> result = new HashMap<String, Map<VersionRange, Map<String, String>>>();
+        for (String key : properties.keySet()) {
+            if (key.startsWith(prefix)) {
+                String val = properties.get(key);
+                key = key.substring(prefix.length());
+                String[] parts = key.split("#");
+                if (parts.length == 3) {
+                    Map<VersionRange, Map<String, String>> ranges = result.get(parts[0]);
+                    if (ranges == null) {
+                        ranges = new HashMap<VersionRange, Map<String, String>>();
+                        result.put(parts[0], ranges);
+                    }
+                    String version = parts[1];
+                    if (!version.startsWith("[") && !version.startsWith("(")) {
+                        Processor processor = new Processor();
+                        processor.setProperty("@", VersionTable.getVersion(version).toString());
+                        Macro macro = new Macro(processor);
+                        version = macro.process("${range;[==,=+)}");
+                    }
+                    VersionRange range = new VersionRange(version);
+                    Map<String, String> hdrs = ranges.get(range);
+                    if (hdrs == null) {
+                        hdrs = new HashMap<String, String>();
+                        ranges.put(range, hdrs);
+                    }
+                    hdrs.put(parts[2], val);
+                }
+            }
+        }
+        return result;
+    }
 
+    private void install(Collection<Resource> allResources, Collection<String> ignoredBundles, Map<String, StreamProvider> providers) throws Exception {
         updateStatus("installing", null, allResources, false);
         Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
 
@@ -837,6 +873,20 @@ public class DeploymentAgent implements ManagedService {
         }
 
         LOGGER.info("Done.");
+    }
+
+    private String[] getStrings(Object val) {
+        String[] itfs;
+        if (val instanceof String) {
+            itfs = new String[] { (String) val };
+        } else if (val instanceof Collection) {
+            itfs = (String[]) ((Collection) val).toArray(new String[0]);
+        } else if (val instanceof String[]) {
+            itfs = (String[]) val;
+        } else {
+            itfs = null;
+        }
+        return itfs;
     }
 
     protected InputStream getBundleInputStream(Resource resource, Map<String, StreamProvider> providers) throws IOException {

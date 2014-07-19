@@ -51,6 +51,7 @@ import io.fabric8.fab.osgi.FabBundleInfo;
 import io.fabric8.fab.osgi.FabResolver;
 import io.fabric8.fab.osgi.FabResolverFactory;
 import org.apache.felix.resolver.ResolverImpl;
+import org.apache.felix.resolver.Util;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
 import org.apache.karaf.features.BundleInfo;
@@ -105,6 +106,8 @@ public class DeploymentBuilder {
 
     Set<Feature> featuresToRegister = new HashSet<Feature>();
 
+    Map<String, Map<VersionRange, Map<String, String>>> metadata;
+
     public DeploymentBuilder(DownloadManager manager,
                              FabResolverFactory fabResolverFactory,
                              Collection<Repository> repositories,
@@ -129,11 +132,13 @@ public class DeploymentBuilder {
                          Set<String> fabs,
                          Set<String> reqs,
                          Set<String> overrides,
-                         Set<String> optionals) throws IOException, MultiException, InterruptedException, ResolutionException {
+                         Set<String> optionals,
+                         Map<String, Map<VersionRange, Map<String, String>>> metadata) throws IOException, MultiException, InterruptedException, ResolutionException {
         this.downloader = new AgentUtils.FileDownloader(manager);
         this.resources = new ConcurrentHashMap<String, Resource>();
         this.providers = new ConcurrentHashMap<String, StreamProvider>();
         this.requirements = new ResourceImpl("dummy", "dummy", Version.emptyVersion);
+        this.metadata = metadata;
         // First, gather all bundle resources
         for (String feature : features) {
             registerMatchingFeatures(feature);
@@ -478,7 +483,31 @@ public class DeploymentBuilder {
         if (man == null) {
             throw new IllegalArgumentException("Resource " + uri + " does not contain a manifest");
         }
-        return man.getMainAttributes();
+        Attributes attributes = man.getMainAttributes();
+
+        String bsn = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
+        if (bsn.indexOf(';') > 0) {
+            bsn = bsn.substring(0, bsn.indexOf(';'));
+        }
+        Version ver = VersionTable.getVersion(attributes.getValue(Constants.BUNDLE_VERSION));
+
+        Map<VersionRange, Map<String, String>> ranges = metadata.get(bsn);
+        if (ranges != null) {
+            for (Map.Entry<VersionRange, Map<String, String>> entry2 : ranges.entrySet()) {
+                if (entry2.getKey().contains(ver)) {
+                    for (Map.Entry<String, String> entry3 : entry2.getValue().entrySet()) {
+                        String val = attributes.getValue(entry3.getKey());
+                        if (val != null) {
+                            val += "," + entry3.getValue();
+                        } else {
+                            val = entry3.getValue();
+                        }
+                        attributes.putValue(entry3.getKey(), val);
+                    }
+                }
+            }
+        }
+        return attributes;
     }
 
 }
