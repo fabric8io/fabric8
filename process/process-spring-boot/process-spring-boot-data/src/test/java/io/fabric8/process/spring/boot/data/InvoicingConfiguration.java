@@ -15,9 +15,6 @@
  */
 package io.fabric8.process.spring.boot.data;
 
-import io.fabric8.process.spring.boot.data.repository.InvoiceRepository;
-import io.fabric8.process.spring.boot.data.repository.InvoiceRest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

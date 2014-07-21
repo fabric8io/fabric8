@@ -13,19 +13,13 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.process.spring.boot.data.repository;
+package io.fabric8.process.spring.boot.data.service;
 
-import io.fabric8.process.spring.boot.data.AbstractQuery;
-import lombok.Data;
+import io.fabric8.process.spring.boot.data.domain.InvoiceListingRecord;
+import io.fabric8.process.spring.boot.data.domain.InvoiceQuery;
 
-@Data
-public class InvoiceQuery extends AbstractQuery {
+public interface InvoiceListingService {
 
-    private String invoiceId;
-
-    public InvoiceQuery invoiceId(String invoiceId) {
-        this.invoiceId = invoiceId;
-        return this;
-    }
+    Iterable<InvoiceListingRecord> listByQuery(InvoiceQuery query);
 
 }

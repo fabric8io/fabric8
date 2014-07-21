@@ -29,7 +29,7 @@ import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.GenerationType.AUTO;
 
 @Entity
-@JsonIgnoreProperties({"_links"})
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class Invoice {
 
