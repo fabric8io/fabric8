@@ -16,16 +16,19 @@
 package io.fabric8.process.spring.boot.data;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static com.google.common.collect.Iterables.filter;
 import static java.util.Arrays.asList;
 
-public class Resources {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Resources implements Serializable {
 
     private final Link[] links;
 
