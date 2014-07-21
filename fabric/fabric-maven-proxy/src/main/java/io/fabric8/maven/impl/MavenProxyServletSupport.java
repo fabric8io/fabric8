@@ -16,6 +16,7 @@
 package io.fabric8.maven.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -23,17 +24,27 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.servlet.http.HttpServlet;
 
 import com.google.common.base.Strings;
+import io.fabric8.common.util.Files;
+import io.fabric8.deployer.ProjectDeployer;
+import io.fabric8.deployer.dto.DependencyDTO;
+import io.fabric8.deployer.dto.DeployResults;
+import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.maven.MavenProxy;
 import io.fabric8.maven.util.MavenUtils;
 import org.apache.maven.repository.internal.DefaultServiceLocator;
@@ -58,9 +69,7 @@ import org.sonatype.aether.resolution.ArtifactRequest;
 import org.sonatype.aether.resolution.ArtifactResult;
 import org.sonatype.aether.resolution.MetadataRequest;
 import org.sonatype.aether.resolution.MetadataResult;
-import org.sonatype.aether.spi.connector.RepositoryConnector;
 import org.sonatype.aether.spi.connector.RepositoryConnectorFactory;
-import org.sonatype.aether.transfer.NoRepositoryConnectorException;
 import org.sonatype.aether.util.DefaultRepositoryCache;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
@@ -77,7 +86,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     //1: groupId
     //2: artifactId
     //3: version
-    //4: atifact filename
+    //4: artifact filename
     public static final Pattern ARTIFACT_REQUEST_URL_REGEX = Pattern.compile("([^ ]+)/([^/ ]+)/([^/ ]+)/([^/ ]+)");
 
     //The pattern bellow matches the path to the following:
@@ -92,6 +101,8 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     public static final Pattern REPOSITORY_ID_REGEX = Pattern.compile("[^ ]*(@id=([^@ ]+))+[^ ]*");
 
     public static final String DEFAULT_REPO_ID = "default";
+
+    protected static final String LOCATION_HEADER = "X-Location";
 
     protected Map<String, RemoteRepository> repositories;
     protected RepositorySystem system;
@@ -112,7 +123,9 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     final String proxyPassword;
     final String proxyNonProxyHosts;
 
-    public MavenProxyServletSupport(String localRepository, List<String> remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts) {
+    final ProjectDeployer projectDeployer;
+
+    public MavenProxyServletSupport(String localRepository, List<String> remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts, ProjectDeployer projectDeployer) {
         this.localRepository = localRepository;
         this.remoteRepositories = remoteRepositories;
         this.appendSystemRepos = appendSystemRepos;
@@ -124,6 +137,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         this.proxyUsername = proxyUsername;
         this.proxyPassword = proxyPassword;
         this.proxyNonProxyHosts = proxyNonProxyHosts;
+        this.projectDeployer = projectDeployer;
     }
 
     public synchronized void start() throws IOException {
@@ -227,46 +241,160 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
     @Override
     public boolean upload(InputStream is, String path) throws InvalidMavenArtifactRequest {
-        boolean success = true;
-        Matcher artifactMatcher = ARTIFACT_REQUEST_URL_REGEX.matcher(path);
-        Matcher metdataMatcher = ARTIFACT_METADATA_URL_REGEX.matcher(path);
+        return doUpload(is, path).status();
+    }
+
+    protected UploadContext doUpload(InputStream is, String path) throws InvalidMavenArtifactRequest {
         if (path == null) {
             throw new InvalidMavenArtifactRequest();
-        } else if (metdataMatcher.matches()) {
+        }
+
+        int p = path.lastIndexOf('/');
+        final String filename = path.substring(p + 1);
+
+        String uuid = UUID.randomUUID().toString(); // TODO -- user uuid?
+        File tmp = new File(tmpFolder, uuid);
+        //noinspection ResultOfMethodCallIgnored
+        tmp.mkdir();
+        final File file;
+        try {
+            file = readFile(is, tmp, filename);
+        } catch (FileNotFoundException e) {
+            throw new IllegalStateException(e);
+        }
+
+        UploadContext result = new UploadContext(file);
+
+        // root path, try reading mvn coords
+        if (p <= 0) {
+            try {
+                String mvnCoordsPath = readMvnCoordsPath(file);
+                if (mvnCoordsPath != null) {
+                    return move(file, mvnCoordsPath);
+                } else {
+                    result.addHeader(LOCATION_HEADER, file.getPath()); // we need manual mvn coords input
+                    return result;
+                }
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, String.format("Failed to deploy artifact : %s due to %s", filename, e));
+                return UploadContext.ERROR;
+            }
+        }
+
+        Matcher artifactMatcher = ARTIFACT_REQUEST_URL_REGEX.matcher(path);
+        Matcher metadataMatcher = ARTIFACT_METADATA_URL_REGEX.matcher(path);
+
+        if (metadataMatcher.matches()) {
             LOGGER.log(Level.INFO, String.format("Received upload request for maven metadata : %s", path));
             try {
-                String filename = path.substring(path.lastIndexOf('/') + 1);
                 Metadata metadata = convertPathToMetadata(path);
-                metadata = metadata.setFile(readFile(is, tmpFolder, filename));
+                metadata = metadata.setFile(file);
                 InstallRequest request = new InstallRequest();
                 request.addMetadata(metadata);
                 system.install(session, request);
-                success = true;
                 LOGGER.log(Level.INFO, "Maven metadata installed: " + request.toString());
             } catch (Exception e) {
+                result = UploadContext.ERROR;
                 LOGGER.log(Level.WARNING, String.format("Failed to upload metadata: %s due to %s", path, e), e);
-                success = false;
             }
             //If no matching metadata found return nothing
         } else if (artifactMatcher.matches()) {
             LOGGER.log(Level.INFO, String.format("Received upload request for maven artifact : %s", path));
             Artifact artifact = null;
             try {
-                String filename = path.substring(path.lastIndexOf('/') + 1);
                 artifact = convertPathToArtifact(path);
-                artifact = artifact.setFile(readFile(is, tmpFolder, filename));
+                artifact = artifact.setFile(file);
                 InstallRequest request = new InstallRequest();
                 request.addArtifact(artifact);
                 system.install(session, request);
-                success = true;
+
+                result.setGroupId(artifact.getGroupId());
+                result.setArtifactId(artifact.getArtifactId());
+                result.setVersion(artifact.getVersion());
+
                 LOGGER.log(Level.INFO, "Artifact installed: " + artifact.toString());
             } catch (Exception e) {
-                success = false;
+                result = UploadContext.ERROR;
                 LOGGER.log(Level.WARNING, String.format("Failed to upload artifact : %s due to %s", artifact, e), e);
             }
         }
-        return success;
+        return result;
 
+    }
+
+    protected UploadContext move(String currentFile, String newPath) throws Exception {
+        File file = new File(currentFile);
+        if (!file.exists()) {
+            throw new IllegalArgumentException("No such file: " + currentFile);
+        }
+
+        return move(file, newPath);
+    }
+
+    private UploadContext move(File file, String newPath) throws Exception {
+        try {
+            try (FileInputStream fis = new FileInputStream(file)) {
+                return doUpload(fis, newPath);
+            }
+        } finally {
+            //noinspection ResultOfMethodCallIgnored
+            file.delete();
+        }
+    }
+
+    protected static String readMvnCoordsPath(File file) throws Exception {
+        JarFile jarFile = null;
+        try {
+            jarFile = new JarFile(file);
+
+            String previous = null;
+            String match = null;
+
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String name = entry.getName();
+                if (name.startsWith("META-INF/maven/") && name.endsWith("pom.properties")) {
+                    if (previous != null) {
+                        throw new IllegalStateException(String.format("Duplicate pom.properties found: %s != %s", name, previous));
+                    }
+
+                    previous = name; // check for dups
+
+                    Properties props = new Properties();
+                    try (InputStream stream = jarFile.getInputStream(entry)) {
+                        props.load(stream);
+                    }
+                    String groupId = props.getProperty("groupId");
+                    String artifactId = props.getProperty("artifactId");
+                    String version = props.getProperty("version");
+                    String packaging = Files.getFileExtension(file.getPath());
+                    match = String.format("%s/%s/%s/%s-%s.%s", groupId, artifactId, version, artifactId, version, packaging != null ? packaging : "jar");
+                }
+            }
+
+            return match;
+        } finally {
+            if (jarFile != null) {
+                jarFile.close();
+            }
+        }
+    }
+
+    protected ProjectRequirements toProjectRequirements(UploadContext context) {
+        ProjectRequirements requirements = new ProjectRequirements();
+
+        DependencyDTO rootDependency = new DependencyDTO();
+        rootDependency.setGroupId(context.getGroupId());
+        rootDependency.setArtifactId(context.getArtifactId());
+        rootDependency.setVersion(context.getVersion());
+        requirements.setRootDependency(rootDependency);
+
+        return requirements;
+    }
+
+    protected DeployResults addToProfile(ProjectRequirements requirements) throws Exception {
+        return projectDeployer.deployProject(requirements);
     }
 
     protected RepositorySystemSession newSession(RepositorySystem system, String localRepository) {
@@ -539,6 +667,10 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
     public String getProxyNonProxyHosts() {
         return proxyNonProxyHosts;
+    }
+
+    public ProjectDeployer getProjectDeployer() {
+        return projectDeployer;
     }
 
     public static class LogAdapter implements org.sonatype.aether.spi.log.Logger {

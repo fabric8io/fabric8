@@ -16,9 +16,14 @@
 package io.fabric8.maven.impl;
 
 import io.fabric8.api.RuntimeProperties;
+import io.fabric8.deployer.ProjectDeployer;
+import io.fabric8.deployer.dto.DeployResults;
+import io.fabric8.deployer.dto.ProjectRequirements;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,8 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 
 public class MavenUploadProxyServlet extends MavenDownloadProxyServlet {
 
-    public MavenUploadProxyServlet(RuntimeProperties runtimeProperties, String localRepository, List<String> remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts) {
-        super(runtimeProperties, localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, proxyNonProxyHosts);
+    public MavenUploadProxyServlet(RuntimeProperties runtimeProperties, String localRepository, List<String> remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts, ProjectDeployer projectDeployer) {
+        super(runtimeProperties, localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, proxyNonProxyHosts, projectDeployer);
     }
 
     @Override
@@ -44,7 +49,30 @@ public class MavenUploadProxyServlet extends MavenDownloadProxyServlet {
                 path = path.substring(1);
             }
 
-            if (upload(req.getInputStream(), path)) {
+            // handle move
+            String location = req.getHeader(LOCATION_HEADER);
+            if (location != null) {
+                UploadContext result = move(location, path);
+                addHeaders(resp, result.headers());
+                resp.setStatus(HttpServletResponse.SC_ACCEPTED);
+                return;
+            }
+
+            UploadContext result = doUpload(req.getInputStream(), path);
+            if (result.status()) {
+                addHeaders(resp, result.headers());
+
+                String profile = req.getParameter("profile");
+                String version = req.getParameter("version");
+                if (profile != null && version != null) {
+                    ProjectRequirements requirements = toProjectRequirements(result);
+                    requirements.setProfileId(profile);
+                    requirements.setVersion(version);
+
+                    DeployResults deployResults = addToProfile(requirements);
+                    LOGGER.info(String.format("Deployed artifact %s to profile: %s", result.toArtifact(), deployResults));
+                }
+
                 resp.setStatus(HttpServletResponse.SC_ACCEPTED);
             } else {
                 resp.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
@@ -61,5 +89,11 @@ public class MavenUploadProxyServlet extends MavenDownloadProxyServlet {
             resp.flushBuffer();
         }
 
+    }
+
+    private static void addHeaders(HttpServletResponse resp, Map<String, String> headers) {
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            resp.addHeader(entry.getKey(), entry.getValue());
+        }
     }
 }

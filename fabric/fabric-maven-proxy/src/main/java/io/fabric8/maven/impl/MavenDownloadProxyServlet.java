@@ -38,6 +38,7 @@ import io.fabric8.api.FabricConstants;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.common.util.Closeables;
 import io.fabric8.common.util.Files;
+import io.fabric8.deployer.ProjectDeployer;
 
 
 public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
@@ -47,8 +48,8 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
 
-    public MavenDownloadProxyServlet(RuntimeProperties runtimeProperties, String localRepository, List<String> remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts) {
-        super(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, proxyNonProxyHosts);
+    public MavenDownloadProxyServlet(RuntimeProperties runtimeProperties, String localRepository, List<String> remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts, ProjectDeployer projectDeployer) {
+        super(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, proxyNonProxyHosts, projectDeployer);
         this.runtimeProperties = runtimeProperties;
     }
 

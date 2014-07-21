@@ -15,15 +15,6 @@
  */
 package io.fabric8.rest;
 
-import io.fabric8.api.Container;
-import io.fabric8.api.Containers;
-import io.fabric8.api.FabricRequirements;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.ProfileService;
-import io.fabric8.api.Version;
-import io.fabric8.api.jmx.FabricStatusDTO;
-import io.fabric8.common.util.Strings;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +26,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.Containers;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Version;
+import io.fabric8.api.jmx.FabricStatusDTO;
+import io.fabric8.common.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +71,7 @@ public class FabricResource extends ResourceSupport {
         } else {
             noFabricService();
         }
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     /**
@@ -106,7 +105,7 @@ public class FabricResource extends ResourceSupport {
         } else {
             noFabricService();
         }
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     /**

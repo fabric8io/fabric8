@@ -21,6 +21,7 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.deployer.ProjectDeployer;
 import io.fabric8.maven.MavenProxy;
 import io.fabric8.zookeeper.ZkPath;
 import org.apache.curator.framework.CuratorFramework;
@@ -60,6 +61,8 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = RuntimeProperties.class)
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
+    @Reference(referenceInterface = ProjectDeployer.class)
+    private final ValidatingReference<ProjectDeployer> projectDeployer = new ValidatingReference<ProjectDeployer>();
 
     private final Map<String, Set<String>> registeredProxies;
 
@@ -119,9 +122,9 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     @Activate
     void init(Map<String, ?> configuration) throws Exception {
         configurer.configure(configuration, this);
-        this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(runtimeProperties.get(), localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
+        this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(runtimeProperties.get(), localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts, projectDeployer.get());
         this.mavenDownloadProxyServlet.start();
-        this.mavenUploadProxyServlet = new MavenUploadProxyServlet(runtimeProperties.get(), localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
+        this.mavenUploadProxyServlet = new MavenUploadProxyServlet(runtimeProperties.get(), localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts, projectDeployer.get());
         this.mavenUploadProxyServlet.start();
         try {
             HttpContext base = httpService.get().createDefaultHttpContext();

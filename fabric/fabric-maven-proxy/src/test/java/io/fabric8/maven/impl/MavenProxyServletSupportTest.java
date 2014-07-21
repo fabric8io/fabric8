@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.AbstractRuntimeProperties;
 
+import io.fabric8.deployer.ProjectDeployer;
 import org.apache.commons.io.FileUtils;
 import org.easymock.EasyMock;
 import org.eclipse.jetty.server.Handler;
@@ -51,12 +52,14 @@ import static org.junit.Assert.*;
 public class MavenProxyServletSupportTest {
 
     private RuntimeProperties runtimeProperties;
+    private ProjectDeployer projectDeployer;
     private MavenProxyServletSupport servlet;
 
     @Before
     public void setUp() {
         runtimeProperties = EasyMock.createMock(RuntimeProperties.class);
-        servlet = new MavenDownloadProxyServlet(runtimeProperties, null, null, false, null,null,null,null,0,null, null, null);
+        projectDeployer = EasyMock.createMock(ProjectDeployer.class);
+        servlet = new MavenDownloadProxyServlet(runtimeProperties, null, null, false, null,null,null,null,0,null, null, null, projectDeployer);
     }
 
     @After
@@ -181,7 +184,7 @@ public class MavenProxyServletSupportTest {
         String old = System.getProperty("karaf.data");
         System.setProperty("karaf.data", new File("target").getCanonicalPath());
         try {
-            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(runtimeProperties, System.getProperty("java.io.tmpdir"), null, false, null,null,null,null,0,null, null, null);
+            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(runtimeProperties, System.getProperty("java.io.tmpdir"), null, false, null,null,null,null,0,null, null, null, projectDeployer);
             servlet.start();
         } finally {
             if (old != null) {
@@ -237,7 +240,7 @@ public class MavenProxyServletSupportTest {
             int localPort = server.getConnectors()[0].getLocalPort();
             List<String> remoteRepos = Arrays.asList("http://relevant.not/maven2@id=central");
             RuntimeProperties props = new MockRuntimeProperties();
-            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(props, "target/tmp", remoteRepos, false, "always", "warn", "http", "localhost", localPort, "fuse", "fuse", null);
+            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(props, "target/tmp", remoteRepos, false, "always", "warn", "http", "localhost", localPort, "fuse", "fuse", null, projectDeployer);
 
             HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
             EasyMock.expect(request.getPathInfo()).andReturn("org.apache.camel/camel-core/2.13.0/camel-core-2.13.0-sources.jar");

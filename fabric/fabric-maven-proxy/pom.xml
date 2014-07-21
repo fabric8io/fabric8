@@ -83,6 +83,16 @@
 			<groupId>io.fabric8</groupId>
 			<artifactId>fabric-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>io.fabric8</groupId>
+			<artifactId>fabric-project-deployer</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>fabric-agent</artifactId>
+                </exclusion>
+            </exclusions>
+		</dependency>
 
 		<!-- Provided Dependencies -->
 		<dependency>

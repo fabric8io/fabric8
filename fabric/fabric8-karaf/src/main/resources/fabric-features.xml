@@ -173,6 +173,7 @@
     <feature name="fabric-maven-proxy" version="${project.version}" resolver="(obr)">
         <feature version="${karaf-version}">http</feature>
         <feature version="${project.version}">fabric-core</feature>
+        <feature version="${project.version}">fabric-project-deployer</feature>
         <bundle>mvn:io.fabric8/fabric-maven-proxy/${project.version}</bundle>
     </feature>
 
