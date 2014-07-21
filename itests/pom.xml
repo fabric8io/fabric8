@@ -33,6 +33,7 @@
     <name>Fabric8 :: Integration Tests</name>
 
     <modules>
+        <module>fabric8-testkit</module>
         <module>common</module>
         <module>smoke</module>
     </modules>

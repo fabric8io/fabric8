@@ -36,7 +36,7 @@ public class CountingMap {
     /**
      * Increments the counter of all the given keys
      */
-    public void incrementAll(List<String> keys) {
+    public void incrementAll(Iterable<String> keys) {
         for (String key : keys) {
             increment(key);
         }
