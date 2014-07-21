@@ -15,15 +15,19 @@
  */
 package io.fabric8.process.spring.boot.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NonNull;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import java.io.Serializable;
+
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @Data
-public abstract class AbstractQuery {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public abstract class AbstractQuery implements Serializable {
 
     @NonNull
     private int page = 0;
