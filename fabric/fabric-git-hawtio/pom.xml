@@ -58,18 +58,14 @@
 
     <dependencies>
 
-        <!-- Git Library -->
         <dependency>
             <groupId>io.hawt</groupId>
             <artifactId>hawtio-git</artifactId>
-            <version>${hawtio-version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-git</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
@@ -78,34 +74,28 @@
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-groups</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -118,13 +108,17 @@
             <scope>provided</scope>
         </dependency>
         
-        <!-- testing -->
+        <!-- Test Dependencies -->
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper-spring</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

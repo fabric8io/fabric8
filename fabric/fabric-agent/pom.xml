@@ -399,7 +399,6 @@
             <artifactId>pax-url-mvn</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.ops4j.base</groupId>
             <artifactId>ops4j-base-net</artifactId>
@@ -416,11 +415,8 @@
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-wrap</artifactId>
-            <version>${pax.url.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- test server -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
@@ -429,6 +425,11 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
             <scope>test</scope>
         </dependency>
 
