@@ -310,10 +310,10 @@ public class ProcessManagerController implements ChildContainerController {
         if (container != null) {
             registerPorts(options, processConfig, container, environmentVariables);
         }
-        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables, fabricService, curator);
+        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables, fabricService, curator, true);
         // in case there's any current system environment variables to replace
         // such as the operating system PATH or FABRIC8_JAVA8_HOME when not using docker containers
-        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, System.getenv(), null, null);
+        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, System.getenv(), null, null, true);
         publishZooKeeperValues(options, processConfig, container, environmentVariables);
 
         Installation installation = null;
@@ -457,7 +457,7 @@ public class ProcessManagerController implements ChildContainerController {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         Map<String, String> configuration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_PID);
-        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(configuration, environmentVariables, fabricService, curator);
+        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(configuration, environmentVariables, fabricService, curator, true);
         ProcessContainerConfig configObject = new ProcessContainerConfig();
         configurer.configure(configuration, configObject);
         return configObject;
@@ -526,7 +526,7 @@ public class ProcessManagerController implements ChildContainerController {
                 if (variables == null) {
                     variables = new HashMap();
                 } else {
-                    JolokiaAgentHelper.substituteEnvironmentVariableExpressions(variables, environmentVariables, fabricService, curator);
+                    JolokiaAgentHelper.substituteEnvironmentVariableExpressions(variables, environmentVariables, fabricService, curator, true);
                 }
                 variables.putAll(environmentVariables);
                 LOG.info("Using template variables for MVEL: " + variables);
@@ -661,7 +661,7 @@ public class ProcessManagerController implements ChildContainerController {
             Map<String, String> exportConfig = entry.getValue();
 
             if (exportConfig != null && !exportConfig.isEmpty()) {
-                JolokiaAgentHelper.substituteEnvironmentVariableExpressions(exportConfig, environmentVariables, fabricService, curator);
+                JolokiaAgentHelper.substituteEnvironmentVariableExpressions(exportConfig, environmentVariables, fabricService, curator, true);
                 ZooKeeperPublishConfig config = new ZooKeeperPublishConfig();
                 try {
                     configurer.configure(exportConfig, config);

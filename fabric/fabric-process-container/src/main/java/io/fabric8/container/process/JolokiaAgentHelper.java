@@ -220,11 +220,13 @@ public class JolokiaAgentHelper {
         };
     }
 
-
     /**
-     * Replaces any ${env:NAME} expressions in the given map from the given environment variables
+     * Replaces any ${env:NAME} expressions in the given map from the given environment variables.
+     *
+     * If preserveUnresolved is set to true, eventual tokens that are not found in the replacements map are kept; when the flag is set to false,
+     * not matching tokens are replaced by an empty String.
      */
-    public static void substituteEnvironmentVariableExpressions(Map<String, String> map, Map<String, String> environmentVariables, FabricService fabricService, final CuratorFramework curator) {
+    public static void substituteEnvironmentVariableExpressions(Map<String, String> map, Map<String, String> environmentVariables, FabricService fabricService, final CuratorFramework curator, boolean preserveUnresolved) {
         String zkUser = null;
         String zkPassword = null;
         if (fabricService != null) {
@@ -251,8 +253,7 @@ public class JolokiaAgentHelper {
                     text = text.replace("${zookeeper.password}", zkPassword);
                 }
                 if (curator != null) {
-                    // replace Groovy / ZooKeeper expressions
-                    text = InterpolationHelper.substVars(text, "dummy", null, Collections.EMPTY_MAP, new InterpolationHelper.SubstitutionCallback() {
+                    InterpolationHelper.SubstitutionCallback substitutionCallback = new InterpolationHelper.SubstitutionCallback() {
                         @Override
                         public String getValue(String key) {
                             if (key.startsWith("zk:")) {
@@ -270,13 +271,27 @@ public class JolokiaAgentHelper {
                             }
                             return null;
                         }
-                    });
+                    };
+                    // replace Groovy / ZooKeeper expressions
+                    if (preserveUnresolved) {
+                        text = InterpolationHelper.substVarsPreserveUnresolved(text, "dummy", null, Collections.EMPTY_MAP, substitutionCallback);
+                    }
+                    else {
+                        text = InterpolationHelper.substVars(text, "dummy", null, Collections.EMPTY_MAP, substitutionCallback);
+                    }
                 }
                 if (!Objects.equal(oldText, text)) {
                     map.put(key, text);
                 }
             }
         }
+    }
+
+    /**
+     * Replaces any ${env:NAME} expressions in the given map from the given environment variables
+     */
+    public static void substituteEnvironmentVariableExpressions(Map<String, String> map, Map<String, String> environmentVariables, FabricService fabricService, final CuratorFramework curator) {
+        substituteEnvironmentVariableExpressions( map,environmentVariables,  fabricService, curator, false);
     }
 
     /**
