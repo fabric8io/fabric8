@@ -124,8 +124,8 @@ public class BootstrapConfiguration extends AbstractComponent {
     private String globalResolver = "localhostname";
     @Property(name = "manualip", label = "Global Resolver", description = "The manally set ip", value = "${manualip}")
     private String manualip;
-    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${runtime.id}", propertyPrivate = true)
-    private String name;
+    @Property(name = "runtime.id", label = "Container Name", description = "The name of the container", value = "${runtime.id}", propertyPrivate = true)
+    private String runtimeId;
     @Property(name = "homeDir", label = "Container Home", description = "The homeDir directory of the container", value = "${runtime.home}", propertyPrivate = true)
     private File homeDir;
     @Property(name = "confDir", label = "Container Conf", description = "The configuration directory of the container", value = "${runtime.conf}", propertyPrivate = true)
@@ -160,6 +160,9 @@ public class BootstrapConfiguration extends AbstractComponent {
         configuration = conf;
         configurer.configure(conf, this);
 
+        if (Strings.isNullOrBlank(runtimeId)) {
+            throw new IllegalArgumentException("Runtime id must not be null or empty.");
+        }
 
         if (Strings.isNullOrBlank(localResolver)) {
             localResolver = globalResolver;
@@ -199,7 +202,7 @@ public class BootstrapConfiguration extends AbstractComponent {
 
         if (!Strings.isNotBlank(zookeeperUrl) && !isCreated && options.isEnsembleStart()) {
             String connectionUrl = getConnectionUrl(options);
-            DataStoreOptions bootOptions = new DataStoreOptions(name, homeDir, connectionUrl, options);
+            DataStoreOptions bootOptions = new DataStoreOptions(runtimeId, homeDir, connectionUrl, options);
             runtimeProperties.get().putRuntimeAttribute(DataStoreTemplate.class, new DataStoreBootstrapTemplate(bootOptions));
 
             createOrUpdateDataStoreConfig(options);
