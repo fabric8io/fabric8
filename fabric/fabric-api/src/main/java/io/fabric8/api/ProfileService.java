@@ -39,6 +39,8 @@ public interface ProfileService {
     
     boolean hasProfile(String versionId, String profileId);
     
+    Profile getProfile(String versionId, String profileId);
+    
     Profile getRequiredProfile(String versionId, String profileId);
     
     Profile getOverlayProfile(Profile profile);

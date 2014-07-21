@@ -21,6 +21,9 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.FabricException;
+import io.fabric8.api.LockHandle;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
@@ -72,6 +75,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.curator.framework.CuratorFramework;
@@ -155,9 +161,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Reference
     private Configurer configurer;
-    
-
-    private Map<String, String> dataStoreProperties;
 
     private final ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
 
@@ -165,13 +168,15 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private final Set<String> versions = new CopyOnWriteArraySet<String>();
     private final GitListener gitListener = new GitDataStoreListener();
     private final AtomicReference<String> remoteRef = new AtomicReference<String>("origin");
-    private ProxySelector defaultProxySelector;
-
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    
     private int commitsWithoutGC = MAX_COMMITS_WITHOUT_GC;
-    private String remoteUrl;
+    private Map<String, String> dataStoreProperties;
+    private ProxySelector defaultProxySelector;
     private String lastFetchWarning;
     private volatile boolean initialPull;
     private SharedCount counter;
+    private String remoteUrl;
 
     @Property(name = "configuredUrl", label = "External Git Repository URL", description = "The URL to a fixed external git repository")
     private String configuredUrl;
@@ -380,6 +385,42 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
     }
 
+    @Override
+    public LockHandle aquireWriteLock() {
+        final WriteLock writeLock = readWriteLock.writeLock();
+        boolean success;
+        try {
+            success = writeLock.tryLock() || writeLock.tryLock(10, TimeUnit.SECONDS);
+        } catch (InterruptedException ex) {
+            success = false;
+        }
+        IllegalStateAssertion.assertTrue(success, "Cannot obtain profile write lock in time");
+        return new LockHandle() {
+            @Override
+            public void unlock() {
+                writeLock.unlock();
+            }
+        };
+    }
+
+    @Override
+    public LockHandle aquireReadLock() {
+        final ReadLock readLock = readWriteLock.readLock();
+        boolean success;
+        try {
+            success = readLock.tryLock() || readLock.tryLock(10, TimeUnit.SECONDS);
+        } catch (InterruptedException ex) {
+            success = false;
+        }
+        IllegalStateAssertion.assertTrue(success, "Cannot obtain profile read lock in time");
+        return new LockHandle() {
+            @Override
+            public void unlock() {
+                readLock.unlock();
+            }
+        };
+    }
+    
     @SuppressWarnings("unchecked")
     private void importFromFilesystem(Path path) {
         LOG.info("Importing additional profiles from file system directory: {}", path);
@@ -444,17 +485,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
     }
 
-    /* (non-Javadoc)
-     * @see io.fabric8.git.internal.GitDataStore#getRemote()
-     */
     @Override
     public String getRemote() {
         return remoteRef.get();
     }
 
-    /* (non-Javadoc)
-     * @see io.fabric8.git.internal.GitDataStore#setRemote(java.lang.String)
-     */
     @Override
     public void setRemote(String remote) {
         if (remote == null)
@@ -462,6 +497,31 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         this.remoteRef.set(remote);
     }
 
+    @Override
+    public Profile getProfile(String versionId, String profileId) {
+        assertValid();
+        LockHandle readLock = aquireReadLock();
+        try {
+            return getProfileInternal(versionId, profileId);
+        } finally {
+            readLock.unlock();
+        }
+    }
+    
+    private Profile getProfileInternal(String versionId, String profileId) {
+        assertReadLock();
+        Profile profile = null;
+        if (hasProfile(versionId, profileId)) {
+            ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
+            builder.setAttributes(getProfileAttributes(versionId, profileId));
+            builder.setFileConfigurations(getFileConfigurations(versionId, profileId));
+            builder.setConfigurations(getConfigurations(versionId, profileId));
+            builder.setLastModified(getLastModified(versionId, profileId));
+            profile = builder.getProfile();
+        }
+        return profile;
+    }
+    
     @Override
     public void importFromFileSystem(final String from) {
         assertValid();
@@ -642,19 +702,19 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public String getProfile(final String version, final String profile, final boolean create) {
+    public String getProfile(final String versionId, final String profileId, final boolean create) {
         assertValid();
         return gitOperation(new GitOperation<String>() {
             public String call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, GitProfiles.getBranch(version, profile));
-                File profileDirectory = getProfileDirectory(git, profile);
+                checkoutVersion(git, GitProfiles.getBranch(versionId, profileId));
+                File profileDirectory = getProfileDirectory(git, profileId);
                 if (!profileDirectory.exists()) {
                     if (create) {
-                        return doCreateProfile(git, context, profile, version);
+                        return doCreateProfile(git, context, profileId, versionId);
                     }
                     return null;
                 }
-                return profile;
+                return profileId;
             }
         });
     }
@@ -1365,10 +1425,10 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
     }
 
-    private void createOrCheckoutVersion(Git git, String version) throws GitAPIException {
-        assertValid();
-        addVersion(version);
-        GitHelpers.createOrCheckoutBranch(git, version, remoteRef.get());
+    private void createOrCheckoutVersion(Git git, String versionId) throws GitAPIException {
+        assertWriteLock();
+        addVersion(versionId);
+        GitHelpers.createOrCheckoutBranch(git, versionId, remoteRef.get());
     }
 
     private void checkoutVersion(Git git, String version) throws GitAPIException {
@@ -1479,9 +1539,9 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         return (a == b) || (a != null && a.equals(b));
     }
 
-    private void addVersion(String version) {
-        if (!MASTER_BRANCH.equals(version)) {
-            versions.add(version);
+    private void addVersion(String versionId) {
+        if (!MASTER_BRANCH.equals(versionId)) {
+            versions.add(versionId);
         }
     }
 
@@ -1659,7 +1719,19 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         final Map<String, ProfileData> profiles = new HashMap<String, ProfileData>();
     }
 
-    private static class ProfileData {
+    private void assertReadLock() {
+        //IllegalStateAssertion.assertTrue(readWriteLock.getReadLockCount() > 0 || readWriteLock.isWriteLocked(), "No read lock obtained");
+        if (!(readWriteLock.getReadLockCount() > 0 || readWriteLock.isWriteLocked())) 
+            LOG.warn("No read lock obtained");
+    }
+    
+    private void assertWriteLock() {
+        //IllegalStateAssertion.assertTrue(readWriteLock.isWriteLocked(), "No write lock obtained");
+        if (!readWriteLock.isWriteLocked()) 
+            LOG.warn("No write lock obtained");
+    }
+    
+    static class ProfileData {
         final String lastModified;
         final Map<String, byte[]> files;
         final Map<String, Map<String, String>> configs;
