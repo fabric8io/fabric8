@@ -15,6 +15,7 @@
  */
 package io.fabric8.gateway.fabric.support.http;
 
+import io.fabric8.common.util.Strings;
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
 import io.fabric8.gateway.ServiceDetails;
 import io.fabric8.gateway.handlers.http.HttpMappingRule;
@@ -116,7 +117,7 @@ public class HttpMappingRuleBase implements HttpMappingRule {
             boolean versionSpecificUri = pathTemplate.getParameterNames().contains("version");
 
             String versionId = defaultParams.get("version");
-            if (!remove && versionId != null && !versionSpecificUri && gatewayVersion != null) {
+            if (!remove && Strings.isNotBlank(versionId) && !versionSpecificUri && gatewayVersion != null) {
                 // lets ignore this mapping if the version does not match
                 if (!gatewayVersion.equals(versionId)) {
                     remove = true;
