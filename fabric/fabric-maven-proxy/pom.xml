@@ -60,115 +60,109 @@
         <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
-    <dependencies>
+	<dependencies>
 
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>maven-util</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>io.fabric8</groupId>
+			<artifactId>maven-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.fabric8</groupId>
+			<artifactId>fabric-zookeeper</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.fabric8</groupId>
+			<artifactId>fabric-utils</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.fabric8</groupId>
+			<artifactId>fabric-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.fabric8</groupId>
+			<artifactId>fabric-core</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-zookeeper</artifactId>
-        </dependency>
+		<!-- Provided Dependencies -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ops4j.pax.web</groupId>
+			<artifactId>pax-web-runtime</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.compendium</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.scr.annotations</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-aether-provider</artifactId>
+			<version>${maven-version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-utils</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.maven.wagon</groupId>
+			<artifactId>wagon-file</artifactId>
+			<version>${wagon-version}</version>
+		</dependency>
 
-        <dependency>
-          <groupId>io.fabric8</groupId>
-          <artifactId>fabric-api</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-container-default</artifactId>
+			<version>1.5.5</version>
+		</dependency>
 
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-core</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.maven.wagon</groupId>
+			<artifactId>wagon-http-lightweight</artifactId>
+			<version>${wagon-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>nekohtml</groupId>
+					<artifactId>nekohtml</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>nekohtml</groupId>
+					<artifactId>xercesMinimal</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
 
+		<!-- Test Dependencies -->
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-server</artifactId>
+			<scope>test</scope>
+		</dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <scope>provided</scope>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.ops4j.pax.web</groupId>
-            <artifactId>pax-web-runtime</artifactId>
-            <version>${ops4j-pax-web-version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr.annotations</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-aether-provider</artifactId>
-            <version>${maven-version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.maven.wagon</groupId>
-            <artifactId>wagon-file</artifactId>
-            <version>${wagon-version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-container-default</artifactId>
-            <version>1.5.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.maven.wagon</groupId>
-            <artifactId>wagon-http-lightweight</artifactId>
-            <version>${wagon-version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>nekohtml</groupId>
-                    <artifactId>nekohtml</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>nekohtml</groupId>
-                    <artifactId>xercesMinimal</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <scope>compile</scope>
-        </dependency>
-      <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>${commons-io2-version}</version>
-        <scope>compile</scope>
-      </dependency>
-
-      <!-- test server -->
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-server</artifactId>
-        <scope>test</scope>
-      </dependency>
-    </dependencies>
+	</dependencies>
 
     <build>
         <plugins>

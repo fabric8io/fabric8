@@ -2018,11 +2018,23 @@
             <dependency>
                 <groupId>org.apache.karaf.features</groupId>
                 <artifactId>org.apache.karaf.features.command</artifactId>
+                <exclusions>
+                	<exclusion>
+		                <groupId>org.apache.felix</groupId>
+		                <artifactId>org.apache.felix.bundlerepository</artifactId>
+                	</exclusion>
+                </exclusions>
                 <version>${karaf-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.karaf.features</groupId>
                 <artifactId>org.apache.karaf.features.core</artifactId>
+                <exclusions>
+                	<exclusion>
+		                <groupId>org.apache.felix</groupId>
+		                <artifactId>org.apache.felix.bundlerepository</artifactId>
+                	</exclusion>
+                </exclusions>
                 <version>${karaf-version}</version>
             </dependency>
             <dependency>
