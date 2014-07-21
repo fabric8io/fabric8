@@ -91,9 +91,11 @@ public enum ZkPath {
     CONTAINER_PROVISION_CHECKSUMS  ("/fabric/registry/containers/provision/{container}/checksums"),
     CONTAINER_PROVISION_RESULT     ("/fabric/registry/containers/provision/{container}/result"),
     CONTAINER_PROVISION_EXCEPTION  ("/fabric/registry/containers/provision/{container}/exception"),
+    CONTAINER_STATUS               ("/fabric/registry/containers/status/{container}"),
     CONTAINER_EXTENDER             ("/fabric/registry/containers/provision/{container}/extender/{extender}"),
     CONTAINER_EXTENDER_BUNDLE      ("/fabric/registry/containers/provision/{container}/extender/{extender}/bundle/{bundle}"),
     CONTAINER_EXTENDER_STATUS      ("/fabric/registry/containers/provision/{container}/extender/{extender}/status"),
+
     CONTAINER_DEBUG_PORT           ("/fabric/registry/containers/debug/{container}/port"),
     CONTAINER_ENTRY                ("/fabric/registry/containers/config/{container}/{entry}"),
     CONTAINER_PORT_MIN             ("/fabric/registry/containers/config/{container}/minimumport"),
@@ -146,7 +148,8 @@ public enum ZkPath {
     PORTS_IP                       ("/fabric/registry/ports/ip/{address}"),
 
     AUTHENTICATION_CRYPT_ALGORITHM ("/fabric/authentication/crypt/algorithm"),
-    AUTHENTICATION_CRYPT_PASSWORD  ("/fabric/authentication/crypt/password");
+    AUTHENTICATION_CRYPT_PASSWORD  ("/fabric/authentication/crypt/password"),
+    AUTHENTICATION_CONTAINER       ("/fabric/authentication/containers/{container}");
 
 
 

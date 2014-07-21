@@ -288,8 +288,11 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
             }
             deleteSafe(getCurator(), ZkPath.CONFIG_CONTAINER.getPath(containerId));
             deleteSafe(getCurator(), ZkPath.CONTAINER.getPath(containerId));
+            deleteSafe(getCurator(), ZkPath.CONTAINER_ALIVE.getPath(containerId));
             deleteSafe(getCurator(), ZkPath.CONTAINER_DOMAINS.getPath(containerId));
             deleteSafe(getCurator(), ZkPath.CONTAINER_PROVISION.getPath(containerId));
+            deleteSafe(getCurator(), ZkPath.CONTAINER_STATUS.getPath(containerId));
+            deleteSafe(getCurator(), ZkPath.AUTHENTICATION_CONTAINER.getPath(containerId));
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
         }
