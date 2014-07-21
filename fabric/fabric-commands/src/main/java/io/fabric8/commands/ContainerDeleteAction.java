@@ -45,14 +45,19 @@ public class ContainerDeleteAction extends AbstractContainerLifecycleAction {
                 return null;
             }
 
-            Container found = FabricCommand.getContainer(fabricService, containerName);
-            applyUpdatedCredentials(found);
-            if (recursive || force) {
-                for (Container child : found.getChildren()) {
-                    child.destroy(force);
+            Container found = FabricCommand.getContainerIfExists(fabricService, containerName);
+            if (found != null) {
+                applyUpdatedCredentials(found);
+                if (recursive || force) {
+                    for (Container child : found.getChildren()) {
+                        child.destroy(force);
+                    }
                 }
+                found.destroy(force);
+            } else if (force) {
+                //We also want to try and delete any leftover entries
+                fabricService.getDataStore().deleteContainer(containerName);
             }
-            found.destroy(force);
         }
         return null;
     }

@@ -70,6 +70,7 @@ public final class ContainerProviderUtils {
     public static final int DEFAULT_SSH_PORT = 8101;
     public static final int DEFAULT_RMI_SERVER_PORT = 44444;
     public static final int DEFAULT_RMI_REGISTRY_PORT = 1099;
+    public static final String DEFAULT_JMX_SERVER_URL = "";
 	public static final int DEFAULT_HTTP_PORT = 8181;
 
     private static final String[] FALLBACK_REPOS = {"https://repo.fusesource.com/nexus/content/groups/public/", "https://repo.fusesource.com/nexus/content/groups/ea/", "https://repo.fusesource.com/nexus/content/repositories/snapshots/"};
@@ -154,15 +155,22 @@ public final class ContainerProviderUtils {
             replacePropertyValue(sb, "etc/" + Constants.DATASTORE_TYPE_PID + ".cfg", key, value);
         }
         //Apply port range
-		sb.append("SSH_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_SSH_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
-		sb.append("RMI_REGISTRY_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_RMI_REGISTRY_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
-		sb.append("RMI_SERVER_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_RMI_SERVER_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
-		sb.append("HTTP_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_HTTP_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
+        sb.append("BIND_ADDRESS=").append(options.getBindAddress() != null && !options.getBindAddress().isEmpty() ? options.getBindAddress() : "0.0.0.0").append("\n");
+        sb.append("SSH_PORT=").append("\"echo ").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_SSH_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\"").append("\n");
+		sb.append("RMI_REGISTRY_PORT=").append("\"echo ").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_RMI_REGISTRY_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\"").append("\n");
+		sb.append("RMI_SERVER_PORT=").append("\"echo ").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_RMI_SERVER_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\"").append("\n");
+        sb.append("JMX_SERVER_URL=\"").append("echo service:jmx:rmi://${BIND_ADDRESS}:${RMI_SERVER_PORT}/jndi/rmi://${BIND_ADDRESS}:${RMI_REGISTRY_PORT}/karaf-").append(name).append("\"\n");
+		sb.append("HTTP_PORT=").append("\"echo ").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_HTTP_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\"").append("\n");
 
-        replaceLineInFile(sb, "etc/org.apache.karaf.shell.cfg", "sshPort=" + DEFAULT_SSH_PORT, "sshPort=$SSH_PORT" );
-        replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiRegistryPort = " + DEFAULT_RMI_REGISTRY_PORT, "rmiRegistryPort=$RMI_REGISTRY_PORT");
-        replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiServerPort = " + DEFAULT_RMI_SERVER_PORT, "rmiServerPort=$RMI_SERVER_PORT");
-		replaceLineInFile(sb, "etc/org.ops4j.pax.web.cfg", String.valueOf(DEFAULT_HTTP_PORT), "$HTTP_PORT");
+
+        replacePropertyValue(sb, "etc/org.apache.karaf.shell.cfg", "sshPort" , "$SSH_PORT" );
+        replacePropertyValue(sb, "etc/org.apache.karaf.shell.cfg", "sshHost" , "$BIND_ADDRESS");
+        replacePropertyValue(sb, "etc/org.apache.karaf.management.cfg", "rmiRegistryPort", "$RMI_REGISTRY_PORT");
+        replacePropertyValue(sb, "etc/org.apache.karaf.management.cfg", "rmiServerPort", "$RMI_SERVER_PORT");
+        replacePropertyValue(sb, "etc/org.apache.karaf.management.cfg", "rmiServerHost" , "$BIND_ADDRESS");
+        replacePropertyValue(sb, "etc/org.apache.karaf.management.cfg", "rmiRegistryHost" , "$BIND_ADDRESS");
+        replacePropertyValue(sb, "etc/org.apache.karaf.management.cfg", "serviceUrl", "$JMX_SERVER_URL");
+        replacePropertyValue(sb, "etc/org.ops4j.pax.web.cfg", "org.osgi.service.http.port", "$HTTP_PORT");
 		replaceLineInFile(sb, "etc/jetty.xml", String.valueOf(DEFAULT_HTTP_PORT), "$HTTP_PORT");
         appendFile(sb, "etc/system.properties", Arrays.asList(ZkDefs.MINIMUM_PORT + "=" + options.getMinimumPort()));
         appendFile(sb, "etc/system.properties", Arrays.asList(ZkDefs.MAXIMUM_PORT + "=" + options.getMaximumPort()));

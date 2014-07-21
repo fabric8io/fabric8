@@ -214,6 +214,16 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         throw new IllegalArgumentException("Container " + name + " does not exist.");
     }
 
+    public static Container getContainerIfExists(FabricService fabricService, String name) {
+        Container[] containers = fabricService.getContainers();
+        for (Container container : containers) {
+            if (container.getId().equals(name)) {
+                return container;
+            }
+        }
+        return null;
+    }
+
     public static boolean doesContainerExist(FabricService fabricService, String name) {
         Container[] containers = fabricService.getContainers();
         for (Container container : containers) {
