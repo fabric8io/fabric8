@@ -28,6 +28,8 @@ import io.fabric8.insight.log.LogFilter;
 import io.fabric8.insight.log.LogResults;
 import io.fabric8.insight.log.service.LogQueryMBean;
 import io.fabric8.insight.log.support.Predicate;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -45,6 +47,7 @@ import static org.junit.Assert.fail;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-1117] PaxLoggingTest reliably fails with clean repo")
 public class PaxLoggingTest extends FabricTestSupport {
 
     String info1 = "InfoOne message";
