@@ -13,16 +13,13 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.process.spring.boot.data;
+package io.fabric8.process.spring.boot.data.domain;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
+import lombok.Data;
 
-public interface RestRepository<T, ID extends java.io.Serializable> extends PagingAndSortingRepository<T, ID> {
+@Data
+public class InvoiceListingRecord extends Invoice {
 
-    Iterable<T> findByQuery(AbstractQuery query);
-
-    long countByQuery(AbstractQuery query);
-
-    <R> Iterable<R> listByQuery(AbstractQuery query, Class<R> ListingRecordClass);
+    private String listingLabel;
 
 }

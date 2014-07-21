@@ -88,6 +88,12 @@ public class TemplateRestRepository<T, ID extends java.io.Serializable> implemen
     }
 
     @Override
+    public <R> Iterable<R> listByQuery(AbstractQuery query, Class<R> ListingRecordClass) {
+        Class<R[]> listingType = (Class<R[]>) Array.newInstance(ListingRecordClass, 0).getClass();
+        return asList(restTemplate.postForObject(url + "-ops/listByQuery", query, listingType));
+    }
+
+    @Override
     public Iterable<T> findAll(Sort orders) {
         throw new UnsupportedOperationException("Not *yet* supported.");
     }

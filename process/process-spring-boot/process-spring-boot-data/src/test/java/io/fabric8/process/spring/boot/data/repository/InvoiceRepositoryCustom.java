@@ -16,6 +16,7 @@
 package io.fabric8.process.spring.boot.data.repository;
 
 import io.fabric8.process.spring.boot.data.domain.Invoice;
+import io.fabric8.process.spring.boot.data.domain.InvoiceQuery;
 
 public interface InvoiceRepositoryCustom {
 

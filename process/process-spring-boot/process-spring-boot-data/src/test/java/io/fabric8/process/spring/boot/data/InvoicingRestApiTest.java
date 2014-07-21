@@ -16,17 +16,15 @@
 package io.fabric8.process.spring.boot.data;
 
 import io.fabric8.process.spring.boot.data.domain.Invoice;
-import io.fabric8.process.spring.boot.data.repository.InvoiceQuery;
+import io.fabric8.process.spring.boot.data.domain.InvoiceListingRecord;
+import io.fabric8.process.spring.boot.data.domain.InvoiceQuery;
 import io.fabric8.process.spring.boot.registry.ProcessRegistry;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.ComponentScan;
@@ -116,5 +114,19 @@ public class InvoicingRestApiTest extends Assert {
         // Then
         assertEquals(invoice.id(), receivedInvoices.iterator().next().id());
     }
+
+    @Test
+    public void shouldListInvoicesRecordsByQuery() throws InterruptedException {
+        // Given
+        InvoiceQuery query = new InvoiceQuery().invoiceId(invoice.invoiceId());
+
+        // When
+        Iterable<InvoiceListingRecord> receivedInvoices = restRepository.listByQuery(query, InvoiceListingRecord.class);
+
+        // Then
+        assertEquals(invoice.id(), receivedInvoices.iterator().next().id());
+        assertNotNull(receivedInvoices.iterator().next().getListingLabel());
+    }
+
 
 }

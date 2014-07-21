@@ -13,9 +13,13 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.process.spring.boot.data.repository;
+package io.fabric8.process.spring.boot.data.rest;
 
 import io.fabric8.process.spring.boot.data.domain.Invoice;
+import io.fabric8.process.spring.boot.data.domain.InvoiceListingRecord;
+import io.fabric8.process.spring.boot.data.domain.InvoiceQuery;
+import io.fabric8.process.spring.boot.data.repository.InvoiceRepository;
+import io.fabric8.process.spring.boot.data.service.InvoiceListingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,9 +34,12 @@ public class InvoiceRest {
 
     private final InvoiceRepository invoiceRepository;
 
+    private final InvoiceListingService invoiceListingService;
+
     @Autowired
-    public InvoiceRest(InvoiceRepository invoiceRepository) {
+    public InvoiceRest(InvoiceRepository invoiceRepository, InvoiceListingService invoiceListingService) {
         this.invoiceRepository = invoiceRepository;
+        this.invoiceListingService = invoiceListingService;
     }
 
     @RequestMapping(method = POST, value = "searchByQuery")
@@ -45,6 +52,12 @@ public class InvoiceRest {
     @ResponseBody
     public long countByQuery(@RequestBody InvoiceQuery query) {
         return invoiceRepository.countByQuery(query);
+    }
+
+    @RequestMapping(method = POST, value = "listByQuery")
+    @ResponseBody
+    public Iterable<InvoiceListingRecord> listByQuery(@RequestBody InvoiceQuery query) {
+        return invoiceListingService.listByQuery(query);
     }
 
 }
