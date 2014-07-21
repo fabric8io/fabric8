@@ -25,10 +25,30 @@ import java.util.Map;
  */
 public interface ProfileRegistry {
 
+    /**
+     * Get the data store properties
+     */
     Map<String, String> getDataStoreProperties();
     
+    /**
+     * Aquire a write lock for the profile datastore
+     */
+    LockHandle aquireWriteLock();
+    
+    /**
+     * Aquire a read lock for the profile datastore
+     */
+    LockHandle aquireReadLock();
+    
     //
-    // Version management
+    // Profile management
+    //
+    
+    Profile getProfile(String versionId, String profileId);
+    
+    //
+    // [TODO] Below are methods that are accessed directly throughout the code base
+    // These should go through {@link ProfileService}
     //
     
     void createVersion(String version);
@@ -41,16 +61,9 @@ public interface ProfileRegistry {
     
     void setVersionAttribute(String version, String key, String value);
     
-    /**
-     * Get the ordered list of available versions
-     */
     List<String> getVersions();
 
     void deleteVersion(String version);
-    
-    //
-    // Profile management
-    //
     
     void createProfile(String version, String profile);
 
@@ -74,19 +87,8 @@ public interface ProfileRegistry {
 
     void deleteProfile(String version, String profile);
 
-    //
-    // [TODO] Below are methods that are accessed directly throughout the code base
-    // These should go through {@link ProfileService}
-    //
-    
-    /**
-     * Imports one or more profile zips into the given version
-     */
     void importProfiles(String version, List<String> profileZipUrls);
 
-    /**
-     * Exports profiles from the given version to the outputZipFileName which match the given wildcard
-     */
     void exportProfiles(String version, String outputFileName, String wildcard);
 
     String getProfile(String version, String profile, boolean create);
@@ -102,4 +104,5 @@ public interface ProfileRegistry {
     void importFromFileSystem(String from);
 
     Collection<String> listFiles(final String version, final Iterable<String> profiles, final String path);
+
 }

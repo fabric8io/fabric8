@@ -19,6 +19,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.LockHandle;
 import io.fabric8.api.OptionsProvider;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
@@ -86,21 +87,27 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     @Override
 	public Version getVersion(String versionId) {
         assertValid();
-        
-    	// [TODO] This is check-then-act -- make atomic using locks
-    	if (!profileRegistry.get().hasVersion(versionId))
-    		return null;
-    	
-		VersionBuilder builder = VersionBuilder.Factory.create(versionId);
-		builder.setAttributes(profileRegistry.get().getVersionAttributes(versionId));
-		
-        HashMap<String, Profile> profiles = new HashMap<String, Profile>();
-        for (String profileId : profileRegistry.get().getProfiles(versionId)) {
-        	builder.addProfile(getProfileInternal(versionId, profileId, profiles));
-        }
-        
-        return builder.getVersion();
+        return getVersionInternal(versionId);
 	}
+
+    private Version getVersionInternal(String versionId) {
+        LockHandle readLock = profileRegistry.get().aquireReadLock();
+        try {
+            Version version = null;
+            if (profileRegistry.get().hasVersion(versionId)) {
+                VersionBuilder builder = VersionBuilder.Factory.create(versionId);
+                builder.setAttributes(profileRegistry.get().getVersionAttributes(versionId));
+                HashMap<String, Profile> profiles = new HashMap<String, Profile>();
+                for (String profileId : profileRegistry.get().getProfiles(versionId)) {
+                    builder.addProfile(getProfileInternal(versionId, profileId, profiles));
+                }
+                version = builder.getVersion();
+            }
+            return version;
+        } finally {
+            readLock.unlock();
+        }
+    }
 
 	@Override
 	public Version getRequiredVersion(String versionId) {
@@ -136,14 +143,14 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     public Profile createProfile(Profile profile) {
         assertValid();
         createOrUpdateProfile(profile, true);
-        return getProfileInternal(profile.getVersion(), profile.getId());
+        return getRequiredProfile(profile.getVersion(), profile.getId());
     }
 
     @Override
     public Profile updateProfile(Profile profile) {
         assertValid();
         createOrUpdateProfile(profile, false);
-        return getProfileInternal(profile.getVersion(), profile.getId());
+        return getRequiredProfile(profile.getVersion(), profile.getId());
     }
 
     private void createOrUpdateProfile(Profile profile, boolean create) {
@@ -195,46 +202,40 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
 	}
 
     @Override
-	public Profile getRequiredProfile(String versionId, String profileId) {
-    	assertValid();
-    	return getProfileInternal(versionId, profileId);
-	}
+    public Profile getRequiredProfile(String versionId, String profileId) {
+        assertValid();
+        Profile profile = getProfileInternal(versionId, profileId, new HashMap<String, Profile>());
+        IllegalStateAssertion.assertNotNull(profile, "Cannot obtain profile " + versionId + "/" + profileId);
+        return profile;
+    }
     
-    private Profile getProfileInternal(String versionId, String profileId) {
-    	return getProfileInternal(versionId, profileId, new HashMap<String, Profile>());
+    @Override
+    public Profile getProfile(String versionId, String profileId) {
+        assertValid();
+        return getProfileInternal(versionId, profileId, new HashMap<String, Profile>());
     }
 
-    private Profile getProfileInternal(String versionId, String profileId, Map<String, Profile> profiles) {
+    private Profile getProfileInternal(String versionId, String profileId, HashMap<String, Profile> profiles) {
         Profile profile = profiles.get(profileId);
         if (profile == null) {
-            // [TODO] This is check-then-act -- make atomic using locks
-            boolean hasProfile = profileRegistry.get().hasProfile(versionId, profileId);
-            IllegalStateAssertion.assertTrue(hasProfile, "Profile '" + profileId + "' does not exist in version: " + versionId);
-            
-            Map<String, String> attributes = profileRegistry.get().getProfileAttributes(versionId, profileId);
-            ProfileBuilder builder = ProfileBuilder.Factory.create(profileId).version(versionId).setAttributes(attributes);
-            
-            String parentsAttr = attributes.get(Profile.PARENTS);
-            if (parentsAttr != null && !parentsAttr.isEmpty()) {
-                for (String parentId : parentsAttr.trim().split(" ")) {
-                    Profile parent = profiles.get(parentId);
-                    if (parent == null) {
-                        parent = getProfileInternal(versionId, parentId, profiles);
+            profile = profileRegistry.get().getProfile(versionId, profileId);
+            if (profile != null) {
+                ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
+                String parentsAttr = profile.getAttributes().get(Profile.PARENTS);
+                if (parentsAttr != null && !parentsAttr.isEmpty()) {
+                    for (String parentId : parentsAttr.trim().split(" ")) {
+                        Profile parent = getProfileInternal(versionId, parentId, profiles);
+                        IllegalStateAssertion.assertNotNull(parent, "Cannot obtain parent profile: " + parentId);
+                        builder.addParent(parent);
                     }
-                    builder.addParent(parent);
                 }
+                profile = builder.getProfile();
+                profiles.put(profile.getId(), profile);
             }
-
-            builder.setFileConfigurations(profileRegistry.get().getFileConfigurations(versionId, profileId));
-            builder.setConfigurations(profileRegistry.get().getConfigurations(versionId, profileId));
-            builder.setLastModified(profileRegistry.get().getLastModified(versionId, profileId));
-            
-            profile = builder.getProfile();
-            profiles.put(profile.getId(), profile);
         }
         return profile;
-	}
-
+    }
+    
     @Override
     public void deleteVersion(String versionId) {
     	assertValid();
