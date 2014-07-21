@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.4" data-basepath="." data-revision="1405739847416">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.4" data-basepath="." data-revision="1405977312539">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -1045,7 +1045,7 @@ public class MyRouterConfiguration {
   }
 
 }
-</code></pre><h4 id="auto-configured-activemq-client"><a name="auto-configured-activemq-client" class="anchor" href="#auto-configured-activemq-client"><span class="fa fa-link"></span></a>Auto-configured ActiveMQ client</h4>
+</code></pre><h3 id="auto-configured-activemq-client"><a name="auto-configured-activemq-client" class="anchor" href="#auto-configured-activemq-client"><span class="fa fa-link"></span></a>Auto-configured ActiveMQ client</h3>
 <p>Fabric comes with the auto-configuration class for the ActiveMQ client. It provides a pooled ActiveMQ
 <code>javax.jms.ConnectionFactory</code>. In order to use the <code>ActiveMQAutoConfiguration</code> in your application just add the
 following jar to your Spring Boot project dependencies:</p>
@@ -1102,7 +1102,26 @@ public class InvoiceReader {
    }
 
 }
-</code></pre>
+</code></pre><h3 id="process-registry"><a name="process-registry" class="anchor" href="#process-registry"><span class="fa fa-link"></span></a>Process registry</h3>
+<p>Managed Spring Boot processes do not live in a separation. Instead those usually create a graph of microservices
+calling each other. In order to make communication between the processes easier, Fabric8 provides a unified way to 
+access information shared by the managed Spring Boot processes - <code>ProcessRegistry</code>.</p>
+<p>In order to start working with the Fabric8 process registry, add the following dependency to your project:</p>
+<pre><code>&lt;dependency&gt;
+  &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+  &lt;artifactId&gt;process-spring-boot-registry&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre><p>From now on, you can enjoy your Spring Boot microservice sharing information with the other microservices managed by
+the Fabric8.</p>
+<h4 id="reading-spring-properties-from-the-process-registry"><a name="reading-spring-properties-from-the-process-registry" class="anchor" href="#reading-spring-properties-from-the-process-registry"><span class="fa fa-link"></span></a>Reading Spring properties from the Process Registry</h4>
+<p>After you add <code>process-spring-boot-registry</code> jar to its classpath, <code>ProcessRegistry</code> will be used to resolve Spring
+properties. </p>
+<pre><code>@Value(&quot;service.invoicing.url&quot;)
+String host;
+</code></pre><p><code>ProcessRegistry</code> will be attempted to be read before regular Spring property sources (for example before the 
+<code>application.properties</code> file). If the desired value will not be found in the process registry, Spring will fallback
+to the other property sources.</p>
+
                     
                     </section>
                 
