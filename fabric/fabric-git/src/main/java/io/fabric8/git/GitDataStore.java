@@ -1,6 +1,6 @@
 package io.fabric8.git;
 
-import io.fabric8.git.internal.GitContext;
+import io.fabric8.api.GitContext;
 import io.fabric8.git.internal.GitOperation;
 
 import org.eclipse.jgit.api.Git;
@@ -19,9 +19,7 @@ public interface GitDataStore {
      */
     void setRemote(String remote);
 
-    Iterable<PushResult> doPush(Git git, GitContext gitContext) throws Exception;
-    
-    <T> T gitOperation(GitOperation<T> operation, boolean pullFirst);
+    Iterable<PushResult> doPush(Git git, GitContext context) throws Exception;
     
     <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst, GitContext context);
 }

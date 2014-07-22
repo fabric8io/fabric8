@@ -21,6 +21,7 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.FabricException;
+import io.fabric8.api.GitContext;
 import io.fabric8.api.LockHandle;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
@@ -164,7 +165,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     private final ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
 
-    private final Object gitOperationMonitor = new Object();
     private final Set<String> versions = new CopyOnWriteArraySet<String>();
     private final GitListener gitListener = new GitDataStoreListener();
     private final AtomicReference<String> remoteRef = new AtomicReference<String>("origin");
@@ -194,14 +194,15 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             .build(new CacheLoader<String, VersionData>() {
                 @Override
                 public VersionData load(final String version) throws Exception {
-                    return gitOperation(new GitOperation<VersionData>() {
+                    GitOperation<VersionData> gitop = new GitOperation<VersionData>() {
                         public VersionData call(Git git, GitContext context) throws Exception {
                             VersionData data = new VersionData();
                             populateVersionData(git, version, data);
                             populateVersionData(git, "master", data);
                             return data;
                         }
-                    }, true); //We always pull when the item is not present in the cache to prevent loading stale data.
+                    };
+                    return executeRead(gitop, true);
                 }
             });
 
@@ -571,7 +572,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     private void importFromFileSystem(final File from, final String destinationPath, final String version, final boolean isProfileDir) {
         assertValid();
-        gitOperation(new GitOperation<Void>() {
+        GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 createOrCheckoutVersion(git, version);
                 // now lets recursively add files
@@ -584,31 +585,31 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 } else {
                     recursiveCopyAndAdd(git, from, toDir, destinationPath, false);
                 }
-                context.commit("Imported from " + from);
+                context.commitMessage("Imported from " + from);
                 return null;
             }
-        });
+        };
+        executeWrite(gitop, true);
     }
 
     @Override
     public void createVersion(final String version) {
         assertValid();
-        // create a branch
-        gitOperation(new GitOperation<Void>() {
+        GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 // TODO lets checkout the previous version first!
                 createOrCheckoutVersion(git, version);
                 context.requirePush();
                 return null;
             }
-        });
+        };
+        executeWrite(gitop, true);
     }
 
     @Override
     public void createVersion(final String parentVersionId, final String toVersion) {
         assertValid();
-        // create a branch
-        gitOperation(new GitOperation<Void>() {
+        GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 // lets checkout the parent version first
                 checkoutVersion(git, parentVersionId);
@@ -616,7 +617,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 context.requirePush();
                 return null;
             }
-        });
+        };
+        executeWrite(gitop, true);
     }
 
     @Override
@@ -633,7 +635,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     public void deleteVersion(final String version) {
         assertValid();
         // remove a branch
-        gitOperation(new GitOperation<Void>() {
+        GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 removeVersion(version);
                 GitHelpers.removeBranch(git, version);
@@ -643,7 +645,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                         .call();
                 return null;
             }
-        });
+        };
+        executeWrite(gitop, true);
     }
 
     @Override
@@ -662,7 +665,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private List<String> forceGetVersions() {
-        return gitOperation(new GitOperation<List<String>>() {
+        GitOperation<List<String>> gitop = new GitOperation<List<String>>() {
             public List<String> call(Git git, GitContext context) throws Exception {
                 Collection<String> branches = RepositoryUtils.getBranches(git.getRepository());
                 List<String> answer = new ArrayList<String>();
@@ -680,7 +683,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 versions.addAll(answer);
                 return answer;
             }
-        }, false);
+        };
+        return executeRead(gitop, false);
     }
 
     @Override
@@ -704,7 +708,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public String getProfile(final String versionId, final String profileId, final boolean create) {
         assertValid();
-        return gitOperation(new GitOperation<String>() {
+        GitOperation<String> gitop = new GitOperation<String>() {
             public String call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(versionId, profileId));
                 File profileDirectory = getProfileDirectory(git, profileId);
@@ -716,18 +720,20 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 }
                 return profileId;
             }
-        });
+        };
+        return executeRead(gitop, false);
     }
 
     @Override
     public void importProfiles(final String version, final List<String> profileZipUrls) {
         assertValid();
-        gitOperation(new GitOperation<String>() {
+        GitOperation<String> gitop = new GitOperation<String>() {
             public String call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, version);
                 return doImportProfiles(git, context, profileZipUrls);
             }
-        });
+        };
+        executeWrite(gitop, true);
     }
 
     @Override
@@ -755,43 +761,46 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             filter = null;
         }
         assertValid();
-        gitOperation(new GitOperation<String>() {
+        GitOperation<String> gitop = new GitOperation<String>() {
             public String call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, version);
                 return doExportProfiles(git, context, outputFile, filter);
             }
-        });
+        };
+        executeRead(gitop, false);
     }
 
     @Override
     public void createProfile(final String version, final String profile) {
         assertValid();
-        gitOperation(new GitOperation<String>() {
+        GitOperation<String> gitop = new GitOperation<String>() {
             public String call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 return doCreateProfile(git, context, profile, version);
             }
-        });
+        };
+        executeWrite(gitop, true);
     }
 
     @Override
     public void deleteProfile(final String version, final String profile) {
         assertValid();
-        gitOperation(new GitOperation<Void>() {
+        GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
                 doRecursiveDeleteAndRemove(git, profileDirectory);
-                context.commit("Removed profile " + profile);
+                context.commitMessage("Removed profile " + profile);
                 return null;
             }
-        });
+        };
+        executeWrite(gitop, false);
     }
 
     @Override
     public Collection<String> listFiles(final String version, final Iterable<String> profiles, final String path) {
         assertValid();
-        return gitOperation(new GitOperation<Collection<String>>() {
+        GitOperation<Collection<String>> gitop = new GitOperation<Collection<String>>() {
             public Collection<String> call(Git git, GitContext context) throws Exception {
                 SortedSet<String> answer = new TreeSet<String>();
                 for (String profile : profiles) {
@@ -809,7 +818,9 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 }
                 return answer;
             }
-        }, !hasVersion(version));
+        };
+        boolean pullFirst = !hasVersion(version);
+        return executeRead(gitop, pullFirst);
     }
 
     private Map<String, byte[]> doGetFileConfigurations(Git git, String profile) throws IOException {
@@ -857,16 +868,17 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public void setFileConfigurations(final String version, final String profile, final Map<String, byte[]> configurations) {
         assertValid();
-        gitOperation(new GitOperation<Void>() {
+        GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
                 doSetFileConfigurations(git, profileDirectory, profile, configurations);
                 context.setPushBranch(version);
-                context.commit("Updated configuration for profile " + profile);
+                context.commitMessage("Updated configuration for profile " + profile);
                 return null;
             }
-        });
+        };
+        executeWrite(gitop, true);
     }
 
     private void doSetFileConfigurations(Git git, File profileDirectory, String profile, Map<String, byte[]> configurations) throws IOException, GitAPIException {
@@ -905,14 +917,15 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public void setFileConfiguration(final String version, final String profile, final String fileName, final byte[] configuration) {
         assertValid();
-        gitOperation(new GitOperation<Void>() {
+        GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 doSetFileConfiguration(git, profile, fileName, configuration);
-                context.commit("Updated " + fileName + " for profile " + profile);
+                context.commitMessage("Updated " + fileName + " for profile " + profile);
                 return null;
             }
-        });
+        };
+        executeWrite(gitop, true);
     }
 
     private void doSetFileConfiguration(Git git, String profile, String fileName, byte[] configuration) throws IOException, GitAPIException {
@@ -956,117 +969,109 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public void setConfigurations(final String version, final String profile, final Map<String, Map<String, String>> configurations) {
         assertValid();
-        gitOperation(new GitOperation<Void>() {
+        GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
                 doSetConfigurations(git, profileDirectory, profile, configurations);
                 context.setPushBranch(version);
-                context.commit("Updated configuration for profile " + profile);
+                context.commitMessage("Updated configuration for profile " + profile);
                 return null;
             }
-        });
+        };
+        executeWrite(gitop, true);
     }
 
     @Override
     public void setConfiguration(final String version, final String profile, final String pid, final Map<String, String> configuration) {
         assertValid();
-        gitOperation(new GitOperation<Void>() {
+        GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 doSetConfiguration(git, profile, pid, configuration);
                 context.setPushBranch(version);
-                context.commit("Updated configuration for profile " + profile);
+                context.commitMessage("Updated configuration for profile " + profile);
                 return null;
             }
-        });
+        };
+        executeWrite(gitop, true);
     }
 
     private Git getGit() throws IOException {
         return gitService.get().get();
     }
 
-    /**
-     * Performs a set of operations on the git repository & avoids concurrency issues
-     */
-    private <T> T gitOperation(GitOperation<T> operation) {
-        assertValid();
-        return gitOperation(null, operation, true);
-    }
-
-    @Override
-    public <T> T gitOperation(GitOperation<T> operation, boolean pullFirst) {
-        assertValid();
-        return gitOperation(null, operation, pullFirst);
-    }
-
-    public <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst) {
-        assertValid();
-        return gitOperation(personIdent, operation, pullFirst, new GitContext());
-    }
-
     @Override
     public <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst, GitContext context) {
-        synchronized (gitOperationMonitor) {
-            assertValid();
+        assertValid();
+        return executeInternal(personIdent, operation, pullFirst, context);
+    }
 
-            // must set the TCCL to the classloader that loaded GitDataStore as we need the classloader
-            // that could load this class, as jgit will load resources from classpath using the TCCL
-            // and that requires the TCCL to the classloader that could load GitDataStore as the resources
-            // jgit requires are in the same bundle as GitDataSource (eg embedded inside fabric-git)
-            // see FABRIC-887
-            ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-            ClassLoader cl = GitDataStoreImpl.class.getClassLoader();
-            Thread.currentThread().setContextClassLoader(cl);
-            LOG.trace("Setting ThreadContextClassLoader to {} instead of {}", cl, oldCl);
-            try {
-                Git git = getGit();
-                Repository repository = git.getRepository();
-                // lets default the identity if none specified
-                if (personIdent == null) {
-                    personIdent = new PersonIdent(repository);
-                }
-
-                if (GitHelpers.hasGitHead(git)) {
-                    // lets stash any local changes just in case..
-                    git.stashCreate().setPerson(personIdent).setWorkingDirectoryMessage("Stash before a write").call();
-                }
-
-                if (pullFirst) {
-                    doPull(git, getCredentialsProvider(), false);
-                }
-
-                T answer = operation.call(git, context);
-                boolean requirePush = context.isRequirePush();
-                if (context.isRequireCommit()) {
-                    requirePush = true;
-                    String message = context.getCommitMessage().toString();
-                    if (message.length() == 0) {
-                        LOG.warn("No commit message from " + operation + ". Please add one! :)");
-                    }
-                    git.commit().setMessage(message).call();
-                    if (--commitsWithoutGC < 0) {
-                        commitsWithoutGC = MAX_COMMITS_WITHOUT_GC;
-                        LOG.debug("Performing \"git gc\" after {} commits", MAX_COMMITS_WITHOUT_GC);
-                        git.gc().call();
-                    }
-                }
-
-                if (requirePush) {
-                    doPush(git, context, getCredentialsProvider());
-                }
-
-                if (context.isRequireCommit()) {
-                    clearCaches();
-                    dataStore.get().fireChangeNotifications();
-                }
-                return answer;
-            } catch (Exception e) {
-                throw FabricException.launderThrowable(e);
-            } finally {
-                LOG.trace("Restoring ThreadContextClassLoader to {}", oldCl);
-                Thread.currentThread().setContextClassLoader(oldCl);
+    private <T> T executeRead(GitOperation<T> operation, boolean pullFirst) {
+        return executeInternal(null, operation, pullFirst, new GitContext());
+    }
+    
+    private <T> T executeWrite(GitOperation<T> operation, boolean pullFirst) {
+        GitContext context = new GitContext();
+        context.isRequireCommit();
+        return executeInternal(null, operation, pullFirst, context);
+    }
+    
+    private synchronized <T> T executeInternal(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst, GitContext context) {
+        // Must set the TCCL to the classloader that loaded GitDataStore as we need the classloader
+        // that could load this class, as jgit will load resources from classpath using the TCCL
+        // and that requires the TCCL to the classloader that could load GitDataStore as the resources
+        // jgit requires are in the same bundle as GitDataSource (eg embedded inside fabric-git)
+        // see FABRIC-887
+        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+        ClassLoader cl = GitDataStoreImpl.class.getClassLoader();
+        Thread.currentThread().setContextClassLoader(cl);
+        LOG.trace("Setting ThreadContextClassLoader to {} instead of {}", cl, oldCl);
+        try {
+            Git git = getGit();
+            Repository repository = git.getRepository();
+            // lets default the identity if none specified
+            if (personIdent == null) {
+                personIdent = new PersonIdent(repository);
             }
+
+            if (GitHelpers.hasGitHead(git)) {
+                // lets stash any local changes just in case..
+                git.stashCreate().setPerson(personIdent).setWorkingDirectoryMessage("Stash before a write").call();
+            }
+
+            if (pullFirst) {
+                doPull(git, getCredentialsProvider(), false);
+            }
+
+            T answer = operation.call(git, context);
+            boolean requirePush = context.isRequirePush();
+            if (context.isRequireCommit()) {
+                requirePush = true;
+                String message = context.getCommitMessage();
+                IllegalStateAssertion.assertTrue(message.length() > 0, "Empty commit message");
+                git.commit().setMessage(message).call();
+                if (--commitsWithoutGC < 0) {
+                    commitsWithoutGC = MAX_COMMITS_WITHOUT_GC;
+                    LOG.debug("Performing \"git gc\" after {} commits", MAX_COMMITS_WITHOUT_GC);
+                    git.gc().call();
+                }
+            }
+
+            if (requirePush) {
+                doPush(git, context, getCredentialsProvider());
+            }
+
+            if (context.isRequireCommit()) {
+                clearCaches();
+                dataStore.get().fireChangeNotifications();
+            }
+            return answer;
+        } catch (Exception e) {
+            throw FabricException.launderThrowable(e);
+        } finally {
+            LOG.trace("Restoring ThreadContextClassLoader to {}", oldCl);
+            Thread.currentThread().setContextClassLoader(oldCl);
         }
     }
 
@@ -1267,7 +1272,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         profileDirectory.mkdirs();
         Files.writeToFile(metadataFile, "#Profile:" + profile + "\n", Charset.defaultCharset());
         doAddFiles(git, profileDirectory, metadataFile);
-        context.commit("Added profile " + profile);
+        context.commitMessage("Added profile " + profile);
         return profile;
     }
 
@@ -1301,7 +1306,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         }
         doAddFiles(git, profilesDirectory);
-        context.commit("Added profile zip(s) " + profileZipUrls);
+        context.commitMessage("Added profile zip(s) " + profileZipUrls);
         return null;
     }
 
@@ -1399,11 +1404,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private void pull() {
         if (isValid()) {
             try {
-                gitOperation(new GitOperation<Object>() {
+                GitOperation<Object> gitop = new GitOperation<Object>() {
                     public Object call(Git git, GitContext context) throws Exception {
                         return null;
                     }
-                });
+                };
+                executeRead(gitop, true);
             } catch (Exception e) {
                 LOG.warn("Failed to perform a pull " + e, e);
             }
@@ -1413,12 +1419,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private void push() {
         if (isValid()) {
             try {
-                gitOperation(new GitOperation<Object>() {
+                GitOperation<Object> gitop = new GitOperation<Object>() {
                     public Object call(Git git, GitContext context) throws Exception {
                         context.requirePush();
                         return null;
                     }
-                }, false);
+                };
+                executeRead(gitop, false);
             } catch (Exception e) {
                 LOG.warn("Failed to perform a pull " + e, e);
             }
@@ -1752,7 +1759,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     @Override
                     public void run() {
                         if (isValid()) {
-                            gitOperation(new GitOperation<Void>() {
+                            GitOperation<Void> gitop = new GitOperation<Void>() {
                                 @Override
                                 public Void call(Git git, GitContext context) throws Exception {
                                     Repository repository = git.getRepository();
@@ -1770,7 +1777,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                                     }
                                     return null;
                                 }
-                            });
+                            };
+                            executeRead(gitop, true);
                         }
                     }
 

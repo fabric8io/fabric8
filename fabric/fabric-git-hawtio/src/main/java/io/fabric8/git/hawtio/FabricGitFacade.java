@@ -16,12 +16,12 @@
 package io.fabric8.git.hawtio;
 
 import static io.fabric8.git.internal.GitHelpers.getRootGitDirectory;
+import io.fabric8.api.GitContext;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.Validatable;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.api.scr.ValidationSupport;
 import io.fabric8.git.GitDataStore;
-import io.fabric8.git.internal.GitContext;
 import io.fabric8.git.internal.GitHelpers;
 import io.fabric8.git.internal.GitOperation;
 import io.hawt.git.CommitInfo;
@@ -169,7 +169,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
                 File rootDir = getRootGitDirectory(git);
                 byte[] data = contents.getBytes();
                 CommitInfo answer = doWrite(git, rootDir, branch, path, data, personIdent, commitMessage);
-                context.commit(commitMessage);
+                context.commitMessage(commitMessage);
                 return answer;
             }
         });
@@ -185,7 +185,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
                 File rootDir = getRootGitDirectory(git);
                 byte[] data = Base64.decode(contents);
                 CommitInfo answer = doWrite(git, rootDir, branch, path, data, personIdent, commitMessage);
-                context.commit(commitMessage);
+                context.commitMessage(commitMessage);
                 return answer;
             }
         });
@@ -200,7 +200,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
                 checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
                 Void answer = doRevert(git, rootDir, branch, objectId, blobPath, commitMessage, personIdent);
-                context.commit(commitMessage);
+                context.commitMessage(commitMessage);
                 return answer;
             }
         });
@@ -215,7 +215,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
                 checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
                 RevCommit answer = doRename(git, rootDir, branch, oldPath, newPath, commitMessage, personIdent);
-                context.commit(commitMessage);
+                context.commitMessage(commitMessage);
                 return answer;
             }
         });
@@ -230,7 +230,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
                 checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
                 RevCommit answer = doRemove(git, rootDir, branch, path, commitMessage, personIdent);
-                context.commit(commitMessage);
+                context.commitMessage(commitMessage);
                 return answer;
             }
         });
@@ -241,7 +241,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         gitWriteOperation(null, new GitOperation<Object>() {
             public Object call(Git git, GitContext context) throws Exception {
                 doCreateBranch(git, fromBranch, newBranch);
-                context.commit("Created branch from " + fromBranch + " to " + newBranch);
+                context.commitMessage("Created branch from " + fromBranch + " to " + newBranch);
                 return null;
             }
         });
@@ -256,7 +256,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
                 checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
                 CommitInfo answer = doCreateDirectory(git, rootDir, branch, path, personIdent, commitMessage);
-                context.commit(commitMessage);
+                context.commitMessage(commitMessage);
                 return answer;
             }
         });
@@ -324,7 +324,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
     }
 
     private <T> T gitReadOperation(GitOperation<T> operation) {
-        return gitDataStore.get().gitOperation(operation, false);
+        return gitDataStore.get().gitOperation(null, operation, false, new GitContext());
     }
 
     private <T> T gitWriteOperation(PersonIdent personIdent, GitOperation<T> operation) {
