@@ -526,8 +526,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         final String versionId = profile.getVersion();
         final String profileId = profile.getId();
 
-        GitContext context = new GitContext().requireCommit().requirePush().requirePull();
+        // Create the profile branch & directory
+        GitContext context = new GitContext().requirePull();
         createProfileInternal(versionId, profileId, context);
+
+        // Subsequent updates do not require a pull
+        context.setRequirePull(false);
         
         // Attributes
         for (Entry<String, String> entry : profile.getAttributes().entrySet()) {
@@ -559,6 +563,9 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             setConfigurationsInternal(versionId, profileId, configurations, context);
         }
 
+        // Commit the profile
+        doCommit(getGit(), context.requireCommit().requirePush());
+        
         return profileId;
     }
 
