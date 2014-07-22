@@ -27,13 +27,8 @@ public class GitProfiles {
 
     /**
      * Returns the git branch of the profile.
-     * @param version
-     * @param id
-     * @return
      */
-    public static String getBranch(String version, String id) {
-        if (ENSEMBLE_PROFILE_PATTERN.matcher(id).matches()) {
-            return "master";
-        } else return version;
+    public static String getBranch(String versionId, String profileId) {
+        return ENSEMBLE_PROFILE_PATTERN.matcher(profileId).matches() ? "master" : versionId;
     }
 }
