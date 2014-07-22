@@ -63,4 +63,10 @@ public class EnvironmentVariables {
      * The URL of the jolokia URL for a process
      */
     public static final String FABRIC8_JOLOKIA_URL = "FABRIC8_JOLOKIA_URL";
+
+    /**
+     * The initial set of profiles added to the root node when creating a new profile
+     */
+    public static final String FABRIC8_PROFILES = "FABRIC8_PROFILES"
+            ;
 }

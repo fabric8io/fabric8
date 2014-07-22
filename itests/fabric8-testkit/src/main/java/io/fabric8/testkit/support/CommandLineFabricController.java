@@ -17,13 +17,16 @@
  */
 package io.fabric8.testkit.support;
 
+import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.common.util.Closeables;
-import io.fabric8.common.util.Filter;
+import io.fabric8.common.util.Files;
 import io.fabric8.common.util.IOHelpers;
+import io.fabric8.common.util.Strings;
 import io.fabric8.process.manager.support.ProcessUtils;
 import io.fabric8.testkit.FabricAssertions;
 import io.fabric8.testkit.FabricController;
 import io.fabric8.testkit.FabricRestApi;
+import io.fabric8.testkit.jolokia.JolokiaFabricRestApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +36,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -51,12 +57,19 @@ import static org.junit.Assert.fail;
  * and runs shell commands to create a fabric.
  */
 public class CommandLineFabricController implements FabricController {
+    public static final String KILL_CONTAINERS_FLAG = "fabric8.testkit.killContainers";
+
     private static final transient Logger LOG = LoggerFactory.getLogger(CommandLineFabricController.class);
 
     private File workDirectory;
     private File installDir;
     private String startFabricScriptName = "bin/fabric8-start";
+    private String[] allowedEnvironmentVariables = { "JAVA_HOME", "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MAVEN_HOME", "PATH", "USER"};
+    private Set<String> profiles = new HashSet<>();
 
+    public CommandLineFabricController() {
+        profiles.add("autoscale");
+    }
 
     public File getWorkDirectory() {
         return workDirectory;
@@ -71,16 +84,21 @@ public class CommandLineFabricController implements FabricController {
         if (workDirectory == null) {
             workDirectory = createTempDirectory();
         }
-        workDirectory.mkdirs();
         String version = System.getProperty("fabric8-version", "1.1.0-SNAPSHOT");
         String home = System.getProperty("user.home", "~");
         String repo = home + "/.m2/repository";
         File distro = new File(repo, "io/fabric8/fabric8-karaf/" + version + "/fabric8-karaf-" + version + ".tar.gz");
         FabricAssertions.assertFileExists(distro);
 
+        installDir = new File(workDirectory, "fabric8-karaf-" + version);
+        killInstanceProcesses(getInstancesFile());
+        if (workDirectory.exists()) {
+            Files.recursiveDelete(workDirectory);
+        }
+        workDirectory.mkdirs();
+
         executeCommand(workDirectory, "tar", "zxf", distro.getAbsolutePath());
 
-        installDir = new File(workDirectory, "fabric8-karaf-" + version);
         FabricAssertions.assertDirectoryExists(installDir);
 
         assertTrue("install dir does not exist: " + installDir.getAbsolutePath(), installDir.exists());
@@ -97,10 +115,32 @@ public class CommandLineFabricController implements FabricController {
 
         Thread.sleep(30 * 1000);
 
-        Map<String, String> containerLinks = waitForContainerLinks(restApi);
-        System.out.println("Found containers: " + containerLinks.keySet());
+        List<String> containerIds = FabricAssertions.waitForNotEmptyContainerIds(restApi);
+        System.out.println("Found containers: " + containerIds);
 
         return restApi;
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        String flag = System.getProperty(KILL_CONTAINERS_FLAG, "true");
+        if (installDir == null || flag == null || flag.toLowerCase().equals("false")) {
+            String message = installDir == null ? "" : " at: " + installDir.getAbsolutePath();
+            System.out.println("Not destroying the fabric" + message + " due to system property " + KILL_CONTAINERS_FLAG + " being " + flag);
+            return;
+        }
+        System.out.println("Destroying the fabric at: " + installDir.getAbsolutePath());
+
+        File instancesFile = waitForInstancesFile(20 * 1000);
+        killInstanceProcesses(instancesFile);
+    }
+
+    public String[] getAllowedEnvironmentVariables() {
+        return allowedEnvironmentVariables;
+    }
+
+    public void setAllowedEnvironmentVariables(String[] allowedEnvironmentVariables) {
+        this.allowedEnvironmentVariables = allowedEnvironmentVariables;
     }
 
     protected FabricRestApi createFabricRestApi() {
@@ -115,44 +155,8 @@ public class CommandLineFabricController implements FabricController {
         return tempFile;
     }
 
-    public static Map<String, String> waitForContainerLinks(final FabricRestApi restApi) throws Exception {
-        return waitForValidValue(new Callable<Map<String, String>>() {
-            @Override
-            public Map<String, String> call() throws Exception {
-                try {
-                    return restApi.containers();
-                } catch (Exception e) {
-                    System.out.println("Ignoring IOException while finding containers: " + e);
-                    LOG.info("Failed to load containers: " + e, e);
-                    return null;
-                }
-            }
-        }, new Filter<Map<String, String>>() {
-            @Override
-            public String toString() {
-                return "HasNotEmptyContainerLinks";
-            }
-
-            @Override
-            public boolean matches(Map<String, String> containerLinks) {
-                return containerLinks.size() > 0;
-            }
-        });
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        String killFlagProperty = "fabric8.testkit.killContainers";
-        String flag = System.getProperty(killFlagProperty, "true");
-        if (installDir == null || flag == null || flag.toLowerCase().equals("false")) {
-            String message = installDir == null ? "" : " at: " + installDir.getAbsolutePath();
-            System.out.println("Not destroying the fabric" + message + " due to system property " + killFlagProperty + " being " + flag);
-            return;
-        }
-        System.out.println("Destroying the fabric at: " + installDir.getAbsolutePath());
-
-        File instancesFile = waitForInstancesFile(20 * 1000);
-        if (instancesFile != null) {
+    protected void killInstanceProcesses(File instancesFile) throws IOException {
+        if (instancesFile != null && instancesFile.exists() && instancesFile.isFile()) {
             Properties properties = new Properties();
             properties.load(new FileInputStream(instancesFile));
             Set<Map.Entry<Object, Object>> entries = properties.entrySet();
@@ -185,12 +189,16 @@ public class CommandLineFabricController implements FabricController {
             return waitForValidValue(timeout, new Callable<File>() {
                 @Override
                 public File call() throws Exception {
-                    return new File(installDir, "instances/instance.properties");
+                    return getInstancesFile();
                 }
             }, new FileExistsFilter());
         } else {
             return null;
         }
+    }
+
+    protected File getInstancesFile() {
+        return new File(installDir, "instances/instance.properties");
     }
 
 
@@ -202,7 +210,7 @@ public class CommandLineFabricController implements FabricController {
             System.out.println("Executing " + message);
             ProcessBuilder builder = new ProcessBuilder().command(commands).directory(workDir);
             Map<String, String> env = builder.environment();
-            Map<String,String> envVars = createEnvironmentVariables();
+            Map<String, String> envVars = createEnvironmentVariables();
             env.putAll(envVars);
             logEnvironmentVariables(env);
             Process process = builder.start();
@@ -223,15 +231,26 @@ public class CommandLineFabricController implements FabricController {
     }
 
     protected void logEnvironmentVariables(Map<String, String> env) {
-        TreeMap<String, String> sorted = new TreeMap<String, String>(env);
-        Set<Map.Entry<String, String>> entries = sorted.entrySet();
-        for (Map.Entry<String, String> entry : entries) {
-            LOG.info("Setting " + entry.getKey() + "=" + entry.getValue());
+        if (LOG.isDebugEnabled()) {
+            TreeMap<String, String> sorted = new TreeMap<String, String>(env);
+            Set<Map.Entry<String, String>> entries = sorted.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                LOG.debug("Setting " + entry.getKey() + "=" + entry.getValue());
+            }
         }
     }
 
-    protected Map<String,String> createEnvironmentVariables() {
-        return System.getenv();
+    protected Map<String, String> createEnvironmentVariables() {
+        Map<String, String> answer = new HashMap<>();
+        Map<String, String> current = System.getenv();
+        for (String variable : allowedEnvironmentVariables) {
+            String value = current.get(variable);
+            if (Strings.isNotBlank(value)) {
+                answer.put(variable, value);
+            }
+        }
+        answer.put(EnvironmentVariables.FABRIC8_PROFILES, join(profiles, ","));
+        return answer;
     }
 
 

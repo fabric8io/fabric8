@@ -23,16 +23,17 @@ import io.fabric8.api.ProfileRequirements;
 import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Filters;
 import io.fabric8.common.util.IOHelpers;
-import io.fabric8.utils.CountingMap;
+import io.fabric8.common.util.Strings;
+import org.jolokia.client.exception.J4pRemoteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static org.junit.Assert.assertNotNull;
@@ -59,8 +60,12 @@ public class FabricAssertions {
         assertNotNull("Should have created a REST API", restAPI);
 
         // now lets post the requirements
-        restAPI.setRequirements(requirements);
-
+        try {
+            restAPI.setRequirements(requirements);
+        } catch (Exception e) {
+            LOG.error("Failed to set requirements: " + e, e);
+            fail(unwrapException(e));
+        }
         assertRequirementsSatisfied(factory, restAPI, requirements);
 
         return restAPI;
@@ -76,50 +81,46 @@ public class FabricAssertions {
     /**
      * Asserts that the requirements are met within the default amount of time
      */
-    public static void assertRequirementsSatisfied(FabricController factory, FabricRestApi restAPI, FabricRequirements requirements, long timeout) throws Exception {
+    public static void assertRequirementsSatisfied(FabricController factory, final FabricRestApi restAPI, final FabricRequirements requirements, long timeout) throws Exception {
         assertNotNull("Should have some FabricRequirements", requirements);
-        long failTime = System.currentTimeMillis() + timeout;
-        while (true) {
-            long end = System.currentTimeMillis();
-            if (end > failTime) {
-                fail("Timed out after waiting " + Math.round(timeout / 1000) + " seconds");
-                break;
-            }
-            Map<String,String> containerLinks = restAPI.containers();
-            CountingMap countingMap = new CountingMap();
-            assertNotNull("Should have received some container links data", containerLinks);
-            assertTrue("Should have received at least one container link", containerLinks.size() > 0);
-            for (String containerLink : containerLinks.values()) {
-                Map<String,String> profileLinks = getDTO(containerLink + "/profiles", Map.class);
-                countingMap.incrementAll(profileLinks.keySet());
-            }
-
-
-            // lets assert we have enough profile containers created
-            boolean valid = true;
-            List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
-            assertNotNull("Should have some profileRequirements", profileRequirements);
-            for (ProfileRequirements profileRequirement : profileRequirements) {
-                Integer minimumInstances = profileRequirement.getMinimumInstances();
-                if (minimumInstances != null) {
-                    String profile = profileRequirement.getProfile();
-                    int current = countingMap.count(profile);
-                    if (current < minimumInstances) {
-                        System.out.println("Still waiting for " + minimumInstances + " instance(s) of profile " + profile + " current count: " + current);
-                        valid = false;
-                        break;
+        waitForValidValue(timeout, new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                // lets assert we have enough profile containers created
+                boolean valid = true;
+                List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
+                assertNotNull("Should have some profileRequirements", profileRequirements);
+                String version = requirementOrDefaultVersion(restAPI, requirements);
+                for (ProfileRequirements profileRequirement : profileRequirements) {
+                    Integer minimumInstances = profileRequirement.getMinimumInstances();
+                    if (minimumInstances != null) {
+                        String profile = profileRequirement.getProfile();
+                        List<String> containerIds = restAPI.containerIdsForProfile(version, profile);
+                        int current = containerIds.size();
+                        if (current < minimumInstances) {
+                            System.out.println("Still waiting for " + minimumInstances + " instance(s) of profile " + profile + " currently has: " + containerIds);
+                            valid = false;
+                            break;
+                        } else {
+                            // TODO assert the containers are started up OK!
+                            System.out.println("Valid profile " + profile + " requires " + minimumInstances + " instance(s) and has: " + containerIds);
+                        }
                     }
                 }
-            }
-            if (valid) {
-                break;
-            } else {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    // ignore
+                if (valid) {
+                    System.out.println("Fabric requirements are all satisfied!");
                 }
+                return valid;
             }
+        });
+    }
+
+    public static String requirementOrDefaultVersion(FabricRestApi restAPI, FabricRequirements requirements) {
+        String version = requirements.getVersion();
+        if (Strings.isNotBlank(version)) {
+            return version;
+        } else {
+            return restAPI.getDefaultVersion();
         }
     }
 
@@ -178,11 +179,20 @@ public class FabricAssertions {
     }
 
     /**
-     * Waits until the given timeout until the result of the callable is not null
+     * Waits until the given timeout until the result of the callable is not null or true for Boolean values
      */
     public static <T> T waitForValidValue(long timeout, Callable<T> callable) throws Exception {
-        return waitForValidValue(timeout, callable, Filters.<T>trueFilter(), defaultWaitSleepPeriod);
+        return waitForValidValue(timeout, callable, new Filter<T>() {
+            @Override
+            public boolean matches(T t) {
+                if (t instanceof Boolean) {
+                    return ((Boolean) t).booleanValue();
+                }
+                return true;
+            }
+        }, defaultWaitSleepPeriod);
     }
+
 
     /**
      * Waits until the default timeout until the result of the callable is not null
@@ -197,7 +207,12 @@ public class FabricAssertions {
     public static <T> T waitForValidValue(long timeout, Callable<T> callable, Filter<T> isValid, long sleepTime) throws Exception {
         long failTime = System.currentTimeMillis() + timeout;
         while (true) {
-            T value = callable.call();
+            T value = null;
+            try {
+                value = callable.call();
+            } catch (Exception e) {
+                System.out.println(unwrapException(e));
+            }
             if (value != null && isValid.matches(value)) {
                 return value;
             } else {
@@ -219,5 +234,43 @@ public class FabricAssertions {
 
     public static ObjectMapper getObjectMapper() {
         return mapper;
+    }
+
+    public static List<String> waitForNotEmptyContainerIds(final FabricRestApi restApi) throws Exception {
+        Filter<List<String>> isValid = new Filter<List<String>>() {
+            @Override
+            public String toString() {
+                return "HasNotEmptyContainerIds";
+            }
+
+            @Override
+            public boolean matches(List<String> containerIds) {
+                return containerIds.size() > 0;
+            }
+        };
+        return waitForValidValue(new Callable<List<String>>() {
+            @Override
+            public List<String> call() throws Exception {
+                try {
+                    return restApi.containerIds();
+                } catch (Exception e) {
+                    System.out.println("Ignoring Exception while finding containers: " + unwrapException(e));
+                    LOG.debug("Failed to load containers: " + e, e);
+                    return null;
+                }
+            }
+        }, isValid);
+    }
+
+    public static String unwrapException(Exception e) {
+        if (e instanceof J4pRemoteException) {
+            J4pRemoteException remoteException = (J4pRemoteException) e;
+            LOG.warn("Remote Exception " + remoteException.getMessage() + ". " + remoteException.getRemoteStackTrace());
+        }
+        Throwable cause = e;
+        if (e.getClass().equals(RuntimeException.class) || e instanceof UndeclaredThrowableException) {
+            cause = e.getCause();
+        }
+        return cause.toString();
     }
 }

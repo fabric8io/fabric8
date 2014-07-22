@@ -18,8 +18,6 @@
 package io.fabric8.testkit;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 /**
  * Represents a Strategy for creating a fabric; typically using some kind of remote process.

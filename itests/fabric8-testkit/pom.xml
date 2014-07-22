@@ -73,6 +73,17 @@
       <artifactId>junit</artifactId>
     </dependency>
 
+    <!-- default distro used -->
+<!--
+    <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-karaf</artifactId>
+        <version>${project.version}</version>
+        <type>tar.gz</type>
+        <scope>provided</scope>
+    </dependency>
+-->
+
     <!-- Provided Dependencies -->
     <dependency>
       <groupId>org.apache.felix</groupId>
@@ -80,8 +91,7 @@
       <scope>provided</scope>
     </dependency>
 
-
-    <!-- testing -->
+    <!-- Testing -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>

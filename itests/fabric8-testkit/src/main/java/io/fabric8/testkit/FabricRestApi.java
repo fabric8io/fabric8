@@ -18,20 +18,25 @@
 package io.fabric8.testkit;
 
 import io.fabric8.api.FabricRequirements;
-import org.jolokia.client.exception.J4pException;
 
-import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Represents a REST API to working with the Fabric.
- *
+ * <p/>
  * NOTE as soon as we go CXF 3.x we can reuse Java interfaces for the fabric-rest module and use that directly.
- *
+ * <p/>
  * Until then we'll hack a little REST API by hand...
  */
 public interface FabricRestApi {
-    void setRequirements(FabricRequirements requirements);
+    void setRequirements(FabricRequirements requirements) throws Exception;
 
-    Map<String,String> containers() throws Exception;
+    List<Map<String, Object>> containerProperties(String... properties);
+
+    List<String> containerIdsForProfile(String versionId, String profileId);
+
+    List<String> containerIds() throws Exception;
+
+    String getDefaultVersion();
 }

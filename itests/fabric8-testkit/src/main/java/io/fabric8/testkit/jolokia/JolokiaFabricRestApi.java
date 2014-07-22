@@ -15,27 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.testkit.support;
+package io.fabric8.testkit.jolokia;
 
 import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.jmx.FabricManagerMBean;
+import io.fabric8.internal.RequirementsJson;
 import io.fabric8.testkit.FabricRestApi;
 import org.jolokia.client.J4pClient;
-import org.jolokia.client.exception.J4pException;
-import org.jolokia.client.request.J4pExecRequest;
-import org.jolokia.client.request.J4pResponse;
 
-import java.io.IOException;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static io.fabric8.testkit.FabricAssertions.getDTO;
 
 /**
  * A simple implementation of {@link io.fabric8.testkit.FabricRestApi} using Jolokia
  */
 public class JolokiaFabricRestApi implements FabricRestApi {
     private final J4pClient jolokia;
+    private final FabricManagerMBean fabricManager;
     private String jolokiaUrl = "http://localhost:8181/jolokia";
     private String user = "admin";
     private String password = "admin";
@@ -44,38 +42,38 @@ public class JolokiaFabricRestApi implements FabricRestApi {
 
     public JolokiaFabricRestApi() {
         jolokia = J4pClient.url(jolokiaUrl).user(user).password(password).build();
+        fabricManager = JolokiaClients.createFabricManager(jolokia);
     }
 
     @Override
-    public void setRequirements(FabricRequirements requirements) {
-        // TODO
-
+    public void setRequirements(FabricRequirements requirements) throws Exception {
+        String json = RequirementsJson.toJSON(requirements);
+        fabricManager.requirementsJson(json);
     }
 
     @Override
-    public Map<String, String> containers() throws Exception {
-        String[] properties = {"id"};
-        Object[] arguments = {properties};
-        J4pExecRequest request = new J4pExecRequest(fabricMBean, "containers(java.util.List)", arguments);
-        J4pResponse<J4pExecRequest> response = jolokia.execute(request, "POST");
-        Object value = response.getValue();
-        if (value instanceof List) {
-            List list = (List) value;
-            Map<String, String> answer = new HashMap<>();
-            for (Object element : list) {
-                if (element instanceof Map) {
-                    Map map = (Map) element;
-                    Object id = map.get("id");
-                    if (id != null) {
-                        String idText = id.toString();
-                        answer.put(idText, defaultRestAPI + "/container/" + idText);
-                    }
-                }
-            }
-            return answer;
+    public List<Map<String, Object>> containerProperties(String... properties) {
+        List<String> list = Arrays.asList(properties);
+        return fabricManager.containers(list);
+    }
+
+    @Override
+    public List<String> containerIdsForProfile(String versionId, String profileId) {
+        return fabricManager.containerIdsForProfile(versionId, profileId);
+    }
+
+    @Override
+    public String getDefaultVersion() {
+        return fabricManager.getDefaultVersion();
+    }
+
+    @Override
+    public List<String> containerIds() throws Exception {
+        String[] array = fabricManager.containerIds();
+        if (array != null) {
+            return Arrays.asList(array);
         } else {
-            System.out.println("containers() got value: " + value);
-            return null;
+            return Collections.EMPTY_LIST;
         }
     }
 
