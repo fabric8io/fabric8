@@ -99,7 +99,10 @@ import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.ResetCommand;
+import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
@@ -1250,27 +1253,15 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 }
                 return;
             }
-            /*
-            String branch = repository.getBranch();
-            String mergeUrl = config.getString("branch", branch, "merge");
-            if (Strings.isNullOrBlank(mergeUrl)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("No merge spec for branch." + branch + ".merge in the git repository at "
-                            + GitHelpers.getRootGitDirectory(git) + " so not doing a pull");
-                }
-                return;
-            }
-            */
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Performing a fetch in git repository " + GitHelpers.getRootGitDirectory(git) + " on remote URL: " + url);
-            }
-
+            
+            // Reset the workspace
+            doResetHard(git);
+            
             boolean hasChanged = false;
             try {
+                LOGGER.debug("Performing a fetch in git repository {} on remote URL: {}", GitHelpers.getRootGitDirectory(git), url);
                 FetchResult result = git.fetch().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setRemote(remoteRef.get()).call();
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Git fetch result: {}", result.getMessages());
-                }
+                LOGGER.debug("Git fetch result: {}", result.getMessages());
                 lastFetchWarning = null;
             } catch (Exception ex) {
                 String fetchWarning = ex.getMessage();
@@ -1351,7 +1342,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             LOGGER.warn("Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git) + " due " + ex.getMessage() + ". This exception is ignored.");
         }
     }
-
+    
+    private void doResetHard(Git git) throws GitAPIException {
+        ResetCommand resetCmd = git.reset().setMode(ResetType.HARD);
+        resetCmd.call();
+    }
+    
     /**
      * Creates the given profile directory in the currently checked out version branch
      */
