@@ -18,14 +18,30 @@ package io.fabric8.process.spring.boot.registry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static io.fabric8.process.spring.boot.registry.ProcessRegistryHolder.processRegistry;
-
+/**
+ * In order to use the Process Registry API directly, you can inject {@code ProcessRegistry} into your Spring managed
+ * beans.
+ * <br><br>
+ * <pre>
+ * private final ProcessRegistry processRegistry;
+ *
+ * {@literal @}Autowired
+ * public MyBean(ProcessRegistry processRegistry) {
+ * this.processRegistry = processRegistry;
+ * }
+ *
+ * ...
+ *
+ * String invoicingServiceUrl = processRegistry.readProperty("service.invoicing.url");
+ * Invoice invoice = new RestTemplate().getForObject(invoicingServiceUrl + "/" + 1, Invoice.class);
+ * </pre>
+ */
 @Configuration
 public class ProcessRegistryAutoConfiguration {
 
     @Bean
-    ProcessRegistry inMemoryProcessRegistry() {
-        return processRegistry();
+    ProcessRegistry processRegistry() {
+        return ProcessRegistryHolder.processRegistry();
     }
 
 }
