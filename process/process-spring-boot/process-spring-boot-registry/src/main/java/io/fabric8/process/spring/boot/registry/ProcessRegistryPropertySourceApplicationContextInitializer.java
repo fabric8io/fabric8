@@ -27,8 +27,8 @@ import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistry.a
 /**
  * {@code ApplicationContextInitializer} registering {@link ProcessRegistryPropertySource}.
  * <br><br>
- * After you add {@code process-spring-boot-registry} jar to its classpath, {@link ProcessRegistry} will be used to
- * resolve Spring properties.
+ * After you add {@code process-spring-boot-registry} jar to the classpath of your application, {@link ProcessRegistry}
+ * will be used to resolve Spring properties.
  * <br><br>
  * <pre>
  *   {@literal @}Value("service.invoicing.url")

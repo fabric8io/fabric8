@@ -480,8 +480,8 @@ the Fabric8.
 
 #### Reading Spring properties from the Process Registry
 
-After you add `process-spring-boot-registry` jar to its classpath, `ProcessRegistry` will be used to resolve Spring
-properties. 
+After you add `process-spring-boot-registry` jar to the classpath of your application, `ProcessRegistry` will be used to 
+resolve Spring properties. 
 
     @Value("service.invoicing.url")
     String host;
