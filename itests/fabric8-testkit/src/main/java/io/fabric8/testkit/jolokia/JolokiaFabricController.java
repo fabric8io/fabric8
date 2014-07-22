@@ -43,15 +43,26 @@ import java.util.Set;
 public class JolokiaFabricController implements FabricController {
     private static final transient Logger LOG = LoggerFactory.getLogger(JolokiaFabricController.class);
 
+    private final String jolokiaUrl;
+    private final String user;
+    private final String password;
     private final J4pClient jolokia;
     private final FabricManagerMBean fabricManager;
-    private String jolokiaUrl = "http://localhost:8181/jolokia";
-    private String user = "admin";
-    private String password = "admin";
     private String fabricMBean = "io.fabric8:type=Fabric";
     private String defaultRestAPI = "http://localhost:8181/api/fabric8";
 
     public JolokiaFabricController() {
+        this("http://localhost:8181/jolokia");
+    }
+
+    public JolokiaFabricController(String jolokiaUrl) {
+        this(jolokiaUrl, "admin", "admin");
+    }
+
+    public JolokiaFabricController(String jolokiaUrl, String user, String password) {
+        this.jolokiaUrl = jolokiaUrl;
+        this.user = user;
+        this.password = password;
         jolokia = J4pClient.url(jolokiaUrl).user(user).password(password).build();
         fabricManager = JolokiaClients.createFabricManager(jolokia);
     }
