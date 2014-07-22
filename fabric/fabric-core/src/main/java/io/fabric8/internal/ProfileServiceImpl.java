@@ -133,7 +133,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
                 profileRegistry.get().setVersionAttribute(versionId, entry.getKey(), entry.getValue());
             }
             for (Profile profile : version.getProfiles()) {
-            	createOrUpdateProfile(profile, true);
+                profileRegistry.get().createProfile(profile);
             }
         }
         return getRequiredVersion(versionId);
@@ -142,6 +142,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     @Override
     public Profile createProfile(Profile profile) {
         assertValid();
+        LOGGER.info("createProfile: {}", profile);
         String profileId = profileRegistry.get().createProfile(profile);
         return getRequiredProfile(profile.getVersion(), profileId);
     }
@@ -149,50 +150,9 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     @Override
     public Profile updateProfile(Profile profile) {
         assertValid();
-        createOrUpdateProfile(profile, false);
-        return getRequiredProfile(profile.getVersion(), profile.getId());
-    }
-
-    private void createOrUpdateProfile(Profile profile, boolean create) {
-        String versionId = profile.getVersion();
-        String profileId = profile.getId();
-        
-        if (create) {
-            LOGGER.info("createProfile: {}", profile);
-            profileRegistry.get().createProfile(versionId, profileId);
-        } else {
-            LOGGER.info("updateProfile: {}", profile);
-        }
-        
-        // Attributes
-        for (Entry<String, String> entry : profile.getAttributes().entrySet()) {
-            profileRegistry.get().setProfileAttribute(versionId, profileId, entry.getKey(), entry.getValue());
-        }
-
-        // Parent Profiles
-        List<Profile> parents = profile.getParents();
-        if (parents.size() > 0) {
-            StringBuilder sb = new StringBuilder();
-            for (Profile parent : parents) {
-                if (sb.length() > 0) {
-                    sb.append(" ");
-                }
-                sb.append(parent.getId());
-            }
-            profileRegistry.get().setProfileAttribute(versionId, profileId, Profile.PARENTS, sb.toString());
-        }
-        
-        // FileConfigurations
-        Map<String, byte[]> fileConfigurations = profile.getFileConfigurations();
-        if (!fileConfigurations.isEmpty()) {
-            profileRegistry.get().setFileConfigurations(versionId, profileId, fileConfigurations);
-        }
-        
-        // Configurations
-        Map<String, Map<String, String>> configurations = profile.getConfigurations();
-        if (!configurations.isEmpty()) {
-            profileRegistry.get().setConfigurations(versionId, profileId, configurations);
-        }
+        LOGGER.info("updateProfile: {}", profile);
+        String profileId = profileRegistry.get().updateProfile(profile);
+        return getRequiredProfile(profile.getVersion(), profileId);
     }
 
     @Override

@@ -22,11 +22,22 @@ package io.fabric8.api;
 public class GitContext {
 
     private boolean requirePull;
-    private boolean requirePush;
     private boolean requireCommit;
+    private boolean requirePush;
     private String pushBranch;
     private StringBuilder commitMessage = new StringBuilder();
 
+    public GitContext() {
+    }
+    
+    public GitContext(GitContext context) {
+        this.requirePull = context.requirePull;
+        this.requirePush = context.requirePush;
+        this.requireCommit = context.requireCommit;
+        this.pushBranch = context.pushBranch;
+        this.commitMessage = new StringBuilder(context.getCommitMessage());
+    }
+    
     /**
      * Indicates a pull will be required before the operation is executed.
      */
