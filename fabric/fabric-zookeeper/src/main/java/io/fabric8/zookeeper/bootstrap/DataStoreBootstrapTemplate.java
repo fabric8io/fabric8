@@ -101,7 +101,6 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             // configure default profile
             String defaultProfile = profileRegistry.getProfile(version, "default", true);
 
-
             setData(curator, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), "${zk:" + name + "/ip}:" + zooKeeperServerConnectionPort);
             setData(curator, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), PasswordEncoder.encode(options.getZookeeperPassword()));
 
