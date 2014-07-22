@@ -13,12 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.rest;
-
-import io.fabric8.api.Container;
-import io.fabric8.api.Containers;
-import io.fabric8.api.Profiles;
-import io.fabric8.core.jmx.Links;
+package io.fabric8.api.jmx;
 
 import java.util.List;
 import java.util.Map;
@@ -66,61 +61,15 @@ public class ContainerDTO {
     public ContainerDTO() {
     }
 
-    public ContainerDTO(Container container, String baseApiLink) {
-        this.id = container.getId();
-        this.type = container.getType();
-
-        this.children = Containers.containerIds(container.getChildren());
-        List<String> profileIds = Profiles.profileIds(container.getProfiles());
-        String profileLinkPrefix = baseApiLink + "/version/" + Profiles.versionId(container.getVersion()) + "/profile/";
-        this.profiles = Links.mapIdsToLinks(profileIds, profileLinkPrefix);
-        this.version = Profiles.versionId(container.getVersion());
-        this.parent = Containers.containerId(container.getParent());
-
-        this.ip = container.getIp();
-        this.localIp = container.getLocalIp();
-        this.manualIp = container.getManualIp();
-        this.publicIp = container.getPublicIp();
-        this.localHostName = container.getLocalHostname();
-        this.publicHostName = container.getPublicHostname();
-        this.resolver = container.getResolver();
-        this.maximumPort = container.getMaximumPort();
-        this.minimumPort = container.getMinimumPort();
-
-        this.geoLocation = container.getGeoLocation();
-        this.location = container.getLocation();
-
-        this.processId = container.getProcessId();
-        this.debugPort = container.getDebugPort();
-        this.httpUrl = container.getHttpUrl();
-        this.jmxUrl = container.getJmxUrl();
-        this.jolokiaUrl = container.getJolokiaUrl();
-        this.sshUrl = container.getSshUrl();
-
-        this.provisionException = container.getProvisionException();
-        this.provisionResult = container.getProvisionResult();
-        this.provisionStatus = container.getProvisionStatus();
-        this.provisionList = container.getProvisionList();
-        this.jmxDomains = container.getJmxDomains();
-
-        this.alive = container.isAlive();
-        this.aliveAndOK = container.isAliveAndOK();
-        this.ensembleServer = container.isEnsembleServer();
-        this.managed = container.isManaged();
-        this.provisioningComplete = container.isProvisioningComplete();
-        this.provisioningPending = container.isProvisioningPending();
-        this.root = container.isRoot();
-    }
-
 
     @Override
     public String toString() {
         return String.format("Container: { id: %s, type: %s, provisionStatus: %s, alive: %s, version: %s }",
-                id,
-                type,
-                provisionStatus,
-                alive,
-                version);
+                getId(),
+                getType(),
+                getProvisionStatus(),
+                isAlive(),
+                getVersion());
     }
 
     public String getId() {

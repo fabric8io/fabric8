@@ -19,6 +19,7 @@ import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.jmx.ProfileDTO;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;

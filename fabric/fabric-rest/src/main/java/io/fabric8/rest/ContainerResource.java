@@ -16,9 +16,9 @@
 package io.fabric8.rest;
 
 import io.fabric8.api.Container;
-import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
+import io.fabric8.api.jmx.ContainerDTO;
 import io.fabric8.common.util.Strings;
 
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ public class ContainerResource extends ResourceSupport {
 
     @GET
     public ContainerDTO details() {
-        return new ContainerDTO(container, getParentBaseUri());
+        return FabricDTO.createContainerDTO(container, getParentBaseUri());
     }
 
     @GET

@@ -24,12 +24,10 @@ import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pReadRequest;
 import org.jolokia.client.request.J4pResponse;
 import org.jolokia.client.request.J4pWriteRequest;
-import org.json.simple.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.ObjectName;
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -73,7 +71,7 @@ public class JolokiaInvocationHandler implements InvocationHandler {
             request.setPreferredHttpMethod("POST");
             J4pResponse response = jolokia.execute(request);
             Object value = response.getValue();
-            return convertToJavaType(method.getReturnType(), value);
+            return JolokiaClients.convertJolokiaToJavaType(method.getReturnType(), value);
         } catch (J4pException e) {
             List<Object> argsList = args == null ? null : Arrays.asList(args);
             LOG.warn("Failed to invoke " + objectName + " method: " + name + " with arguments: " + argsList + ". " + e, e);
@@ -153,22 +151,4 @@ public class JolokiaInvocationHandler implements InvocationHandler {
         return answer;
     }
 
-    protected Object convertToJavaType(Class<?> clazz, Object value) {
-        if (clazz.isArray()) {
-            if (value instanceof JSONArray) {
-                JSONArray jsonArray = (JSONArray) value;
-                Object[] javaArray = (Object[]) Array.newInstance(clazz.getComponentType(), jsonArray.size());
-                int idx = 0;
-                for (Object element : jsonArray) {
-                    Array.set(javaArray, idx++, convertToJavaType(clazz.getComponentType(), element));
-                }
-                return javaArray;
-            } else  {
-                return null;
-            }
-        } else if (String.class.equals(clazz)) {
-            return (value != null) ? value.toString() : null;
-        }
-        return value;
-    }
 }

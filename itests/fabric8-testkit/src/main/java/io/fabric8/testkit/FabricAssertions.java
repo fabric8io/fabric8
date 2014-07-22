@@ -20,10 +20,12 @@ package io.fabric8.testkit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.jmx.ContainerDTO;
 import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Filters;
 import io.fabric8.common.util.IOHelpers;
 import io.fabric8.common.util.Strings;
+import io.fabric8.core.jmx.BeanUtils;
 import org.jolokia.client.exception.J4pRemoteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,10 +55,10 @@ public class FabricAssertions {
     /**
      * Asserts that a fabric can be created and that the requirements can be satisfied
      */
-    public static FabricRestApi assertFabricCreate(FabricController factory, FabricRequirements requirements) throws Exception {
+    public static FabricController assertFabricCreate(FabricControllerManager factory, FabricRequirements requirements) throws Exception {
         assertNotNull("FabricRequirements", requirements);
 
-        FabricRestApi restAPI = assertFabricCreate(factory);
+        FabricController restAPI = assertFabricCreate(factory);
         assertNotNull("Should have created a REST API", restAPI);
 
         // now lets post the requirements
@@ -74,14 +76,14 @@ public class FabricAssertions {
     /**
      * Asserts that the requirements are met within the default amount of time
      */
-    public static void assertRequirementsSatisfied(FabricController factory, FabricRestApi restAPI, FabricRequirements requirements) throws Exception {
-        assertRequirementsSatisfied(factory, restAPI, requirements, 60 * 1000);
+    public static void assertRequirementsSatisfied(FabricControllerManager factory, FabricController restAPI, FabricRequirements requirements) throws Exception {
+        assertRequirementsSatisfied(factory, restAPI, requirements, 5 * 60 * 1000);
     }
 
     /**
      * Asserts that the requirements are met within the default amount of time
      */
-    public static void assertRequirementsSatisfied(FabricController factory, final FabricRestApi restAPI, final FabricRequirements requirements, long timeout) throws Exception {
+    public static void assertRequirementsSatisfied(FabricControllerManager factory, final FabricController restAPI, final FabricRequirements requirements, long timeout) throws Exception {
         assertNotNull("Should have some FabricRequirements", requirements);
         waitForValidValue(timeout, new Callable<Boolean>() {
             @Override
@@ -103,7 +105,11 @@ public class FabricAssertions {
                             break;
                         } else {
                             // TODO assert the containers are started up OK!
-                            System.out.println("Valid profile " + profile + " requires " + minimumInstances + " instance(s) and has: " + containerIds);
+                            if (checkMinimumInstancesSuccessful(restAPI, profile, minimumInstances, containerIds)) {
+                                System.out.println("Valid profile " + profile + " requires " + minimumInstances + " instance(s) and has: " + containerIds);
+                            } else {
+                                valid = false;
+                            }
                         }
                     }
                 }
@@ -115,7 +121,31 @@ public class FabricAssertions {
         });
     }
 
-    public static String requirementOrDefaultVersion(FabricRestApi restAPI, FabricRequirements requirements) {
+    protected static boolean checkMinimumInstancesSuccessful(FabricController restAPI, String profile, int minimumInstances, List<String> containerIds) {
+        int successful = 0;
+        for (String containerId : containerIds) {
+            ContainerDTO container = restAPI.getContainer(containerId);
+            if (container == null) {
+                System.out.println("No ContainerDTO for " + containerId);
+            } else {
+                System.out.println("Container " + containerId + " alive: " + container.isAlive() + " result: " + container.getProvisionResult()
+                        + " status: " + container.getProvisionStatus() + " complete: " + container.isProvisioningComplete() + " pending: " + container.isProvisioningPending());
+                if (container.isAliveAndOK() && container.isProvisioningComplete() && !container.isProvisioningPending() && "success".equals(container.getProvisionResult())) {
+                    System.out.println("Container + " + containerId + " is up!");
+                    successful += 1;
+                    if (LOG.isDebugEnabled()) {
+                        List<String> fields = BeanUtils.getFields(ContainerDTO.class);
+                        for (String field : fields) {
+                            LOG.debug("container " + containerId + " " + field + " = " + BeanUtils.getValue(container, field));
+                        }
+                    }
+                }
+            }
+        }
+        return successful >= minimumInstances;
+    }
+
+    public static String requirementOrDefaultVersion(FabricController restAPI, FabricRequirements requirements) {
         String version = requirements.getVersion();
         if (Strings.isNotBlank(version)) {
             return version;
@@ -149,7 +179,7 @@ public class FabricAssertions {
     /**
      * Asserts that a fabric can be created
      */
-    public static FabricRestApi assertFabricCreate(FabricController factory) throws Exception {
+    public static FabricController assertFabricCreate(FabricControllerManager factory) throws Exception {
         assertNotNull("FabricFactory", factory);
         return factory.createFabric();
     }
@@ -236,7 +266,7 @@ public class FabricAssertions {
         return mapper;
     }
 
-    public static List<String> waitForNotEmptyContainerIds(final FabricRestApi restApi) throws Exception {
+    public static List<String> waitForNotEmptyContainerIds(final FabricController restApi) throws Exception {
         Filter<List<String>> isValid = new Filter<List<String>>() {
             @Override
             public String toString() {

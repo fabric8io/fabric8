@@ -18,7 +18,7 @@
 package io.fabric8.testkit;
 
 import io.fabric8.api.FabricRequirements;
-import io.fabric8.testkit.support.CommandLineFabricController;
+import io.fabric8.testkit.support.CommandLineFabricControllerManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,11 +29,11 @@ import java.io.File;
  */
 public class FabricControllerTest {
 
-    private FabricController factory;
+    private FabricControllerManager factory;
 
     @Before
     public void init() throws Exception {
-        factory = createFabricFactory();
+        factory = createFabricControllerManager();
 
         File baseDir = getBaseDir();
         String canonicalName = getClass().getCanonicalName();
@@ -62,8 +62,8 @@ public class FabricControllerTest {
     }
 
 
-    protected FabricController createFabricFactory() {
-        return new CommandLineFabricController();
+    protected FabricControllerManager createFabricControllerManager() {
+        return new CommandLineFabricControllerManager();
     }
 
 }

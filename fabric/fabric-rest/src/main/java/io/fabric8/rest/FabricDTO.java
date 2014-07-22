@@ -15,10 +15,15 @@
  */
 package io.fabric8.rest;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.Containers;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profiles;
+import io.fabric8.api.jmx.ContainerDTO;
+import io.fabric8.core.jmx.Links;
 
 import java.net.URI;
+import java.util.List;
 
 /**
  * A DTO for core fabric information
@@ -59,6 +64,54 @@ public class FabricDTO {
         this.requirementsLink = requirementsLink;
         this.registryLink = registryLink;
         this.zooKeeperLink = zooKeeperLink;
+    }
+
+    public static ContainerDTO createContainerDTO(Container container, String baseApiLink) {
+        ContainerDTO answer = new ContainerDTO();
+        answer.setId(container.getId());
+        answer.setType(container.getType());
+
+        answer.setChildren(Containers.containerIds(container.getChildren()));
+        List<String> profileIds = Profiles.profileIds(container.getProfiles());
+        String profileLinkPrefix = baseApiLink + "/version/" + Profiles.versionId(container.getVersion()) + "/profile/";
+        answer.setProfiles(Links.mapIdsToLinks(profileIds, profileLinkPrefix));
+        answer.setVersion(Profiles.versionId(container.getVersion()));
+        answer.setParent(Containers.containerId(container.getParent()));
+
+        answer.setIp(container.getIp());
+        answer.setLocalIp(container.getLocalIp());
+        answer.setManualIp(container.getManualIp());
+        answer.setPublicIp(container.getPublicIp());
+        answer.setLocalHostName(container.getLocalHostname());
+        answer.setPublicHostName(container.getPublicHostname());
+        answer.setResolver(container.getResolver());
+        answer.setMaximumPort(container.getMaximumPort());
+        answer.setMinimumPort(container.getMinimumPort());
+
+        answer.setGeoLocation(container.getGeoLocation());
+        answer.setLocation(container.getLocation());
+
+        answer.setProcessId(container.getProcessId());
+        answer.setDebugPort(container.getDebugPort());
+        answer.setHttpUrl(container.getHttpUrl());
+        answer.setJmxUrl(container.getJmxUrl());
+        answer.setJolokiaUrl(container.getJolokiaUrl());
+        answer.setSshUrl(container.getSshUrl());
+
+        answer.setProvisionException(container.getProvisionException());
+        answer.setProvisionResult(container.getProvisionResult());
+        answer.setProvisionStatus(container.getProvisionStatus());
+        answer.setProvisionList(container.getProvisionList());
+        answer.setJmxDomains(container.getJmxDomains());
+
+        answer.setAlive(container.isAlive());
+        answer.setAliveAndOK(container.isAliveAndOK());
+        answer.setEnsembleServer(container.isEnsembleServer());
+        answer.setManaged(container.isManaged());
+        answer.setProvisioningComplete(container.isProvisioningComplete());
+        answer.setProvisioningPending(container.isProvisioningPending());
+        answer.setRoot(container.isRoot());
+        return answer;
     }
 
     @Override

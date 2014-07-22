@@ -17,25 +17,25 @@
  */
 package io.fabric8.testkit;
 
-import java.io.File;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.jmx.ContainerDTO;
+
+import java.util.List;
+import java.util.Map;
 
 /**
- * Represents a Strategy for creating a fabric; typically using some kind of remote process.
+ * Represents a (usually) remote API to working with the Fabric.
  */
 public interface FabricController {
+    void setRequirements(FabricRequirements requirements) throws Exception;
 
+    List<Map<String, Object>> containerProperties(String... properties);
 
-    /**
-     * Creates a fabric and asserts that it gets created within an allowable time then returns the REST API to interact with it
-     */
-    FabricRestApi createFabric() throws Exception;
+    List<String> containerIdsForProfile(String versionId, String profileId);
 
-    /**
-     * Destroys the fabric
-     */
-    void destroy() throws Exception;
+    List<String> containerIds() throws Exception;
 
-    File getWorkDirectory();
+    String getDefaultVersion();
 
-    void setWorkDirectory(File workDir);
+    ContainerDTO getContainer(String containerId);
 }

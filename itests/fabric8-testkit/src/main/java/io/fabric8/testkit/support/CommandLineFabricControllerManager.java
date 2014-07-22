@@ -25,8 +25,8 @@ import io.fabric8.common.util.Strings;
 import io.fabric8.process.manager.support.ProcessUtils;
 import io.fabric8.testkit.FabricAssertions;
 import io.fabric8.testkit.FabricController;
-import io.fabric8.testkit.FabricRestApi;
-import io.fabric8.testkit.jolokia.JolokiaFabricRestApi;
+import io.fabric8.testkit.FabricControllerManager;
+import io.fabric8.testkit.jolokia.JolokiaFabricController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,21 +53,21 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * An implementation of {@link io.fabric8.testkit.FabricController} which uses a binary distribution, unpacks it
+ * An implementation of {@link io.fabric8.testkit.FabricControllerManager} which uses a binary distribution, unpacks it
  * and runs shell commands to create a fabric.
  */
-public class CommandLineFabricController implements FabricController {
+public class CommandLineFabricControllerManager implements FabricControllerManager {
     public static final String KILL_CONTAINERS_FLAG = "fabric8.testkit.killContainers";
 
-    private static final transient Logger LOG = LoggerFactory.getLogger(CommandLineFabricController.class);
+    private static final transient Logger LOG = LoggerFactory.getLogger(CommandLineFabricControllerManager.class);
 
     private File workDirectory;
     private File installDir;
     private String startFabricScriptName = "bin/fabric8-start";
-    private String[] allowedEnvironmentVariables = { "JAVA_HOME", "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MAVEN_HOME", "PATH", "USER"};
+    private String[] allowedEnvironmentVariables = {"JAVA_HOME", "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MAVEN_HOME", "PATH", "USER"};
     private Set<String> profiles = new HashSet<>();
 
-    public CommandLineFabricController() {
+    public CommandLineFabricControllerManager() {
         profiles.add("autoscale");
     }
 
@@ -80,7 +80,7 @@ public class CommandLineFabricController implements FabricController {
     }
 
     @Override
-    public FabricRestApi createFabric() throws Exception {
+    public FabricController createFabric() throws Exception {
         if (workDirectory == null) {
             workDirectory = createTempDirectory();
         }
@@ -111,7 +111,7 @@ public class CommandLineFabricController implements FabricController {
 
         executeCommand(installDir, "./" + startFabricScriptName);
 
-        final FabricRestApi restApi = createFabricRestApi();
+        final FabricController restApi = createFabricRestApi();
 
         Thread.sleep(30 * 1000);
 
@@ -143,9 +143,9 @@ public class CommandLineFabricController implements FabricController {
         this.allowedEnvironmentVariables = allowedEnvironmentVariables;
     }
 
-    protected FabricRestApi createFabricRestApi() {
+    protected FabricController createFabricRestApi() {
         //return new SimpleFabricRestApi();
-        return new JolokiaFabricRestApi();
+        return new JolokiaFabricController();
     }
 
     protected File createTempDirectory() throws IOException {

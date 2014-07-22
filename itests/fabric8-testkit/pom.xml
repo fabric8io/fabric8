@@ -75,6 +75,8 @@
 
     <!-- default distro used -->
 <!--
+    TODO this mucks up the dependencies and ends up borking the logging
+
     <dependency>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-karaf</artifactId>

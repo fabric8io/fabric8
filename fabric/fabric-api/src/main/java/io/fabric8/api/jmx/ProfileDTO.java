@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.rest;
+package io.fabric8.api.jmx;
 
 import io.fabric8.api.Containers;
 import io.fabric8.api.Profile;
