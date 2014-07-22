@@ -34,9 +34,9 @@ public class EnvironmentVariables {
     public static final String KARAF_NAME = "FABRIC8_KARAF_NAME";
 
     /**
-     * The container name - the more standard long term replacement for {@link #KARAF_NAME}
+     * The runtime container id - the long term replacement for {@link #KARAF_NAME}
      */
-    public static final String CONTAINER_NAME = "FABRIC8_CONTAINER_NAME";
+    public static final String RUNTIME_ID = "FABRIC8_RUNTIME_ID";
 
     public static final String FABRIC8_MANUALIP = "FABRIC8_MANUALIP";
     public static final String FABRIC8_GLOBAL_RESOLVER = "FABRIC8_GLOBAL_RESOLVER";
