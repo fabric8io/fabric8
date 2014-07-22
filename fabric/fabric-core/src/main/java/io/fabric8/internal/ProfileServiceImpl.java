@@ -142,17 +142,43 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     @Override
     public Profile createProfile(Profile profile) {
         assertValid();
-        LOGGER.info("createProfile: {}", profile);
-        String profileId = profileRegistry.get().createProfile(profile);
-        return getRequiredProfile(profile.getVersion(), profileId);
+        LockHandle writeLock = profileRegistry.get().aquireWriteLock();
+        try {
+            LOGGER.info("createProfile: {}", profile);
+            return createOrUpdateProfileInternal(profile, true, new HashMap<String, Profile>());
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override
     public Profile updateProfile(Profile profile) {
         assertValid();
-        LOGGER.info("updateProfile: {}", profile);
-        String profileId = profileRegistry.get().updateProfile(profile);
-        return getRequiredProfile(profile.getVersion(), profileId);
+        LockHandle writeLock = profileRegistry.get().aquireWriteLock();
+        try {
+            LOGGER.info("updateProfile: {}", profile);
+            return createOrUpdateProfileInternal(profile, false, new HashMap<String, Profile>());
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    private Profile createOrUpdateProfileInternal(Profile profile, boolean allowCreate, HashMap<String, Profile> profiles) {
+        Profile result = profiles.get(profile.getId());
+        if (result == null) {
+            for (Profile parent : profile.getParents()) {
+                createOrUpdateProfileInternal(parent, allowCreate, profiles);
+            }
+            String profileId;
+            if (allowCreate) {
+                profileId = profileRegistry.get().createProfile(profile);
+            } else {
+                profileId = profileRegistry.get().updateProfile(profile);
+            }
+            result = getRequiredProfile(profile.getVersion(), profileId);
+            profiles.put(profileId, profile);
+        }
+        return result;
     }
 
     @Override
