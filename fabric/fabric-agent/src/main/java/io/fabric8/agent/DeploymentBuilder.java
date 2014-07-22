@@ -55,6 +55,7 @@ import org.apache.felix.resolver.Util;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
 import org.apache.karaf.features.BundleInfo;
+import org.apache.karaf.features.Conditional;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
 import org.osgi.framework.BundleContext;
@@ -81,6 +82,12 @@ import static io.fabric8.utils.PatchUtils.extractUrl;
 import static io.fabric8.utils.PatchUtils.extractVersionRange;
 import static org.apache.felix.resolver.Util.getSymbolicName;
 import static org.apache.felix.resolver.Util.getVersion;
+import static org.osgi.framework.namespace.IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE;
+import static org.osgi.framework.namespace.IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE;
+import static org.osgi.framework.namespace.IdentityNamespace.IDENTITY_NAMESPACE;
+import static org.osgi.resource.Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE;
+import static org.osgi.resource.Namespace.RESOLUTION_MANDATORY;
+import static org.osgi.resource.Namespace.RESOLUTION_OPTIONAL;
 
 /**
  */
@@ -193,6 +200,11 @@ public class DeploymentBuilder {
         for (Feature feature : featuresToRegister) {
             Resource resource = FeatureResource.build(feature, featureRange, resources);
             resources.put("feature:" + feature.getName() + "/" + feature.getVersion(), resource);
+            for (Conditional cond : feature.getConditional()) {
+                Feature featCond = cond.asFeature(feature.getName(), feature.getVersion());
+                FeatureResource resCond = FeatureResource.build(feature, cond, featureRange, resources);
+                resources.put("feature:" + featCond.getName() + "/" + featCond.getVersion(), resCond);
+            }
         }
         // Build requirements
         for (String feature : features) {
@@ -318,6 +330,14 @@ public class DeploymentBuilder {
                         }
                         for (BundleInfo bundle : f.getBundles()) {
                             downloadAndBuildResource(bundle.getLocation());
+                        }
+                        for (Conditional cond : f.getConditional()) {
+                            for (Feature dep : cond.getDependencies()) {
+                                registerMatchingFeatures(dep);
+                            }
+                            for (BundleInfo bundle : cond.getBundles()) {
+                                downloadAndBuildResource(bundle.getLocation());
+                            }
                         }
                     }
                 }
@@ -486,12 +506,12 @@ public class DeploymentBuilder {
         Attributes attributes = man.getMainAttributes();
 
         String bsn = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
-        if (bsn.indexOf(';') > 0) {
+        if (bsn != null && bsn.indexOf(';') > 0) {
             bsn = bsn.substring(0, bsn.indexOf(';'));
         }
         Version ver = VersionTable.getVersion(attributes.getValue(Constants.BUNDLE_VERSION));
 
-        Map<VersionRange, Map<String, String>> ranges = metadata.get(bsn);
+        Map<VersionRange, Map<String, String>> ranges = metadata != null && bsn != null ? metadata.get(bsn) : null;
         if (ranges != null) {
             for (Map.Entry<VersionRange, Map<String, String>> entry2 : ranges.entrySet()) {
                 if (entry2.getKey().contains(ver)) {
@@ -508,6 +528,24 @@ public class DeploymentBuilder {
             }
         }
         return attributes;
+    }
+
+    public static void addIdentityRequirement(ResourceImpl resource, Resource required, boolean mandatory) {
+        for (Capability cap : required.getCapabilities(null)) {
+            if (cap.getNamespace().equals(IDENTITY_NAMESPACE)) {
+                Map<String, Object> attributes = cap.getAttributes();
+                Map<String, String> dirs = new HashMap<>();
+                dirs.put(REQUIREMENT_RESOLUTION_DIRECTIVE, mandatory ? RESOLUTION_MANDATORY : RESOLUTION_OPTIONAL);
+                Map<String, Object> attrs = new HashMap<>();
+                attrs.put(IDENTITY_NAMESPACE, attributes.get(IDENTITY_NAMESPACE));
+                attrs.put(CAPABILITY_TYPE_ATTRIBUTE, attributes.get(CAPABILITY_TYPE_ATTRIBUTE));
+                Version version = (Version) attributes.get(CAPABILITY_VERSION_ATTRIBUTE);
+                if (version != null) {
+                    attrs.put(CAPABILITY_VERSION_ATTRIBUTE, new VersionRange(version, true));
+                }
+                resource.addRequirement(new RequirementImpl(resource, IDENTITY_NAMESPACE, dirs, attrs));
+            }
+        }
     }
 
 }

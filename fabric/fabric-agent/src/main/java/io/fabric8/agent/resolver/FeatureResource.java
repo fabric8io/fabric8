@@ -20,15 +20,26 @@ import aQute.bnd.osgi.Processor;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
 import org.apache.karaf.features.BundleInfo;
+import org.apache.karaf.features.Conditional;
 import org.apache.karaf.features.Feature;
+import org.apache.karaf.features.internal.FeatureImpl;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.osgi.framework.namespace.IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE;
+import static org.osgi.framework.namespace.IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE;
+import static org.osgi.framework.namespace.IdentityNamespace.IDENTITY_NAMESPACE;
+import static org.osgi.resource.Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE;
+import static org.osgi.resource.Namespace.RESOLUTION_MANDATORY;
+import static org.osgi.resource.Namespace.RESOLUTION_OPTIONAL;
 
 /**
 */
@@ -36,7 +47,17 @@ public class FeatureResource extends ResourceImpl {
 
     private final Feature feature;
 
-    public static Resource build(Feature feature, String featureRange, Map<String, Resource> locToRes) {
+    public static FeatureResource build(Feature feature, Conditional conditional, String featureRange, Map<String, Resource> locToRes) {
+        Feature fcond = conditional.asFeature(feature.getName(), feature.getVersion());
+        FeatureResource resource = build(fcond, featureRange, locToRes);
+        for (Feature cond : conditional.getCondition()) {
+            addDependency(resource, cond.getName(), cond.getVersion(), featureRange);
+        }
+        addDependency(resource, feature.getName(), feature.getVersion(), featureRange);
+        return resource;
+    }
+
+    public static FeatureResource build(Feature feature, String featureRange, Map<String, Resource> locToRes) {
         FeatureResource resource = new FeatureResource(feature);
         Map<String, String> dirs = new HashMap<String, String>();
         Map<String, Object> attrs = new HashMap<String, Object>();
@@ -64,19 +85,25 @@ public class FeatureResource extends ResourceImpl {
         for (Feature dep : feature.getDependencies()) {
             String name = dep.getName();
             String version = dep.getVersion();
-            if (!version.startsWith("[") && !version.startsWith("(")) {
-                Processor processor = new Processor();
-                processor.setProperty("@", VersionTable.getVersion(version).toString());
-                Macro macro = new Macro(processor);
-                version = macro.process(featureRange);
-            }
-            dirs = new HashMap<String, String>();
-            attrs = new HashMap<String, Object>();
-            attrs.put(FeatureNamespace.FEATURE_NAMESPACE, name);
-            attrs.put(FeatureNamespace.CAPABILITY_VERSION_ATTRIBUTE, new VersionRange(version));
-            resource.addRequirement(new RequirementImpl(resource, FeatureNamespace.FEATURE_NAMESPACE, dirs, attrs));
+            addDependency(resource, name, version, featureRange);
         }
         return resource;
+    }
+
+    protected static void addDependency(FeatureResource resource, String name, String version, String featureRange) {
+        if (!version.startsWith("[") && !version.startsWith("(")) {
+            Processor processor = new Processor();
+            processor.setProperty("@", VersionTable.getVersion(version).toString());
+            Macro macro = new Macro(processor);
+            version = macro.process(featureRange);
+        }
+        Map<String, String> dirs;
+        Map<String, Object> attrs;
+        dirs = new HashMap<String, String>();
+        attrs = new HashMap<String, Object>();
+        attrs.put(FeatureNamespace.FEATURE_NAMESPACE, name);
+        attrs.put(FeatureNamespace.CAPABILITY_VERSION_ATTRIBUTE, new VersionRange(version));
+        resource.addRequirement(new RequirementImpl(resource, FeatureNamespace.FEATURE_NAMESPACE, dirs, attrs));
     }
 
     public FeatureResource(Feature feature) {
