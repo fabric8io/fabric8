@@ -137,7 +137,7 @@ import com.google.common.cache.LoadingCache;
 @Service({ GitDataStore.class, ProfileRegistry.class })
 public final class GitDataStoreImpl extends AbstractComponent implements GitDataStore, ProfileRegistry {
 
-    private static final transient Logger LOG = LoggerFactory.getLogger(GitDataStoreImpl.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(GitDataStoreImpl.class);
 
     private static final String CONFIG_ROOT_DIR = "fabric";
     private static final String GIT_REMOTE_USER = "gitRemoteUser";
@@ -242,12 +242,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         initialPull = false;
 
         try {
-            LOG.info("Starting up DataStore " + this);
+            LOGGER.info("Starting up DataStore " + this);
 
             // Call the bootstrap {@link DataStoreTemplate}
             DataStoreTemplate template = runtimeProperties.get().removeRuntimeAttribute(DataStoreTemplate.class);
             if (template != null) {
-                LOG.info("Using template: " + template);
+                LOGGER.info("Using template: " + template);
                 template.doWith(this, dataStore.get());
             }
 
@@ -257,7 +257,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 defaultProxySelector = ProxySelector.getDefault();
                 ProxySelector fabricProxySelector = new FabricGitLocalHostProxySelector(defaultProxySelector, gitProxyService.getOptional());
                 ProxySelector.setDefault(fabricProxySelector);
-                LOG.info("Setting up FabricProxySelector: {}", fabricProxySelector);
+                LOGGER.info("Setting up FabricProxySelector: {}", fabricProxySelector);
             }
 
             // [FIXME] Why can we not rely on the injected GitService
@@ -279,33 +279,33 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             Path dir = homePath.resolve(importDir);
             importFromFilesystem(dir);
 
-            LOG.info("Starting to push to remote git repository every {} millis", gitPushInterval);
+            LOGGER.info("Starting to push to remote git repository every {} millis", gitPushInterval);
             threadPool.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         // must do an initial pull to get data
                         if (!initialPull) {
-                            LOG.trace("Performing initial pull");
+                            LOGGER.trace("Performing initial pull");
                             pull();
                             initialPull = true;
-                            LOG.debug("Performing initial pull done");
+                            LOGGER.debug("Performing initial pull done");
                         }
 
                         if (gitPullOnPush) {
-                            LOG.trace("Performing timed pull");
+                            LOGGER.trace("Performing timed pull");
                             pull();
-                            LOG.debug("Performed timed pull done");
+                            LOGGER.debug("Performed timed pull done");
                         }
                         //a commit that failed to push for any reason, will not get pushed until the next commit.
                         //periodically pushing can address this issue.
-                        LOG.trace("Performing timed push");
+                        LOGGER.trace("Performing timed push");
                         push();
-                        LOG.debug("Performed timed push done");
+                        LOGGER.debug("Performed timed push done");
                     } catch (Throwable e) {
-                        LOG.debug("Error during performed timed pull/push due " + e.getMessage(), e);
+                        LOGGER.debug("Error during performed timed pull/push due " + e.getMessage(), e);
                         // we dont want stacktrace in WARNs
-                        LOG.warn("Error during performed timed pull/push due " + e.getMessage() + ". This exception is ignored.");
+                        LOGGER.warn("Error during performed timed pull/push due " + e.getMessage() + ". This exception is ignored.");
                     }
                 }
 
@@ -317,20 +317,20 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             // do the initial pull at first so just wait 1 sec
 
             if (!gitPullOnPush) {
-                LOG.info("Using ZooKeeper SharedCount to react when master git repo is changed, so we can do a git pull to the local git repo.");
+                LOGGER.info("Using ZooKeeper SharedCount to react when master git repo is changed, so we can do a git pull to the local git repo.");
                 counter = new SharedCount(curator.get(), ZkPath.GIT_TRIGGER.getPath(), 0);
                 counter.addListener(new SharedCountListener() {
                     @Override
                     public void countHasChanged(SharedCountReader sharedCountReader, int value) throws Exception {
-                        LOG.debug("Watch counter updated to " + value + ", doing a pull");
+                        LOGGER.debug("Watch counter updated to " + value + ", doing a pull");
                         try {
                             // must sleep a bit as otherwise we are too fast
                             Thread.sleep(1000);
                             pull();
                         } catch (Throwable e) {
-                            LOG.debug("Error during pull due " + e.getMessage(), e);
+                            LOGGER.debug("Error during pull due " + e.getMessage(), e);
                             // we dont want stacktrace in WARNs
-                            LOG.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
+                            LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
                         }
                     }
 
@@ -369,7 +369,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
 
         if (defaultProxySelector != null) {
-            LOG.info("Restoring ProxySelector to original: {}", defaultProxySelector);
+            LOGGER.info("Restoring ProxySelector to original: {}", defaultProxySelector);
             ProxySelector.setDefault(defaultProxySelector);
             // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
             // reset authenticator by setting it to null
@@ -382,7 +382,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 counter = null;
             }
         } catch (IOException e) {
-            LOG.warn("Error closing SharedCount due " + e.getMessage() + ". This exception is ignored.", e);
+            LOGGER.warn("Error closing SharedCount due " + e.getMessage() + ". This exception is ignored.", e);
         }
     }
 
@@ -424,7 +424,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @SuppressWarnings("unchecked")
     private void importFromFilesystem(Path path) {
-        LOG.info("Importing additional profiles from file system directory: {}", path);
+        LOGGER.info("Importing additional profiles from file system directory: {}", path);
 
         List<String> profiles = new ArrayList<String>();
 
@@ -437,12 +437,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         });
         int count = zips != null ? zips.length : 0;
-        LOG.info("Found {} .zip files to import", count);
+        LOGGER.info("Found {} .zip files to import", count);
 
         if (zips != null && zips.length > 0) {
             for (String name : zips) {
                 profiles.add("file:" + path + "/" + name);
-                LOG.debug("Adding {} .zip file to import", name);
+                LOGGER.debug("Adding {} .zip file to import", name);
             }
         }
 
@@ -454,7 +454,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         });
         count = props != null ? props.length : 0;
-        LOG.info("Found {} .properties files to import", count);
+        LOGGER.info("Found {} .properties files to import", count);
         try {
             if (props != null && props.length > 0) {
                 for (String name : props) {
@@ -468,21 +468,21 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
                         if (value != null) {
                             profiles.add(value);
-                            LOG.debug("Adding {} to import", value);
+                            LOGGER.debug("Adding {} to import", value);
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            LOG.debug("Error importing profiles due " + e.getMessage(), e);
+            LOGGER.debug("Error importing profiles due " + e.getMessage(), e);
             // we dont want stacktrace in WARNs
-            LOG.warn("Error importing profiles due " + e.getMessage() + ". This exception is ignored.", e);
+            LOGGER.warn("Error importing profiles due " + e.getMessage() + ". This exception is ignored.", e);
         }
 
         if (!profiles.isEmpty()) {
-            LOG.info("Importing additional profiles from {} url locations ...", profiles.size());
+            LOGGER.info("Importing additional profiles from {} url locations ...", profiles.size());
             importProfiles(dataStore.get().getDefaultVersion(), profiles);
-            LOG.info("Importing additional profiles done");
+            LOGGER.info("Importing additional profiles done");
         }
     }
 
@@ -499,11 +499,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public String createProfile(GitContext context, Profile profile) {
+    public String createProfile(Profile profile) {
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            return updateProfileInternal(profile, context, true);
+            return createProfileInternal(profile);
         } finally {
             writeLock.unlock();
         }
@@ -514,21 +514,21 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            return updateProfileInternal(profile, context, false);
+            return null; //updateProfileInternal(profile, context, false);
         } finally {
             writeLock.unlock();
         }
     }
 
-    private String updateProfileInternal(final Profile profile, GitContext context, final boolean allowCreate) {
+    private String createProfileInternal(final Profile profile) {
         assertWriteLock();
 
         final String versionId = profile.getVersion();
         final String profileId = profile.getId();
 
-        // Get or create the profile
-        getOrCreateProfile(versionId, profileId, allowCreate);
-
+        GitContext context = new GitContext().requireCommit().requirePush().requirePull();
+        createProfileInternal(versionId, profileId, context);
+        
         // Attributes
         for (Entry<String, String> entry : profile.getAttributes().entrySet()) {
             setProfileAttributeInternal(versionId, profileId, entry.getKey(), entry.getValue(), context);
@@ -546,22 +546,17 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
             setProfileAttributeInternal(versionId, profileId, Profile.PARENTS, sb.toString(), context);
         }
-
+        
         // FileConfigurations
         Map<String, byte[]> fileConfigurations = profile.getFileConfigurations();
         if (!fileConfigurations.isEmpty()) {
             setFileConfigurationsInternal(versionId, profileId, fileConfigurations, context);
         }
-
+        
         // Configurations
         Map<String, Map<String, String>> configurations = profile.getConfigurations();
         if (!configurations.isEmpty()) {
             setConfigurationsInternal(versionId, profileId, configurations, context);
-        }
-
-        // Commit/Push the profile
-        if (context.isRequireCommit()) {
-            doCommit(getGit(), context);
         }
 
         return profileId;
@@ -606,7 +601,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         File configs = new File(fabricsDir, "configs");
         String defaultVersion = dataStore.get().getDefaultVersion();
         if (configs.exists()) {
-            LOG.info("Importing the old ZooKeeper layout");
+            LOGGER.info("Importing the old ZooKeeper layout");
             File versions = new File(configs, "versions");
             if (versions.exists() && versions.isDirectory()) {
                 File[] files = versions.listFiles();
@@ -617,7 +612,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                             File[] versionFiles = versionFolder.listFiles();
                             if (versionFiles != null) {
                                 for (File versionFile : versionFiles) {
-                                    LOG.info("Importing version configuration " + versionFile + " to branch " + version);
+                                    LOGGER.info("Importing version configuration " + versionFile + " to branch " + version);
                                     importFromFileSystem(versionFile, CONFIG_ROOT_DIR, version, true);
                                 }
                             }
@@ -627,13 +622,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
             File metrics = new File(fabricsDir, "metrics");
             if (metrics.exists()) {
-                LOG.info("Importing metrics from " + metrics + " to branch " + defaultVersion);
+                LOGGER.info("Importing metrics from " + metrics + " to branch " + defaultVersion);
                 importFromFileSystem(metrics, CONFIG_ROOT_DIR, defaultVersion, false);
             }
         } else {
             // default to version 1.0
             String version = "1.0";
-            LOG.info("Importing " + fabricsDir + " as version " + version);
+            LOGGER.info("Importing " + fabricsDir + " as version " + version);
             importFromFileSystem(fabricsDir, "", version, false);
         }
     }
@@ -848,13 +843,17 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public void createProfile(final String version, final String profile) {
         assertValid();
+        createProfileInternal(version, profile, new GitContext().requireCommit().requirePush().requirePull());
+    }
+
+    private void createProfileInternal(final String versionId, final String profileId, GitContext context) {
         GitOperation<String> gitop = new GitOperation<String>() {
             public String call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, GitProfiles.getBranch(version, profile));
-                return doCreateProfile(git, context, profile, version);
+                checkoutVersion(git, GitProfiles.getBranch(versionId, profileId));
+                return doCreateProfile(git, context, profileId, versionId);
             }
         };
-        executeWrite(gitop, true);
+        executeInternal(null, gitop, context);
     }
 
     @Override
@@ -941,7 +940,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public void setFileConfigurations(final String version, final String profile, final Map<String, byte[]> configurations) {
         assertValid();
-        setFileConfigurationsInternal(version, profile, configurations, new GitContext());
+        setFileConfigurationsInternal(version, profile, configurations, new GitContext().requireCommit().requirePush().requirePull());
     }
 
     private void setFileConfigurationsInternal(final String version, final String profile, final Map<String, byte[]> configurations, GitContext context) {
@@ -954,7 +953,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 return null;
             }
         };
-        executeWrite(gitop, true);
+        executeInternal(null, gitop, context);
     }
 
     private void doSetFileConfigurations(Git git, File profileDirectory, String profile, Map<String, byte[]> configurations) throws IOException, GitAPIException {
@@ -1043,7 +1042,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public void setConfigurations(final String version, final String profile, final Map<String, Map<String, String>> configurations) {
         assertValid();
-        setConfigurationsInternal(version, profile, configurations, new GitContext());
+        setConfigurationsInternal(version, profile, configurations, new GitContext().requireCommit().requirePush().requirePull());
     }
 
     private void setConfigurationsInternal(final String version, final String profile, final Map<String, Map<String, String>> configurations, GitContext context) {
@@ -1056,13 +1055,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 return null;
             }
         };
-        executeWrite(gitop, true);
+        executeInternal(null, gitop, context);
     }
 
     @Override
     public void setConfiguration(final String version, final String profile, final String pid, final Map<String, String> configuration) {
         assertValid();
-        setConfigurationInternal(version, profile, pid, configuration, new GitContext());
+        setConfigurationInternal(version, profile, pid, configuration, new GitContext().requireCommit().requirePush().requirePull());
     }
 
     private void setConfigurationInternal(final String version, final String profile, final String pid, final Map<String, String> configuration, GitContext context) {
@@ -1074,7 +1073,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 return null;
             }
         };
-        executeWrite(gitop, true);
+        executeInternal(null, gitop, context);
     }
 
     private Git getGit() {
@@ -1088,19 +1087,19 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst, GitContext context) {
         assertValid();
-        return executeInternal(personIdent, operation, pullFirst, context);
+        return executeInternal(personIdent, operation, context.setRequirePull(pullFirst));
     }
 
     private <T> T executeRead(GitOperation<T> operation, boolean pullFirst) {
-        return executeInternal(null, operation, pullFirst, new GitContext());
+        return executeInternal(null, operation, new GitContext().setRequirePull(pullFirst));
     }
 
     private <T> T executeWrite(GitOperation<T> operation, boolean pullFirst) {
-        GitContext context = new GitContext().requireCommit().requirePush();
-        return executeInternal(null, operation, pullFirst, context);
+        GitContext context = new GitContext().requireCommit().requirePush().setRequirePull(pullFirst);
+        return executeInternal(null, operation, context);
     }
 
-    private synchronized <T> T executeInternal(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst, GitContext context) {
+    private synchronized <T> T executeInternal(PersonIdent personIdent, GitOperation<T> operation, GitContext context) {
         // Must set the TCCL to the classloader that loaded GitDataStore as we need the classloader
         // that could load this class, as jgit will load resources from classpath using the TCCL
         // and that requires the TCCL to the classloader that could load GitDataStore as the resources
@@ -1109,7 +1108,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         ClassLoader cl = GitDataStoreImpl.class.getClassLoader();
         Thread.currentThread().setContextClassLoader(cl);
-        LOG.trace("Setting ThreadContextClassLoader to {} instead of {}", cl, oldCl);
+        LOGGER.trace("Setting ThreadContextClassLoader to {} instead of {}", cl, oldCl);
         try {
             Git git = getGit();
             Repository repository = git.getRepository();
@@ -1118,14 +1117,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 personIdent = new PersonIdent(repository);
             }
 
-            // Stash any local changes
-            // [TODO] What is done with the git stashes, why not reset --hard?
-            if (GitHelpers.hasGitHead(git)) {
-                git.stashCreate().setPerson(personIdent).setWorkingDirectoryMessage("Stash before a write").call();
-            }
-
             CredentialsProvider credentialsProvider = getCredentialsProvider();
-            if (pullFirst) {
+            if (context.isRequirePull()) {
                 doPull(git, credentialsProvider, false);
             }
 
@@ -1139,7 +1132,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
         } finally {
-            LOG.trace("Restoring ThreadContextClassLoader to {}", oldCl);
+            LOGGER.trace("Restoring ThreadContextClassLoader to {}", oldCl);
             Thread.currentThread().setContextClassLoader(oldCl);
         }
     }
@@ -1152,7 +1145,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
             if (--commitsWithoutGC < 0) {
                 commitsWithoutGC = MAX_COMMITS_WITHOUT_GC;
-                LOG.debug("Performing 'git gc' after {} commits", MAX_COMMITS_WITHOUT_GC);
+                LOGGER.debug("Performing 'git gc' after {} commits", MAX_COMMITS_WITHOUT_GC);
                 git.gc().call();
             }
 
@@ -1189,13 +1182,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             StoredConfig config = repository.getConfig();
             String url = config.getString("remote", remoteRef.get(), "url");
             if (Strings.isNullOrBlank(url)) {
-                LOG.info("No remote repository defined yet for the git repository at " + GitHelpers.getRootGitDirectory(git) + " so not doing a push");
+                LOGGER.info("No remote repository defined yet for the git repository at " + GitHelpers.getRootGitDirectory(git) + " so not doing a push");
             } else {
                 results = git.push().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setPushAll().call();
             }
         } catch (Throwable ex) {
-            LOG.debug("Failed to push from the remote git repo " + GitHelpers.getRootGitDirectory(git) + ". This exception is ignored.", ex);
-            LOG.warn("Failed to push from the remote git repo " + GitHelpers.getRootGitDirectory(git) + " due " + ex.getMessage() + ". This exception is ignored.");
+            LOGGER.debug("Failed to push from the remote git repo " + GitHelpers.getRootGitDirectory(git) + ". This exception is ignored.", ex);
+            LOGGER.warn("Failed to push from the remote git repo " + GitHelpers.getRootGitDirectory(git) + " due " + ex.getMessage() + ". This exception is ignored.");
         }
         return results;
     }
@@ -1243,8 +1236,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             StoredConfig config = repository.getConfig();
             String url = config.getString("remote", remoteRef.get(), "url");
             if (Strings.isNullOrBlank(url)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("No remote repository defined for the git repository at " + GitHelpers.getRootGitDirectory(git) + " so not doing a pull");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("No remote repository defined for the git repository at " + GitHelpers.getRootGitDirectory(git) + " so not doing a pull");
                 }
                 return;
             }
@@ -1259,22 +1252,22 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 return;
             }
             */
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Performing a fetch in git repository " + GitHelpers.getRootGitDirectory(git) + " on remote URL: " + url);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Performing a fetch in git repository " + GitHelpers.getRootGitDirectory(git) + " on remote URL: " + url);
             }
 
             boolean hasChanged = false;
             try {
                 FetchResult result = git.fetch().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setRemote(remoteRef.get()).call();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Git fetch result: {}", result.getMessages());
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Git fetch result: {}", result.getMessages());
                 }
                 lastFetchWarning = null;
             } catch (Exception ex) {
                 String fetchWarning = ex.getMessage();
                 if (!fetchWarning.equals(lastFetchWarning)) {
-                    LOG.warn("Fetch failed because of: " + fetchWarning);
-                    LOG.debug("Fetch failed - the error will be ignored", ex);
+                    LOGGER.warn("Fetch failed because of: " + fetchWarning);
+                    LOGGER.debug("Fetch failed - the error will be ignored", ex);
                     lastFetchWarning = fetchWarning;
                 }
                 return;
@@ -1337,7 +1330,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 }
             }
             if (hasChanged) {
-                LOG.debug("Changed after pull!");
+                LOGGER.debug("Changed after pull!");
                 if (credentialsProvider != null) {
                     // TODO lets test if the profiles directory is present after checking out version 1.0?
                     getProfilesDirectory(git);
@@ -1345,8 +1338,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 dataStore.get().fireChangeNotifications();
             }
         } catch (Throwable ex) {
-            LOG.debug("Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git), ex);
-            LOG.warn("Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git) + " due " + ex.getMessage() + ". This exception is ignored.");
+            LOGGER.debug("Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git), ex);
+            LOGGER.warn("Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git) + " due " + ex.getMessage() + ". This exception is ignored.");
         }
     }
 
@@ -1404,7 +1397,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
      */
     private String doExportProfiles(Git git, GitContext context, File outputFile, FileFilter filter) throws IOException {
         File profilesDirectory = getProfilesDirectory(git);
-        Zips.createZipFile(LOG, profilesDirectory, outputFile, filter);
+        Zips.createZipFile(LOGGER, profilesDirectory, outputFile, filter);
         return null;
     }
 
@@ -1495,7 +1488,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 };
                 executeRead(gitop, true);
             } catch (Exception e) {
-                LOG.warn("Failed to perform a pull " + e, e);
+                LOGGER.warn("Failed to perform a pull " + e, e);
             }
         }
     }
@@ -1511,7 +1504,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 };
                 executeRead(gitop, false);
             } catch (Exception e) {
-                LOG.warn("Failed to perform a pull " + e, e);
+                LOGGER.warn("Failed to perform a pull " + e, e);
             }
         }
     }
@@ -1655,7 +1648,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public void setProfileAttribute(final String version, final String profile, final String key, final String value) {
         assertValid();
-        setProfileAttributeInternal(version, profile, key, value, new GitContext());
+        setProfileAttributeInternal(version, profile, key, value, new GitContext().requireCommit().requirePush());
     }
 
     private void setProfileAttributeInternal(final String version, final String profile, final String key, final String value, GitContext context) {
@@ -1665,7 +1658,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         } else {
             config.remove(key);
         }
-        setConfiguration(version, profile, Constants.AGENT_PID, config);
+        setConfigurationInternal(version, profile, Constants.AGENT_PID, config, context);
     }
 
     private VersionData getVersionDataInternal(String versionId) {
@@ -1806,13 +1799,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private void assertReadLock() {
         //IllegalStateAssertion.assertTrue(readWriteLock.getReadLockCount() > 0 || readWriteLock.isWriteLocked(), "No read lock obtained");
         if (!(readWriteLock.getReadLockCount() > 0 || readWriteLock.isWriteLocked())) 
-            LOG.warn("No read lock obtained");
+            LOGGER.warn("No read lock obtained");
     }
 
     private void assertWriteLock() {
         //IllegalStateAssertion.assertTrue(readWriteLock.isWriteLocked(), "No write lock obtained");
         if (!readWriteLock.isWriteLocked()) 
-            LOG.warn("No write lock obtained");
+            LOGGER.warn("No write lock obtained");
     }
 
     static class VersionData {
@@ -1848,7 +1841,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                                     StoredConfig config = repository.getConfig();
                                     String currentUrl = config.getString("remote", "origin", "url");
                                     if (actualUrl != null && !actualUrl.equals(currentUrl)) {
-                                        LOG.info("Performing on remote url changed from: {} to: {}", currentUrl, actualUrl);
+                                        LOGGER.info("Performing on remote url changed from: {} to: {}", currentUrl, actualUrl);
                                         remoteUrl = actualUrl;
                                         config.setString("remote", "origin", "url", actualUrl);
                                         config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
@@ -1902,10 +1895,10 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         public List<Proxy> select(URI uri) {
             String host = uri.getHost();
             String path = uri.getPath();
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("ProxySelector uri: {}", uri);
-                LOG.trace("ProxySelector nonProxyHosts {}", proxyService.getNonProxyHosts());
-                LOG.trace("ProxySelector proxyHost {}", proxyService.getProxyHost());
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("ProxySelector uri: {}", uri);
+                LOGGER.trace("ProxySelector nonProxyHosts {}", proxyService.getNonProxyHosts());
+                LOGGER.trace("ProxySelector proxyHost {}", proxyService.getProxyHost());
             }
 
             // we should only intercept when its a git/fabric request
@@ -1917,7 +1910,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 answer = delegate.select(uri);
             }
 
-            LOG.debug("ProxySelector uri: {} -> {}", uri, answer);
+            LOGGER.debug("ProxySelector uri: {} -> {}", uri, answer);
             return answer;
         }
 

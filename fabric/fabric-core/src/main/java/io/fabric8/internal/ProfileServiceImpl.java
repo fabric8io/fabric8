@@ -142,8 +142,8 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     @Override
     public Profile createProfile(Profile profile) {
         assertValid();
-        createOrUpdateProfile(profile, true);
-        return getRequiredProfile(profile.getVersion(), profile.getId());
+        String profileId = profileRegistry.get().createProfile(profile);
+        return getRequiredProfile(profile.getVersion(), profileId);
     }
 
     @Override
