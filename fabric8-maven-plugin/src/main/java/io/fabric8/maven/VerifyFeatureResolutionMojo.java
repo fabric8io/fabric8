@@ -10,18 +10,22 @@ import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
 
 import io.fabric8.agent.DeploymentAgent;
 import io.fabric8.agent.DeploymentBuilder;
@@ -57,13 +61,13 @@ import static io.fabric8.agent.utils.AgentUtils.loadRepositories;
 public class VerifyFeatureResolutionMojo extends AbstractMojo {
 
     @Parameter(property = "descriptors")
-    private List<String> descriptors;
+    private Set<String> descriptors;
 
     @Parameter(property = "features")
-    private List<String> features;
+    private Set<String> features;
 
     @Parameter(property = "framework")
-    private List<String> framework;
+    private Set<String> framework;
 
     @Parameter(property = "distribution", defaultValue = "org.apache.karaf:apache-karaf")
     private String distribution;
@@ -111,45 +115,63 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
             }
         }
 
-        for (int i = 0; i < descriptors.size(); i++) {
-            properties.put("repository." + i, descriptors.get(i));
+        DownloadManager manager;
+        final Map<String, Repository> repositories;
+        Map<String, Feature[]> allFeatures = new HashMap<>();
+        try {
+            DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(properties);
+            MavenConfigurationImpl config = new MavenConfigurationImpl(propertyResolver, "org.ops4j.pax.url.mvn");
+            config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
+            manager = new DownloadManager(config, executor);
+            repositories = loadRepositories(manager, descriptors);
+            for (String repoUri : repositories.keySet()) {
+                allFeatures.put(repoUri, repositories.get(repoUri).getFeatures());
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Unable to load features descriptors", e);
         }
-        if (features == null || features.isEmpty()) {
-            try {
-                DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(properties);
-                MavenConfigurationImpl config = new MavenConfigurationImpl(propertyResolver, "org.ops4j.pax.url.mvn");
-                config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
-                DownloadManager manager = new DownloadManager(config, executor);
-                final Map<String, Repository> repositories = loadRepositories(manager, new HashSet<String>(descriptors));
 
-                features = new ArrayList<>();
-                if (verifyTransitive) {
-                    for (Repository repo : repositories.values()) {
-                        for (Feature feature : repo.getFeatures()) {
-                            features.add(feature.getName() + "/" + feature.getVersion());
-                        }
-                    }
-                } else {
-                    for (String uri : descriptors) {
-                        Repository repo = repositories.get(uri);
-                        for (Feature feature : repo.getFeatures()) {
-                            features.add(feature.getName() + "/" + feature.getVersion());
-                        }
-                    }
-                }
-
-            } catch (Exception e) {
-                throw new MojoExecutionException("Unable to load features descriptors", e);
+        List<Feature> featuresToTest = new ArrayList<>();
+        if (verifyTransitive) {
+            for (Feature[] features : allFeatures.values()) {
+                featuresToTest.addAll(Arrays.asList(features));
+            }
+        } else {
+            for (String uri : descriptors) {
+                featuresToTest.addAll(Arrays.asList(allFeatures.get(uri)));
             }
         }
-        for (int i = 0; i < framework.size(); i++) {
-            properties.put("feature.framework." + i, framework.get(i));
+        if (features != null && !features.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (String feature : features) {
+                if (sb.length() > 0) {
+                    sb.append("|");
+                }
+                String p = feature.replaceAll("\\.", "\\\\.").replaceAll("\\*", ".*");
+                sb.append(p);
+                if (!feature.contains("/")) {
+                    sb.append("/.*");
+                }
+            }
+            Pattern pattern = Pattern.compile(sb.toString());
+            for (Iterator<Feature> iterator = featuresToTest.iterator(); iterator.hasNext();) {
+                Feature feature = iterator.next();
+                String id = feature.getName() + "/" + feature.getVersion();
+                if (!pattern.matcher(id).matches()) {
+                    iterator.remove();
+                }
+            }
         }
-        List<Throwable> failures = new ArrayList<>();
-        for (int i = 0; i < features.size(); i++) {
+
+       for (String fmk : framework) {
+            properties.put("feature.framework." + fmk, fmk);
+       }
+       List<Throwable> failures = new ArrayList<>();
+       for (Feature feature : featuresToTest) {
             try {
-                verifyResolution(features.get(i), properties, executor);
-                getLog().info("Verification of feature " + features.get(i) + " succeeded");
+                String id = feature.getName() + "/" + feature.getVersion();
+                verifyResolution(manager, repositories, id, properties);
+                getLog().info("Verification of feature " + id + " succeeded");
             } catch (Exception e) {
                 getLog().warn(e.getMessage());
                 failures.add(e);
@@ -163,33 +185,15 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
         }
     }
 
-    private void verifyResolution(String feature, Hashtable<String, String> properties, ExecutorService executor) throws MojoExecutionException {
+    private void verifyResolution(DownloadManager manager, final Map<String, Repository> repositories, String feature, Hashtable<String, String> properties) throws MojoExecutionException {
         try {
             properties.put("feature.totest", feature);
 
-            DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(properties);
-            MavenConfigurationImpl config = new MavenConfigurationImpl(propertyResolver, "org.ops4j.pax.url.mvn");
-            config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
-            DownloadManager manager = new DownloadManager(config, executor);
-
             boolean resolveOptionalImports = getResolveOptionalImports(properties);
-
-            final Map<String, Repository> repositories = loadRepositories(manager, getPrefixedProperties(properties, "repository."));
-
-            // Update bundles
-            FabResolverFactoryImpl fabResolverFactory = new FabResolverFactoryImpl();
-            fabResolverFactory.setConfiguration(new DeploymentAgent.FabricFabConfiguration(config, propertyResolver));
-//            fabResolverFactory.setBundleContext(bundleContext);
-            fabResolverFactory.setFeaturesService(new FeaturesServiceImpl() {
-                @Override
-                public Repository[] listRepositories() {
-                    return repositories.values().toArray(new Repository[repositories.size()]);
-                }
-            });
 
             DeploymentBuilder builder = new DeploymentBuilder(
                     manager,
-                    fabResolverFactory,
+                    null,
                     repositories.values(),
                     -1 // Disable url handlers
             );
@@ -203,9 +207,6 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
                     getMetadata(properties, "metadata#")
             );
 
-            // TODO: handle default range policy on feature requirements
-            // TODO: handle default range policy on feature dependencies requirements
-
             for (String uri : getPrefixedProperties(properties, "resources.")) {
                 builder.addResourceRepository(new MetadataRepository(new HttpMetadataProvider(uri)));
             }
@@ -213,7 +214,8 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
             Resource systemBundle = getSystemBundleResource();
 
             try {
-                builder.resolve(systemBundle, resolveOptionalImports);
+                Collection<Resource> resources = builder.resolve(systemBundle, resolveOptionalImports);
+                // TODO: find unused resources ?
             } catch (Exception e) {
                 throw new MojoExecutionException("Feature resolution failed for " + feature
                         + "\nMessage: " + e.getMessage()
