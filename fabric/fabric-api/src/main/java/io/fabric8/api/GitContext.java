@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.git.internal;
+package io.fabric8.api;
 
 /**
  * Provides git context information so that the git operation
@@ -69,10 +69,10 @@ public class GitContext {
     /**
      * Marks a commit as required and appends the message.
      */
-    public void commit(String message) {
+    public void commitMessage(String message) {
         setRequireCommit(true);
         if (commitMessage.length() > 0) {
-            commitMessage.append("\n");
+            commitMessage.append("\n-");
         }
         commitMessage.append(message);
     }
@@ -80,7 +80,7 @@ public class GitContext {
     /**
      * Provides a hook for a commit message if an operation wishes to add something
      */
-    public StringBuilder getCommitMessage() {
-        return commitMessage;
+    public String getCommitMessage() {
+        return commitMessage.toString();
     }
 }

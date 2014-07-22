@@ -15,6 +15,8 @@
  */
 package io.fabric8.git.internal;
 
+import io.fabric8.api.GitContext;
+
 import org.eclipse.jgit.api.Git;
 
 /**
