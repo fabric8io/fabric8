@@ -506,3 +506,13 @@ In order to use the Process Registry API directly, you can inject `ProcessRegist
     String invoicingServiceUrl = processRegistry.readProperty("service.invoicing.url");
     Invoice invoice = new RestTemplate().getForObject(invoicingServiceUrl + "/" + 1, Invoice.class);
 
+#### Global access to the process registry
+
+If for some reasons you can't inject `ProcessRegistry` into your Spring managed beans, you can access global registry 
+instance initialized per Spring Boot JVM using static `ProcessRegistryHolder#processRegistry()` method.
+
+    ProcessRegistry processRegistry = ProcessRegistryHolder.processRegistry();
+    String invoicingServiceUrl = processRegistry.readProperty("service.invoicing.url");
+    Invoice invoice = new RestTemplate().getForObject(invoicingServiceUrl + "/" + 1, Invoice.class);
+
+

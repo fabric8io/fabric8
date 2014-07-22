@@ -15,9 +15,29 @@
  */
 package io.fabric8.process.spring.boot.registry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * If for some reasons you can't inject `ProcessRegistry` into your Spring managed beans, you can access global registry
+ * instance initialized per Spring Boot JVM using static {@code ProcessRegistryHolder#processRegistry()} method.
+ * <br><br>
+ * <pre>
+ * ProcessRegistry processRegistry = ProcessRegistryHolder.processRegistry();
+ * String invoicingServiceUrl = processRegistry.readProperty("service.invoicing.url");
+ * Invoice invoice = new RestTemplate().getForObject(invoicingServiceUrl + "/" + 1, Invoice.class);
+ * </pre>
+ */
 public class ProcessRegistryHolder {
 
-    static ProcessRegistry processRegistry;
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessRegistryHolder.class);
+
+    private static ProcessRegistry processRegistry;
+
+    static void processRegistry(ProcessRegistry registry) {
+        LOG.debug("Setting global process registry: {}", registry);
+        processRegistry = registry;
+    }
 
     public static ProcessRegistry processRegistry() {
         return processRegistry;
