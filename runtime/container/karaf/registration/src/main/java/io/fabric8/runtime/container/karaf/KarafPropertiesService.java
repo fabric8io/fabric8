@@ -32,6 +32,7 @@ package io.fabric8.runtime.container.karaf;
  * limitations under the License.
  */
 
+import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractRuntimeProperties;
@@ -70,7 +71,7 @@ public class KarafPropertiesService extends AbstractRuntimeProperties {
     private void activateInternal() {
         Runtime runtime = this.runtime.get();
         if (runtime.getProperty(RUNTIME_IDENTITY) == null) {
-            System.setProperty(RUNTIME_IDENTITY, System.getProperty("karaf.name"));
+            System.setProperty(RUNTIME_IDENTITY, System.getProperty("karaf.name", System.getenv(EnvironmentVariables.RUNTIME_ID)));
         }
         if (runtime.getProperty(RUNTIME_HOME_DIR) == null) {
             System.setProperty(RUNTIME_HOME_DIR, System.getProperty("karaf.home"));

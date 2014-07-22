@@ -16,7 +16,6 @@
 package io.fabric8.service.child;
 
 import io.fabric8.api.Container;
-import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreateContainerOptions;
@@ -103,7 +102,7 @@ public class ChildContainers {
         Map<String, String> envVarsOverlay = Profiles.getOverlayConfiguration(service, profileIds, versionId, EnvironmentVariables.ENVIRONMENT_VARIABLES_PID);
         String containerName = options.getName();
         envVarsOverlay.put(EnvironmentVariables.KARAF_NAME, containerName);
-        envVarsOverlay.put(EnvironmentVariables.CONTAINER_NAME, containerName);
+        envVarsOverlay.put(EnvironmentVariables.RUNTIME_ID, containerName);
         if (!options.isEnsembleServer()) {
             if (!envVarsOverlay.containsKey(EnvironmentVariables.ZOOKEEPER_URL)) {
                 envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_URL, zookeeperUrl);
