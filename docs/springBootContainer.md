@@ -489,3 +489,20 @@ resolve Spring properties.
 `ProcessRegistry` will be attempted to be read before regular Spring property sources (for example before the 
 `application.properties` file). If the desired value will not be found in the process registry, Spring will fallback
 to the other property sources.
+
+#### Injecting process registry
+
+In order to use the Process Registry API directly, you can inject `ProcessRegistry` into your Spring managed beans.
+
+    private final ProcessRegistry processRegistry;
+    
+    @Autowired
+    public MyBean(ProcessRegistry processRegistry) {
+        this.processRegistry = processRegistry;
+    }
+    
+    ...
+    
+    String invoicingServiceUrl = processRegistry.readProperty("service.invoicing.url");
+    Invoice invoice = new RestTemplate().getForObject(invoicingServiceUrl + "/" + 1, Invoice.class);
+
