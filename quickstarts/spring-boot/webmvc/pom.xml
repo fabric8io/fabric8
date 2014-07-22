@@ -85,6 +85,10 @@
             <groupId>io.fabric8</groupId>
             <artifactId>process-spring-boot-container</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>process-spring-boot-registry</artifactId>
+        </dependency>
 
         <!-- Spring -->
         <dependency>
