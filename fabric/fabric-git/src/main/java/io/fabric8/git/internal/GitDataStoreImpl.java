@@ -28,6 +28,7 @@ import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.Version;
 import io.fabric8.api.VersionSequence;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
@@ -501,6 +502,58 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
+    public void createVersion(final String parentId, final String versionId) {
+        LockHandle writeLock = aquireWriteLock();
+        try {
+            assertValid();
+            GitOperation<Void> gitop = new GitOperation<Void>() {
+                public Void call(Git git, GitContext context) throws Exception {
+                    checkoutVersion(git, parentId);
+                    createOrCheckoutVersion(git, versionId);
+                    context.commitMessage("Create version: " + parentId + " => " + versionId);
+                    return null;
+                }
+            };
+            executeWrite(gitop, true);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    @Override
+    public String createVersion(Version version) {
+        LockHandle writeLock = aquireWriteLock();
+        try {
+            assertValid();
+            String versionId = version.getId();
+            GitContext context = new GitContext();
+            createVersionInternal(context, versionId);
+            for (Entry<String, String> entry : version.getAttributes().entrySet()) {
+                setVersionAttributeInternal(context, versionId, entry.getKey(), entry.getValue());
+            }
+            for (Profile profile : version.getProfiles()) {
+                createOrUpdateProfile(context, profile, true, new HashSet<String>());
+            }
+            doCommit(getGit(), context.requireCommit().requirePush());
+            return versionId;
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    private void createVersionInternal(GitContext context, final String versionId) {
+        assertWriteLock();
+        GitOperation<Void> gitop = new GitOperation<Void>() {
+            public Void call(Git git, GitContext context) throws Exception {
+                createOrCheckoutVersion(git, versionId);
+                context.commitMessage("Create version: " + versionId);
+                return null;
+            }
+        };
+        executeInternal(context, null, gitop);
+    }
+
+    @Override
     public String createProfile(Profile profile) {
         LockHandle writeLock = aquireWriteLock();
         try {
@@ -591,6 +644,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private String checkoutProfileBranch(final String versionId, final String profileId) {
+        assertReadLock();
         GitOperation<String> gitop = new GitOperation<String>() {
             public String call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(versionId, profileId));
@@ -601,6 +655,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private String createProfileDirectoryAfterCheckout(GitContext context, final String versionId, final String profileId) {
+        assertWriteLock();
         String resultId = profileId;
         IllegalStateAssertion.assertFalse(context.isRequirePull(), "Cannot require pull when checkout is assumed");
         File profileDirectory = getProfileDirectory(getGit(), profileId);
@@ -617,6 +672,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private void setProfileAttributeInternal(GitContext context, final String version, final String profile, final String key, final String value) {
+        assertWriteLock();
         Map<String, String> config = getConfigurationInternal(version, profile, Constants.AGENT_PID);
         if (value != null) {
             config.put(DataStore.ATTRIBUTE_PREFIX + key, value);
@@ -627,6 +683,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private void setConfigurationInternal(GitContext context, final String version, final String profile, final String pid, final Map<String, String> configuration) {
+        assertWriteLock();
         GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
@@ -639,6 +696,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private void setFileConfigurationsInternal(GitContext context, final String version, final String profile, final Map<String, byte[]> configurations) {
+        assertWriteLock();
         GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
@@ -652,6 +710,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private void setConfigurationsInternal(GitContext context, final String version, final String profile, final Map<String, Map<String, String>> configurations) {
+        assertWriteLock();
         GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
@@ -759,29 +818,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public void createVersion(final String versionId) {
         assertValid();
-        GitOperation<Void> gitop = new GitOperation<Void>() {
-            public Void call(Git git, GitContext context) throws Exception {
-                createOrCheckoutVersion(git, versionId);
-                context.commitMessage("Create version: " + versionId);
-                return null;
-            }
-        };
-        executeWrite(gitop, false);
-    }
-
-    @Override
-    public void createVersion(final String parentId, final String versionId) {
-        assertValid();
-        GitOperation<Void> gitop = new GitOperation<Void>() {
-            public Void call(Git git, GitContext context) throws Exception {
-                // lets checkout the parent version first
-                checkoutVersion(git, parentId);
-                createOrCheckoutVersion(git, versionId);
-                context.commitMessage("Create version: " + parentId + " => " + versionId);
-                return null;
-            }
-        };
-        executeWrite(gitop, true);
+        GitContext context = new GitContext().requireCommit().requirePush();
+        createVersionInternal(context, versionId);
     }
 
     @Override
@@ -791,6 +829,10 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public void setVersionAttribute(String version, String key, String value) {
+        setVersionAttributeInternal(new GitContext(), version, key, value);
+    }
+
+    private void setVersionAttributeInternal(GitContext context, String version, String key, String value) {
         dataStore.get().setVersionAttribute(version, key, value);
     }
 

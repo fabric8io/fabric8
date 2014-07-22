@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.apache.felix.scr.annotations.Activate;
@@ -72,6 +71,20 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         deactivateComponent();
     }
     
+    @Override
+    public Version createVersion(Version version) {
+        assertValid();
+        String parentId = version.getParentId();
+        String versionId = version.getId();
+        if (parentId != null) {
+            LOGGER.info("createVersion: {} => {}", parentId, versionId);
+            profileRegistry.get().createVersion(parentId, versionId);
+        } else {
+            versionId = profileRegistry.get().createVersion(version);
+        }
+        return getRequiredVersion(versionId);
+    }
+
 	@Override
 	public List<String> getVersions() {
         assertValid();
@@ -115,28 +128,6 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         Version version = getVersion(versionId);
 		IllegalStateAssertion.assertNotNull(version, "Version '" + versionId + "' does not exist");
         return version;
-	}
-
-	@Override
-	public Version createVersion(Version version) {
-        assertValid();
-        
-        LOGGER.info("createVersion: {}", version);
-        
-        // [TODO] make atomic using locks
-        String versionId = version.getId();
-        if (version.getParentId() != null) {
-    		profileRegistry.get().createVersion(version.getParentId(), versionId);
-        } else {
-    		profileRegistry.get().createVersion(versionId);
-            for (Entry<String, String> entry : version.getAttributes().entrySet()) {
-                profileRegistry.get().setVersionAttribute(versionId, entry.getKey(), entry.getValue());
-            }
-            for (Profile profile : version.getProfiles()) {
-                profileRegistry.get().createProfile(profile);
-            }
-        }
-        return getRequiredVersion(versionId);
 	}
 
     @Override
