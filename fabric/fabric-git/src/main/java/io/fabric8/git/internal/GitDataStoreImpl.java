@@ -102,7 +102,6 @@ import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
-import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
@@ -506,7 +505,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            return createOrUpdateProfile(profile, true);
+            GitContext context = new GitContext();
+            checkoutProfileBranch(profile.getVersion(), profile.getId());
+            String profileId = createOrUpdateProfile(context, profile, true, new HashSet<String>());
+            doCommit(getGit(), context.requireCommit().requirePush());
+            return profileId;
         } finally {
             writeLock.unlock();
         }
@@ -517,59 +520,148 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            return createOrUpdateProfile(profile, false);
+            GitContext context = new GitContext();
+            checkoutProfileBranch(profile.getVersion(), profile.getId());
+            String profileId = createOrUpdateProfile(context, profile, false, new HashSet<String>());
+            doCommit(getGit(), context.requireCommit().requirePush());
+            return profileId;
         } finally {
             writeLock.unlock();
         }
     }
 
-    private String createOrUpdateProfile(final Profile profile, boolean allowCreate) {
+    private String createOrUpdateProfile(GitContext context, Profile profile, boolean allowCreate, Set<String> profiles) {
         assertWriteLock();
 
-        final String versionId = profile.getVersion();
-        final String profileId = profile.getId();
-
-        // Create the profile branch & directory
-        GitContext context = new GitContext().requirePull();
-        getOrCreateProfileInternal(context, versionId, profileId, allowCreate);
+        // Here we only want to do updates on an existing checkout without pull, commit or push 
+        IllegalStateAssertion.assertFalse(context.isRequirePull(), "Invalid pull requirement");
+        IllegalStateAssertion.assertFalse(context.isRequireCommit(), "Invalid commit requirement");
+        IllegalStateAssertion.assertFalse(context.isRequirePush(), "Invalid push requirement");
         
-        // Subsequent updates do not require a pull
-        context.setRequirePull(false);
-        
-        // Attributes
-        for (Entry<String, String> entry : profile.getAttributes().entrySet()) {
-            setProfileAttributeInternal(context, versionId, profileId, entry.getKey(), entry.getValue());
-        }
+        String versionId = profile.getVersion();
+        String profileId = profile.getId();
 
-        // Parent Profiles
-        List<Profile> parents = profile.getParents();
-        if (parents.size() > 0) {
-            StringBuilder sb = new StringBuilder();
+        if (!profiles.contains(profileId)) {
+            
+            // Process parents first
+            List<Profile> parents = profile.getParents();
             for (Profile parent : parents) {
-                if (sb.length() > 0) {
-                    sb.append(" ");
-                }
-                sb.append(parent.getId());
+                createOrUpdateProfile(context, parent, allowCreate, profiles);
             }
-            setProfileAttributeInternal(context, versionId, profileId, Profile.PARENTS, sb.toString());
-        }
-        
-        // FileConfigurations
-        Map<String, byte[]> fileConfigurations = profile.getFileConfigurations();
-        if (!fileConfigurations.isEmpty()) {
-            setFileConfigurationsInternal(context, versionId, profileId, fileConfigurations);
-        }
-        
-        // Configurations
-        Map<String, Map<String, String>> configurations = profile.getConfigurations();
-        if (!configurations.isEmpty()) {
-            setConfigurationsInternal(context, versionId, profileId, configurations);
+            
+            // Create the profile branch & directory
+            if (allowCreate) {
+                createProfileDirectoryAfterCheckout(context, versionId, profileId);
+            }
+            
+            // Attributes
+            for (Entry<String, String> entry : profile.getAttributes().entrySet()) {
+                setProfileAttributeInternal(context, versionId, profileId, entry.getKey(), entry.getValue());
+            }
+
+            // Parent Profiles
+            if (parents.size() > 0) {
+                StringBuilder sb = new StringBuilder();
+                for (Profile parent : parents) {
+                    if (sb.length() > 0) {
+                        sb.append(" ");
+                    }
+                    sb.append(parent.getId());
+                }
+                setProfileAttributeInternal(context, versionId, profileId, Profile.PARENTS, sb.toString());
+            }
+            
+            // FileConfigurations
+            Map<String, byte[]> fileConfigurations = profile.getFileConfigurations();
+            if (!fileConfigurations.isEmpty()) {
+                setFileConfigurationsInternal(context, versionId, profileId, fileConfigurations);
+            }
+            
+            // Configurations
+            Map<String, Map<String, String>> configurations = profile.getConfigurations();
+            if (!configurations.isEmpty()) {
+                setConfigurationsInternal(context, versionId, profileId, configurations);
+            }
+            
+            // Mark this profile as processed
+            profiles.add(profileId);
         }
 
-        // Commit the profile
-        doCommit(getGit(), context.requireCommit().requirePush());
-        
         return profileId;
+    }
+
+    private String checkoutProfileBranch(final String versionId, final String profileId) {
+        GitOperation<String> gitop = new GitOperation<String>() {
+            public String call(Git git, GitContext context) throws Exception {
+                checkoutVersion(git, GitProfiles.getBranch(versionId, profileId));
+                return profileId;
+            }
+        };
+        return executeRead(gitop, true);
+    }
+
+    private String createProfileDirectoryAfterCheckout(GitContext context, final String versionId, final String profileId) {
+        String resultId = profileId;
+        IllegalStateAssertion.assertFalse(context.isRequirePull(), "Cannot require pull when checkout is assumed");
+        File profileDirectory = getProfileDirectory(getGit(), profileId);
+        if (!profileDirectory.exists()) {
+            GitOperation<String> gitop = new GitOperation<String>() {
+                public String call(Git git, GitContext context) throws Exception {
+                    return doCreateProfile(git, context, versionId, profileId);
+                }
+            };
+            context = new GitContext(context).setRequirePull(false);
+            resultId = executeInternal(context, null, gitop);
+        }
+        return resultId;
+    }
+
+    private void setProfileAttributeInternal(GitContext context, final String version, final String profile, final String key, final String value) {
+        Map<String, String> config = getConfigurationInternal(version, profile, Constants.AGENT_PID);
+        if (value != null) {
+            config.put(DataStore.ATTRIBUTE_PREFIX + key, value);
+        } else {
+            config.remove(key);
+        }
+        setConfigurationInternal(context, version, profile, Constants.AGENT_PID, config);
+    }
+
+    private void setConfigurationInternal(GitContext context, final String version, final String profile, final String pid, final Map<String, String> configuration) {
+        GitOperation<Void> gitop = new GitOperation<Void>() {
+            public Void call(Git git, GitContext context) throws Exception {
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
+                doSetConfiguration(git, profile, pid, configuration);
+                context.commitMessage("Updated configuration for profile " + profile);
+                return null;
+            }
+        };
+        executeInternal(context, null, gitop);
+    }
+
+    private void setFileConfigurationsInternal(GitContext context, final String version, final String profile, final Map<String, byte[]> configurations) {
+        GitOperation<Void> gitop = new GitOperation<Void>() {
+            public Void call(Git git, GitContext context) throws Exception {
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
+                File profileDirectory = getProfileDirectory(git, profile);
+                doSetFileConfigurations(git, profileDirectory, profile, configurations);
+                context.commitMessage("Updated configuration for profile " + profile);
+                return null;
+            }
+        };
+        executeInternal(context, null, gitop);
+    }
+
+    private void setConfigurationsInternal(GitContext context, final String version, final String profile, final Map<String, Map<String, String>> configurations) {
+        GitOperation<Void> gitop = new GitOperation<Void>() {
+            public Void call(Git git, GitContext context) throws Exception {
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
+                File profileDirectory = getProfileDirectory(git, profile);
+                doSetConfigurations(git, profileDirectory, profile, configurations);
+                context.commitMessage("Updated configuration for profile " + profile);
+                return null;
+            }
+        };
+        executeInternal(context, null, gitop);
     }
 
     @Override
@@ -779,30 +871,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public String getProfile(final String versionId, final String profileId, final boolean allowCreate) {
         assertValid();
-        GitContext context = new GitContext().requirePull().requireCommit().requirePush();
-        return getOrCreateProfileInternal(context, versionId, profileId, allowCreate);
-    }
-
-    private String getOrCreateProfileInternal(GitContext context, final String versionId, final String profileId, final boolean allowCreate) {
-        GitOperation<String> gitop = new GitOperation<String>() {
-            public String call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, GitProfiles.getBranch(versionId, profileId));
-                return profileId;
-            }
-        };
-        String resultId = executeRead(gitop, true);
-
-        File profileDirectory = getProfileDirectory(getGit(), profileId);
-        if (!profileDirectory.exists() && allowCreate) {
-            gitop = new GitOperation<String>() {
-                public String call(Git git, GitContext context) throws Exception {
-                    return doCreateProfile(git, context, versionId, profileId);
-                }
-            };
-            context = new GitContext(context).setRequirePull(false);
-            resultId = executeInternal(context, null, gitop);
+        String resultId = checkoutProfileBranch(versionId, profileId);
+        if (allowCreate) {
+            GitContext context = new GitContext().requireCommit().requirePush();
+            resultId = createProfileDirectoryAfterCheckout(context, versionId, profileId);
         }
-
         return resultId;
     }
 
@@ -952,19 +1025,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         setFileConfigurationsInternal(context, version, profile, configurations);
     }
 
-    private void setFileConfigurationsInternal(GitContext context, final String version, final String profile, final Map<String, byte[]> configurations) {
-        GitOperation<Void> gitop = new GitOperation<Void>() {
-            public Void call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, GitProfiles.getBranch(version, profile));
-                File profileDirectory = getProfileDirectory(git, profile);
-                doSetFileConfigurations(git, profileDirectory, profile, configurations);
-                context.commitMessage("Updated configuration for profile " + profile);
-                return null;
-            }
-        };
-        executeInternal(context, null, gitop);
-    }
-
     private void doSetFileConfigurations(Git git, File profileDirectory, String profile, Map<String, byte[]> configurations) throws IOException, GitAPIException {
         Map<String, byte[]> oldCfgs = doGetFileConfigurations(git, profile);
 
@@ -1056,36 +1116,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         setConfigurationsInternal(context, version, profile, configurations);
     }
 
-    private void setConfigurationsInternal(GitContext context, final String version, final String profile, final Map<String, Map<String, String>> configurations) {
-        GitOperation<Void> gitop = new GitOperation<Void>() {
-            public Void call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, GitProfiles.getBranch(version, profile));
-                File profileDirectory = getProfileDirectory(git, profile);
-                doSetConfigurations(git, profileDirectory, profile, configurations);
-                context.commitMessage("Updated configuration for profile " + profile);
-                return null;
-            }
-        };
-        executeInternal(context, null, gitop);
-    }
-
     @Override
     public void setConfiguration(final String version, final String profile, final String pid, final Map<String, String> configuration) {
         assertValid();
         GitContext context = new GitContext().requirePull().requireCommit().requirePush();
         setConfigurationInternal(context, version, profile, pid, configuration);
-    }
-
-    private void setConfigurationInternal(GitContext context, final String version, final String profile, final String pid, final Map<String, String> configuration) {
-        GitOperation<Void> gitop = new GitOperation<Void>() {
-            public Void call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, GitProfiles.getBranch(version, profile));
-                doSetConfiguration(git, profile, pid, configuration);
-                context.commitMessage("Updated configuration for profile " + profile);
-                return null;
-            }
-        };
-        executeInternal(context, null, gitop);
     }
 
     private Git getGit() {
@@ -1653,16 +1688,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         assertValid();
         GitContext context = new GitContext().requirePull().requireCommit().requirePush();
         setProfileAttributeInternal(context, version, profile, key, value);
-    }
-
-    private void setProfileAttributeInternal(GitContext context, final String version, final String profile, final String key, final String value) {
-        Map<String, String> config = getConfigurationInternal(version, profile, Constants.AGENT_PID);
-        if (value != null) {
-            config.put(DataStore.ATTRIBUTE_PREFIX + key, value);
-        } else {
-            config.remove(key);
-        }
-        setConfigurationInternal(context, version, profile, Constants.AGENT_PID, config);
     }
 
     private VersionData getVersionDataInternal(String versionId) {
