@@ -15,17 +15,12 @@
  */
 package io.fabric8.process.spring.boot.registry;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+public class ProcessRegistryHolder {
 
-import static io.fabric8.process.spring.boot.registry.ProcessRegistryHolder.processRegistry;
+    static ProcessRegistry processRegistry;
 
-@Configuration
-public class ProcessRegistryAutoConfiguration {
-
-    @Bean
-    ProcessRegistry inMemoryProcessRegistry() {
-        return processRegistry();
+    public static ProcessRegistry processRegistry() {
+        return processRegistry;
     }
 
 }
