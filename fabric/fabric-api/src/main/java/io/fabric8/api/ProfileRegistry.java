@@ -44,6 +44,22 @@ public interface ProfileRegistry {
     // Profile management
     //
     
+    /**
+     * Create the given profile in the data store
+     * @return The profile id
+     */
+    String createProfile(GitContext context, Profile profile);
+    
+    /**
+     * Create the given profile in the data store
+     * @return The profile id
+     */
+    String updateProfile(GitContext context, Profile profile, boolean allowCreate);
+    
+    /**
+     * Get the profile for the given version and id
+     * @return The profile or null
+     */
     Profile getProfile(String versionId, String profileId);
     
     //

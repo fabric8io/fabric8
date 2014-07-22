@@ -15,7 +15,6 @@
  */
 package io.fabric8.api;
 
-import org.jboss.gravia.utils.IllegalStateAssertion;
 
 /**
  * Provides git context information
@@ -71,7 +70,6 @@ public class GitContext {
      * Append the commit message.
      */
     public void commitMessage(String message) {
-        IllegalStateAssertion.assertTrue(requireCommit, "Commit not required");
         if (commitMessage.length() > 0) {
             commitMessage.append("\n-");
         }
