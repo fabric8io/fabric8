@@ -1,9 +1,10 @@
 {
-    "startCommand": "bin/standalone.sh",
+    "startCommand": "bin/fabric8-launcher.sh start",
     "pidFile": "wildfly.pid",
-    "restartCommand": "",
-    "statusCommand": "",
-    "killCommand": "",
+    "restartCommand": "bin/fabric8-launcher.sh restart",
+    "statusCommand": "bin/fabric8-launcher.sh status",
+    "killCommand": "bin/fabric8-launcher.sh kill",
+    "stopCommand": "bin/fabric8-launcher.sh stop",
     "configureCommand": "",
 
     "deployPath": "standalone/deployments",
@@ -13,3 +14,4 @@
         "JBOSS_PIDFILE": "wildfly.pid"
     }
 }
+
