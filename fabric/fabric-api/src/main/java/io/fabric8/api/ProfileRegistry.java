@@ -48,7 +48,7 @@ public interface ProfileRegistry {
      * Create the given profile in the data store
      * @return The profile id
      */
-    String createProfile(GitContext context, Profile profile);
+    String createProfile(Profile profile);
     
     /**
      * Create the given profile in the data store

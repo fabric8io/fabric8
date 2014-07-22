@@ -21,10 +21,28 @@ package io.fabric8.api;
  */
 public class GitContext {
 
+    private boolean requirePull;
     private boolean requirePush;
-    private String pushBranch;
     private boolean requireCommit;
+    private String pushBranch;
     private StringBuilder commitMessage = new StringBuilder();
+
+    /**
+     * Indicates a pull will be required before the operation is executed.
+     */
+    public GitContext requirePull() {
+        setRequirePull(true);
+        return this;
+    }
+
+    public boolean isRequirePull() {
+        return requirePull;
+    }
+
+    public GitContext setRequirePull(boolean requirePull) {
+        this.requirePull = requirePull;
+        return this;
+    }
 
     /**
      * Indicates a  push will be required after the operation is completed.
@@ -38,8 +56,9 @@ public class GitContext {
         return requirePush;
     }
 
-    public void setRequirePush(boolean requirePush) {
+    public GitContext setRequirePush(boolean requirePush) {
         this.requirePush = requirePush;
+        return this;
     }
 
     /**
@@ -54,26 +73,29 @@ public class GitContext {
         return requireCommit;
     }
 
-    public void setRequireCommit(boolean requireCommit) {
+    public GitContext setRequireCommit(boolean requireCommit) {
         this.requireCommit = requireCommit;
+        return this;
     }
 
     public String getPushBranch() {
         return pushBranch;
     }
 
-    public void setPushBranch(String pushBranch) {
+    public GitContext setPushBranch(String pushBranch) {
         this.pushBranch = pushBranch;
+        return this;
     }
 
     /**
      * Append the commit message.
      */
-    public void commitMessage(String message) {
+    public GitContext commitMessage(String message) {
         if (commitMessage.length() > 0) {
             commitMessage.append("\n-");
         }
         commitMessage.append(message);
+        return this;
     }
 
     /**
