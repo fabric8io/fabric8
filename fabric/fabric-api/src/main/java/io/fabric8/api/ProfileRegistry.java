@@ -41,6 +41,21 @@ public interface ProfileRegistry {
     LockHandle aquireReadLock();
     
     //
+    // Version management
+    //
+
+    /**
+     * Create a version as a copy from the given parent version 
+     */
+    void createVersion(String parentId, String versionId);
+
+    /**
+     * Create the given version in the data store
+     * @return The version id
+     */
+    String createVersion(Version version);
+
+    //
     // Profile management
     //
     
@@ -61,64 +76,63 @@ public interface ProfileRegistry {
      * @return The profile or null
      */
     Profile getProfile(String versionId, String profileId);
+
+    //
+    // Endorsed for migration
+    //
     
+    List<String> getVersions();
+
+    boolean hasVersion(String versionId);
+    
+    void deleteVersion(String versionId);
+    
+    boolean hasProfile(String versionId, String profileId);
+
+    List<String> getProfiles(String versionId);
+
+    void deleteProfile(String versionId, String profileId);
+
+    //
+    // Import/Export 
+    // [TODO] Consider utility methods for import/export that go through ProfileService 
+    //
+    
+    void importProfiles(String versionId, List<String> profileZipUrls);
+
+    void importFromFileSystem(String from);
+
+    void exportProfiles(String versionId, String outputFileName, String wildcard);
+
     //
     // [TODO] Below are methods that are accessed directly throughout the code base
     // These should go through {@link ProfileService}
     //
     
-    void createVersion(String version);
-
-    void createVersion(String parentVersionId, String toVersion);
-
-    boolean hasVersion(String name);
-    
-    Map<String, String> getVersionAttributes(String version);
-    
-    void setVersionAttribute(String version, String key, String value);
-    
-    List<String> getVersions();
-
-    void deleteVersion(String version);
+    void createVersion(String versionId);
     
     void createProfile(String version, String profile);
-
-    boolean hasProfile(String version, String profile);
-
-    String getLastModified(String version, String profile);
-
-    List<String> getProfiles(String version);
-
+    String getProfile(String version, String profile, boolean create);
+    
+    Map<String, String> getVersionAttributes(String version);
+    void setVersionAttribute(String version, String key, String value);
+    
     Map<String, String> getProfileAttributes(String version, String profile);
-
     void setProfileAttribute(String version, String profile, String key, String value);
 
     Map<String, byte[]> getFileConfigurations(String version, String profile);
-
     void setFileConfigurations(String version, String profile, Map<String, byte[]> configurations);
 
     Map<String, Map<String, String>> getConfigurations(String version, String profile);
-
     void setConfigurations(String version, String profile, Map<String, Map<String, String>> configurations);
 
-    void deleteProfile(String version, String profile);
-
-    void importProfiles(String version, List<String> profileZipUrls);
-
-    void exportProfiles(String version, String outputFileName, String wildcard);
-
-    String getProfile(String version, String profile, boolean create);
-
     byte[] getFileConfiguration(String version, String profile, String name);
-
     void setFileConfiguration(String version, String profile, String name, byte[] configuration);
 
     Map<String, String> getConfiguration(String version, String profile, String pid);
-
     void setConfiguration(String version, String profile, String pid, Map<String, String> configuration);
-
-    void importFromFileSystem(String from);
 
     Collection<String> listFiles(final String version, final Iterable<String> profiles, final String path);
 
+    String getLastModified(String version, String profile);
 }
