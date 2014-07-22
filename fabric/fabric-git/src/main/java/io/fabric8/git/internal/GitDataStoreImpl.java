@@ -1038,40 +1038,28 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         try {
             Git git = getGit();
             Repository repository = git.getRepository();
-            // lets default the identity if none specified
+            
             if (personIdent == null) {
                 personIdent = new PersonIdent(repository);
             }
 
+            // Stash any local changes
+            // [TODO] What is done with the git stashes, why not reset --hard?
             if (GitHelpers.hasGitHead(git)) {
-                // lets stash any local changes just in case..
                 git.stashCreate().setPerson(personIdent).setWorkingDirectoryMessage("Stash before a write").call();
             }
 
+            CredentialsProvider credentialsProvider = getCredentialsProvider();
             if (pullFirst) {
-                doPull(git, getCredentialsProvider(), false);
+                doPull(git, credentialsProvider, false);
             }
 
             T answer = operation.call(git, context);
+            
             if (context.isRequireCommit()) {
-                String message = context.getCommitMessage();
-                IllegalStateAssertion.assertTrue(message.length() > 0, "Empty commit message");
-                git.commit().setMessage(message).call();
-                if (--commitsWithoutGC < 0) {
-                    commitsWithoutGC = MAX_COMMITS_WITHOUT_GC;
-                    LOG.debug("Performing \"git gc\" after {} commits", MAX_COMMITS_WITHOUT_GC);
-                    git.gc().call();
-                }
+                doCommit(git, context, credentialsProvider);
             }
-
-            if (context.isRequirePush()) {
-                doPush(git, context, getCredentialsProvider());
-            }
-
-            if (context.isRequireCommit()) {
-                clearCaches();
-                dataStore.get().fireChangeNotifications();
-            }
+            
             return answer;
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
@@ -1081,36 +1069,59 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
     }
 
+    private void doCommit(Git git, GitContext context, CredentialsProvider credentialsProvider) throws GitAPIException {
+        
+        String message = context.getCommitMessage();
+        IllegalStateAssertion.assertTrue(message.length() > 0, "Empty commit message");
+        git.commit().setMessage(message).call();
+        
+        if (--commitsWithoutGC < 0) {
+            commitsWithoutGC = MAX_COMMITS_WITHOUT_GC;
+            LOG.debug("Performing 'git gc' after {} commits", MAX_COMMITS_WITHOUT_GC);
+            git.gc().call();
+        }
+        
+        // Clear caches on successful commit
+        cachedVersions.invalidateAll();
+
+        // Notify on successful commit
+        try {
+            if (context.isRequirePush()) {
+                doPush(git, context, credentialsProvider);
+            }
+        } finally {
+            dataStore.get().fireChangeNotifications();
+        }
+    }
+
     /**
      * Pushes any changes - assumed to be invoked within a gitOperation method!
      */
     @Override
-    public Iterable<PushResult> doPush(Git git, GitContext gitContext) throws Exception {
+    public Iterable<PushResult> doPush(Git git, GitContext context) throws Exception {
         assertValid();
-        return doPush(git, gitContext, getCredentialsProvider());
+        return doPush(git, context, getCredentialsProvider());
     }
 
     /**
      * Pushes any committed changes to the remote repo
      */
-    private Iterable<PushResult> doPush(Git git, GitContext gitContext, CredentialsProvider credentialsProvider) throws Exception {
-        assertValid();
+    private Iterable<PushResult> doPush(Git git, GitContext gitContext, CredentialsProvider credentialsProvider) {
+        Iterable<PushResult> results = Collections.emptyList();
         try {
             Repository repository = git.getRepository();
             StoredConfig config = repository.getConfig();
             String url = config.getString("remote", remoteRef.get(), "url");
             if (Strings.isNullOrBlank(url)) {
                 LOG.info("No remote repository defined yet for the git repository at " + GitHelpers.getRootGitDirectory(git) + " so not doing a push");
-                return Collections.emptyList();
+            } else {
+                results = git.push().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setPushAll().call();
             }
-
-            return git.push().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setPushAll().call();
         } catch (Throwable ex) {
-            // log stacktrace at debug level
-            LOG.warn("Failed to push from the remote git repo " + GitHelpers.getRootGitDirectory(git) + " due " + ex.getMessage() + ". This exception is ignored.");
             LOG.debug("Failed to push from the remote git repo " + GitHelpers.getRootGitDirectory(git) + ". This exception is ignored.", ex);
-            return Collections.emptyList();
+            LOG.warn("Failed to push from the remote git repo " + GitHelpers.getRootGitDirectory(git) + " due " + ex.getMessage() + ". This exception is ignored.");
         }
+        return results;
     }
 
     private CredentialsProvider getCredentialsProvider() {
@@ -1723,11 +1734,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         cachedVersions.invalidate(version);
     }
 
-    private void clearCaches() {
-        assertValid();
-        cachedVersions.invalidateAll();
-    }
-
     private static class VersionData {
         final Map<String, ProfileData> profiles = new HashMap<String, ProfileData>();
     }
@@ -1799,7 +1805,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         @Override
         public void onReceivePack() {
             assertValid();
-            clearCaches();
+            cachedVersions.invalidateAll();
         }
     }
 
