@@ -115,9 +115,9 @@ public class Parser {
         String withoutMvnPrefix = location;
         boolean done = false;
         while (!done) {
-            int idx = location.indexOf(':');
-            if (idx > 0) {
-                withoutMvnPrefix = location.substring(idx + 1);
+            int idx = withoutMvnPrefix.indexOf(':');
+            if (idx >= 0) {
+                withoutMvnPrefix = withoutMvnPrefix.substring(idx + 1);
             }
             // there may be a inlined maven repo location (assuming http), so we are done if we find that
             if (withoutMvnPrefix.startsWith("http:")) {
