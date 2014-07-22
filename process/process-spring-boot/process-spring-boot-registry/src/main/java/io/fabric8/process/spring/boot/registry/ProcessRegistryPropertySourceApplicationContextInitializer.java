@@ -22,7 +22,6 @@ import org.springframework.util.ClassUtils;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static io.fabric8.process.spring.boot.registry.ProcessRegistryHolder.processRegistry;
 import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistry.autodetectZooKeeperProcessRegistry;
 
 /**
@@ -50,8 +49,9 @@ public class ProcessRegistryPropertySourceApplicationContextInitializer implemen
             registries.add(autodetectZooKeeperProcessRegistry());
         }
 
-        processRegistry = new CompositeProcessRegistry(registries);
-        ProcessRegistryPropertySource propertySource = new ProcessRegistryPropertySource(processRegistry);
+        ProcessRegistry registry = new CompositeProcessRegistry(registries);
+        ProcessRegistryHolder.processRegistry(registry);
+        ProcessRegistryPropertySource propertySource = new ProcessRegistryPropertySource(registry);
         applicationContext.getEnvironment().getPropertySources().addFirst(propertySource);
     }
 
