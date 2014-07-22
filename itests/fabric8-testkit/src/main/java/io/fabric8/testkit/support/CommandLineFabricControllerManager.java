@@ -56,7 +56,7 @@ import static org.junit.Assert.fail;
  * An implementation of {@link io.fabric8.testkit.FabricControllerManager} which uses a binary distribution, unpacks it
  * and runs shell commands to create a fabric.
  */
-public class CommandLineFabricControllerManager implements FabricControllerManager {
+public class CommandLineFabricControllerManager extends FabricControllerManagerSupport {
     public static final String KILL_CONTAINERS_FLAG = "fabric8.testkit.killContainers";
 
     private static final transient Logger LOG = LoggerFactory.getLogger(CommandLineFabricControllerManager.class);
@@ -64,11 +64,8 @@ public class CommandLineFabricControllerManager implements FabricControllerManag
     private File workDirectory;
     private File installDir;
     private String startFabricScriptName = "bin/fabric8-start";
-    private String[] allowedEnvironmentVariables = {"JAVA_HOME", "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MAVEN_HOME", "PATH", "USER"};
-    private Set<String> profiles = new HashSet<>();
 
     public CommandLineFabricControllerManager() {
-        profiles.add("autoscale");
     }
 
     public File getWorkDirectory() {
@@ -133,14 +130,6 @@ public class CommandLineFabricControllerManager implements FabricControllerManag
 
         File instancesFile = waitForInstancesFile(20 * 1000);
         killInstanceProcesses(instancesFile);
-    }
-
-    public String[] getAllowedEnvironmentVariables() {
-        return allowedEnvironmentVariables;
-    }
-
-    public void setAllowedEnvironmentVariables(String[] allowedEnvironmentVariables) {
-        this.allowedEnvironmentVariables = allowedEnvironmentVariables;
     }
 
     protected FabricController createFabricRestApi() {
@@ -238,19 +227,6 @@ public class CommandLineFabricControllerManager implements FabricControllerManag
                 LOG.debug("Setting " + entry.getKey() + "=" + entry.getValue());
             }
         }
-    }
-
-    protected Map<String, String> createEnvironmentVariables() {
-        Map<String, String> answer = new HashMap<>();
-        Map<String, String> current = System.getenv();
-        for (String variable : allowedEnvironmentVariables) {
-            String value = current.get(variable);
-            if (Strings.isNotBlank(value)) {
-                answer.put(variable, value);
-            }
-        }
-        answer.put(EnvironmentVariables.FABRIC8_PROFILES, join(profiles, ","));
-        return answer;
     }
 
 
