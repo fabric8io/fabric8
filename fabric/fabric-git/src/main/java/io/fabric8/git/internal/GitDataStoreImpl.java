@@ -123,6 +123,7 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.gitective.core.CommitUtils;
 import org.gitective.core.RepositoryUtils;
+import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -496,8 +497,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public void setRemote(String remote) {
-        if (remote == null)
-            throw new IllegalArgumentException("Remote name cannot be null");
+        IllegalArgumentAssertion.assertNotNull(remote, "Remote name cannot be null");
         this.remoteRef.set(remote);
     }
 
@@ -551,6 +551,54 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         };
         executeInternal(context, null, gitop);
+    }
+
+    @Override
+    public List<String> getVersions() {
+        LockHandle readLock = aquireReadLock();
+        try {
+            assertValid();
+            List<String> result = new ArrayList<>(versions);
+            Collections.sort(result, VersionSequence.getComparator());
+            return Collections.unmodifiableList(result);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    @Override
+    public boolean hasVersion(String versionId) {
+        LockHandle readLock = aquireReadLock();
+        try {
+            assertValid();
+            return getVersions().contains(versionId);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    @Override
+    public void deleteVersion(final String version) {
+        LockHandle writeLock = aquireWriteLock();
+        try {
+            assertValid();
+            GitOperation<Void> gitop = new GitOperation<Void>() {
+                public Void call(Git git, GitContext context) throws Exception {
+                    removeVersionFromCaches(version);
+                    GitHelpers.removeBranch(git, version);
+                    doPush(git, context, getCredentialsProvider());
+                    return null;
+                }
+            };
+            executeWrite(gitop, true);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    private void removeVersionFromCaches(String version) {
+        versions.remove(version);
+        cachedVersions.invalidate(version);
     }
 
     @Override
@@ -836,39 +884,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         dataStore.get().setVersionAttribute(version, key, value);
     }
 
-    @Override
-    public void deleteVersion(final String version) {
-        assertValid();
-        // remove a branch
-        GitOperation<Void> gitop = new GitOperation<Void>() {
-            public Void call(Git git, GitContext context) throws Exception {
-                removeVersion(version);
-                GitHelpers.removeBranch(git, version);
-                git.push().setTimeout(gitTimeout)
-                        .setCredentialsProvider(getCredentialsProvider())
-                        .setRefSpecs(new RefSpec().setSource(null).setDestination("refs/heads/" + version))
-                        .call();
-                return null;
-            }
-        };
-        executeWrite(gitop, true);
-    }
-
-    @Override
-    public List<String> getVersions() {
-        assertValid();
-        List<VersionSequence> sequences = new ArrayList<>();
-        for (String versionId : versions) {
-            sequences.add(new VersionSequence(versionId));
-        }
-        Collections.sort(sequences);
-        List<String> verlist = new ArrayList<>();
-        for (VersionSequence seq : sequences) {
-            verlist.add(seq.getName());
-        }
-        return Collections.unmodifiableList(verlist);
-    }
-
     private List<String> forceGetVersions() {
         GitOperation<List<String>> gitop = new GitOperation<List<String>>() {
             public List<String> call(Git git, GitContext context) throws Exception {
@@ -890,12 +905,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         };
         return executeRead(gitop, false);
-    }
-
-    @Override
-    public boolean hasVersion(String name) {
-        assertValid();
-        return getVersions().contains(name);
     }
 
     private File getProfilesDirectory(Git git) {
@@ -1264,7 +1273,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     /**
      * Pushes any committed changes to the remote repo
      */
-    private Iterable<PushResult> doPush(Git git, GitContext gitContext, CredentialsProvider credentialsProvider) {
+    private Iterable<PushResult> doPush(Git git, GitContext context, CredentialsProvider credentialsProvider) {
         Iterable<PushResult> results = Collections.emptyList();
         try {
             Repository repository = git.getRepository();
@@ -1381,7 +1390,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                             git.checkout().setName(MASTER_BRANCH).setForce(true).call();
                             git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
                         }
-                        removeVersion(version);
+                        removeVersionFromCaches(version);
                         hasChanged = true;
                     }
                 }
@@ -1860,11 +1869,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         } else {
             return new HashMap<String, String>();
         }
-    }
-
-    private void removeVersion(String version) {
-        versions.remove(version);
-        cachedVersions.invalidate(version);
     }
 
     private void assertReadLock() {

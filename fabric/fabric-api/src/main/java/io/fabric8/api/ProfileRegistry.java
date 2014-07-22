@@ -55,6 +55,21 @@ public interface ProfileRegistry {
      */
     String createVersion(Version version);
 
+    /**
+     * Get the ordered list of available versions
+     */
+    List<String> getVersions();
+
+    /**
+     * True if the data store contains the given version
+     */
+    boolean hasVersion(String versionId);
+
+    /**
+     * Delete the given version and all associated profiles
+     */
+    void deleteVersion(String versionId);
+    
     //
     // Profile management
     //
@@ -80,12 +95,6 @@ public interface ProfileRegistry {
     //
     // Endorsed for migration
     //
-    
-    List<String> getVersions();
-
-    boolean hasVersion(String versionId);
-    
-    void deleteVersion(String versionId);
     
     boolean hasProfile(String versionId, String profileId);
 
