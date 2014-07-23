@@ -141,9 +141,6 @@ public interface ProfileRegistry {
     // These should go through {@link ProfileService}
     //
     
-    Map<String, String> getVersionAttributes(String version);
-    void setVersionAttribute(String version, String key, String value);
-    
     Map<String, String> getProfileAttributes(String version, String profile);
     void setProfileAttribute(String version, String profile, String key, String value);
 
