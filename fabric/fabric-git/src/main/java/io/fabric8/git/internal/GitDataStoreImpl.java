@@ -25,6 +25,7 @@ import io.fabric8.api.GitContext;
 import io.fabric8.api.LockHandle;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileBuilders;
 import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
@@ -161,6 +162,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private final ValidatingReference<GitProxyService> gitProxyService = new ValidatingReference<>();
     @Reference(referenceInterface = DataStore.class)
     private final ValidatingReference<DataStore> dataStore = new ValidatingReference<>();
+    @Reference(referenceInterface = ProfileBuilders.class)
+    private final ValidatingReference<ProfileBuilders> profileBuilders = new ValidatingReference<>();
     @Reference(referenceInterface = RuntimeProperties.class)
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<>();
 
@@ -688,6 +691,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 setConfigurationsInternal(context, versionId, profileId, configurations);
             }
             
+            // A warning commit message if there has been none yet 
+            if (context.getCommitMessage().length() == 0) {
+                context.commitMessage("WARNING - Profile with no content: " + versionId + "/" + profileId);
+            }
+            
             // Mark this profile as processed
             profiles.add(profileId);
         }
@@ -809,6 +817,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         } finally {
             readLock.unlock();
         }
+    }
+
+    @Override
+    public Profile getRequiredProfile(String versionId, String profileId) {
+        Profile profile = getProfile(versionId, profileId);
+        IllegalStateAssertion.assertNotNull(profile, "Cannot obtain profile: " + versionId + "/" + profileId);
+        return profile;
     }
 
     private Profile getProfileInternal(String versionId, String profileId) {
@@ -2049,7 +2064,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     void bindConfigurer(Configurer service) {
         this.configurer = service;
     }
-
     void unbindConfigurer(Configurer service) {
         this.configurer = null;
     }
@@ -2057,7 +2071,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     void bindCurator(CuratorFramework service) {
         this.curator.bind(service);
     }
-
     void unbindCurator(CuratorFramework service) {
         this.curator.unbind(service);
     }
@@ -2065,7 +2078,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     void bindDataStore(DataStore service) {
         this.dataStore.bind(service);
     }
-
     void unbindDataStore(DataStore service) {
         this.dataStore.unbind(service);
     }
@@ -2073,7 +2085,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     void bindGitProxyService(GitProxyService service) {
         this.gitProxyService.bind(service);
     }
-
     void unbindGitProxyService(GitProxyService service) {
         this.gitProxyService.unbind(service);
     }
@@ -2081,15 +2092,20 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     void bindGitService(GitService service) {
         this.gitService.bind(service);
     }
-
     void unbindGitService(GitService service) {
         this.gitService.unbind(service);
     }
 
+    void bindProfileBuilders(ProfileBuilders service) {
+        this.profileBuilders.bind(service);
+    }
+    void unbindProfileBuilders(ProfileBuilders service) {
+        this.profileBuilders.unbind(service);
+    }
+    
     void bindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.bind(service);
     }
-
     void unbindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.unbind(service);
     }

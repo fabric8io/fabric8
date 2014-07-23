@@ -106,11 +106,6 @@ public interface ProfileBuilder extends AttributableBuilder<ProfileBuilder> {
             return factory.profileBuilder(versionId, profileId);
         }
 
-        public static ProfileBuilder createFrom(String versionId, String profileId) {
-            ProfileBuilders factory = ServiceLocator.getRequiredService(ProfileBuilders.class);
-            return factory.profileBuilderFrom(versionId, profileId);
-        }
-        
         public static ProfileBuilder createFrom(Profile profile) {
             ProfileBuilders factory = ServiceLocator.getRequiredService(ProfileBuilders.class);
             return factory.profileBuilderFrom(profile);
