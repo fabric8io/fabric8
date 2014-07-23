@@ -776,6 +776,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         executeInternal(context, null, gitop);
     }
 
+    @Override
     public boolean hasProfile(String versionId, String profileId) {
         LockHandle readLock = aquireReadLock();
         try {
@@ -823,6 +824,19 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             profile = builder.getProfile();
         }
         return profile;
+    }
+
+    @Override
+    public List<String> getProfiles(String version) {
+        LockHandle readLock = aquireReadLock();
+        try {
+            assertValid();
+            VersionData versionData = getVersionData(version);
+            List<String> profiles = versionData != null ? new ArrayList<String>(versionData.profiles.keySet()) : Collections.<String>emptyList();
+            return Collections.unmodifiableList(profiles);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
@@ -960,6 +974,31 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
+    public void deleteProfile(final String version, final String profile) {
+        LockHandle writeLock = aquireWriteLock();
+        try {
+            assertValid();
+            deleteProfileInternal(version, profile);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    private void deleteProfileInternal(final String version, final String profile) {
+        assertWriteLock();
+        GitOperation<Void> gitop = new GitOperation<Void>() {
+            public Void call(Git git, GitContext context) throws Exception {
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
+                File profileDirectory = getProfileDirectory(git, profile);
+                doRecursiveDeleteAndRemove(git, profileDirectory);
+                context.commitMessage("Removed profile " + profile);
+                return null;
+            }
+        };
+        executeWrite(gitop, false);
+    }
+
+    @Override
     public void importProfiles(final String version, final List<String> profileZipUrls) {
         assertValid();
         GitOperation<String> gitop = new GitOperation<String>() {
@@ -1015,21 +1054,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         };
         executeWrite(gitop, true);
-    }
-
-    @Override
-    public void deleteProfile(final String version, final String profile) {
-        assertValid();
-        GitOperation<Void> gitop = new GitOperation<Void>() {
-            public Void call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, GitProfiles.getBranch(version, profile));
-                File profileDirectory = getProfileDirectory(git, profile);
-                doRecursiveDeleteAndRemove(git, profileDirectory);
-                context.commitMessage("Removed profile " + profile);
-                return null;
-            }
-        };
-        executeWrite(gitop, false);
     }
 
     @Override
@@ -1826,12 +1850,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         versionData.profiles.put(profile, profileData);
     }
 
-    public List<String> getProfiles(String version) {
-        assertValid();
-        VersionData v = getVersionData(version);
-        return v != null && v.profiles != null ? new ArrayList<String>(v.profiles.keySet()) : new ArrayList<String>();
-    }
-
     @Override
     public String getLastModified(String version, String profile) {
         assertValid();
@@ -1896,7 +1914,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     static class VersionData {
-        final Map<String, ProfileData> profiles = new HashMap<String, ProfileData>();
+        private final Map<String, ProfileData> profiles = new HashMap<String, ProfileData>();
     }
 
     static class ProfileData {

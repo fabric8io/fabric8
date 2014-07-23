@@ -97,12 +97,14 @@ public interface ProfileRegistry {
      */
     Profile getProfile(String versionId, String profileId);
 
-    //
-    // Endorsed for migration
-    //
-    
+    /** 
+     * Get the list of profiles associated with the given version  
+     */
     List<String> getProfiles(String versionId);
 
+    /**
+     * Delete the given profile from the data store
+     */
     void deleteProfile(String versionId, String profileId);
 
     //
