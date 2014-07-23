@@ -230,6 +230,7 @@
         <bundle>mvn:io.fabric8/fabric-extender-listener/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-jaas/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-zookeeper/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-log/${project.version}</bundle>
         <bundle>mvn:io.fabric8.runtime/fabric-runtime-container-karaf-registration/${project.version}</bundle>
     </feature>
 
