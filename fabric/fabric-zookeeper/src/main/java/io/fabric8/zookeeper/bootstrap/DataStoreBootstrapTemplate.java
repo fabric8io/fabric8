@@ -45,6 +45,7 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryNTimes;
 import org.apache.karaf.jaas.modules.Encryption;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
+import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -70,7 +71,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
 
     @Override
     public void doWith(ProfileRegistry profileRegistry, DataStore dataStore) {
-        String version = options.getVersion();
+        String versionId = options.getVersion();
         int minimumPort = options.getMinimumPort();
         int maximumPort = options.getMaximumPort();
         String zooKeeperServerHost = options.getBindAddress();
@@ -96,10 +97,10 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             }
 
             // set the fabric configuration
-            setData(curator, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);
+            setData(curator, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), versionId);
 
             // configure default profile
-            String defaultProfile = profileRegistry.getProfile(version, "default", true);
+            String defaultProfileId = profileRegistry.getProfile(versionId, "default", true);
 
             setData(curator, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), "${zk:" + name + "/ip}:" + zooKeeperServerConnectionPort);
             setData(curator, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), PasswordEncoder.encode(options.getZookeeperPassword()));
@@ -107,12 +108,14 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             Properties zkProps = new Properties();
             zkProps.setProperty("zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
             zkProps.setProperty("zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
-            profileRegistry.setFileConfiguration(version, defaultProfile, "io.fabric8.zookeeper.properties", DataStoreUtils.toBytes(zkProps));
+            profileRegistry.setFileConfiguration(versionId, defaultProfileId, "io.fabric8.zookeeper.properties", DataStoreUtils.toBytes(zkProps));
 
             // configure the ensemble
-            String ensembleProfile = profileRegistry.getProfile(version, "fabric-ensemble-0000", true);
-            profileRegistry.setProfileAttribute(version, ensembleProfile, "abstract", "true");
-            profileRegistry.setProfileAttribute(version, ensembleProfile, "hidden", "true");
+            String profileId = "fabric-ensemble-0000";
+            IllegalStateAssertion.assertFalse(profileRegistry.hasProfile(versionId, profileId), "Profile already exists: " + versionId + "/" + profileId);
+            String ensembleProfileId = profileRegistry.getProfile(versionId, profileId, true);
+            profileRegistry.setProfileAttribute(versionId, ensembleProfileId, "abstract", "true");
+            profileRegistry.setProfileAttribute(versionId, ensembleProfileId, "hidden", "true");
 
             Properties ensembleProps = new Properties();
             ensembleProps.put("tickTime", String.valueOf(options.getZooKeeperServerTickTime()));
@@ -121,28 +124,30 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             ensembleProps.put("dataDir", options.getZooKeeperServerDataDir() + File.separator + "0000");
 
             loadPropertiesFrom(ensembleProps, importPath + "/fabric/profiles/default.profile/io.fabric8.zookeeper.server.properties");
-            profileRegistry.setFileConfiguration(version, ensembleProfile, "io.fabric8.zookeeper.server-0000.properties", DataStoreUtils.toBytes(ensembleProps));
+            profileRegistry.setFileConfiguration(versionId, ensembleProfileId, "io.fabric8.zookeeper.server-0000.properties", DataStoreUtils.toBytes(ensembleProps));
 
             // configure this server in the ensemble
-            String ensembleServerProfile = profileRegistry.getProfile(version, "fabric-ensemble-0000-1", true);
-            profileRegistry.setProfileAttribute(version, ensembleServerProfile, "hidden", "true");
-            profileRegistry.setProfileAttribute(version, ensembleServerProfile, "parents", ensembleProfile);
+            profileId = "fabric-ensemble-0000-1";
+            IllegalStateAssertion.assertFalse(profileRegistry.hasProfile(versionId, profileId), "Profile already exists: " + versionId + "/" + profileId);
+            String ensembleServerProfileId = profileRegistry.getProfile(versionId, profileId, true);
+            profileRegistry.setProfileAttribute(versionId, ensembleServerProfileId, "hidden", "true");
+            profileRegistry.setProfileAttribute(versionId, ensembleServerProfileId, "parents", ensembleProfileId);
             Properties serverProps = new Properties();
             serverProps.put("clientPort", String.valueOf(mappedPort));
             serverProps.put("clientPortAddress", zooKeeperServerHost);
-            profileRegistry.setFileConfiguration(version, ensembleServerProfile, "io.fabric8.zookeeper.server-0000.properties",
+            profileRegistry.setFileConfiguration(versionId, ensembleServerProfileId, "io.fabric8.zookeeper.server-0000.properties",
                     DataStoreUtils.toBytes(serverProps));
 
             setData(curator, ZkPath.CONFIG_ENSEMBLES.getPath(), "0000");
             setData(curator, ZkPath.CONFIG_ENSEMBLE.getPath("0000"), name);
 
             // configure fabric profile
-            String fabricProfile = profileRegistry.getProfile(version, "fabric", true);
-            Properties agentProps = DataStoreUtils.toProperties(profileRegistry.getFileConfiguration(version, fabricProfile, "io.fabric8.agent.properties"));
+            String fabricProfile = profileRegistry.getProfile(versionId, "fabric", true);
+            Properties agentProps = DataStoreUtils.toProperties(profileRegistry.getFileConfiguration(versionId, fabricProfile, "io.fabric8.agent.properties"));
             agentProps.put("feature.fabric-commands", "fabric-commands");
-            profileRegistry.setFileConfiguration(version, "fabric", "io.fabric8.agent.properties", DataStoreUtils.toBytes(agentProps));
+            profileRegistry.setFileConfiguration(versionId, "fabric", "io.fabric8.agent.properties", DataStoreUtils.toBytes(agentProps));
 
-            createDefault(curator, ZkPath.CONFIG_CONTAINER.getPath(name), version);
+            createDefault(curator, ZkPath.CONFIG_CONTAINER.getPath(name), versionId);
 
             StringBuilder profilesBuilder = new StringBuilder();
             Set<String> profiles = options.getProfiles();
@@ -154,12 +159,12 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
                 profilesBuilder.append(" ").append("unmanaged");
             }
 
-            createDefault(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name), profilesBuilder.toString());
+            createDefault(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, name), profilesBuilder.toString());
 
             // add auth
             Map<String, String> configs = new HashMap<String, String>();
             configs.put("encryption.enabled", "${zk:/fabric/authentication/encryption.enabled}");
-            profileRegistry.setConfiguration(version, defaultProfile, "io.fabric8.jaas", configs);
+            profileRegistry.setConfiguration(versionId, defaultProfileId, "io.fabric8.jaas", configs);
 
             // outside of the profile storage area, so we'll keep these in zk
             EncryptionSupport encryption = addUsersToZookeeper(curator, options.getUsers());
