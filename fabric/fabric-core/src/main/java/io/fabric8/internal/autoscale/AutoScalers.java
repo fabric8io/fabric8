@@ -138,13 +138,12 @@ public class AutoScalers {
     /**
      * Filters the available host configurations
      */
-    public static SortedSet<LoadSortedHostConfiguration<SshHostConfiguration>> filterHosts(FabricRequirements requirements, ProfileRequirements profileRequirements, HostScalingRequirements scalingRequirements, HostProfileCounter hostProfileCounter) {
-        SortedSet<LoadSortedHostConfiguration<SshHostConfiguration>> answer = new TreeSet<>();
+    public static <T extends HostConfiguration> SortedSet<LoadSortedHostConfiguration<T>> filterHosts(ProfileRequirements profileRequirements, HostScalingRequirements scalingRequirements, HostProfileCounter hostProfileCounter, List<T> hosts) {
+        SortedSet<LoadSortedHostConfiguration<T>> answer = new TreeSet<>();
         int index = 0;
-        List<SshHostConfiguration> hosts = requirements.getSshHosts();
         Filter<String> hostFilter = createHostAliasFilter(scalingRequirements);
         Filter<HostConfiguration> configFilter = createHostConfigFilter(scalingRequirements);
-        for (SshHostConfiguration config : hosts) {
+        for (T config : hosts) {
             String hostName = config.getHostName();
             if (hostFilter.matches(hostName) && configFilter.matches(config)) {
                 String profile = profileRequirements.getProfile();

@@ -29,12 +29,10 @@ import io.fabric8.api.SshScalingRequirements;
 import io.fabric8.internal.autoscale.AutoScalers;
 import io.fabric8.internal.autoscale.HostProfileCounter;
 import io.fabric8.internal.autoscale.LoadSortedHostConfiguration;
-import io.fabric8.utils.CountingMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 import java.util.SortedSet;
 
 /**
@@ -103,7 +101,8 @@ public class SshAutoScaler implements ContainerAutoScaler {
         FabricRequirements requirements = request.getFabricRequirements();
         ProfileRequirements profileRequirements = request.getProfileRequirements();
         SshScalingRequirements sshScalingRequirements = profileRequirements.getSshScalingRequirements();
-        SortedSet<LoadSortedHostConfiguration<SshHostConfiguration>> sortedHostConfigurations = AutoScalers.filterHosts(requirements, profileRequirements, sshScalingRequirements, hostProfileCounter);
+        List<SshHostConfiguration> hosts = requirements.getSshHosts();
+        SortedSet<LoadSortedHostConfiguration<SshHostConfiguration>> sortedHostConfigurations = AutoScalers.filterHosts(profileRequirements, sshScalingRequirements, hostProfileCounter, hosts);
         SshHostConfiguration sshHostConfig = null;
         if (!sortedHostConfigurations.isEmpty()) {
             LoadSortedHostConfiguration<SshHostConfiguration> first = sortedHostConfigurations.first();
@@ -111,6 +110,7 @@ public class SshAutoScaler implements ContainerAutoScaler {
         }
         if (sshHostConfig == null) {
             LOG.warn("Could not create version " + request.getVersion() + " profile " + request.getProfile() + " as no matching hosts could be found for " + sshScalingRequirements);
+            request.getProfileAutoScaleStatus().noSuitableHost("" + sshScalingRequirements);
             return null;
         }
         builder.configure(sshHostConfig, requirements, profileRequirements);
