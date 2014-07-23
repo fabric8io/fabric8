@@ -56,7 +56,17 @@ public final class EnvPlaceholderResolver extends AbstractComponent implements P
     public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value) {
         if (value != null && value.length() > RESOLVER_SCHEME.length()) {
             String name = value.substring(RESOLVER_SCHEME.length() + 1);
-            return System.getenv(name);
+            int idx = name.indexOf("?:");
+            String defaultValue = null;
+            if (idx > 0) {
+                defaultValue = name.substring(idx + 2);
+                name = name.substring(0, idx);
+            }
+            String answer = System.getenv(name);
+            if (answer == null) {
+                answer = defaultValue;
+            }
+            return answer;
         }
         return value;
     }

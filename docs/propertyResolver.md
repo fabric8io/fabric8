@@ -28,6 +28,13 @@ For accessing an environment variable.
 bindPort=${env:OPENSHIFT_FUSE_AMQ_PORT}
 ```
 
+You can use a the elvis operator a little like with [groovy](http://docs.groovy-lang.org/docs/next/html/documentation/core-operators.html#_elvis_operator) to specify a default value if an environment variable is not set
+
+```
+bindPort=${env:OPENSHIFT_FUSE_AMQ_PORT?:1234}
+```
+
+Where the text after the **?:** token is used as the default value if the environment variable is not set
 
 ### Groovy
 
