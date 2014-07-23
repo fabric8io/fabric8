@@ -178,7 +178,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             String versionId = dataStore.get().getDefaultVersion();
 
             for (String container : containers) {
-                Container c = fabricService.get().getContainer(container);
+                fabricService.get().getContainer(container);
                 if (exists(curator.get(), ZkPath.CONTAINER_ALIVE.getPath(container)) == null) {
                     throw new EnsembleModificationFailed("The container " + container + " is not alive", EnsembleModificationFailed.Reason.CONTAINERS_NOT_ALIVE);
                 }
@@ -413,7 +413,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
 
     public void removeFromCluster(List<String> containers) {
         assertValid();
-        Builder<? extends Builder> builder = CreateEnsembleOptions.builder();
+        Builder<?> builder = CreateEnsembleOptions.builder();
         String password = fabricService.get().getZookeeperPassword();
         CreateEnsembleOptions options = builder.zookeeperPassword(password).build();
         removeFromCluster(containers, options);
