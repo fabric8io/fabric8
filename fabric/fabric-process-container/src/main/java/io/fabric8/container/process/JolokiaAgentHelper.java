@@ -246,10 +246,13 @@ public class JolokiaAgentHelper {
             for (Map.Entry<String, String> envEntry : envEntries) {
                 String envKey = envEntry.getKey();
                 String envValue = envEntry.getValue();
-                if (Strings.isNotBlank(envKey) && Strings.isNotBlank(envValue)) {
+                if (Strings.isNotBlank(answer) && Strings.isNotBlank(envKey) && Strings.isNotBlank(envValue)) {
                     answer = answer.replace("${env:" + envKey + "}", envValue);
                 }
             }
+        }
+        if (Strings.isNullOrBlank(answer)) {
+            return answer;
         }
         String zkUser = null;
         String zkPassword = null;
