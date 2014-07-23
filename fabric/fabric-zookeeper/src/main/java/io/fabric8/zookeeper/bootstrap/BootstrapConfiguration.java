@@ -157,8 +157,7 @@ public class BootstrapConfiguration extends AbstractComponent {
     }
 
     void configureInternal(Map<String, ?> conf) throws Exception {
-        configuration = conf;
-        configurer.configure(conf, this);
+        configuration = configurer.configure(conf, this);
 
         if (Strings.isNullOrBlank(runtimeId)) {
             throw new IllegalArgumentException("Runtime id must not be null or empty.");
