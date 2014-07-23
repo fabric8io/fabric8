@@ -31,7 +31,7 @@ bindPort=${env:OPENSHIFT_FUSE_AMQ_PORT}
 
 ### Groovy
 
-This property resolver allows you to use [Groovy]() script expressions to dynamically resolve values; particularly using the API calls on the [ZooKeeperFacade](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric-zookeeper/src/main/java/io/fabric8/zookeeper/utils/ZooKeeperFacade.java#L30) interface.
+This property resolver allows you to use [Groovy](http://groovy-lang.org/) script expressions to dynamically resolve values; particularly using the API calls on the [ZooKeeperFacade](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric-zookeeper/src/main/java/io/fabric8/zookeeper/utils/ZooKeeperFacade.java#L30) interface.
 
 e.g. to dynamically lookup the available Cassandra hosts you can use this expression
 
@@ -41,6 +41,33 @@ bindPort=${groovy:zk.matchingDescendantStringData("/fabric/registry/clusters/cas
 
 Where the **matchingDescendantStringData()** function on the **zk** object looks up all the listen hosts in the ZooKeeper registry (using '*' to indicate a wildcard path) and then joins the values with a comma.
 
+You can also do things like [use the elvis operator](http://docs.groovy-lang.org/docs/next/html/documentation/core-operators.html#_elvis_operator) to use an environment variable or system property value or use a default value if not using expressions such as
+
+```
+something=${groovy:env.MY_ENV_VAR ?: 'someDefaultValue'}
+something=${groovy:sys['foo.bar'] ?: 'anotherThing'}
+```
+
+#### Helper objects
+
+<table class="table table-striped">
+<tr>
+<th>Environment Variable</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>env</td>
+<td>A Map of all the environment variables available</td>
+</tr>
+<tr>
+<td>sys</td>
+<td>A Map of all the system properties available</td>
+</tr>
+<tr>
+<td>zk</td>
+<td>An instance of the <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric-zookeeper/src/main/java/io/fabric8/zookeeper/utils/ZooKeeperFacade.java#L30">ZooKeeperFacade class</> for making it easy to query and navigate around ZooKeeper and extract values</td>
+</tr>
+</table>
 ### Port
 
 When running multiple child containers on a machine, you need to associate ports to JVMs. Fabric8 supports port allocation using a property resolver of the form...

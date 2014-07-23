@@ -74,6 +74,8 @@ public final class GroovyPlaceholderResolver extends AbstractComponent implement
             Binding binding = new Binding();
             ZooKeeperFacade zk = new ZooKeeperFacade(curator);
             binding.setVariable("zk", zk);
+            binding.setVariable("env", System.getenv());
+            binding.setVariable("sys", System.getProperties());
             GroovyShell shell = new GroovyShell(binding);
             String expression = value;
             if (expression.startsWith(RESOLVER_SCHEME + ":")) {
