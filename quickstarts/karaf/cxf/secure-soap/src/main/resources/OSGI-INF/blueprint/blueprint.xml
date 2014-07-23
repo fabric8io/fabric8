@@ -39,9 +39,6 @@
                     implementor="io.fabric8.quickstarts.soap.secure.HelloWorldImpl"
                     address="/HelloWorldSecurity">
 
-        <jaxws:features>
-            <bean class="io.fabric8.cxf.endpoint.ManagedApiFeature"/>
-        </jaxws:features>
 
         <!--
           We will be adding two interceptors to the inbound interceptor chain:
