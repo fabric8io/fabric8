@@ -1,4 +1,9 @@
 
+### 1.1.0.CR5
+
+* [AutoScaler](http://fabric8.io/gitbook/requirements.html) can now properly recreate ssh containers if the [ssh hosts are specified in the json](https://github.com/fabric8io/fabric8-devops/blob/master/autoscaler/ssh-mq-demo.json#L29) like in [this example](https://github.com/fabric8io/fabric8-devops/tree/master/autoscaler) plus there is a new **autoscale-status** CLI command to see how the auto scaler is progressing
+* Fixes [these 56 issues and enhancements](https://github.com/fabric8io/fabric8/issues?milestone=11&state=closed)
+
 ### 1.1.0.CR3
 
 * New top level Profiles tab in the web console makes it nice and easy to view and search all profiles; filtering by text or tag with nice icons and summary text coming from icon.(svg,png,jpg) and Summary.md files in the wiki
