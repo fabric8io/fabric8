@@ -17,15 +17,12 @@
  */
 package io.fabric8.testkit.support;
 
-import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.common.util.Closeables;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.IOHelpers;
-import io.fabric8.common.util.Strings;
 import io.fabric8.process.manager.support.ProcessUtils;
 import io.fabric8.testkit.FabricAssertions;
 import io.fabric8.testkit.FabricController;
-import io.fabric8.testkit.FabricControllerManager;
 import io.fabric8.testkit.jolokia.JolokiaFabricController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +33,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -109,12 +103,6 @@ public class CommandLineFabricControllerManager extends FabricControllerManagerS
         executeCommand(installDir, "./" + startFabricScriptName);
 
         final FabricController restApi = createFabricRestApi();
-
-        Thread.sleep(30 * 1000);
-
-        List<String> containerIds = FabricAssertions.waitForNotEmptyContainerIds(restApi);
-        System.out.println("Found containers: " + containerIds);
-
         return restApi;
     }
 

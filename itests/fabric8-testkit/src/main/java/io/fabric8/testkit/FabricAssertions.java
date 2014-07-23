@@ -59,7 +59,6 @@ public class FabricAssertions {
         assertNotNull("FabricRequirements", requirements);
 
         FabricController restAPI = assertFabricCreate(factory);
-        assertNotNull("Should have created a REST API", restAPI);
 
         // now lets post the requirements
         try {
@@ -68,22 +67,40 @@ public class FabricAssertions {
             LOG.error("Failed to set requirements: " + e, e);
             fail(unwrapException(e));
         }
-        assertRequirementsSatisfied(factory, restAPI, requirements);
+        assertRequirementsSatisfied(restAPI, requirements);
 
         return restAPI;
     }
 
     /**
-     * Asserts that the requirements are met within the default amount of time
+     * Asserts that the requirements can be satisfied
      */
-    public static void assertRequirementsSatisfied(FabricControllerManager factory, FabricController restAPI, FabricRequirements requirements) throws Exception {
-        assertRequirementsSatisfied(factory, restAPI, requirements, 5 * 60 * 1000);
+    public static FabricController assertSetRequirementsAndTheyAreSatisfied(FabricController controller, FabricRequirements requirements) throws Exception {
+        assertNotNull("FabricController", controller);
+        assertNotNull("FabricRequirements", requirements);
+
+        try {
+            controller.setRequirements(requirements);
+        } catch (Exception e) {
+            LOG.error("Failed to set requirements: " + e, e);
+            fail(unwrapException(e));
+        }
+        assertRequirementsSatisfied(controller, requirements);
+
+        return controller;
     }
 
     /**
      * Asserts that the requirements are met within the default amount of time
      */
-    public static void assertRequirementsSatisfied(FabricControllerManager factory, final FabricController restAPI, final FabricRequirements requirements, long timeout) throws Exception {
+    public static void assertRequirementsSatisfied(FabricController controller, FabricRequirements requirements) throws Exception {
+        assertRequirementsSatisfied(controller, requirements, 5 * 60 * 1000);
+    }
+
+    /**
+     * Asserts that the requirements are met within the default amount of time
+     */
+    public static void assertRequirementsSatisfied(final FabricController controller, final FabricRequirements requirements, long timeout) throws Exception {
         assertNotNull("Should have some FabricRequirements", requirements);
         waitForValidValue(timeout, new Callable<Boolean>() {
             @Override
@@ -92,12 +109,12 @@ public class FabricAssertions {
                 boolean valid = true;
                 List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
                 assertNotNull("Should have some profileRequirements", profileRequirements);
-                String version = requirementOrDefaultVersion(restAPI, requirements);
+                String version = requirementOrDefaultVersion(controller, requirements);
                 for (ProfileRequirements profileRequirement : profileRequirements) {
                     Integer minimumInstances = profileRequirement.getMinimumInstances();
                     if (minimumInstances != null) {
                         String profile = profileRequirement.getProfile();
-                        List<String> containerIds = restAPI.containerIdsForProfile(version, profile);
+                        List<String> containerIds = controller.containerIdsForProfile(version, profile);
                         int current = containerIds.size();
                         if (current < minimumInstances) {
                             System.out.println("Still waiting for " + minimumInstances + " instance(s) of profile " + profile + " currently has: " + containerIds);
@@ -105,7 +122,7 @@ public class FabricAssertions {
                             break;
                         } else {
                             // TODO assert the containers are started up OK!
-                            if (checkMinimumInstancesSuccessful(restAPI, profile, minimumInstances, containerIds)) {
+                            if (checkMinimumInstancesSuccessful(controller, profile, minimumInstances, containerIds)) {
                                 System.out.println("Valid profile " + profile + " requires " + minimumInstances + " instance(s) and has: " + containerIds);
                             } else {
                                 valid = false;
@@ -181,7 +198,14 @@ public class FabricAssertions {
      */
     public static FabricController assertFabricCreate(FabricControllerManager factory) throws Exception {
         assertNotNull("FabricFactory", factory);
-        return factory.createFabric();
+        FabricController restAPI = factory.createFabric();
+        assertNotNull("Should have created a REST API", restAPI);
+
+        Thread.sleep(30 * 1000);
+
+        List<String> containerIds = waitForNotEmptyContainerIds(restAPI);
+        System.out.println("Found containers: " + containerIds);
+        return restAPI;
     }
 
     public static void assertFileExists(File file) {
