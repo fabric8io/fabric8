@@ -146,7 +146,8 @@ public class FabricAssertions {
                 System.out.println("No ContainerDTO for " + containerId);
             } else {
                 System.out.println("Container " + containerId + " alive: " + container.isAlive() + " result: " + container.getProvisionResult()
-                        + " status: " + container.getProvisionStatus() + " complete: " + container.isProvisioningComplete() + " pending: " + container.isProvisioningPending());
+                        + " status: " + container.getProvisionStatus() + " complete: " + container.isProvisioningComplete()
+                        + " pending: " + container.isProvisioningPending() + " " + container.getProvisionException());
                 if (container.isAliveAndOK() && container.isProvisioningComplete() && !container.isProvisioningPending() && "success".equals(container.getProvisionResult())) {
                     System.out.println("Container + " + containerId + " is up!");
                     successful += 1;
