@@ -61,7 +61,7 @@
       <artifactId>fabric8-karaf</artifactId>
       <version>${project.version}</version>
       <type>tar.gz</type>
-      <scope>compile</scope>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
