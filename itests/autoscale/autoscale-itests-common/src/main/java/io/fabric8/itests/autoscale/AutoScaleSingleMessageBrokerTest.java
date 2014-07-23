@@ -37,7 +37,7 @@ public class AutoScaleSingleMessageBrokerTest {
 
     @Test
     public void createProvisionedFabric() throws Exception {
-        System.out.println("We are now inside a created fabric; lets define our requirements");
+        System.out.println("The fabric has now been created somewhere and we have a controller for it, so lets define our requirements");
 
         FabricRequirements requirements = new FabricRequirements();
         requirements.profile("mq-default").minimumInstances(1);
