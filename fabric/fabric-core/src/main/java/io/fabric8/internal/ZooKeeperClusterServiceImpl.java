@@ -65,6 +65,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -174,7 +175,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 throw new EnsembleModificationFailed("Can not modify the zookeeper ensemble if all containers are not running. Containers not ready:" + notAliveOrOk, EnsembleModificationFailed.Reason.CONTAINERS_NOT_ALIVE);
             }
 
-            String version = dataStore.get().getDefaultVersion();
+            String versionId = dataStore.get().getDefaultVersion();
 
             for (String container : containers) {
                 Container c = fabricService.get().getContainer(container);
@@ -190,7 +191,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 String profile = "fabric-ensemble-" + oldClusterId;
                 String pid = "io.fabric8.zookeeper.server-" + oldClusterId;
 
-                Map<String, String> p = profileRegistry.get().getConfiguration(version, profile, pid);
+                Map<String, String> p = profileRegistry.get().getConfiguration(versionId, profile, pid);
 
                 if (p == null) {
                     throw new EnsembleModificationFailed("Failed to find old cluster configuration for ID " + oldClusterId, EnsembleModificationFailed.Reason.ILLEGAL_STATE);
@@ -201,13 +202,13 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     if (node.startsWith("server.")) {
                         String data = getSubstitutedData(
                                 curator.get(),
-                                profileRegistry.get().getConfigurations(version, "fabric-ensemble-" + oldClusterId)
+                                profileRegistry.get().getConfigurations(versionId, "fabric-ensemble-" + oldClusterId)
                                         .get("io.fabric8.zookeeper.server-" + oldClusterId).get(node));
                         addUsedPorts(usedPorts, data);
                     }
                 }
 
-                Map<String, String> zkConfig = profileRegistry.get().getConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID);
+                Map<String, String> zkConfig = profileRegistry.get().getConfiguration(versionId, "default", Constants.ZOOKEEPER_CLIENT_PID);
                 if (zkConfig == null) {
                     throw new FabricException("Failed to find old zookeeper configuration in default profile");
                 }
@@ -225,9 +226,11 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             }
 
             // create new ensemble
-            String ensembleProfile = profileRegistry.get().getProfile(version, "fabric-ensemble-" + newClusterId, true);
-            profileRegistry.get().setProfileAttribute(version, ensembleProfile, "abstract", "true");
-            profileRegistry.get().setProfileAttribute(version, ensembleProfile, "hidden", "true");
+            String profileId = "fabric-ensemble-" + newClusterId;
+            IllegalStateAssertion.assertFalse(profileRegistry.get().hasProfile(versionId, profileId), "Profile already exists: " + versionId + "/" + profileId);
+            String ensembleProfileId = profileRegistry.get().getProfile(versionId, profileId, true);
+            profileRegistry.get().setProfileAttribute(versionId, ensembleProfileId, "abstract", "true");
+            profileRegistry.get().setProfileAttribute(versionId, ensembleProfileId, "hidden", "true");
 
             Properties ensembleProperties = new Properties();
             ensembleProperties.put("tickTime", String.valueOf(options.getZooKeeperServerTickTime()));
@@ -262,9 +265,11 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 Properties ensembleMemberProperties = new Properties();
 
                 // configure this server in the ensemble
-                String ensembleMemberProfile = profileRegistry.get().getProfile(version, "fabric-ensemble-" + newClusterId + "-" + Integer.toString(index), true);
-                profileRegistry.get().setProfileAttribute(version, ensembleMemberProfile, "hidden", "true");
-                profileRegistry.get().setProfileAttribute(version, ensembleMemberProfile, "parents", ensembleProfile);
+                profileId = "fabric-ensemble-" + newClusterId + "-" + index;
+                IllegalStateAssertion.assertFalse(profileRegistry.get().hasProfile(versionId, profileId), "Profile already exists: " + versionId + "/" + profileId);
+                String ensembleMemberProfileId = profileRegistry.get().getProfile(versionId, profileId, true);
+                profileRegistry.get().setProfileAttribute(versionId, ensembleMemberProfileId, "hidden", "true");
+                profileRegistry.get().setProfileAttribute(versionId, ensembleMemberProfileId, "parents", ensembleProfileId);
 
                 String port1 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_SERVER_PORT, minimumPort, maximumPort)));
                 if (containers.size() > 1) {
@@ -276,7 +281,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 ensembleMemberProperties.put("clientPort", port1);
                 ensembleMemberProperties.put("clientPortAddress", bindAddress);
 
-                profileRegistry.get().setFileConfiguration(version, ensembleMemberProfile, ensembleMemberConfigName, DataStoreUtils.toBytes(ensembleMemberProperties));
+                profileRegistry.get().setFileConfiguration(versionId, ensembleMemberProfileId, ensembleMemberConfigName, DataStoreUtils.toBytes(ensembleMemberProperties));
 
                 if (connectionUrl.length() > 0) {
                     connectionUrl += ",";
@@ -292,7 +297,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             }
 
             String ensembleConfigName = "io.fabric8.zookeeper.server-" + newClusterId + ".properties";
-            profileRegistry.get().setFileConfiguration(version, ensembleProfile, ensembleConfigName, DataStoreUtils.toBytes(ensembleProperties));
+            profileRegistry.get().setFileConfiguration(versionId, ensembleProfileId, ensembleConfigName, DataStoreUtils.toBytes(ensembleProperties));
 
             index = 1;
             for (String container : containers) {
@@ -304,7 +309,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             }
 
             if (oldClusterId != null) {
-                Properties properties = DataStoreUtils.toProperties(profileRegistry.get().getConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID));
+                Properties properties = DataStoreUtils.toProperties(profileRegistry.get().getConfiguration(versionId, "default", Constants.ZOOKEEPER_CLIENT_PID));
                 properties.put("zookeeper.url", getSubstitutedData(curator.get(), realConnectionUrl));
                 properties.put("zookeeper.password", options.getZookeeperPassword());
                 CuratorFramework dst = CuratorFrameworkFactory.builder().connectString(realConnectionUrl).retryPolicy(new RetryOneTime(500))
@@ -368,10 +373,10 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     dst.close();
                 }
             } else {
-                Map<String, String> zkConfig = profileRegistry.get().getConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID);
+                Map<String, String> zkConfig = profileRegistry.get().getConfiguration(versionId, "default", Constants.ZOOKEEPER_CLIENT_PID);
                 zkConfig.put("zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
                 zkConfig.put("zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
-                profileRegistry.get().setConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID, zkConfig);
+                profileRegistry.get().setConfiguration(versionId, "default", Constants.ZOOKEEPER_CLIENT_PID, zkConfig);
             }
         } catch (Exception e) {
             throw EnsembleModificationFailed.launderThrowable(e);
