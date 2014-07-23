@@ -17,6 +17,7 @@ package io.fabric8.internal;
 
 import io.fabric8.api.AbstractAttributableBuilder;
 import io.fabric8.api.Constants;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.OptionsProvider;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
@@ -241,6 +242,18 @@ final class DefaultProfileBuilder extends AbstractAttributableBuilder<ProfileBui
 			String prfversion = profile.getVersion();
 			IllegalStateAssertion.assertEquals(versionId, prfversion, "Profile version not '" + versionId + "' for: " + profile);
 		}
+		// [TODO] Define rules about profile attribute/config keys
+		for (Entry<String, String> entry : getAttributes().entrySet()) {
+		    String key = entry.getKey();
+            IllegalStateAssertion.assertFalse(key.startsWith(DataStore.ATTRIBUTE_PREFIX), "Invalid attribute key: " + key);
+		}
+		/*
+		for (Entry<String, Map<String, String>> entry : configurations.entrySet()) {
+            String key = entry.getKey();
+            // The configuration with this pid, must be given as individual attributes
+            IllegalStateAssertion.assertFalse(key.equals(Constants.AGENT_PID), "Invalid configuration pid: " + key);
+		}
+		*/
 	}
 
 	@Override
