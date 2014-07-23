@@ -25,6 +25,7 @@ import org.jboss.arquillian.container.spi.client.container.ContainerConfiguratio
  */
 public class Fabric8ContainerConfiguration implements ContainerConfiguration {
     private String profiles;
+    private String workFolder;
 
     @Override
     public void validate() throws ConfigurationException {
@@ -36,5 +37,13 @@ public class Fabric8ContainerConfiguration implements ContainerConfiguration {
 
     public void setProfiles(String profiles) {
         this.profiles = profiles;
+    }
+
+    public String getWorkFolder() {
+        return workFolder;
+    }
+
+    public void setWorkFolder(String workFolder) {
+        this.workFolder = workFolder;
     }
 }

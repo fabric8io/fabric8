@@ -20,15 +20,19 @@ package org.jboss.arquillian.container.fabric8.remote;
 import io.fabric8.common.util.Strings;
 import io.fabric8.testkit.FabricAssertions;
 import io.fabric8.testkit.FabricController;
+import io.fabric8.testkit.FabricControllerManager;
 import io.fabric8.testkit.support.CommandLineFabricControllerManager;
+import io.fabric8.testkit.support.FabricControllerManagerSupport;
 import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.spi.client.protocol.ProtocolDescription;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
+import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
+import org.jboss.arquillian.test.spi.TestClass;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
@@ -50,7 +54,7 @@ public class Fabric8Container implements DeployableContainer<Fabric8ContainerCon
     @ApplicationScoped
     private InstanceProducer<FabricController> controller;
 
-    private CommandLineFabricControllerManager fabricControllerManager;
+    private FabricControllerManagerSupport fabricControllerManager;
 
     @Override
     public Class<Fabric8ContainerConfiguration> getConfigurationClass() {
@@ -64,7 +68,7 @@ public class Fabric8Container implements DeployableContainer<Fabric8ContainerCon
 
     @Override
     public void start() throws LifecycleException {
-        fabricControllerManager = new CommandLineFabricControllerManager();
+        fabricControllerManager = createFabricControllerManager();
 
         Fabric8ContainerConfiguration config = configuration.get();
         String profilesText = config.getProfiles();
@@ -74,13 +78,13 @@ public class Fabric8Container implements DeployableContainer<Fabric8ContainerCon
             fabricControllerManager.setProfiles(profiles);
         }
 
-        // TODO use the test case name to determine where to install...
-/*
+        // lets specify the work directory
         File baseDir = getBaseDir();
-        String canonicalName = getClass().getCanonicalName();
-        File workDir = new File(baseDir, "target/fabricInstall/" + canonicalName);
-        fabricController.setWorkDirectory(workDir);
-*/
+        String outputFolder = Strings.defaultIfEmpty(config.getWorkFolder(), "fabric8");
+        File workDir = new File(baseDir, "target/" + outputFolder);
+        System.out.println("Using " + workDir.getPath() + " to store the fabric8 installation");
+        fabricControllerManager.setWorkDirectory(workDir);
+
         try {
             FabricController fabricController = FabricAssertions.assertFabricCreate(fabricControllerManager);
             controller.set(fabricController);
@@ -141,4 +145,10 @@ public class Fabric8Container implements DeployableContainer<Fabric8ContainerCon
     public FabricController getController() {
         return controller.get();
     }
+
+
+    protected CommandLineFabricControllerManager createFabricControllerManager() {
+        return new CommandLineFabricControllerManager();
+    }
+
 }
