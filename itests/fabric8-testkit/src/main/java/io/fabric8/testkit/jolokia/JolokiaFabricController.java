@@ -128,11 +128,15 @@ public class JolokiaFabricController implements FabricController {
 
             PropertyDescriptor descriptor = propertyDescriptors.get(name);
             if (descriptor == null) {
-                LOG.warn("Ignoring unkown property " + name + " on class " + clazz.getCanonicalName() + " with value: " + value);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Ignoring unknown property " + name + " on class " + clazz.getCanonicalName() + " with value: " + value);
+                }
             } else {
                 Method writeMethod = descriptor.getWriteMethod();
                 if (writeMethod == null) {
-                    LOG.warn("Ignoring read only property " + name + " on class " + clazz.getCanonicalName() + " with value: " + value);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Ignoring read only property " + name + " on class " + clazz.getCanonicalName() + " with value: " + value);
+                    }
                 } else {
                     Class<?> propertyType = descriptor.getPropertyType();
                     value = JolokiaClients.convertJolokiaToJavaType(propertyType, value);
