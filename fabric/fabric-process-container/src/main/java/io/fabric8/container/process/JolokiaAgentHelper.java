@@ -227,64 +227,71 @@ public class JolokiaAgentHelper {
      * not matching tokens are replaced by an empty String.
      */
     public static void substituteEnvironmentVariableExpressions(Map<String, String> map, Map<String, String> environmentVariables, FabricService fabricService, final CuratorFramework curator, boolean preserveUnresolved) {
+        for (String key : map.keySet()) {
+            String text = map.get(key);
+            String oldText = text;
+            if (Strings.isNotBlank(text)) {
+                text = substituteVariableExpression(text, environmentVariables, fabricService, curator, preserveUnresolved);
+                if (!Objects.equal(oldText, text)) {
+                    map.put(key, text);
+                }
+            }
+        }
+    }
+
+    public static String substituteVariableExpression(String text, Map<String, String> environmentVariables, FabricService fabricService, final CuratorFramework curator, boolean preserveUnresolved) {
+        String answer = text;
+        if (environmentVariables != null) {
+            Set<Map.Entry<String, String>> envEntries = environmentVariables.entrySet();
+            for (Map.Entry<String, String> envEntry : envEntries) {
+                String envKey = envEntry.getKey();
+                String envValue = envEntry.getValue();
+                if (Strings.isNotBlank(envKey) && Strings.isNotBlank(envValue)) {
+                    answer = answer.replace("${env:" + envKey + "}", envValue);
+                }
+            }
+        }
         String zkUser = null;
         String zkPassword = null;
         if (fabricService != null) {
             zkUser = fabricService.getZooKeeperUser();
             zkPassword = fabricService.getZookeeperPassword();
         }
-
-        Set<Map.Entry<String, String>> envEntries = environmentVariables.entrySet();
-        for (String key : map.keySet()) {
-            String text = map.get(key);
-            String oldText = text;
-            if (Strings.isNotBlank(text)) {
-                for (Map.Entry<String, String> envEntry : envEntries) {
-                    String envKey = envEntry.getKey();
-                    String envValue = envEntry.getValue();
-                    if (Strings.isNotBlank(envKey) && Strings.isNotBlank(envValue)) {
-                        text = text.replace("${env:" + envKey + "}", envValue);
-                    }
-                }
-                if (Strings.isNotBlank(zkUser)) {
-                    text = text.replace("${zookeeper.user}", zkUser);
-                }
-                if (Strings.isNotBlank(zkPassword)) {
-                    text = text.replace("${zookeeper.password}", zkPassword);
-                }
-                if (curator != null) {
-                    InterpolationHelper.SubstitutionCallback substitutionCallback = new InterpolationHelper.SubstitutionCallback() {
-                        @Override
-                        public String getValue(String key) {
-                            if (key.startsWith("zk:")) {
-                                try {
-                                    return new String(ZkPath.loadURL(curator, key), "UTF-8");
-                                } catch (Exception e) {
-                                    //ignore and just return null.
-                                }
-                            } else if (key.startsWith("groovy:")) {
-                                try {
-                                    return GroovyPlaceholderResolver.resolveValue(curator, key);
-                                } catch (Exception e) {
-                                    //ignore and just return null.
-                                }
-                            }
-                            return null;
+        if (Strings.isNotBlank(zkUser)) {
+            answer = answer.replace("${zookeeper.user}", zkUser);
+        }
+        if (Strings.isNotBlank(zkPassword)) {
+            answer = answer.replace("${zookeeper.password}", zkPassword);
+        }
+        if (curator != null) {
+            InterpolationHelper.SubstitutionCallback substitutionCallback = new InterpolationHelper.SubstitutionCallback() {
+                @Override
+                public String getValue(String key) {
+                    if (key.startsWith("zk:")) {
+                        try {
+                            return new String(ZkPath.loadURL(curator, key), "UTF-8");
+                        } catch (Exception e) {
+                            //ignore and just return null.
                         }
-                    };
-                    // replace Groovy / ZooKeeper expressions
-                    if (preserveUnresolved) {
-                        text = InterpolationHelper.substVarsPreserveUnresolved(text, "dummy", null, Collections.EMPTY_MAP, substitutionCallback);
+                    } else if (key.startsWith("groovy:")) {
+                        try {
+                            return GroovyPlaceholderResolver.resolveValue(curator, key);
+                        } catch (Exception e) {
+                            //ignore and just return null.
+                        }
                     }
-                    else {
-                        text = InterpolationHelper.substVars(text, "dummy", null, Collections.EMPTY_MAP, substitutionCallback);
-                    }
+                    return null;
                 }
-                if (!Objects.equal(oldText, text)) {
-                    map.put(key, text);
-                }
+            };
+            // replace Groovy / ZooKeeper expressions
+            if (preserveUnresolved) {
+                answer = InterpolationHelper.substVarsPreserveUnresolved(answer, "dummy", null, Collections.EMPTY_MAP, substitutionCallback);
+            }
+            else {
+                answer = InterpolationHelper.substVars(answer, "dummy", null, Collections.EMPTY_MAP, substitutionCallback);
             }
         }
+        return answer;
     }
 
     /**
