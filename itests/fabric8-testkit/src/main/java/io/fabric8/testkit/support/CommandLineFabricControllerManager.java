@@ -187,7 +187,7 @@ public class CommandLineFabricControllerManager extends FabricControllerManagerS
             System.out.println("Executing " + message);
             ProcessBuilder builder = new ProcessBuilder().command(commands).directory(workDir);
             Map<String, String> env = builder.environment();
-            Map<String, String> envVars = createEnvironmentVariables();
+            Map<String, String> envVars = createChildEnvironmentVariables();
             env.putAll(envVars);
             logEnvironmentVariables(env);
             Process process = builder.start();

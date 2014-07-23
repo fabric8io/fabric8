@@ -33,18 +33,22 @@ import static io.fabric8.common.util.Strings.join;
  */
 public abstract class FabricControllerManagerSupport implements FabricControllerManager {
     private Set<String> profiles = new HashSet<>();
-    private String[] allowedEnvironmentVariables = {"JAVA_HOME", "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MAVEN_HOME", "PATH", "USER"};
+    private String[] allowInheritedEnvironmentVariables = {"JAVA_HOME", "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MAVEN_HOME", "PATH", "USER"};
+    private Map<String,String> environmentVariables = new HashMap<>();
 
     protected FabricControllerManagerSupport() {
         profiles.add("autoscale");
     }
 
-    public String[] getAllowedEnvironmentVariables() {
-        return allowedEnvironmentVariables;
+    public String[] getAllowInheritedEnvironmentVariables() {
+        return allowInheritedEnvironmentVariables;
     }
 
-    public void setAllowedEnvironmentVariables(String[] allowedEnvironmentVariables) {
-        this.allowedEnvironmentVariables = allowedEnvironmentVariables;
+    /**
+     * Sets the names of the environment variables which are passed through to any child process created
+     */
+    public void setAllowInheritedEnvironmentVariables(String[] allowInheritedEnvironmentVariables) {
+        this.allowInheritedEnvironmentVariables = allowInheritedEnvironmentVariables;
     }
 
     public Set<String> getProfiles() {
@@ -57,16 +61,38 @@ public abstract class FabricControllerManagerSupport implements FabricController
         this.profiles = set;
     }
 
-    protected Map<String, String> createEnvironmentVariables() {
+    public Map<String, String> getEnvironmentVariables() {
+        return environmentVariables;
+    }
+
+    public void setEnvironmentVariables(Map<String, String> environmentVariables) {
+        this.environmentVariables = environmentVariables;
+    }
+
+    protected Map<String, String> createChildEnvironmentVariables() {
         Map<String, String> answer = new HashMap<>();
         Map<String, String> current = System.getenv();
-        for (String variable : allowedEnvironmentVariables) {
+        for (String variable : allowInheritedEnvironmentVariables) {
             String value = current.get(variable);
             if (Strings.isNotBlank(value)) {
                 answer.put(variable, value);
             }
         }
+        if (environmentVariables != null) {
+            answer.putAll(environmentVariables);
+        }
         answer.put(EnvironmentVariables.FABRIC8_PROFILES, join(getProfiles(), ","));
         return answer;
+    }
+
+    public void setEnvironmentVariable(String name, String value) {
+        if (environmentVariables == null) {
+            environmentVariables = new HashMap<>();
+        }
+        if (value == null) {
+            environmentVariables.remove(name);
+        } else {
+            environmentVariables.put(name, value);
+        }
     }
 }
