@@ -37,5 +37,17 @@
     <module>autoscale-itests-remote</module>
   </modules>
 
-
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <activation>
+        <property>
+          <name>docker</name>
+        </property>
+      </activation>
+      <modules>
+        <module>autoscale-itests-docker</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>

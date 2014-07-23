@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+     Copyright 2005-2014 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<!--
+    Set these VM properties in your IDE debugger
+     
+    -Dlog4j.configuration=file://${workspace_loc:fabric-runtime-itests-tomcat}/src/test/resources/logging.properties
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.fabric8.itests.autoscale</groupId>
+    <artifactId>autoscale</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>autoscale-itests-docker</artifactId>
+
+  <name>Fabric8 :: Integration Tests :: AutoScale :: Docker</name>
+
+  <!-- Properties -->
+  <properties>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.fabric8.itests.autoscale</groupId>
+      <artifactId>autoscale-itests-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Test Dependencies -->
+    <dependency>
+      <groupId>org.jboss.arquillian.container</groupId>
+      <artifactId>arquillian-fabric8-remote</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.junit</groupId>
+      <artifactId>arquillian-junit-container</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.testenricher</groupId>
+      <artifactId>arquillian-testenricher-cdi</artifactId>
+      <version>${arquillian-core-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!--
+                    <argLine>${surefire.system.args}</argLine>
+          -->
+          <redirectTestOutputToFile>false</redirectTestOutputToFile>
+          <reportNameSuffix>docker</reportNameSuffix>
+          <dependenciesToScan>
+            <dependency>io.fabric8.itests.autoscale:autoscale-itests-common</dependency>
+          </dependenciesToScan>
+          <systemPropertyVariables>
+            <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>
+            <target.container>docker</target.container>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
