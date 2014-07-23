@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.4" data-basepath="." data-revision="1406057048485">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.4" data-basepath="." data-revision="1406108420301">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -1114,14 +1114,33 @@ access information shared by the managed Spring Boot processes - <code>ProcessRe
 </code></pre><p>From now on, you can enjoy your Spring Boot microservice sharing information with the other microservices managed by
 the Fabric8.</p>
 <h4 id="reading-spring-properties-from-the-process-registry"><a name="reading-spring-properties-from-the-process-registry" class="anchor" href="#reading-spring-properties-from-the-process-registry"><span class="fa fa-link"></span></a>Reading Spring properties from the Process Registry</h4>
-<p>After you add <code>process-spring-boot-registry</code> jar to its classpath, <code>ProcessRegistry</code> will be used to resolve Spring
-properties. </p>
+<p>After you add <code>process-spring-boot-registry</code> jar to the classpath of your application, <code>ProcessRegistry</code> will be used to 
+resolve Spring properties. </p>
 <pre><code>@Value(&quot;service.invoicing.url&quot;)
 String host;
 </code></pre><p><code>ProcessRegistry</code> will be attempted to be read before regular Spring property sources (for example before the 
 <code>application.properties</code> file). If the desired value will not be found in the process registry, Spring will fallback
 to the other property sources.</p>
+<h4 id="injecting-process-registry"><a name="injecting-process-registry" class="anchor" href="#injecting-process-registry"><span class="fa fa-link"></span></a>Injecting process registry</h4>
+<p>In order to use the Process Registry API directly, you can inject <code>ProcessRegistry</code> into your Spring managed beans.</p>
+<pre><code>private final ProcessRegistry processRegistry;
 
+@Autowired
+public MyBean(ProcessRegistry processRegistry) {
+    this.processRegistry = processRegistry;
+}
+
+...
+
+String invoicingServiceUrl = processRegistry.readProperty(&quot;service.invoicing.url&quot;);
+Invoice invoice = new RestTemplate().getForObject(invoicingServiceUrl + &quot;/&quot; + 1, Invoice.class);
+</code></pre><h4 id="global-access-to-the-process-registry"><a name="global-access-to-the-process-registry" class="anchor" href="#global-access-to-the-process-registry"><span class="fa fa-link"></span></a>Global access to the process registry</h4>
+<p>If for some reasons you can&apos;t inject <code>ProcessRegistry</code> into your Spring managed beans, you can access global registry 
+instance initialized per Spring Boot JVM using static <code>ProcessRegistryHolder#processRegistry()</code> method.</p>
+<pre><code>ProcessRegistry processRegistry = ProcessRegistryHolder.processRegistry();
+String invoicingServiceUrl = processRegistry.readProperty(&quot;service.invoicing.url&quot;);
+Invoice invoice = new RestTemplate().getForObject(invoicingServiceUrl + &quot;/&quot; + 1, Invoice.class);
+</code></pre>
                     
                     </section>
                 
