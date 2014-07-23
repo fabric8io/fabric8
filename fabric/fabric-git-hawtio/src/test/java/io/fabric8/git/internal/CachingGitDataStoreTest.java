@@ -230,7 +230,7 @@ public class CachingGitDataStoreTest {
 
         // now lets create some profiles in this new version
         String newProfile = "myNewProfile";
-        dataStore.createProfile(version, newProfile);
+        //dataStore.createProfile(version, newProfile);
         assertProfileExists(version, newProfile);
 
         // lazy create a profile
