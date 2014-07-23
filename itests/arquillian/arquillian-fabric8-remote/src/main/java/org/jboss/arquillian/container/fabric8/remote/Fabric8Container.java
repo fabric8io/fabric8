@@ -71,24 +71,8 @@ public class Fabric8Container implements DeployableContainer<Fabric8ContainerCon
         fabricControllerManager = createFabricControllerManager();
 
         Fabric8ContainerConfiguration config = configuration.get();
-        String profilesText = config.getProfiles();
-        String[] profileArrays = null;
-        if (Strings.isNotBlank(profilesText)) {
-            profileArrays = profilesText.split(",");
-        }
-        if (profileArrays == null || profileArrays.length == 0) {
-            profileArrays = new String[]{"autoscale"};
-        }
-        List<String> profiles = Arrays.asList(profileArrays);
-        System.out.println("Populating initial fabric node with the profiles: " + profiles);
-        fabricControllerManager.setProfiles(profiles);
 
-        // lets specify the work directory
-        File baseDir = getBaseDir();
-        String outputFolder = Strings.defaultIfEmpty(config.getWorkFolder(), "fabric8");
-        File workDir = new File(baseDir, "target/" + outputFolder);
-        System.out.println("Using " + workDir.getPath() + " to store the fabric8 installation");
-        fabricControllerManager.setWorkDirectory(workDir);
+        config.configure(fabricControllerManager);
 
         try {
             FabricController fabricController = FabricAssertions.assertFabricCreate(fabricControllerManager);
@@ -143,9 +127,6 @@ public class Fabric8Container implements DeployableContainer<Fabric8ContainerCon
 
     }
 
-    public static File getBaseDir() {
-        return new File(System.getProperty("basedir", "."));
-    }
 
     public FabricController getController() {
         return controller.get();

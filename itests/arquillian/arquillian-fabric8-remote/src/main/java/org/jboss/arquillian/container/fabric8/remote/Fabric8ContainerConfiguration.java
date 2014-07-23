@@ -18,18 +18,60 @@
 package org.jboss.arquillian.container.fabric8.remote;
 
 
+import io.fabric8.api.EnvironmentVariables;
+import io.fabric8.common.util.Strings;
+import io.fabric8.testkit.support.FabricControllerManagerSupport;
 import org.jboss.arquillian.container.spi.ConfigurationException;
 import org.jboss.arquillian.container.spi.client.container.ContainerConfiguration;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  */
 public class Fabric8ContainerConfiguration implements ContainerConfiguration {
     private String profiles;
     private String workFolder;
+    private String globalResolver;
+
+    public static File getBaseDir() {
+        return new File(System.getProperty("basedir", "."));
+    }
 
     @Override
     public void validate() throws ConfigurationException {
     }
+
+    /**
+     * Lets configure the controllerManager with the given configuration
+     */
+    public void configure(FabricControllerManagerSupport controllerManager) {
+        String profilesText = getProfiles();
+        String[] profileArrays = null;
+        if (Strings.isNotBlank(profilesText)) {
+            profileArrays = profilesText.split(",");
+        }
+        if (profileArrays == null || profileArrays.length == 0) {
+            profileArrays = new String[]{"autoscale"};
+        }
+        List<String> profiles = Arrays.asList(profileArrays);
+        System.out.println("Populating initial fabric node with the profiles: " + profiles);
+        controllerManager.setProfiles(profiles);
+
+        // lets specify the work directory
+        File baseDir = getBaseDir();
+        String outputFolder = Strings.defaultIfEmpty(getWorkFolder(), "fabric8");
+        File workDir = new File(baseDir, "target/" + outputFolder);
+        System.out.println("Using " + workDir.getPath() + " to store the fabric8 installation");
+        controllerManager.setWorkDirectory(workDir);
+
+        if (Strings.isNotBlank(globalResolver)) {
+            System.out.println("Using global resolver " + globalResolver);
+            controllerManager.setEnvironmentVariable(EnvironmentVariables.FABRIC8_GLOBAL_RESOLVER, globalResolver);
+        }
+    }
+
 
     public String getProfiles() {
         return profiles;
@@ -45,5 +87,13 @@ public class Fabric8ContainerConfiguration implements ContainerConfiguration {
 
     public void setWorkFolder(String workFolder) {
         this.workFolder = workFolder;
+    }
+
+    public String getGlobalResolver() {
+        return globalResolver;
+    }
+
+    public void setGlobalResolver(String globalResolver) {
+        this.globalResolver = globalResolver;
     }
 }
