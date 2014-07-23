@@ -123,33 +123,15 @@
     </feature>
 
     <feature name="fabric-zookeeper" version="${project.version}" resolver="(obr)">
-        <feature>scr</feature>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/${jasypt-smx-version}</bundle>
-        <bundle>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
-        <bundle>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava-version}</bundle>
-        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
-        <bundle>mvn:io.fabric8/fabric-zookeeper/${project.version}</bundle>
-        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
-        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
-        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+        <feature>fabric-core</feature>
     </feature>
 
     <feature name="fabric-configadmin" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-zookeeper</feature>
-        <feature version="${project.version}">fabric-groovy</feature>
-        <bundle>mvn:io.fabric8/fabric-api/${project.version}</bundle>
-        <bundle>mvn:io.fabric8/fabric-configadmin/${project.version}</bundle>
+        <feature version="${project.version}">fabric-core</feature>
     </feature>
 
     <feature name="fabric-agent" version="${project.version}" resolver="(obr)">
-        <!-- Currently not supported and thus commented out -->
-        <!--feature version="${project.version}">fabric-bundle</feature-->
         <feature version="${project.version}">fabric-core</feature>
-        <feature version="${project.version}">fabric-zookeeper</feature>
-        <feature version="${project.version}">fabric-configadmin</feature>
-        <bundle>mvn:io.fabric8/fabric-agent/${project.version}</bundle>
-        <bundle>mvn:io.fabric8/fabric-extender-listener/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-agent-commands" version="${project.version}" resolver="(obr)">
@@ -195,7 +177,6 @@
         <feature version="${project.version}">fabric-commands</feature>
         <feature version="${project.version}">fabric-agent</feature>
 
-        <bundle>mvn:io.fabric8/fabric-features-service/${project.version}</bundle>
         <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.command/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.management/${karaf-version}</bundle>
     </feature>
@@ -232,17 +213,18 @@
     </feature>
 
     <feature name="fabric-boot-commands" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-zookeeper</feature>
+        <feature version="${project.version}">fabric-core</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
-        <feature version="${project.version}">fabric-core</feature>
         <bundle>mvn:io.fabric8/fabric-boot-commands/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-commands" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-boot-commands</feature>
+        <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.command/${karaf-version}</bundle>
+        <bundle>mvn:io.fabric8/fabric-features-service/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-commands/${project.version}</bundle>
     </feature>
 
