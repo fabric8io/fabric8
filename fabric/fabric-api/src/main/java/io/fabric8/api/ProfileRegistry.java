@@ -66,6 +66,18 @@ public interface ProfileRegistry {
     boolean hasVersion(String versionId);
 
     /**
+     * Get the version for the given id
+     * @return The version or null
+     */
+    Version getVersion(String versionId);
+
+    /**
+     * Get the version for the given id
+     * @throws IllegalStateException if the required version does not exist
+     */
+    Version getRequiredVersion(String versionId);
+
+    /**
      * Delete the given version and all associated profiles
      */
     void deleteVersion(String versionId);
@@ -99,7 +111,7 @@ public interface ProfileRegistry {
 
     /**
      * Get the profile for the given version and id
-     * @throws IllegalStateException if the required profile dopes not exist
+     * @throws IllegalStateException if the required profile does not exist
      */
     Profile getRequiredProfile(String versionId, String profileId);
 

@@ -19,7 +19,6 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.LockHandle;
 import io.fabric8.api.OptionsProvider;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
@@ -27,7 +26,6 @@ import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
-import io.fabric8.api.VersionBuilder;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.DataStoreUtils;
@@ -46,14 +44,13 @@ import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component(policy = ConfigurationPolicy.IGNORE, immediate = true)
 @Service(ProfileService.class)
 public final class ProfileServiceImpl extends AbstractComponent implements ProfileService {
-	
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileServiceImpl.class);
     
     @Reference(referenceInterface = ProfileRegistry.class)
@@ -79,7 +76,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         return getRequiredVersion(versionId);
     }
 
-	@Override
+    @Override
     public Version createVersion(String sourceId, String targetId, Map<String, String> attributes) {
         assertValid();
         LOGGER.info("createVersion: {} => {}", sourceId, targetId);
@@ -88,49 +85,28 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     }
 
     @Override
-	public List<String> getVersions() {
+    public List<String> getVersions() {
         assertValid();
         return profileRegistry.get().getVersions();
-	}
+    }
 
-	@Override
+    @Override
     public boolean hasVersion(String versionId) {
         assertValid();
         return profileRegistry.get().hasVersion(versionId);
     }
 
     @Override
-	public Version getVersion(String versionId) {
+    public Version getVersion(String versionId) {
         assertValid();
-        return getVersionInternal(versionId);
-	}
-
-    private Version getVersionInternal(String versionId) {
-        LockHandle readLock = profileRegistry.get().aquireReadLock();
-        try {
-            Version version = null;
-            if (profileRegistry.get().hasVersion(versionId)) {
-                VersionBuilder builder = VersionBuilder.Factory.create(versionId);
-                builder.setAttributes(profileRegistry.get().getVersionAttributes(versionId));
-                HashMap<String, Profile> profiles = new HashMap<String, Profile>();
-                for (String profileId : profileRegistry.get().getProfiles(versionId)) {
-                    builder.addProfile(getProfileInternal(versionId, profileId, profiles));
-                }
-                version = builder.getVersion();
-            }
-            return version;
-        } finally {
-            readLock.unlock();
-        }
+        return profileRegistry.get().getVersion(versionId);
     }
 
-	@Override
-	public Version getRequiredVersion(String versionId) {
+    @Override
+    public Version getRequiredVersion(String versionId) {
         assertValid();
-        Version version = getVersion(versionId);
-		IllegalStateAssertion.assertNotNull(version, "Version '" + versionId + "' does not exist");
-        return version;
-	}
+        return profileRegistry.get().getRequiredVersion(versionId);
+    }
 
     @Override
     public Profile createProfile(Profile profile) {
@@ -149,63 +125,40 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     }
 
     @Override
-	public boolean hasProfile(String versionId, String profileId) {
-    	assertValid();
+    public boolean hasProfile(String versionId, String profileId) {
+        assertValid();
         return profileRegistry.get().hasProfile(versionId, profileId);
-	}
+    }
+
+    @Override
+    public Profile getProfile(String versionId, String profileId) {
+        assertValid();
+        return profileRegistry.get().getProfile(versionId, profileId);
+    }
 
     @Override
     public Profile getRequiredProfile(String versionId, String profileId) {
         assertValid();
-        Profile profile = getProfileInternal(versionId, profileId, new HashMap<String, Profile>());
-        IllegalStateAssertion.assertNotNull(profile, "Cannot obtain profile " + versionId + "/" + profileId);
-        return profile;
-    }
-    
-    @Override
-    public Profile getProfile(String versionId, String profileId) {
-        assertValid();
-        return getProfileInternal(versionId, profileId, new HashMap<String, Profile>());
-    }
-
-    private Profile getProfileInternal(String versionId, String profileId, HashMap<String, Profile> profiles) {
-        Profile profile = profiles.get(profileId);
-        if (profile == null) {
-            profile = profileRegistry.get().getProfile(versionId, profileId);
-            if (profile != null) {
-                ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
-                String parentsAttr = profile.getAttributes().get(Profile.PARENTS);
-                if (parentsAttr != null && !parentsAttr.isEmpty()) {
-                    for (String parentId : parentsAttr.trim().split(" ")) {
-                        Profile parent = getProfileInternal(versionId, parentId, profiles);
-                        IllegalStateAssertion.assertNotNull(parent, "Cannot obtain parent profile: " + parentId);
-                        builder.addParent(parent);
-                    }
-                }
-                profile = builder.getProfile();
-                profiles.put(profile.getId(), profile);
-            }
-        }
-        return profile;
+        return profileRegistry.get().getRequiredProfile(versionId, profileId);
     }
     
     @Override
     public void deleteVersion(String versionId) {
-    	assertValid();
+        assertValid();
         LOGGER.info("deleteVersion: {}", versionId);
         profileRegistry.get().deleteVersion(versionId);
     }
 
-	@Override
-	public Profile getOverlayProfile(Profile profile) {
-		assertValid();
+    @Override
+    public Profile getOverlayProfile(Profile profile) {
+        assertValid();
         return getOverlayInternal(profile);
-	}
+    }
 
-	@Override
-	public void deleteProfile(FabricService fabricService, String versionId, String profileId, boolean force) {
-    	assertValid();
-    	
+    @Override
+    public void deleteProfile(FabricService fabricService, String versionId, String profileId, boolean force) {
+        assertValid();
+        
         Profile profile = getRequiredProfile(versionId, profileId);
         LOGGER.info("deleteProfile: {}", profile);
         
@@ -238,7 +191,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
                 throw new FabricException("Failed to update requirements after deleting profile " + profileId + ". " + e, e);
             }
         }
-	}
+    }
 
     private Profile getOverlayInternal(Profile profile) {
         Profile overlayProfile;
