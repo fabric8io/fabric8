@@ -21,6 +21,7 @@ import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.common.util.Strings;
 import io.fabric8.testkit.FabricControllerManager;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -50,8 +51,10 @@ public abstract class FabricControllerManagerSupport implements FabricController
         return profiles;
     }
 
-    public void setProfiles(Set<String> profiles) {
-        this.profiles = profiles;
+    public void setProfiles(Collection<String> profiles) {
+        Set<String> set = new HashSet<>();
+        set.addAll(profiles);
+        this.profiles = set;
     }
 
     protected Map<String, String> createEnvironmentVariables() {

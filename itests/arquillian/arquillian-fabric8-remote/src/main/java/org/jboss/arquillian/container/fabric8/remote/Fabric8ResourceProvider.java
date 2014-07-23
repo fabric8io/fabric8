@@ -18,9 +18,7 @@
 package org.jboss.arquillian.container.fabric8.remote;
 
 import io.fabric8.testkit.FabricController;
-import org.jboss.arquillian.container.spi.context.annotation.ContainerScoped;
 import org.jboss.arquillian.core.api.Instance;
-import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;

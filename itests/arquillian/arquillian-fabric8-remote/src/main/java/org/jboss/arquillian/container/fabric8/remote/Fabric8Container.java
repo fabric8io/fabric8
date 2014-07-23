@@ -17,6 +17,7 @@
  */
 package org.jboss.arquillian.container.fabric8.remote;
 
+import io.fabric8.common.util.Strings;
 import io.fabric8.testkit.FabricAssertions;
 import io.fabric8.testkit.FabricController;
 import io.fabric8.testkit.support.CommandLineFabricControllerManager;
@@ -25,7 +26,6 @@ import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.spi.client.protocol.ProtocolDescription;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
-import org.jboss.arquillian.container.spi.context.annotation.ContainerScoped;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -33,6 +33,8 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Creates a fabric8 container using a remote process using a distribution of fabric8 and running a shell
@@ -63,6 +65,14 @@ public class Fabric8Container implements DeployableContainer<Fabric8ContainerCon
     @Override
     public void start() throws LifecycleException {
         fabricControllerManager = new CommandLineFabricControllerManager();
+
+        Fabric8ContainerConfiguration config = configuration.get();
+        String profilesText = config.getProfiles();
+        if (Strings.isNotBlank(profilesText)) {
+            List<String> profiles = Arrays.asList(profilesText.split(","));
+            System.out.println("Populating initial fabric node with the profiles: " + profiles);
+            fabricControllerManager.setProfiles(profiles);
+        }
 
         // TODO use the test case name to determine where to install...
 /*

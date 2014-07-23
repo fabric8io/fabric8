@@ -21,6 +21,7 @@
 
   <container qualifier="remote" default="true">
     <configuration>
+      <property name="profiles">autoscale</property>
     </configuration>
   </container>
 </arquillian>

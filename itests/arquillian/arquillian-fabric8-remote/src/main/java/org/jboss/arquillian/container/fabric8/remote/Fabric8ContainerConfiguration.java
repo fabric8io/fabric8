@@ -24,10 +24,17 @@ import org.jboss.arquillian.container.spi.client.container.ContainerConfiguratio
 /**
  */
 public class Fabric8ContainerConfiguration implements ContainerConfiguration {
+    private String profiles;
 
     @Override
     public void validate() throws ConfigurationException {
-        // TODO
+    }
 
+    public String getProfiles() {
+        return profiles;
+    }
+
+    public void setProfiles(String profiles) {
+        this.profiles = profiles;
     }
 }
