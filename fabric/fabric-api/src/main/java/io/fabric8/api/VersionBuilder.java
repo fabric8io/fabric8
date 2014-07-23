@@ -23,8 +23,6 @@ public interface VersionBuilder extends AttributableBuilder<VersionBuilder> {
 
 	VersionBuilder identity(String versionId);
 	
-	VersionBuilder parent(String parentId);
-
 	VersionBuilder addProfile(Profile profile);
 
 	VersionBuilder addProfiles(List<Profile> profile);

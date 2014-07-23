@@ -398,15 +398,15 @@ public class CachingGitDataStoreTest {
         assertFalse(messagePrefix(message) + "Should not have found folder: " + path, path.exists());
     }
 
-    protected void assertCreateVersion(String parrentVersion, String version) {
-        dataStore.createVersion(parrentVersion, version);
+    protected void assertCreateVersion(String sourceId, String targetId) {
+        dataStore.createVersion(sourceId, targetId, null);
 
-        assertHasVersion(version);
+        assertHasVersion(targetId);
 
         // we should now have a remote branch of this name too
         Collection<String> remoteBranches = RepositoryUtils.getBranches(remote.getRepository());
         System.out.println("Remote branches: " + remoteBranches);
-        String remoteBranch = "refs/heads/" + version;
+        String remoteBranch = "refs/heads/" + targetId;
         assertTrue("Should contain " + remoteBranch + " but has remote branches " + remoteBranches, remoteBranches.contains(remoteBranch));
     }
 

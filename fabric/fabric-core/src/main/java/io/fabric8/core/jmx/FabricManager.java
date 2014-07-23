@@ -70,6 +70,7 @@ import javax.management.StandardMBean;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.curator.framework.CuratorFramework;
+import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -298,9 +299,8 @@ public final class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public Map<String, Object> createVersion(String parentId, String versionId) {
-        Version version = VersionBuilder.Factory.create(versionId).parent(parentId).getVersion();
-        version = profileService.createVersion(version);
+    public Map<String, Object> createVersion(String sourceId, String targetId) {
+        Version version = profileService.createVersion(sourceId, targetId, null);
         return BeanUtils.convertVersionToMap(fabricService, version, BeanUtils.getFields(Version.class));
     }
 
@@ -1145,7 +1145,7 @@ public final class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public void applyPatches(List<String> files, String targetVersionId, String newVersionId, String proxyUser, String proxyPassword) {
+    public void applyPatches(List<String> files, String sourceId, String targetId, String proxyUser, String proxyPassword) {
 
         List<File> patchFiles = new ArrayList<File>();
 
@@ -1163,22 +1163,15 @@ public final class FabricManager implements FabricManagerMBean {
             throw new FabricException("No valid patches to apply");
         }
 
-        Version version = profileService.getVersion(targetVersionId);
-        if (version == null) {
-            throw new FabricException("Version " + targetVersionId + " not found");
-        }
-
-        if (newVersionId == null || newVersionId.equals("")) {
+        if (targetId == null || targetId.equals("")) {
             Version latestVersion = getLatestVersion();
             VersionSequence sequence = new VersionSequence(latestVersion.getId());
-            newVersionId = sequence.next().getName();
+            targetId = sequence.next().getName();
         }
-
-        Version targetVersion = VersionBuilder.Factory.create(newVersionId).parent(version.getId()).getVersion();
-        targetVersion = profileService.createVersion(targetVersion);
+        
+        Version targetVersion = profileService.createVersion(sourceId, targetId, null);
 
         File currentPatchFile = null;
-
         try {
             for (File file : patchFiles) {
                 currentPatchFile = file;
@@ -1192,7 +1185,7 @@ public final class FabricManager implements FabricManagerMBean {
             }
         } catch (Throwable t) {
             LOG.warn("Failed to apply patch file {}", currentPatchFile, t);
-            profileService.deleteVersion(newVersionId);
+            profileService.deleteVersion(targetId);
             throw new FabricException("Failed to apply patch file " + currentPatchFile, t);
         }
 

@@ -36,13 +36,11 @@ import org.jboss.gravia.utils.IllegalStateAssertion;
 @Immutable
 final class VersionImpl implements Version {
 
-    private final String parentId;
     private final String versionId;
     private final Map<String, String> attributes;
     private final Map<String, Profile> profiles = new LinkedHashMap<>();
 
-    VersionImpl(String parentId, String versionId, Map<String, String> attributes, List<Profile> prflist) {
-        this.parentId = parentId;
+    VersionImpl(String versionId, Map<String, String> attributes, List<Profile> prflist) {
         this.versionId = versionId;
         this.attributes = new HashMap<>(attributes);
         for (Profile prf : prflist) {
@@ -53,10 +51,6 @@ final class VersionImpl implements Version {
     @Override
     public String getId() {
         return versionId;
-    }
-
-    public String getParentId() {
-        return parentId;
     }
 
     @Override

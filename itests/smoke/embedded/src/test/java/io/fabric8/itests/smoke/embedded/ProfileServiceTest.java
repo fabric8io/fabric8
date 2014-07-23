@@ -64,10 +64,8 @@ public class ProfileServiceTest {
         profileService.getRequiredVersion("1.0").getRequiredProfile("prfA");
         
         // fabric:version-create --parent 1.0 1.1
-        Version v11 = VersionBuilder.Factory.create("1.1").parent("1.0").getVersion();
-        Version version = profileService.createVersion(v11);
-        Assert.assertEquals(v11, version);
-        Profile prfA11 = version.getRequiredProfile("prfA");
+        Version v11 = profileService.createVersion("1.0", "1.1", null);
+        Profile prfA11 = v11.getRequiredProfile("prfA");
         Assert.assertEquals("1.1", prfA11.getVersion());
         Assert.assertEquals("prfA", prfA11.getId());
         Assert.assertEquals("valA", prfA11.getConfiguration("pidA").get("keyA"));

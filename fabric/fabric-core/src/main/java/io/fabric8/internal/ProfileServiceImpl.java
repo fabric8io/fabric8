@@ -74,18 +74,20 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     @Override
     public Version createVersion(Version version) {
         assertValid();
-        String parentId = version.getParentId();
-        String versionId = version.getId();
-        if (parentId != null) {
-            LOGGER.info("createVersion: {} => {}", parentId, versionId);
-            profileRegistry.get().createVersion(parentId, versionId);
-        } else {
-            versionId = profileRegistry.get().createVersion(version);
-        }
+        LOGGER.info("createVersion: {}", version);
+        String versionId = profileRegistry.get().createVersion(version);
         return getRequiredVersion(versionId);
     }
 
 	@Override
+    public Version createVersion(String sourceId, String targetId, Map<String, String> attributes) {
+        assertValid();
+        LOGGER.info("createVersion: {} => {}", sourceId, targetId);
+        profileRegistry.get().createVersion(sourceId, targetId, attributes);
+        return getRequiredVersion(targetId);
+    }
+
+    @Override
 	public List<String> getVersions() {
         assertValid();
         return profileRegistry.get().getVersions();
