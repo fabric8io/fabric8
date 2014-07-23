@@ -142,4 +142,9 @@ public class AutoScaleProfileStatus implements Comparable<AutoScaleProfileStatus
         this.minimumInstances = minimumInstances;
         message = "Waiting for profile " + dependentProfile + " to have " + minimumInstances + " instance(s) which currently has " + currentInstances;
     }
+
+    public void noSuitableHost(String requirementsText) {
+        this.status = "waiting";
+        message = "Waiting for suitable host to become available for requirements: " + requirementsText;
+    }
 }
