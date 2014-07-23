@@ -640,6 +640,14 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
     }
 
+    private Map<String, String> getVersionAttributesInternal(String version) {
+        return dataStore.get().getVersionAttributes(version);
+    }
+
+    private void setVersionAttributeInternal(GitContext context, String version, String key, String value) {
+        dataStore.get().setVersionAttribute(version, key, value);
+    }
+
     private void removeVersionFromCaches(String version) {
         versions.remove(version);
         cachedVersions.invalidate(version);
@@ -1069,24 +1077,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         };
         executeRead(gitop, false);
-    }
-
-    @Override
-    public Map<String, String> getVersionAttributes(String version) {
-        return getVersionAttributesInternal(version);
-    }
-
-    private Map<String, String> getVersionAttributesInternal(String version) {
-        return dataStore.get().getVersionAttributes(version);
-    }
-
-    @Override
-    public void setVersionAttribute(String version, String key, String value) {
-        setVersionAttributeInternal(new GitContext(), version, key, value);
-    }
-
-    private void setVersionAttributeInternal(GitContext context, String version, String key, String value) {
-        dataStore.get().setVersionAttribute(version, key, value);
     }
 
     @Override
