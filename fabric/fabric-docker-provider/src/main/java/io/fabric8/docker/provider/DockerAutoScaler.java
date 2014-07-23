@@ -19,6 +19,7 @@ import io.fabric8.api.AutoScaleRequest;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.Containers;
+import io.fabric8.api.DockerHostConfiguration;
 import io.fabric8.api.DockerScalingRequirements;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
@@ -71,6 +72,9 @@ public class DockerAutoScaler implements ContainerAutoScaler {
             // TODO this is actually generic to all providers! :)
             for (int i = 0; i < count; i++) {
                 CreateDockerContainerOptions.Builder builder = createAutoScaleOptions(request, fabricService, hostProfileCounter);
+                if (builder == null) {
+                    return;
+                }
 
                 NameValidator nameValidator = Containers.createNameValidator(fabricService.getContainers());
                 String name = Containers.createContainerName(containers, profile, containerProvider.getScheme(), nameValidator);
@@ -88,6 +92,9 @@ public class DockerAutoScaler implements ContainerAutoScaler {
         String profile = request.getProfile();
         String version = request.getVersion();
         CreateDockerContainerOptions.Builder builder = chooseHostOptions(request, hostProfileCounter);
+        if (builder == null) {
+            return null;
+        }
         String zookeeperUrl = fabricService.getZookeeperUrl();
         String zookeeperPassword = fabricService.getZookeeperPassword();
         return builder.number(1).version(version).profiles(profile).zookeeperUrl(zookeeperUrl).zookeeperPassword(zookeeperPassword);
@@ -101,14 +108,20 @@ public class DockerAutoScaler implements ContainerAutoScaler {
         FabricRequirements requirements = request.getFabricRequirements();
         ProfileRequirements profileRequirements = request.getProfileRequirements();
         DockerScalingRequirements scalingRequirements = profileRequirements.getDockerScalingRequirements();
-        SortedSet<LoadSortedHostConfiguration<SshHostConfiguration>> sortedHostConfigurations = filterHosts(requirements, profileRequirements, scalingRequirements, hostProfileCounter);
-        SshHostConfiguration sshHostConfig = null;
-        if (!sortedHostConfigurations.isEmpty()) {
-            LoadSortedHostConfiguration<SshHostConfiguration> first = sortedHostConfigurations.first();
-            sshHostConfig = first.getConfiguration();
+        List<DockerHostConfiguration> hosts = requirements.getDockerHosts();
+        if (hosts.isEmpty()) {
+            // lets default to use the current docker container provider as there are no others configured
+            return builder;
         }
-        if (sshHostConfig == null) {
+        SortedSet<LoadSortedHostConfiguration<DockerHostConfiguration>> sortedHostConfigurations = filterHosts(profileRequirements, scalingRequirements, hostProfileCounter, hosts);
+        DockerHostConfiguration hostConfig = null;
+        if (!sortedHostConfigurations.isEmpty()) {
+            LoadSortedHostConfiguration<DockerHostConfiguration> first = sortedHostConfigurations.first();
+            hostConfig = first.getConfiguration();
+        }
+        if (hostConfig == null) {
             LOG.warn("Could not create version " + request.getVersion() + " profile " + request.getProfile() + " as no matching hosts could be found for " + scalingRequirements);
+            request.getProfileAutoScaleStatus().noSuitableHost("" + scalingRequirements);
             return null;
         }
         return builder;
