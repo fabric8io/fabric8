@@ -21,7 +21,6 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileService;
-import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -188,20 +187,18 @@ public final class ProfileTemplateWorker extends AbstractComponent implements Wo
                     return;
                 }
                 
-                ProfileBuilder builder;
-                
-                boolean create = !version.hasProfile(profileId);
-                if (create) {
-                    builder = ProfileBuilder.Factory.create(versionId, profileId);
+                Profile managedProfile;
+                if (version.hasProfile(profileId)) {
+                    Profile profile = profileService.getRequiredProfile(versionId, profileId);
+                    ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
+                    builder.setFileConfigurations(profileData.getFiles());
+                    managedProfile = profileService.updateProfile(builder.getProfile());
                 } else {
-                    builder = ProfileBuilder.Factory.createFrom(versionId, profileId);
+                    ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
+                    builder.setFileConfigurations(profileData.getFiles());
+                    managedProfile = profileService.createProfile(builder.getProfile());
                 }
-
-                builder.setFileConfigurations(profileData.getFiles());
-                //builder.setConfigurations(profileData.getConfigs());
                 
-                Profile managedProfile = builder.getProfile();
-                managedProfile =  create ? profileService.createProfile(managedProfile) : profileService.updateProfile(managedProfile);
                 current.addProfiles(managedProfile);
             } else {
                 throw new TimeoutException("Timed out waiting for lock");
