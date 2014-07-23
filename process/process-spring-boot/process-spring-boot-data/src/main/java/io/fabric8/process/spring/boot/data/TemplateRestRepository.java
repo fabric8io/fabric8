@@ -104,12 +104,11 @@ public class TemplateRestRepository<T, ID extends java.io.Serializable> implemen
     }
 
     @Override
-    public <S extends T> S save(S s) {
+    public <S extends T> S save(S entity) {
         try {
-            URI location = restTemplate.postForLocation(url.toURI(), s);
+            URI location = restTemplate.postForLocation(url.toURI(), entity);
             Serializable id = Long.parseLong(location.toString().replace(url + "/", ""));
-            updateId(s, (ID) id);
-            return s;
+            return (S) findOne((ID) id);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
