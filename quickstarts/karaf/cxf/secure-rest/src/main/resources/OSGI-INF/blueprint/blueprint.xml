@@ -43,12 +43,7 @@
         <jaxrs:serviceBeans>
             <ref component-id="customerSvc"/>
         </jaxrs:serviceBeans>
-        <jaxrs:features>
-            <bean class="io.fabric8.cxf.endpoint.SwaggerFeature"/>
-            <bean class="io.fabric8.cxf.endpoint.ManagedApiFeature"/>
-        </jaxrs:features>
         <jaxrs:providers>
-            <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>
             <ref component-id="authenticationFilter"/>
         </jaxrs:providers> 
     </jaxrs:server>
