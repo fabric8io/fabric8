@@ -46,6 +46,8 @@
             !org.ops4j.pax.url.commons,
             !aQute.lib.osgi.*,
             <!-- don't import additional packages required by other class in maven-bundle-plugin -->
+            !org.apache.velocity.*,
+            !org.codehaus.doxia.*,
             !org.apache.felix.bundlerepository.*,
             !org.kxml2.*,
             !org.xmlpull.*,
