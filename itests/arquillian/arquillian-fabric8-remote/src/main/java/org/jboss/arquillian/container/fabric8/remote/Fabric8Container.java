@@ -72,11 +72,16 @@ public class Fabric8Container implements DeployableContainer<Fabric8ContainerCon
 
         Fabric8ContainerConfiguration config = configuration.get();
         String profilesText = config.getProfiles();
+        String[] profileArrays = null;
         if (Strings.isNotBlank(profilesText)) {
-            List<String> profiles = Arrays.asList(profilesText.split(","));
-            System.out.println("Populating initial fabric node with the profiles: " + profiles);
-            fabricControllerManager.setProfiles(profiles);
+            profileArrays = profilesText.split(",");
         }
+        if (profileArrays == null || profileArrays.length == 0) {
+            profileArrays = new String[]{"autoscale"};
+        }
+        List<String> profiles = Arrays.asList(profileArrays);
+        System.out.println("Populating initial fabric node with the profiles: " + profiles);
+        fabricControllerManager.setProfiles(profiles);
 
         // lets specify the work directory
         File baseDir = getBaseDir();
