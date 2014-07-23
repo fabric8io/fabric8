@@ -502,7 +502,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public void createVersion(final String parentId, final String versionId) {
+    public void createVersion(final String parentId, final String versionId, final Map<String, String> attributes) {
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -510,6 +510,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 public Void call(Git git, GitContext context) throws Exception {
                     checkoutVersion(git, parentId);
                     createOrCheckoutVersion(git, versionId);
+                    if (attributes != null) {
+                        for (Entry<String, String> att : attributes.entrySet()) {
+                            setVersionAttributeInternal(context, versionId, att.getKey(), att.getValue());
+                        }
+                    }
                     context.commitMessage("Create version: " + parentId + " => " + versionId);
                     return null;
                 }
@@ -769,6 +774,30 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         };
         executeInternal(context, null, gitop);
+    }
+
+    public boolean hasProfile(String versionId, String profileId) {
+        LockHandle readLock = aquireReadLock();
+        try {
+            assertValid();
+            ProfileData profileData = getProfileData(versionId, profileId);
+            return profileData != null;
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    private VersionData getVersionData(String versionId) {
+        try {
+            return cachedVersions.get(versionId);
+        } catch (ExecutionException e) {
+            throw FabricException.launderThrowable(e);
+        }
+    }
+
+    private ProfileData getProfileData(String versionId, String profileId) {
+        VersionData versionData = getVersionData(versionId);
+        return versionData != null ? versionData.profiles.get(profileId) : null;
     }
 
     @Override
@@ -1741,16 +1770,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         setProfileAttributeInternal(context, version, profile, key, value);
     }
 
-    private VersionData getVersionDataInternal(String versionId) {
-        try {
-            VersionData versionData = cachedVersions.get(versionId);
-            IllegalStateAssertion.assertNotNull(versionData, "Cannot obtain version data");
-            return versionData;
-        } catch (ExecutionException e) {
-            throw FabricException.launderThrowable(e);
-        }
-    }
-
     private void populateVersionData(Git git, String branch, VersionData versionData) throws Exception {
         checkoutVersion(git, branch);
         File profilesDir = getProfilesDirectory(git);
@@ -1809,21 +1828,14 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     public List<String> getProfiles(String version) {
         assertValid();
-        VersionData v = getVersionDataInternal(version);
+        VersionData v = getVersionData(version);
         return v != null && v.profiles != null ? new ArrayList<String>(v.profiles.keySet()) : new ArrayList<String>();
-    }
-
-    public boolean hasProfile(String versionId, String profileId) {
-        assertValid();
-        VersionData versionData = getVersionDataInternal(versionId);
-        ProfileData profileData = versionData != null ? versionData.profiles.get(profileId) : null;
-        return profileData != null;
     }
 
     @Override
     public String getLastModified(String version, String profile) {
         assertValid();
-        VersionData versionData = getVersionDataInternal(version);
+        VersionData versionData = getVersionData(version);
         ProfileData p = versionData != null ? versionData.profiles.get(profile) : null;
         return p != null ? p.lastModified : "";
     }
@@ -1831,7 +1843,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public byte[] getFileConfiguration(final String version, final String profile, final String fileName) {
         assertValid();
-        VersionData versionData = getVersionDataInternal(version);
+        VersionData versionData = getVersionData(version);
         ProfileData p = versionData != null ? versionData.profiles.get(profile) : null;
         return p != null && p.files != null ? p.files.get(fileName) : null;
     }
@@ -1839,7 +1851,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public Map<String, byte[]> getFileConfigurations(String version, String profile) {
         assertValid();
-        VersionData versionData = getVersionDataInternal(version);
+        VersionData versionData = getVersionData(version);
         ProfileData p = versionData != null ? versionData.profiles.get(profile) : null;
         return p != null ? new HashMap<String, byte[]>(p.files) : Collections.<String, byte[]> emptyMap();
     }
@@ -1851,7 +1863,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private Map<String, Map<String, String>> getConfigurationsInternal(String version, String profile) {
-        VersionData versionData = getVersionDataInternal(version);
+        VersionData versionData = getVersionData(version);
         ProfileData p = versionData != null ? versionData.profiles.get(profile) : null;
         return p != null ? new HashMap<String, Map<String, String>>(p.configs) : Collections.<String, Map<String, String>> emptyMap();
     }
@@ -1888,14 +1900,31 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     static class ProfileData {
-        final String lastModified;
-        final Map<String, byte[]> files;
-        final Map<String, Map<String, String>> configs;
+        private final String lastModified;
+        private final Map<String, byte[]> files;
+        private final Map<String, Map<String, String>> configs;
 
         ProfileData(String lastModified, Map<String, byte[]> files, Map<String, Map<String, String>> configs) {
             this.lastModified = lastModified;
             this.files = files;
             this.configs = configs;
+        }
+
+        String getLastModified() {
+            return lastModified;
+        }
+
+        Map<String, Map<String, String>> getConfigurations() {
+            return Collections.unmodifiableMap(configs);
+        }
+
+        Map<String, byte[]> getFileConfigurations() {
+            return Collections.unmodifiableMap(files);
+        }
+
+        Map<String, String> getAttributes() {
+            Map<String, String> config = configs.get(Constants.AGENT_PID);
+            return config != null ? config : Collections.<String, String>emptyMap();
         }
     }
 

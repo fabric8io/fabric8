@@ -16,13 +16,16 @@
 package io.fabric8.api;
 
 import java.util.List;
+import java.util.Map;
 
 
 public interface ProfileService {
 
-    List<String> getVersions();
-
     Version createVersion(Version version);
+    
+    Version createVersion(String sourceId, String targetId, Map<String, String> attributes);
+    
+    List<String> getVersions();
     
     boolean hasVersion(String versionId);
     

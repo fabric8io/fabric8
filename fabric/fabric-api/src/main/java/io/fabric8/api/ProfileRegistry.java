@@ -47,7 +47,7 @@ public interface ProfileRegistry {
     /**
      * Create a version as a copy from the given parent version 
      */
-    void createVersion(String parentId, String versionId);
+    void createVersion(String parentId, String versionId, Map<String, String> attributes);
 
     /**
      * Create the given version in the data store
@@ -85,7 +85,12 @@ public interface ProfileRegistry {
      * @return The profile id
      */
     String updateProfile(Profile profile);
-    
+
+    /**
+     * True if the given profile existes in the given version
+     */
+    boolean hasProfile(String versionId, String profileId);
+
     /**
      * Get the profile for the given version and id
      * @return The profile or null
@@ -96,8 +101,6 @@ public interface ProfileRegistry {
     // Endorsed for migration
     //
     
-    boolean hasProfile(String versionId, String profileId);
-
     List<String> getProfiles(String versionId);
 
     void deleteProfile(String versionId, String profileId);

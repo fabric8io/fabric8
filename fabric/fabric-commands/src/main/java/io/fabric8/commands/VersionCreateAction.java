@@ -15,13 +15,16 @@
  */
 package io.fabric8.commands;
 
-import java.util.List;
-
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.api.VersionBuilder;
 import io.fabric8.api.VersionSequence;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -67,32 +70,30 @@ public class VersionCreateAction extends AbstractAction {
         // TODO we maybe want to choose the version which is less than the 'name' if it was specified
         // e.g. if you create a version 1.1 then it should use 1.0 if there is already a 2.0
         
-        String parentId = null;
+        String sourceId = null;
         if (parentVersion == null) {
-            parentId = latestVersion;
+            sourceId = latestVersion;
         } else {
             IllegalStateAssertion.assertTrue(profileService.hasVersion(parentVersion), "Cannot find parent version: " + parentVersion);
-            parentId = parentVersion;
-        }
-
-        VersionBuilder builder = VersionBuilder.Factory.create(versionId);
-        if (description != null) {
-            builder.addAttribute(Version.DESCRIPTION, description);
+            sourceId = parentVersion;
         }
         
-        Version created;
-        if (parentId != null) {
-            Version newVersion = builder.parent(parentId).getVersion();
-            created = profileService.createVersion(newVersion);
-            System.out.println("Created version: " + versionId + " as copy of: " + parentId);
+        Version targetVersion;
+        if (sourceId != null) {
+            Map<String, String> attributes = description != null ? Collections.singletonMap(Version.DESCRIPTION, description) : null;
+            targetVersion = profileService.createVersion(sourceId, versionId, attributes);
+            System.out.println("Created version: " + versionId + " as copy of: " + sourceId);
         } else {
-            Version newVersion = builder.getVersion();
-            created = profileService.createVersion(newVersion);
-            System.out.println("Created version: " + versionId);
+            VersionBuilder builder = VersionBuilder.Factory.create(versionId);
+            if (description != null) {
+                builder.addAttribute(Version.DESCRIPTION, description);
+            }
+            targetVersion = profileService.createVersion(builder.getVersion());
+            System.out.println("Create version: " + versionId);
         }
-
+        
         if (defaultVersion == Boolean.TRUE) {
-            fabricService.setDefaultVersionId(created.getId());
+            fabricService.setDefaultVersionId(targetVersion.getId());
         }
 
         return null;

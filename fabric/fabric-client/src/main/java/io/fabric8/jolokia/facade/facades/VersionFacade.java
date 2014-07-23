@@ -41,11 +41,6 @@ public class VersionFacade implements Version, HasId {
         this.id = id;
     }
 
-    @Override
-	public String getParentId() {
-        throw new UnsupportedOperationException();
-	}
-
 	@Override
     public Map<String, String> getAttributes() {
         return getFieldValue("attributes");

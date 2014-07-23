@@ -34,15 +34,13 @@ public interface Version extends Comparable<Version>, HasId {
     String LOCKED = "locked";
 
     /**
-     * Get the parent id used for creation
-     */
-    String getParentId();
-    
-    /**
      * Get the version attributes
      */
     Map<String, String> getAttributes();
-
+    
+    /**
+     * Get the list of available profile identities
+     */
     List<String> getProfileIds();
     
     /**

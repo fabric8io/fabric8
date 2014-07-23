@@ -38,7 +38,6 @@ import org.jboss.gravia.utils.IllegalStateAssertion;
  */
 final class DefaultVersionBuilder extends AbstractAttributableBuilder<VersionBuilder> implements VersionBuilder {
 
-	private String parentId;
 	private String versionId;
 	private Map<String, Profile> profiles = new LinkedHashMap<>();
 	
@@ -59,12 +58,6 @@ final class DefaultVersionBuilder extends AbstractAttributableBuilder<VersionBui
 	@Override
 	public VersionBuilder identity(String versionId) {
 		this.versionId = versionId;
-		return this;
-	}
-
-	@Override
-	public VersionBuilder parent(String parentId) {
-		this.parentId = parentId;
 		return this;
 	}
 
@@ -92,21 +85,16 @@ final class DefaultVersionBuilder extends AbstractAttributableBuilder<VersionBui
 	protected void validate() {
 		super.validate();
 		IllegalStateAssertion.assertNotNull(versionId, "Version must have an identity");
-		if (parentId != null) {
-			boolean hasContent = !getAttributes().isEmpty() || !profiles.isEmpty();
-			IllegalStateAssertion.assertFalse(hasContent, "Version can either specify a parent or have attribute/profile content");
-		} else {
-			for (Profile profile : profiles.values()) {
-				String prfversion = profile.getVersion();
-				IllegalStateAssertion.assertEquals(versionId, prfversion, "Profile version not '" + versionId + "' for: " + profile);
-			}
-		}
+        for (Profile profile : profiles.values()) {
+            String prfversion = profile.getVersion();
+            IllegalStateAssertion.assertEquals(versionId, prfversion, "Profile version not '" + versionId + "' for: " + profile);
+        }
 	}
 
 	@Override
 	public Version getVersion() {
 		validate();
 		List<Profile> prflist = new ArrayList<>(profiles.values());
-		return new VersionImpl(parentId, versionId, getAttributes(), prflist);
+		return new VersionImpl(versionId, getAttributes(), prflist);
 	}
 }
