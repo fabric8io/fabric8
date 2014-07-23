@@ -38,6 +38,7 @@
             io.fabric8.agent.utils*;-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import.additional>
+            !org.apache.felix.bundlerepository.*,
             org.apache.karaf.features*;resolution:=optional,
         </fuse.osgi.import.additional>
         <fuse.osgi.private.pkg>

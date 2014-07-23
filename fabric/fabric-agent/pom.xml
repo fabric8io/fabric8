@@ -428,6 +428,16 @@
             <artifactId>apache-karaf</artifactId>
             <type>zip</type>
             <version>${karaf-version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.servicemix.specs</groupId>
+                    <artifactId>org.apache.servicemix.specs.jaxp-api-1.4</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- test server -->
