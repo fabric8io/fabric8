@@ -43,11 +43,6 @@ public interface VersionBuilder extends AttributableBuilder<VersionBuilder> {
             return factory.profileVersionBuilder(versionId);
         }
 
-        public static VersionBuilder createFrom(String versionId) {
-            ProfileBuilders factory = ServiceLocator.getRequiredService(ProfileBuilders.class);
-            return factory.profileVersionBuilderFrom(versionId);
-        }
-        
         public static VersionBuilder createFrom(Version version) {
             ProfileBuilders factory = ServiceLocator.getRequiredService(ProfileBuilders.class);
             return factory.profileVersionBuilderFrom(version);

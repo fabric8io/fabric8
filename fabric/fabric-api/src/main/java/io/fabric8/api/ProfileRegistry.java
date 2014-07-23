@@ -97,6 +97,12 @@ public interface ProfileRegistry {
      */
     Profile getProfile(String versionId, String profileId);
 
+    /**
+     * Get the profile for the given version and id
+     * @throws IllegalStateException if the required profile dopes not exist
+     */
+    Profile getRequiredProfile(String versionId, String profileId);
+
     /** 
      * Get the list of profiles associated with the given version  
      */

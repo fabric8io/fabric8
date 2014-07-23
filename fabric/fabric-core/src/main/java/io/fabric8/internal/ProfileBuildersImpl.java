@@ -18,17 +18,14 @@ package io.fabric8.internal;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileBuilders;
-import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.api.VersionBuilder;
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 
 /**
@@ -41,9 +38,6 @@ import org.apache.felix.scr.annotations.Service;
 @Service(ProfileBuilders.class)
 public final class ProfileBuildersImpl extends AbstractComponent implements ProfileBuilders {
 
-    @Reference(referenceInterface = ProfileService.class)
-    private final ValidatingReference<ProfileService> profileService = new ValidatingReference<>();
-    
     @Activate
     void activate() {
         activateComponent();
@@ -85,47 +79,14 @@ public final class ProfileBuildersImpl extends AbstractComponent implements Prof
     }
 
     @Override
-    public ProfileBuilder profileBuilderFrom(String versionId, String profileId) {
-    	assertValid();
-    	Profile profile = profileService.get().getRequiredProfile(versionId, profileId);
-        return new DefaultProfileBuilder(profile);
-    }
-    
-    @Override
     public ProfileBuilder profileBuilderFrom(Profile profile) {
     	assertValid();
         return new DefaultProfileBuilder(profile);
     }
     
     @Override
-    public VersionBuilder profileVersionBuilderFrom(String versionId) {
-    	assertValid();
-        Version version = profileService.get().getRequiredVersion(versionId);
-        return new DefaultVersionBuilder(version);
-    }
-
-    @Override
     public VersionBuilder profileVersionBuilderFrom(Version version) {
     	assertValid();
         return new DefaultVersionBuilder(version);
-    }
-    
-    /*
-    @Override
-    public ConfigurationItemBuilder configurationItemBuilder() {
-        return new DefaultConfigurationItemBuilder();
-    }
-
-    @Override
-    public ConfigurationItemBuilder configurationItemBuilder(String identity) {
-        return new DefaultConfigurationItemBuilder(identity);
-    }
-    */
-
-    void bindProfileService(ProfileService service) {
-        profileService.bind(service);
-    }
-    void unbindProfileService(ProfileService service) {
-        profileService.unbind(service);
     }
 }

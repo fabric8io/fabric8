@@ -281,9 +281,10 @@ public final class FabricManager implements FabricManagerMBean {
 
     @Override
     public Map<String, Object> changeProfileParents(String versionId, String profileId, List<String> parents) {
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(versionId, profileId);
+        Profile profile = profileService.getRequiredProfile(versionId, profileId);
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.setParents(Arrays.asList(stringsToProfiles(versionId, parents)));
-        Profile profile = profileService.updateProfile(builder.getProfile());
+        profile = profileService.updateProfile(builder.getProfile());
         return getProfile(versionId, profile.getId());
     }
 
@@ -453,7 +454,8 @@ public final class FabricManager implements FabricManagerMBean {
         boolean answer = false;
         Version version = profileService.getVersion(versionId);
         if (version != null) {
-            ProfileBuilder builder = ProfileBuilder.Factory.createFrom(versionId, profileId);
+            Profile profile = profileService.getRequiredProfile(versionId, profileId);
+            ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
             builder.addConfiguration(pid, properties);
             profileService.updateProfile(builder.getProfile());
             answer = true;
@@ -484,7 +486,8 @@ public final class FabricManager implements FabricManagerMBean {
 
     @Override
     public void setProfileAttribute(String versionId, String profileId, String attributeId, String value) {
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(versionId, profileId);
+        Profile profile = profileService.getRequiredProfile(versionId, profileId);
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.addAttribute(attributeId, value);
         profileService.updateProfile(builder.getProfile());
     }
@@ -877,63 +880,72 @@ public final class FabricManager implements FabricManagerMBean {
 
     @Override
     public void deleteConfigurationFile(String versionId, String profileId, String fileName) {
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(versionId, profileId);
+        Profile profile = profileService.getRequiredProfile(versionId, profileId);
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.deleteConfigurationFile(fileName);
         profileService.updateProfile(builder.getProfile());
     }
 
     @Override
     public void setConfigurationFile(String versionId, String profileId, String fileName, String data) {
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(versionId, profileId);
+        Profile profile = profileService.getRequiredProfile(versionId, profileId);
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.addConfigurationFile(fileName, Base64.decodeBase64(data));
         profileService.updateProfile(builder.getProfile());
     }
 
     @Override
     public void setProfileBundles(String versionId, String profileId, List<String> bundles) {
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(versionId, profileId);
+        Profile profile = profileService.getRequiredProfile(versionId, profileId);
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.setBundles(bundles);
         profileService.updateProfile(builder.getProfile());
     }
 
     @Override
     public void setProfileFeatures(String versionId, String profileId, List<String> features) {
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(versionId, profileId);
+        Profile profile = profileService.getRequiredProfile(versionId, profileId);
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.setFeatures(features);
         profileService.updateProfile(builder.getProfile());
     }
 
     @Override
     public void setProfileRepositories(String versionId, String profileId, List<String> repositories) {
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(versionId, profileId);
+        Profile profile = profileService.getRequiredProfile(versionId, profileId);
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.setRepositories(repositories);
         profileService.updateProfile(builder.getProfile());
     }
 
     @Override
     public void setProfileFabs(String versionId, String profileId, List<String> fabs) {
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(versionId, profileId);
+        Profile profile = profileService.getRequiredProfile(versionId, profileId);
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.setFabs(fabs);
         profileService.updateProfile(builder.getProfile());
     }
 
     @Override
     public void setProfileOverrides(String versionId, String profileId, List<String> overrides) {
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(versionId, profileId);
+        Profile profile = profileService.getRequiredProfile(versionId, profileId);
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.setOverrides(overrides);
         profileService.updateProfile(builder.getProfile());
     }
 
     @Override
     public void setProfileOptionals(String versionId, String profileId, List<String> optionals) {
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(versionId, profileId);
+        Profile profile = profileService.getRequiredProfile(versionId, profileId);
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.setOptionals(optionals);
         profileService.updateProfile(builder.getProfile());
     }
 
     @Override
     public void setProfileTags(String versionId, String profileId, List<String> tags) {
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(versionId, profileId);
+        Profile profile = profileService.getRequiredProfile(versionId, profileId);
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.setTags(tags);
         profileService.updateProfile(builder.getProfile());
     }

@@ -33,11 +33,7 @@ public interface ProfileBuilders {
 
     ProfileBuilder profileBuilder(String versionId, String profileId);
     
-	ProfileBuilder profileBuilderFrom(String versionId, String profileId);
-
 	ProfileBuilder profileBuilderFrom(Profile profile);
-
-	VersionBuilder profileVersionBuilderFrom(String versionId);
 
 	VersionBuilder profileVersionBuilderFrom(Version version);
 
