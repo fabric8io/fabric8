@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
+ * An integration test ran against a running fabric which tests the defining of requirements and the
+ * <a href="http://fabric8.io/gitbook/requirements.html">auto scaler</a>
  */
 @RunAsClient
 @RunWith(Arquillian.class)

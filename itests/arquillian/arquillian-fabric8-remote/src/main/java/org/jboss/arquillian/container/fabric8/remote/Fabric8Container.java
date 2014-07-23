@@ -35,6 +35,9 @@ import org.jboss.shrinkwrap.descriptor.api.Descriptor;
 import java.io.File;
 
 /**
+ * Creates a fabric8 container using a remote process using a distribution of fabric8 and running a shell
+ * command to create it (so we then test the distribution actually works ;) then we create a {@link FabricController}
+ * to be able to interact with the fabric in a test case.
  */
 public class Fabric8Container implements DeployableContainer<Fabric8ContainerConfiguration> {
     static FabricController dirtyHack;
