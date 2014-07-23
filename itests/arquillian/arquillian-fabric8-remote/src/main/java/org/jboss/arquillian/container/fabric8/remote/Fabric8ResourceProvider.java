@@ -18,6 +18,10 @@
 package org.jboss.arquillian.container.fabric8.remote;
 
 import io.fabric8.testkit.FabricController;
+import org.jboss.arquillian.container.spi.context.annotation.ContainerScoped;
+import org.jboss.arquillian.core.api.Instance;
+import org.jboss.arquillian.core.api.InstanceProducer;
+import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
@@ -28,6 +32,9 @@ import java.lang.annotation.Annotation;
  */
 public class Fabric8ResourceProvider implements ResourceProvider {
 
+    @Inject
+    private Instance<FabricController> controller;
+
     @Override
     public boolean canProvide(Class<?> aClass) {
         return aClass.equals(FabricController.class);
@@ -35,7 +42,6 @@ public class Fabric8ResourceProvider implements ResourceProvider {
 
     @Override
     public Object lookup(ArquillianResource resource, Annotation... annotations) {
-        // TODO how to get the Fabric8Container injected so we can ask nicely for the controller?
-        return Fabric8Container.dirtyHack;
+        return controller.get();
     }
 }

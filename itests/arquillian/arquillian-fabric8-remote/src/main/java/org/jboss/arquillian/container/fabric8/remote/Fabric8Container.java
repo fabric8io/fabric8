@@ -40,10 +40,8 @@ import java.io.File;
  * to be able to interact with the fabric in a test case.
  */
 public class Fabric8Container implements DeployableContainer<Fabric8ContainerConfiguration> {
-    static FabricController dirtyHack;
-
     @Inject
-    @ContainerScoped
+    @ApplicationScoped
     private InstanceProducer<Fabric8ContainerConfiguration> configuration;
 
     @Inject
@@ -75,7 +73,6 @@ public class Fabric8Container implements DeployableContainer<Fabric8ContainerCon
 */
         try {
             FabricController fabricController = FabricAssertions.assertFabricCreate(fabricControllerManager);
-            dirtyHack = fabricController;
             controller.set(fabricController);
         } catch (Exception e) {
             throw new LifecycleException("Failed to create fabric: " + e, e);
