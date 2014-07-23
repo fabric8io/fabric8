@@ -34,6 +34,7 @@ public class Fabric8ContainerConfiguration implements ContainerConfiguration {
     private String profiles;
     private String workFolder;
     private String globalResolver;
+    private String fabricDockerImage;
 
     public static File getBaseDir() {
         return new File(System.getProperty("basedir", "."));
@@ -70,6 +71,11 @@ public class Fabric8ContainerConfiguration implements ContainerConfiguration {
             System.out.println("Using global resolver " + globalResolver);
             controllerManager.setEnvironmentVariable(EnvironmentVariables.FABRIC8_GLOBAL_RESOLVER, globalResolver);
         }
+
+        if (Strings.isNotBlank(fabricDockerImage)) {
+            System.out.println("Using fabric docker image: " + fabricDockerImage);
+            controllerManager.setEnvironmentVariable("FABRIC8_DOCKER_IMAGE_FABRIC8", fabricDockerImage);
+        }
     }
 
 
@@ -95,5 +101,13 @@ public class Fabric8ContainerConfiguration implements ContainerConfiguration {
 
     public void setGlobalResolver(String globalResolver) {
         this.globalResolver = globalResolver;
+    }
+
+    public String getFabricDockerImage() {
+        return fabricDockerImage;
+    }
+
+    public void setFabricDockerImage(String fabricDockerImage) {
+        this.fabricDockerImage = fabricDockerImage;
     }
 }

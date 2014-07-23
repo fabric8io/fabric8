@@ -23,6 +23,9 @@
     <configuration>
       <property name="profiles">autoscale,docker</property>
       <property name="globalResolver">localip</property>
+
+      <!-- lets use the local build of the fabric8/fabric8 image -->
+      <property name="fabricDockerImage">fabric8:fabric8</property>
     </configuration>
   </container>
 </arquillian>
