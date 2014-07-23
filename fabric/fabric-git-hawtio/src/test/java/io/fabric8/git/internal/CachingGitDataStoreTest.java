@@ -223,7 +223,7 @@ public class CachingGitDataStoreTest {
 
         // check we don't accidentally create a profile
         String profileNotCreated = "shouldNotBeCreated";
-        assertEquals("Should not create profile: " + profileNotCreated, null, dataStore.getProfile(version, profileNotCreated, false));
+        //assertEquals("Should not create profile: " + profileNotCreated, null, dataStore.getProfile(version, profileNotCreated, false));
         assertProfileNotExists(defaultVersion, profileNotCreated);
         // assertFolderNotExists(getLocalGitFile("fabric/profiles/" +
         // dataStore.convertProfileIdToDirectory(profileNotCreated)));
@@ -235,7 +235,7 @@ public class CachingGitDataStoreTest {
 
         // lazy create a profile
         String anotherNewProfile = "anotherNewProfile";
-        dataStore.getProfile(version, anotherNewProfile, true);
+        //dataStore.getProfile(version, anotherNewProfile, true);
         assertProfileExists(version, anotherNewProfile);
 
         version = "1.2";

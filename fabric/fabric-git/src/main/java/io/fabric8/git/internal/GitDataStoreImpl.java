@@ -493,6 +493,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
+    public Map<String, String> getDataStoreProperties() {
+        assertValid();
+        return Collections.unmodifiableMap(dataStoreProperties);
+    }
+
+    @Override
     public String getRemote() {
         return remoteRef.get();
     }
@@ -854,6 +860,31 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
+    public void deleteProfile(final String version, final String profile) {
+        LockHandle writeLock = aquireWriteLock();
+        try {
+            assertValid();
+            deleteProfileInternal(version, profile);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    private void deleteProfileInternal(final String version, final String profile) {
+        assertWriteLock();
+        GitOperation<Void> gitop = new GitOperation<Void>() {
+            public Void call(Git git, GitContext context) throws Exception {
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
+                File profileDirectory = getProfileDirectory(git, profile);
+                doRecursiveDeleteAndRemove(git, profileDirectory);
+                context.commitMessage("Removed profile " + profile);
+                return null;
+            }
+        };
+        executeWrite(gitop, false);
+    }
+
+    @Override
     public void importFromFileSystem(final String from) {
         assertValid();
 
@@ -920,20 +951,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         executeWrite(gitop, true);
     }
 
-    @Override
-    public Map<String, String> getVersionAttributes(String version) {
-        return dataStore.get().getVersionAttributes(version);
-    }
-
-    @Override
-    public void setVersionAttribute(String version, String key, String value) {
-        setVersionAttributeInternal(new GitContext(), version, key, value);
-    }
-
-    private void setVersionAttributeInternal(GitContext context, String version, String key, String value) {
-        dataStore.get().setVersionAttribute(version, key, value);
-    }
-
     private List<String> forceGetVersions() {
         GitOperation<List<String>> gitop = new GitOperation<List<String>>() {
             public List<String> call(Git git, GitContext context) throws Exception {
@@ -967,42 +984,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         File profilesDirectory = getProfilesDirectory(git);
         String path = convertProfileIdToDirectory(profile);
         return new File(profilesDirectory, path);
-    }
-
-    @Override
-    public String getProfile(final String versionId, final String profileId, final boolean allowCreate) {
-        assertValid();
-        String resultId = checkoutProfileBranch(versionId, profileId);
-        if (allowCreate) {
-            GitContext context = new GitContext().requireCommit().requirePush();
-            resultId = createProfileDirectoryAfterCheckout(context, versionId, profileId);
-        }
-        return resultId;
-    }
-
-    @Override
-    public void deleteProfile(final String version, final String profile) {
-        LockHandle writeLock = aquireWriteLock();
-        try {
-            assertValid();
-            deleteProfileInternal(version, profile);
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    private void deleteProfileInternal(final String version, final String profile) {
-        assertWriteLock();
-        GitOperation<Void> gitop = new GitOperation<Void>() {
-            public Void call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, GitProfiles.getBranch(version, profile));
-                File profileDirectory = getProfileDirectory(git, profile);
-                doRecursiveDeleteAndRemove(git, profileDirectory);
-                context.commitMessage("Removed profile " + profile);
-                return null;
-            }
-        };
-        executeWrite(gitop, false);
     }
 
     @Override
@@ -1049,6 +1030,20 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         };
         executeRead(gitop, false);
+    }
+
+    @Override
+    public Map<String, String> getVersionAttributes(String version) {
+        return dataStore.get().getVersionAttributes(version);
+    }
+
+    @Override
+    public void setVersionAttribute(String version, String key, String value) {
+        setVersionAttributeInternal(new GitContext(), version, key, value);
+    }
+
+    private void setVersionAttributeInternal(GitContext context, String version, String key, String value) {
+        dataStore.get().setVersionAttribute(version, key, value);
     }
 
     @Override
@@ -1758,12 +1753,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         if (!MASTER_BRANCH.equals(versionId)) {
             versions.add(versionId);
         }
-    }
-
-    @Override
-    public Map<String, String> getDataStoreProperties() {
-        assertValid();
-        return dataStoreProperties;
     }
 
     @Override
