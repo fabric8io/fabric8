@@ -30,6 +30,7 @@ import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.EnsembleModificationFailed;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.DataStore;
@@ -228,7 +229,8 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             // create new ensemble
             String profileId = "fabric-ensemble-" + newClusterId;
             IllegalStateAssertion.assertFalse(profileRegistry.get().hasProfile(versionId, profileId), "Profile already exists: " + versionId + "/" + profileId);
-            String ensembleProfileId = profileRegistry.get().getProfile(versionId, profileId, true);
+            ProfileBuilder ensembleProfileBuilder = ProfileBuilder.Factory.create(versionId, profileId);
+            String ensembleProfileId = profileRegistry.get().createProfile(ensembleProfileBuilder.getProfile());
             profileRegistry.get().setProfileAttribute(versionId, ensembleProfileId, "abstract", "true");
             profileRegistry.get().setProfileAttribute(versionId, ensembleProfileId, "hidden", "true");
 
@@ -261,27 +263,28 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     bindAddress = getSubstitutedPath(curator.get(), ZkPath.CONTAINER_BINDADDRESS.getPath(container));
                 }
 
-                String ensembleMemberConfigName = "io.fabric8.zookeeper.server-" + newClusterId + ".properties";
-                Properties ensembleMemberProperties = new Properties();
+                String memberConfigName = "io.fabric8.zookeeper.server-" + newClusterId + ".properties";
+                Properties memberProperties = new Properties();
 
                 // configure this server in the ensemble
                 profileId = "fabric-ensemble-" + newClusterId + "-" + index;
                 IllegalStateAssertion.assertFalse(profileRegistry.get().hasProfile(versionId, profileId), "Profile already exists: " + versionId + "/" + profileId);
-                String ensembleMemberProfileId = profileRegistry.get().getProfile(versionId, profileId, true);
-                profileRegistry.get().setProfileAttribute(versionId, ensembleMemberProfileId, "hidden", "true");
-                profileRegistry.get().setProfileAttribute(versionId, ensembleMemberProfileId, "parents", ensembleProfileId);
+                ProfileBuilder memberProfileBuilder = ProfileBuilder.Factory.create(versionId, profileId);
+                String memberProfileId = profileRegistry.get().createProfile(memberProfileBuilder.getProfile());
+                profileRegistry.get().setProfileAttribute(versionId, memberProfileId, "hidden", "true");
+                profileRegistry.get().setProfileAttribute(versionId, memberProfileId, "parents", ensembleProfileId);
 
                 String port1 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_SERVER_PORT, minimumPort, maximumPort)));
                 if (containers.size() > 1) {
                     String port2 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_PEER_PORT, minimumPort, maximumPort)));
                     String port3 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_ELECTION_PORT, minimumPort, maximumPort)));
                     ensembleProperties.put("server." + Integer.toString(index), "${zk:" + container + "/ip}:" + port2 + ":" + port3);
-                    ensembleMemberProperties.put("server.id", Integer.toString(index));
+                    memberProperties.put("server.id", Integer.toString(index));
                 }
-                ensembleMemberProperties.put("clientPort", port1);
-                ensembleMemberProperties.put("clientPortAddress", bindAddress);
+                memberProperties.put("clientPort", port1);
+                memberProperties.put("clientPortAddress", bindAddress);
 
-                profileRegistry.get().setFileConfiguration(versionId, ensembleMemberProfileId, ensembleMemberConfigName, DataStoreUtils.toBytes(ensembleMemberProperties));
+                profileRegistry.get().setFileConfiguration(versionId, memberProfileId, memberConfigName, DataStoreUtils.toBytes(memberProperties));
 
                 if (connectionUrl.length() > 0) {
                     connectionUrl += ",";
