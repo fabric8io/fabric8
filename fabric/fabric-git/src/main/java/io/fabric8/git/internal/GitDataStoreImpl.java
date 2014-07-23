@@ -30,6 +30,7 @@ import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
+import io.fabric8.api.VersionBuilder;
 import io.fabric8.api.VersionSequence;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
@@ -61,6 +62,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -591,14 +593,43 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public void deleteVersion(final String version) {
+    public Version getVersion(String versionId) {
+        LockHandle readLock = aquireReadLock();
+        try {
+            assertValid();
+            Version version = null;
+            VersionData versionData = getVersionData(versionId);
+            if (versionData != null) {
+                VersionBuilder builder = VersionBuilder.Factory.create(versionId);
+                builder.setAttributes(getVersionAttributesInternal(versionId));
+                HashMap<String, Profile> profiles = new HashMap<String, Profile>();
+                for (String profileId : getProfiles(versionId)) {
+                    builder.addProfile(getProfileInternal(versionId, profileId, profiles));
+                }
+                version = builder.getVersion();
+            }
+            return version;
+        } finally {
+            readLock.unlock();
+        }
+    }
+    
+    @Override
+    public Version getRequiredVersion(String versionId) {
+        Version version = getVersion(versionId);
+        IllegalStateAssertion.assertNotNull(version, "Version does not exist: " + versionId);
+        return version;
+    }
+
+    @Override
+    public void deleteVersion(final String versionId) {
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
             GitOperation<Void> gitop = new GitOperation<Void>() {
                 public Void call(Git git, GitContext context) throws Exception {
-                    removeVersionFromCaches(version);
-                    GitHelpers.removeBranch(git, version);
+                    removeVersionFromCaches(versionId);
+                    GitHelpers.removeBranch(git, versionId);
                     doPush(git, context, getCredentialsProvider());
                     return null;
                 }
@@ -819,7 +850,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle readLock = aquireReadLock();
         try {
             assertValid();
-            return getProfileInternal(versionId, profileId);
+            return getProfileInternal(versionId, profileId, new HashMap<String, Profile>());
         } finally {
             readLock.unlock();
         }
@@ -832,16 +863,24 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         return profile;
     }
 
-    private Profile getProfileInternal(String versionId, String profileId) {
+    private Profile getProfileInternal(String versionId, String profileId, Map<String, Profile> profiles) {
         assertReadLock();
-        Profile profile = null;
-        if (hasProfile(versionId, profileId)) {
-            ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
-            builder.setAttributes(getProfileAttributes(versionId, profileId));
-            builder.setFileConfigurations(getFileConfigurations(versionId, profileId));
-            builder.setConfigurations(getConfigurations(versionId, profileId));
-            builder.setLastModified(getLastModified(versionId, profileId));
-            profile = builder.getProfile();
+        Profile profile = profiles.get(profileId);
+        if (profile == null) {
+            ProfileData profileData = getProfileData(versionId, profileId);
+            if (profileData != null) {
+                ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
+                builder.setAttributes(profileData.getAttributes());
+                builder.setFileConfigurations(profileData.getFileConfigurations());
+                builder.setConfigurations(profileData.getConfigurations());
+                builder.setLastModified(profileData.getLastModified());
+                for (String parentId : profileData.getParents()) {
+                    Profile parent = getProfileInternal(versionId, parentId, profiles);
+                    builder.addParent(parent);
+                }
+                profile = builder.getProfile();
+                profiles.put(profileId, profile);
+            }
         }
         return profile;
     }
@@ -860,11 +899,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public void deleteProfile(final String version, final String profile) {
+    public void deleteProfile(final String versionId, final String profileId) {
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            deleteProfileInternal(version, profile);
+            deleteProfileInternal(versionId, profileId);
         } finally {
             writeLock.unlock();
         }
@@ -885,10 +924,10 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public void importFromFileSystem(final String from) {
+    public void importFromFileSystem(final String importPath) {
         assertValid();
 
-        File sourceDir = new File(from);
+        File sourceDir = new File(importPath);
         if (!sourceDir.isDirectory())
             throw new IllegalArgumentException("Not a valid source dir: " + sourceDir.getAbsolutePath());
 
@@ -1034,6 +1073,10 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public Map<String, String> getVersionAttributes(String version) {
+        return getVersionAttributesInternal(version);
+    }
+
+    private Map<String, String> getVersionAttributesInternal(String version) {
         return dataStore.get().getVersionAttributes(version);
     }
 
@@ -1925,8 +1968,28 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
 
         Map<String, String> getAttributes() {
+            Map<String, String> attributes = new HashMap<>();
             Map<String, String> config = configs.get(Constants.AGENT_PID);
-            return config != null ? config : Collections.<String, String>emptyMap();
+            if (config != null) {
+                for (Map.Entry<String, String> entry : config.entrySet()) {
+                    String key = entry.getKey();
+                    if (key.startsWith(DataStore.ATTRIBUTE_PREFIX)) {
+                        key = key.substring(DataStore.ATTRIBUTE_PREFIX.length());
+                        String value = entry.getValue();
+                        attributes.put(key, value);
+                    }
+                }
+            }
+            return Collections.unmodifiableMap(attributes);
+        }
+        
+        List<String> getParents() {
+            List<String> parents = new ArrayList<>();
+            String pspec = getAttributes().get(Profile.PARENTS);
+            if (pspec != null) {
+                parents = Arrays.asList(pspec.split(" "));
+            }
+            return Collections.unmodifiableList(parents);
         }
     }
 
