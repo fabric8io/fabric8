@@ -76,7 +76,7 @@ public class ResolverTest {
                          Collections.<String>emptySet());
 
         properties = new Properties();
-        properties.setProperty("org.osgi.framework.system.packages.extra", "org.apache.karaf.jaas.boot;version=\"2.3.0.redhat-610-SNAPSHOT\",org.apache.karaf.jaas.boot.principal;version=\"2.3.0.redhat-610-SNAPSHOT\"");
+        properties.setProperty("org.osgi.framework.system.packages.extra", "org.apache.karaf.jaas.boot;version=\"2.4.0.SNAPSHOT\",org.apache.karaf.jaas.boot.principal;version=\"2.4.0.SNAPSHOT\",org.apache.karaf.management.boot;version=\"2.4.0.SNAPSHOT\"");
         properties.setProperty("org.osgi.framework.system.capabilities.extra",
                 "service-reference;effective:=active;objectClass=org.osgi.service.packageadmin.PackageAdmin," +
                         "service-reference;effective:=active;objectClass=org.osgi.service.startlevel.StartLevel," +

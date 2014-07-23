@@ -80,17 +80,17 @@ public class ExtendedJoinTest extends FabricEnsembleTest {
 
                 String response = "";
                 for (int i = 0; i < 10 && !response.contains("true"); i++) {
-                    response = executeCommand("ssh -l admin -P admin -p " + adminService.getInstance("child1").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE);
+                    response = executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE);
                     Thread.sleep(1000);
                 }
                 response = "";
                 for (int i = 0; i < 10 && !response.contains("true"); i++) {
-                    response = executeCommand("ssh -l admin -P admin -p " + adminService.getInstance("child2").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE);
+                    response = executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child2").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE);
                     Thread.sleep(1000);
                 }
 
-                System.out.println(executeCommand("ssh -l admin -P admin -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
-                System.out.println(executeCommand("ssh -l admin -P admin -p " + adminService.getInstance("child2").getSshPort() + " localhost " + joinCommand));
+                System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
+                System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child2").getSshPort() + " localhost " + joinCommand));
                 Provision.containersExist(bundleContext, Arrays.asList("child1", "child2"), PROVISION_TIMEOUT);
                 Container child1 = ContainerProxy.wrap(fabricService.getContainer("child1"), fabricProxy);
                 Container child2 = ContainerProxy.wrap(fabricService.getContainer("child2"), fabricProxy);
