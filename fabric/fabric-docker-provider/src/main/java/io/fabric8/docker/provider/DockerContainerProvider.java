@@ -348,6 +348,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
         LOG.info("Passing in manual ip: " + dockerHost);
         environmentVariables.put(EnvironmentVariables.FABRIC8_MANUALIP, dockerHost);
+        if (container != null) {
+            container.setManualIp(dockerHost);
+        }
         environmentVariables.put(EnvironmentVariables.FABRIC8_GLOBAL_RESOLVER, ZkDefs.MANUAL_IP);
         environmentVariables.put(EnvironmentVariables.FABRIC8_FABRIC_ENVIRONMENT, DockerConstants.SCHEME);
 
