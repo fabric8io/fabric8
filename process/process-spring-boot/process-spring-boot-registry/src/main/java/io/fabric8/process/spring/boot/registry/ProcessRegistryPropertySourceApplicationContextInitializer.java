@@ -43,7 +43,7 @@ public class ProcessRegistryPropertySourceApplicationContextInitializer implemen
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
-        List<ProcessRegistry> registries = newArrayList(new ClassPathProcessRegistry(), new InMemoryProcessRegistry());
+        List<ProcessRegistry> registries = newArrayList(new InMemoryProcessRegistry(), new ClassPathProcessRegistry());
 
         if (ClassUtils.isPresent("org.apache.curator.framework.CuratorFramework", getClass().getClassLoader())) {
             registries.add(autodetectZooKeeperProcessRegistry());
