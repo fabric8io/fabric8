@@ -117,7 +117,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.PushResult;
-import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
@@ -907,13 +906,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public void createVersion(final String versionId) {
-        assertValid();
-        GitContext context = new GitContext().requireCommit().requirePush();
-        createVersionInternal(context, versionId);
-    }
-
-    @Override
     public Map<String, String> getVersionAttributes(String version) {
         return dataStore.get().getVersionAttributes(version);
     }
@@ -1042,18 +1034,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         };
         executeRead(gitop, false);
-    }
-
-    @Override
-    public void createProfile(final String versionId, final String profileId) {
-        assertValid();
-        GitOperation<String> gitop = new GitOperation<String>() {
-            public String call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, GitProfiles.getBranch(versionId, profileId));
-                return doCreateProfile(git, context, versionId, profileId);
-            }
-        };
-        executeWrite(gitop, true);
     }
 
     @Override

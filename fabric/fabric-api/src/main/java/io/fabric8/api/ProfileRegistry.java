@@ -123,9 +123,6 @@ public interface ProfileRegistry {
     // These should go through {@link ProfileService}
     //
     
-    void createVersion(String versionId);
-    
-    void createProfile(String version, String profile);
     String getProfile(String version, String profile, boolean create);
     
     Map<String, String> getVersionAttributes(String version);
