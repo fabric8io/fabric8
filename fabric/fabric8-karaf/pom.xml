@@ -261,6 +261,10 @@
                <artifactId>mq-fabric</artifactId>
            </dependency>
            <dependency>
+               <groupId>io.fabric8.mq</groupId>
+               <artifactId>mq-http-discovery</artifactId>
+           </dependency>
+           <dependency>
              <groupId>io.fabric8</groupId>
              <artifactId>gateway-core</artifactId>
            </dependency>
