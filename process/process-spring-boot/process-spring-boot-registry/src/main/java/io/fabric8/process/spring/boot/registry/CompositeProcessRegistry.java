@@ -22,6 +22,15 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
+/**
+ * The default type of the registry used by the Spring Boot container is the {@link CompositeProcessRegistry}. This is
+ * kind of the proxy implementation of the registry delegating properties resolution to the list of the <i>real</i>
+ * registries.
+ * <br><br>
+ * Composite registry will try to resolve given property using the first aggregated registry. If it won't find the
+ * property there, it will fallback to the next registry in the list. If none of the registry in the aggregated list
+ * contains the desired property, the composite resolver returns {@code null}.
+ */
 public class CompositeProcessRegistry implements ProcessRegistry {
 
     private final static Logger LOG = LoggerFactory.getLogger(CompositeProcessRegistry.class);
