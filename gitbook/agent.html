@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="4.3" data-basepath="." data-revision="1406108420301">
+    <div class="book" data-github="fabric8io/fabric8" data-level="4.3" data-basepath="." data-revision="1406143437283">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -762,7 +762,7 @@ Once it connects to the zookeeper registry it will determine what version is ass
 </ul>
 <p>The configuration admin bridge will read all of them and create the OSGi configuration that represents them.
 All the provisioning &amp; system information will go under the <strong>io.fabric8.agent</strong> pid. For containers that are assigned multiple profiles, or just use the profile hierarchy the overlay view of the profiles will be added to io.fabric8.agent <em>(There is a single pid even if we have multiple profiles)</em>.</p>
-<p>All the OSGi configuration will just you the pid and key value pairs that have been added to the profile.</p>
+<p>All the OSGi configuration will just use the pid and key value pairs that have been added to the profile.</p>
 <p>The bridge will also watch the registry for changes, so any change in the profiles that are assigned to the container will be <em>tracked</em> and will immediately be applied to the local OSGi configuration of the container.</p>
 <h3 id="the-deployment-agent-fabric-agent-"><a name="the-deployment-agent-fabric-agent-" class="anchor" href="#the-deployment-agent-fabric-agent-"><span class="fa fa-link"></span></a>The deployment agent (fabric-agent)</h3>
 <p>The deployment agent is listening for local configuration changes on the io.fabric8.agent pid. Any change in that configuration will trigger the <em>deployment agent</em>.
@@ -820,7 +820,7 @@ The requirements are usually package requirements but can also be service requir
 <li>If a bundle specifies in its headers an Import-Package requirement, an other bundle with the corresponding Export-Package is required</li>
 <li>If a bundle specifies in its headers an Import-Service requirement, an other bundle with the corresponding Export-Service is required</li>
 </ul>
-<p>The last point is really important, because blueprint users the have mandatory references of services in their blueprint descriptor, will automatically have the Import-Service headers in their bundle (assuming the use of maven-bundle-plugin).
+<p>The last point is really important, because blueprint users that have mandatory references of services in their blueprint descriptor, will automatically have the Import-Service headers in their bundle (assuming the use of maven-bundle-plugin).
 If the bundle that exports that service doesn&apos;t explicitly specify it in its headers, then resolution will fail. Either the exporter bundle will have to add an Export-Service directive or the importer bundle will have to remove the Import-Service directive.</p>
 <p>When the resolution is successful the fabric-agent will start the bundles. Even though you should try to avoid having requirements in the startup order of your bundles, the fabric-agent will attempt to start the bundles based on their expressed requirements and capabilities.
 This will not solve all issues, especially in cases where asynchronous service registration is involved. The best way to deal with this kind of issues is to use OSGi services.</p>

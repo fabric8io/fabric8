@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.3" data-basepath="." data-revision="1406108420301">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.3" data-basepath="." data-revision="1406143437283">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -749,10 +749,10 @@
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile" target="_blank">Tomcat</a></li>
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/wildfly.profile" target="_blank">Wildfly</a>.</li>
 </ul>
-<p>If you want to configure how the process container works; such as to configure the distribution or to run post-unpack commands  add your own <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile/io.fabric8.process.java.properties" target="_blank">io.fabric8.container.process.properties</a> file to your profile.</p>
+<p>If you want to configure how the process container works; such as to configure the distribution or to run post-unpack commands  add your own <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile/io.fabric8.container.process.properties" target="_blank">io.fabric8.container.process.properties</a> file to your profile.</p>
 <p>You can specify environment variables via: <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile/io.fabric8.environment.properties" target="_blank">io.fabric8.environment.properties</a></p>
 <p>You can define the ports that your process will expose via: <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile/io.fabric8.ports.properties" target="_blank">io.fabric8.ports.properties</a>. For each entry (say FOO) in the file you will have the internal port value specified as the environment variable <strong>FABRIC8_FOO_PORT</strong> and the external port value specified as <strong>FABRIC8_FOO_PROXY_PORT</strong>. e.g. when using Java, Process or Docker containers, the FABRIC8_FOO_PROXY_PORT will be dynamically generated to be unique for each container.</p>
-<p>You can overlay any files (e.g. add deployment units and so forth) via <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile/io.fabric8.process.overlay.resources.properties" target="_blank">io.fabric8.process.overlay.resources.properties</a></p>
+<p>You can overlay any files (e.g. add deployment units and so forth) via <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile/io.fabric8.container.process.overlay.resources.properties" target="_blank">io.fabric8.container.process.overlay.resources.properties</a></p>
 
                     
                     </section>
