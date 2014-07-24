@@ -244,7 +244,9 @@ public class BndUtils
                     }
                 }
             }
-            main.putValue(Analyzer.IMPORT_PACKAGE, emptyIfNull(importPackage));
+            if (importPackage != null) {
+                main.putValue(Analyzer.IMPORT_PACKAGE, importPackage);
+            }
 
             String importPackages = emptyIfNull(main.getValue(Analyzer.IMPORT_PACKAGE));
             Parameters values = new Analyzer().parseHeader(importPackages);
