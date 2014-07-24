@@ -345,6 +345,12 @@
                <artifactId>org.apache.aries.proxy.api</artifactId>
                <version>${aries-proxy-api-version}</version>
            </dependency>
+
+            <!-- dependencies for archetype-commands -->
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>archetype-commands</artifactId>
+            </dependency>
        </dependencies>
 
        <build>
