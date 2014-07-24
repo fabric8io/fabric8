@@ -142,6 +142,8 @@ public class ProcessUtils {
         int count = 0;
         List<Long> javaProcessIds = getJavaProcessIds(classNameFilters);
         for (Long processId : javaProcessIds) {
+            // lets log to the console too as this tends to show up in the junit output
+            System.out.println("WARNING: Killing Java process " + processId);
             LOGGER.warn("Killing Java process " + processId);
             killProcess(processId, "-9");
             count++;
@@ -184,6 +186,10 @@ public class ProcessUtils {
      * Returns a list of active docker containers
      */
     public static int killDockerContainer(String containerId) {
+        // lets log to the console too as this tends to show up in the junit output
+        System.out.println("Killing Docker container " + containerId);
+        LOGGER.warn("WARNING: Killing Docker container " + containerId);
+
         String commands = "docker kill " + containerId;
         String message =commands;
         LOGGER.debug("Executing commands: " + message);
@@ -208,7 +214,6 @@ public class ProcessUtils {
         int count = 0;
         List<String> ids = getDockerContainerIds();
         for (String id : ids) {
-            LOGGER.warn("Killing Docker container " + id);
             if (killDockerContainer(id) == 0) {
                 count++;
             }
