@@ -193,7 +193,7 @@ public class CommandLineFabricControllerManager extends FabricControllerManagerS
             Process process = builder.start();
             answer = readProcessOutput(process.getInputStream(), message);
             errors = processErrors(process.getErrorStream(), message);
-            int status = process.exitValue();
+            int status = process.waitFor();
             assertEquals("Command " + message + "; " + answer + " Status", 0, status);
         } catch (Exception e) {
             fail("Failed to execute command " +
