@@ -213,6 +213,26 @@
           <artifactId>sshd-core</artifactId>
           <version>${sshd-version}</version>
       </dependency>
+      <dependency>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm-all</artifactId>
+          <version>${asm.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>commons-collections</groupId>
+          <artifactId>commons-collections</artifactId>
+          <version>${commons-collections-version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.ops4j.pax.swissbox</groupId>
+          <artifactId>pax-swissbox-optional-jcl</artifactId>
+          <version>${ops4j-pax-swissbox-optional-jcl.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.ops4j.pax.swissbox</groupId>
+          <artifactId>pax-swissbox-property</artifactId>
+          <version>${ops4j-pax-swissbox-property.version}</version>
+      </dependency>
   </dependencies>
 
   <build>
