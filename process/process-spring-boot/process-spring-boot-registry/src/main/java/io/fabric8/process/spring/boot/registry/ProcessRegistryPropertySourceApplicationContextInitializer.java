@@ -17,6 +17,7 @@ package io.fabric8.process.spring.boot.registry;
 
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.Ordered;
 import org.springframework.util.ClassUtils;
 
 import java.util.List;
@@ -48,7 +49,7 @@ import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistry.a
  * The above basically means that Spring Boot container attempts to read properties from the Fabric8 ZooKeeper registry,
  * then from the system properties and finally from the files located in the classpath.
  */
-public class ProcessRegistryPropertySourceApplicationContextInitializer implements ApplicationContextInitializer {
+public class ProcessRegistryPropertySourceApplicationContextInitializer implements ApplicationContextInitializer, Ordered {
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
@@ -62,6 +63,11 @@ public class ProcessRegistryPropertySourceApplicationContextInitializer implemen
         ProcessRegistryHolder.processRegistry(registry);
         ProcessRegistryPropertySource propertySource = new ProcessRegistryPropertySource(registry);
         applicationContext.getEnvironment().getPropertySources().addFirst(propertySource);
+    }
+
+    @Override
+    public int getOrder() {
+        return Ordered.HIGHEST_PRECEDENCE + 1000;
     }
 
 }
