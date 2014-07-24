@@ -41,7 +41,7 @@ public class ZooKeeperProcessRegistries {
 
     public static CuratorFramework newCurator(String hosts) {
         CuratorFramework curator = CuratorFrameworkFactory.builder().
-                connectString(hosts).connectionTimeoutMs(50).retryPolicy(defaultRetryPolicy()).
+                connectString(hosts).connectionTimeoutMs(5000).retryPolicy(defaultRetryPolicy()).
                 build();
         curator.start();
         return curator;

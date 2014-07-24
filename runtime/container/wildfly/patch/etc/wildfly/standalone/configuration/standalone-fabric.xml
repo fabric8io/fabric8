@@ -48,6 +48,7 @@
     </extensions>
 
     <system-properties>
+        <property name="environment.prefix" value="FABRIC8_"/>
         <property name="runtime.id" value="wildfly"/>
         <property name="runtime.home" value="${jboss.home.dir}"/>
         <property name="runtime.conf" value="${jboss.home.dir}/standalone/configuration"/>
