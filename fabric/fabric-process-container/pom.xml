@@ -47,7 +47,8 @@
           org.ops4j.util.xml.*;-split-package:=first,
         </fuse.osgi.private.pkg>
         <fuse.osgi.import.additional>
-            !org.apache.felix.bundlerepository.*
+            !org.apache.felix.bundlerepository.*,
+            org.osgi.service.event*;resolution:=optional
         </fuse.osgi.import.additional>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->

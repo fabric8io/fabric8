@@ -134,7 +134,10 @@
         <aries-blueprint-cm-version>1.0.4</aries-blueprint-cm-version>
         <aries-blueprint-core-version>1.4.1</aries-blueprint-core-version>
         <aries-blueprint-version>1.1.0</aries-blueprint-version>
-        <aries-jmx-version>1.1.0</aries-jmx-version>
+        <aries-jmx-api-version>1.1.1</aries-jmx-api-version>
+        <aries-jmx-core-version>1.1.2</aries-jmx-core-version>
+        <aries-jmx-blueprint-api-version>1.1.0</aries-jmx-blueprint-api-version>
+        <aries-jmx-blueprint-core-version>1.1.0</aries-jmx-blueprint-core-version>
         <aries-proxy-api-version>1.0.1</aries-proxy-api-version>
         <aries-proxy-impl-version>1.0.3</aries-proxy-impl-version>
         <aries-proxy-version>1.0.1</aries-proxy-version>
@@ -245,7 +248,7 @@
         <jsch-smx-version>0.1.49_1</jsch-smx-version>
         <json4s-version>3.2.4_1</json4s-version>
         <junit-version>4.11</junit-version>
-        <karaf-version>2.4.0.redhat-620002</karaf-version>
+        <karaf-version>2.4.0.redhat-620003</karaf-version>
         <libvirt-bundle-version>1.1</libvirt-bundle-version>
         <libvirt-version>0.4.7</libvirt-version>
         <log4j-version>1.2.17</log4j-version>
