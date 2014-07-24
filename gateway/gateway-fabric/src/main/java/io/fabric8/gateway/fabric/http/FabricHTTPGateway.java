@@ -17,10 +17,12 @@ package io.fabric8.gateway.fabric.http;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.ShutdownTracker;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -28,7 +30,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import javax.management.MBeanServer;
+import javax.management.Notification;
+import javax.management.NotificationListener;
+import javax.management.ObjectName;
+
 import io.fabric8.gateway.fabric.detecting.FabricDetectingGatewayService;
+import io.fabric8.gateway.fabric.jmx.FabricGatewayInfoMBean;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -40,6 +49,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
+
 import io.fabric8.gateway.fabric.support.vertx.VertxService;
 import io.fabric8.gateway.handlers.detecting.DetectingGatewayWebSocketHandler;
 import io.fabric8.gateway.handlers.http.HttpGateway;
@@ -47,6 +57,10 @@ import io.fabric8.gateway.handlers.http.HttpGatewayHandler;
 import io.fabric8.gateway.handlers.http.HttpGatewayServer;
 import io.fabric8.gateway.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.handlers.http.MappedServices;
+
+import org.osgi.util.measurement.Measurement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
 
 /**
@@ -57,7 +71,9 @@ import org.vertx.java.core.Vertx;
         label = "Fabric8 HTTP Gateway",
         description = "Provides a discovery and load balancing HTTP gateway (or reverse proxy) between HTTP clients and HTTP servers such as web applications, REST APIs and web applications")
 @Service(FabricHTTPGateway.class)
-public final class FabricHTTPGateway extends AbstractComponent implements HttpGateway {
+public final class FabricHTTPGateway extends AbstractComponent implements HttpGateway, NotificationListener {
+
+	private transient Logger LOGGER = LoggerFactory.getLogger(FabricHTTPGateway.class);
 
     @Property(name = "host", label = "Host name", description = "The host name used when listening for HTTP traffic")
     private String host;
@@ -85,16 +101,24 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = FabricDetectingGatewayService.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy= ReferencePolicy.DYNAMIC)
     private final ValidatingReference<FabricDetectingGatewayService> fabricDetectingGatewayService = new ValidatingReference<FabricDetectingGatewayService>();
-
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
+    @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
+    private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
+    
     private HttpGatewayServer server;
     private HttpGatewayHandler handler;
     private DetectingGatewayWebSocketHandler websocketHandler = new DetectingGatewayWebSocketHandler();
 
     private Set<HttpMappingRule> mappingRuleConfigurations = new CopyOnWriteArraySet<HttpMappingRule>();
 
+    ShutdownTracker shutdownTracker = new ShutdownTracker();
+    private FabricHTTPGatewayInfo fabricHTTPGatewayInfoMBean;
+    
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
         updateConfiguration(configuration);
+        registerGatewayMBeans();
         activateComponent();
     }
 
@@ -102,6 +126,7 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
     @Modified
     void modified(Map<String, ?> configuration) throws Exception {
         deactivateInternal();
+        unregisterGatewayMBeans();
         updateConfiguration(configuration);
     }
 
@@ -109,6 +134,7 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
     void deactivate() {
         deactivateInternal();
         deactivateComponent();
+        unregisterMBeanServer();
     }
 
     private void updateConfiguration(Map<String, ?> configuration) throws Exception {
@@ -218,4 +244,47 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
         this.fabricDetectingGatewayService.unbind(fabricDetectingGatewayService);
         websocketHandler.setGateway(null);
     }
+    
+    void bindMBeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer.bind(mbeanServer);
+    }
+
+    void unbindMBeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer.unbind(mbeanServer);
+    }
+    
+    private void registerMBeanServer() {
+        try {
+            //String runtimeIdentity = runtimeProperties.get().getRuntimeIdentity();
+            //mbeanServer.get().addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, runtimeIdentity);
+            registerGatewayMBeans();
+        } catch (Exception e) {
+            LOGGER.warn("An error occurred during mbean server registration. This exception will be ignored.", e);
+        }
+    }
+
+    private void unregisterMBeanServer() {
+        try {
+            mbeanServer.get().removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
+            unregisterGatewayMBeans();
+        } catch (Exception e) {
+            LOGGER.warn("An error occurred during mbean server unregistration. This exception will be ignored.", e);
+        }
+    }
+    
+    private void registerGatewayMBeans() {
+    	fabricHTTPGatewayInfoMBean = new FabricHTTPGatewayInfo();
+        fabricHTTPGatewayInfoMBean.registerMBeanServer(shutdownTracker, mbeanServer.get());
+    }
+    
+    private void unregisterGatewayMBeans() {
+        fabricHTTPGatewayInfoMBean.unregisterMBeanServer(mbeanServer.get());
+    }
+
+
+	@Override
+	public void handleNotification(Notification notification, Object handback) {
+		// TODO Auto-generated method stub
+		
+	}
 }
