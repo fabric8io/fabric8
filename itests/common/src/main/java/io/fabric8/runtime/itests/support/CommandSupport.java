@@ -33,6 +33,10 @@ import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
 import org.jboss.gravia.runtime.ServiceLocator;
 import org.junit.Assert;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * Test helper utility
@@ -101,30 +105,38 @@ public final class CommandSupport {
 
     private static void executeCommand(String cmdstr, CommandSession commandSession) {
 
-        // Get the command service
-        List<String> tokens = Arrays.asList(cmdstr.split("\\s"));
-        String[] header = tokens.get(0).split(":");
-        Assert.assertTrue("Two tokens in: " + tokens.get(0), header.length == 2);
-        String filter = "(&(osgi.command.scope=" + header[0] + ")(osgi.command.function=" + header[1] + "))";
-        AbstractCommand command =  (AbstractCommand) ServiceLocator.awaitService(Function.class, filter);
-        commandSession.put(AbstractCommand.class.getName(), command);
+        Bundle bundle = FrameworkUtil.getBundle(CommandSupport.class);
+        BundleContext context = bundle.getBundleContext();
+        ServiceRegistration<CommandSession> reg = context.registerService(CommandSession.class, commandSession, null);
 
-        boolean keepRunning = true;
-        while (!Thread.currentThread().isInterrupted() && keepRunning) {
-            try {
-                commandSession.execute(cmdstr);
-                keepRunning = false;
-            } catch (Exception ex) {
-                if (retryException(ex)) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException iex) {
-                        Thread.currentThread().interrupt();
+        try {
+            // Get the command service
+            List<String> tokens = Arrays.asList(cmdstr.split("\\s"));
+            String[] header = tokens.get(0).split(":");
+            Assert.assertTrue("Two tokens in: " + tokens.get(0), header.length == 2);
+            String filter = "(&(osgi.command.scope=" + header[0] + ")(osgi.command.function=" + header[1] + "))";
+            AbstractCommand command = (AbstractCommand) ServiceLocator.awaitService(Function.class, filter);
+            commandSession.put(AbstractCommand.class.getName(), command);
+
+            boolean keepRunning = true;
+            while (!Thread.currentThread().isInterrupted() && keepRunning) {
+                try {
+                    commandSession.execute(cmdstr);
+                    keepRunning = false;
+                } catch (Exception ex) {
+                    if (retryException(ex)) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException iex) {
+                            Thread.currentThread().interrupt();
+                        }
+                    } else {
+                        throw new CommandExecutionException(ex);
                     }
-                } else {
-                    throw new CommandExecutionException(ex);
                 }
             }
+        } finally {
+            reg.unregister();
         }
     }
 
