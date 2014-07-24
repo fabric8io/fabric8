@@ -16,6 +16,7 @@
 package io.fabric8.internal;
 
 import io.fabric8.api.Constants;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
@@ -40,18 +41,26 @@ public class ProfileImpl implements Profile {
     private final boolean isOverlay;
     private final String lastModified;
 
-    ProfileImpl(String profileId, String versionId, Map<String, String> attributes, List<Profile> parentProfiles, Map<String, byte[]> fileConfigurations,
-            Map<String, Map<String, String>> configs, String lastModified, boolean isOverlay) {
-        
+    ProfileImpl(String versionId, String profileId, List<Profile> parentProfiles, Map<String, byte[]> fileConfigurations, Map<String, Map<String, String>> configs, String lastModified, boolean isOverlay) {
         this.profileId = profileId;
         this.versionId = versionId;
         this.lastModified = lastModified;
         this.isOverlay = isOverlay;
-
-        this.attributes.putAll(attributes);
+        
         this.parentProfiles.addAll(parentProfiles);
         this.fileConfigurations.putAll(fileConfigurations);
 
+        // Attributes are agent configuration with prefix 'attribute.'  
+        Map<String, String> agentConfig = configs.get(Constants.AGENT_PID);
+        if (agentConfig != null) {
+            for (Entry<String, String> entry : agentConfig.entrySet()) {
+                String key = entry.getKey();
+                if (key.startsWith(DataStore.ATTRIBUTE_PREFIX)) {
+                    attributes.put(key, entry.getValue());
+                }
+            }
+        }
+        
         // Make an immutable copy of the configurations
         for (Entry<String, Map<String, String>> entry : configs.entrySet()) {
             String pid = entry.getKey();
