@@ -227,7 +227,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
             String fileName = "Summary.md";
             byte[] data = profile.getFileConfiguration(fileName);
             if (data == null || data.length == 0 || new String(data).trim().length() == 0) {
-                builder.addConfigurationFile(fileName, description.getBytes());
+                builder.addFileConfiguration(fileName, description.getBytes());
             }
         }
         ProfileService profileService = fabricService.get().adapt(ProfileService.class);
