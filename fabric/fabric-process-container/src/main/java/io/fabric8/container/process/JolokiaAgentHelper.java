@@ -25,6 +25,7 @@ import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.JavaContainers;
 import io.fabric8.groovy.GroovyPlaceholderResolver;
 import io.fabric8.internal.JsonHelper;
+import io.fabric8.service.EnvPlaceholderResolver;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
 import io.fabric8.zookeeper.ZkPath;
@@ -241,13 +242,23 @@ public class JolokiaAgentHelper {
 
     public static String substituteVariableExpression(String text, Map<String, String> environmentVariables, FabricService fabricService, final CuratorFramework curator, boolean preserveUnresolved) {
         String answer = text;
-        if (environmentVariables != null) {
-            Set<Map.Entry<String, String>> envEntries = environmentVariables.entrySet();
-            for (Map.Entry<String, String> envEntry : envEntries) {
-                String envKey = envEntry.getKey();
-                String envValue = envEntry.getValue();
-                if (Strings.isNotBlank(answer) && Strings.isNotBlank(envKey) && Strings.isNotBlank(envValue)) {
-                    answer = answer.replace("${env:" + envKey + "}", envValue);
+        if (environmentVariables != null && Strings.isNotBlank(answer)) {
+            String envExprPrefix = "${env:";
+            int startIdx = 0;
+            while (true) {
+                int idx = answer.indexOf(envExprPrefix, startIdx);
+                if (idx < 0) {
+                    break;
+                }
+                startIdx = idx + envExprPrefix.length();
+                int endIdx = answer.indexOf("}", startIdx);
+                    if (endIdx < 0) {
+                        break;
+                    }
+                String expression = answer.substring(startIdx, endIdx);
+                String value = EnvPlaceholderResolver.resolveExpression(expression, environmentVariables, preserveUnresolved);
+                if (!Objects.equal(expression, value)) {
+                    answer = answer.substring(0, idx) + value + answer.substring(endIdx + 1);
                 }
             }
         }
