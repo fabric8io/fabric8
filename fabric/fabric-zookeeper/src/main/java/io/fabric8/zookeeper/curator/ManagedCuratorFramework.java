@@ -146,6 +146,9 @@ public final class ManagedCuratorFramework extends AbstractComponent implements 
             closed.set(true);
             CuratorFramework curator = this.curator;
             if (curator != null) {
+                for (ConnectionStateListener listener : connectionStateListeners) {
+                    listener.stateChanged(curator, ConnectionState.LOST);
+                }
                 curator.getZookeeperClient().stop();
             }
             try {
