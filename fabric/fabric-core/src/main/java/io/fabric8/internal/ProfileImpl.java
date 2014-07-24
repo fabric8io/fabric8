@@ -24,6 +24,7 @@ import io.fabric8.api.Profiles;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,28 +36,31 @@ public class ProfileImpl implements Profile {
     private final String versionId;
     private final String profileId;
     private final Map<String, String> attributes = new HashMap<>();
-    private final List<Profile> parentProfiles = new ArrayList<>();
+    private final Map<String, Profile> parents = new LinkedHashMap<>();
     private final Map<String, byte[]> fileConfigurations = new HashMap<>();
     private final Map<String, Map<String, String>> configurations = new HashMap<>();
     private final boolean isOverlay;
     private final String lastModified;
 
-    ProfileImpl(String versionId, String profileId, List<Profile> parentProfiles, Map<String, byte[]> fileConfigurations, Map<String, Map<String, String>> configs, String lastModified, boolean isOverlay) {
+    ProfileImpl(String versionId, String profileId, List<Profile> parents, Map<String, byte[]> fileConfigurations, Map<String, Map<String, String>> configs, String lastModified, boolean isOverlay) {
         this.profileId = profileId;
         this.versionId = versionId;
         this.lastModified = lastModified;
         this.isOverlay = isOverlay;
         
-        this.parentProfiles.addAll(parentProfiles);
         this.fileConfigurations.putAll(fileConfigurations);
-
+        for (Profile parent : parents) {
+            this.parents.put(parent.getId(), parent);
+        }
+        
         // Attributes are agent configuration with prefix 'attribute.'  
         Map<String, String> agentConfig = configs.get(Constants.AGENT_PID);
         if (agentConfig != null) {
+            int prefixLength = DataStore.ATTRIBUTE_PREFIX.length();
             for (Entry<String, String> entry : agentConfig.entrySet()) {
                 String key = entry.getKey();
                 if (key.startsWith(DataStore.ATTRIBUTE_PREFIX)) {
-                    attributes.put(key, entry.getValue());
+                    attributes.put(key.substring(prefixLength), entry.getValue());
                 }
             }
         }
@@ -129,8 +133,13 @@ public class ProfileImpl implements Profile {
         return getContainerConfigList(this, ConfigListType.OPTIONALS);
     }
 
+    @Override
+    public List<String> getParentIds() {
+        return Collections.unmodifiableList(new ArrayList<>(parents.keySet()));
+    }
+
     public List<Profile> getParents() {
-        return Collections.unmodifiableList(parentProfiles);
+        return Collections.unmodifiableList(new ArrayList<>(parents.values()));
     }
 
     @Override
@@ -263,7 +272,7 @@ public class ProfileImpl implements Profile {
     public int hashCode() {
         int result = profileId.hashCode();
         result = 31 * result + versionId.hashCode();
-        result = 31 * result + parentProfiles.hashCode();
+        result = 31 * result + parents.hashCode();
         result = 31 * result + configurations.hashCode();
         result = 31 * result + fileConfigurations.hashCode();
         return result;
@@ -285,7 +294,7 @@ public class ProfileImpl implements Profile {
         // [TODO] Remove content based profile equality when identity is based
         // on unique revision
 
-        if (parentProfiles.equals(other.parentProfiles))
+        if (parents.equals(other.parents))
             return false;
 
         if (!configurations.equals(other.configurations))

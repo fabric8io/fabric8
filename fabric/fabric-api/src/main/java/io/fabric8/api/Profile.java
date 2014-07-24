@@ -64,6 +64,7 @@ public interface Profile extends Comparable<Profile>, HasId {
 
     Map<String, String> getAttributes();
 
+    List<String> getParentIds();
     List<Profile> getParents();
     
     List<String> getLibraries();
