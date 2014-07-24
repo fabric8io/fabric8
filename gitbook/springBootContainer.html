@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.4" data-basepath="." data-revision="1406143437283">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.4" data-basepath="." data-revision="1406229828125">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -1140,7 +1140,21 @@ instance initialized per Spring Boot JVM using static <code>ProcessRegistryHolde
 <pre><code>ProcessRegistry processRegistry = ProcessRegistryHolder.processRegistry();
 String invoicingServiceUrl = processRegistry.readProperty(&quot;service.invoicing.url&quot;);
 Invoice invoice = new RestTemplate().getForObject(invoicingServiceUrl + &quot;/&quot; + 1, Invoice.class);
-</code></pre>
+</code></pre><h4 id="composite-process-registry"><a name="composite-process-registry" class="anchor" href="#composite-process-registry"><span class="fa fa-link"></span></a>Composite process registry</h4>
+<p>The default type of the registry used by the Spring Boot container is the <code>CompositeProcessRegistry</code>. This is kind of the 
+proxy implementation of the registry delegating properties resolution to the list of the <em>real</em> registries.</p>
+<p>Composite registry will try to resolve given property using the first aggregated registry. If it won&apos;t find the property
+there, it will fallback to the next registry in the list. If none of the registry in the aggregated list contains the
+desired property, the composite resolver returns <code>null</code>.</p>
+<p>By default the following process registries are aggregated by the Spring Boot container:</p>
+<ul>
+<li><code>ZooKeeperProcessRegistry</code> (if <code>curator-framework</code> is present in the classpath)</li>
+<li><code>ClassPathProcessRegistry</code></li>
+<li><code>InMemoryProcessRegistry</code></li>
+</ul>
+<p>The above basically means that Spring Boot container attempts to read properties from the Fabric8 ZooKeeper registry,
+then from the system properties and finally from the files located in the classpath.</p>
+
                     
                     </section>
                 

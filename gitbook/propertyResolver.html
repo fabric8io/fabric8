@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="6.8" data-basepath="." data-revision="1406143437283">
+    <div class="book" data-github="fabric8io/fabric8" data-level="6.8" data-basepath="." data-revision="1406229828125">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -747,11 +747,36 @@ bindaddress = ${container:bindaddress}
 </code></pre><h3 id="env"><a name="env" class="anchor" href="#env"><span class="fa fa-link"></span></a>Env</h3>
 <p>For accessing an environment variable.</p>
 <pre><code>bindPort=${env:OPENSHIFT_FUSE_AMQ_PORT}
-</code></pre><h3 id="groovy"><a name="groovy" class="anchor" href="#groovy"><span class="fa fa-link"></span></a>Groovy</h3>
-<p>This property resolver allows you to use <a href="">Groovy</a> script expressions to dynamically resolve values; particularly using the API calls on the <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric-zookeeper/src/main/java/io/fabric8/zookeeper/utils/ZooKeeperFacade.java#L30" target="_blank">ZooKeeperFacade</a> interface.</p>
+</code></pre><p>You can use a the elvis operator a little like with <a href="http://docs.groovy-lang.org/docs/next/html/documentation/core-operators.html#_elvis_operator" target="_blank">groovy</a> to specify a default value if an environment variable is not set</p>
+<pre><code>bindPort=${env:OPENSHIFT_FUSE_AMQ_PORT?:1234}
+</code></pre><p>Where the text after the <strong>?:</strong> token is used as the default value if the environment variable is not set</p>
+<h3 id="groovy"><a name="groovy" class="anchor" href="#groovy"><span class="fa fa-link"></span></a>Groovy</h3>
+<p>This property resolver allows you to use <a href="http://groovy-lang.org/" target="_blank">Groovy</a> script expressions to dynamically resolve values; particularly using the API calls on the <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric-zookeeper/src/main/java/io/fabric8/zookeeper/utils/ZooKeeperFacade.java#L30" target="_blank">ZooKeeperFacade</a> interface.</p>
 <p>e.g. to dynamically lookup the available Cassandra hosts you can use this expression</p>
 <pre><code>bindPort=${groovy:zk.matchingDescendantStringData(&quot;/fabric/registry/clusters/cassandra/default/*/listen&quot;).join(&quot;,&quot;)}
 </code></pre><p>Where the <strong>matchingDescendantStringData()</strong> function on the <strong>zk</strong> object looks up all the listen hosts in the ZooKeeper registry (using &apos;*&apos; to indicate a wildcard path) and then joins the values with a comma.</p>
+<p>You can also do things like <a href="http://docs.groovy-lang.org/docs/next/html/documentation/core-operators.html#_elvis_operator" target="_blank">use the elvis operator</a> to use an environment variable or system property value or use a default value if not using expressions such as</p>
+<pre><code>something=${groovy:env.MY_ENV_VAR ?: &apos;someDefaultValue&apos;}
+something=${groovy:sys[&apos;foo.bar&apos;] ?: &apos;anotherThing&apos;}
+</code></pre><h4 id="helper-objects"><a name="helper-objects" class="anchor" href="#helper-objects"><span class="fa fa-link"></span></a>Helper objects</h4>
+<p><table class="table table-striped"></table></p>
+<p><tr></tr></p>
+<p><th>Environment Variable</th></p>
+<p><th>Description</th>
+</p>
+<p><tr></tr></p>
+<p><td>env</td></p>
+<p><td>A Map of all the environment variables available</td>
+</p>
+<p><tr></tr></p>
+<p><td>sys</td></p>
+<p><td>A Map of all the system properties available</td>
+</p>
+<p><tr></tr></p>
+<p><td>zk</td></p>
+<p><td>An instance of the <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric-zookeeper/src/main/java/io/fabric8/zookeeper/utils/ZooKeeperFacade.java#L30">ZooKeeperFacade class&lt;/&gt; for making it easy to query and navigate around ZooKeeper and extract values</a></td>
+
+</p>
 <h3 id="port"><a name="port" class="anchor" href="#port"><span class="fa fa-link"></span></a>Port</h3>
 <p>When running multiple child containers on a machine, you need to associate ports to JVMs. Fabric8 supports port allocation using a property resolver of the form...</p>
 <pre><code>fooPort = ${port:1234-4567}
