@@ -15,7 +15,8 @@
  */
 package io.fabric8.internal;
 
-import io.fabric8.api.AbstractAttributableBuilder;
+import io.fabric8.api.AbstractBuilder;
+import io.fabric8.api.AttributableBuilder;
 import io.fabric8.api.Constants;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.OptionsProvider;
@@ -40,7 +41,7 @@ import org.jboss.gravia.utils.IllegalStateAssertion;
  * @author thomas.diesler@jboss.com
  * @since 18-Mar-2014
  */
-final class DefaultProfileBuilder extends AbstractAttributableBuilder<ProfileBuilder> implements ProfileBuilder {
+final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implements AttributableBuilder<ProfileBuilder>, ProfileBuilder {
 
 	private String versionId;
 	private String profileId;
@@ -58,7 +59,6 @@ final class DefaultProfileBuilder extends AbstractAttributableBuilder<ProfileBui
 	DefaultProfileBuilder(Profile profile) {
 		versionId = profile.getVersion();
 		profileId = profile.getId();
-		setAttributes(profile.getAttributes());
 		addParents(profile.getParents());
 		setFileConfigurations(profile.getFileConfigurations());
 		setConfigurations(profile.getConfigurations());
@@ -163,43 +163,43 @@ final class DefaultProfileBuilder extends AbstractAttributableBuilder<ProfileBui
     
 	@Override
 	public ProfileBuilder setBundles(List<String> values) {
-		addAgentConfiguration(values, ConfigListType.BUNDLES);
+		addAgentConfiguration(ConfigListType.BUNDLES, values);
 		return this;
 	}
 
 	@Override
 	public ProfileBuilder setFabs(List<String> values) {
-		addAgentConfiguration(values, ConfigListType.FABS);
+		addAgentConfiguration(ConfigListType.FABS, values);
 		return this;
 	}
 
 	@Override
 	public ProfileBuilder setFeatures(List<String> values) {
-		addAgentConfiguration(values, ConfigListType.FEATURES);
+		addAgentConfiguration(ConfigListType.FEATURES, values);
 		return this;
 	}
 
 	@Override
 	public ProfileBuilder setRepositories(List<String> values) {
-		addAgentConfiguration(values, ConfigListType.BUNDLES);
+		addAgentConfiguration(ConfigListType.BUNDLES, values);
 		return this;
 	}
 
 	@Override
 	public ProfileBuilder setOverrides(List<String> values) {
-		addAgentConfiguration(values, ConfigListType.OVERRIDES);
+		addAgentConfiguration(ConfigListType.OVERRIDES, values);
 		return this;
 	}
 
     @Override
     public ProfileBuilder setOptionals(List<String> values) {
-        addAgentConfiguration(values, ConfigListType.OPTIONALS);
+        addAgentConfiguration(ConfigListType.OPTIONALS, values);
         return this;
     }
 
     @Override
     public ProfileBuilder setTags(List<String> values) {
-        addAgentConfiguration(values, ConfigListType.TAGS);
+        addAgentConfiguration(ConfigListType.TAGS, values);
         return this;
     }
 
@@ -214,22 +214,46 @@ final class DefaultProfileBuilder extends AbstractAttributableBuilder<ProfileBui
 		return this;
 	}
 
-	private void addAgentConfiguration(List<String> values, ConfigListType type) {
+	@Override
+    public ProfileBuilder addAttribute(String key, String value) {
+        Map<String, String> agentConfig = getAgentConfiguration();
+        agentConfig.put(DataStore.ATTRIBUTE_PREFIX + key, value);
+        return this;
+    }
+
+    @Override
+    public ProfileBuilder setAttributes(Map<String, String> attributes) {
+        Map<String, String> agentConfig = getAgentConfiguration();
+        for (String key : new ArrayList<>(agentConfig.keySet())) {
+            if (key.startsWith(DataStore.ATTRIBUTE_PREFIX)) {
+                agentConfig.remove(key);
+            }
+        }
+        for (Entry<String, String> entry : attributes.entrySet()) {
+            agentConfig.put(DataStore.ATTRIBUTE_PREFIX + entry.getKey(), entry.getValue());
+        }
+        return null;
+    }
+
+    private Map<String, String> getAgentConfiguration() {
+        Map<String, String> agentConfig = configurations.get(Constants.AGENT_PID);
+        if (agentConfig == null) {
+            agentConfig = new HashMap<String, String>();
+            configurations.put(Constants.AGENT_PID, agentConfig);
+        }
+        return agentConfig;
+    }
+    
+    private void addAgentConfiguration(ConfigListType type, List<String> values) {
 		String prefix = type + ".";
-		Map<String, String> agentConfiguration = configurations.get(Constants.AGENT_PID);
-		if (agentConfiguration == null) {
-			agentConfiguration = new HashMap<String, String>();
-			configurations.put(Constants.AGENT_PID, agentConfiguration);
-		} else {
-			List<String> keys = new ArrayList<String>(agentConfiguration.keySet());
-			for (String key : keys) {
-				if (key.startsWith(prefix)) {
-					agentConfiguration.remove(key);
-				}
-			}
-		}
+		Map<String, String> agentConfig = getAgentConfiguration();
+        for (String key : new ArrayList<>(agentConfig.keySet())) {
+            if (key.startsWith(prefix)) {
+                agentConfig.remove(key);
+            }
+        }
 		for (String value : values) {
-			agentConfiguration.put(prefix + value, value);
+			agentConfig.put(prefix + value, value);
 		}
 	}
 	
@@ -242,24 +266,12 @@ final class DefaultProfileBuilder extends AbstractAttributableBuilder<ProfileBui
 			String prfversion = profile.getVersion();
 			IllegalStateAssertion.assertEquals(versionId, prfversion, "Profile version not '" + versionId + "' for: " + profile);
 		}
-		// [TODO] Define rules about profile attribute/config keys
-		for (Entry<String, String> entry : getAttributes().entrySet()) {
-		    String key = entry.getKey();
-            IllegalStateAssertion.assertFalse(key.startsWith(DataStore.ATTRIBUTE_PREFIX), "Invalid attribute key: " + key);
-		}
-		/*
-		for (Entry<String, Map<String, String>> entry : configurations.entrySet()) {
-            String key = entry.getKey();
-            // The configuration with this pid, must be given as individual attributes
-            IllegalStateAssertion.assertFalse(key.equals(Constants.AGENT_PID), "Invalid configuration pid: " + key);
-		}
-		*/
 	}
 
 	@Override
 	public Profile getProfile() {
 		validate();
 		List<Profile> parents = new ArrayList<>(parentProfiles.values());
-		return new ProfileImpl(profileId, versionId, getAttributes(), parents, fileConfigurations, configurations, lastModified, isOverlay);
+		return new ProfileImpl(versionId, profileId, parents, fileConfigurations, configurations, lastModified, isOverlay);
 	}
 }
