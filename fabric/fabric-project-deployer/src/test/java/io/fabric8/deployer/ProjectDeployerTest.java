@@ -36,6 +36,7 @@ import io.fabric8.git.internal.CachingGitDataStore;
 import io.fabric8.git.internal.FabricGitServiceImpl;
 import io.fabric8.git.internal.GitDataStore;
 import io.fabric8.service.ChecksumPlaceholderResolver;
+import io.fabric8.service.EnvPlaceholderResolver;
 import io.fabric8.service.FabricServiceImpl;
 import io.fabric8.service.ProfilePropertyPointerResolver;
 import io.fabric8.service.VersionPropertyPointerResolver;
@@ -172,6 +173,7 @@ public class ProjectDeployerTest {
         fabricService.bindPlaceholderResolver(new ProfilePropertyPointerResolver());
         fabricService.bindPlaceholderResolver(new ChecksumPlaceholderResolver());
         fabricService.bindPlaceholderResolver(new VersionPropertyPointerResolver());
+        fabricService.bindPlaceholderResolver(new EnvPlaceholderResolver());
         fabricService.activateComponent();
 
 
