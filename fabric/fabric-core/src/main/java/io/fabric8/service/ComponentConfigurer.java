@@ -43,8 +43,6 @@ import java.util.Map;
 @Service(Configurer.class)
 public class ComponentConfigurer extends AbstractComponent implements Configurer {
 
-    private static final String BOX_FORMAT = "${%s}";
-
     @Reference(referenceInterface = Runtime.class)
     private ValidatingReference<Runtime> runtime = new ValidatingReference<>();
 
@@ -73,8 +71,6 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
     public <T> Map<String, ?> configure(final Map<String, ?> configuration, T target, String... ignorePrefix) throws Exception {
         assertValid();
         Map<String, Object> result = new HashMap<>();
-        PropertiesProvider envPropertiesProvider = new EnvPropertiesProvider("FABRIC8_");
-        PropertiesProvider systemPropertiesProvider = new SystemPropertiesProvider();
         final Runtime runtime = this.runtime.get();
 
         final PropertiesProvider runtimeProperties = new PropertiesProvider() {
@@ -95,33 +91,9 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
         };
 
         final PropertiesProvider configurationProvider = new MapPropertiesProvider((Map<String, Object>) configuration);
-        final PropertiesProvider[] propertiesProviders = new PropertiesProvider[]{configurationProvider, systemPropertiesProvider, envPropertiesProvider, runtimeProperties};
+        final PropertiesProvider[] propertiesProviders = new PropertiesProvider[]{configurationProvider, runtimeProperties};
 
-        PropertiesProvider provider = new SubstitutionPropertiesProvider(new PropertiesProvider() {
-            @Override
-            public Object getProperty(String key) {
-                return getProperty(key, null);
-            }
-
-            @Override
-        	public Object getRequiredProperty(String key) {
-                Object value = getProperty(key, null);
-                IllegalStateAssertion.assertNotNull(value, "Cannot obtain property: " + key);
-        		return value;
-        	}
-            
-            @Override
-            public Object getProperty(String key, Object defaultValue) {
-                Object value = null;
-                for (PropertiesProvider p : propertiesProviders) {
-                    value = p.getProperty(key);
-                    if (value != null && !isCyclicReference(key, value)) {
-                        return value;
-                    }
-                }
-                return defaultValue;
-            }
-        });
+        PropertiesProvider provider = new SubstitutionPropertiesProvider(propertiesProviders);
 
         for (Map.Entry<String, ?> entry : configuration.entrySet()) {
             String key = entry.getKey();
@@ -130,12 +102,6 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
         }
         ConfigInjection.applyConfiguration(result, target, ignorePrefix);
         return result;
-    }
-
-    private static boolean isCyclicReference(String key, Object value) {
-        if (!(value instanceof String)) {
-            return false;
-        } else return String.format(BOX_FORMAT, key).equals(value);
     }
 
     void bindRuntime(Runtime service) {

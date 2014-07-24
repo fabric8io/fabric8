@@ -97,6 +97,7 @@
 
     <copy file="${tomcat.source.dir}/conf/catalina.properties" todir="${tomcat.patch.dir}/conf" overwrite="true"/>
     <echo file="${tomcat.patch.dir}/conf/catalina.properties" append="true">
+          environment.prefix=FABRIC8_
           runtime.id=tomcat
           runtime.home=${catalina.home}
           runtime.conf=${catalina.home}/conf
