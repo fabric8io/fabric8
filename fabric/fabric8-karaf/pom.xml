@@ -401,6 +401,7 @@
                                    <feature>fabric-autoscale</feature>
                                    <feature>fabric-agent</feature>
                                    <feature>fabric-agent-commands</feature>
+                                   <feature>fabric-archetype-commands</feature>
                                    <feature>fabric-boot-commands</feature>
                                    <feature>fabric-commands</feature>
                                    <feature>fabric-docker-provider</feature>
