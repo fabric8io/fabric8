@@ -15,6 +15,8 @@
  */
 package io.fabric8.process.spring.boot.registry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.Ordered;
@@ -24,6 +26,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistry.autodetectZooKeeperProcessRegistry;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * {@code ApplicationContextInitializer} registering {@link ProcessRegistryPropertySource}.
@@ -51,11 +54,15 @@ import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistry.a
  */
 public class ProcessRegistryPropertySourceApplicationContextInitializer implements ApplicationContextInitializer, Ordered {
 
+    private static final Logger LOG = getLogger(ProcessRegistryPropertySourceApplicationContextInitializer.class);
+
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         List<ProcessRegistry> registries = newArrayList(new InMemoryProcessRegistry(), new ClassPathProcessRegistry());
 
+        LOG.debug("Looking for ZooKeeperProcessRegistry...");
         if (ClassUtils.isPresent("org.apache.curator.framework.CuratorFramework", getClass().getClassLoader())) {
+            LOG.info("Apache Curator jar found. Creating ZooKeeperProcessRegistry.");
             registries.add(autodetectZooKeeperProcessRegistry());
         }
 
