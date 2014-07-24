@@ -76,13 +76,15 @@ public class ProfileFacade implements Profile, HasId {
     }
 
     @Override
-    public List<Profile> getParents() {
+    public List<String> getParentIds() {
         List<String> profiles = getFieldValue("parents");
-        if (profiles == null || profiles.size() == 0) {
-            return Collections.emptyList();
-        }
+        return profiles != null ? profiles : Collections.<String>emptyList();
+    }
+
+    @Override
+    public List<Profile> getParents() {
         List<Profile> answer = new ArrayList<>();
-        for (Object profile : profiles) {
+        for (Object profile : getParentIds()) {
             answer.add(new ProfileFacade(j4p, versionId, (String)profile));
         }
         return Collections.unmodifiableList(answer);

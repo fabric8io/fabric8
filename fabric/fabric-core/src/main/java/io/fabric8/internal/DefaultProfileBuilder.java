@@ -44,11 +44,13 @@ import org.jboss.gravia.utils.IllegalStateAssertion;
  */
 final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implements AttributableBuilder<ProfileBuilder>, ProfileBuilder {
 
-	private String versionId;
+	private static final String PARENTS_ATTRIBUTE_KEY = DataStore.ATTRIBUTE_PREFIX + Profile.PARENTS;
+	
+    private String versionId;
 	private String profileId;
-	private Map<String, Profile> parentProfiles = new LinkedHashMap<>();
-	private Map<String, byte[]> fileConfigurations = new HashMap<>();
-	private Map<String, Map<String, String>> configurations = new HashMap<>();
+	private Map<String, Profile> parentMapping = new LinkedHashMap<>();
+	private Map<String, byte[]> fileMapping = new HashMap<>();
+	private Map<String, Map<String, String>> configMapping = new HashMap<>();
 	private String lastModified;
 	private boolean isOverlay;
 	
@@ -85,8 +87,9 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 
 	@Override
 	public ProfileBuilder addParent(Profile profile) {
-		parentProfiles.put(profile.getId(), profile);
-		return this;
+	    parentMapping.put(profile.getId(), profile);
+	    updateParentsAttribute();
+	    return this;
 	}
 
 	@Override
@@ -96,12 +99,12 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 
 	@Override
     public List<String> getParents() {
-        return Collections.unmodifiableList(new ArrayList<>(parentProfiles.keySet()));
+        return Collections.unmodifiableList(new ArrayList<>(parentMapping.keySet()));
     }
 
     @Override
     public Profile getParent(String profileId) {
-        return parentProfiles.get(profileId);
+        return parentMapping.get(profileId);
     }
 
     @Override
@@ -111,79 +114,100 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 
     private ProfileBuilder addParentsInternal(List<Profile> profiles, boolean clear) {
         if (clear) {
-            parentProfiles.clear();
+            parentMapping.clear();
         }
         for (Profile profile : profiles) {
-            parentProfiles.put(profile.getId(), profile);
+            parentMapping.put(profile.getId(), profile);
         }
+        updateParentsAttribute();
         return this;
     }
     
     @Override
 	public ProfileBuilder removeParent(String profileId) {
-		parentProfiles.remove(profileId);
+		parentMapping.remove(profileId);
+		updateParentsAttribute();
 		return this;
 	}
 
+    private void updateParentsAttribute() {
+        Map<String, String> agentConfig = getAgentConfiguration();
+        agentConfig.remove(PARENTS_ATTRIBUTE_KEY);
+        if (parentMapping.size() > 0) {
+            agentConfig.put(PARENTS_ATTRIBUTE_KEY, parentsAttributeValue());
+        }
+    }
+
+    private String parentsAttributeValue() {
+        String pspec = "";
+        if (parentMapping.size() > 0) {
+            for (String parentId : parentMapping.keySet()) {
+                pspec += " " + parentId;
+            }
+            pspec = pspec.substring(1);
+        }
+        return pspec;
+    }
+    
     @Override
     public Set<String> getFileConfigurationKeys() {
-        return fileConfigurations.keySet();
+        return fileMapping.keySet();
     }
 
     @Override
     public byte[] getFileConfiguration(String key) {
-        return fileConfigurations.get(key);
+        return fileMapping.get(key);
     }
 
 	@Override
 	public ProfileBuilder setFileConfigurations(Map<String, byte[]> configurations) {
-		fileConfigurations = new HashMap<>(configurations);
+		fileMapping = new HashMap<>(configurations);
 		return this;
 	}
 
     @Override
     public ProfileBuilder addFileConfiguration(String fileName, byte[] data) {
-        fileConfigurations.put(fileName, data);
+        fileMapping.put(fileName, data);
         return this;
     }
 
     @Override
     public ProfileBuilder deleteFileConfiguration(String fileName) {
-        fileConfigurations.remove(fileName);
+        fileMapping.remove(fileName);
         return this;
     }
 
 	@Override
 	public ProfileBuilder setConfigurations(Map<String, Map<String, String>> configs) {
-		configurations = new HashMap<>();
+		configMapping = new HashMap<>();
 		for (Entry<String, Map<String, String>> entry : configs.entrySet()) {
 			String pid = entry.getKey();
 			Map<String, String> config = entry.getValue();
-			configurations.put(pid, new HashMap<String, String>(config));
+			configMapping.put(pid, new HashMap<String, String>(config));
 		}
 		return this;
 	}
 
 	@Override
 	public ProfileBuilder addConfiguration(String pid, Map<String, String> config) {
-		configurations.put(pid, new HashMap<String, String>(config));
+		configMapping.put(pid, new HashMap<String, String>(config));
 		return this;
 	}
 
     @Override
     public Set<String> getConfigurationKeys() {
-        return configurations.keySet();
+        return configMapping.keySet();
     }
 
     @Override
     public Map<String, String> getConfiguration(String pid) {
-        Map<String, String> config = configurations.get(pid);
+        Map<String, String> config = configMapping.get(pid);
         return config != null ? Collections.unmodifiableMap(config) : null;
     }
     
     @Override
     public ProfileBuilder deleteConfiguration(String pid) {
-        configurations.remove(pid);
+        configMapping.remove(pid);
         return this;
     }
     
@@ -262,10 +286,10 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
     }
 
     private Map<String, String> getAgentConfiguration() {
-        Map<String, String> agentConfig = configurations.get(Constants.AGENT_PID);
+        Map<String, String> agentConfig = configMapping.get(Constants.AGENT_PID);
         if (agentConfig == null) {
             agentConfig = new HashMap<String, String>();
-            configurations.put(Constants.AGENT_PID, agentConfig);
+            configMapping.put(Constants.AGENT_PID, agentConfig);
         }
         return agentConfig;
     }
@@ -288,16 +312,16 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 		super.validate();
 		IllegalStateAssertion.assertNotNull(profileId, "Profile must have an identity");
 		IllegalStateAssertion.assertNotNull(versionId, "Version must be specified");
-		for (Profile profile : parentProfiles.values()) {
-			String prfversion = profile.getVersion();
-			IllegalStateAssertion.assertEquals(versionId, prfversion, "Profile version not '" + versionId + "' for: " + profile);
-		}
+        for (Profile parent : parentMapping.values()) {
+            String parentVersion = parent.getVersion();
+            IllegalStateAssertion.assertEquals(versionId, parentVersion, "Profile version not '" + versionId + "' for: " + parent);
+        }
 	}
 
 	@Override
 	public Profile getProfile() {
 		validate();
-		List<Profile> parents = new ArrayList<>(parentProfiles.values());
-		return new ProfileImpl(versionId, profileId, parents, fileConfigurations, configurations, lastModified, isOverlay);
+		List<Profile> parents = new ArrayList<>(parentMapping.values());
+		return new ProfileImpl(versionId, profileId, parents, fileMapping, configMapping, lastModified, isOverlay);
 	}
 }

@@ -29,8 +29,8 @@ import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
-import io.fabric8.api.ProfileService;
 import io.fabric8.api.ProfileRegistry;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.api.ZkDefs;
 import io.fabric8.internal.ContainerImpl;
@@ -41,12 +41,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.zookeeper.KeeperException;
-import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import com.google.common.collect.Maps;
 
 public class ContainerImplTest {
 
@@ -185,7 +182,7 @@ public class ContainerImplTest {
         expect(profileRegistry.hasProfile(v, profile1Id)).andReturn(true).anyTimes();
         expect(profileRegistry.hasProfile(v, profile2Id)).andReturn(true).anyTimes();
         expect(profileRegistry.hasProfile(v, missing)).andReturn(false).anyTimes();
-        expect(profileRegistry.getProfileAttributes(eq(v), EasyMock.<String>anyObject())).andReturn(Maps.<String, String>newHashMap()).anyTimes();
+        //expect(profileRegistry.getProfileAttributes(eq(v), EasyMock.<String>anyObject())).andReturn(Maps.<String, String>newHashMap()).anyTimes();
         dataStore.setContainerProfiles(eq(CONTAINER_ID), eq(profilesToSet));
         expectLastCall().once();
         replay(fabricService);
@@ -214,7 +211,7 @@ public class ContainerImplTest {
         expect(profileRegistry.hasProfile(v, profile1Id)).andReturn(true).anyTimes();
         expect(profileRegistry.hasProfile(v, profile2Id)).andReturn(true).anyTimes();
         expect(profileRegistry.hasProfile(v, missing)).andReturn(false).anyTimes();
-        expect(profileRegistry.getProfileAttributes(eq(v), EasyMock.<String>anyObject())).andReturn(Maps.<String, String>newHashMap()).anyTimes();
+        //expect(profileRegistry.getProfileAttributes(eq(v), EasyMock.<String>anyObject())).andReturn(Maps.<String, String>newHashMap()).anyTimes();
         replay(fabricService);
         replay(dataStore);
 
@@ -260,9 +257,9 @@ public class ContainerImplTest {
         expect(profileService.getRequiredVersion(eq(v))).andReturn(version).anyTimes();
 
         //Define Attributes
-        expect(profileRegistry.getProfileAttributes(eq(v), eq(defaultProfile))).andReturn(defaultAttributes).anyTimes();
-        expect(profileRegistry.getProfileAttributes(eq(v), eq(camelProfile))).andReturn(camelAttributes).anyTimes();
-        expect(profileRegistry.getProfileAttributes(eq(v), eq(cxfProfile))).andReturn(cxfAttributes).anyTimes();
+        //expect(profileRegistry.getProfileAttributes(eq(v), eq(defaultProfile))).andReturn(defaultAttributes).anyTimes();
+        //expect(profileRegistry.getProfileAttributes(eq(v), eq(camelProfile))).andReturn(camelAttributes).anyTimes();
+        //expect(profileRegistry.getProfileAttributes(eq(v), eq(cxfProfile))).andReturn(cxfAttributes).anyTimes();
 
         //Define Files
         expect(profileRegistry.getFileConfigurations(eq(v), eq(defaultProfile))).andReturn(defaultFiles).anyTimes();
