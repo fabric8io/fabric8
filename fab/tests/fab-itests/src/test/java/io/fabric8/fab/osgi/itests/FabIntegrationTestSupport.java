@@ -113,6 +113,14 @@ public abstract class FabIntegrationTestSupport {
             mavenBundle("org.apache.karaf.shell", "org.apache.karaf.shell.console").versionAsInProject(),
             mavenBundle("org.apache.karaf.shell", "org.apache.karaf.shell.osgi").versionAsInProject(),
 
+            mavenBundle("org.ow2.asm", "asm-all").versionAsInProject(),
+            mavenBundle("commons-collections", "commons-collections").versionAsInProject(),
+            mavenBundle("org.ops4j.base", "ops4j-base-lang").versionAsInProject(),
+            mavenBundle("org.ops4j.base", "ops4j-base-net").versionAsInProject(),
+            mavenBundle("org.ops4j.base", "ops4j-base-util-property").versionAsInProject(),
+            mavenBundle("org.ops4j.pax.swissbox", "pax-swissbox-optional-jcl").versionAsInProject(),
+            mavenBundle("org.ops4j.pax.swissbox", "pax-swissbox-property").versionAsInProject(),
+
             mavenBundle("io.fabric8", "common-util").versionAsInProject(),
             mavenBundle("io.fabric8.fab", "fab-osgi").versionAsInProject()
         };

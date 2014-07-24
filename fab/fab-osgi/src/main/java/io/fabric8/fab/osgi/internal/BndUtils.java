@@ -237,10 +237,14 @@ public class BndUtils
             String importPackage = main.getValue(Analyzer.IMPORT_PACKAGE);
             for (Descriptors.PackageRef key : analyzer.getReferred().keySet()) {
                 if (key.getFQN().startsWith("META-INF.")) {
-                    importPackage += "," + key.getFQN();
+                    if (importPackage == null) {
+                        importPackage = key.getFQN();
+                    } else {
+                        importPackage += "," + key.getFQN();
+                    }
                 }
             }
-            main.putValue(Analyzer.IMPORT_PACKAGE, importPackage);
+            main.putValue(Analyzer.IMPORT_PACKAGE, emptyIfNull(importPackage));
 
             String importPackages = emptyIfNull(main.getValue(Analyzer.IMPORT_PACKAGE));
             Parameters values = new Analyzer().parseHeader(importPackages);
