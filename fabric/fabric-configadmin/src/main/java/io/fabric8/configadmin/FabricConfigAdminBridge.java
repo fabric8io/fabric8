@@ -70,7 +70,7 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = ContainerRegistration.class)
     private final ValidatingReference<ContainerRegistration> containerRegistration = new ValidatingReference<ContainerRegistration>();
-    @Reference(referenceInterface = URLStreamHandlerService.class, target = "url.handler.protocol=profile")
+    @Reference(referenceInterface = URLStreamHandlerService.class, target = "(url.handler.protocol=profile)")
     private final ValidatingReference<URLStreamHandlerService> urlHandler = new ValidatingReference<URLStreamHandlerService>();
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-configadmin"));
