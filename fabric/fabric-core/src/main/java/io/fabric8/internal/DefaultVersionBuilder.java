@@ -22,10 +22,10 @@ import io.fabric8.api.Version;
 import io.fabric8.api.VersionBuilder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jboss.gravia.utils.IllegalStateAssertion;
 
@@ -62,6 +62,16 @@ final class DefaultVersionBuilder extends AbstractAttributableBuilder<VersionBui
 	}
 
 	@Override
+    public Set<String> getProfiles() {
+        return profiles.keySet();
+    }
+
+    @Override
+    public Profile getProfile(String profileId) {
+        return profiles.get(profileId);
+    }
+
+    @Override
 	public VersionBuilder addProfile(Profile profile) {
 		profiles.put(profile.getId(), profile);
 		return this;

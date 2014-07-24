@@ -17,6 +17,7 @@ package io.fabric8.api;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jboss.gravia.runtime.ServiceLocator;
 
@@ -37,23 +38,33 @@ public interface ProfileBuilder extends AttributableBuilder<ProfileBuilder> {
 
     ProfileBuilder addParents(List<Profile> profiles);
 
+    List<String> getParents();
+    
+    Profile getParent(String profileId);
+    
     ProfileBuilder setParents(List<Profile> profiles);
     
     ProfileBuilder removeParent(String profileId);
 
-    ProfileBuilder setFileConfigurations(Map<String, byte[]> configurations);
-
-    ProfileBuilder addConfigurationFile(String fileName, byte[] data);
-    
-    ProfileBuilder deleteConfigurationFile(String fileName);
-    
     ProfileBuilder setConfigurations(Map<String, Map<String, String>> configurations);
 
     ProfileBuilder addConfiguration(String pid, Map<String, String> configuration);
 
+    Set<String> getConfigurationKeys();
+    
     Map<String, String> getConfiguration(String pid);
     
     ProfileBuilder deleteConfiguration(String pid);
+    
+    Set<String> getFileConfigurationKeys();
+    
+    byte[] getFileConfiguration(String key);
+    
+    ProfileBuilder setFileConfigurations(Map<String, byte[]> configurations);
+
+    ProfileBuilder addFileConfiguration(String fileName, byte[] data);
+    
+    ProfileBuilder deleteFileConfiguration(String fileName);
     
     ProfileBuilder setBundles(List<String> values);
 
@@ -73,20 +84,6 @@ public interface ProfileBuilder extends AttributableBuilder<ProfileBuilder> {
     
     ProfileBuilder setLastModified(String lastModified);
     
-    //ProfileBuilder addProfileItem(ProfileItem item);
-
-    //ProfileBuilder removeProfileItem(String identity);
-
-    //ProfileBuilder addConfigurationItem(String mergeIndex, Map<String, Object> config);
-
-    //ProfileBuilder addResourceItem(Resource resource);
-
-    //ProfileBuilder addSharedResourceItem(Resource resource);
-
-    //ProfileBuilder addReferenceResourceItem(Resource resource);
-
-    //ProfileBuilder addRequirementItem(Requirement requirement);
-
     Profile getProfile();
 
     final class Factory {

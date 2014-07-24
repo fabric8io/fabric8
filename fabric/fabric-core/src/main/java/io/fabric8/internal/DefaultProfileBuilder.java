@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.jboss.gravia.utils.IllegalStateAssertion;
 
@@ -94,6 +95,16 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 	}
 
 	@Override
+    public List<String> getParents() {
+        return Collections.unmodifiableList(new ArrayList<>(parentProfiles.keySet()));
+    }
+
+    @Override
+    public Profile getParent(String profileId) {
+        return parentProfiles.get(profileId);
+    }
+
+    @Override
     public ProfileBuilder setParents(List<Profile> profiles) {
         return addParentsInternal(profiles, true);
     }
@@ -114,6 +125,16 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 		return this;
 	}
 
+    @Override
+    public Set<String> getFileConfigurationKeys() {
+        return fileConfigurations.keySet();
+    }
+
+    @Override
+    public byte[] getFileConfiguration(String key) {
+        return fileConfigurations.get(key);
+    }
+
 	@Override
 	public ProfileBuilder setFileConfigurations(Map<String, byte[]> configurations) {
 		fileConfigurations = new HashMap<>(configurations);
@@ -121,13 +142,13 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 	}
 
     @Override
-    public ProfileBuilder addConfigurationFile(String fileName, byte[] data) {
+    public ProfileBuilder addFileConfiguration(String fileName, byte[] data) {
         fileConfigurations.put(fileName, data);
         return this;
     }
 
     @Override
-    public ProfileBuilder deleteConfigurationFile(String fileName) {
+    public ProfileBuilder deleteFileConfiguration(String fileName) {
         fileConfigurations.remove(fileName);
         return this;
     }
@@ -148,6 +169,11 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 		configurations.put(pid, new HashMap<String, String>(config));
 		return this;
 	}
+
+    @Override
+    public Set<String> getConfigurationKeys() {
+        return configurations.keySet();
+    }
 
     @Override
     public Map<String, String> getConfiguration(String pid) {

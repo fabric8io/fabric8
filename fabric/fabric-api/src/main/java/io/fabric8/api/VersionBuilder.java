@@ -16,6 +16,7 @@
 package io.fabric8.api;
 
 import java.util.List;
+import java.util.Set;
 
 import org.jboss.gravia.runtime.ServiceLocator;
 
@@ -27,6 +28,10 @@ public interface VersionBuilder extends AttributableBuilder<VersionBuilder> {
 
 	VersionBuilder addProfiles(List<Profile> profile);
 
+	Set<String> getProfiles();
+	
+	Profile getProfile(String profileId);
+	
 	VersionBuilder removeProfile(String profileId);
 
     Version getVersion();

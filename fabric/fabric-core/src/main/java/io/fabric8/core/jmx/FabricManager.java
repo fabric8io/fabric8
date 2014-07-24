@@ -882,7 +882,7 @@ public final class FabricManager implements FabricManagerMBean {
     public void deleteConfigurationFile(String versionId, String profileId, String fileName) {
         Profile profile = profileService.getRequiredProfile(versionId, profileId);
         ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
-        builder.deleteConfigurationFile(fileName);
+        builder.deleteFileConfiguration(fileName);
         profileService.updateProfile(builder.getProfile());
     }
 
@@ -890,7 +890,7 @@ public final class FabricManager implements FabricManagerMBean {
     public void setConfigurationFile(String versionId, String profileId, String fileName, String data) {
         Profile profile = profileService.getRequiredProfile(versionId, profileId);
         ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
-        builder.addConfigurationFile(fileName, Base64.decodeBase64(data));
+        builder.addFileConfiguration(fileName, Base64.decodeBase64(data));
         profileService.updateProfile(builder.getProfile());
     }
 
