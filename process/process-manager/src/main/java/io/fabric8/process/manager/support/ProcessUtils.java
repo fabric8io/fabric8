@@ -18,11 +18,16 @@ package io.fabric8.process.manager.support;
 import com.google.common.collect.Maps;
 import io.fabric8.api.Profile;
 import io.fabric8.common.util.Closeables;
+import io.fabric8.common.util.Filter;
+import io.fabric8.common.util.Filters;
+import io.fabric8.common.util.Function;
+import io.fabric8.common.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -30,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.concurrent.Callable;
 
 import static java.lang.String.format;
 
@@ -82,14 +88,12 @@ public class ProcessUtils {
         // TODO we should use a nice library like Sigar really
         // here's a simple unix only workaround for now...
         String commands = "ps -e";
-        Process process = null;
-        Runtime runtime = Runtime.getRuntime();
         String message = commands;
         LOGGER.debug("Executing commands: " + message);
         List<Long> answer = new ArrayList<Long>();
         try {
-            process = runtime.exec(commands);
-            parseProcesses(process.getInputStream(), answer, message);
+            Process process = Runtime.getRuntime().exec(commands);
+            parseProcesses(process.getInputStream(), answer, message, Filters.<String>trueFilter());
             processErrors(process.getErrorStream(), message);
         } catch (Exception e) {
             LOGGER.error("Failed to execute process " + "stdin" + " for " +
@@ -97,6 +101,119 @@ public class ProcessUtils {
                     ": " + e, e);
         }
         return answer;
+    }
+
+    /**
+     * Returns the list of current active PIDs for any java based process
+     * that has a main class which contains any of the given bits of text
+     *
+     */
+    public static List<Long> getJavaProcessIds(String... classNameFilter) {
+        String commands = "jps -l";
+        String message = commands;
+        LOGGER.debug("Executing commands: " + message);
+        List<Long> answer = new ArrayList<Long>();
+        Filter<String> filter = Filters.containsAnyString(classNameFilter);
+        try {
+            Process process = Runtime.getRuntime().exec(commands);
+            parseProcesses(process.getInputStream(), answer, message, filter);
+            processErrors(process.getErrorStream(), message);
+        } catch (Exception e) {
+            LOGGER.error("Failed to execute process " + "stdin" + " for " +
+                    message +
+                    ": " + e, e);
+        }
+        return answer;
+    }
+
+    /**
+     * Kills all commonly created Java based processes created by fabric8 and its unit tests.
+     *
+     * This is handy for unit testing to ensure there's no stray karaf, wildfly, tomcat or java containers running.
+     */
+    public static int killJavaProcesses() {
+        return killJavaProcesses("karaf", "jboss", "catalina", "spring.Main");
+    }
+
+    /**
+     * Kills all java processes found which include the classNameFilter in their main class
+     */
+    public static int killJavaProcesses(String... classNameFilters) {
+        int count = 0;
+        List<Long> javaProcessIds = getJavaProcessIds(classNameFilters);
+        for (Long processId : javaProcessIds) {
+            LOGGER.warn("Killing Java process " + processId);
+            killProcess(processId, "-9");
+            count++;
+        }
+        return count;
+    }
+
+
+    /**
+     * Returns a list of active docker containers
+     */
+    public static List<String> getDockerContainerIds() {
+        String commands = "docker ps -q";
+        String message = "output of command: " + commands;
+        LOGGER.debug("Executing commands: " + message);
+        final List<String> answer = new ArrayList<>();
+        try {
+            Process process = Runtime.getRuntime().exec(commands);
+            Function<String, Void> fn = new Function<String, Void>() {
+                @Override
+                public Void apply(String line) {
+                    if (Strings.isNotBlank(line)) {
+                        answer.add(line.trim());
+                    }
+                    return null;
+                }
+            };
+            processOutput(process.getInputStream(), fn, message);
+            processErrors(process.getErrorStream(), message);
+        } catch (Exception e) {
+            LOGGER.error("Failed to execute process " + "stdin" + " for " +
+                    message +
+                    ": " + e, e);
+        }
+        return answer;
+    }
+
+
+    /**
+     * Returns a list of active docker containers
+     */
+    public static int killDockerContainer(String containerId) {
+        String commands = "docker kill " + containerId;
+        String message =commands;
+        LOGGER.debug("Executing commands: " + message);
+        final List<String> answer = new ArrayList<>();
+        Process process = null;
+        try {
+            process = Runtime.getRuntime().exec(commands);
+            processInput(process.getInputStream(), commands);
+            processErrors(process.getErrorStream(), commands);
+        } catch (Exception e) {
+            LOGGER.error("Failed to execute process " + "stdin" + " for " +
+                    message +
+                    ": " + e, e);
+        }
+        return process != null ? process.exitValue() : -1;
+    }
+
+    /**
+     * Kills all docker containers on the current host
+     */
+    public static int killDockerContainers() {
+        int count = 0;
+        List<String> ids = getDockerContainerIds();
+        for (String id : ids) {
+            LOGGER.warn("Killing Docker container " + id);
+            if (killDockerContainer(id) == 0) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**
@@ -130,20 +247,22 @@ public class ProcessUtils {
         }
     }
 
-    protected static void parseProcesses(InputStream inputStream, List<Long> answer, String message) throws Exception {
+    protected static void parseProcesses(InputStream inputStream, List<Long> answer, String message, Filter<String> lineFilter) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         try {
             while (true) {
                 String line = reader.readLine();
                 if (line == null) break;
-                StringTokenizer tokenizer = new StringTokenizer(line);
-                if (tokenizer.hasMoreTokens()) {
-                    String pidText = tokenizer.nextToken();
-                    try {
-                        long pid = Long.parseLong(pidText);
-                        answer.add(pid);
-                    } catch (NumberFormatException e) {
-                        LOGGER.debug("Could not parse pid " + pidText + " from command: " + message);
+                if (lineFilter.matches(line)) {
+                    StringTokenizer tokenizer = new StringTokenizer(line);
+                    if (tokenizer.hasMoreTokens()) {
+                        String pidText = tokenizer.nextToken();
+                        try {
+                            long pid = Long.parseLong(pidText);
+                            answer.add(pid);
+                        } catch (NumberFormatException e) {
+                            LOGGER.debug("Could not parse pid " + pidText + " from command: " + message);
+                        }
                     }
                 }
             }
@@ -166,21 +285,32 @@ public class ProcessUtils {
         readProcessOutput(inputStream, "stderr for ", message);
     }
 
-    protected static void readProcessOutput(InputStream inputStream, String prefix, String message) throws Exception {
+    protected static void readProcessOutput(InputStream inputStream, final String prefix, final String message) throws Exception {
+        Function<String, Void> function = new Function<String, Void>() {
+            @Override
+            public Void apply(String line) {
+                LOGGER.debug("Error " +
+                        prefix +
+                                message +
+                        ": " + line);
+                return null;
+            }
+        };
+        processOutput(inputStream, function, prefix +
+                message);
+    }
+
+    protected static void processOutput(InputStream inputStream, Function<String, Void> function, String errrorMessage) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         try {
             while (true) {
                 String line = reader.readLine();
                 if (line == null) break;
-                LOGGER.debug("Error " +
-                        prefix +
-                                message +
-                        ": " + line);
+                function.apply(line);
             }
 
         } catch (Exception e) {
-            LOGGER.error("Failed to process " + prefix +
-                    message + ": " + e, e);
+            LOGGER.error("Failed to process " + errrorMessage + ": " + e, e);
             throw e;
         } finally {
             Closeables.closeQuitely(reader);

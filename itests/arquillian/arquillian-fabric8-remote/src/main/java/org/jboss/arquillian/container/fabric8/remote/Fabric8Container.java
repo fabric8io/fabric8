@@ -68,6 +68,9 @@ public class Fabric8Container implements DeployableContainer<Fabric8ContainerCon
 
     @Override
     public void start() throws LifecycleException {
+        // lets kill any containers that are running before we start
+        FabricAssertions.killJavaAndDockerProcesses();
+
         fabricControllerManager = createFabricControllerManager();
 
         Fabric8ContainerConfiguration config = configuration.get();
@@ -93,6 +96,9 @@ public class Fabric8Container implements DeployableContainer<Fabric8ContainerCon
                 throw new LifecycleException("Failed to stop remote fabric: " + e, e);
             } finally {
                 fabricControllerManager = null;
+
+                // lets kill any containers that are running so we leave things in a nice clean state
+                FabricAssertions.killJavaAndDockerProcesses();
             }
         }
     }

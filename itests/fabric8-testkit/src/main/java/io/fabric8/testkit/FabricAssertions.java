@@ -26,6 +26,7 @@ import io.fabric8.common.util.Filters;
 import io.fabric8.common.util.IOHelpers;
 import io.fabric8.common.util.Strings;
 import io.fabric8.core.jmx.BeanUtils;
+import io.fabric8.process.manager.support.ProcessUtils;
 import org.jolokia.client.exception.J4pRemoteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +49,17 @@ import static org.junit.Assert.fail;
 public class FabricAssertions {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricAssertions.class);
 
-    private static long defaultTimeout = 3 * 60 * 1000;
-    private static long defaultWaitSleepPeriod = 500;
+    private static long defaultTimeout = 6 * 60 * 1000;
+    private static long defaultWaitSleepPeriod = 1000;
     private static ObjectMapper mapper = new ObjectMapper();
+
+    /**
+     * Kill all fabric8 related java processes and docker containers typically created through integration tests
+     */
+    public static void killJavaAndDockerProcesses() {
+        ProcessUtils.killJavaProcesses();
+        ProcessUtils.killDockerContainers();
+    }
 
     /**
      * Asserts that a fabric can be created and that the requirements can be satisfied
@@ -75,16 +84,18 @@ public class FabricAssertions {
     /**
      * Asserts that the requirements can be satisfied
      */
-    public static FabricController assertSetRequirementsAndTheyAreSatisfied(FabricController controller, FabricRequirements requirements) throws Exception {
+    public static FabricController assertSetRequirementsAndTheyAreSatisfied(final FabricController controller, final FabricRequirements requirements) throws Exception {
         assertNotNull("FabricController", controller);
         assertNotNull("FabricRequirements", requirements);
 
-        try {
-            controller.setRequirements(requirements);
-        } catch (Exception e) {
-            LOG.error("Failed to set requirements: " + e, e);
-            fail(unwrapException(e));
-        }
+        waitForValidValue(30 * 1000, new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                controller.setRequirements(requirements);
+                return true;
+            }
+        });
+
         assertRequirementsSatisfied(controller, requirements);
 
         return controller;
@@ -263,17 +274,20 @@ public class FabricAssertions {
         long failTime = System.currentTimeMillis() + timeout;
         while (true) {
             T value = null;
+            Exception exception = null;
             try {
                 value = callable.call();
             } catch (Exception e) {
                 System.out.println(unwrapException(e));
+                exception = e;
             }
             if (value != null && isValid.matches(value)) {
                 return value;
             } else {
                 long now = System.currentTimeMillis();
                 if (now > failTime) {
-                    fail("value " + value + " is not valid using " + isValid
+                    String message = (value == null && exception != null) ? "exception " + exception : "value " + value;
+                    fail(message + " is not valid using " + isValid
                             + " after waiting: " + Math.round(timeout / 1000) + " second(s)");
                     return value;
                 } else {
