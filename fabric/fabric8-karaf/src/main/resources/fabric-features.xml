@@ -182,7 +182,6 @@
     </feature>
 
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">
-        <feature>scr</feature>
         <feature>gravia</feature>
 
         <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
@@ -197,6 +196,7 @@
         <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle dependency='true'>mvn:com.google.guava/guava/${guava-version}</bundle>
 
+        <bundle>mvn:org.apache.felix/org.apache.felix.scr/${felix-scr-version}</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.metatype/${felix-metatype-version}</bundle>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-api/${project.version}</bundle>
