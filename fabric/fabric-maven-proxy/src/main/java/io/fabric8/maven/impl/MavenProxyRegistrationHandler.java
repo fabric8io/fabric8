@@ -236,4 +236,12 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     void unbindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.unbind(service);
     }
+
+    void bindProjectDeployer(ProjectDeployer projectDeployer) {
+        this.projectDeployer.bind(projectDeployer);
+    }
+
+    void unbindProjectDeployer(ProjectDeployer projectDeployer) {
+        this.projectDeployer.unbind(projectDeployer);
+    }
 }
