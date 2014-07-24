@@ -36,6 +36,7 @@
         <fuse.osgi.import.additional>
             !org.apache.felix.bundlerepository.*,
             org.apache.karaf.features*;resolution:=optional,
+            org.osgi.service.event*;resolution:=optional,
         </fuse.osgi.import.additional>
         <fuse.osgi.private.pkg>
             org.jledit.utils;-split-package:=first,
