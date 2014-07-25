@@ -19,6 +19,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.ContainerAutoScalerFactory;
 import io.fabric8.api.ContainerProvider;
+import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.EnvironmentVariables;
@@ -36,6 +37,8 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Strings;
 import io.fabric8.container.process.JavaContainerConfig;
 import io.fabric8.container.process.JolokiaAgentHelper;
+import io.fabric8.container.process.ProcessContainerConfig;
+import io.fabric8.container.process.ZooKeeperPublishConfig;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.DockerApiConnectionException;
 import io.fabric8.docker.api.DockerFactory;
@@ -412,6 +415,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             metadata.setContainerType(containerType);
             metadata.setOverridenResolver(ZkDefs.MANUAL_IP);
             metadata.setCreateOptions(options);
+
+            publishZooKeeperValues(options, environmentVariables);
+
             if (jolokiaUrl != null) {
                 metadata.setJolokiaUrl(jolokiaUrl);
                 startJolokiaKeepAlive(metadata);
@@ -425,6 +431,25 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         return metadata;
     }
 
+    protected void publishZooKeeperValues(CreateDockerContainerOptions options, Map<String, String> environmentVariables) {
+        Map<String, Map<String, String>> publishConfigurations = Profiles.getOverlayFactoryConfigurations(fabricService.get(), options.getProfiles(), options.getVersion(), ZooKeeperPublishConfig.PROCESS_CONTAINER_ZK_PUBLISH_PID);
+        Set<Map.Entry<String, Map<String, String>>> entries = publishConfigurations.entrySet();
+        for (Map.Entry<String, Map<String, String>> entry : entries) {
+            String configName = entry.getKey();
+            Map<String, String> exportConfig = entry.getValue();
+
+            if (exportConfig != null && !exportConfig.isEmpty()) {
+                JolokiaAgentHelper.substituteEnvironmentVariableExpressions(exportConfig, environmentVariables, fabricService.get(), curator.get(), true);
+                ZooKeeperPublishConfig config = new ZooKeeperPublishConfig();
+                try {
+                    configurer.configure(exportConfig, config);
+                    config.publish(curator.get(), null, null, null, environmentVariables);
+                } catch (Exception e) {
+                    LOG.warn("Failed to publish configuration " + configName + " of " + config + " due to: " + e, e);
+                }
+            }
+        }
+    }
 
     @Override
     public void start(Container container) {
