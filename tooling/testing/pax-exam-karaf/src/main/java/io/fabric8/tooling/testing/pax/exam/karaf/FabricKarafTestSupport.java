@@ -46,6 +46,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FabricKarafTestSupport {
 
@@ -56,6 +58,8 @@ public class FabricKarafTestSupport {
     public static final Long COMMAND_TIMEOUT = 70000L;
 
     static final ExecutorService executor = Executors.newCachedThreadPool();
+
+    static final Logger LOGGER = LoggerFactory.getLogger(FabricKarafTestSupport.class);
 
     @Inject
     protected BundleContext bundleContext;
@@ -184,6 +188,7 @@ public class FabricKarafTestSupport {
                                 System.out.println(command);
                                 System.out.flush();
                             }
+                            LOGGER.info("Executing command: " + command);
 
                             while (!Thread.currentThread().isInterrupted() && keepRunning) {
                                 try {
