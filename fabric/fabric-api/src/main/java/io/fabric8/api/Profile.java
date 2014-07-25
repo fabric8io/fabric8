@@ -60,6 +60,16 @@ public interface Profile extends Comparable<Profile>, HasId {
      */
     String DELETED = "#deleted#";
 
+    /**
+     * The file suffix for a configuration
+     */
+    String PROPERTIES_SUFFIX = ".properties";
+
+    /**
+     * The attribute prefix for in the agent configuration
+     */
+    String ATTRIBUTE_PREFIX = "attribute.";
+
     String getVersion();
 
     Map<String, String> getAttributes();

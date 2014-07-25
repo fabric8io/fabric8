@@ -103,7 +103,7 @@ public class GitContext {
      */
     public GitContext commitMessage(String message) {
         if (commitMessage.length() > 0) {
-            commitMessage.append("\n-");
+            commitMessage.append("\n");
         }
         commitMessage.append(message);
         return this;

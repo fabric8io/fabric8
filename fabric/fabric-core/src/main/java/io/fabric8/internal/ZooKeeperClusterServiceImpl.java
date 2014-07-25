@@ -26,6 +26,7 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreateEnsembleOptions.Builder;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.EnsembleModificationFailed;
 import io.fabric8.api.FabricException;
@@ -34,7 +35,6 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.DataStore;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -241,10 +241,9 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             String profileId = "fabric-ensemble-" + newClusterId;
             IllegalStateAssertion.assertFalse(profileRegistry.get().hasProfile(versionId, profileId), "Profile already exists: " + versionId + "/" + profileId);
             ProfileBuilder ensembleProfileBuilder = ProfileBuilder.Factory.create(versionId, profileId);
+            ensembleProfileBuilder.addAttribute(Profile.ABSTRACT, "true").addAttribute(Profile.HIDDEN, "true");
             ensembleProfileBuilder.addFileConfiguration(ensemblePropertiesName, DataStoreUtils.toBytes(ensembleProperties));
             String ensembleProfileId = profileRegistry.get().createProfile(ensembleProfileBuilder.getProfile());
-            profileRegistry.get().setProfileAttribute(versionId, ensembleProfileId, "abstract", "true");
-            profileRegistry.get().setProfileAttribute(versionId, ensembleProfileId, "hidden", "true");
 
             int index = 1;
             String connectionUrl = "";
@@ -286,10 +285,9 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 profileId = "fabric-ensemble-" + newClusterId + "-" + index;
                 IllegalStateAssertion.assertFalse(profileRegistry.get().hasProfile(versionId, profileId), "Profile already exists: " + versionId + "/" + profileId);
                 ProfileBuilder memberProfileBuilder = ProfileBuilder.Factory.create(versionId, profileId);
+                memberProfileBuilder.addAttribute(Profile.HIDDEN, "true").addAttribute(Profile.PARENTS, ensembleProfileId);
                 memberProfileBuilder.addFileConfiguration(memberPropertiesName, DataStoreUtils.toBytes(memberProperties));
-                String memberProfileId = profileRegistry.get().createProfile(memberProfileBuilder.getProfile());
-                profileRegistry.get().setProfileAttribute(versionId, memberProfileId, "hidden", "true");
-                profileRegistry.get().setProfileAttribute(versionId, memberProfileId, "parents", ensembleProfileId);
+                profileRegistry.get().createProfile(memberProfileBuilder.getProfile());
 
                 if (connectionUrl.length() > 0) {
                     connectionUrl += ",";

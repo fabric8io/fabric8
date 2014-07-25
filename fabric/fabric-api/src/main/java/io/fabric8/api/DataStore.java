@@ -24,8 +24,6 @@ import java.util.Map;
  */
 public interface DataStore {
 
-    public static final String ATTRIBUTE_PREFIX = "attribute.";
-
     /**
      * Gets the fabric release version, eg such as 1.1.0
      */
