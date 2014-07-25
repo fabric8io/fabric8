@@ -18,7 +18,7 @@ Fabric8 has lots of example profiles using the Process Container in the [contain
 * [HDFS Name Node](https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/services/hdfs.namenode.profile)
 * [HDFS Data Node](https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/services/hdfs.datanode.profile)
 * [Tomcat](https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile)
-* [Wildfly](https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/wildfly.profile).
+* [WildFly](https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/wildfly.profile)
 
 If you want to configure how the process container works; such as to configure the distribution or to run post-unpack commands  add your own [io.fabric8.container.process.properties](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile/io.fabric8.container.process.properties) file to your profile.
 

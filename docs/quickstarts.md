@@ -17,5 +17,5 @@ The quickstarts are categorized accordingly to the container being used:
 * [java](https://github.com/fabric8io/fabric8/tree/master/quickstarts/java) - examples for standalone Java applications
 * [karaf](https://github.com/fabric8io/fabric8/tree/master/quickstarts/karaf) - many examples for Apache Karaf containers (OSGi)
 * [spring.boot](https://github.com/fabric8io/fabric8/tree/master/quickstarts/spring-boot) - examples for using Spring Boot
-* [war](https://github.com/fabric8io/fabric8/tree/master/quickstarts/war) - examples as WAR deployment which can run on containers such as Apache Tomcat, Jetty, and Wildfly
+* [war](https://github.com/fabric8io/fabric8/tree/master/quickstarts/war) - examples as WAR deployment which can run on containers such as Apache Tomcat, Jetty, and WildFly
 
