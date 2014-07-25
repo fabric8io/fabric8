@@ -45,6 +45,7 @@ import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.FabricStatus;
+import io.fabric8.api.NameValidator;
 import io.fabric8.api.NullCreationStateListener;
 import io.fabric8.api.PatchService;
 import io.fabric8.api.PlaceholderResolver;
@@ -463,13 +464,13 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
             int orgNumber = options.getNumber();
             int number = Math.max(orgNumber, 1);
             final CountDownLatch latch = new CountDownLatch(number);
+            Set<String> ignoreContainerNames = new HashSet<>();
+            Container[] containers = getContainers();
             for (int i = 1; i <= number; i++) {
-                String containerName;
-                if (orgNumber >= 1) {
-                    containerName = originalName + i;
-                } else {
-                    containerName = originalName;
-                }
+                NameValidator validator = Containers.createNameValidator(containers, ignoreContainerNames);
+                String containerName = Containers.createUniqueContainerName(containers, originalName, validator);
+                ignoreContainerNames.add(containerName);
+
                 optionsMap.put("name", containerName);
 
                 //Check if datastore configuration has been specified and fallback to current container settings.
@@ -984,6 +985,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     protected static void validateProfileRequirements(FabricService fabricService, FabricRequirements requirements, ProfileRequirements profileRequirement, Set<String> profileIds) {
+        profileRequirement.validate();
         assertValidProfileId(profileIds, profileRequirement.getProfile());
         List<String> dependentProfiles = profileRequirement.getDependentProfiles();
         if (dependentProfiles != null) {
