@@ -15,6 +15,9 @@
  */
 package io.fabric8.container.process;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Test;
 
 import static io.fabric8.container.process.JolokiaAgentHelper.substituteVariableExpression;
@@ -54,12 +57,31 @@ public class JolokiaAgentHelperSubstituteTest {
         }
     }
 
+    @Test
+    public void testProvidedEnvironmentVar() throws Exception {
+        Map<String, String> vars = new HashMap<>();
+        vars.put("CHEESE", "Edam");
+
+        assertExpression("${env:CHEESE}", "Edam", false, vars);
+        assertExpression("A${env:CHEESE}B", "A" + "Edam" + "B", false, vars);
+        assertExpression("A${env:CHEESE?:DEFAULT}B", "A" + "Edam" + "B", false, vars);
+
+        assertExpression("${env:DOES_NOT_EXIST?:DEFAULT}", "DEFAULT", false, vars);
+        assertExpression("A${env:DOES_NOT_EXIST?:DEFAULT}B", "ADEFAULTB", false, vars);
+        assertExpression("${env:DOES_NOT_EXIST?:DEFAULT}${env:DOES_NOT_EXIST?:DEFAULT}", "DEFAULTDEFAULT", false, vars);
+        assertExpression("1${env:DOES_NOT_EXIST?:DEFAULT}2${env:DOES_NOT_EXIST?:DEFAULT}3", "1DEFAULT2DEFAULT3", false, vars);
+    }
+
     public static String assertExpression(String expression, String expectedValue) {
         return assertExpression(expression, expectedValue, false);
     }
 
     public static String assertExpression(String expression, String expectedValue, boolean preserveUnresolved) {
-        String actual = substituteVariableExpression(expression, System.getenv(), null, null, preserveUnresolved);
+        return assertExpression(expression, expectedValue, preserveUnresolved, System.getenv());
+    }
+
+    public static String assertExpression(String expression, String expectedValue, boolean preserveUnresolved, Map<String, String> envVars) {
+        String actual = substituteVariableExpression(expression, envVars, null, null, preserveUnresolved);
         System.out.println("expression> " + expression + " => " + actual);
         assertEquals("Expression " + expression, expectedValue, actual);
         return actual;

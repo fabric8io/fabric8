@@ -84,9 +84,12 @@ public final class EnvPlaceholderResolver extends AbstractComponent implements P
             defaultValue = expression.substring(idx + ELVIS_OPERATOR.length());
             name = expression.substring(0, idx);
         }
-        String answer = System.getenv(name);
+        String answer = environmentVariables.get(name);
         if (answer == null) {
-            return preserveUnresolved ? expression : defaultValue;
+            answer = System.getenv(name);
+            if (answer == null) {
+                return preserveUnresolved ? expression : defaultValue;
+            }
         }
         return answer;
 
