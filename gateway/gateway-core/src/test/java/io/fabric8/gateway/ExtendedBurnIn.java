@@ -56,12 +56,10 @@ import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -239,6 +237,10 @@ public class ExtendedBurnIn {
             public InetSocketAddress getLocalAddress() {
                 return new InetSocketAddress("0.0.0.0", 8080);
             }
+
+			@Override
+			public void addCallDetailRecord(CallDetailRecord cdr) {
+			}
         });
         websocketHandler.setPathPrefix("");
         httpGatewayServer = new HttpGatewayServer(vertx, handler, websocketHandler, 8080);

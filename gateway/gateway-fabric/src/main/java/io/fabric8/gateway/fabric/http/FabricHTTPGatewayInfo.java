@@ -122,7 +122,7 @@ public class FabricHTTPGatewayInfo implements FabricGatewayInfoMBean {
     @Override
     public void resetStatistics() {
     	averageCallTimeNanos = 0l;
-    	numberOfInvocations = 0;
+    	numberOfInvocations = 0l;
     	lastCallDate = null;
     	lastError = null;
     }
