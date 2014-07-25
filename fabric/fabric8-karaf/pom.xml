@@ -438,6 +438,7 @@ TODO - zapped to try fix perfectus!
                                    <feature>fabric-hawtio-swagger</feature>
                                    <feature>hawtio-fabric8-branding</feature>
                                    <feature>hawtio-karaf-terminal</feature>
+                                   <feature>swagger</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                                <repository>target/features-repo</repository>
