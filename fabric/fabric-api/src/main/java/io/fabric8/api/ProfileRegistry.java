@@ -135,11 +135,4 @@ public interface ProfileRegistry {
     void importFromFileSystem(String from);
 
     void exportProfiles(String versionId, String outputFileName, String wildcard);
-
-    //
-    // [TODO] Below are methods that are accessed directly throughout the code base
-    // These should go through {@link ProfileService}
-    //
-    
-    void setProfileAttribute(String version, String profile, String key, String value);
 }

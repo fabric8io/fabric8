@@ -18,7 +18,6 @@ package io.fabric8.internal;
 import io.fabric8.api.AbstractBuilder;
 import io.fabric8.api.AttributableBuilder;
 import io.fabric8.api.Constants;
-import io.fabric8.api.DataStore;
 import io.fabric8.api.OptionsProvider;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
@@ -27,6 +26,8 @@ import io.fabric8.internal.ProfileImpl.ConfigListType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,7 @@ import org.jboss.gravia.utils.IllegalStateAssertion;
  */
 final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implements AttributableBuilder<ProfileBuilder>, ProfileBuilder {
 
-	private static final String PARENTS_ATTRIBUTE_KEY = DataStore.ATTRIBUTE_PREFIX + Profile.PARENTS;
+    private static final String PARENTS_ATTRIBUTE_KEY = Profile.ATTRIBUTE_PREFIX + Profile.PARENTS;
 	
     private String versionId;
 	private String profileId;
@@ -179,7 +180,10 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 
 	@Override
 	public ProfileBuilder setConfigurations(Map<String, Map<String, String>> configs) {
-		configMapping = new HashMap<>();
+        // Delete all existing pids - this also keeps the file mapping in sync
+	    for (String pid : new HashSet<>(configMapping.keySet())) {
+	        deleteConfiguration(pid);
+	    }
 		for (Entry<String, Map<String, String>> entry : configs.entrySet()) {
 			String pid = entry.getKey();
 			Map<String, String> config = entry.getValue();
@@ -208,6 +212,7 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
     @Override
     public ProfileBuilder deleteConfiguration(String pid) {
         configMapping.remove(pid);
+        fileMapping.remove(pid + Profile.PROPERTIES_SUFFIX);
         return this;
     }
     
@@ -267,7 +272,7 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 	@Override
     public ProfileBuilder addAttribute(String key, String value) {
         Map<String, String> agentConfig = getAgentConfiguration();
-        agentConfig.put(DataStore.ATTRIBUTE_PREFIX + key, value);
+        agentConfig.put(Profile.ATTRIBUTE_PREFIX + key, value);
         return this;
     }
 
@@ -275,12 +280,12 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
     public ProfileBuilder setAttributes(Map<String, String> attributes) {
         Map<String, String> agentConfig = getAgentConfiguration();
         for (String key : new ArrayList<>(agentConfig.keySet())) {
-            if (key.startsWith(DataStore.ATTRIBUTE_PREFIX)) {
+            if (key.startsWith(Profile.ATTRIBUTE_PREFIX)) {
                 agentConfig.remove(key);
             }
         }
         for (Entry<String, String> entry : attributes.entrySet()) {
-            agentConfig.put(DataStore.ATTRIBUTE_PREFIX + entry.getKey(), entry.getValue());
+            agentConfig.put(Profile.ATTRIBUTE_PREFIX + entry.getKey(), entry.getValue());
         }
         return null;
     }

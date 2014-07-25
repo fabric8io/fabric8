@@ -16,7 +16,6 @@
 package io.fabric8.internal;
 
 import io.fabric8.api.Constants;
-import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
@@ -56,10 +55,10 @@ public class ProfileImpl implements Profile {
         // Attributes are agent configuration with prefix 'attribute.'  
         Map<String, String> agentConfig = configs.get(Constants.AGENT_PID);
         if (agentConfig != null) {
-            int prefixLength = DataStore.ATTRIBUTE_PREFIX.length();
+            int prefixLength = Profile.ATTRIBUTE_PREFIX.length();
             for (Entry<String, String> entry : agentConfig.entrySet()) {
                 String key = entry.getKey();
-                if (key.startsWith(DataStore.ATTRIBUTE_PREFIX)) {
+                if (key.startsWith(Profile.ATTRIBUTE_PREFIX)) {
                     attributes.put(key.substring(prefixLength), entry.getValue());
                 }
             }
