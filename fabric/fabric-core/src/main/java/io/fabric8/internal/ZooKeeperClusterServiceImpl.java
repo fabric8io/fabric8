@@ -30,6 +30,7 @@ import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.EnsembleModificationFailed;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.RuntimeProperties;
@@ -134,10 +135,12 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
     @Override
     public Map<String, String> getEnsembleConfiguration() throws Exception {
         String clusterId = getStringData(curator.get(), ZkPath.CONFIG_ENSEMBLES.getPath());
-        String version = dataStore.get().getDefaultVersion();
+        String versionId = dataStore.get().getDefaultVersion();
         String profileId = "fabric-ensemble-" + clusterId;
         String ensembleConfigName = "io.fabric8.zookeeper.server-" + clusterId + ".properties";
-        return DataStoreUtils.toMap(profileRegistry.get().getFileConfigurations(version, profileId).get(ensembleConfigName));
+        Profile ensembleProfile = profileRegistry.get().getRequiredProfile(versionId, profileId);
+        Map<String, byte[]> fileconfigs = ensembleProfile.getFileConfigurations();
+        return DataStoreUtils.toMap(fileconfigs.get(ensembleConfigName));
      }
 
     public void createCluster(List<String> containers) {
@@ -189,10 +192,11 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             Map<String, List<Integer>> usedPorts = new HashMap<String, List<Integer>>();
             final String oldClusterId = getStringData(curator.get(), ZkPath.CONFIG_ENSEMBLES.getPath());
             if (oldClusterId != null) {
-                String profile = "fabric-ensemble-" + oldClusterId;
+                String profileId = "fabric-ensemble-" + oldClusterId;
                 String pid = "io.fabric8.zookeeper.server-" + oldClusterId;
 
-                Map<String, String> p = profileRegistry.get().getConfiguration(versionId, profile, pid);
+                Profile ensProfile = profileRegistry.get().getRequiredProfile(versionId, profileId);
+                Map<String, String> p = ensProfile.getConfiguration(pid);
 
                 if (p == null) {
                     throw new EnsembleModificationFailed("Failed to find old cluster configuration for ID " + oldClusterId, EnsembleModificationFailed.Reason.ILLEGAL_STATE);
@@ -201,15 +205,14 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 for (Object n : p.keySet()) {
                     String node = (String) n;
                     if (node.startsWith("server.")) {
-                        String data = getSubstitutedData(
-                                curator.get(),
-                                profileRegistry.get().getConfigurations(versionId, "fabric-ensemble-" + oldClusterId)
-                                        .get("io.fabric8.zookeeper.server-" + oldClusterId).get(node));
+                        Map<String, String> zkconfig = ensProfile.getConfiguration("io.fabric8.zookeeper.server-" + oldClusterId);
+                        String data = getSubstitutedData(curator.get(), zkconfig.get(node));
                         addUsedPorts(usedPorts, data);
                     }
                 }
 
-                Map<String, String> zkConfig = profileRegistry.get().getConfiguration(versionId, "default", Constants.ZOOKEEPER_CLIENT_PID);
+                Profile defaultProfile = profileRegistry.get().getRequiredProfile(versionId, "default");
+                Map<String, String> zkConfig = defaultProfile.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
                 if (zkConfig == null) {
                     throw new FabricException("Failed to find old zookeeper configuration in default profile");
                 }
@@ -311,8 +314,10 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 index++;
             }
 
+            Profile defaultProfile = profileRegistry.get().getRequiredProfile(versionId, "default");
+            Map<String, String> zkConfig = defaultProfile.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
             if (oldClusterId != null) {
-                Properties properties = DataStoreUtils.toProperties(profileRegistry.get().getConfiguration(versionId, "default", Constants.ZOOKEEPER_CLIENT_PID));
+                Properties properties = DataStoreUtils.toProperties(zkConfig);
                 properties.put("zookeeper.url", getSubstitutedData(curator.get(), realConnectionUrl));
                 properties.put("zookeeper.password", options.getZookeeperPassword());
                 CuratorFramework dst = CuratorFrameworkFactory.builder().connectString(realConnectionUrl).retryPolicy(new RetryOneTime(500))
@@ -376,7 +381,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     dst.close();
                 }
             } else {
-                Map<String, String> zkConfig = profileRegistry.get().getConfiguration(versionId, "default", Constants.ZOOKEEPER_CLIENT_PID);
+                zkConfig = new HashMap<>(zkConfig);
                 zkConfig.put("zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
                 zkConfig.put("zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
                 profileRegistry.get().setConfiguration(versionId, "default", Constants.ZOOKEEPER_CLIENT_PID, zkConfig);

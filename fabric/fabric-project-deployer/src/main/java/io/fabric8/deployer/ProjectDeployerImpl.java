@@ -478,16 +478,16 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     private ProjectRequirements writeRequirementsJson(ProjectRequirements requirements, Profile profile) throws IOException {
         ObjectMapper mapper = DtoHelper.getMapper();
         byte[] json = mapper.writeValueAsBytes(requirements);
-        String name = DtoHelper.getRequirementsConfigFileName(requirements);
+        String fileName = DtoHelper.getRequirementsConfigFileName(requirements);
 
         // lets read the previous requirements if there are any
         ProfileRegistry profileRegistry = fabricService.get().adapt(ProfileRegistry.class);
-        String version = profile.getVersion();
+        String versionId = profile.getVersion();
         String profileId = profile.getId();
-        byte[] oldData = profileRegistry.getFileConfiguration(version, profileId, name);
+        byte[] oldData = profile.getFileConfiguration(fileName);
 
-        LOG.info("Writing file " + name + " to profile " + profile);
-        profileRegistry.setFileConfiguration(version, profileId, name, json);
+        LOG.info("Writing file " + fileName + " to profile " + profile);
+        profileRegistry.setFileConfiguration(versionId, profileId, fileName, json);
 
         if (oldData == null || oldData.length == 0) {
             return null;

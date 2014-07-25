@@ -262,14 +262,14 @@ public class ContainerImplTest {
         //expect(profileRegistry.getProfileAttributes(eq(v), eq(cxfProfile))).andReturn(cxfAttributes).anyTimes();
 
         //Define Files
-        expect(profileRegistry.getFileConfigurations(eq(v), eq(defaultProfile))).andReturn(defaultFiles).anyTimes();
-        expect(profileRegistry.getFileConfigurations(eq(v), eq(camelProfile))).andReturn(camelFiles).anyTimes();
-        expect(profileRegistry.getFileConfigurations(eq(v), eq(cxfProfile))).andReturn(cxfFiles).anyTimes();
+        //expect(profileRegistry.getFileConfigurations(eq(v), eq(defaultProfile))).andReturn(defaultFiles).anyTimes();
+        //expect(profileRegistry.getFileConfigurations(eq(v), eq(camelProfile))).andReturn(camelFiles).anyTimes();
+        //expect(profileRegistry.getFileConfigurations(eq(v), eq(cxfProfile))).andReturn(cxfFiles).anyTimes();
 
         //Define PIDS
-        expect(profileRegistry.getConfigurations(eq(v), eq(defaultProfile))).andReturn(defaultPids).anyTimes();
-        expect(profileRegistry.getConfigurations(eq(v), eq(camelProfile))).andReturn(camelPids).anyTimes();
-        expect(profileRegistry.getConfigurations(eq(v), eq(cxfProfile))).andReturn(cxfPids).anyTimes();
+        //expect(profileRegistry.getConfigurations(eq(v), eq(defaultProfile))).andReturn(defaultPids).anyTimes();
+        //expect(profileRegistry.getConfigurations(eq(v), eq(camelProfile))).andReturn(camelPids).anyTimes();
+        //expect(profileRegistry.getConfigurations(eq(v), eq(cxfProfile))).andReturn(cxfPids).anyTimes();
 
         fabricService.substituteConfigurations((Map<String, Map<String, String>>) anyObject());
         expectLastCall().anyTimes();

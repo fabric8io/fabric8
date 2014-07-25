@@ -1130,13 +1130,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public Collection<String> listFiles(final String version, final Iterable<String> profiles, final String path) {
+    public Collection<String> listFiles(final String versionId, final Iterable<String> profileIds, final String path) {
         assertValid();
         GitOperation<Collection<String>> gitop = new GitOperation<Collection<String>>() {
             public Collection<String> call(Git git, GitContext context) throws Exception {
                 SortedSet<String> answer = new TreeSet<String>();
-                for (String profile : profiles) {
-                    checkoutVersion(git, GitProfiles.getBranch(version, profile));
+                for (String profile : profileIds) {
+                    checkoutVersion(git, GitProfiles.getBranch(versionId, profile));
                     File profileDirectory = getProfileDirectory(git, profile);
                     File file = Strings.isNotBlank(path) ? new File(profileDirectory, path) : profileDirectory;
                     if (file.exists()) {
@@ -1151,7 +1151,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 return answer;
             }
         };
-        boolean pullFirst = !hasVersion(version);
+        boolean pullFirst = !hasVersion(versionId);
         return executeRead(gitop, pullFirst);
     }
 
@@ -1839,89 +1839,21 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public Map<String, String> getProfileAttributes(String version, String profile) {
-        assertValid();
-        Map<String, String> attributes = new HashMap<String, String>();
-        Map<String, String> config = getConfiguration(version, profile, Constants.AGENT_PID);
-        for (Map.Entry<String, String> entry : config.entrySet()) {
-            String key = entry.getKey();
-            if (key.startsWith(DataStore.ATTRIBUTE_PREFIX)) {
-                String attribute = key.substring(DataStore.ATTRIBUTE_PREFIX.length());
-                String value = entry.getValue();
-                attributes.put(attribute, value);
-            }
-        }
-        return attributes;
-    }
-
-    @Override
     public void setProfileAttribute(final String version, final String profile, final String key, final String value) {
         assertValid();
         GitContext context = new GitContext().requirePull().requireCommit().requirePush();
         setProfileAttributeInternal(context, version, profile, key, value);
     }
     
-    @Override
-    public String getLastModified(String versionId, String profileId) {
-        LockHandle readLock = aquireReadLock();
-        try {
-            assertValid();
-            Profile profile = getProfileFromCache(versionId, profileId);
-            return profile != null ? profile.getProfileHash() : "";
-        } finally {
-            readLock.unlock();
-        }
-    }
-
-    @Override
-    public byte[] getFileConfiguration(final String versionId, final String profileId, final String fileName) {
-        LockHandle readLock = aquireReadLock();
-        try {
-            assertValid();
-            Profile profile = getProfileFromCache(versionId, profileId);
-            return profile != null ? profile.getFileConfiguration(fileName) : null;
-        } finally {
-            readLock.unlock();
-        }
-    }
-
-    @Override
-    public Map<String, byte[]> getFileConfigurations(String versionId, String profileId) {
-        LockHandle readLock = aquireReadLock();
-        try {
-            assertValid();
-            Profile profile = getProfileFromCache(versionId, profileId);
-            return profile != null ? profile.getFileConfigurations() : Collections.<String, byte[]> emptyMap();
-        } finally {
-            readLock.unlock();
-        }
-    }
-
-    @Override
-    public Map<String, Map<String, String>> getConfigurations(String version, String profile) {
-        LockHandle readLock = aquireReadLock();
-        try {
-            assertValid();
-            return getConfigurationsInternal(version, profile);
-        } finally {
-            readLock.unlock();
-        }
-    }
-
     private Map<String, Map<String, String>> getConfigurationsInternal(String versionId, String profileId) {
         assertReadLock();
         Profile profile = getProfileFromCache(versionId, profileId);
         return profile != null ? profile.getConfigurations() : Collections.<String, Map<String, String>> emptyMap();
     }
 
-    @Override
-    public Map<String, String> getConfiguration(String version, String profile, String pid) {
-        assertValid();
-        return getConfigurationInternal(version, profile, pid);
-    }
-
     private Map<String, String> getConfigurationInternal(String version, String profile, String pid) {
-        Map<String, Map<String, String>> configs = getConfigurations(version, profile);
+        assertReadLock();
+        Map<String, Map<String, String>> configs = getConfigurationsInternal(version, profile);
         if (configs.containsKey(pid)) {
             return new HashMap<String, String>(configs.get(pid));
         } else {

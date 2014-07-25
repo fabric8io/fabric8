@@ -99,7 +99,7 @@ public class MQServiceImpl implements MQService {
 
             // Only generate the keystore file if it does not exist.
             // [TOOD] Fix direct data access! This should be part of the ProfileBuilder
-            byte[] keystore  = profileRegistry.getFileConfiguration(versionId, profileId, "keystore.jks");
+            byte[] keystore  = builder.getFileConfiguration("keystore.jks");
             if( keystore==null ) {
                 try {
 
@@ -150,7 +150,7 @@ public class MQServiceImpl implements MQService {
             }
 
             // [TOOD] Fix direct data access! This should be part of the ProfileBuilder
-            byte[] truststore = profileRegistry.getFileConfiguration(versionId, profileId, "truststore.jks");
+            byte[] truststore = builder.getFileConfiguration("truststore.jks");
             if( truststore==null ) {
 
                 try {

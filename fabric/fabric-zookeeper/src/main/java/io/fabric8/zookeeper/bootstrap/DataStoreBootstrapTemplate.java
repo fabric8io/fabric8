@@ -158,7 +158,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             }
             String fabricProfileId = fabricProfile.getId();
             
-            Properties agentProps = DataStoreUtils.toProperties(profileRegistry.getFileConfiguration(versionId, fabricProfileId, "io.fabric8.agent.properties"));
+            Properties agentProps = DataStoreUtils.toProperties(fabricProfile.getFileConfiguration("io.fabric8.agent.properties"));
             agentProps.put("feature.fabric-commands", "fabric-commands");
             profileRegistry.setFileConfiguration(versionId, "fabric", "io.fabric8.agent.properties", DataStoreUtils.toBytes(agentProps));
 
