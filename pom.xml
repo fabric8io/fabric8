@@ -3415,6 +3415,7 @@
         <module>fab</module>
         <module>fabric8-maven-plugin</module>
         <module>quickstarts</module>
+        <module>tooling</module>
         <module>fabric</module>
         <module>insight</module>
         <module>mq</module>
