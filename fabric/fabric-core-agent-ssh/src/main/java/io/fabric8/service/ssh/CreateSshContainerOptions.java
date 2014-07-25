@@ -74,8 +74,10 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     private final Map<String, String> environmentalVariables; // keep imutable
     @JsonProperty
     private final List<String> fallbackRepositories;
+    @JsonProperty
+    private final Boolean uploadDistribution;
 
-    CreateSshContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, boolean clean, String username, String password, String host, int port, int sshRetries, int retryDelay, String privateKeyFile, String passPhrase, String path, Map<String, String> environmentalVariables, List<String> fallbackRepositories) {
+    CreateSshContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, boolean clean, String username, String password, String host, int port, int sshRetries, int retryDelay, String privateKeyFile, String passPhrase, String path, Map<String, String> environmentalVariables, List<String> fallbackRepositories, Boolean uploadDistribution) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, false, 0, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, clean);
         this.username = username;
         this.password = password;
@@ -87,6 +89,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         this.passPhrase = passPhrase;
         this.path = path;
         this.fallbackRepositories = fallbackRepositories;
+        this.uploadDistribution = uploadDistribution;
         this.environmentalVariables = Collections.unmodifiableMap(new HashMap<String, String>(environmentalVariables));
     }
 
@@ -96,7 +99,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
                 getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isAutoImportEnabled(),
                 getImportPath(), getUsers(), getName(), getParent(), "ssh", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
                 getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(),
-                newUser != null ? newUser : username, newPassword != null ? newPassword : password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables, fallbackRepositories);
+                newUser != null ? newUser : username, newPassword != null ? newPassword : password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables, fallbackRepositories, uploadDistribution);
     }
 
     public static Builder builder() {
@@ -130,6 +133,11 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     public Map<String, String> getEnvironmentalVariables() {
         return environmentalVariables;
+    }
+
+    @Override
+    public Boolean doUploadDistribution() {
+        return uploadDistribution;
     }
 
     public String getPrivateKeyFile() {
@@ -183,6 +191,8 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         private Map<String, String> environmentalVariables = new HashMap<String, String>();
         @JsonProperty
         private List<String> fallbackRepositories = new ArrayList<String>();
+        @JsonProperty
+        private Boolean uploadDistribution = true;
 
 
         public Builder username(final String username) {
@@ -260,6 +270,11 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
         public Builder fallbackRepositories(final List<String> fallbackRepositories) {
             this.fallbackRepositories = fallbackRepositories;
+            return this;
+        }
+
+        public Builder uploadDistribution(final Boolean uploadDistribution) {
+            this.uploadDistribution = uploadDistribution;
             return this;
         }
 
@@ -347,11 +362,19 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
             this.fallbackRepositories = fallbackRepositories;
         }
 
+        public Boolean getUploadDistribution() {
+            return uploadDistribution;
+        }
+
+        public void setUploadDistribution(Boolean uploadDistribution) {
+            this.uploadDistribution = uploadDistribution;
+        }
+
         public CreateSshContainerOptions build() {
             return new CreateSshContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                     getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isAutoImportEnabled(),
                     getImportPath(), getUsers(), getName(), getParent(), "ssh", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
-                    getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), false, username, password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables, fallbackRepositories);
+                    getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), false, username, password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables, fallbackRepositories, uploadDistribution);
         }
 
         /**

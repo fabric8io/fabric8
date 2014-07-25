@@ -219,6 +219,11 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
         return environmentalVariables;
     }
 
+    @Override
+    public Boolean doUploadDistribution() {
+        return false;
+    }
+
     public List<String> getFallbackRepositories() {
         return fallbackRepositories;
     }

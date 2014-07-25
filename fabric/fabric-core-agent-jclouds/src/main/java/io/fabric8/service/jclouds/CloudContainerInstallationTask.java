@@ -15,7 +15,10 @@
  */
 package io.fabric8.service.jclouds;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Properties;
@@ -26,7 +29,9 @@ import com.google.common.base.Strings;
 import com.google.common.io.Resources;
 
 import io.fabric8.api.CreationStateListener;
+import io.fabric8.api.FabricConstants;
 import io.fabric8.api.ZkDefs;
+import io.fabric8.common.util.Files;
 import io.fabric8.internal.ContainerProviderUtils;
 import io.fabric8.service.jclouds.firewall.FirewallManager;
 import io.fabric8.service.jclouds.firewall.FirewallManagerFactory;
@@ -34,14 +39,22 @@ import io.fabric8.service.jclouds.firewall.FirewallNotSupportedOnProviderExcepti
 import io.fabric8.service.jclouds.firewall.Rule;
 
 import org.jclouds.compute.ComputeService;
+import org.jclouds.compute.ComputeServiceContext;
+import org.jclouds.compute.Utils;
 import org.jclouds.compute.domain.ExecResponse;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.NodeMetadataBuilder;
 import org.jclouds.compute.options.TemplateOptions;
+import org.jclouds.domain.Credentials;
 import org.jclouds.domain.LoginCredentials;
+import org.jclouds.io.Payloads;
 import org.jclouds.rest.AuthorizationException;
+import org.jclouds.ssh.SshClient;
 import org.jclouds.ssh.SshException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.xml.soap.Node;
 
 import static io.fabric8.internal.ContainerProviderUtils.buildInstallAndStartScript;
 
@@ -143,10 +156,18 @@ public class CloudContainerInstallationTask {
 
 
         try {
+
             String script = buildInstallAndStartScript(containerName, options);
             listener.onStateChange(String.format("Installing fabric agent on container %s. It may take a while...", containerName));
             ExecResponse response = null;
+            String uploadPath = "/tmp/fabric8-karaf-"+FabricConstants.FABRIC_VERSION+".zip";
+            URL distributionURL = options.getProxyUri()
+                    .resolve("io/fabric8/fabric8-karaf/"+ FabricConstants.FABRIC_VERSION+"/fabric8-karaf-"+FabricConstants.FABRIC_VERSION+".zip").toURL();
             try {
+                if (options.doUploadDistribution()) {
+                    uploadToNode(computeService.getContext(), nodeMetadata, credentials, distributionURL, uploadPath);
+                }
+
                 if (credentials != null) {
                     response = computeService.runScriptOnNode(id, script, templateOptions.overrideLoginCredentials(credentials).runAsRoot(false));
                 } else {
@@ -191,5 +212,28 @@ public class CloudContainerInstallationTask {
             LOGGER.warn("Failed to lookup public ip of current container.");
         }
         return ip;
+    }
+
+    private void uploadToNode(ComputeServiceContext context, NodeMetadata node, LoginCredentials credentials, URL url, String path)  {
+        Utils utils = context.utils();
+        SshClient ssh =  credentials != null ? utils
+                .sshForNode()
+                .apply(NodeMetadataBuilder.fromNodeMetadata(nodeMetadata)
+                        .credentials(credentials).build())
+                : utils.sshForNode().apply(node);
+
+        try (InputStream is = url.openStream(); ) {
+            ssh.connect();
+            File distro = Files.createTempFile("/tmp");
+            Files.copy(is, new FileOutputStream(distro));
+            ssh.put(path, Payloads.newFilePayload(distro));
+            distro.delete();
+        } catch (IOException e) {
+            LOGGER.warn("Failed to upload. Will attempt downloading distribution via maven.");
+        } finally {
+            if (ssh != null) {
+                ssh.disconnect();
+            }
+        }
     }
 }

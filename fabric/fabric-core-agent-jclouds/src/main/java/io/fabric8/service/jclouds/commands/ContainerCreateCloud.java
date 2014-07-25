@@ -100,13 +100,15 @@ public class ContainerCreateCloud extends AbstractContainerCreateAction {
     private String newUserPassword;
     @Option(name = "--new-user-role", multiValued = false, description = "The role of the new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUserRole = "admin";
+    @Option(name = "--disable-distribution-upload", multiValued = false, description = "Flag to disable uploading the distribution. When used distribution will be downloaded via maven")
+    private Boolean distributionUploadDisable = false;
 
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
     @Argument(index = 1, required = false, description = "The number of containers that should be created")
     protected int number = 0;
 
-    ContainerCreateCloud(FabricService fabricService, ZooKeeperClusterService clusterService) {
+    public ContainerCreateCloud(FabricService fabricService, ZooKeeperClusterService clusterService) {
         super(fabricService, clusterService);
     }
 
@@ -153,7 +155,8 @@ public class ContainerCreateCloud extends AbstractContainerCreateAction {
         .withUser(newUser, newUserPassword, newUserRole)
         .profiles(getProfileNames())
         .dataStoreProperties(getDataStoreProperties())
-        .dataStoreType(dataStoreType != null && isEnsembleServer ? dataStoreType : fabricService.getDataStore().getType());
+        .dataStoreType(dataStoreType != null && isEnsembleServer ? dataStoreType : fabricService.getDataStore().getType())
+        .uploadDistribution(!distributionUploadDisable);
 
         if (path != null && !path.isEmpty()) {
             builder.path(path);
