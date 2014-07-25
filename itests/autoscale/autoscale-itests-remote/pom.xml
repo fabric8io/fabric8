@@ -82,6 +82,9 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <excludes>
+            <exclude>**/ArchetypeTest.*</exclude>
+          </excludes>
           <!--
                     <argLine>${surefire.system.args}</argLine>
           -->
@@ -98,5 +101,35 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>ts.artefact</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/*Test.*</include>
+              </includes>
+              <!--
+                        <argLine>${surefire.system.args}</argLine>
+              -->
+              <redirectTestOutputToFile>false</redirectTestOutputToFile>
+              <reportNameSuffix>remote</reportNameSuffix>
+              <dependenciesToScan>
+                <dependency>io.fabric8.itests.autoscale:autoscale-itests-common</dependency>
+              </dependenciesToScan>
+              <systemPropertyVariables>
+                <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>
+                <target.container>remote</target.container>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
