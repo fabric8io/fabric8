@@ -3412,6 +3412,7 @@
         <module>process</module>
         <module>runtime</module>
         <module>gateway</module>
+        <module>tooling</module>
         <module>itests</module>
         <!-- 
         	Modules that are relevant for the default distribution
@@ -3433,7 +3434,6 @@
                 <module>apm</module>
                 <module>patch</module>
                 <module>security</module>
-                <module>tooling</module>
             </modules>
         </profile>
         <profile>
