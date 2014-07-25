@@ -215,7 +215,6 @@
     <feature name="fabric-boot-commands" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
-        <!--<bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>-->
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
@@ -234,7 +233,6 @@
     </feature>
 
     <feature name="fabric-dosgi" version="${project.version}" resolver="(obr)">
-        <!--<bundle>mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>-->
         <feature>fabric-zookeeper</feature>
         <bundle dependency="true">mvn:org.fusesource.hawtdispatch/hawtdispatch/${hawtdispatch-version}</bundle>
         <bundle dependency="true">mvn:org.fusesource.hawtbuf/hawtbuf/${hawtbuf-version}</bundle>
@@ -275,11 +273,7 @@
 
     <feature name="mq-fabric" version="${project.version}" resolver="(obr)" description="A-MQ broker">
         <feature version="${project.version}">fabric-groups</feature>
-<!--
-        <feature version="${karaf-version}">spring</feature>
--->
         <feature version="${activemq-version}">activemq</feature>
-        <!--<bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>-->
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:org.apache.xbean/xbean-classloader/${xbean-version}</bundle>
         <bundle>mvn:io.fabric8.mq/mq-fabric/${project.version}</bundle>
@@ -308,7 +302,6 @@
 
     <feature name="fabric-groups" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
-        <!--<bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>-->
         <bundle>mvn:io.fabric8/fabric-groups/${project.version}</bundle>
     </feature>
 
@@ -319,7 +312,6 @@
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/${jasypt-smx-version}</bundle>
         <bundle>mvn:io.fabric8/fabric-jaas/${project.version}</bundle>
     </feature>
-
 
     <feature name="fabric-ssh" version="${project.version}" resolver="(obr)">
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
@@ -340,27 +332,6 @@
         <feature version="${project.version}">fabric-configadmin</feature>
         <bundle>mvn:io.fabric8/fabric-zeroconf/${project.version}</bundle>
     </feature>
-
-<!-- this has moved to sandbox
-    <feature name='fabric-bridge' version='${project.version}' resolver="(obr)">
-        <bundle>mvn:org.springframework/spring-core/${spring-version}</bundle>
-        <bundle>mvn:org.springframework/spring-beans/${spring-version}</bundle>
-        <bundle>mvn:org.springframework/spring-context/${spring-version}</bundle>
-        <bundle>mvn:org.springframework/spring-tx/${spring-version}</bundle>
-        <bundle>mvn:org.springframework/spring-jms/${spring-version}</bundle>
-        <bundle>mvn:org.apache.commons/commons-lang3/3.0.1</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-pool/${commons-pool-version}</bundle>
-        <feature version="${activemq-version}">activemq-broker</feature>
-        <bundle>mvn:io.fabric8.bridge/fabric-bridge/${project.version}</bundle>
-    </feature>
-
-    <feature name='fabric-bridge-zookeeper' version='${project.version}'>
-        <feature version="${project.version}">fabric-core</feature>
-        <feature version="${project.version}">fabric-configadmin</feature>
-        <feature version='${project.version}'>fabric-bridge</feature>
-        <bundle>mvn:io.fabric8.bridge/fabric-bridge-zookeeper/${project.version}</bundle>
-    </feature>
--->
 
     <feature name="insight-log" version="${project.version}" resolver="(obr)">
         <bundle>mvn:io.fabric8.insight/insight-log/${project.version}</bundle>
@@ -750,7 +721,6 @@
         <bundle start-level="36">mvn:org.jboss.gravia/gravia-repository/${gravia-version}</bundle>
         <bundle start-level="37">mvn:org.jboss.gravia/gravia-resolver/${gravia-version}</bundle>
         <bundle start-level="38">mvn:org.jboss.gravia/gravia-provision/${gravia-version}</bundle>
-
     </feature>
 
 </features>
