@@ -30,7 +30,9 @@ import io.fabric8.common.util.Filters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  */
@@ -59,12 +61,14 @@ public class ChildAutoScaler implements ContainerAutoScaler {
             builder = createAutoScaleOptions(request, fabricService);
         }
         if (builder != null) {
-            Container[] containers = fabricService.getContainers();
+            Set<String> ignoreContainerNames = new HashSet<>();
             for (int i = 0; i < count; i++) {
                 final CreateChildContainerOptions.Builder configuredBuilder = builder.number(1).version(version).profiles(profile);
 
+                Container[] containers = fabricService.getContainers();
                 NameValidator nameValidator = Containers.createNameValidator(containers);
                 String name = Containers.createContainerName(containers, profile, containerProvider.getScheme(), nameValidator);
+                ignoreContainerNames.add(name);
 
                 CreateChildContainerOptions options = configuredBuilder.name(name).build();
                 LOG.info("Creating container name " + name + " version " + version + " profile " + profile + " " + count + " container(s)");

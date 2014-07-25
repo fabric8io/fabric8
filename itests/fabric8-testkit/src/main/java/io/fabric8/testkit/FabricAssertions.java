@@ -18,6 +18,7 @@
 package io.fabric8.testkit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.api.Containers;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.jmx.ContainerDTO;
@@ -26,6 +27,8 @@ import io.fabric8.common.util.Filters;
 import io.fabric8.common.util.IOHelpers;
 import io.fabric8.common.util.Strings;
 import io.fabric8.core.jmx.BeanUtils;
+import io.fabric8.internal.RequirementsJson;
+import io.fabric8.process.manager.support.ProcessUtils;
 import org.jolokia.client.exception.J4pRemoteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,11 +49,25 @@ import static org.junit.Assert.fail;
  * A bunch of assertions
  */
 public class FabricAssertions {
+    public static final String KILL_CONTAINERS_FLAG = "fabric8.testkit.killContainers";
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricAssertions.class);
 
-    private static long defaultTimeout = 3 * 60 * 1000;
-    private static long defaultWaitSleepPeriod = 500;
+    private static long defaultTimeout = 6 * 60 * 1000;
+    private static long defaultWaitSleepPeriod = 1000;
     private static ObjectMapper mapper = new ObjectMapper();
+
+    /**
+     * Kill all fabric8 related java processes and docker containers typically created through integration tests
+     */
+    public static void killJavaAndDockerProcesses() {
+        boolean killProcesses = shouldKillProcessesAfterTestRun();
+        if (!killProcesses) {
+            System.out.println("Not destroying the fabric processes due to system property " + FabricAssertions.KILL_CONTAINERS_FLAG + " being " + System.getProperty(FabricAssertions.KILL_CONTAINERS_FLAG));
+            return;
+        }
+        ProcessUtils.killJavaProcesses();
+        ProcessUtils.killDockerContainers();
+    }
 
     /**
      * Asserts that a fabric can be created and that the requirements can be satisfied
@@ -59,7 +76,6 @@ public class FabricAssertions {
         assertNotNull("FabricRequirements", requirements);
 
         FabricController restAPI = assertFabricCreate(factory);
-        assertNotNull("Should have created a REST API", restAPI);
 
         // now lets post the requirements
         try {
@@ -68,22 +84,54 @@ public class FabricAssertions {
             LOG.error("Failed to set requirements: " + e, e);
             fail(unwrapException(e));
         }
-        assertRequirementsSatisfied(factory, restAPI, requirements);
+        assertRequirementsSatisfied(restAPI, requirements);
 
         return restAPI;
     }
 
     /**
-     * Asserts that the requirements are met within the default amount of time
+     * Asserts that the requirements can be satisfied
      */
-    public static void assertRequirementsSatisfied(FabricControllerManager factory, FabricController restAPI, FabricRequirements requirements) throws Exception {
-        assertRequirementsSatisfied(factory, restAPI, requirements, 5 * 60 * 1000);
+    public static FabricController assertSetRequirementsAndTheyAreSatisfied(final FabricController controller, final FabricRequirements requirements) throws Exception {
+        assertNotNull("FabricController", controller);
+        assertNotNull("FabricRequirements", requirements);
+
+        waitForValidValue(30 * 1000, new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                controller.setRequirements(requirements);
+                FabricRequirements actual = controller.getRequirements();
+                String actualVersion = actual.getVersion();
+                // lets clear the actualVersion as we usually don't set one and it gets defaulted
+                actual.setVersion(requirements.getVersion());
+                boolean answer = RequirementsJson.equal(requirements, actual);
+                if (answer) {
+                    System.out.println("Updated the requirements to: " + RequirementsJson.toJSON(requirements));
+                } else {
+                    System.out.println("Expected: " + RequirementsJson.toJSON(requirements));
+                    System.out.println("Actual:   " + RequirementsJson.toJSON(actual));
+                    System.out.println();
+                }
+                return answer;
+            }
+        });
+
+        assertRequirementsSatisfied(controller, requirements);
+
+        return controller;
     }
 
     /**
      * Asserts that the requirements are met within the default amount of time
      */
-    public static void assertRequirementsSatisfied(FabricControllerManager factory, final FabricController restAPI, final FabricRequirements requirements, long timeout) throws Exception {
+    public static void assertRequirementsSatisfied(FabricController controller, FabricRequirements requirements) throws Exception {
+        assertRequirementsSatisfied(controller, requirements, 5 * 60 * 1000);
+    }
+
+    /**
+     * Asserts that the requirements are met within the default amount of time
+     */
+    public static void assertRequirementsSatisfied(final FabricController controller, final FabricRequirements requirements, long timeout) throws Exception {
         assertNotNull("Should have some FabricRequirements", requirements);
         waitForValidValue(timeout, new Callable<Boolean>() {
             @Override
@@ -92,12 +140,13 @@ public class FabricAssertions {
                 boolean valid = true;
                 List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
                 assertNotNull("Should have some profileRequirements", profileRequirements);
-                String version = requirementOrDefaultVersion(restAPI, requirements);
+                String version = requirementOrDefaultVersion(controller, requirements);
                 for (ProfileRequirements profileRequirement : profileRequirements) {
                     Integer minimumInstances = profileRequirement.getMinimumInstances();
+                    Integer maximumInstances = profileRequirement.getMaximumInstances();
                     if (minimumInstances != null) {
                         String profile = profileRequirement.getProfile();
-                        List<String> containerIds = restAPI.containerIdsForProfile(version, profile);
+                        List<String> containerIds = controller.containerIdsForProfile(version, profile);
                         int current = containerIds.size();
                         if (current < minimumInstances) {
                             System.out.println("Still waiting for " + minimumInstances + " instance(s) of profile " + profile + " currently has: " + containerIds);
@@ -105,11 +154,23 @@ public class FabricAssertions {
                             break;
                         } else {
                             // TODO assert the containers are started up OK!
-                            if (checkMinimumInstancesSuccessful(restAPI, profile, minimumInstances, containerIds)) {
+                            if (checkMinimumInstancesSuccessful(controller, profile, minimumInstances, containerIds)) {
                                 System.out.println("Valid profile " + profile + " requires " + minimumInstances + " instance(s) and has: " + containerIds);
                             } else {
                                 valid = false;
                             }
+                        }
+                    }
+                    if (maximumInstances != null) {
+                        String profile = profileRequirement.getProfile();
+                        List<ContainerDTO> containers = controller.containersForProfile(version, profile);
+                        List<ContainerDTO> aliveContainers = Containers.aliveAndSuccessfulContainers(containers);
+                        int current = aliveContainers.size();
+                        if (current > maximumInstances) {
+                            System.out.println("Still waiting for a maximum of " + maximumInstances + " instance(s) of profile " + profile
+                                    + " currently has: " + current + " containers alive which need stopping");
+                            valid = false;
+                            break;
                         }
                     }
                 }
@@ -129,7 +190,8 @@ public class FabricAssertions {
                 System.out.println("No ContainerDTO for " + containerId);
             } else {
                 System.out.println("Container " + containerId + " alive: " + container.isAlive() + " result: " + container.getProvisionResult()
-                        + " status: " + container.getProvisionStatus() + " complete: " + container.isProvisioningComplete() + " pending: " + container.isProvisioningPending());
+                        + " status: " + container.getProvisionStatus() + " complete: " + container.isProvisioningComplete()
+                        + " pending: " + container.isProvisioningPending() + " " + container.getProvisionException());
                 if (container.isAliveAndOK() && container.isProvisioningComplete() && !container.isProvisioningPending() && "success".equals(container.getProvisionResult())) {
                     System.out.println("Container + " + containerId + " is up!");
                     successful += 1;
@@ -181,7 +243,14 @@ public class FabricAssertions {
      */
     public static FabricController assertFabricCreate(FabricControllerManager factory) throws Exception {
         assertNotNull("FabricFactory", factory);
-        return factory.createFabric();
+        FabricController restAPI = factory.createFabric();
+        assertNotNull("Should have created a REST API", restAPI);
+
+        Thread.sleep(30 * 1000);
+
+        List<String> containerIds = waitForNotEmptyContainerIds(restAPI);
+        System.out.println("Found containers: " + containerIds);
+        return restAPI;
     }
 
     public static void assertFileExists(File file) {
@@ -238,17 +307,20 @@ public class FabricAssertions {
         long failTime = System.currentTimeMillis() + timeout;
         while (true) {
             T value = null;
+            Exception exception = null;
             try {
                 value = callable.call();
             } catch (Exception e) {
                 System.out.println(unwrapException(e));
+                exception = e;
             }
             if (value != null && isValid.matches(value)) {
                 return value;
             } else {
                 long now = System.currentTimeMillis();
                 if (now > failTime) {
-                    fail("value " + value + " is not valid using " + isValid
+                    String message = (value == null && exception != null) ? "exception " + exception : "value " + value;
+                    fail(message + " is not valid using " + isValid
                             + " after waiting: " + Math.round(timeout / 1000) + " second(s)");
                     return value;
                 } else {
@@ -302,5 +374,10 @@ public class FabricAssertions {
             cause = e.getCause();
         }
         return cause.toString();
+    }
+
+    public static boolean shouldKillProcessesAfterTestRun() {
+        String flag = System.getProperty(KILL_CONTAINERS_FLAG, "true");
+        return !flag.toLowerCase().equals("false");
     }
 }

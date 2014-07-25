@@ -515,4 +515,20 @@ instance initialized per Spring Boot JVM using static `ProcessRegistryHolder#pro
     String invoicingServiceUrl = processRegistry.readProperty("service.invoicing.url");
     Invoice invoice = new RestTemplate().getForObject(invoicingServiceUrl + "/" + 1, Invoice.class);
 
+#### Composite process registry
 
+The default type of the registry used by the Spring Boot container is the `CompositeProcessRegistry`. This is kind of the 
+proxy implementation of the registry delegating properties resolution to the list of the *real* registries.
+
+Composite registry will try to resolve given property using the first aggregated registry. If it won't find the property
+there, it will fallback to the next registry in the list. If none of the registry in the aggregated list contains the
+desired property, the composite resolver returns `null`.
+
+By default the following process registries are aggregated by the Spring Boot container:
+
+ * `ZooKeeperProcessRegistry` (if `curator-framework` is present in the classpath)
+ * `ClassPathProcessRegistry`
+ * `InMemoryProcessRegistry`
+
+The above basically means that Spring Boot container attempts to read properties from the Fabric8 ZooKeeper registry,
+then from the system properties and finally from the files located in the classpath.

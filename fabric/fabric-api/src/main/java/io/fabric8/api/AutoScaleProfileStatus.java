@@ -19,6 +19,8 @@ package io.fabric8.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.List;
+
 /**
  * Represents the status of the auto scaling of a profile
  */
@@ -30,6 +32,7 @@ public class AutoScaleProfileStatus implements Comparable<AutoScaleProfileStatus
     private Integer currentInstances;
     private Integer minimumInstances;
     private String message;
+    private List<String> containerIds;
 
     public AutoScaleProfileStatus() {
     }
@@ -108,6 +111,14 @@ public class AutoScaleProfileStatus implements Comparable<AutoScaleProfileStatus
         this.message = message;
     }
 
+    public List<String> getContainerIds() {
+        return containerIds;
+    }
+
+    public void setContainerIds(List<String> containerIds) {
+        this.containerIds = containerIds;
+    }
+
     public void provisioned() {
         clear();
         this.status = "success";
@@ -128,6 +139,21 @@ public class AutoScaleProfileStatus implements Comparable<AutoScaleProfileStatus
         this.status = "destroying a container";
     }
 
+    public void stoppingContainers(List<String> containerIds) {
+        clear();
+        int size = containerIds.size();
+        if (size > 1) {
+            this.status = "stopping containers";
+            this.message = "Stopping containers " + containerIds;
+        } else if (size == 1) {
+            this.status = "stopping container";
+            this.message = "Stopping  container " + containerIds.get(0);
+        } else {
+            this.status = "completed stopping containers";
+            this.message = "Containers stopped";
+        }
+    }
+
     protected void clear() {
         message = "";
         dependentProfile = null;
@@ -142,4 +168,10 @@ public class AutoScaleProfileStatus implements Comparable<AutoScaleProfileStatus
         this.minimumInstances = minimumInstances;
         message = "Waiting for profile " + dependentProfile + " to have " + minimumInstances + " instance(s) which currently has " + currentInstances;
     }
+
+    public void noSuitableHost(String requirementsText) {
+        this.status = "waiting";
+        message = "Waiting for suitable host to become available for requirements: " + requirementsText;
+    }
+
 }

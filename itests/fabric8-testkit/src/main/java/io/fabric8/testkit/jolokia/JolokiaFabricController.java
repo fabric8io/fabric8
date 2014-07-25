@@ -29,7 +29,9 @@ import org.slf4j.LoggerFactory;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -68,6 +70,11 @@ public class JolokiaFabricController implements FabricController {
     }
 
     @Override
+    public FabricRequirements getRequirements() {
+        return fabricManager.requirements();
+    }
+
+    @Override
     public void setRequirements(FabricRequirements requirements) throws Exception {
         String json = RequirementsJson.toJSON(requirements);
         fabricManager.requirementsJson(json);
@@ -83,6 +90,34 @@ public class JolokiaFabricController implements FabricController {
     public List<String> containerIdsForProfile(String versionId, String profileId) {
         return fabricManager.containerIdsForProfile(versionId, profileId);
     }
+
+    @Override
+    public List<ContainerDTO> containers() throws Exception {
+        List<String> ids = containerIds();
+        return containers(ids);
+    }
+
+    /**
+     * Returns the container details for the given ids
+     */
+    @Override
+    public List<ContainerDTO> containers(List<String> ids) {
+        List<ContainerDTO> answer = new ArrayList<>();
+        for (String id : ids) {
+            ContainerDTO container = getContainer(id);
+            if (container != null) {
+                answer.add(container);
+            }
+        }
+        return answer;
+    }
+
+    @Override
+    public List<ContainerDTO> containersForProfile(String version, String profileId) {
+        List<String> ids = containerIdsForProfile(version, profileId);
+        return containers(ids);
+    }
+
 
     @Override
     public String getDefaultVersion() {
@@ -128,14 +163,26 @@ public class JolokiaFabricController implements FabricController {
 
             PropertyDescriptor descriptor = propertyDescriptors.get(name);
             if (descriptor == null) {
-                LOG.warn("Ignoring unkown property " + name + " on class " + clazz.getCanonicalName() + " with value: " + value);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Ignoring unknown property " + name + " on class " + clazz.getCanonicalName() + " with value: " + value);
+                }
             } else {
                 Method writeMethod = descriptor.getWriteMethod();
                 if (writeMethod == null) {
-                    LOG.warn("Ignoring read only property " + name + " on class " + clazz.getCanonicalName() + " with value: " + value);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Ignoring read only property " + name + " on class " + clazz.getCanonicalName() + " with value: " + value);
+                    }
                 } else {
                     Class<?> propertyType = descriptor.getPropertyType();
-                    value = JolokiaClients.convertJolokiaToJavaType(propertyType, value);
+                    try {
+                        value = JolokiaClients.convertJolokiaToJavaType(propertyType, value);
+                    } catch (IOException e) {
+                        LOG.warn("Failed to convert property value for " + name + " on class " + clazz.getCanonicalName()
+                                + " type: " + propertyType.getCanonicalName()
+                                + " with value: " + value
+                                + (value != null ? " type " + value.getClass().getCanonicalName() : null) + ". " + e, e);
+                        continue;
+                    }
                     Object[] args = {value};
                     Class<?>[] parameterTypes = {propertyType};
                     try {

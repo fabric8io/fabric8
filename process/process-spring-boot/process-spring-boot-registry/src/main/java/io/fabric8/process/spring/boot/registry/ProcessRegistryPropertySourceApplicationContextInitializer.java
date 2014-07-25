@@ -38,12 +38,21 @@ import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistry.a
  * {@link ProcessRegistry} will be attempted to be read before regular Spring property sources (for example before the
  * {@code application.properties} file). If the desired value will not be found in the process registry, Spring will fallback
  * to the other property sources.
+ * <br><br>
+ * By default the following process registries are aggregated by the Spring Boot container:
+ * <br><br>
+ * <li>{@link ZooKeeperProcessRegistry} (if {@code curator-framework} is present in the classpath)</li>
+ * <li>{@link ClassPathProcessRegistry}</li>
+ * <li>{@link InMemoryProcessRegistry}</li>
+ * <br><br>
+ * The above basically means that Spring Boot container attempts to read properties from the Fabric8 ZooKeeper registry,
+ * then from the system properties and finally from the files located in the classpath.
  */
 public class ProcessRegistryPropertySourceApplicationContextInitializer implements ApplicationContextInitializer {
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
-        List<ProcessRegistry> registries = newArrayList(new ClassPathProcessRegistry(), new InMemoryProcessRegistry());
+        List<ProcessRegistry> registries = newArrayList(new InMemoryProcessRegistry(), new ClassPathProcessRegistry());
 
         if (ClassUtils.isPresent("org.apache.curator.framework.CuratorFramework", getClass().getClassLoader())) {
             registries.add(autodetectZooKeeperProcessRegistry());

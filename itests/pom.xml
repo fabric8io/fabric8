@@ -35,6 +35,8 @@
     <modules>
         <module>fabric8-testkit</module>
         <module>common</module>
+        <module>arquillian</module>
+        <module>autoscale</module>
         <module>smoke</module>
     </modules>
 

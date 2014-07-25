@@ -18,11 +18,14 @@
 package io.fabric8.testkit.jolokia;
 
 import io.fabric8.api.jmx.FabricManagerMBean;
+import io.fabric8.internal.RequirementsJson;
 import org.jolokia.client.J4pClient;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import java.io.IOException;
 import java.lang.reflect.Array;
 
 /**
@@ -43,7 +46,7 @@ public class JolokiaClients {
         }
     }
 
-    public static Object convertJolokiaToJavaType(Class<?> clazz, Object value) {
+    public static Object convertJolokiaToJavaType(Class<?> clazz, Object value) throws IOException {
         if (clazz.isArray()) {
             if (value instanceof JSONArray) {
                 JSONArray jsonArray = (JSONArray) value;
@@ -76,6 +79,12 @@ public class JolokiaClients {
         } else if (clazz.equals(Double.class) || clazz.equals(double.class)) {
             Number number = asNumber(value);
             return number != null ? number.doubleValue() : null;
+        } else if (value instanceof JSONObject) {
+            JSONObject jsonObject = (JSONObject) value;
+            if (!JSONObject.class.isAssignableFrom(clazz)) {
+                String json = jsonObject.toJSONString();
+                return RequirementsJson.getMapper().reader(clazz).readValue(json);
+            }
         }
         return value;
     }

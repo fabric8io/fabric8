@@ -373,13 +373,13 @@ public class ArchetypeTest extends FabricTestSupport {
     }
 
     protected static File getArchetypeCatalog() throws IOException {
-        File answer = new File(getRootProjectDir(), "tooling/archetype-builder/target/archetype-catalog.xml");
+        File answer = new File(getRootProjectDir(), "tooling/archetype-builder/target/classes/archetype-catalog.xml");
         assertFileExists(answer);
         return answer;
     }
 
     protected static File getMavenSettingsFile() throws IOException {
-        File answer = new File(getRootProjectDir(), "fabric/fabric-itests/basic/src/test/resources/maven-settings.xml");
+        File answer = new File(getRootProjectDir(), "itests/paxexam/basic/src/test/resources/maven-settings.xml");
         assertFileExists(answer);
         return answer;
     }

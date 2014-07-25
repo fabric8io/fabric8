@@ -26,7 +26,7 @@
     <version>1.1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>fabric-testkit</artifactId>
+  <artifactId>fabric8-testkit</artifactId>
 
   <name>Fabric8 :: Integration Tests :: TestKit</name>
 
@@ -73,19 +73,6 @@
       <artifactId>junit</artifactId>
     </dependency>
 
-    <!-- default distro used -->
-<!--
-    TODO this mucks up the dependencies and ends up borking the logging
-
-    <dependency>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-karaf</artifactId>
-        <version>${project.version}</version>
-        <type>tar.gz</type>
-        <scope>provided</scope>
-    </dependency>
--->
-
     <!-- Provided Dependencies -->
     <dependency>
       <groupId>org.apache.felix</groupId>
@@ -100,21 +87,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <failIfNoTests>false</failIfNoTests>
-          <systemProperties>
-            <systemProperty>
-              <key>fabric8</key>
-              <value>${fabric8.testkit.killContainers}</value>
-            </systemProperty>
-          </systemProperties>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

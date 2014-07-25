@@ -81,6 +81,19 @@ public class InvoicingRestApiTest extends Assert {
     }
 
     @Test
+    public void shouldUpdateInvoice() throws InterruptedException {
+        // Given
+        invoice.invoiceId("newId");
+        restRepository.save(invoice);
+
+        // When
+        Invoice loadedInvoice = restRepository.findOne(invoice.id());
+
+        // Then
+        assertEquals("newId", loadedInvoice.invoiceId());
+    }
+
+    @Test
     public void shouldSaveInvoices() throws InterruptedException {
         // Given
         Invoice firstInvoice = new Invoice().invoiceId(randomUUID().toString());
@@ -90,8 +103,8 @@ public class InvoicingRestApiTest extends Assert {
         List<Invoice> savedInvoices = newArrayList(restRepository.save(Arrays.asList(firstInvoice, secondInvoice)));
 
         // Then
-        assertEquals(firstInvoice.id(), savedInvoices.get(0).id());
-        assertEquals(secondInvoice.id(), savedInvoices.get(1).id());
+        assertEquals(firstInvoice.invoiceId(), savedInvoices.get(0).invoiceId());
+        assertEquals(secondInvoice.invoiceId(), savedInvoices.get(1).invoiceId());
     }
 
     @Test

@@ -36,6 +36,7 @@ import org.apache.felix.scr.annotations.Service;
 public final class EnvPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 
     public static final String RESOLVER_SCHEME = "env";
+    public static final String ELVIS_OPERATOR = "?:";
 
     @Activate
     void activate() {
@@ -56,8 +57,38 @@ public final class EnvPlaceholderResolver extends AbstractComponent implements P
     public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value) {
         if (value != null && value.length() > RESOLVER_SCHEME.length()) {
             String name = value.substring(RESOLVER_SCHEME.length() + 1);
-            return System.getenv(name);
+            int idx = name.indexOf(ELVIS_OPERATOR);
+            String defaultValue = null;
+            if (idx > 0) {
+                defaultValue = name.substring(idx + ELVIS_OPERATOR.length());
+                name = name.substring(0, idx);
+            }
+            String answer = System.getenv(name);
+            if (answer == null) {
+                answer = defaultValue;
+            }
+            return answer;
         }
         return value;
+    }
+
+    /**
+     * Resolves an expression of the form "NAME" or "NAME?:DEFAULT" returning the original value if preserveUnresolved
+     * is true and there is no environment variable defined yet
+     */
+    public static String resolveExpression(String expression, Map<String,String> environmentVariables, boolean preserveUnresolved) {
+        int idx = expression.indexOf(ELVIS_OPERATOR);
+        String defaultValue = null;
+        String name = expression;
+        if (idx > 0) {
+            defaultValue = expression.substring(idx + ELVIS_OPERATOR.length());
+            name = expression.substring(0, idx);
+        }
+        String answer = System.getenv(name);
+        if (answer == null) {
+            return preserveUnresolved ? expression : defaultValue;
+        }
+        return answer;
+
     }
 }

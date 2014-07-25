@@ -49,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -186,14 +187,15 @@ public final class AutoScaleController extends AbstractComponent implements Grou
     }
 
     private void autoScale() {
-        FabricRequirements requirements = fabricService.get().getRequirements();
+        FabricService service = fabricService.get();
+        FabricRequirements requirements = service.getRequirements();
         List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
         if (profileRequirements != null && !profileRequirements.isEmpty()) {
             AutoScaleStatus status = new AutoScaleStatus();
             for (ProfileRequirements profileRequirement : profileRequirements) {
                 ContainerAutoScaler autoScaler = createAutoScaler(requirements, profileRequirement);
                 if (autoScaler != null) {
-                    autoScaleProfile(autoScaler, requirements, profileRequirement, status);
+                    autoScaleProfile(service, autoScaler, requirements, profileRequirement, status);
                 } else {
                     LOGGER.warn("No ContainerAutoScaler available for profile " + profileRequirement.getProfile());
                 }
@@ -222,47 +224,81 @@ public final class AutoScaleController extends AbstractComponent implements Grou
         }
     }
 
-    private void autoScaleProfile(final ContainerAutoScaler autoScaler, FabricRequirements requirements, ProfileRequirements profileRequirement, AutoScaleStatus status) {
+    private void autoScaleProfile(FabricService service, final ContainerAutoScaler autoScaler, FabricRequirements requirements, ProfileRequirements profileRequirement, AutoScaleStatus status) {
         final String profile = profileRequirement.getProfile();
         Integer minimumInstances = profileRequirement.getMinimumInstances();
-        if (minimumInstances != null) {
-            // lets check if we need to provision more
-            List<Container> containers = aliveOrPendingContainersForProfile(profile);
-            int count = containers.size();
-            int delta = minimumInstances - count;
-            try {
-                AutoScaleProfileStatus profileStatus = status.profileStatus(profile);
-                if (delta < 0) {
-                    profileStatus.destroyingContainer();
-                    autoScaler.destroyContainers(profile, -delta, containers);
-                } else if (delta > 0) {
-                    if (requirementsSatisfied(requirements, profileRequirement, status)) {
-                        profileStatus.creatingContainer();
-                        final FabricService service = fabricService.get();
-                        String requirementsVersion = requirements.getVersion();
-                        final String version = Strings.isNotBlank(requirementsVersion) ? requirementsVersion : service.getDefaultVersion().getId();
-                        final AutoScaleRequest command = new AutoScaleRequest(service, version, profile, delta, requirements, profileRequirement, status);
-                        new Thread("Creating container for " + command.getProfile()) {
-                            @Override
-                            public void run() {
-                                try {
-                                    autoScaler.createContainers(command);
-                                } catch (Exception e) {
-                                    LOGGER.error("Failed to create container of profile: " + profile + ". Caught: " + e, e);
-                                }
-                            }
-                        }.start();
-                    }
-                } else {
-                    profileStatus.provisioned();
+        Integer maximumInstances = profileRequirement.getMaximumInstances();
+        if (maximumInstances != null || minimumInstances != null) {
+            if (maximumInstances != null) {
+                List<Container> containers = Containers.aliveAndSuccessfulContainersForProfile(profile, service);
+                int count = containers.size();
+                int delta = count - maximumInstances;
+                if (delta > 0) {
+                    stopContainers(containers, autoScaler, requirements, profileRequirement, status, delta);
                 }
-            } catch (Exception e) {
-                LOGGER.error("Failed to auto-scale " + profile + ". Caught: " + e, e);
+            }
+            if (minimumInstances != null) {
+                // lets check if we need to provision more
+                List<Container> containers = Containers.aliveOrPendingContainersForProfile(profile, service);
+                int count = containers.size();
+                int delta = minimumInstances - count;
+                try {
+                    AutoScaleProfileStatus profileStatus = status.profileStatus(profile);
+                    if (delta < 0) {
+                        profileStatus.destroyingContainer();
+                        autoScaler.destroyContainers(profile, -delta, containers);
+                    } else if (delta > 0) {
+                        if (requirementsSatisfied(service, requirements, profileRequirement, status)) {
+                            profileStatus.creatingContainer();
+                            String requirementsVersion = requirements.getVersion();
+                            final String version = Strings.isNotBlank(requirementsVersion) ? requirementsVersion : service.getDefaultVersion().getId();
+                            final AutoScaleRequest command = new AutoScaleRequest(service, version, profile, delta, requirements, profileRequirement, status);
+                            new Thread("Creating container for " + command.getProfile()) {
+                                @Override
+                                public void run() {
+                                    try {
+                                        autoScaler.createContainers(command);
+                                    } catch (Exception e) {
+                                        LOGGER.error("Failed to create container of profile: " + profile + ". Caught: " + e, e);
+                                    }
+                                }
+                            }.start();
+                        }
+                    } else {
+                        profileStatus.provisioned();
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Failed to auto-scale " + profile + ". Caught: " + e, e);
+                }
             }
         }
     }
 
-    private boolean requirementsSatisfied(FabricRequirements requirements, ProfileRequirements profileRequirement, AutoScaleStatus status) {
+    protected void stopContainers(List<Container> containers, ContainerAutoScaler autoScaler, FabricRequirements requirements, ProfileRequirements profileRequirement, AutoScaleStatus status, int delta) {
+        final String profile = profileRequirement.getProfile();
+        AutoScaleProfileStatus profileStatus = status.profileStatus(profile);
+
+        // TODO sort the containers using some kind of requirements sorting order
+        List<Container> sorted = new ArrayList<>(containers);
+
+        // lets stop the ones at the end of the list by default
+        Collections.reverse(sorted);
+
+        List<String> stoppingContainerIds = new ArrayList<>();
+        for (int i = 0; i < delta; i++) {
+            if (i >= sorted.size()) {
+                break;
+            }
+            Container container = sorted.get(i);
+            stoppingContainerIds.add(container.getId());
+            profileStatus.stoppingContainers(stoppingContainerIds);
+            container.stop(true);
+
+        }
+    }
+
+
+    private boolean requirementsSatisfied(FabricService service, FabricRequirements requirements, ProfileRequirements profileRequirement, AutoScaleStatus status) {
         String profile = profileRequirement.getProfile();
         List<String> dependentProfiles = profileRequirement.getDependentProfiles();
         if (dependentProfiles != null) {
@@ -270,7 +306,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
                 ProfileRequirements dependentProfileRequirements = requirements.getOrCreateProfileRequirement(dependentProfile);
                 Integer minimumInstances = dependentProfileRequirements.getMinimumInstances();
                 if (minimumInstances != null) {
-                    List<Container> containers = aliveAndSuccessfulContainersForProfile(dependentProfile);
+                    List<Container> containers = Containers.aliveAndSuccessfulContainersForProfile(dependentProfile, service);
                     int dependentSize = containers.size();
                     if (minimumInstances > dependentSize) {
                         status.profileStatus(profile).missingDependency(dependentProfile, dependentSize, minimumInstances);
@@ -280,46 +316,6 @@ public final class AutoScaleController extends AbstractComponent implements Grou
             }
         }
         return true;
-    }
-
-    /**
-     * Returns all the current alive or pending profiles for the given profile
-     */
-    private List<Container> aliveOrPendingContainersForProfile(String profile) {
-        return containersForProfile(profile, true);
-    }
-
-    /**
-     * Returns all the current alive successful profiles for the given profile
-     */
-    private List<Container> aliveAndSuccessfulContainersForProfile(String profile) {
-        return containersForProfile(profile, false);
-    }
-
-    protected List<Container> containersForProfile(String profile, boolean includePending) {
-        List<Container> answer = new ArrayList<Container>();
-        List<Container> containers = Containers.containersForProfile(fabricService.get().getContainers(), profile);
-        for (Container container : containers) {
-            boolean alive = container.isAlive();
-            boolean provisioningPending = container.isProvisioningPending();
-            if (includePending) {
-                if (alive || provisioningPending) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Container " + container.getId() + " is alive " + alive + " provision is pending " + provisioningPending);
-                    }
-                    answer.add(container);
-                }
-            } else {
-                String provisionResult = container.getProvisionResult();
-                if (alive && Container.PROVISION_SUCCESS.equals(provisionResult)) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Container " + container.getId() + " is alive " + alive + " provision is complete");
-                    }
-                    answer.add(container);
-                }
-            }
-        }
-        return answer;
     }
 
     private AutoScalerNode createState() {

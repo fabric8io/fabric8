@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -309,9 +310,18 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
             FileChannel in = new FileInputStream(fileToUpload).getChannel();
             URLConnection connection = url.openConnection();
             connection.setDoOutput(true);
-            connection.setRequestProperty("Authorization", Base64Encoder.encode(user + ":" + password));
+            connection.setRequestProperty("Authorization", "Basic " + Base64Encoder.encode(user + ":" + password));
             WritableByteChannel out = Channels.newChannel(connection.getOutputStream());
             in.transferTo(0, fileToUpload.length(), out);
+
+            if (connection instanceof HttpURLConnection) {
+                int code = ((HttpURLConnection) connection).getResponseCode();
+                if (code < 200 || code >= 300) {
+                    LOG.warn(String.format("Got response code %s while uploading %s to fabric8 maven repo: %s", code, fileToUpload.getPath(), url));
+                    return;
+                }
+            }
+
             LOG.info("Uploaded  " + fileToUpload.getPath() + " to fabric8 maven repo: " + url);
         } catch (Exception e) {
             LOG.error("Failed to upload " + fileToUpload.getPath() + " to fabric8 maven repo: " + url + ". " + e, e);

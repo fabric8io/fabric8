@@ -85,6 +85,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static io.fabric8.container.process.JolokiaAgentHelper.substituteVariableExpression;
+
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.docker", label = "Fabric8 Docker Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service(ContainerProvider.class)
@@ -254,14 +256,17 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             }
         }
         LOG.info("Got port configuration: " + ports);
-        String image = containerConfig.getImage();
+
+        Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(service, options);
+
+        String image = substituteVariableExpression(containerConfig.getImage(), environmentVariables, service, curator.getOptional(), true);
         if (Strings.isNullOrBlank(image)) {
-            image = configOverlay.get(DockerConstants.PROPERTIES.IMAGE);
+            image = substituteVariableExpression(configOverlay.get(DockerConstants.PROPERTIES.IMAGE), environmentVariables, service, curator.getOptional(), true);
             if (Strings.isNullOrBlank(image)) {
-                image = System.getenv(DockerConstants.EnvironmentVariables.FABRIC8_DOCKER_DEFAULT_IMAGE);
+                image = substituteVariableExpression(dockerProviderConfig.get(DockerConstants.PROPERTIES.IMAGE), environmentVariables, service, curator.getOptional(), true);
             }
             if (Strings.isNullOrBlank(image)) {
-                image = dockerProviderConfig.get(DockerConstants.PROPERTIES.IMAGE);
+                image = System.getenv(DockerConstants.EnvironmentVariables.FABRIC8_DOCKER_DEFAULT_IMAGE);
             }
             if (Strings.isNullOrBlank(image)) {
                 image = DockerConstants.DEFAULT_IMAGE;
@@ -273,7 +278,6 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         if (container != null) {
             container.setType(containerType);
         }
-        Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(service, options);
 
 
         String[] cmd = containerConfig.getCmd();
@@ -420,6 +424,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         startDockerContainer(status.getId(), options);
         return metadata;
     }
+
 
     @Override
     public void start(Container container) {

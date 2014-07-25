@@ -15,55 +15,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.testkit;
+package io.fabric8.itests.autoscale;
 
 import io.fabric8.api.FabricRequirements;
-import io.fabric8.testkit.support.CommandLineFabricControllerManager;
-import org.junit.After;
-import org.junit.Before;
+import io.fabric8.testkit.FabricAssertions;
+import io.fabric8.testkit.FabricController;
+import org.jboss.arquillian.container.test.api.RunAsClient;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Test;
-
-import java.io.File;
+import org.junit.runner.RunWith;
 
 /**
+ * An integration test ran against a running fabric which tests the defining of requirements and the
+ * <a href="http://fabric8.io/gitbook/requirements.html">auto scaler</a>
  */
-public class FabricControllerTest {
+@RunAsClient
+@RunWith(Arquillian.class)
+public class AutoScaleSingleMessageBrokerTest {
 
-    private FabricControllerManager factory;
-
-    @Before
-    public void init() throws Exception {
-        factory = createFabricControllerManager();
-
-        File baseDir = getBaseDir();
-        String canonicalName = getClass().getCanonicalName();
-        File workDir = new File(baseDir, "target/fabricInstall/" + canonicalName);
-        factory.setWorkDirectory(workDir);
-    }
-
-    @After
-    public void destroy() throws Exception {
-        if (factory != null) {
-            factory.destroy();
-        }
-    }
+    @ArquillianResource
+    protected FabricController fabricController;
 
     @Test
     public void createProvisionedFabric() throws Exception {
+        System.out.println("The fabric has now been created somewhere and we have a controller for it, so lets define our requirements");
+
         FabricRequirements requirements = new FabricRequirements();
         requirements.profile("mq-default").minimumInstances(1);
 
-        FabricAssertions.assertFabricCreate(factory, requirements);
-
+        FabricAssertions.assertSetRequirementsAndTheyAreSatisfied(fabricController, requirements);
     }
-
-    public static File getBaseDir() {
-        return new File(System.getProperty("basedir", "."));
-    }
-
-
-    protected FabricControllerManager createFabricControllerManager() {
-        return new CommandLineFabricControllerManager();
-    }
-
 }

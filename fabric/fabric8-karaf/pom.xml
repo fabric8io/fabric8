@@ -261,6 +261,10 @@
                <artifactId>mq-fabric</artifactId>
            </dependency>
            <dependency>
+               <groupId>io.fabric8.mq</groupId>
+               <artifactId>mq-http-discovery</artifactId>
+           </dependency>
+           <dependency>
              <groupId>io.fabric8</groupId>
              <artifactId>gateway-core</artifactId>
            </dependency>
@@ -341,6 +345,12 @@
                <artifactId>org.apache.aries.proxy.api</artifactId>
                <version>${aries-proxy-api-version}</version>
            </dependency>
+
+            <!-- dependencies for archetype-commands -->
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>archetype-commands</artifactId>
+            </dependency>
        </dependencies>
 
        <build>
@@ -356,6 +366,20 @@
                </resource>
            </resources>
            <plugins>
+               <plugin>
+                   <groupId>org.fusesource.mvnplugins</groupId>
+                   <artifactId>maven-bundle-summary-plugin</artifactId>
+                   <version>1.33</version>
+                   <executions>
+                       <execution>
+                           <id>bundle-summary</id>
+                           <phase>verify</phase>
+                           <goals>
+                               <goal>summary</goal>
+                           </goals>
+                       </execution>
+                   </executions>
+               </plugin>
                <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-resources-plugin</artifactId>
@@ -397,6 +421,7 @@
                                    <feature>fabric-autoscale</feature>
                                    <feature>fabric-agent</feature>
                                    <feature>fabric-agent-commands</feature>
+                                   <feature>fabric-archetype-commands</feature>
                                    <feature>fabric-boot-commands</feature>
                                    <feature>fabric-commands</feature>
                                    <feature>fabric-docker-provider</feature>
@@ -427,6 +452,7 @@ TODO - zapped to try fix perfectus!
                                    <feature>fabric-hawtio-swagger</feature>
                                    <feature>hawtio-fabric8-branding</feature>
                                    <feature>hawtio-karaf-terminal</feature>
+                                   <feature>swagger</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                                <repository>target/features-repo</repository>

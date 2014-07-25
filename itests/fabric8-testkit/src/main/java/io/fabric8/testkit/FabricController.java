@@ -27,6 +27,8 @@ import java.util.Map;
  * Represents a (usually) remote API to working with the Fabric.
  */
 public interface FabricController {
+    FabricRequirements getRequirements();
+
     void setRequirements(FabricRequirements requirements) throws Exception;
 
     List<Map<String, Object>> containerProperties(String... properties);
@@ -35,7 +37,14 @@ public interface FabricController {
 
     List<String> containerIds() throws Exception;
 
+    List<ContainerDTO> containers(List<String> ids);
+
+    List<ContainerDTO> containersForProfile(String version, String profileId);
+
     String getDefaultVersion();
 
     ContainerDTO getContainer(String containerId);
+
+    List<ContainerDTO> containers() throws Exception;
+
 }

@@ -120,6 +120,30 @@ public class Filters {
         };
     }
 
+    public static Filter<String> containsString(final String text) {
+        return new Filter<String>() {
+            public boolean matches(String t) {
+                return t != null && t.indexOf(text) >= 0;
+            }
+
+            @Override
+            public String toString() {
+                return "Contains(" + text + ")";
+            }
+        };
+    }
+
+    /**
+     * Returns a filter which returns true if the String contains any of the given text values
+     */
+    public static Filter<String> containsAnyString(String... textValues) {
+        List<Filter<String>> filters = new ArrayList<>();
+        for (String text : textValues) {
+            filters.add(containsString(text));
+        }
+        return compositeFilter(filters);
+    }
+
     public static <T> boolean isEmpty(Filter<T> filter) {
         boolean empty = false;
         if (filter instanceof CompositeFilter) {
@@ -214,4 +238,5 @@ public class Filters {
         }
         return answer;
     }
+
 }

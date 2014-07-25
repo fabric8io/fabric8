@@ -50,7 +50,11 @@ i.e. you can use the same distribution, [docker container image](https://github.
 <td>What network address should the container bind to.</td>
 </tr>
 <tr>
-<td>FABRIC8_KARAF_NAME</td>
+<td>FABRIC8_RUNTIME_ID</td>
 <td>The default container name to use.</td>
+</tr>
+<tr>
+<td>FABRIC8_KARAF_NAME</td>
+<td>The default container name to use (now <b>deprecated</b>, please use FABRIC8_RUNTIME_ID instead).</td>
 </tr>
 </table>
