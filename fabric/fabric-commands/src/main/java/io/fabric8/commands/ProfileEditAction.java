@@ -16,15 +16,16 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.Constants;
-import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
-import io.fabric8.commands.support.DatastoreContentManager;
 import io.fabric8.utils.FabricValidations;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -40,6 +41,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 import org.jledit.ConsoleEditor;
+import org.jledit.ContentManager;
 import org.jledit.EditorFactory;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -561,5 +563,76 @@ public class ProfileEditAction extends AbstractAction {
     private Map<String, String> getConfigurationFromBuilder(ProfileBuilder builder, String pid) {
         Map<String, String> config = builder.getConfiguration(pid);
         return config != null ? new HashMap<>(config) : new HashMap<String, String>();
+    }
+
+    static class DatastoreContentManager implements ContentManager {
+
+        private static final Charset UTF_8 = Charset.forName("UTF-8");
+
+        private final ProfileRegistry profileRegistry;
+
+        public DatastoreContentManager(FabricService fabricService) {
+            this.profileRegistry = fabricService.adapt(ProfileRegistry.class);
+        }
+
+        /**
+         * Loads content from the specified location.
+         */
+        @Override
+        public String load(String location) throws IOException {
+            try {
+                String[] parts = location.trim().split(" ");
+                if (parts.length < 3) {
+                    throw new IllegalArgumentException("Invalid location:" + location);
+                }
+                String profileId = parts[0];
+                String versionId = parts[1];
+                String resource = parts[2];
+                Profile profile = profileRegistry.getRequiredProfile(versionId, profileId);
+                String data = new String(profile.getFileConfiguration(resource));
+                return data != null ? data : "";
+            } catch (Exception e) {
+                throw new IOException("Failed to read data from zookeeper.", e);
+            }
+        }
+
+        /**
+         * Saves content to the specified location.
+         */
+        @Override
+        public boolean save(String content, String location) {
+            try {
+                String[] parts = location.trim().split(" ");
+                if (parts.length < 3) {
+                    throw new IllegalArgumentException("Invalid location:" + location);
+                }
+                String profileId = parts[0];
+                String versionId = parts[1];
+                String resource = parts[2];
+                Profile profile = profileRegistry.getRequiredProfile(versionId, profileId);
+                ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
+                builder.addFileConfiguration(resource, content.getBytes());
+                profileRegistry.updateProfile(builder.getProfile());
+            } catch (Exception e) {
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * Saves the {@link String} content to the specified location using the specified {@link java.nio.charset.Charset}.
+         */
+        @Override
+        public boolean save(String content, Charset charset, String location) {
+            return save(content, location);
+        }
+
+        /**
+         * Detect the Charset of the content in the specified location.
+         */
+        @Override
+        public Charset detectCharset(String location) {
+            return UTF_8;
+        }
     }
 }

@@ -139,8 +139,7 @@ public class MQServiceImpl implements MQService {
                     keystoreFile.delete();
                     LOG.info("Keystore generated");
 
-                    // [TOOD] Fix direct data access! This should be part of the ProfileBuilder
-                    profileRegistry.setFileConfiguration(versionId, profileId, "keystore.jks", keystore);
+                    builder.addFileConfiguration("keystore.jks", keystore);
                     configs.put("keystore.file", "profile:keystore.jks");
 
                 } catch (IOException e) {
@@ -194,8 +193,7 @@ public class MQServiceImpl implements MQService {
                     truststore = Files.readBytes(truststoreFile);
                     truststoreFile.delete();
                     
-                    // [TOOD] Fix direct data access! This should be part of the ProfileBuilder
-                    profileRegistry.setFileConfiguration(versionId, profileId, "truststore.jks", truststore);
+                    builder.addFileConfiguration("truststore.jks", truststore);
                     configs.put("truststore.file", "profile:truststore.jks");
 
                 } catch (IOException e) {

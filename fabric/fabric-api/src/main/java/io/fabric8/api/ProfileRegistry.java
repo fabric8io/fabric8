@@ -142,6 +142,4 @@ public interface ProfileRegistry {
     //
     
     void setProfileAttribute(String version, String profile, String key, String value);
-    void setFileConfigurations(String version, String profile, Map<String, byte[]> configurations);
-    void setFileConfiguration(String version, String profile, String name, byte[] configuration);
 }

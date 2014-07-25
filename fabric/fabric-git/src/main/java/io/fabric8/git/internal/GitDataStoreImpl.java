@@ -841,17 +841,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         return resultId;
     }
 
-    private void setProfileAttributeInternal(GitContext context, final String version, final String profile, final String key, final String value) {
-        assertWriteLock();
-        Map<String, String> config = getConfigurationInternal(version, profile, Constants.AGENT_PID);
-        if (value != null) {
-            config.put(DataStore.ATTRIBUTE_PREFIX + key, value);
-        } else {
-            config.remove(key);
-        }
-        setConfigurationInternal(context, version, profile, Constants.AGENT_PID, config);
-    }
-
     private void setConfigurationInternal(GitContext context, final String version, final String profile, final String pid, final Map<String, String> configuration) {
         assertWriteLock();
         GitOperation<Void> gitop = new GitOperation<Void>() {
@@ -1152,13 +1141,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
     }
 
-    @Override
-    public void setFileConfigurations(final String versionId, final String profileId, final Map<String, byte[]> configurations) {
-        assertValid();
-        GitContext context = new GitContext().requirePull().requireCommit().requirePush();
-        setFileConfigurationsInternal(context, versionId, profileId, configurations);
-    }
-
     private void doSetFileConfigurations(Git git, File profileDirectory, String profile, Map<String, byte[]> configurations) throws IOException, GitAPIException {
         Map<String, byte[]> oldCfgs = doGetFileConfigurations(git, profile);
 
@@ -1186,25 +1168,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         for (String pid : oldCfgs.keySet()) {
             doRecursiveDeleteAndRemove(git, getPidFile(profileDirectory, pid));
         }
-    }
-
-    @Override
-    public void setFileConfiguration(final String versionId, final String profileId, final String fileName, final byte[] configuration) {
-        assertValid();
-        GitContext context = new GitContext().requirePull().requireCommit().requirePush();
-        setFileConfigurationInternal(context, versionId, profileId, fileName, configuration);
-    }
-
-    private void setFileConfigurationInternal(GitContext context, final String versionId, final String profileId, final String fileName, final byte[] configuration) {
-        GitOperation<Void> gitop = new GitOperation<Void>() {
-            public Void call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, GitProfiles.getBranch(versionId, profileId));
-                doSetFileConfiguration(git, profileId, fileName, configuration);
-                context.commitMessage("Updated " + fileName + " for profile " + profileId);
-                return null;
-            }
-        };
-        executeWrite(gitop, true);
     }
 
     private void doSetFileConfiguration(Git git, String profileId, String fileName, byte[] configuration) throws IOException, GitAPIException {
@@ -1776,6 +1739,17 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         setProfileAttributeInternal(context, version, profile, key, value);
     }
     
+    private void setProfileAttributeInternal(GitContext context, final String version, final String profile, final String key, final String value) {
+        assertWriteLock();
+        Map<String, String> config = getConfigurationInternal(version, profile, Constants.AGENT_PID);
+        if (value != null) {
+            config.put(DataStore.ATTRIBUTE_PREFIX + key, value);
+        } else {
+            config.remove(key);
+        }
+        setConfigurationInternal(context, version, profile, Constants.AGENT_PID, config);
+    }
+
     private Map<String, Map<String, String>> getConfigurationsInternal(String versionId, String profileId) {
         assertReadLock();
         Profile profile = getProfileFromCache(versionId, profileId);

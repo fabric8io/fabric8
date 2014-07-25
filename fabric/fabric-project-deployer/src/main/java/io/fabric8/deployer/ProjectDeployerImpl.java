@@ -482,12 +482,12 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
 
         // lets read the previous requirements if there are any
         ProfileRegistry profileRegistry = fabricService.get().adapt(ProfileRegistry.class);
-        String versionId = profile.getVersion();
-        String profileId = profile.getId();
         byte[] oldData = profile.getFileConfiguration(fileName);
 
         LOG.info("Writing file " + fileName + " to profile " + profile);
-        profileRegistry.setFileConfiguration(versionId, profileId, fileName, json);
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
+        builder.addFileConfiguration(fileName, json);
+        profileRegistry.updateProfile(builder.getProfile());
 
         if (oldData == null || oldData.length == 0) {
             return null;
