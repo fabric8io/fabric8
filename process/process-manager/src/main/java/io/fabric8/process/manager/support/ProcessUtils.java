@@ -210,15 +210,21 @@ public class ProcessUtils {
     /**
      * Kills all docker containers on the current host
      */
-    public static int killDockerContainers() {
-        int count = 0;
-        List<String> ids = getDockerContainerIds();
-        for (String id : ids) {
-            if (killDockerContainer(id) == 0) {
-                count++;
+    public static void killDockerContainers() {
+        // lets run this in a background thread in case the command blocks due to the docker daemon not running
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                int count = 0;
+                List<String> ids = getDockerContainerIds();
+                for (String id : ids) {
+                    if (killDockerContainer(id) == 0) {
+                        count++;
+                    }
+                }
             }
-        }
-        return count;
+        }).run();
     }
 
     /**
