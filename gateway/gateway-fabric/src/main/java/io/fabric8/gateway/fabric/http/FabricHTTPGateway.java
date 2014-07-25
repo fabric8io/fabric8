@@ -21,6 +21,7 @@ import io.fabric8.api.Version;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.ShutdownTracker;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -28,7 +29,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import javax.management.MBeanServer;
+
+import io.fabric8.gateway.CallDetailRecord;
 import io.fabric8.gateway.fabric.detecting.FabricDetectingGatewayService;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -40,6 +45,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
+
 import io.fabric8.gateway.fabric.support.vertx.VertxService;
 import io.fabric8.gateway.handlers.detecting.DetectingGatewayWebSocketHandler;
 import io.fabric8.gateway.handlers.http.HttpGateway;
@@ -47,6 +53,7 @@ import io.fabric8.gateway.handlers.http.HttpGatewayHandler;
 import io.fabric8.gateway.handlers.http.HttpGatewayServer;
 import io.fabric8.gateway.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.handlers.http.MappedServices;
+
 import org.vertx.java.core.Vertx;
 
 /**
@@ -85,19 +92,24 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = FabricDetectingGatewayService.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy= ReferencePolicy.DYNAMIC)
     private final ValidatingReference<FabricDetectingGatewayService> fabricDetectingGatewayService = new ValidatingReference<FabricDetectingGatewayService>();
-
+    @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
+    private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
+    
     private HttpGatewayServer server;
     private HttpGatewayHandler handler;
     private DetectingGatewayWebSocketHandler websocketHandler = new DetectingGatewayWebSocketHandler();
 
     private Set<HttpMappingRule> mappingRuleConfigurations = new CopyOnWriteArraySet<HttpMappingRule>();
 
+    ShutdownTracker shutdownTracker = new ShutdownTracker();
+    private FabricHTTPGatewayInfo fabricHTTPGatewayInfoMBean;
+    
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
         updateConfiguration(configuration);
+        registerHttpGatewayMBeans();
         activateComponent();
     }
-
 
     @Modified
     void modified(Map<String, ?> configuration) throws Exception {
@@ -109,6 +121,7 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
     void deactivate() {
         deactivateInternal();
         deactivateComponent();
+        unregisterHttpGatewayMBeans();
     }
 
     private void updateConfiguration(Map<String, ?> configuration) throws Exception {
@@ -125,6 +138,15 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
         if (server != null) {
             server.destroy();
         }
+    }
+    
+    @Override
+    public void addCallDetailRecord(CallDetailRecord cdr) {
+    	fabricHTTPGatewayInfoMBean.setLastCallDate(cdr.getCallDate().toString());
+    	fabricHTTPGatewayInfoMBean.registerCall(cdr.getCallTimeNanos());
+    	if (cdr.getError()!=null) {
+    		fabricHTTPGatewayInfoMBean.setLastError(cdr.getError());
+    	}
     }
 
     @Override
@@ -184,6 +206,10 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
     int getPort() {
         return port;
     }
+    
+    String getHost() {
+    	return host;
+    }
 
     void bindVertxService(VertxService vertxService) {
         this.vertxService.bind(vertxService);
@@ -218,4 +244,22 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
         this.fabricDetectingGatewayService.unbind(fabricDetectingGatewayService);
         websocketHandler.setGateway(null);
     }
+    
+    void bindMBeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer.bind(mbeanServer);
+    }
+
+    void unbindMBeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer.unbind(mbeanServer);
+    }
+    
+    private void registerHttpGatewayMBeans() {
+    	fabricHTTPGatewayInfoMBean = new FabricHTTPGatewayInfo(this);
+        fabricHTTPGatewayInfoMBean.registerMBeanServer(shutdownTracker, mbeanServer.get());
+    }
+    
+    private void unregisterHttpGatewayMBeans() {
+        fabricHTTPGatewayInfoMBean.unregisterMBeanServer(mbeanServer.get());
+    }
+
 }
