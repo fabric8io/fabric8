@@ -1243,20 +1243,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         return new File(profileDirectory, pid + PROPERTIES_SUFFIX);
     }
 
-    @Override
-    public void setConfigurations(final String versionId, final String profileId, final Map<String, Map<String, String>> configurations) {
-        assertValid();
-        GitContext context = new GitContext().requirePull().requireCommit().requirePush();
-        setConfigurationsInternal(context, versionId, profileId, configurations);
-    }
-
-    @Override
-    public void setConfiguration(final String versionId, final String profileId, final String pid, final Map<String, String> configuration) {
-        assertValid();
-        GitContext context = new GitContext().requirePull().requireCommit().requirePush();
-        setConfigurationInternal(context, versionId, profileId, pid, configuration);
-    }
-
     private Git getGit() {
         return gitService.get().getGit();
     }

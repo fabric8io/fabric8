@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -101,11 +102,18 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             ZooKeeperUtils.setData(curator, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), versionId);
 
             // configure default profile
+            Map<String, String> jaasConfig = Collections.singletonMap("encryption.enabled", "${zk:/fabric/authentication/encryption.enabled}");
             Profile defaultProfile = profileRegistry.getProfile(versionId, "default");
             if (defaultProfile == null) {
                 ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, "default");
+                builder.addConfiguration("io.fabric8.jaas", jaasConfig);
                 String createdId = profileRegistry.createProfile(builder.getProfile());
                 defaultProfile = profileRegistry.getRequiredProfile(versionId, createdId);
+            } else {
+                ProfileBuilder builder = ProfileBuilder.Factory.createFrom(defaultProfile);
+                builder.addConfiguration("io.fabric8.jaas", jaasConfig);
+                String updatedId = profileRegistry.updateProfile(builder.getProfile());
+                defaultProfile = profileRegistry.getRequiredProfile(versionId, updatedId);
             }
             String defaultProfileId = defaultProfile.getId();
 
@@ -175,11 +183,6 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             }
 
             ZooKeeperUtils.createDefault(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, name), profilesBuilder.toString());
-
-            // add auth
-            Map<String, String> configs = new HashMap<String, String>();
-            configs.put("encryption.enabled", "${zk:/fabric/authentication/encryption.enabled}");
-            profileRegistry.setConfiguration(versionId, defaultProfileId, "io.fabric8.jaas", configs);
 
             // outside of the profile storage area, so we'll keep these in zk
             EncryptionSupport encryption = addUsersToZookeeper(curator, options.getUsers());

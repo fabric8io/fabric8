@@ -381,10 +381,12 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     dst.close();
                 }
             } else {
+                ProfileBuilder builder = ProfileBuilder.Factory.createFrom(defaultProfile);
                 zkConfig = new HashMap<>(zkConfig);
                 zkConfig.put("zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
                 zkConfig.put("zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
-                profileRegistry.get().setConfiguration(versionId, "default", Constants.ZOOKEEPER_CLIENT_PID, zkConfig);
+                builder.addConfiguration(Constants.ZOOKEEPER_CLIENT_PID, zkConfig);
+                profileRegistry.get().updateProfile(builder.getProfile());
             }
         } catch (Exception e) {
             throw EnsembleModificationFailed.launderThrowable(e);
