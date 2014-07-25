@@ -21,5 +21,14 @@ package io.fabric8.gateway.fabric.jmx;
 public interface FabricGatewayInfoMBean {
 
     long getNumberOfInvocations();
-
+    int getPort();
+    String getHost();
+    String getLocalAddress();
+    String getGatewayVersion();
+    boolean isEnableIndex();
+    String getMappedServices();
+    String getLastError();
+    String getLastCallDate();
+    long getAvarageCallTimeNanos();
+    void resetStatistics();
 }

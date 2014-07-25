@@ -15,13 +15,8 @@
  */
 package io.fabric8.gateway.fabric.http;
 
-import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.jmx.FileSystemMBean;
 import io.fabric8.common.util.ShutdownTracker;
 import io.fabric8.gateway.fabric.jmx.FabricGatewayInfoMBean;
-
-import java.io.File;
-import java.io.IOException;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -37,19 +32,103 @@ public class FabricHTTPGatewayInfo implements FabricGatewayInfoMBean {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricHTTPGatewayInfo.class);
 
+    private final FabricHTTPGateway fabricHTTPGateway;
     private ObjectName objectName;
-
+    private long numberOfInvocations = 0l;
+    private long averageCallTimeNanos = 0l;
+    private String lastError;
+    private String lastCallDate;
     
+    public FabricHTTPGatewayInfo(FabricHTTPGateway fabricHTTPGateway) {
+		super();
+		this.fabricHTTPGateway = fabricHTTPGateway;
+	}
+    
+    protected FabricHTTPGateway getFabricHTTPGateway() {
+    	return fabricHTTPGateway;
+    }
+
+	@Override
+	public int getPort() {
+		return getFabricHTTPGateway().getPort();
+	}
+	
+	@Override
+	public String getHost() {
+		return getFabricHTTPGateway().getHost();
+	}
+	
+	@Override
+	public String getGatewayVersion() {
+		return getFabricHTTPGateway().getGatewayVersion();
+	}
+	
+	@Override
+	public String getLocalAddress() {
+		return getFabricHTTPGateway().getLocalAddress().toString();
+	}
+	
+	@Override
+	public boolean isEnableIndex() {
+		return getFabricHTTPGateway().isEnableIndex();
+	}
+	
+	@Override
+	public String getMappedServices() {
+		String mappedServices = "";
+		if (getFabricHTTPGateway().getMappedServices()!=null) {
+			for (String mappedServiceKey : getFabricHTTPGateway().getMappedServices().keySet()) {
+				mappedServices += mappedServiceKey + ":" + getFabricHTTPGateway().getMappedServices().get(mappedServiceKey) + "<BR>";
+			}
+		}
+		return mappedServices;
+	}
+
     @Override
 	public long getNumberOfInvocations() {
-		// TODO Auto-generated method stub
-		return 0;
+		return numberOfInvocations;
 	}
+    
+    public void registerCall(long callTimeNanos) {
+    	averageCallTimeNanos = (averageCallTimeNanos * numberOfInvocations + callTimeNanos)/++numberOfInvocations;
+    }
+    
+    public void setLastError(String error) {
+    	lastError = error;
+    }
+    
+    @Override
+    public String getLastError() {
+    	return lastError;
+    }
+    
+    public void setLastCallDate(String callDate) {
+    	lastCallDate = callDate;
+    }
+    
+    @Override
+    public String getLastCallDate() {
+    	if (lastCallDate!=null)
+    		return lastCallDate.toString();
+    	else
+    		return null;
+    }
+    
+    @Override 
+    public long getAvarageCallTimeNanos() {
+    	return averageCallTimeNanos;
+    }
+    
+    @Override
+    public void resetStatistics() {
+    	averageCallTimeNanos = 0l;
+    	numberOfInvocations = 0;
+    	lastCallDate = null;
+    	lastError = null;
+    }
    
     public ObjectName getObjectName() throws MalformedObjectNameException {
         if (objectName == null) {
-            // TODO to avoid mbean clashes if ever a JVM had multiple FabricService instances, we may
-            // want to add a parameter of the fabric ID here...
             objectName = new ObjectName("io.fabric8.gateway-fabric:service=FabricHTTPGatewayInfo");
         }
         return objectName;
@@ -83,6 +162,9 @@ public class FabricHTTPGatewayInfo implements FabricGatewayInfoMBean {
             }
         }
     }
+
+	
+	
 
 	
 }
