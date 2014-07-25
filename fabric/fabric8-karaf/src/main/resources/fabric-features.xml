@@ -550,6 +550,7 @@
         <feature version="${cxf-version-range}">cxf-jaxrs</feature>
         <feature version="${project.version}">fabric-cxf</feature>
         <feature version="${project.version}">fabric-cxf-registry</feature>
+        <feature>swagger</feature>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
@@ -573,6 +574,7 @@
 
     <feature name="fabric-hawtio-swagger" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-hawtio</feature>
+        <feature>swagger</feature>
         <bundle>mvn:io.hawt.swagger/hawtio-swagger-ui/${hawtio-swagger-version}/war</bundle>
     </feature>
 
