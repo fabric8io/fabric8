@@ -19,6 +19,8 @@ package io.fabric8.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.List;
+
 /**
  * Represents the status of the auto scaling of a profile
  */
@@ -30,6 +32,7 @@ public class AutoScaleProfileStatus implements Comparable<AutoScaleProfileStatus
     private Integer currentInstances;
     private Integer minimumInstances;
     private String message;
+    private List<String> containerIds;
 
     public AutoScaleProfileStatus() {
     }
@@ -108,6 +111,14 @@ public class AutoScaleProfileStatus implements Comparable<AutoScaleProfileStatus
         this.message = message;
     }
 
+    public List<String> getContainerIds() {
+        return containerIds;
+    }
+
+    public void setContainerIds(List<String> containerIds) {
+        this.containerIds = containerIds;
+    }
+
     public void provisioned() {
         clear();
         this.status = "success";
@@ -126,6 +137,21 @@ public class AutoScaleProfileStatus implements Comparable<AutoScaleProfileStatus
     public void destroyingContainer() {
         clear();
         this.status = "destroying a container";
+    }
+
+    public void stoppingContainers(List<String> containerIds) {
+        clear();
+        int size = containerIds.size();
+        if (size > 1) {
+            this.status = "stopping containers";
+            this.message = "Stopping containers " + containerIds;
+        } else if (size == 1) {
+            this.status = "stopping container";
+            this.message = "Stopping  container " + containerIds.get(0);
+        } else {
+            this.status = "completed stopping containers";
+            this.message = "Containers stopped";
+        }
     }
 
     protected void clear() {
@@ -147,4 +173,5 @@ public class AutoScaleProfileStatus implements Comparable<AutoScaleProfileStatus
         this.status = "waiting";
         message = "Waiting for suitable host to become available for requirements: " + requirementsText;
     }
+
 }

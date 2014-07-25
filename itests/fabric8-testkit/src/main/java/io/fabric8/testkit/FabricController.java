@@ -37,7 +37,14 @@ public interface FabricController {
 
     List<String> containerIds() throws Exception;
 
+    List<ContainerDTO> containers(List<String> ids);
+
+    List<ContainerDTO> containersForProfile(String version, String profileId);
+
     String getDefaultVersion();
 
     ContainerDTO getContainer(String containerId);
+
+    List<ContainerDTO> containers() throws Exception;
+
 }

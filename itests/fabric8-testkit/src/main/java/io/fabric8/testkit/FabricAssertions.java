@@ -18,6 +18,7 @@
 package io.fabric8.testkit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.api.Containers;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.jmx.ContainerDTO;
@@ -142,6 +143,7 @@ public class FabricAssertions {
                 String version = requirementOrDefaultVersion(controller, requirements);
                 for (ProfileRequirements profileRequirement : profileRequirements) {
                     Integer minimumInstances = profileRequirement.getMinimumInstances();
+                    Integer maximumInstances = profileRequirement.getMaximumInstances();
                     if (minimumInstances != null) {
                         String profile = profileRequirement.getProfile();
                         List<String> containerIds = controller.containerIdsForProfile(version, profile);
@@ -157,6 +159,18 @@ public class FabricAssertions {
                             } else {
                                 valid = false;
                             }
+                        }
+                    }
+                    if (maximumInstances != null) {
+                        String profile = profileRequirement.getProfile();
+                        List<ContainerDTO> containers = controller.containersForProfile(version, profile);
+                        List<ContainerDTO> aliveContainers = Containers.aliveAndSuccessfulContainers(containers);
+                        int current = aliveContainers.size();
+                        if (current > maximumInstances) {
+                            System.out.println("Still waiting for a maximum of " + maximumInstances + " instance(s) of profile " + profile
+                                    + " currently has: " + current + " containers alive which need stopping");
+                            valid = false;
+                            break;
                         }
                     }
                 }

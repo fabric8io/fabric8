@@ -80,8 +80,11 @@ public class ArchetypeTest {
             String profileId = archetypeToProfileMap.get(archetype);
             assertNotNull("Should have a profile ID for " + archetype, profileId);
             requirements.profile(profileId).minimumInstances(1);
+            FabricAssertions.assertSetRequirementsAndTheyAreSatisfied(fabricController, requirements);
+
+            // now lets force the container to be stopped
+            requirements.profile(profileId).minimumInstances(0).maximumInstances(0);
         }
-        FabricAssertions.assertSetRequirementsAndTheyAreSatisfied(fabricController, requirements);
 
     }
 
@@ -129,7 +132,8 @@ public class ArchetypeTest {
                 mavenSettingsFile.getCanonicalPath(),
                 "clean",
                 "fabric8:deploy",
-                property("fabric8.profile", profileId)
+                property("fabric8.profile", profileId),
+                property("fabric8.minInstanceCount", "0")
         ));
 
         System.out.println();

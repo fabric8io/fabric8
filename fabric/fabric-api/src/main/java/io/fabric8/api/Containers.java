@@ -15,10 +15,12 @@
  */
 package io.fabric8.api;
 
+import io.fabric8.api.jmx.ContainerDTO;
 import io.fabric8.api.scr.support.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.stream.events.Characters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -81,7 +83,14 @@ public class Containers {
      * Creates a name validator that excludes any container names that already exist
      */
     public static  NameValidator createNameValidator(Container[] containers) {
-        final Set<String> ignoreNames = new HashSet<String>();
+        return createNameValidator(containers, Collections.EMPTY_SET);
+    }
+
+    /**
+     * Creates a name validator that excludes any container names that already exist
+     */
+    public static  NameValidator createNameValidator(Container[] containers, Set<String> ignoreContainerIds) {
+        final Set<String> ignoreNames = new HashSet<String>(ignoreContainerIds);
         if (containers != null) {
             for (Container container : containers) {
                 ignoreNames.add(container.getId());
@@ -195,6 +204,34 @@ public class Containers {
         }
     }
 
+    /**
+     * Creates a unique container name using the validator to exclude existing container names
+     */
+    public static String createUniqueContainerName(Container[] containers, String currentName, NameValidator nameValidator) {
+        if (nameValidator.isValid(currentName)) {
+            return currentName;
+        }
+        String namePrefix = currentName;
+
+        // lets trim trailing numbers
+        while (namePrefix.length() > 0) {
+            int lastIndex = namePrefix.length() - 1;
+            char lastChar = namePrefix.charAt(lastIndex);
+            if (Character.isDigit(lastChar)) {
+                namePrefix = namePrefix.substring(0, lastIndex);
+            } else {
+                break;
+            }
+        }
+        int idx = 1;
+        while (true) {
+            String name = namePrefix + Integer.toString(++idx);
+            if (nameValidator.isValid(name)) {
+                return name;
+            }
+        }
+    }
+
     private static String filterOutNonAlphaNumerics(String text) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0, size = text.length(); i < size; i++) {
@@ -253,6 +290,71 @@ public class Containers {
                 if (!answer.contains(id)) {
                     answer.add(id);
                 }
+            }
+        }
+        return answer;
+    }
+
+    /**
+     * Returns all the current alive or pending profiles for the given profile
+     */
+    public static List<Container> aliveOrPendingContainersForProfile(String profile, FabricService fabricService) {
+        Container[] allContainers = fabricService.getContainers();
+        return aliveOrPendingContainersForProfile(profile, allContainers);
+    }
+
+    /**
+     * Returns all the current alive or pending profiles for the given profile
+     */
+    public static List<Container> aliveOrPendingContainersForProfile(String profile, Container[] allContainers) {
+        List<Container> answer = new ArrayList<Container>();
+        List<Container> containers = containersForProfile(allContainers, profile);
+        for (Container container : containers) {
+            boolean alive = container.isAlive();
+            boolean provisioningPending = container.isProvisioningPending();
+            if (alive || provisioningPending) {
+                answer.add(container);
+            }
+        }
+        return answer;
+    }
+
+    /**
+     * Returns all the current alive and successful containers for the given profile which have completed provisioning
+     */
+    public static List<Container> aliveAndSuccessfulContainersForProfile(String profile, FabricService fabricService) {
+        Container[] allContainers = fabricService.getContainers();
+        return aliveAndSuccessfulContainersForProfile(profile, allContainers);
+    }
+
+    /**
+     * Returns all the current alive and successful containers for the given profile which have completed provisioning
+     */
+    public static List<Container> aliveAndSuccessfulContainersForProfile(String profile, Container[] allContainers) {
+        List<Container> answer = new ArrayList<Container>();
+        List<Container> containers = containersForProfile(allContainers, profile);
+        for (Container container : containers) {
+            boolean alive = container.isAlive();
+            boolean provisioningPending = container.isProvisioningPending();
+            String provisionResult = container.getProvisionResult();
+            if (alive && !provisioningPending && Container.PROVISION_SUCCESS.equals(provisionResult)) {
+                answer.add(container);
+            }
+        }
+        return answer;
+    }
+
+    /**
+     * Returns all the current alive and successful containers for the given profile which have completed provisioning
+     */
+    public static List<ContainerDTO> aliveAndSuccessfulContainers(Iterable<ContainerDTO> allContainers) {
+        List<ContainerDTO> answer = new ArrayList<>();
+        for (ContainerDTO container : allContainers) {
+            boolean alive = container.isAlive();
+            boolean provisioningPending = container.isProvisioningPending();
+            String provisionResult = container.getProvisionResult();
+            if (alive && !provisioningPending && Container.PROVISION_SUCCESS.equals(provisionResult)) {
+                answer.add(container);
             }
         }
         return answer;

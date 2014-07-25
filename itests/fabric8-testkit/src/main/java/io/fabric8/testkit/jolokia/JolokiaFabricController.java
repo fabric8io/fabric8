@@ -31,6 +31,7 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -89,6 +90,34 @@ public class JolokiaFabricController implements FabricController {
     public List<String> containerIdsForProfile(String versionId, String profileId) {
         return fabricManager.containerIdsForProfile(versionId, profileId);
     }
+
+    @Override
+    public List<ContainerDTO> containers() throws Exception {
+        List<String> ids = containerIds();
+        return containers(ids);
+    }
+
+    /**
+     * Returns the container details for the given ids
+     */
+    @Override
+    public List<ContainerDTO> containers(List<String> ids) {
+        List<ContainerDTO> answer = new ArrayList<>();
+        for (String id : ids) {
+            ContainerDTO container = getContainer(id);
+            if (container != null) {
+                answer.add(container);
+            }
+        }
+        return answer;
+    }
+
+    @Override
+    public List<ContainerDTO> containersForProfile(String version, String profileId) {
+        List<String> ids = containerIdsForProfile(version, profileId);
+        return containers(ids);
+    }
+
 
     @Override
     public String getDefaultVersion() {

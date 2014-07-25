@@ -97,6 +97,28 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
         return value != null ? value.toString() : "";
     }
 
+
+    /**
+     * Checks that the configuation of these requirements are valid
+     */
+    public void validate() {
+        if (maximumInstances != null) {
+            if (maximumInstances < 0) {
+                throw new IllegalArgumentException("Maximum instances should be >= 0");
+            }
+            if (minimumInstances != null) {
+                if (minimumInstances > maximumInstances) {
+                    throw new IllegalArgumentException("Minimum instances must not be greater than the maximum instances");
+                }
+            }
+        }
+        if (minimumInstances != null) {
+            if (minimumInstances < 0) {
+                throw new IllegalArgumentException("Minimum instances should be >= 0");
+            }
+        }
+    }
+
     // Builder DSL
     //-------------------------------------------------------------------------
     public ProfileRequirements dependentProfiles(List<String> profiles) {
@@ -268,7 +290,9 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
     //@JsonIgnore
     // name this differently so it's not picked up as a property
     public boolean checkIsEmpty() {
-        return isEmpty(minimumInstances) && isEmpty(maximumInstances) && isEmpty(dependentProfiles);
+        // we allow 0 maximum instances as being non-empty so we can keep the requirements around to
+        // stop things
+        return isEmpty(minimumInstances) && isEmpty(dependentProfiles) && maximumInstances == null;
     }
 
     protected static boolean isEmpty(Integer number) {
