@@ -15,6 +15,8 @@
  */
 package io.fabric8.gateway.handlers.http;
 
+import io.fabric8.gateway.CallDetailRecord;
+
 import java.net.InetSocketAddress;
 import java.util.Map;
 
@@ -51,4 +53,9 @@ public interface HttpGateway {
      * Returns address the gateway service is listening on.
      */
     public InetSocketAddress getLocalAddress();
+    
+    /**
+     * Adds a CallDetailRecord for reporting purposes
+     */
+    public void addCallDetailRecord(CallDetailRecord cdr);
 }
