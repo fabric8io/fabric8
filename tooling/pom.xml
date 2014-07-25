@@ -34,6 +34,7 @@
     <name>Fabric8 :: Tooling</name>
 
     <modules>
+        <module>archetype-commands</module>
         <module>testing</module>
     </modules>
 
@@ -43,7 +44,6 @@
             <modules>
                 <module>examples</module>
                 <module>archetype-builder</module>
-                <module>archetype-commands</module>
                 <module>archetypes</module>
                 <module>camel-tooling-util</module>
                 <module>tooling-activemq-facade</module>
