@@ -367,6 +367,20 @@
            </resources>
            <plugins>
                <plugin>
+                   <groupId>org.fusesource.mvnplugins</groupId>
+                   <artifactId>maven-bundle-summary-plugin</artifactId>
+                   <version>1.33</version>
+                   <executions>
+                       <execution>
+                           <id>bundle-summary</id>
+                           <phase>verify</phase>
+                           <goals>
+                               <goal>summary</goal>
+                           </goals>
+                       </execution>
+                   </executions>
+               </plugin>
+               <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-resources-plugin</artifactId>
                    <executions>
