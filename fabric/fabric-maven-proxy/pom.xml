@@ -51,6 +51,7 @@
             org.apache.commons.codec*,
             org.apache.commons.httpclient*,
             org.apache.commons.io*,
+            org.apache.commons.lang*,
             org.jsoup.*,
             org.apache.maven.*;-split-package:=merge-first,
             org.sonatype.aether*,
