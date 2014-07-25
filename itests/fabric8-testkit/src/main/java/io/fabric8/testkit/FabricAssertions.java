@@ -76,54 +76,8 @@ public class FabricAssertions {
         assertNotNull("FabricRequirements", requirements);
 
         FabricController restAPI = assertFabricCreate(factory);
-
-        // now lets post the requirements
-        try {
-            restAPI.setRequirements(requirements);
-        } catch (Exception e) {
-            LOG.error("Failed to set requirements: " + e, e);
-            fail(unwrapException(e));
-        }
         assertRequirementsSatisfied(restAPI, requirements);
-
         return restAPI;
-    }
-
-    /**
-     * Asserts that the requirements can be satisfied
-     */
-    public static FabricController assertSetRequirementsAndTheyAreSatisfied(final FabricController controller, final FabricRequirements requirements) throws Exception {
-        assertNotNull("FabricController", controller);
-        assertNotNull("FabricRequirements", requirements);
-
-        waitForValidValue(30 * 1000, new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                controller.setRequirements(requirements);
-                FabricRequirements actual = controller.getRequirements();
-                String actualVersion = actual.getVersion();
-                // lets clear the actualVersion as we usually don't set one and it gets defaulted
-                actual.setVersion(requirements.getVersion());
-
-                // lets sort them both to ensure ordering
-                requirements.sortProfilesRequirements();
-                actual.sortProfilesRequirements();
-
-                boolean answer = RequirementsJson.equal(requirements, actual);
-                if (answer) {
-                    System.out.println("Updated the requirements to: " + RequirementsJson.toJSON(requirements));
-                } else {
-                    System.out.println("Expected: " + RequirementsJson.toJSON(requirements));
-                    System.out.println("Actual:   " + RequirementsJson.toJSON(actual));
-                    System.out.println();
-                }
-                return answer;
-            }
-        });
-
-        assertRequirementsSatisfied(controller, requirements);
-
-        return controller;
     }
 
     /**
@@ -137,12 +91,40 @@ public class FabricAssertions {
      * Asserts that the requirements are met within the default amount of time
      */
     public static void assertRequirementsSatisfied(final FabricController controller, final FabricRequirements requirements, long timeout) throws Exception {
+        assertNotNull("FabricController", controller);
+        assertNotNull("FabricRequirements", requirements);
+
         assertNotNull("Should have some FabricRequirements", requirements);
+
         waitForValidValue(timeout, new Callable<Boolean>() {
+            boolean hasUpdatedRequirements = false;
+
             @Override
             public Boolean call() throws Exception {
+                controller.setRequirements(requirements);
+                FabricRequirements actual = controller.getRequirements();
+                String actualVersion = actual.getVersion();
+                // lets clear the actualVersion as we usually don't set one and it gets defaulted
+                actual.setVersion(requirements.getVersion());
+
+                // lets sort them both to ensure ordering
+                requirements.sortProfilesRequirements();
+                actual.sortProfilesRequirements();
+
+                boolean valid = RequirementsJson.equal(requirements, actual);
+                if (!valid) {
+                    System.out.println("Expected: " + RequirementsJson.toJSON(requirements));
+                    System.out.println("Actual:   " + RequirementsJson.toJSON(actual));
+                    System.out.println();
+                    return false;
+                }
+
+                if (!hasUpdatedRequirements) {
+                    hasUpdatedRequirements = true;
+                    System.out.println("Updated the requirements to: " + RequirementsJson.toJSON(requirements));
+                }
+
                 // lets assert we have enough profile containers created
-                boolean valid = true;
                 List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
                 assertNotNull("Should have some profileRequirements", profileRequirements);
                 String version = requirementOrDefaultVersion(controller, requirements);

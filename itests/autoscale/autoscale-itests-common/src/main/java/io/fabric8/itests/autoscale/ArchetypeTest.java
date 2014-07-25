@@ -69,7 +69,7 @@ public class ArchetypeTest {
 
         FabricRequirements requirements = new FabricRequirements();
         requirements.profile("mq-default").minimumInstances(1);
-        FabricAssertions.assertSetRequirementsAndTheyAreSatisfied(fabricController, requirements);
+        FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
 
 
         // deploying each profile should have caused the requirements to be updated to add them all now
@@ -80,7 +80,7 @@ public class ArchetypeTest {
             String profileId = archetypeToProfileMap.get(archetype);
             assertNotNull("Should have a profile ID for " + archetype, profileId);
             requirements.profile(profileId).minimumInstances(1);
-            FabricAssertions.assertSetRequirementsAndTheyAreSatisfied(fabricController, requirements);
+            FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
 
             // now lets force the container to be stopped
             requirements.profile(profileId).minimumInstances(0).maximumInstances(0);
