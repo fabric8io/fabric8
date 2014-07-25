@@ -104,6 +104,11 @@ public class FabricAssertions {
                 String actualVersion = actual.getVersion();
                 // lets clear the actualVersion as we usually don't set one and it gets defaulted
                 actual.setVersion(requirements.getVersion());
+
+                // lets sort them both to ensure ordering
+                requirements.sortProfilesRequirements();
+                actual.sortProfilesRequirements();
+
                 boolean answer = RequirementsJson.equal(requirements, actual);
                 if (answer) {
                     System.out.println("Updated the requirements to: " + RequirementsJson.toJSON(requirements));
@@ -155,7 +160,9 @@ public class FabricAssertions {
                         } else {
                             // TODO assert the containers are started up OK!
                             if (checkMinimumInstancesSuccessful(controller, profile, minimumInstances, containerIds)) {
-                                System.out.println("Valid profile " + profile + " requires " + minimumInstances + " instance(s) and has: " + containerIds);
+                                if (minimumInstances > 0) {
+                                    System.out.println("Valid profile " + profile + " requires " + minimumInstances + " instance(s) and has: " + containerIds);
+                                }
                             } else {
                                 valid = false;
                             }
@@ -171,6 +178,9 @@ public class FabricAssertions {
                                     + " currently has: " + current + " containers alive which need stopping");
                             valid = false;
                             break;
+                        } else {
+                            System.out.println("Profile scaled down: now running a maximum of " + maximumInstances + " instance(s) of profile " + profile
+                                    + " currently has: " + current + " container(s)");
                         }
                     }
                 }

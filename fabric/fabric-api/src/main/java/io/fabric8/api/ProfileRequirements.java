@@ -208,6 +208,7 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
         this.dependentProfiles = dependentProfiles;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Integer getMaximumInstances() {
         return maximumInstances;
     }
@@ -216,6 +217,7 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
         this.maximumInstances = maximumInstances;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Integer getMinimumInstances() {
         return minimumInstances;
     }
