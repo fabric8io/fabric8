@@ -141,22 +141,11 @@ public interface ProfileRegistry {
     // These should go through {@link ProfileService}
     //
     
-    Map<String, String> getProfileAttributes(String version, String profile);
     void setProfileAttribute(String version, String profile, String key, String value);
-
-    Map<String, byte[]> getFileConfigurations(String version, String profile);
     void setFileConfigurations(String version, String profile, Map<String, byte[]> configurations);
-
-    Map<String, Map<String, String>> getConfigurations(String version, String profile);
-    void setConfigurations(String version, String profile, Map<String, Map<String, String>> configurations);
-
-    byte[] getFileConfiguration(String version, String profile, String name);
     void setFileConfiguration(String version, String profile, String name, byte[] configuration);
-
-    Map<String, String> getConfiguration(String version, String profile, String pid);
+    void setConfigurations(String version, String profile, Map<String, Map<String, String>> configurations);
     void setConfiguration(String version, String profile, String pid, Map<String, String> configuration);
 
     Collection<String> listFiles(final String version, final Iterable<String> profiles, final String path);
-
-    String getLastModified(String version, String profile);
 }

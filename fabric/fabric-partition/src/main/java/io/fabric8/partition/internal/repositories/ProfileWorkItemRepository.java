@@ -40,7 +40,7 @@ public class ProfileWorkItemRepository extends BaseWorkItemRepository implements
     private final String name;
     private final FabricService fabricService;
     private final DataStore dataStore;
-    private final String profile;
+    private final String profileId;
     private final String folderPath;
 
     private volatile String lastModified = "";
@@ -50,7 +50,7 @@ public class ProfileWorkItemRepository extends BaseWorkItemRepository implements
         this.dataStore = dataStore;
         this.fabricService = fabricService;
         int index = partitionsPath.indexOf("/");
-        this.profile = partitionsPath.substring((ProfileWorkItemRepositoryFactory.SCHME + ":").length(), index);
+        this.profileId = partitionsPath.substring((ProfileWorkItemRepositoryFactory.SCHME + ":").length(), index);
         this.folderPath = partitionsPath.substring(index + 1);
     }
 
@@ -77,7 +77,7 @@ public class ProfileWorkItemRepository extends BaseWorkItemRepository implements
         try {
             ProfileService profileService = fabricService.adapt(ProfileService.class);
             String version = dataStore.getContainerVersion(name);
-            Profile p = profileService.getRequiredProfile(version, profile);
+            Profile p = profileService.getRequiredProfile(version, profileId);
             for (String f : p.getFileConfigurations().keySet()) {
                 if (f.startsWith(folderPath)) {
                     items.add(f);
@@ -102,10 +102,11 @@ public class ProfileWorkItemRepository extends BaseWorkItemRepository implements
     @Override
     public void run() {
        ProfileRegistry profileRegistry = fabricService.adapt(ProfileRegistry.class);
-       String modifed = profileRegistry.getLastModified(dataStore.getContainerVersion(name), profile);
-       if (!modifed.equals(lastModified)) {
+       String versionId = dataStore.getContainerVersion(name);
+       Profile profile = profileRegistry.getProfile(versionId, versionId);
+       if (profile != null && !profile.getProfileHash().equals(lastModified)) {
            notifyListeners();
-           lastModified = modifed;
+           lastModified = profile.getProfileHash();
        }
     }
 }

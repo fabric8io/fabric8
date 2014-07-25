@@ -17,6 +17,7 @@ package io.fabric8.commands.support;
 
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRegistry;
 
 import java.io.IOException;
@@ -44,10 +45,11 @@ public class DatastoreContentManager implements ContentManager {
             if (parts.length < 3) {
                 throw new IllegalArgumentException("Invalid location:" + location);
             }
-            String profile = parts[0];
-            String version = parts[1];
+            String profileId = parts[0];
+            String versionId = parts[1];
             String resource = parts[2];
-            String data = new String(profileRegistry.getFileConfiguration(version, profile, resource));
+            Profile profile = profileRegistry.getRequiredProfile(versionId, profileId);
+            String data = new String(profile.getFileConfiguration(resource));
             return data != null ? data : "";
         } catch (Exception e) {
             throw new IOException("Failed to read data from zookeeper.", e);
