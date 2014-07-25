@@ -19,13 +19,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import io.fabric8.api.Profiles;
 import io.fabric8.common.util.Strings;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,11 +36,33 @@ import org.slf4j.LoggerFactory;
 public class GitHelpers {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitHelpers.class);
 
+    static final String CONFIG_ROOT_DIR = "fabric";
+    static final String CONFIGS = CONFIG_ROOT_DIR;
+    static final String CONFIGS_PROFILES = CONFIGS + File.separator + "profiles";
+    
     /**
      * Returns the root directory of the git repo which contains the ".git" directory
      */
     public static File getRootGitDirectory(Git git) {
         return git.getRepository().getDirectory().getParentFile();
+    }
+
+    public static File getProfilesDirectory(Git git) {
+        return new File(GitHelpers.getRootGitDirectory(git), CONFIGS_PROFILES);
+    }
+
+    public static  File getProfileDirectory(Git git, String profileId) {
+        File profilesDirectory = getProfilesDirectory(git);
+        String path = convertProfileIdToDirectory(profileId);
+        return new File(profilesDirectory, path);
+    }
+
+    /**
+     * Takes a profile ID of the form "foo-bar" and if we are using directory trees for profiles then
+     * converts it to "foo/bar.profile"
+     */
+    public static String convertProfileIdToDirectory(String profileId) {
+        return Profiles.convertProfileIdToPath(profileId);
     }
 
     public static boolean localBranchExists(Git git, String branch) throws GitAPIException {

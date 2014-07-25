@@ -179,7 +179,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
 
             //Only need to clone once. If repo already exists, just skip.
             if (!fabricRoot.exists()) {
-                Git localGit = gitService.get().get();
+                Git localGit = gitService.get().getGit();
                 Git.cloneRepository()
                         .setTimeout(10)
                         .setBare(true)

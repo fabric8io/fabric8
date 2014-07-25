@@ -15,8 +15,6 @@
  */
 package io.fabric8.git;
 
-import java.io.IOException;
-
 import org.eclipse.jgit.api.Git;
 
 /**
@@ -24,7 +22,7 @@ import org.eclipse.jgit.api.Git;
  */
 public interface GitService {
 
-    Git get() throws IOException;
+    Git getGit();
 
     String getRemoteUrl();
 

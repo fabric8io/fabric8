@@ -146,6 +146,4 @@ public interface ProfileRegistry {
     void setFileConfiguration(String version, String profile, String name, byte[] configuration);
     void setConfigurations(String version, String profile, Map<String, Map<String, String>> configurations);
     void setConfiguration(String version, String profile, String pid, Map<String, String> configuration);
-
-    Collection<String> listFiles(final String version, final Iterable<String> profiles, final String path);
 }
