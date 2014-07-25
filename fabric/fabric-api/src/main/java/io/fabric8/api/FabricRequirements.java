@@ -142,7 +142,7 @@ public class FabricRequirements {
         sortProfilesRequirements();
     }
 
-    protected void sortProfilesRequirements() {
+    public void sortProfilesRequirements() {
         Collections.sort(profileRequirements);
     }
 
