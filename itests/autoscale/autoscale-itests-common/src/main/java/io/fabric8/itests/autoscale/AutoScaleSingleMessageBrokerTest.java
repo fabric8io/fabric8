@@ -20,9 +20,11 @@ package io.fabric8.itests.autoscale;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.testkit.FabricAssertions;
 import io.fabric8.testkit.FabricController;
+
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,6 +34,7 @@ import org.junit.runner.RunWith;
  */
 @RunAsClient
 @RunWith(Arquillian.class)
+@Ignore("[FABRIC-1120] Fix autoscale integration tests")
 public class AutoScaleSingleMessageBrokerTest {
 
     @ArquillianResource
