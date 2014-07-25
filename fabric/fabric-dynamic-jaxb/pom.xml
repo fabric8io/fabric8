@@ -63,18 +63,19 @@
           <artifactId>fabric-api</artifactId>
           <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-git</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>common-util</artifactId>

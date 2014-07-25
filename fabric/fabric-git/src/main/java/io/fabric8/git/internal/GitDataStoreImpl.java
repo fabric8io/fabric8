@@ -72,9 +72,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.StringTokenizer;
-import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -145,11 +143,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     private static final transient Logger LOGGER = LoggerFactory.getLogger(GitDataStoreImpl.class);
     
-    private static final String CONFIG_ROOT_DIR = "fabric";
     private static final String GIT_REMOTE_USER = "gitRemoteUser";
     private static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
-    private static final String CONFIGS = CONFIG_ROOT_DIR;
-    private static final String CONFIGS_PROFILES = CONFIGS + File.separator + "profiles";
     private static final String AGENT_METADATA_FILE = "io.fabric8.agent.properties";
     private static final int GIT_COMMIT_SHORT_LENGTH = 7;
     private static final String MASTER_BRANCH = "master";
@@ -513,7 +508,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     private void populateVersionBuilder(Git git, VersionBuilder builder, String branch, String versionId) throws GitAPIException, IOException {
         checkoutVersion(git, branch);
-        File profilesDir = getProfilesDirectory(git);
+        File profilesDir = GitHelpers.getProfilesDirectory(git);
         if (profilesDir.exists()) {
             File[] files = profilesDir.listFiles();
             if (files != null) {
@@ -549,8 +544,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         IllegalStateAssertion.assertNotNull(versionRef, "Cannot get version ref for: " + branch);
 
         String revision = versionRef.getObjectId().getName();
-        String path = convertProfileIdToDirectory(profileId);
-        RevCommit commit = CommitUtils.getLastCommit(git.getRepository(), revision, CONFIGS_PROFILES + File.separator + path);
+        String path = GitHelpers.convertProfileIdToDirectory(profileId);
+        RevCommit commit = CommitUtils.getLastCommit(git.getRepository(), revision, GitHelpers.CONFIGS_PROFILES + File.separator + path);
         String lastModified = commit != null ? commit.getId().abbreviate(GIT_COMMIT_SHORT_LENGTH).name() : "";
 
         Map<String, byte[]> fileConfigurations = doGetFileConfigurations(git, profileId);
@@ -833,7 +828,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         assertWriteLock();
         String resultId = profileId;
         IllegalStateAssertion.assertFalse(context.isRequirePull(), "Cannot require pull when checkout is assumed");
-        File profileDirectory = getProfileDirectory(getGit(), profileId);
+        File profileDirectory = GitHelpers.getProfileDirectory(getGit(), profileId);
         if (!profileDirectory.exists()) {
             GitOperation<String> gitop = new GitOperation<String>() {
                 public String call(Git git, GitContext context) throws Exception {
@@ -875,7 +870,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
-                File profileDirectory = getProfileDirectory(git, profile);
+                File profileDirectory = GitHelpers.getProfileDirectory(git, profile);
                 doSetFileConfigurations(git, profileDirectory, profile, configurations);
                 context.commitMessage("Updated configuration for profile " + profile);
                 return null;
@@ -889,7 +884,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
-                File profileDirectory = getProfileDirectory(git, profile);
+                File profileDirectory = GitHelpers.getProfileDirectory(git, profile);
                 doSetConfigurations(git, profileDirectory, profile, configurations);
                 context.commitMessage("Updated configuration for profile " + profile);
                 return null;
@@ -972,7 +967,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(versionId, profileId));
-                File profileDirectory = getProfileDirectory(git, profileId);
+                File profileDirectory = GitHelpers.getProfileDirectory(git, profileId);
                 doRecursiveDeleteAndRemove(git, profileDirectory);
                 context.commitMessage("Removed profile " + profileId);
                 return null;
@@ -1007,7 +1002,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                             if (versionFiles != null) {
                                 for (File versionFile : versionFiles) {
                                     LOGGER.info("Importing version configuration " + versionFile + " to branch " + version);
-                                    importFromFileSystem(versionFile, CONFIG_ROOT_DIR, version, true);
+                                    importFromFileSystem(versionFile, GitHelpers.CONFIG_ROOT_DIR, version, true);
                                 }
                             }
                         }
@@ -1017,7 +1012,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             File metrics = new File(fabricsDir, "metrics");
             if (metrics.exists()) {
                 LOGGER.info("Importing metrics from " + metrics + " to branch " + defaultVersion);
-                importFromFileSystem(metrics, CONFIG_ROOT_DIR, defaultVersion, false);
+                importFromFileSystem(metrics, GitHelpers.CONFIG_ROOT_DIR, defaultVersion, false);
             }
         } else {
             // default to version 1.0
@@ -1071,18 +1066,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         return executeRead(gitop, false);
     }
 
-    private File getProfilesDirectory(Git git) {
-        assertValid();
-        return new File(GitHelpers.getRootGitDirectory(git), CONFIGS_PROFILES);
-    }
-
-    private File getProfileDirectory(Git git, String profile) {
-        assertValid();
-        File profilesDirectory = getProfilesDirectory(git);
-        String path = convertProfileIdToDirectory(profile);
-        return new File(profilesDirectory, path);
-    }
-
     @Override
     public void importProfiles(final String versionId, final List<String> profileZipUrls) {
         assertValid();
@@ -1129,42 +1112,16 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         executeRead(gitop, false);
     }
 
-    @Override
-    public Collection<String> listFiles(final String versionId, final Iterable<String> profileIds, final String path) {
-        assertValid();
-        GitOperation<Collection<String>> gitop = new GitOperation<Collection<String>>() {
-            public Collection<String> call(Git git, GitContext context) throws Exception {
-                SortedSet<String> answer = new TreeSet<String>();
-                for (String profile : profileIds) {
-                    checkoutVersion(git, GitProfiles.getBranch(versionId, profile));
-                    File profileDirectory = getProfileDirectory(git, profile);
-                    File file = Strings.isNotBlank(path) ? new File(profileDirectory, path) : profileDirectory;
-                    if (file.exists()) {
-                        String[] values = file.list();
-                        if (values != null) {
-                            for (String value : values) {
-                                answer.add(value);
-                            }
-                        }
-                    }
-                }
-                return answer;
-            }
-        };
-        boolean pullFirst = !hasVersion(versionId);
-        return executeRead(gitop, pullFirst);
-    }
-
     private Map<String, byte[]> doGetFileConfigurations(Git git, String profileId) throws IOException {
         Map<String, byte[]> configurations = new HashMap<String, byte[]>();
-        File profileDirectory = getProfileDirectory(git, profileId);
+        File profileDirectory = GitHelpers.getProfileDirectory(git, profileId);
         doPutFileConfigurations(configurations, profileDirectory, profileDirectory);
         return configurations;
     }
 
     private Map<String, Map<String, String>> doGetConfigurations(Git git, String profile) throws IOException {
         Map<String, Map<String, String>> configurations = new HashMap<String, Map<String, String>>();
-        File profileDirectory = getProfileDirectory(git, profile);
+        File profileDirectory = GitHelpers.getProfileDirectory(git, profile);
         doPutConfigurations(configurations, profileDirectory, profileDirectory);
         return configurations;
     }
@@ -1251,7 +1208,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private void doSetFileConfiguration(Git git, String profileId, String fileName, byte[] configuration) throws IOException, GitAPIException {
-        File profileDirectory = getProfileDirectory(git, profileId);
+        File profileDirectory = GitHelpers.getProfileDirectory(git, profileId);
         File file = new File(profileDirectory, fileName);
         if (configuration == null) {
             doRecursiveDeleteAndRemove(git, file);
@@ -1262,7 +1219,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private void doSetConfiguration(Git git, String profileId, String pid, Map<String, String> configuration) throws IOException, GitAPIException {
-        File profileDirectory = getProfileDirectory(git, profileId);
+        File profileDirectory = GitHelpers.getProfileDirectory(git, profileId);
         File file = new File(profileDirectory, pid + PROPERTIES_SUFFIX);
         if (configuration == null) {
             doRecursiveDeleteAndRemove(git, file);
@@ -1301,11 +1258,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private Git getGit() {
-        try {
-            return gitService.get().get();
-        } catch (IOException ex) {
-            throw FabricException.launderThrowable(ex);
-        }
+        return gitService.get().getGit();
     }
 
     @Override
@@ -1545,7 +1498,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 LOGGER.debug("Changed after pull!");
                 if (credentialsProvider != null) {
                     // TODO lets test if the profiles directory is present after checking out version 1.0?
-                    getProfilesDirectory(git);
+                    GitHelpers.getProfilesDirectory(git);
                 }
                 dataStore.get().fireChangeNotifications();
             }
@@ -1564,7 +1517,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
      * Creates the given profile directory in the currently checked out version branch
      */
     private String doCreateProfile(Git git, GitContext context, String versionId, String profileId) throws IOException, GitAPIException {
-        File profileDirectory = getProfileDirectory(git, profileId);
+        File profileDirectory = GitHelpers.getProfileDirectory(git, profileId);
         File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
         IllegalStateAssertion.assertFalse(metadataFile.exists(), "Profile metadata file already exists: " + metadataFile);
         profileDirectory.mkdirs();
@@ -1582,7 +1535,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         // dynamic version of one token ${version:fabric} in the urls
         String fabricVersion = dataStore.get().getFabricReleaseVersion();
 
-        File profilesDirectory = getProfilesDirectory(git);
+        File profilesDirectory = GitHelpers.getProfilesDirectory(git);
         for (String profileZipUrl : profileZipUrls) {
             String token = "\\$\\{version:fabric\\}";
             String url = profileZipUrl.replaceFirst(token, fabricVersion);
@@ -1611,7 +1564,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
      * exports one or more profile folders from the given version into the zip
      */
     private String doExportProfiles(Git git, GitContext context, File outputFile, FileFilter filter) throws IOException {
-        File profilesDirectory = getProfilesDirectory(git);
+        File profilesDirectory = GitHelpers.getProfilesDirectory(git);
         Zips.createZipFile(LOGGER, profilesDirectory, outputFile, filter);
         return null;
     }
@@ -1659,7 +1612,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 // TODO should we try and detect regular folders somehow using some naming convention?
                 if (isProfileDirectory(profileDir)) {
                     String profileId = profileDir.getName();
-                    String toProfileDirName = convertProfileIdToDirectory(profileId);
+                    String toProfileDirName = GitHelpers.convertProfileIdToDirectory(profileId);
                     File toProfileDir = new File(toFile, toProfileDirName);
                     toProfileDir.mkdirs();
                     recursiveCopyAndAdd(git, profileDir, toProfileDir, pattern, true);
@@ -1683,14 +1636,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         }
         return false;
-    }
-
-    /**
-     * Takes a profile ID of the form "foo-bar" and if we are using directory trees for profiles then
-     * converts it to "foo/bar.profile"
-     */
-    private String convertProfileIdToDirectory(String profileId) {
-        return Profiles.convertProfileIdToPath(profileId);
     }
 
     private void pull() {
