@@ -488,7 +488,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                     }
                 }.start();
             }
-            if (!latch.await(15, TimeUnit.MINUTES)) {
+            if (!latch.await(30, TimeUnit.MINUTES)) {
                 throw new FabricException("Timeout waiting for container creation");
             }
             return metadatas.toArray(new CreateContainerMetadata[metadatas.size()]);

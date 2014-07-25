@@ -294,6 +294,11 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
         return environmentalVariables;
     }
 
+    @Override
+    public Boolean doUploadDistribution() {
+        return false;
+    }
+
     public Map<String, Integer> getInternalPorts() {
         return internalPorts;
     }

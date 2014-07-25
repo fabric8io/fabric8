@@ -124,6 +124,8 @@ public class BootstrapConfiguration extends AbstractComponent {
     private String globalResolver = "localhostname";
     @Property(name = "manualip", label = "Global Resolver", description = "The manally set ip", value = "${manualip}")
     private String manualip;
+    @Property(name = "publichostname", label = "Public Hostname", description = "The public hostname", value = "${publichostname}")
+    private String publichostname;
     @Property(name = "runtime.id", label = "Container Name", description = "The name of the container", value = "${runtime.id}", propertyPrivate = true)
     private String runtimeId;
     @Property(name = "homeDir", label = "Container Home", description = "The homeDir directory of the container", value = "${runtime.home}", propertyPrivate = true)
@@ -307,10 +309,13 @@ public class BootstrapConfiguration extends AbstractComponent {
             return HostUtils.getLocalHostName();
         } else if (oResolver.equals(ZkDefs.LOCAL_IP)) {
             return HostUtils.getLocalIp();
+        } else if (oResolver.equals(ZkDefs.PUBLIC_HOSTNAME) && (publichostname != null && !publichostname.isEmpty())) {
+            return publichostname;
         } else if (oResolver.equals(ZkDefs.MANUAL_IP) && (oManualIp != null && !oManualIp.isEmpty())) {
             return oManualIp;
-        } else
+        } else {
             return HostUtils.getLocalHostName();
+        }
     }
 
     private void loadPropertiesFrom(Dictionary<String, Object> dictionary, String from) {

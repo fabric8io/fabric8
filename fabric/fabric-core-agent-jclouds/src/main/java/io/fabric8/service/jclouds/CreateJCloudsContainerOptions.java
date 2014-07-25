@@ -82,6 +82,9 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     private final Map<String, String> environmentalVariables; // keep immutable
     @JsonProperty
     private final List<String> fallbackRepositories;
+    @JsonProperty
+    private final Boolean uploadDistribution;
+
 
     CreateJCloudsContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp,
                                   int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort,
@@ -94,7 +97,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                                   String hardwareId, String locationId, String group, String user, String password,
                                   String contextName, String providerName, String apiName, String endpoint,
                                   JCloudsInstanceType instanceType, String identity, String credential, String owner, Map<String, String> serviceOptions, Map<String, String> nodeOptions, int servicePort, String publicKeyFile,
-                                  ComputeService computeService, String path, Map<String, String> environmentalVariables, List<String> fallbackRepositories) {
+                                  ComputeService computeService, String path, Map<String, String> environmentalVariables, List<String> fallbackRepositories, Boolean uploadDistribution) {
 
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort,
                 zookeeperPassword,ensembleStart, agentEnabled,false, 0, autoImportEnabled, importPath, users, name, parent, providerType,
@@ -123,6 +126,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         this.computeService = computeService;
         this.path = path;
         this.fallbackRepositories = fallbackRepositories;
+        this.uploadDistribution = uploadDistribution;
         this.environmentalVariables = Collections.unmodifiableMap(new HashMap<String, String>(environmentalVariables));
     }
 
@@ -135,7 +139,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                 osFamily, osVersion, imageId, hardwareId, locationId,
                 group, newUser != null ? newUser : user, newPassword != null ? newPassword : password,
                 contextName, providerName, apiName, endpoint, instanceType, identity, credential,
-                owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables, fallbackRepositories);
+                owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables, fallbackRepositories, uploadDistribution);
     }
 
     CreateJCloudsContainerOptions updateComputeService(ComputeService computeService) {
@@ -145,7 +149,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                 getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(),
                 osFamily, osVersion, imageId, hardwareId, locationId,
                 group, user, password, contextName, providerName, apiName, endpoint, instanceType, identity, credential,
-                owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables, fallbackRepositories);
+                owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables, fallbackRepositories, uploadDistribution);
     }
 
 
@@ -254,6 +258,11 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         return fallbackRepositories;
     }
 
+    @Override
+    public Boolean doUploadDistribution() {
+        return uploadDistribution;
+    }
+
     public CreateJCloudsContainerOptions clone() throws CloneNotSupportedException {
         return (CreateJCloudsContainerOptions) super.clone();
     }
@@ -319,7 +328,8 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         private Map<String, String> environmentalVariables = new HashMap<String, String>();
         @JsonProperty
         private List<String> fallbackRepositories = new ArrayList<String>();
-
+        @JsonProperty
+        private Boolean uploadDistribution = true;
 
         public Builder osVersion(final String osVersion) {
             this.osVersion = osVersion;
@@ -489,6 +499,11 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
             return this;
         }
 
+        public Builder uploadDistribution(final Boolean uploadDistribution) {
+            this.uploadDistribution = uploadDistribution;
+            return this;
+        }
+
         public void setComputeService(ComputeService computeService) {
             this.computeService = computeService;
         }
@@ -600,7 +615,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                     getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(),
                     osFamily, osVersion, imageId, hardwareId, locationId,
                     group, user, password, contextName, providerName, apiName, endpoint, instanceType, identity, credential,
-                    owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables, fallbackRepositories);
+                    owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables, fallbackRepositories, uploadDistribution);
         }
     }
 }
