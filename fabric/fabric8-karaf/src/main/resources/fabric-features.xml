@@ -92,6 +92,7 @@
 
     <feature name="fabric-bundle" version="${project.version}" resolver="(obr)">
         <feature>features</feature>
+        <feature version="${project.version}">fabric-core</feature>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8.fab/fab-osgi/${project.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-net/${ops4j-base.version}</bundle>
@@ -104,6 +105,7 @@
 
     <feature name="process-manager" version="${project.version}" resolver="(obr)">
         <feature>fabric-bundle</feature>
+        <feature>fabric-commands</feature>
         <feature>camel-mvel</feature>
         <bundle>mvn:biz.aQute.bnd/bndlib/${bndlib-version}</bundle>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
@@ -119,6 +121,7 @@
 
     <feature name="process-fabric" version="${project.version}" resolver="(obr)">
         <feature>process-manager</feature>
+        <feature>fabric-project-deployer</feature>
         <bundle>mvn:io.fabric8/process-fabric/${project.version}</bundle>
     </feature>
 
@@ -137,6 +140,7 @@
     <feature name="fabric-agent-commands" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-agent</feature>
         <feature version="${project.version}">fabric-project-deployer</feature>
+        <feature version="${project.version}">fabric-boot-commands</feature>
         <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-aether/${pax.url.version}</bundle>
         <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}/jar/uber</bundle>
         <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.command/${karaf-version}</bundle>
@@ -144,6 +148,7 @@
     </feature>
 
     <feature name="fabric-archetype-commands" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-boot-commands</feature>
         <bundle dependency="true">mvn:commons-io/commons-io/${commons-io2-version}</bundle>
         <bundle>mvn:io.fabric8/archetype-builder/${project.version}</bundle>
         <bundle>mvn:io.fabric8/archetype-commands/${project.version}</bundle>
@@ -151,19 +156,21 @@
 
     <feature name="fabric-project-deployer" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-agent</feature>
+        <feature version="${project.version}">fabric-bundle</feature>
         <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-aether/${pax.url.version}</bundle>
         <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}/jar/uber</bundle>
         <bundle>mvn:io.fabric8/fabric-project-deployer/${project.version}</bundle>
-        <bundle>mvn:io.fabric8.fab/fab-osgi/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-web" version="${project.version}" resolver="(obr)">
         <feature version="${karaf-version}">http</feature>
+        <feature version="${project.version}">fabric-core</feature>
         <bundle>mvn:io.fabric8/fabric-web/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-maven-proxy" version="${project.version}" resolver="(obr)">
         <feature version="${karaf-version}">http</feature>
+        <feature version="${project.version}">fabric-core</feature>
         <bundle>mvn:io.fabric8/fabric-maven-proxy/${project.version}</bundle>
     </feature>
 
@@ -184,6 +191,7 @@
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">
         <feature>scr</feature>
         <feature>gravia</feature>
+        <feature>karaf</feature>
 
         <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
@@ -208,6 +216,7 @@
         <bundle>mvn:io.fabric8/fabric-extender-listener/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-jaas/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-zookeeper/${project.version}</bundle>
+        <bundle>mvn:io.fabric8/fabric-features-service/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-log/${project.version}</bundle>
         <bundle>mvn:io.fabric8.runtime/fabric-runtime-container-karaf-registration/${project.version}</bundle>
     </feature>
@@ -257,6 +266,10 @@
         <feature version="${cxf-version-range}">cxf-jaxrs</feature>
         <feature version="${project.version}">swagger</feature>
         <feature>fabric-groups</feature>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2-version}</bundle>
         <bundle>mvn:io.fabric8/fabric-cxf/${project.version}</bundle>
     </feature>
 
@@ -315,6 +328,7 @@
     </feature>
 
     <feature name="fabric-ssh" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-commands</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-core-agent-ssh/${project.version}</bundle>
@@ -322,6 +336,7 @@
 
     <feature name="fabric-jclouds" version="${project.version}" resolver="(obr)">
         <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/${servicemix-specs-version}</bundle>
+        <feature version="${project.version}">fabric-commands</feature>
         <feature version='${jclouds-karaf-version}'>jclouds-commands</feature>
         <feature version='${jclouds-karaf-version}'>jclouds-api-ec2</feature>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
@@ -335,10 +350,15 @@
     </feature>
 
     <feature name="insight-log" version="${project.version}" resolver="(obr)">
+        <feature>karaf</feature>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-log/${project.version}</bundle>
     </feature>
 
     <feature name="insight-metrics" version="${project.version}" resolver="(obr)">
+        <feature>fabric-core</feature>
         <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
@@ -352,7 +372,6 @@
 
     <feature name="insight-metrics-elasticsearch" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">insight-elasticsearch</feature>
-        <feature version="${project.version}">insight-metrics</feature>
     </feature>
 
     <feature name="insight-rhq-metrics" version="${project.version}" resolver="(obr)">
@@ -360,6 +379,7 @@
         <feature version="${project.version}">fabric-groups</feature>
         <feature version="${project.version}">fabric-groovy</feature>
         <feature version="${project.version}">insight-metrics</feature>
+        <feature>http</feature>
         <bundle>mvn:io.fabric8.insight/insight-rhq-metrics/${project.version}</bundle>
     </feature>
 
@@ -396,6 +416,7 @@
             discovery.zen.ping.unicast.hosts=localhost
         </config>
         <feature>insight-log</feature>
+        <feature version="${project.version}">insight-metrics</feature>
         <feature>fabric-zookeeper</feature>
         <feature>fabric-groups</feature>
         <bundle dependency="true">mvn:com.google.guava/guava/${guava-version}</bundle>
@@ -483,11 +504,16 @@
             #dataNode = true
             #nameNode = true
         </config>
+        <feature>karaf</feature>
         <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle dependency='true'>mvn:commons-cli/commons-cli/1.2</bundle>
         <bundle dependency='true'>mvn:commons-codec/commons-codec/1.6</bundle>
         <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-configuration/1.9_1</bundle>
+        <bundle dependency='true'>mvn:corg.apache.commons/commons-jexl/${commons-jexl-version}</bundle>
+        <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils-version}</bundle>
+        <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-digester/${commons-digester-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-configuration/${commons-configuration-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-servlet_2.5_spec/1.2</bundle>
         <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jsp_2.1_spec/1.0.1</bundle>
@@ -542,6 +568,8 @@
     </feature>
 
     <feature name="fabric-redirect" version="${project.version}" resolver="(obr)">
+        <feature>fabric-core</feature>
+        <feature version="${karaf-version}">http</feature>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-redirect/${project.version}</bundle>
     </feature>
@@ -588,6 +616,7 @@
         <feature version="${cxf-version-range}">cxf-core</feature>
         <feature version="${camel-version-range}">camel-jaxb</feature>
         <feature version="${project.version}">fabric-core</feature>
+        <feature>http</feature>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-dynamic-jaxb/${project.version}</bundle>
         <bundle>mvn:io.fabric8/dynamic-jaxb/${project.version}</bundle>
@@ -597,6 +626,7 @@
 
     <feature name="fabric-openshift" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-core</feature>
+        <feature version="${project.version}">fabric-commands</feature>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-openshift/${project.version}</bundle>
     </feature>
@@ -614,12 +644,14 @@
         <feature version="[3.0,4.0)">cxf-jaxrs</feature>
         <bundle>mvn:javax.ws.rs/javax.ws.rs-api/2.0</bundle>
 -->
+        <feature>http</feature>
         <feature version="${project.version}">fabric-project-deployer</feature>
         <bundle>mvn:io.fabric8/fabric-docker-api/${project.version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2-version}</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-annotation_1.1_spec/1.0.1</bundle>
 <!--
         CXF 3 version
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson2-version}</bundle>
@@ -643,10 +675,13 @@
         <feature version="${project.version}">process-manager</feature>
         <feature version="${project.version}">fabric-bundle</feature>
         <feature version="${project.version}">fabric-groovy</feature>
+        <feature version="${project.version}">fabric-commands</feature>
         <bundle>mvn:io.fabric8/fabric-process-container/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-vertx" version="${project.version}" resolver="(obr)">
+        <feature>fabric-core</feature>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
         <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
         <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle dependency="true">mvn:commons-pool/commons-pool/${commons-pool-version}</bundle>
@@ -662,12 +697,16 @@
     <feature name="fabric-dns" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-vertx</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dnsjava/${org.apache.servicemix.bundles.dnsjava.version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle>mvn:io.fabric8/fabric-dns/${project.version}</bundle>
     </feature>
 
 
     <feature name="jolokia" version="${project.version}" resolver="(obr)">
-     <feature version="${karaf-version}">http</feature>
+        <feature version="${project.version}">fabric-core</feature>
+        <feature>http</feature>
         <bundle>mvn:io.fabric8/fabric-jolokia/${project.version}</bundle>
     </feature>
 
@@ -678,7 +717,8 @@
       <bundle>mvn:io.fabric8/gateway-core/${project.version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
-      <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/${geronimo-jta.version}</bundle>
     </feature>
 
     <feature name="gateway-fabric" version="${project.version}" resolver="(obr)">
@@ -699,6 +739,7 @@
     </feature>
 
     <feature name="swagger" version="${project.version}" resolver="(obr)">
+        <feature>http</feature>
         <feature version="${cxf-version-range}">cxf-specs</feature>
         <bundle dependency='true'>mvn:org.scala-lang/scala-library/${swagger-scala-version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javassist/3.12.1.GA_3</bundle>

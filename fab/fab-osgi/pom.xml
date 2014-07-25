@@ -57,6 +57,7 @@
             !org.osgi.service.http,
             !javax.servlet*,
             org.osgi.service.event;resolution:=optional,
+            org.apache.commons.logging.*;version="[1.0,2.0)",
             *
         </fuse.osgi.import.pkg>
         <fuse.osgi.private.pkg>

@@ -36,6 +36,7 @@
             io.fabric8.docker.provider.commands;-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
+          org.osgi.service.event*;resolution:=optional,
           io.fabric8.docker.api*,
           <!--
                 CXF version
@@ -55,6 +56,7 @@
           io.fabric8.utils.shell;-split-package:=first,
           org.apache.karaf.features.*;-split-package:=first,
           org.apache.karaf.util.collections.*;-split-package:=first,
+          org.apache.karaf.util;-split-package:=first,
           org.apache.felix.utils.*;-split-package:=first,
           org.ops4j.pax.url.maven.commons.*;-split-package:=first,
           org.ops4j.util.collections.*;-split-package:=first,

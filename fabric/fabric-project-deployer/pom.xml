@@ -39,6 +39,8 @@
         </fuse.osgi.export>
         <fuse.osgi.import.additional>
             !org.apache.felix.bundlerepository.*,
+            !org.apache.commons.logging.*,
+            org.apache.commons.logging.*;version="[1.0,2.0)",
             org.apache.karaf.features*;resolution:=optional,
             org.osgi.service.event*;resolution:=optional,
         </fuse.osgi.import.additional>
