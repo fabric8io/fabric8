@@ -113,7 +113,7 @@ public class JolokiaInvocationHandler implements InvocationHandler {
     protected String executeMethodName(Method method) {
         String name = method.getName();
         Class<?>[] parameterTypes = method.getParameterTypes();
-        if (parameterTypes.length > 0 && methodCount(interfaceClass, name) > 1) {
+        if (methodCount(interfaceClass, name) > 1) {
             StringBuilder buffer = new StringBuilder(name);
             buffer.append("(");
             boolean first = true;

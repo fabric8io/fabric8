@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,6 +66,11 @@ public class JolokiaFabricController implements FabricController {
         this.password = password;
         jolokia = J4pClient.url(jolokiaUrl).user(user).password(password).build();
         fabricManager = JolokiaClients.createFabricManager(jolokia);
+    }
+
+    @Override
+    public FabricRequirements getRequirements() {
+        return fabricManager.requirements();
     }
 
     @Override
@@ -139,7 +145,15 @@ public class JolokiaFabricController implements FabricController {
                     }
                 } else {
                     Class<?> propertyType = descriptor.getPropertyType();
-                    value = JolokiaClients.convertJolokiaToJavaType(propertyType, value);
+                    try {
+                        value = JolokiaClients.convertJolokiaToJavaType(propertyType, value);
+                    } catch (IOException e) {
+                        LOG.warn("Failed to convert property value for " + name + " on class " + clazz.getCanonicalName()
+                                + " type: " + propertyType.getCanonicalName()
+                                + " with value: " + value
+                                + (value != null ? " type " + value.getClass().getCanonicalName() : null) + ". " + e, e);
+                        continue;
+                    }
                     Object[] args = {value};
                     Class<?>[] parameterTypes = {propertyType};
                     try {

@@ -26,6 +26,7 @@ import io.fabric8.common.util.Filters;
 import io.fabric8.common.util.IOHelpers;
 import io.fabric8.common.util.Strings;
 import io.fabric8.core.jmx.BeanUtils;
+import io.fabric8.internal.RequirementsJson;
 import io.fabric8.process.manager.support.ProcessUtils;
 import org.jolokia.client.exception.J4pRemoteException;
 import org.slf4j.Logger;
@@ -47,6 +48,7 @@ import static org.junit.Assert.fail;
  * A bunch of assertions
  */
 public class FabricAssertions {
+    public static final String KILL_CONTAINERS_FLAG = "fabric8.testkit.killContainers";
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricAssertions.class);
 
     private static long defaultTimeout = 6 * 60 * 1000;
@@ -57,6 +59,11 @@ public class FabricAssertions {
      * Kill all fabric8 related java processes and docker containers typically created through integration tests
      */
     public static void killJavaAndDockerProcesses() {
+        boolean killProcesses = shouldKillProcessesAfterTestRun();
+        if (!killProcesses) {
+            System.out.println("Not destroying the fabric processes due to system property " + FabricAssertions.KILL_CONTAINERS_FLAG + " being " + System.getProperty(FabricAssertions.KILL_CONTAINERS_FLAG));
+            return;
+        }
         ProcessUtils.killJavaProcesses();
         ProcessUtils.killDockerContainers();
     }
@@ -92,7 +99,19 @@ public class FabricAssertions {
             @Override
             public Object call() throws Exception {
                 controller.setRequirements(requirements);
-                return true;
+                FabricRequirements actual = controller.getRequirements();
+                String actualVersion = actual.getVersion();
+                // lets clear the actualVersion as we usually don't set one and it gets defaulted
+                actual.setVersion(requirements.getVersion());
+                boolean answer = RequirementsJson.equal(requirements, actual);
+                if (answer) {
+                    System.out.println("Updated the requirements to: " + RequirementsJson.toJSON(requirements));
+                } else {
+                    System.out.println("Expected: " + RequirementsJson.toJSON(requirements));
+                    System.out.println("Actual:   " + RequirementsJson.toJSON(actual));
+                    System.out.println();
+                }
+                return answer;
             }
         });
 
@@ -341,5 +360,10 @@ public class FabricAssertions {
             cause = e.getCause();
         }
         return cause.toString();
+    }
+
+    public static boolean shouldKillProcessesAfterTestRun() {
+        String flag = System.getProperty(KILL_CONTAINERS_FLAG, "true");
+        return !flag.toLowerCase().equals("false");
     }
 }

@@ -51,7 +51,6 @@ import static org.junit.Assert.fail;
  * and runs shell commands to create a fabric.
  */
 public class CommandLineFabricControllerManager extends FabricControllerManagerSupport {
-    public static final String KILL_CONTAINERS_FLAG = "fabric8.testkit.killContainers";
 
     private static final transient Logger LOG = LoggerFactory.getLogger(CommandLineFabricControllerManager.class);
 
@@ -108,10 +107,13 @@ public class CommandLineFabricControllerManager extends FabricControllerManagerS
 
     @Override
     public void destroy() throws Exception {
-        String flag = System.getProperty(KILL_CONTAINERS_FLAG, "true");
-        if (installDir == null || flag == null || flag.toLowerCase().equals("false")) {
+        if (installDir == null) {
+            return;
+        }
+        boolean killProcesses = FabricAssertions.shouldKillProcessesAfterTestRun();
+        if (!killProcesses) {
             String message = installDir == null ? "" : " at: " + installDir.getAbsolutePath();
-            System.out.println("Not destroying the fabric" + message + " due to system property " + KILL_CONTAINERS_FLAG + " being " + flag);
+            System.out.println("Not destroying the fabric" + message + " due to system property " + FabricAssertions.KILL_CONTAINERS_FLAG + " being " + System.getProperty(FabricAssertions.KILL_CONTAINERS_FLAG));
             return;
         }
         System.out.println("Destroying the fabric at: " + installDir.getAbsolutePath());

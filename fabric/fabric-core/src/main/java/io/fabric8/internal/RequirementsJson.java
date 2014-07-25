@@ -42,6 +42,10 @@ public final class RequirementsJson {
         mapper.getSerializationConfig().withSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
+    public static ObjectMapper getMapper() {
+        return mapper;
+    }
+
     public static void writeRequirements(OutputStream out, FabricRequirements value) throws IOException {
         mapper.writeValue(out, value);
     }
@@ -95,4 +99,12 @@ public final class RequirementsJson {
         return mapper.reader(clazz).readValue(trimmedJson);
     }
 
+    /**
+     * Returns true if the objects are equal; by comparing their JSON marshalled strings
+     */
+    public static boolean equal(FabricRequirements a, FabricRequirements b) throws IOException {
+        String json1 = toJSON(a);
+        String json2 = toJSON(b);
+        return Objects.equal(json1, json2);
+    }
 }
