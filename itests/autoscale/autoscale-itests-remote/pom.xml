@@ -104,7 +104,7 @@
 
   <profiles>
     <profile>
-      <id>ts.artefact</id>
+      <id>ts.archetype</id>
       <build>
         <plugins>
           <plugin>
@@ -112,7 +112,14 @@
             <configuration>
               <includes>
                 <include>**/*Test.*</include>
+                <include>**/ArchetypeTest.*</include>
               </includes>
+              <excludes>
+<!--
+                <exclude>**/AutoScaleSingleMessageBrokerTest.*</exclude>
+-->
+                <exclude>**/DummyValue.*</exclude>
+              </excludes>
               <!--
                         <argLine>${surefire.system.args}</argLine>
               -->
