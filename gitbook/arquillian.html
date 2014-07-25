@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>QuickStarts | Fabric8 Documentation</title>
+        <title>Arquillian | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./environmentVariables.html" />
+        <link rel="next" href="./continuousDeployment.html" />
         
         
-        <link rel="prev" href="./getStarted.html" />
+        <link rel="prev" href="./debugging.html" />
         
 
-        <meta property="og:title" content="QuickStarts | Fabric8 Documentation">
+        <meta property="og:title" content="Arquillian | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.1" data-basepath="." data-revision="1406274480632">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.4" data-basepath="." data-revision="1406274480632">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -658,7 +658,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 6.25%;min-width: 4.166666666666667%;"></div>
+        <div class="inner" style="width: 16.666666666666668%;min-width: 14.583333333333334%;"></div>
     </div>
     <div class="chapters">
     
@@ -670,15 +670,15 @@
     
         <a href="./quickstarts.html" title="QuickStarts" class="chapter done " data-progress="2.1" style="left: 6.25%;"></a>
     
-        <a href="./environmentVariables.html" title="Environment Variables" class="chapter  " data-progress="2.2" style="left: 8.333333333333334%;"></a>
+        <a href="./environmentVariables.html" title="Environment Variables" class="chapter done " data-progress="2.2" style="left: 8.333333333333334%;"></a>
     
-        <a href="./developer.html" title="Workflow" class="chapter  " data-progress="3.1" style="left: 10.416666666666666%;"></a>
+        <a href="./developer.html" title="Workflow" class="chapter done " data-progress="3.1" style="left: 10.416666666666666%;"></a>
     
-        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter  " data-progress="3.2" style="left: 12.5%;"></a>
+        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter done " data-progress="3.2" style="left: 12.5%;"></a>
     
-        <a href="./debugging.html" title="Debugging" class="chapter  " data-progress="3.3" style="left: 14.583333333333334%;"></a>
+        <a href="./debugging.html" title="Debugging" class="chapter done " data-progress="3.3" style="left: 14.583333333333334%;"></a>
     
-        <a href="./arquillian.html" title="Arquillian" class="chapter  " data-progress="3.4" style="left: 16.666666666666668%;"></a>
+        <a href="./arquillian.html" title="Arquillian" class="chapter done " data-progress="3.4" style="left: 16.666666666666668%;"></a>
     
         <a href="./continuousDeployment.html" title="Continuous Deployment" class="chapter  " data-progress="3.5" style="left: 18.75%;"></a>
     
@@ -765,27 +765,21 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_40">
+                    <section class="normal" id="section-gitbook_6">
                     
-                        <h2 id="quickstarts"><a name="quickstarts" class="anchor" href="#quickstarts"><span class="fa fa-link"></span></a>QuickStarts</h2>
-<p>QuickStarts is a series of examples to get you started deploying and running applications with Fabric8.</p>
-<p>Each QuickStart is documented as follows:</p>
-<ol>
-<li>A brief description of the example</li>
-<li>System requirements</li>
-<li>How to build the example</li>
-<li>How to run the example either using the command line or using the web console</li>
-<li>How to try the example</li>
-<li>How to uninstall the example</li>
-<li>Optional suggested readings</li>
-</ol>
-<p>The quickstarts are categorized accordingly to the container being used:</p>
+                        <h2 id="arquillian"><a name="arquillian" class="anchor" href="#arquillian"><span class="fa fa-link"></span></a>Arquillian</h2>
+<p>We use <a href="http://arquillian.org/" target="_blank">Arquillian</a> as the primary container based testing framework; allowing us to write tests once and then reuse them when running embedded or remote containers.</p>
+<p>For example the <a href="https://github.com/fabric8io/fabric8/tree/master/itests/common" target="_blank">fabric-itests-common module</a> defines a bunch of common arquillian based integration tests using fabric8, such as, <a href="https://github.com/fabric8io/fabric8/blob/master/itests/common/src/main/java/io/fabric8/runtime/itests/FabricCreateCommandTest.java#L54" target="_blank">FabricCreateCommandTest.java</a> which spin up a fabric; they can be tested with an embedded fabric codebase or ran in a karaf, tomcat or wildlfy container etc.</p>
+<h3 id="remote-auto-scale-tests"><a name="remote-auto-scale-tests" class="anchor" href="#remote-auto-scale-tests"><span class="fa fa-link"></span></a>Remote Auto Scale Tests</h3>
+<p>Its good to be able to test the binary distritution formats; such as</p>
 <ul>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts/java" target="_blank">java</a> - examples for standalone Java applications</li>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts/karaf" target="_blank">karaf</a> - many examples for Apache Karaf containers (OSGi)</li>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts/spring-boot" target="_blank">spring.boot</a> - examples for using Spring Boot</li>
-<li><a href="https://github.com/fabric8io/fabric8/tree/master/quickstarts/war" target="_blank">war</a> - examples as WAR deployment which can run on containers such as Apache Tomcat, Jetty, and Wildfly</li>
+<li>the zip / tarballs</li>
+<li><a href="http://docker.io/" target="_blank">docker</a> container images</li>
+<li><a href="https://www.openshift.com/" target="_blank">OpenShift</a> cartridge</li>
 </ul>
+<p>Also we have the <a href="http://fabric8.io/gitbook/requirements.html" target="_blank">Auto Scaling</a> capability, that given a set of requirements we can auto scale the required containers to be created in the right order on the various different container providers: <a href="http://fabric8.io/gitbook/cloudContainers.html" target="_blank">child</a>, <a href="http://fabric8.io/gitbook/sshContainers.html" target="_blank">ssh</a>, <a href="http://fabric8.io/gitbook/docker.html" target="_blank">docker</a>, <a href="http://fabric8.io/gitbook/openshift.html" target="_blank">openshift</a> or <a href="http://fabric8.io/gitbook/cloudContainers.html" target="_blank">cloud</a>.</p>
+<p>So we have a set of remove container plugins for arquillian that take the requirements and auto scale them.</p>
+<p>For example the test case <a href="https://github.com/fabric8io/fabric8/blob/master/itests/autoscale/autoscale-itests-common/src/main/java/io/fabric8/itests/autoscale/AutoScaleSingleMessageBrokerTest.java#L42-42" target="_blank">AutoScaleSingleMessageBrokerTest.java</a> uses one of the available arquillian plugins to create the initial fabric; then it defines the <a href="http://fabric8.io/gitbook/requirements.html" target="_blank">requirements it needs</a> (i.e. how many instances of each profile and how they should be placed onto hosts) and then asserts that they can be properly provisioned within the given amount of time.</p>
 
                     
                     </section>
@@ -795,10 +789,10 @@
         </div>
 
         
-        <a href="./getStarted.html" class="navigation navigation-prev " aria-label="Previous page: Get Started"><i class="fa fa-angle-left"></i></a>
+        <a href="./debugging.html" class="navigation navigation-prev " aria-label="Previous page: Debugging"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./environmentVariables.html" class="navigation navigation-next " aria-label="Next page: Environment Variables"><i class="fa fa-angle-right"></i></a>
+        <a href="./continuousDeployment.html" class="navigation navigation-next " aria-label="Next page: Continuous Deployment"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
