@@ -22,12 +22,12 @@ import io.fabric8.api.OptionsProvider;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.internal.ProfileImpl.ConfigListType;
+import io.fabric8.utils.DataStoreUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,6 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 	private String profileId;
 	private Map<String, Profile> parentMapping = new LinkedHashMap<>();
 	private Map<String, byte[]> fileMapping = new HashMap<>();
-	private Map<String, Map<String, String>> configMapping = new HashMap<>();
 	private String lastModified;
 	private boolean isOverlay;
 	
@@ -65,7 +64,6 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 		profileId = profile.getId();
 		addParents(profile.getParents());
 		setFileConfigurations(profile.getFileConfigurations());
-		setConfigurations(profile.getConfigurations());
 		lastModified = null;
 	}
 
@@ -132,11 +130,12 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 	}
 
     private void updateParentsAttribute() {
-        Map<String, String> agentConfig = getAgentConfiguration();
+        Map<String, String> agentConfig = getMutableAgentConfiguration();
         agentConfig.remove(PARENTS_ATTRIBUTE_KEY);
         if (parentMapping.size() > 0) {
             agentConfig.put(PARENTS_ATTRIBUTE_KEY, parentsAttributeValue());
         }
+        addConfiguration(Constants.AGENT_PID, agentConfig);
     }
 
     private String parentsAttributeValue() {
@@ -180,38 +179,45 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 
 	@Override
 	public ProfileBuilder setConfigurations(Map<String, Map<String, String>> configs) {
-        // Delete all existing pids - this also keeps the file mapping in sync
-	    for (String pid : new HashSet<>(configMapping.keySet())) {
+	    for (String pid : getConfigurationKeys()) {
 	        deleteConfiguration(pid);
 	    }
 		for (Entry<String, Map<String, String>> entry : configs.entrySet()) {
-			String pid = entry.getKey();
-			Map<String, String> config = entry.getValue();
-			configMapping.put(pid, new HashMap<String, String>(config));
+		    addConfiguration(entry.getKey(), new HashMap<>(entry.getValue()));
 		}
 		return this;
 	}
 
 	@Override
 	public ProfileBuilder addConfiguration(String pid, Map<String, String> config) {
-		configMapping.put(pid, new HashMap<String, String>(config));
+        fileMapping.put(pid + Profile.PROPERTIES_SUFFIX, DataStoreUtils.toBytes(config));
 		return this;
 	}
 
     @Override
     public Set<String> getConfigurationKeys() {
-        return configMapping.keySet();
+        Set<String> result = new HashSet<>();
+        for (String fileKey : fileMapping.keySet()) {
+            if (fileKey.endsWith(Profile.PROPERTIES_SUFFIX)) {
+                String configKey = fileKey.substring(0, fileKey.indexOf(Profile.PROPERTIES_SUFFIX));
+                result.add(configKey);
+            }
+        }
+        return Collections.unmodifiableSet(result);
     }
 
     @Override
     public Map<String, String> getConfiguration(String pid) {
-        Map<String, String> config = configMapping.get(pid);
-        return config != null ? Collections.unmodifiableMap(config) : null;
+        byte[] bytes = fileMapping.get(pid + Profile.PROPERTIES_SUFFIX);
+        if (bytes == null) {
+            return Collections.emptyMap();
+        }
+        Map<String, String> config = DataStoreUtils.toMap(bytes);
+        return Collections.unmodifiableMap(config);
     }
     
     @Override
     public ProfileBuilder deleteConfiguration(String pid) {
-        configMapping.remove(pid);
         fileMapping.remove(pid + Profile.PROPERTIES_SUFFIX);
         return this;
     }
@@ -271,14 +277,15 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 
 	@Override
     public ProfileBuilder addAttribute(String key, String value) {
-        Map<String, String> agentConfig = getAgentConfiguration();
+        Map<String, String> agentConfig = getMutableAgentConfiguration();
         agentConfig.put(Profile.ATTRIBUTE_PREFIX + key, value);
+        addConfiguration(Constants.AGENT_PID, agentConfig);
         return this;
     }
 
     @Override
     public ProfileBuilder setAttributes(Map<String, String> attributes) {
-        Map<String, String> agentConfig = getAgentConfiguration();
+        Map<String, String> agentConfig = getMutableAgentConfiguration();
         for (String key : new ArrayList<>(agentConfig.keySet())) {
             if (key.startsWith(Profile.ATTRIBUTE_PREFIX)) {
                 agentConfig.remove(key);
@@ -287,21 +294,13 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
         for (Entry<String, String> entry : attributes.entrySet()) {
             agentConfig.put(Profile.ATTRIBUTE_PREFIX + entry.getKey(), entry.getValue());
         }
+        addConfiguration(Constants.AGENT_PID, agentConfig);
         return null;
     }
 
-    private Map<String, String> getAgentConfiguration() {
-        Map<String, String> agentConfig = configMapping.get(Constants.AGENT_PID);
-        if (agentConfig == null) {
-            agentConfig = new HashMap<String, String>();
-            configMapping.put(Constants.AGENT_PID, agentConfig);
-        }
-        return agentConfig;
-    }
-    
     private void addAgentConfiguration(ConfigListType type, List<String> values) {
 		String prefix = type + ".";
-		Map<String, String> agentConfig = getAgentConfiguration();
+		Map<String, String> agentConfig = getMutableAgentConfiguration();
         for (String key : new ArrayList<>(agentConfig.keySet())) {
             if (key.startsWith(prefix)) {
                 agentConfig.remove(key);
@@ -310,8 +309,13 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 		for (String value : values) {
 			agentConfig.put(prefix + value, value);
 		}
+        addConfiguration(Constants.AGENT_PID, agentConfig);
 	}
 	
+    private Map<String, String> getMutableAgentConfiguration() {
+        return new LinkedHashMap<>(getConfiguration(Constants.AGENT_PID));
+    }
+
 	@Override
 	protected void validate() {
 		super.validate();
@@ -327,6 +331,6 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 	public Profile getProfile() {
 		validate();
 		List<Profile> parents = new ArrayList<>(parentMapping.values());
-		return new ProfileImpl(versionId, profileId, parents, fileMapping, configMapping, lastModified, isOverlay);
+		return new ProfileImpl(versionId, profileId, parents, fileMapping, lastModified, isOverlay);
 	}
 }

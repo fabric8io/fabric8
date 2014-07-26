@@ -19,6 +19,7 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
+import io.fabric8.utils.DataStoreUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +31,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-public class ProfileImpl implements Profile {
+/**
+ * This immutable profile implementation.
+ */
+final class ProfileImpl implements Profile {
 
     private final String versionId;
     private final String profileId;
@@ -41,19 +45,31 @@ public class ProfileImpl implements Profile {
     private final boolean isOverlay;
     private final String lastModified;
 
-    ProfileImpl(String versionId, String profileId, List<Profile> parents, Map<String, byte[]> fileConfigurations, Map<String, Map<String, String>> configs, String lastModified, boolean isOverlay) {
+    // Only the {@link ProfileBuilder} should construct this
+    ProfileImpl(String versionId, String profileId, List<Profile> parents, Map<String, byte[]> fileConfigs, String lastModified, boolean isOverlay) {
         this.profileId = profileId;
         this.versionId = versionId;
         this.lastModified = lastModified;
         this.isOverlay = isOverlay;
-        
-        this.fileConfigurations.putAll(fileConfigurations);
+
+        // Parents
         for (Profile parent : parents) {
             this.parents.put(parent.getId(), parent);
         }
         
+        // File configurations and derived configurations
+        for (Entry<String, byte[]> entry : fileConfigs.entrySet()) {
+            String fileKey = entry.getKey();
+            byte[] bytes = entry.getValue();
+            fileConfigurations.put(fileKey, bytes);
+            if (fileKey.endsWith(Profile.PROPERTIES_SUFFIX)) {
+                String pid = fileKey.substring(0, fileKey.indexOf(Profile.PROPERTIES_SUFFIX));
+                configurations.put(pid, Collections.unmodifiableMap(DataStoreUtils.toMap(bytes)));
+            }
+        }
+        
         // Attributes are agent configuration with prefix 'attribute.'  
-        Map<String, String> agentConfig = configs.get(Constants.AGENT_PID);
+        Map<String, String> agentConfig = configurations.get(Constants.AGENT_PID);
         if (agentConfig != null) {
             int prefixLength = Profile.ATTRIBUTE_PREFIX.length();
             for (Entry<String, String> entry : agentConfig.entrySet()) {
@@ -62,13 +78,6 @@ public class ProfileImpl implements Profile {
                     attributes.put(key.substring(prefixLength), entry.getValue());
                 }
             }
-        }
-        
-        // Make an immutable copy of the configurations
-        for (Entry<String, Map<String, String>> entry : configs.entrySet()) {
-            String pid = entry.getKey();
-            Map<String, String> value = new HashMap<>(entry.getValue());
-            configurations.put(pid, Collections.unmodifiableMap(value));
         }
     }
 
@@ -85,7 +94,6 @@ public class ProfileImpl implements Profile {
         return Collections.unmodifiableMap(attributes);
     }
 
-    // In some cases we need to sort profiles by Id.
     @Override
     public int compareTo(Profile profile) {
         return profileId.compareTo(profile.getId());
