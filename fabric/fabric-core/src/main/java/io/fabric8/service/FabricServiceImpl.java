@@ -1062,18 +1062,15 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         Map<String, byte[]> configs = profile.getFileConfigurations();
         byte[] bytes = configs.get(pid);
         Properties properties;
-        try {
-            if (bytes != null) {
-                properties = DataStoreUtils.toProperties(bytes);
-            } else {
-                properties = new Properties();
-            }
-            properties.setProperty(key, value);
-            bytes = DataStoreUtils.toBytes(properties);
-            configs.put(pid, bytes);
-        } catch (IOException ex) {
-            throw new FabricException(ex);
+        if (bytes != null) {
+            properties = DataStoreUtils.toProperties(bytes);
+        } else {
+            properties = new Properties();
         }
+        properties.setProperty(key, value);
+        bytes = DataStoreUtils.toBytes(properties);
+        configs.put(pid, bytes);
+        
         ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.setFileConfigurations(configs);
         profileService.get().updateProfile(builder.getProfile());

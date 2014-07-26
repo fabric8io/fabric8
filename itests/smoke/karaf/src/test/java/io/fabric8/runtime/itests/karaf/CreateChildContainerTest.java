@@ -108,7 +108,7 @@ public class CreateChildContainerTest {
         try {
             Container child = containers.iterator().next();
             String ensembleUrl = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " zk:get /fabric/configs/ensemble/url");
-            Assert.assertTrue("Child should use custom ZK server port", ensembleUrl.contains("${zk:root/ip}:2345"));
+            Assert.assertTrue("Child should use custom ZK server port, but was: " + ensembleUrl, ensembleUrl.contains("${zk:root/ip}:2345"));
         } finally {
             ContainerBuilder.destroy(containers);
         }

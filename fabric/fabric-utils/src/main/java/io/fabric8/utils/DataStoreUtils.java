@@ -22,30 +22,40 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import io.fabric8.common.util.ChecksumUtils;
 import io.fabric8.common.util.Closeables;
+
 import org.osgi.framework.BundleContext;
 
 public class DataStoreUtils {
 
-    public static byte[] toBytes(Properties source) throws IOException {
+    public static byte[] toBytes(Properties source) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        source.store(baos, null);
+        try {
+            source.store(baos, null);
+        } catch (IOException ex) {
+            throw new IllegalArgumentException("Cannot store properties", ex);
+        }
         return baos.toByteArray();
     }
 
-    public static byte[] toBytes(Map<String, String> source) throws IOException {
+    public static byte[] toBytes(Map<String, String> source) {
         return toBytes(toProperties(source));
     }
 
-    public static Properties toProperties(byte[] source) throws IOException {
+    public static Properties toProperties(byte[] source)  {
         Properties rc = new Properties();
         if (source != null) {
-            rc.load(new ByteArrayInputStream(source));
+            try {
+                rc.load(new ByteArrayInputStream(source));
+            } catch (IOException ex) {
+                throw new IllegalArgumentException("Cannot load properties", ex);
+            }
         }
         return rc;
     }
@@ -55,10 +65,10 @@ public class DataStoreUtils {
         for (Map.Entry<Object, Object> entry : source.entrySet()) {
             rc.put((String) entry.getKey(), (String) entry.getValue());
         }
-        return rc;
+        return Collections.unmodifiableMap(rc);
     }
 
-    public static Map<String, String> toMap(byte[] source) throws IOException {
+    public static Map<String, String> toMap(byte[] source) {
         return toMap(toProperties(source));
     }
 
@@ -81,7 +91,7 @@ public class DataStoreUtils {
         return rc;
     }
 
-    public static String stripSuffix(String value, String suffix) throws IOException {
+    public static String stripSuffix(String value, String suffix) {
         if (value.endsWith(suffix)) {
             return value.substring(0, value.length() - suffix.length());
         } else {
@@ -89,21 +99,28 @@ public class DataStoreUtils {
         }
     }
 
-    public static String toString(Properties source) throws IOException {
+    public static String toString(Properties source) {
         StringWriter writer = new StringWriter();
-        source.store(writer, null);
+        try {
+            source.store(writer, null);
+        } catch (IOException ex) {
+            throw new IllegalArgumentException("Cannot store properties", ex);
+        }
         return writer.toString();
     }
 
-    public static Properties toProperties(String source) throws IOException {
+    public static Properties toProperties(String source) {
         Properties rc = new Properties();
-        rc.load(new StringReader(source));
+        try {
+            rc.load(new StringReader(source));
+        } catch (IOException ex) {
+            throw new IllegalArgumentException("Cannot load properties from: " + source, ex);
+        }
         return rc;
     }
 
     /**
      * Substitutes a placeholder with the checksum:[url] format with the checksum of the urls target.
-     * @param key
      * @return  The checksum or 0.
      */
     public static String substituteChecksum(String key) {
@@ -121,8 +138,6 @@ public class DataStoreUtils {
 
     /**
      * Substitutes a placeholder with profile:[property file]/[key], with the target value.
-     * @param key
-     * @param configs
      * @return  The target value or the key as is.
      */
     public static String substituteProfileProperty(String key, Map<String, Map<String, String>> configs) {
@@ -138,7 +153,6 @@ public class DataStoreUtils {
 
     /**
      * Substitutes bundle property.
-     * @param key
      * @return  The target value or an empty String.
      */
     public static String substituteBundleProperty(String key, BundleContext bundleContext) {

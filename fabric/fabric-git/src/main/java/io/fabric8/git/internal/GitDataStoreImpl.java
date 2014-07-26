@@ -43,7 +43,6 @@ import io.fabric8.git.GitDataStore;
 import io.fabric8.git.GitListener;
 import io.fabric8.git.GitProxyService;
 import io.fabric8.git.GitService;
-import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.zookeeper.ZkPath;
 
 import java.io.File;
@@ -96,7 +95,6 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.apache.felix.utils.properties.Properties;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -449,7 +447,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         String[] props = path.toFile().list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.endsWith(".properties");
+                return name.endsWith(Profile.PROPERTIES_SUFFIX);
             }
         });
         count = props != null ? props.length : 0;
@@ -511,9 +509,9 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         if (profilesDir.exists()) {
             File[] files = profilesDir.listFiles();
             if (files != null) {
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        populateProfile(git, builder, branch, versionId, file, "");
+                for (File childFile : files) {
+                    if (childFile.isDirectory()) {
+                        populateProfile(git, builder, branch, versionId, childFile, "");
                     }
                 }
             }
@@ -548,16 +546,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         String lastModified = commit != null ? commit.getId().abbreviate(GIT_COMMIT_SHORT_LENGTH).name() : "";
 
         Map<String, byte[]> fileConfigurations = doGetFileConfigurations(git, profileId);
-        Map<String, Map<String, String>> configurations = new HashMap<String, Map<String, String>>();
-        for (Map.Entry<String, byte[]> entry : fileConfigurations.entrySet()) {
-            if (entry.getKey().endsWith(".properties")) {
-                String pid = DataStoreUtils.stripSuffix(entry.getKey(), ".properties");
-                configurations.put(pid, DataStoreUtils.toMap(DataStoreUtils.toProperties(entry.getValue())));
-            }
-        }
-        
         ProfileBuilder profileBuilder = ProfileBuilder.Factory.create(versionId, profileId);
-        profileBuilder.setFileConfigurations(fileConfigurations).setConfigurations(configurations).setLastModified(lastModified);
+        profileBuilder.setFileConfigurations(fileConfigurations).setLastModified(lastModified);
         versionBuilder.addProfile(profileBuilder.getProfile());
     }
 
@@ -786,25 +776,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             // Create the profile branch & directory
             if (allowCreate) {
                 createProfileDirectoryAfterCheckout(context, versionId, profileId);
-            } else {
-                Profile existingProfile = getProfileFromCache(versionId, profileId);
-                Set<String> removeFiles = new HashSet<>(existingProfile.getFileConfigurations().keySet());
-                removeFiles.removeAll(profile.getFileConfigurations().keySet());
-                removeFiles.remove(Constants.AGENT_PID + Profile.PROPERTIES_SUFFIX);
-                deleteProfileContent(context, versionId, profileId, removeFiles);
             }
 
             // FileConfigurations
             Map<String, byte[]> fileConfigurations = profile.getFileConfigurations();
-            if (!fileConfigurations.isEmpty()) {
-                setFileConfigurationsInternal(context, versionId, profileId, fileConfigurations);
-            }
-            
-            // Configurations
-            Map<String, Map<String, String>> configurations = profile.getConfigurations();
-            if (!configurations.isEmpty()) {
-                setConfigurationsInternal(context, versionId, profileId, configurations);
-            }
+            setFileConfigurationsInternal(context, versionId, profileId, fileConfigurations);
             
             // A warning commit message if there has been none yet 
             if (context.getCommitMessage().length() == 0) {
@@ -846,30 +822,43 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         return resultId;
     }
 
-    private void setFileConfigurationsInternal(GitContext context, final String version, final String profile, final Map<String, byte[]> configurations) {
+    private void setFileConfigurationsInternal(GitContext context, final String versionId, final String profileId, final Map<String, byte[]> fileConfigurations) {
         assertWriteLock();
-        GitOperation<Void> gitop = new GitOperation<Void>() {
-            public Void call(Git git, GitContext context) throws Exception {
-                File profileDirectory = GitHelpers.getProfileDirectory(git, profile);
-                doSetFileConfigurations(git, profileDirectory, profile, configurations);
-                context.commitMessage("Updated configuration for profile " + profile);
-                return null;
-            }
-        };
-        executeInternal(context, null, gitop);
+
+        // Delete and remove stale file configurations
+        Profile existingProfile = getProfileFromCache(versionId, profileId);
+        if (existingProfile != null) {
+            Set<String> removeFiles = new HashSet<>(existingProfile.getFileConfigurations().keySet());
+            removeFiles.removeAll(fileConfigurations.keySet());
+            context.commitMessage("Remove configurations " + removeFiles + " for profile: " + profileId);
+            deleteProfileContent(context, profileId, removeFiles, null);
+        }
+
+        if (!fileConfigurations.isEmpty()) {
+            GitOperation<Void> gitop = new GitOperation<Void>() {
+                public Void call(Git git, GitContext context) throws Exception {
+                    doSetFileConfigurations(git, profileId, fileConfigurations);
+                    context.commitMessage("Update configurations for profile: " + profileId);
+                    return null;
+                }
+            };
+            executeInternal(context, null, gitop);
+        }
     }
 
-    private void setConfigurationsInternal(GitContext context, final String version, final String profile, final Map<String, Map<String, String>> configurations) {
-        assertWriteLock();
-        GitOperation<Void> gitop = new GitOperation<Void>() {
-            public Void call(Git git, GitContext context) throws Exception {
-                File profileDirectory = GitHelpers.getProfileDirectory(git, profile);
-                doSetConfigurations(git, profileDirectory, profile, configurations);
-                context.commitMessage("Updated configuration for profile " + profile);
-                return null;
-            }
-        };
-        executeInternal(context, null, gitop);
+    private void doSetFileConfigurations(Git git, String profileId, Map<String, byte[]> fileConfigurations) throws IOException, GitAPIException {
+        for (Map.Entry<String, byte[]> entry : fileConfigurations.entrySet()) {
+            String file = entry.getKey();
+            byte[] newCfg = entry.getValue();
+            doSetFileConfiguration(git, profileId, file, newCfg);
+        }
+    }
+
+    private void doSetFileConfiguration(Git git, String profileId, String fileName, byte[] configuration) throws IOException, GitAPIException {
+        File profileDirectory = GitHelpers.getProfileDirectory(git, profileId);
+        File file = new File(profileDirectory, fileName);
+        Files.writeToFile(file, configuration);
+        doAddFiles(git, file);
     }
 
     @Override
@@ -955,12 +944,15 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         executeWrite(gitop, false);
     }
 
-    private void deleteProfileContent(final GitContext context, final String versionId, final String profileId, final Set<String> removeFiles) {
+    private void deleteProfileContent(final GitContext context, final String profileId, final Set<String> removeFiles, final String fileSuffix) {
         assertWriteLock();
         GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 File profileDirectory = GitHelpers.getProfileDirectory(git, profileId);
                 for (String fileKey : removeFiles) {
+                    if (fileSuffix != null) {
+                        fileKey += fileSuffix;
+                    }
                     File file = profileDirectory.toPath().resolve(fileKey).toFile();
                     doRecursiveDeleteAndRemove(git, file);
                 }
@@ -1110,25 +1102,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         executeRead(gitop, false);
     }
 
-    private void doSetConfigurations(Git git, File profileDirectory, String profileId, Map<String, Map<String, String>> configurations) throws IOException, GitAPIException {
-        for (Map.Entry<String, Map<String, String>> entry : configurations.entrySet()) {
-            String pid = entry.getKey();
-            Map<String, String> config = entry.getValue();
-            doSetConfiguration(git, profileId, pid, config);
-        }
-    }
-
-    private void doSetConfiguration(Git git, String profileId, String pid, Map<String, String> configuration) throws IOException, GitAPIException {
-        File profileDirectory = GitHelpers.getProfileDirectory(git, profileId);
-        File file = new File(profileDirectory, pid + Profile.PROPERTIES_SUFFIX);
-        Properties props = new Properties();
-        for (Map.Entry<String, String> entry : configuration.entrySet()) {
-            props.setProperty(entry.getKey(), entry.getValue());
-        }
-        props.save(file);
-        doAddFiles(git, file);
-    }
-
     private Map<String, byte[]> doGetFileConfigurations(Git git, String profileId) throws IOException {
         Map<String, byte[]> configurations = new HashMap<String, byte[]>();
         File profileDirectory = GitHelpers.getProfileDirectory(git, profileId);
@@ -1148,21 +1121,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 }
             }
         }
-    }
-
-    private void doSetFileConfigurations(Git git, File profileDirectory, String profile, Map<String, byte[]> configurations) throws IOException, GitAPIException {
-        for (Map.Entry<String, byte[]> entry : configurations.entrySet()) {
-            String file = entry.getKey();
-            byte[] newCfg = entry.getValue();
-            doSetFileConfiguration(git, profile, file, newCfg);
-        }
-    }
-
-    private void doSetFileConfiguration(Git git, String profileId, String fileName, byte[] configuration) throws IOException, GitAPIException {
-        File profileDirectory = GitHelpers.getProfileDirectory(git, profileId);
-        File file = new File(profileDirectory, fileName);
-        Files.writeToFile(file, configuration);
-        doAddFiles(git, file);
     }
 
     private Git getGit() {
