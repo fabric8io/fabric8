@@ -167,7 +167,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private final ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
 
     private final Set<String> versions = new CopyOnWriteArraySet<String>();
-    private final GitListener gitListener = new GitDataStoreListener();
+    private final GitDataStoreListener gitListener = new GitDataStoreListener();
     private final AtomicReference<String> remoteRef = new AtomicReference<String>("origin");
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final boolean strictLockAssert = true;
@@ -260,16 +260,19 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LOGGER.info("Setting up FabricProxySelector: {}", fabricProxySelector);
 
         if (configuredUrl != null) {
-            gitListener.onRemoteUrlChanged(configuredUrl);
+            gitListener.runRemoteUrlChanged(configuredUrl);
             remoteUrl = configuredUrl;
         } else {
             gitService.get().addGitListener(gitListener);
             remoteUrl = gitService.get().getRemoteUrl();
-            gitListener.onRemoteUrlChanged(remoteUrl);
+            if (remoteUrl != null) {
+                gitListener.runRemoteUrlChanged(remoteUrl);
+            }
         }
 
         LockHandle writeLock = aquireWriteLock();
         try {
+            // Get initial versions
             getInitialVersions();
 
             // import additional profiles
@@ -694,7 +697,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 public Void call(Git git, GitContext context) throws Exception {
                     removeVersionFromCaches(versionId);
                     GitHelpers.removeBranch(git, versionId);
-                    doPush(git, context, getCredentialsProvider());
+                    doPushInternal(git, context, getCredentialsProvider());
                     return null;
                 }
             };
@@ -795,7 +798,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 return profileId;
             }
         };
-        return executeRead(gitop, true);
+        GitContext context = new GitContext().requirePull();
+        return executeInternal(context, null, gitop);
     }
 
     private String createProfileDirectoryAfterCheckout(GitContext context, final String versionId, final String profileId) {
@@ -1029,7 +1033,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 return answer;
             }
         };
-        return executeRead(gitop, false);
+        return executeRead(gitop);
     }
 
     @Override
@@ -1086,7 +1090,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return doExportProfiles(git, context, outputFile, filter);
                 }
             };
-            executeRead(gitop, false);
+            executeRead(gitop);
         } finally {
             readLock.unlock();
         }
@@ -1123,8 +1127,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         return executeInternal(context.setRequirePull(pullFirst), personIdent, operation);
     }
 
-    private <T> T executeRead(GitOperation<T> operation, boolean pullFirst) {
-        return executeInternal(new GitContext().setRequirePull(pullFirst), null, operation);
+    private <T> T executeRead(GitOperation<T> operation) {
+        return executeInternal(new GitContext(), null, operation);
     }
 
     private <T> T executeWrite(GitOperation<T> operation, boolean pullFirst) {
@@ -1152,7 +1156,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
             CredentialsProvider credentialsProvider = getCredentialsProvider();
             if (context.isRequirePull()) {
-                doPull(git, credentialsProvider, false);
+                doPullInternal(git, context, credentialsProvider, false);
             }
 
             T answer = operation.call(git, context);
@@ -1192,7 +1196,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
             // Notify on successful commit
             if (context.isRequirePush()) {
-                doPush(git, context, getCredentialsProvider());
+                doPushInternal(git, context, getCredentialsProvider());
             }
         } catch (GitAPIException ex) {
             throw FabricException.launderThrowable(ex);
@@ -1206,14 +1210,20 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
      */
     @Override
     public Iterable<PushResult> doPush(Git git, GitContext context) throws Exception {
-        assertValid();
-        return doPush(git, context, getCredentialsProvider());
+        LockHandle readLock = aquireReadLock();
+        try {
+            assertValid();
+            return doPushInternal(git, context, getCredentialsProvider());
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
      * Pushes any committed changes to the remote repo
      */
-    private Iterable<PushResult> doPush(Git git, GitContext context, CredentialsProvider credentialsProvider) {
+    private Iterable<PushResult> doPushInternal(Git git, GitContext context, CredentialsProvider credentialsProvider) {
+        assertReadLock();
         Iterable<PushResult> results = Collections.emptyList();
         try {
             Repository repository = git.getRepository();
@@ -1263,12 +1273,10 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     /**
      * Performs a pull so the git repo is pretty much up to date before we start performing operations on it.
-     *
-     * @param git                 The {@link Git} instance to use.
-     * @param credentialsProvider The {@link CredentialsProvider} to use.
      * @param doDeleteBranches    Flag that determines if local branches that don't exist in remote should get deleted.
      */
-    private void doPull(Git git, CredentialsProvider credentialsProvider, boolean doDeleteBranches) {
+    private void doPullInternal(Git git, GitContext context, CredentialsProvider credentialsProvider, boolean doDeleteBranches) {
+        assertWriteLock();
         try {
             Repository repository = git.getRepository();
             StoredConfig config = repository.getConfig();
@@ -1499,34 +1507,32 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         return false;
     }
 
-    private void pull() {
-        if (isValid()) {
-            try {
-                GitOperation<Object> gitop = new GitOperation<Object>() {
-                    public Object call(Git git, GitContext context) throws Exception {
-                        return null;
-                    }
-                };
-                executeRead(gitop, true);
-            } catch (Exception e) {
-                LOGGER.warn("Failed to perform a pull " + e, e);
-            }
+    private boolean pull() {
+        try {
+            GitOperation<Boolean> gitop = new GitOperation<Boolean>() {
+                public Boolean call(Git git, GitContext context) throws Exception {
+                    return true;
+                }
+            };
+            GitContext context = new GitContext().requirePull();
+            return executeInternal(context, null, gitop);
+        } catch (Exception e) {
+            LOGGER.warn("Failed to perform a pull " + e, e);
+            return false;
         }
     }
 
     private void push() {
-        if (isValid()) {
-            try {
-                GitOperation<Object> gitop = new GitOperation<Object>() {
-                    public Object call(Git git, GitContext context) throws Exception {
-                        context.requirePush();
-                        return null;
-                    }
-                };
-                executeRead(gitop, false);
-            } catch (Exception e) {
-                LOGGER.warn("Failed to perform a pull " + e, e);
-            }
+        try {
+            GitOperation<Object> gitop = new GitOperation<Object>() {
+                public Object call(Git git, GitContext context) throws Exception {
+                    context.requirePush();
+                    return null;
+                }
+            };
+            executeRead(gitop);
+        } catch (Exception e) {
+            LOGGER.warn("Failed to perform a pull " + e, e);
         }
     }
 
@@ -1661,27 +1667,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 threadPool.submit(new Runnable() {
                     @Override
                     public void run() {
-                        if (isValid()) {
-                            GitOperation<Void> gitop = new GitOperation<Void>() {
-                                @Override
-                                public Void call(Git git, GitContext context) throws Exception {
-                                    Repository repository = git.getRepository();
-                                    StoredConfig config = repository.getConfig();
-                                    String currentUrl = config.getString("remote", "origin", "url");
-                                    if (actualUrl != null && !actualUrl.equals(currentUrl)) {
-                                        LOGGER.info("Performing on remote url changed from: {} to: {}", currentUrl, actualUrl);
-                                        remoteUrl = actualUrl;
-                                        config.setString("remote", "origin", "url", actualUrl);
-                                        config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
-                                        config.save();
-                                        //Make sure that we don't delete branches at this pull.
-                                        doPull(git, getCredentialsProvider(), false);
-                                        doPush(git, context);
-                                    }
-                                    return null;
-                                }
-                            };
-                            executeRead(gitop, true);
+                        if (isValid() && actualUrl != null) {
+                            runRemoteUrlChanged(actualUrl);
                         }
                     }
 
@@ -1697,6 +1684,41 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         public void onReceivePack() {
             assertValid();
             versionCache.invalidateAll();
+        }
+        
+        private void runRemoteUrlChanged(final String updateUrl) {
+            IllegalArgumentAssertion.assertNotNull(updateUrl, "updateUrl");
+            LockHandle writeLock = aquireWriteLock();
+            try {
+                // TODO(tdi): this is check=then-act, use permit
+                if (!isValid()) {
+                    LOGGER.warn("Remote URL change on invalid component: " + updateUrl);
+                    return;
+                }
+                GitOperation<Void> gitop = new GitOperation<Void>() {
+                    @Override
+                    public Void call(Git git, GitContext context) throws Exception {
+                        Repository repository = git.getRepository();
+                        StoredConfig config = repository.getConfig();
+                        String currentUrl = config.getString("remote", "origin", "url");
+                        if (updateUrl != null && !updateUrl.equals(currentUrl)) {
+                            LOGGER.info("Performing on remote url changed from: {} to: {}", currentUrl, updateUrl);
+                            remoteUrl = updateUrl;
+                            config.setString("remote", "origin", "url", updateUrl);
+                            config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
+                            config.save();
+                            //Make sure that we don't delete branches at this pull.
+                            doPullInternal(git, context, getCredentialsProvider(), false);
+                            doPushInternal(git, context, getCredentialsProvider());
+                        }
+                        return null;
+                    }
+                };
+                GitContext context = new GitContext().requirePull();
+                executeInternal(context, null, gitop);
+            } finally {
+                writeLock.unlock();
+            }
         }
     }
 
