@@ -15,7 +15,6 @@
  */
 package io.fabric8.api;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -34,11 +33,6 @@ public interface ProfileRegistry {
      * Aquire a write lock for the profile datastore
      */
     LockHandle aquireWriteLock();
-    
-    /**
-     * Aquire a read lock for the profile datastore
-     */
-    LockHandle aquireReadLock();
     
     //
     // Version management

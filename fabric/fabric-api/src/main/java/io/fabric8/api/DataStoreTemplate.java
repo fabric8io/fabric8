@@ -24,5 +24,5 @@ public interface DataStoreTemplate {
     /**
      * Perform an operation on the specified {@link DataStore}.
      */
-    void doWith(ProfileRegistry gitDataStore, DataStore dataStore);
+    void doWith(ProfileRegistry gitDataStore, DataStore dataStore) throws Exception;
 }

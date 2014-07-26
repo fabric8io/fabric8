@@ -193,14 +193,12 @@ public class Provision {
         if (containers.isEmpty()) {
             return;
         }
-
         boolean running = true;
         long startedAt = System.currentTimeMillis();
         long remaining = timeout;
         while (running && !Thread.interrupted()) {
             containerStatus(containers, remaining);
             remaining = timeout + startedAt - System.currentTimeMillis();
-
             for (Container container : containers) {
                 if (!container.isAliveAndOK()) {
                     if(container.getProvisionException() != null) {
