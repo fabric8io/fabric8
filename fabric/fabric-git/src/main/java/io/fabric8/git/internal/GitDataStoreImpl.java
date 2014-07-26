@@ -77,6 +77,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
@@ -170,13 +171,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private final GitDataStoreListener gitListener = new GitDataStoreListener();
     private final AtomicReference<String> remoteRef = new AtomicReference<String>("origin");
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final AtomicBoolean initialPull = new AtomicBoolean();
     private final boolean strictLockAssert = true;
 
     private int commitsWithoutGC = MAX_COMMITS_WITHOUT_GC;
     private Map<String, String> dataStoreProperties;
     private ProxySelector defaultProxySelector;
     private String lastFetchWarning;
-    private volatile boolean initialPull;
     private SharedCount counter;
     private String remoteUrl;
 
@@ -239,8 +240,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private void activateInternal() throws Exception {
-        initialPull = false;
-        LOGGER.info("Starting up DataStore " + this);
+        
+        LOGGER.info("Starting up GitDataStore " + this);
 
         // Call the bootstrap {@link DataStoreTemplate}
         DataStoreTemplate template = runtimeProperties.get().removeRuntimeAttribute(DataStoreTemplate.class);
@@ -287,13 +288,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         threadPool.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
+                LockHandle writeLock = aquireWriteLock();
                 try {
                     // must do an initial pull to get data
-                    if (!initialPull) {
+                    if (!initialPull.compareAndSet(false, true)) {
                         LOGGER.trace("Performing initial pull");
-                        pull();
-                        initialPull = true;
-                        LOGGER.debug("Performing initial pull done");
+                        initialPull.set(pull());
+                        LOGGER.debug("Initial completed with " + (initialPull.get() ? "success" : "failure"));
                     }
 
                     if (gitPullOnPush) {
@@ -308,17 +309,16 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     LOGGER.debug("Performed timed push done");
                 } catch (Throwable e) {
                     LOGGER.debug("Error during performed timed pull/push due " + e.getMessage(), e);
-                    // we dont want stacktrace in WARNs
                     LOGGER.warn("Error during performed timed pull/push due " + e.getMessage() + ". This exception is ignored.");
+                } finally {
+                    writeLock.unlock();
                 }
             }
-
             @Override
             public String toString() {
                 return "TimedPushTask";
             }
         }, 1000, gitPushInterval, TimeUnit.MILLISECONDS);
-        // do the initial pull at first so just wait 1 sec
 
         if (!gitPullOnPush) {
             LOGGER.info("Using ZooKeeper SharedCount to react when master git repo is changed, so we can do a git pull to the local git repo.");
@@ -326,15 +326,20 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             counter.addListener(new SharedCountListener() {
                 @Override
                 public void countHasChanged(SharedCountReader sharedCountReader, int value) throws Exception {
+                    
+                    // TODO(tdi): Why sleep a random amount of time on countHasChanged? 
+                    Thread.sleep(1000);
+
                     LOGGER.debug("Watch counter updated to " + value + ", doing a pull");
+                    LockHandle writeLock = aquireWriteLock();
                     try {
-                        // must sleep a bit as otherwise we are too fast
-                        Thread.sleep(1000);
                         pull();
                     } catch (Throwable e) {
                         LOGGER.debug("Error during pull due " + e.getMessage(), e);
                         // we dont want stacktrace in WARNs
                         LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
+                    } finally {
+                        writeLock.unlock();
                     }
                 }
 
@@ -579,7 +584,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     
     @Override
     public Map<String, String> getDataStoreProperties() {
-        assertValid();
         return Collections.unmodifiableMap(dataStoreProperties);
     }
 
@@ -683,7 +687,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     
     @Override
     public Version getRequiredVersion(String versionId) {
-        Version version = getVersion(versionId);
+        Version version = getVersionFromCache(versionId);
         IllegalStateAssertion.assertNotNull(version, "Version does not exist: " + versionId);
         return version;
     }
@@ -947,51 +951,57 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public void importFromFileSystem(final String importPath) {
-        assertValid();
+        LockHandle writeLock = aquireWriteLock();
+        try {
+            assertValid();
 
-        File sourceDir = new File(importPath);
-        if (!sourceDir.isDirectory())
-            throw new IllegalArgumentException("Not a valid source dir: " + sourceDir.getAbsolutePath());
+            File sourceDir = new File(importPath);
+            if (!sourceDir.isDirectory())
+                throw new IllegalArgumentException("Not a valid source dir: " + sourceDir.getAbsolutePath());
 
-        // lets try and detect the old ZooKeeper style file layout and transform it into the git layout
-        // so we may /fabric/configs/versions/1.0/profiles => /fabric/profiles in branch 1.0
-        File fabricsDir = new File(sourceDir, "fabric");
-        File configs = new File(fabricsDir, "configs");
-        String defaultVersion = dataStore.get().getDefaultVersion();
-        if (configs.exists()) {
-            LOGGER.info("Importing the old ZooKeeper layout");
-            File versions = new File(configs, "versions");
-            if (versions.exists() && versions.isDirectory()) {
-                File[] files = versions.listFiles();
-                if (files != null) {
-                    for (File versionFolder : files) {
-                        String version = versionFolder.getName();
-                        if (versionFolder.isDirectory()) {
-                            File[] versionFiles = versionFolder.listFiles();
-                            if (versionFiles != null) {
-                                for (File versionFile : versionFiles) {
-                                    LOGGER.info("Importing version configuration " + versionFile + " to branch " + version);
-                                    importFromFileSystem(versionFile, GitHelpers.CONFIG_ROOT_DIR, version, true);
+            // lets try and detect the old ZooKeeper style file layout and transform it into the git layout
+            // so we may /fabric/configs/versions/1.0/profiles => /fabric/profiles in branch 1.0
+            File fabricsDir = new File(sourceDir, "fabric");
+            File configs = new File(fabricsDir, "configs");
+            String defaultVersion = dataStore.get().getDefaultVersion();
+            if (configs.exists()) {
+                LOGGER.info("Importing the old ZooKeeper layout");
+                File versions = new File(configs, "versions");
+                if (versions.exists() && versions.isDirectory()) {
+                    File[] files = versions.listFiles();
+                    if (files != null) {
+                        for (File versionFolder : files) {
+                            String version = versionFolder.getName();
+                            if (versionFolder.isDirectory()) {
+                                File[] versionFiles = versionFolder.listFiles();
+                                if (versionFiles != null) {
+                                    for (File versionFile : versionFiles) {
+                                        LOGGER.info("Importing version configuration " + versionFile + " to branch " + version);
+                                        importFromFileSystem(versionFile, GitHelpers.CONFIG_ROOT_DIR, version, true);
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                File metrics = new File(fabricsDir, "metrics");
+                if (metrics.exists()) {
+                    LOGGER.info("Importing metrics from " + metrics + " to branch " + defaultVersion);
+                    importFromFileSystem(metrics, GitHelpers.CONFIG_ROOT_DIR, defaultVersion, false);
+                }
+            } else {
+                // default to version 1.0
+                String version = "1.0";
+                LOGGER.info("Importing " + fabricsDir + " as version " + version);
+                importFromFileSystem(fabricsDir, "", version, false);
             }
-            File metrics = new File(fabricsDir, "metrics");
-            if (metrics.exists()) {
-                LOGGER.info("Importing metrics from " + metrics + " to branch " + defaultVersion);
-                importFromFileSystem(metrics, GitHelpers.CONFIG_ROOT_DIR, defaultVersion, false);
-            }
-        } else {
-            // default to version 1.0
-            String version = "1.0";
-            LOGGER.info("Importing " + fabricsDir + " as version " + version);
-            importFromFileSystem(fabricsDir, "", version, false);
+        } finally {
+            writeLock.unlock();
         }
     }
 
     private void importFromFileSystem(final File from, final String destinationPath, final String versionId, final boolean isProfileDir) {
+        assertWriteLock();
         GitOperation<Void> gitop = new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 createOrCheckoutVersion(git, versionId);
@@ -1123,8 +1133,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst, GitContext context) {
-        assertValid();
-        return executeInternal(context.setRequirePull(pullFirst), personIdent, operation);
+        LockHandle writeLock = aquireWriteLock();
+        try {
+            assertValid();
+            return executeInternal(context.setRequirePull(pullFirst), personIdent, operation);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     private <T> T executeRead(GitOperation<T> operation) {
@@ -1508,6 +1523,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private boolean pull() {
+        assertWriteLock();
         try {
             GitOperation<Boolean> gitop = new GitOperation<Boolean>() {
                 public Boolean call(Git git, GitContext context) throws Exception {
@@ -1523,6 +1539,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private void push() {
+        assertReadLock();
         try {
             GitOperation<Object> gitop = new GitOperation<Object>() {
                 public Object call(Git git, GitContext context) throws Exception {
