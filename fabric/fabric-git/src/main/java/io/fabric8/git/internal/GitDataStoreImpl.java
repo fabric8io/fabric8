@@ -170,6 +170,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private final GitListener gitListener = new GitDataStoreListener();
     private final AtomicReference<String> remoteRef = new AtomicReference<String>("origin");
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final boolean strictLockAssert = true;
 
     private int commitsWithoutGC = MAX_COMMITS_WITHOUT_GC;
     private Map<String, String> dataStoreProperties;
@@ -194,12 +195,14 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private final LoadingCache<String, Version> versionCache = CacheBuilder.newBuilder().build(new CacheLoader<String, Version>() {
         @Override
         public Version load(final String versionId) throws Exception {
+            assertWriteLock();
             GitOperation<Version> gitop = new GitOperation<Version>() {
                 public Version call(Git git, GitContext context) throws Exception {
                     return loadVersion(git, versionId);
                 }
             };
-            return executeRead(gitop, true);
+            GitContext context = new GitContext().requirePull();
+            return executeInternal(context, null, gitop);
         }
     });
 
@@ -235,151 +238,145 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         deactivateInternal();
     }
 
-    private void activateInternal() {
+    private void activateInternal() throws Exception {
         initialPull = false;
+        LOGGER.info("Starting up DataStore " + this);
 
+        // Call the bootstrap {@link DataStoreTemplate}
+        DataStoreTemplate template = runtimeProperties.get().removeRuntimeAttribute(DataStoreTemplate.class);
+        if (template != null) {
+            LOGGER.info("Using template: " + template);
+            template.doWith(this, dataStore.get());
+        }
+
+        // Setup proxy service
+        GitProxyService proxyService = gitProxyService.get();
+        defaultProxySelector = ProxySelector.getDefault();
+        
+        // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
+        // Authenticator.setDefault(new FabricGitLocalHostAuthenticator(proxyService));
+        ProxySelector fabricProxySelector = new FabricGitLocalHostProxySelector(defaultProxySelector, proxyService);
+        ProxySelector.setDefault(fabricProxySelector);
+        LOGGER.info("Setting up FabricProxySelector: {}", fabricProxySelector);
+
+        if (configuredUrl != null) {
+            gitListener.onRemoteUrlChanged(configuredUrl);
+            remoteUrl = configuredUrl;
+        } else {
+            gitService.get().addGitListener(gitListener);
+            remoteUrl = gitService.get().getRemoteUrl();
+            gitListener.onRemoteUrlChanged(remoteUrl);
+        }
+
+        LockHandle writeLock = aquireWriteLock();
         try {
-            LOGGER.info("Starting up DataStore " + this);
-
-            // Call the bootstrap {@link DataStoreTemplate}
-            DataStoreTemplate template = runtimeProperties.get().removeRuntimeAttribute(DataStoreTemplate.class);
-            if (template != null) {
-                LOGGER.info("Using template: " + template);
-                template.doWith(this, dataStore.get());
-            }
-
-            if (gitProxyService.getOptional() != null) {
-                // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
-                // Authenticator.setDefault(new FabricGitLocalHostAuthenticator(gitProxyService.getOptional()));
-                defaultProxySelector = ProxySelector.getDefault();
-                ProxySelector fabricProxySelector = new FabricGitLocalHostProxySelector(defaultProxySelector, gitProxyService.getOptional());
-                ProxySelector.setDefault(fabricProxySelector);
-                LOGGER.info("Setting up FabricProxySelector: {}", fabricProxySelector);
-            }
-
-            // [FIXME] Why can we not rely on the injected GitService
-            GitService optionalService = gitService.getOptional();
-
-            if (configuredUrl != null) {
-                gitListener.onRemoteUrlChanged(configuredUrl);
-                remoteUrl = configuredUrl;
-            } else if (optionalService != null) {
-                optionalService.addGitListener(gitListener);
-                remoteUrl = optionalService.getRemoteUrl();
-                gitListener.onRemoteUrlChanged(remoteUrl);
-            }
-
-            forceGetVersions();
+            getInitialVersions();
 
             // import additional profiles
             Path homePath = runtimeProperties.get().getHomePath();
             Path dir = homePath.resolve(importDir);
             importFromFilesystem(dir);
+        } finally {
+            writeLock.unlock();
+        }
 
-            LOGGER.info("Starting to push to remote git repository every {} millis", gitPushInterval);
-            threadPool.scheduleWithFixedDelay(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        // must do an initial pull to get data
-                        if (!initialPull) {
-                            LOGGER.trace("Performing initial pull");
-                            pull();
-                            initialPull = true;
-                            LOGGER.debug("Performing initial pull done");
-                        }
-
-                        if (gitPullOnPush) {
-                            LOGGER.trace("Performing timed pull");
-                            pull();
-                            LOGGER.debug("Performed timed pull done");
-                        }
-                        //a commit that failed to push for any reason, will not get pushed until the next commit.
-                        //periodically pushing can address this issue.
-                        LOGGER.trace("Performing timed push");
-                        push();
-                        LOGGER.debug("Performed timed push done");
-                    } catch (Throwable e) {
-                        LOGGER.debug("Error during performed timed pull/push due " + e.getMessage(), e);
-                        // we dont want stacktrace in WARNs
-                        LOGGER.warn("Error during performed timed pull/push due " + e.getMessage() + ". This exception is ignored.");
+        LOGGER.info("Starting to push to remote git repository every {} millis", gitPushInterval);
+        threadPool.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // must do an initial pull to get data
+                    if (!initialPull) {
+                        LOGGER.trace("Performing initial pull");
+                        pull();
+                        initialPull = true;
+                        LOGGER.debug("Performing initial pull done");
                     }
+
+                    if (gitPullOnPush) {
+                        LOGGER.trace("Performing timed pull");
+                        pull();
+                        LOGGER.debug("Performed timed pull done");
+                    }
+                    //a commit that failed to push for any reason, will not get pushed until the next commit.
+                    //periodically pushing can address this issue.
+                    LOGGER.trace("Performing timed push");
+                    push();
+                    LOGGER.debug("Performed timed push done");
+                } catch (Throwable e) {
+                    LOGGER.debug("Error during performed timed pull/push due " + e.getMessage(), e);
+                    // we dont want stacktrace in WARNs
+                    LOGGER.warn("Error during performed timed pull/push due " + e.getMessage() + ". This exception is ignored.");
                 }
-
-                @Override
-                public String toString() {
-                    return "TimedPushTask";
-                }
-            }, 1000, gitPushInterval, TimeUnit.MILLISECONDS);
-            // do the initial pull at first so just wait 1 sec
-
-            if (!gitPullOnPush) {
-                LOGGER.info("Using ZooKeeper SharedCount to react when master git repo is changed, so we can do a git pull to the local git repo.");
-                counter = new SharedCount(curator.get(), ZkPath.GIT_TRIGGER.getPath(), 0);
-                counter.addListener(new SharedCountListener() {
-                    @Override
-                    public void countHasChanged(SharedCountReader sharedCountReader, int value) throws Exception {
-                        LOGGER.debug("Watch counter updated to " + value + ", doing a pull");
-                        try {
-                            // must sleep a bit as otherwise we are too fast
-                            Thread.sleep(1000);
-                            pull();
-                        } catch (Throwable e) {
-                            LOGGER.debug("Error during pull due " + e.getMessage(), e);
-                            // we dont want stacktrace in WARNs
-                            LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
-                        }
-                    }
-
-                    @Override
-                    public void stateChanged(CuratorFramework curatorFramework, ConnectionState connectionState) {
-                        // ignore
-                    }
-                });
-                counter.start();
             }
 
-        } catch (Exception ex) {
-            throw new FabricException("Failed to start GitDataStore:", ex);
+            @Override
+            public String toString() {
+                return "TimedPushTask";
+            }
+        }, 1000, gitPushInterval, TimeUnit.MILLISECONDS);
+        // do the initial pull at first so just wait 1 sec
+
+        if (!gitPullOnPush) {
+            LOGGER.info("Using ZooKeeper SharedCount to react when master git repo is changed, so we can do a git pull to the local git repo.");
+            counter = new SharedCount(curator.get(), ZkPath.GIT_TRIGGER.getPath(), 0);
+            counter.addListener(new SharedCountListener() {
+                @Override
+                public void countHasChanged(SharedCountReader sharedCountReader, int value) throws Exception {
+                    LOGGER.debug("Watch counter updated to " + value + ", doing a pull");
+                    try {
+                        // must sleep a bit as otherwise we are too fast
+                        Thread.sleep(1000);
+                        pull();
+                    } catch (Throwable e) {
+                        LOGGER.debug("Error during pull due " + e.getMessage(), e);
+                        // we dont want stacktrace in WARNs
+                        LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
+                    }
+                }
+
+                @Override
+                public void stateChanged(CuratorFramework curatorFramework, ConnectionState connectionState) {
+                    // ignore
+                }
+            });
+            counter.start();
         }
     }
 
     private void deactivateInternal() {
-        GitService optsrv = gitService.getOptional();
-        if (optsrv != null) {
-            optsrv.removeGitListener(gitListener);
-        }
-        if (threadPool != null) {
-            threadPool.shutdown();
-            try {
-                // Give some time to the running task to complete.
-                if (!threadPool.awaitTermination(5, TimeUnit.SECONDS)) {
-                    threadPool.shutdownNow();
-                }
-            } catch (InterruptedException ex) {
+        
+        // Remove the GitListener
+        gitService.get().removeGitListener(gitListener);
+        
+        // Shutdown the thread pool
+        threadPool.shutdown();
+        try {
+            // Give some time to the running task to complete.
+            if (!threadPool.awaitTermination(5, TimeUnit.SECONDS)) {
                 threadPool.shutdownNow();
-                // Preserve interrupt status.
-                Thread.currentThread().interrupt();
-            } catch (Exception ex) {
-                throw FabricException.launderThrowable(ex);
             }
+        } catch (InterruptedException ex) {
+            threadPool.shutdownNow();
+            // Preserve interrupt status.
+            Thread.currentThread().interrupt();
+        } catch (Exception ex) {
+            throw FabricException.launderThrowable(ex);
         }
 
-        if (defaultProxySelector != null) {
-            LOGGER.info("Restoring ProxySelector to original: {}", defaultProxySelector);
-            ProxySelector.setDefault(defaultProxySelector);
-            // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
-            // reset authenticator by setting it to null
-            // Authenticator.setDefault(null);
-        }
+        LOGGER.info("Restoring ProxySelector to original: {}", defaultProxySelector);
+        ProxySelector.setDefault(defaultProxySelector);
+        // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
+        // reset authenticator by setting it to null
+        // Authenticator.setDefault(null);
 
+        // Closing the shared counter
         try {
             if (counter != null) {
                 counter.close();
-                counter = null;
             }
-        } catch (IOException e) {
-            LOGGER.warn("Error closing SharedCount due " + e.getMessage() + ". This exception is ignored.", e);
+        } catch (IOException ex) {
+            LOGGER.warn("Error closing SharedCount due " + ex.getMessage() + ". This exception is ignored.");
         }
     }
 
@@ -401,8 +398,9 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         };
     }
 
-    @Override
-    public LockHandle aquireReadLock() {
+    // The read lock is not public because we cannot upgrade
+    // to a write lock, which would be required when we need to pull 
+    private LockHandle aquireReadLock() {
         final ReadLock readLock = readWriteLock.readLock();
         boolean success;
         try {
@@ -668,7 +666,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle readLock = aquireReadLock();
         try {
             assertValid();
-            return getVersions().contains(versionId);
+            return versions.contains(versionId);
         } finally {
             readLock.unlock();
         }
@@ -676,13 +674,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public Version getVersion(String versionId) {
-        LockHandle readLock = aquireReadLock();
-        try {
-            assertValid();
-            return getVersionFromCache(versionId);
-        } finally {
-            readLock.unlock();
-        }
+        assertValid();
+        return getVersionFromCache(versionId);
     }
     
     @Override
@@ -863,60 +856,46 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public boolean hasProfile(String versionId, String profileId) {
-        LockHandle readLock = aquireReadLock();
-        try {
-            assertValid();
-            Profile profile = getProfileFromCache(versionId, profileId);
-            return profile != null;
-        } finally {
-            readLock.unlock();
-        }
+        assertValid();
+        Profile profile = getProfileFromCache(versionId, profileId);
+        return profile != null;
     }
 
     private Version getVersionFromCache(String versionId) {
-        assertReadLock();
+        LockHandle writeLock = aquireWriteLock();
         try {
             return versionCache.get(versionId);
         } catch (ExecutionException e) {
             throw FabricException.launderThrowable(e);
+        } finally {
+            writeLock.unlock();
         }
     }
 
     private Profile getProfileFromCache(String versionId, String profileId) {
-        assertReadLock();
         Version version = getVersionFromCache(versionId);
         return version != null ? version.getProfile(profileId) : null;
     }
 
     @Override
     public Profile getProfile(String versionId, String profileId) {
-        LockHandle readLock = aquireReadLock();
-        try {
-            assertValid();
-            return getProfileFromCache(versionId, profileId);
-        } finally {
-            readLock.unlock();
-        }
+        assertValid();
+        return getProfileFromCache(versionId, profileId);
     }
 
     @Override
     public Profile getRequiredProfile(String versionId, String profileId) {
-        Profile profile = getProfile(versionId, profileId);
+        Profile profile = getProfileFromCache(versionId, profileId);
         IllegalStateAssertion.assertNotNull(profile, "Cannot obtain profile: " + versionId + "/" + profileId);
         return profile;
     }
 
     @Override
     public List<String> getProfiles(String versionId) {
-        LockHandle readLock = aquireReadLock();
-        try {
-            assertValid();
-            Version version = getVersionFromCache(versionId);
-            List<String> profiles = version != null ? version.getProfileIds() : Collections.<String>emptyList();
-            return Collections.unmodifiableList(profiles);
-        } finally {
-            readLock.unlock();
-        }
+        assertValid();
+        Version version = getVersionFromCache(versionId);
+        List<String> profiles = version != null ? version.getProfileIds() : Collections.<String>emptyList();
+        return Collections.unmodifiableList(profiles);
     }
 
     @Override
@@ -1029,7 +1008,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         executeWrite(gitop, true);
     }
 
-    private List<String> forceGetVersions() {
+    private List<String> getInitialVersions() {
+        assertReadLock();
         GitOperation<List<String>> gitop = new GitOperation<List<String>>() {
             public List<String> call(Git git, GitContext context) throws Exception {
                 Collection<String> branches = RepositoryUtils.getBranches(git.getRepository());
@@ -1054,52 +1034,62 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public void importProfiles(final String versionId, final List<String> profileZipUrls) {
-        assertValid();
-        GitOperation<String> gitop = new GitOperation<String>() {
-            public String call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, versionId);
-                return doImportProfiles(git, context, profileZipUrls);
-            }
-        };
-        executeWrite(gitop, true);
+        LockHandle writeLock = aquireWriteLock();
+        try {
+            assertValid();
+            GitOperation<String> gitop = new GitOperation<String>() {
+                public String call(Git git, GitContext context) throws Exception {
+                    checkoutVersion(git, versionId);
+                    return doImportProfiles(git, context, profileZipUrls);
+                }
+            };
+            executeWrite(gitop, true);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override
     public void exportProfiles(final String versionId, final String outputFileName, String wildcard) {
-        assertValid();
-        
-        final File outputFile = new File(outputFileName);
-        outputFile.getParentFile().mkdirs();
-        
-        // Setup the file filter
-        final FileFilter filter;
-        if (Strings.isNotBlank(wildcard)) {
-            final WildcardFileFilter matcher = new WildcardFileFilter(wildcard);
-            filter = new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    // match either the file or parent folder
-                    boolean answer = matcher.accept(file);
-                    if (!answer) {
-                        File parentFile = file.getParentFile();
-                        if (parentFile != null) {
-                            answer = accept(parentFile);
+        LockHandle readLock = aquireReadLock();
+        try {
+            assertValid();
+            
+            final File outputFile = new File(outputFileName);
+            outputFile.getParentFile().mkdirs();
+            
+            // Setup the file filter
+            final FileFilter filter;
+            if (Strings.isNotBlank(wildcard)) {
+                final WildcardFileFilter matcher = new WildcardFileFilter(wildcard);
+                filter = new FileFilter() {
+                    @Override
+                    public boolean accept(File file) {
+                        // match either the file or parent folder
+                        boolean answer = matcher.accept(file);
+                        if (!answer) {
+                            File parentFile = file.getParentFile();
+                            if (parentFile != null) {
+                                answer = accept(parentFile);
+                            }
                         }
+                        return answer;
                     }
-                    return answer;
+                };
+            } else {
+                filter = null;
+            }
+            
+            GitOperation<String> gitop = new GitOperation<String>() {
+                public String call(Git git, GitContext context) throws Exception {
+                    checkoutVersion(git, versionId);
+                    return doExportProfiles(git, context, outputFile, filter);
                 }
             };
-        } else {
-            filter = null;
+            executeRead(gitop, false);
+        } finally {
+            readLock.unlock();
         }
-        
-        GitOperation<String> gitop = new GitOperation<String>() {
-            public String call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, versionId);
-                return doExportProfiles(git, context, outputFile, filter);
-            }
-        };
-        executeRead(gitop, false);
     }
 
     private Map<String, byte[]> doGetFileConfigurations(Git git, String profileId) throws IOException {
@@ -1649,14 +1639,16 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private void assertReadLock() {
-        //IllegalStateAssertion.assertTrue(readWriteLock.getReadLockCount() > 0 || readWriteLock.isWriteLocked(), "No read lock obtained");
-        if (!(readWriteLock.getReadLockCount() > 0 || readWriteLock.isWriteLocked())) 
+        boolean locked = readWriteLock.getReadHoldCount() > 0 || readWriteLock.isWriteLockedByCurrentThread();
+        IllegalStateAssertion.assertTrue(!strictLockAssert || locked, "No read lock obtained");
+        if (!locked) 
             LOGGER.warn("No read lock obtained");
     }
 
     private void assertWriteLock() {
-        //IllegalStateAssertion.assertTrue(readWriteLock.isWriteLocked(), "No write lock obtained");
-        if (!readWriteLock.isWriteLocked()) 
+        boolean locked = readWriteLock.isWriteLockedByCurrentThread();
+        IllegalStateAssertion.assertTrue(!strictLockAssert || locked, "No write lock obtained");
+        if (!locked) 
             LOGGER.warn("No write lock obtained");
     }
 

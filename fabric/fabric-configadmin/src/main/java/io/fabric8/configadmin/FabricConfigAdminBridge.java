@@ -15,25 +15,18 @@
  */
 package io.fabric8.configadmin;
 
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-
 import io.fabric8.api.Constants;
+import io.fabric8.api.Container;
 import io.fabric8.api.ContainerRegistration;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.Profiles;
+import io.fabric8.api.Version;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
-
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.url.URLStreamHandlerService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +40,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.url.URLStreamHandlerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.configadmin.bridge", label = "Fabric8 Config Admin Bridge", metatype = false)
@@ -113,9 +116,24 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
 
     private synchronized void updateInternal() {
         
+        Container currentContainer = fabricService.get().getCurrentContainer();
+        String containerId = currentContainer.getId();
+        
+        ProfileRegistry profileRegistry = fabricService.get().adapt(ProfileRegistry.class);
+        DataStore dataStore = fabricService.get().adapt(DataStore.class);
+        
+        // Check that the profile registry already contains all container profiles
+        Version version = profileRegistry.getVersion(dataStore.getContainerVersion(containerId));
+        for (String profileId : dataStore.getContainerProfiles(containerId)) {
+            if (!profileId.startsWith("fabric-ensemble-") && !version.hasProfile(profileId)) {
+                LOGGER.info("Profile Registry does not yet contain profile [" + profileId + "] - skipping configuration update");
+                return;
+            }
+        }
+        
         Profile effectiveProfile;
         try {
-            Profile overlayProfile = fabricService.get().getCurrentContainer().getOverlayProfile();
+            Profile overlayProfile = currentContainer.getOverlayProfile();
             effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), overlayProfile);
         } catch (Exception ex) {
             LOGGER.warn("Failed to read container profile. This exception will be ignored..", ex);
@@ -202,6 +220,7 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
         }
     }
 
+    @SuppressWarnings("unchecked")
     private <T> List<T> asList(T... a) {
         List<T> l = new ArrayList<T>();
         if (a != null) {
