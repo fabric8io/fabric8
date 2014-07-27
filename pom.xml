@@ -311,7 +311,8 @@
         <tomcat-version>7.0.54</tomcat-version>
         <tomee-version>1.6.0.2</tomee-version>
         <validation-api-version>1.1.0.Final</validation-api-version>
-        <vertx-version>2.1.2</vertx-version>
+        <!-- gateway-core has failing test if using vertx 2.1.2 -->
+        <vertx-version>2.1RC1</vertx-version>
         <wagon-version>2.6</wagon-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <weld-version>1.1.18.Final</weld-version>
