@@ -87,8 +87,7 @@ public class ProfileServiceTest {
         profileService.getRequiredVersion("1.1").getRequiredProfile("prfA");
         
         // Delete the profile/version that were added
-        // [FIXME] Cannot delete profile/version 
-        //profileService.deleteProfile(prfA10.getVersion(), prfA10.getId());
-        //profileService.deleteVersion(v11.getId());
+        profileService.deleteProfile(null, prfA10.getVersion(), prfA10.getId(), true);
+        profileService.deleteVersion(v11.getId());
     }
 }

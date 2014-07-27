@@ -15,18 +15,20 @@
  */
 package io.fabric8.git.internal;
 
+import io.fabric8.api.Profiles;
+import io.fabric8.common.util.Strings;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
-import io.fabric8.api.Profiles;
-import io.fabric8.common.util.Strings;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.gitective.core.CommitUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +38,7 @@ import org.slf4j.LoggerFactory;
 public class GitHelpers {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitHelpers.class);
 
-    static final String CONFIG_ROOT_DIR = "fabric";
-    static final String CONFIGS = CONFIG_ROOT_DIR;
+    static final String CONFIGS = "fabric";
     static final String CONFIGS_PROFILES = CONFIGS + File.separator + "profiles";
     
     /**
@@ -63,6 +64,20 @@ public class GitHelpers {
      */
     public static String convertProfileIdToDirectory(String profileId) {
         return Profiles.convertProfileIdToPath(profileId);
+    }
+
+    public static RevCommit getProfileLastCommit(Git git, String branch, String profilePath) {
+        RevCommit profileRef = null;
+        try {
+            Ref versionRef = git.getRepository().getRefDatabase().getRef(branch);
+            if (versionRef != null) {
+                String revision = versionRef.getObjectId().getName();
+                profileRef = CommitUtils.getLastCommit(git.getRepository(), revision, GitHelpers.CONFIGS_PROFILES + "/" + profilePath);
+            }
+        } catch (IOException ex) {
+            // ignore
+        }
+        return profileRef;
     }
 
     public static boolean localBranchExists(Git git, String branch) throws GitAPIException {

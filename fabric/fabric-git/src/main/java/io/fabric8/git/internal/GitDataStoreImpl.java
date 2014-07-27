@@ -120,7 +120,6 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
-import org.gitective.core.CommitUtils;
 import org.gitective.core.RepositoryUtils;
 import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.jboss.gravia.utils.IllegalStateAssertion;
@@ -209,6 +208,16 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
+        
+        // Log the data store configuration
+        StringBuilder sb = new StringBuilder("Activating GitDataStore with ...");
+        for (Map.Entry<String, ?> entry : configuration.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            sb.append("\n   " + key + " = " + value);
+        }
+        LOGGER.info(sb.toString());
+        
         configurer.configure(configuration, this);
 
         // Remove non-String values from the configuration
@@ -290,7 +299,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             public void run() {
                 LockHandle writeLock = aquireWriteLock();
                 try {
-                    // must do an initial pull to get data
+                    // Do an initial pull to get data
                     if (!initialPull.compareAndSet(false, true)) {
                         LOGGER.trace("Performing initial pull");
                         initialPull.set(pull());
@@ -302,11 +311,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                         pull();
                         LOGGER.debug("Performed timed pull done");
                     }
-                    //a commit that failed to push for any reason, will not get pushed until the next commit.
-                    //periodically pushing can address this issue.
+                    
+                    // A commit that failed to push for any reason, will not get pushed until the next commit.
+                    // periodically pushing can address this issue.
                     LOGGER.trace("Performing timed push");
                     push();
                     LOGGER.debug("Performed timed push done");
+                    
                 } catch (Throwable e) {
                     LOGGER.debug("Error during performed timed pull/push due " + e.getMessage(), e);
                     LOGGER.warn("Error during performed timed pull/push due " + e.getMessage() + ". This exception is ignored.");
@@ -493,8 +504,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         
         // Collect the profiles with parent hierarchy unresolved
         VersionBuilder vbuilder = VersionBuilder.Factory.create(versionId);
-        populateVersionBuilder(git, vbuilder, versionId, versionId);
         populateVersionBuilder(git, vbuilder, "master", versionId);
+        populateVersionBuilder(git, vbuilder, versionId, versionId);
         Version auxVersion = vbuilder.getVersion();
         
         // Use a new version builder for resolved profiles
@@ -513,11 +524,15 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         checkoutVersion(git, branch);
         File profilesDir = GitHelpers.getProfilesDirectory(git);
         if (profilesDir.exists()) {
-            File[] files = profilesDir.listFiles();
+            String[] files = profilesDir.list();
             if (files != null) {
-                for (File childFile : files) {
-                    if (childFile.isDirectory()) {
-                        populateProfile(git, builder, branch, versionId, childFile, "");
+                for (String childName : files) {
+                    Path childPath = profilesDir.toPath().resolve(childName);
+                    if (childPath.toFile().isDirectory()) {
+                        RevCommit lastCommit = GitHelpers.getProfileLastCommit(git, branch, childName);
+                        if (lastCommit != null) {
+                            populateProfile(git, builder, branch, versionId, childPath.toFile(), "");
+                        }
                     }
                 }
             }
@@ -525,33 +540,27 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private void populateProfile(Git git, VersionBuilder versionBuilder, String branch, String versionId, File profileFile, String prefix) throws IOException {
-        String profileId = profileFile.getName();
-        if (Profiles.useDirectoriesForProfiles) {
-            if (profileId.endsWith(Profiles.PROFILE_FOLDER_SUFFIX)) {
-                profileId = prefix + profileId.substring(0, profileId.length() - Profiles.PROFILE_FOLDER_SUFFIX.length());
-            } else {
-                // lets recurse all children
-                File[] files = profileFile.listFiles();
-                if (files != null) {
-                    for (File childFile : files) {
-                        if (childFile.isDirectory()) {
-                            populateProfile(git, versionBuilder, branch, versionId, childFile, prefix + profileFile.getName() + "-");
-                        }
+        String profileName = profileFile.getName();
+        String profileId = profileName;
+        if (profileId.endsWith(Profiles.PROFILE_FOLDER_SUFFIX)) {
+            profileId = prefix + profileId.substring(0, profileId.length() - Profiles.PROFILE_FOLDER_SUFFIX.length());
+        } else {
+            // lets recurse all children
+            File[] files = profileFile.listFiles();
+            if (files != null) {
+                for (File childFile : files) {
+                    if (childFile.isDirectory()) {
+                        populateProfile(git, versionBuilder, branch, versionId, childFile, prefix + profileFile.getName() + "-");
                     }
                 }
-                return;
             }
+            return;
         }
 
-        Ref versionRef = git.getRepository().getRefDatabase().getRef(branch);
-        IllegalStateAssertion.assertNotNull(versionRef, "Cannot get version ref for: " + branch);
-
-        String revision = versionRef.getObjectId().getName();
-        String path = GitHelpers.convertProfileIdToDirectory(profileId);
-        RevCommit commit = CommitUtils.getLastCommit(git.getRepository(), revision, GitHelpers.CONFIGS_PROFILES + File.separator + path);
-        String lastModified = commit != null ? commit.getId().abbreviate(GIT_COMMIT_SHORT_LENGTH).name() : "";
-
+        RevCommit lastCommit = GitHelpers.getProfileLastCommit(git, branch, profileName);
+        String lastModified = lastCommit != null ? lastCommit.getId().abbreviate(GIT_COMMIT_SHORT_LENGTH).name() : "";
         Map<String, byte[]> fileConfigurations = doGetFileConfigurations(git, profileId);
+        
         ProfileBuilder profileBuilder = ProfileBuilder.Factory.create(versionId, profileId);
         profileBuilder.setFileConfigurations(fileConfigurations).setLastModified(lastModified);
         versionBuilder.addProfile(profileBuilder.getProfile());
@@ -636,7 +645,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             for (Profile profile : version.getProfiles()) {
                 createOrUpdateProfile(context, profile, true, new HashSet<String>());
             }
-            doCommit(getGit(), context.requireCommit().requirePush());
+            doCommitInternal(getGit(), context.requireCommit().requirePush());
             return versionId;
         } finally {
             writeLock.unlock();
@@ -701,11 +710,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 public Void call(Git git, GitContext context) throws Exception {
                     removeVersionFromCaches(versionId);
                     GitHelpers.removeBranch(git, versionId);
-                    doPushInternal(git, context, getCredentialsProvider());
                     return null;
                 }
             };
-            executeWrite(gitop, true);
+            GitContext context = new GitContext();
+            executeInternal(context, null, gitop);
         } finally {
             writeLock.unlock();
         }
@@ -732,7 +741,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             GitContext context = new GitContext();
             checkoutProfileBranch(profile.getVersion(), profile.getId());
             String profileId = createOrUpdateProfile(context, profile, true, new HashSet<String>());
-            doCommit(getGit(), context.requireCommit().requirePush());
+            doCommitInternal(getGit(), context.requireCommit().requirePush());
             return profileId;
         } finally {
             writeLock.unlock();
@@ -747,7 +756,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             GitContext context = new GitContext();
             checkoutProfileBranch(profile.getVersion(), profile.getId());
             String profileId = createOrUpdateProfile(context, profile, false, new HashSet<String>());
-            doCommit(getGit(), context.requireCommit().requirePush());
+            doCommitInternal(getGit(), context.requireCommit().requirePush());
             return profileId;
         } finally {
             writeLock.unlock();
@@ -814,6 +823,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         if (!profileDirectory.exists()) {
             GitOperation<String> gitop = new GitOperation<String>() {
                 public String call(Git git, GitContext context) throws Exception {
+                    context.commitMessage("Create profile: " + profileId);
                     return doCreateProfile(git, context, versionId, profileId);
                 }
             };
@@ -831,8 +841,10 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         if (existingProfile != null) {
             Set<String> removeFiles = new HashSet<>(existingProfile.getFileConfigurations().keySet());
             removeFiles.removeAll(fileConfigurations.keySet());
-            context.commitMessage("Remove configurations " + removeFiles + " for profile: " + profileId);
-            deleteProfileContent(context, profileId, removeFiles, null);
+            if (!removeFiles.isEmpty()) {
+                context.commitMessage("Remove configurations " + removeFiles + " for profile: " + profileId);
+                deleteProfileContent(context, profileId, removeFiles, null);
+            }
         }
 
         if (!fileConfigurations.isEmpty()) {
@@ -977,7 +989,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                                 if (versionFiles != null) {
                                     for (File versionFile : versionFiles) {
                                         LOGGER.info("Importing version configuration " + versionFile + " to branch " + version);
-                                        importFromFileSystem(versionFile, GitHelpers.CONFIG_ROOT_DIR, version, true);
+                                        importFromFileSystem(versionFile, GitHelpers.CONFIGS, version, true);
                                     }
                                 }
                             }
@@ -987,7 +999,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 File metrics = new File(fabricsDir, "metrics");
                 if (metrics.exists()) {
                     LOGGER.info("Importing metrics from " + metrics + " to branch " + defaultVersion);
-                    importFromFileSystem(metrics, GitHelpers.CONFIG_ROOT_DIR, defaultVersion, false);
+                    importFromFileSystem(metrics, GitHelpers.CONFIGS, defaultVersion, false);
                 }
             } else {
                 // default to version 1.0
@@ -1010,7 +1022,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 if (Strings.isNotBlank(destinationPath)) {
                     toDir = new File(toDir, destinationPath);
                 }
-                if (isProfileDir && Profiles.useDirectoriesForProfiles) {
+                if (isProfileDir) {
                     recursiveAddLegacyProfileDirectoryFiles(git, from, toDir, destinationPath);
                 } else {
                     recursiveCopyAndAdd(git, from, toDir, destinationPath, false);
@@ -1147,21 +1159,28 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private <T> T executeWrite(GitOperation<T> operation, boolean pullFirst) {
-        GitContext context = new GitContext().requireCommit().requirePush().setRequirePull(pullFirst);
+        GitContext context = new GitContext().setRequirePull(pullFirst).requireCommit().requirePush();
         return executeInternal(context, null, operation);
     }
 
     private synchronized <T> T executeInternal(GitContext context, PersonIdent personIdent, GitOperation<T> operation) {
-        // Must set the TCCL to the classloader that loaded GitDataStore as we need the classloader
+        
+        if (context.isRequirePull() || context.isRequireCommit()) {
+            assertWriteLock();
+        } else {
+            assertReadLock();
+        }
+        
+        // [FABRIC-887] Must set the TCCL to the classloader that loaded GitDataStore as we need the classloader
         // that could load this class, as jgit will load resources from classpath using the TCCL
         // and that requires the TCCL to the classloader that could load GitDataStore as the resources
         // jgit requires are in the same bundle as GitDataSource (eg embedded inside fabric-git)
-        // see FABRIC-887
-        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-        ClassLoader cl = GitDataStoreImpl.class.getClassLoader();
-        Thread.currentThread().setContextClassLoader(cl);
-        LOGGER.trace("Setting ThreadContextClassLoader to {} instead of {}", cl, oldCl);
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         try {
+            ClassLoader gitcl = GitDataStoreImpl.class.getClassLoader();
+            Thread.currentThread().setContextClassLoader(gitcl);
+            LOGGER.trace("Setting ThreadContextClassLoader to {} instead of {}", gitcl, tccl);
+            
             Git git = getGit();
             Repository repository = git.getRepository();
 
@@ -1174,22 +1193,22 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 doPullInternal(git, context, credentialsProvider, false);
             }
 
-            T answer = operation.call(git, context);
+            T result = operation.call(git, context);
 
             if (context.isRequireCommit()) {
-                doCommit(git, context);
+                doCommitInternal(git, context);
             }
 
-            return answer;
+            return result;
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
         } finally {
-            LOGGER.trace("Restoring ThreadContextClassLoader to {}", oldCl);
-            Thread.currentThread().setContextClassLoader(oldCl);
+            LOGGER.trace("Restoring ThreadContextClassLoader to {}", tccl);
+            Thread.currentThread().setContextClassLoader(tccl);
         }
     }
 
-    private void doCommit(Git git, GitContext context) {
+    private void doCommitInternal(Git git, GitContext context) {
         try {
             String message = context.getCommitMessage();
             IllegalStateAssertion.assertTrue(message.length() > 0, "Empty commit message");
@@ -1209,14 +1228,15 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             // Clear caches on successful commit
             versionCache.invalidateAll();
 
-            // Notify on successful commit
             if (context.isRequirePush()) {
                 doPushInternal(git, context, getCredentialsProvider());
             }
+            
+            // Notify on successful commit
+            dataStore.get().fireChangeNotifications();
+            
         } catch (GitAPIException ex) {
             throw FabricException.launderThrowable(ex);
-        } finally {
-            dataStore.get().fireChangeNotifications();
         }
     }
 
