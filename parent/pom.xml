@@ -38,8 +38,8 @@
         <maven-bundle-plugin-version>2.3.7</maven-bundle-plugin-version>
         <maven-javadoc-plugin-version>2.9.1</maven-javadoc-plugin-version>
         <maven-notices-plugin-version>1.32</maven-notices-plugin-version>
-        <maven-surefire-plugin-version>2.16</maven-surefire-plugin-version>
-      <maven-deploy-plugin-version>2.8.1</maven-deploy-plugin-version>
+        <maven-surefire-plugin-version>2.17</maven-surefire-plugin-version>
+        <maven-deploy-plugin-version>2.8.1</maven-deploy-plugin-version>
     </properties>
     
     <dependencies>
