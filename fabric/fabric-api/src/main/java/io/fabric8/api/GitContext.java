@@ -15,6 +15,8 @@
  */
 package io.fabric8.api;
 
+import org.jboss.gravia.utils.IllegalStateAssertion;
+
 
 /**
  * Provides git context information
@@ -24,6 +26,9 @@ public class GitContext {
     private boolean requirePull;
     private boolean requireCommit;
     private boolean requirePush;
+    private int pullCount;
+    private int commitCount;
+    private int pushCount;
     private String pushBranch;
     private StringBuilder commitMessage = new StringBuilder();
 
@@ -55,23 +60,16 @@ public class GitContext {
         return this;
     }
 
-    /**
-     * Indicates a  push will be required after the operation is completed.
-     */
-    public GitContext requirePush() {
-        setRequirePush(true);
-        return this;
+    public boolean incrementPullCount() {
+        if (requirePull) {
+            IllegalStateAssertion.assertEquals(0, pullCount, "Cannot execute multiple pull requests");
+            IllegalStateAssertion.assertEquals(0, commitCount, "Cannot execute pull after commit");
+            IllegalStateAssertion.assertEquals(0, pushCount, "Cannot execute pull after push");
+            pullCount++;
+        }
+        return requirePull;
     }
-
-    public boolean isRequirePush() {
-        return requirePush;
-    }
-
-    public GitContext setRequirePush(boolean requirePush) {
-        this.requirePush = requirePush;
-        return this;
-    }
-
+    
     /**
      * Indicates a commit is required after this operation completes
      */
@@ -89,6 +87,40 @@ public class GitContext {
         return this;
     }
 
+    public boolean incrementCommitCount() {
+        if (requireCommit) {
+            IllegalStateAssertion.assertEquals(0, commitCount, "Cannot execute multiple commit requests");
+            IllegalStateAssertion.assertEquals(0, pushCount, "Cannot execute commit after push");
+            commitCount++;
+        }
+        return requireCommit;
+    }
+    
+    /**
+     * Indicates a  push will be required after the operation is completed.
+     */
+    public GitContext requirePush() {
+        setRequirePush(true);
+        return this;
+    }
+
+    public boolean isRequirePush() {
+        return requirePush;
+    }
+
+    public GitContext setRequirePush(boolean requirePush) {
+        this.requirePush = requirePush;
+        return this;
+    }
+
+    public boolean incrementPushCount() {
+        if (requirePush) {
+            IllegalStateAssertion.assertEquals(0, pushCount, "Cannot execute multiple push requests");
+            pushCount++;
+        }
+        return requirePush;
+    }
+    
     public String getPushBranch() {
         return pushBranch;
     }
@@ -102,10 +134,11 @@ public class GitContext {
      * Append the commit message.
      */
     public GitContext commitMessage(String message) {
-        if (commitMessage.length() > 0) {
-            commitMessage.append("\n");
+        if (commitMessage.length() == 0) {
+            commitMessage.append(message + "\n");
+        } else {
+            commitMessage.append("\n- " + message);
         }
-        commitMessage.append(message);
         return this;
     }
 
