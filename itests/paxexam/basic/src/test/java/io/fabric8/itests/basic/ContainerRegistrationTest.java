@@ -78,8 +78,8 @@ public class ContainerRegistrationTest extends FabricTestSupport {
 
                 String sshUrl = child1.getSshUrl();
                 String jmxUrl = child1.getJmxUrl();
-                Assert.assertTrue(sshUrl.endsWith("8105"));
-                Assert.assertTrue(jmxUrl.contains("55555"));
+                Assert.assertTrue("sshUrl ends with 8105, but was: " + sshUrl, sshUrl.endsWith("8105"));
+                Assert.assertTrue("jmxUrl contains 55555, but was: " + jmxUrl, jmxUrl.contains("55555"));
             } finally {
                 ContainerBuilder.destroy(containers);
             }

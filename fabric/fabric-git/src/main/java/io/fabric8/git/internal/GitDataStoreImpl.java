@@ -303,7 +303,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     if (!initialPull.compareAndSet(false, true)) {
                         LOGGER.trace("Performing initial pull");
                         initialPull.set(pull());
-                        LOGGER.debug("Initial completed with " + (initialPull.get() ? "success" : "failure"));
+                        LOGGER.info("Initial pull completed with " + (initialPull.get() ? "success" : "failure"));
                     }
 
                     if (gitPullOnPush) {
@@ -341,13 +341,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     // TODO(tdi): Why sleep a random amount of time on countHasChanged? 
                     Thread.sleep(1000);
 
-                    LOGGER.debug("Watch counter updated to " + value + ", doing a pull");
+                    LOGGER.info("Watch counter updated to " + value + ", doing a pull");
                     LockHandle writeLock = aquireWriteLock();
                     try {
                         pull();
                     } catch (Throwable e) {
                         LOGGER.debug("Error during pull due " + e.getMessage(), e);
-                        // we dont want stacktrace in WARNs
                         LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
                     } finally {
                         writeLock.unlock();
@@ -489,8 +488,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         } catch (Exception e) {
             LOGGER.debug("Error importing profiles due " + e.getMessage(), e);
-            // we dont want stacktrace in WARNs
-            LOGGER.warn("Error importing profiles due " + e.getMessage() + ". This exception is ignored.", e);
+            LOGGER.warn("Error importing profiles due " + e.getMessage() + ". This exception is ignored.");
         }
 
         if (!profiles.isEmpty()) {
@@ -1320,7 +1318,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             String url = config.getString("remote", remoteRef.get(), "url");
             if (Strings.isNullOrBlank(url)) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("No remote repository defined for the git repository at " + GitHelpers.getRootGitDirectory(git) + " so not doing a pull");
+                    LOGGER.info("No remote repository defined for the git repository at " + GitHelpers.getRootGitDirectory(git) + " so not doing a pull");
                 }
                 return;
             }
@@ -1330,15 +1328,15 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             
             boolean hasChanged = false;
             try {
-                LOGGER.debug("Performing a fetch in git repository {} on remote URL: {}", GitHelpers.getRootGitDirectory(git), url);
+                LOGGER.info("Performing a fetch in git repository {} on remote URL: {}", GitHelpers.getRootGitDirectory(git), url);
                 FetchResult result = git.fetch().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setRemote(remoteRef.get()).call();
-                LOGGER.debug("Git fetch result: {}", result.getMessages());
+                LOGGER.info("Git fetch result: {}", result.getMessages());
                 lastFetchWarning = null;
             } catch (Exception ex) {
                 String fetchWarning = ex.getMessage();
                 if (!fetchWarning.equals(lastFetchWarning)) {
                     LOGGER.warn("Fetch failed because of: " + fetchWarning);
-                    LOGGER.debug("Fetch failed - the error will be ignored", ex);
+                    LOGGER.info("Fetch failed - the error will be ignored", ex);
                     lastFetchWarning = fetchWarning;
                 }
                 return;
@@ -1401,12 +1399,15 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 }
             }
             if (hasChanged) {
-                LOGGER.debug("Changed after pull!");
+                LOGGER.info("Changed after pull!");
                 if (credentialsProvider != null) {
                     // TODO lets test if the profiles directory is present after checking out version 1.0?
                     GitHelpers.getProfilesDirectory(git);
                 }
+                versionCache.invalidateAll();
                 dataStore.get().fireChangeNotifications();
+            } else {
+                LOGGER.info("No change after pull!");
             }
         } catch (Throwable ex) {
             LOGGER.debug("Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git), ex);
