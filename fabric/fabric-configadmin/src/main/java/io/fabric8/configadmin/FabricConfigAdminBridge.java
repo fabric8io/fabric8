@@ -18,12 +18,9 @@ package io.fabric8.configadmin;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerRegistration;
-import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
-import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.Profiles;
-import io.fabric8.api.Version;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
@@ -116,23 +113,9 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
 
     private synchronized void updateInternal() {
         
-        Container currentContainer = fabricService.get().getCurrentContainer();
-        String containerId = currentContainer.getId();
-        
-        ProfileRegistry profileRegistry = fabricService.get().adapt(ProfileRegistry.class);
-        DataStore dataStore = fabricService.get().adapt(DataStore.class);
-        
-        // Check that the profile registry already contains all container profiles
-        Version version = profileRegistry.getVersion(dataStore.getContainerVersion(containerId));
-        for (String profileId : dataStore.getContainerProfiles(containerId)) {
-            if (!profileId.startsWith("fabric-ensemble-") && !version.hasProfile(profileId)) {
-                LOGGER.info("Profile Registry does not yet contain profile [" + profileId + "] - skipping configuration update");
-                return;
-            }
-        }
-        
         Profile effectiveProfile;
         try {
+            Container currentContainer = fabricService.get().getCurrentContainer();
             Profile overlayProfile = currentContainer.getOverlayProfile();
             effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), overlayProfile);
         } catch (Exception ex) {

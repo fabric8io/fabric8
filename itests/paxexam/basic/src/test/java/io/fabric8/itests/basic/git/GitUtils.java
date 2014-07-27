@@ -77,9 +77,6 @@ public class GitUtils {
 
     /**
      * Wait until the version znode gets updated (indicating that entries has been bridge from/to git).
-     * @param curator       The {@link CuratorFramework} instance to use for looking up the registry.
-     * @param branch        The name of the branch/version.
-     * @throws Exception
      */
     public  static void waitForBranchUpdate(CuratorFramework curator, String branch) throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
@@ -90,9 +87,7 @@ public class GitUtils {
             }
         };
 
-        for (int i = 0;
-             curator.checkExists().usingWatcher(watcher).forPath(ZkPath.CONFIG_VERSION.getPath(branch)) == null && i < 3;
-             i++) {
+        for (int i = 0; curator.checkExists().usingWatcher(watcher).forPath(ZkPath.CONFIG_VERSION.getPath(branch)) == null && i < 3; i++) {
             Thread.sleep(1000);
         }
 

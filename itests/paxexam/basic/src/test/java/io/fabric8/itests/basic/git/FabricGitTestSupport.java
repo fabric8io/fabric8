@@ -82,14 +82,13 @@ public class FabricGitTestSupport extends FabricTestSupport {
         System.out.println("Create test profile:" + profileId + " in datastore.");
         ProfileService profileService = fabricService.adapt(ProfileService.class);
         List<String> versions = profileService.getVersions();
-        
         if (!versions.contains(versionId)) {
             Version version = VersionBuilder.Factory.create(versionId).getVersion();
             profileService.createVersion(version);
         }
-
-        Profile profile = ProfileBuilder.Factory.create(versionId, profileId).getProfile();
-        fabricService.adapt(ProfileRegistry.class).createProfile(profile);
+        ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
+        builder.addAttribute("someAgentKey", "someAgentValue");
+        profileService.createProfile(builder.getProfile());
         GitUtils.waitForBranchUpdate(curator, versionId);
         GitUtils.checkoutBranch(git, "origin", versionId);
         PullResult pullResult = git.pull().setCredentialsProvider(getCredentialsProvider()).setRebase(true).call();

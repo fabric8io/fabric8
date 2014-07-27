@@ -163,7 +163,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         LOGGER.info("deleteProfile: {}", profile);
         
         // TODO: what about child profiles ?
-        Container[] containers = fabricService.getAssociatedContainers(versionId, profileId);
+        Container[] containers = fabricService != null ? fabricService.getAssociatedContainers(versionId, profileId) : new Container[0];
         if (containers.length == 0) {
             profileRegistry.get().deleteProfile(versionId, profileId);
         } else if (force) {
@@ -183,8 +183,8 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         }
 
         // lets remove any pending requirements on this profile
-        FabricRequirements requirements = fabricService.getRequirements();
-        if (requirements.removeProfileRequirements(profileId)) {
+        FabricRequirements requirements = fabricService != null ? fabricService.getRequirements() : null;
+        if (requirements != null && requirements.removeProfileRequirements(profileId)) {
             try {
                 fabricService.setRequirements(requirements);
             } catch (IOException e) {
