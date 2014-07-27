@@ -827,7 +827,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return doCreateProfile(git, context, versionId, profileId);
                 }
             };
-            context = new GitContext(context).setRequirePull(false);
             resultId = executeInternal(context, null, gitop);
         }
         return resultId;
@@ -1209,6 +1208,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private void doCommitInternal(Git git, GitContext context) {
+        IllegalStateAssertion.assertTrue(context.incrementCommitCount(), "Commit not required in context");
         try {
             String message = context.getCommitMessage();
             IllegalStateAssertion.assertTrue(message.length() > 0, "Empty commit message");
@@ -1259,6 +1259,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
      */
     private Iterable<PushResult> doPushInternal(Git git, GitContext context, CredentialsProvider credentialsProvider) {
         assertReadLock();
+        IllegalStateAssertion.assertTrue(context.incrementPushCount(), "Push not required in context");
         Iterable<PushResult> results = Collections.emptyList();
         try {
             Repository repository = git.getRepository();
@@ -1312,6 +1313,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
      */
     private void doPullInternal(Git git, GitContext context, CredentialsProvider credentialsProvider, boolean doDeleteBranches) {
         assertWriteLock();
+        IllegalStateAssertion.assertTrue(context.incrementPullCount(), "Pull not required in context");
         try {
             Repository repository = git.getRepository();
             StoredConfig config = repository.getConfig();
