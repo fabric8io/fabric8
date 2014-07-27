@@ -476,7 +476,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
     public Set<String> getPackages() throws IOException {
         if (packages == null) {
             if (getExtension().equals("jar") || getExtension().equals("zip")) {
-                aQute.lib.osgi.Jar jar = new aQute.lib.osgi.Jar(getJarFile());
+                aQute.bnd.osgi.Jar jar = new aQute.bnd.osgi.Jar(getJarFile());
                 try {
                     packages = new HashSet<String>(jar.getPackages());
                 } finally {

@@ -90,6 +90,7 @@
             org.apache.camel.*;version="[2.13,3)",
             org.apache.felix.gogo.commands.*;version="[0.10,1)",
             org.apache.felix.service.command.*;version="[0.10,1)",
+            org.osgi.service.component.*;version="[1.1,2.0)",
             scala*;version="[2.11,2.12)"
         </fuse.osgi.import.defaults>
         <fuse.osgi.import.before.defaults />
@@ -103,7 +104,7 @@
         </fuse.osgi.import.pkg>
         <fuse.osgi.activator />
         <fuse.osgi.failok>false</fuse.osgi.failok>
-        <fuse.osgi.private.pkg>!*</fuse.osgi.private.pkg>
+        <fuse.osgi.private.pkg></fuse.osgi.private.pkg>
         <fuse.osgi.export>io.fabric8.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
         <fuse.osgi.split.pkg>-split-package:=first</fuse.osgi.split.pkg>
         <fuse.osgi.import>${fuse.osgi.import.pkg}</fuse.osgi.import>
@@ -130,13 +131,16 @@
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <antlr-version>3.3</antlr-version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
-        <aries-blueprint-api-version>1.0.0</aries-blueprint-api-version>
-        <aries-blueprint-cm-version>1.0.3</aries-blueprint-cm-version>
-        <aries-blueprint-core-version>1.4.0</aries-blueprint-core-version>
+        <aries-blueprint-api-version>1.0.1</aries-blueprint-api-version>
+        <aries-blueprint-cm-version>1.0.4</aries-blueprint-cm-version>
+        <aries-blueprint-core-version>1.4.1</aries-blueprint-core-version>
         <aries-blueprint-version>1.1.0</aries-blueprint-version>
-        <aries-jmx-version>1.1.0</aries-jmx-version>
-        <aries-proxy-api-version>1.0.0</aries-proxy-api-version>
-        <aries-proxy-impl-version>1.0.2</aries-proxy-impl-version>
+        <aries-jmx-api-version>1.1.1</aries-jmx-api-version>
+        <aries-jmx-core-version>1.1.2</aries-jmx-core-version>
+        <aries-jmx-blueprint-api-version>1.1.0</aries-jmx-blueprint-api-version>
+        <aries-jmx-blueprint-core-version>1.1.0</aries-jmx-blueprint-core-version>
+        <aries-proxy-api-version>1.0.1</aries-proxy-api-version>
+        <aries-proxy-impl-version>1.0.3</aries-proxy-impl-version>
         <aries-proxy-version>1.0.1</aries-proxy-version>
         <aries-util-version>1.1.0</aries-util-version>
         <arquillian-core-version>1.1.1.Final</arquillian-core-version>
@@ -145,9 +149,9 @@
         <arquillian-tomcat-version>1.0.0.CR6</arquillian-tomcat-version>
         <arquillian-weld-ee-embedded-version>1.0.0.CR3</arquillian-weld-ee-embedded-version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
-        <asm.version>4.1</asm.version>
+        <asm.version>5.0.3</asm.version>
         <blueprint-web-version>1.0.0</blueprint-web-version>
-        <bndlib-version>1.43.0</bndlib-version>
+        <bndlib-version>2.1.0</bndlib-version>
         <bouncycastle-version>1.49</bouncycastle-version>
         <camel-version-range>[2.13,3)</camel-version-range>
         <camel-version>2.13.2</camel-version>
@@ -163,6 +167,9 @@
         <commons-lang-version>2.6</commons-lang-version>
         <commons-lang3-version>3.3.2</commons-lang3-version>
         <commons-pool-version>1.6</commons-pool-version>
+        <commons-jexl-version>2.1.1</commons-jexl-version>
+        <commons-digester-version>1.8_4</commons-digester-version>
+        <commons-configuration-version>1.9_1</commons-configuration-version>
         <curator.version>2.6.0</curator.version>
         <cxf-version>2.7.11</cxf-version>
         <cxf-version-range>[2.7,3.0)</cxf-version-range>
@@ -174,20 +181,20 @@
         <drools-spring-groupId>org.kie</drools-spring-groupId>
         <drools-version>6.1.0.CR2</drools-version>
         <exec-maven-plugin-version>1.2.1</exec-maven-plugin-version>
-        <felix-configadmin-version>1.4.0.redhat-${full-perfectus-build}</felix-configadmin-version>
-        <felix-eventadmin-version>1.3.0.redhat-${full-perfectus-build}</felix-eventadmin-version>
-        <felix-fileinstall-version>3.3.11.redhat-${full-perfectus-build}</felix-fileinstall-version>
-        <felix-framework-security-version>2.0.1.redhat-${full-perfectus-build}</felix-framework-security-version>
-        <felix-framework-version>4.0.3.redhat-${full-perfectus-build}</felix-framework-version>
-        <felix-gogo-version>0.11.0.redhat-${full-perfectus-build}</felix-gogo-version>
+        <felix-configadmin-version>1.6.0</felix-configadmin-version>
+        <felix-eventadmin-version>1.3.2</felix-eventadmin-version>
+        <felix-fileinstall-version>3.4.0</felix-fileinstall-version>
+        <felix-framework-security-version>2.4.0</felix-framework-security-version>
+        <felix-framework-version>4.4.0</felix-framework-version>
+        <felix-gogo-version>0.12.1</felix-gogo-version>
         <felix-http-version>2.2.1</felix-http-version>
-        <felix-metatype-version>1.0.8</felix-metatype-version>
+        <felix-metatype-version>1.0.10</felix-metatype-version>
         <felix-resolver-version>1.0.0</felix-resolver-version>
         <felix-scr-annotations-version>1.9.8</felix-scr-annotations-version>
         <felix-scr-ds-annotations-version>1.2.4</felix-scr-ds-annotations-version>
         <felix-scr-plugin-version>1.16.0</felix-scr-plugin-version>
         <felix-scr-version>1.6.2</felix-scr-version>
-        <felix-utils-version>1.2.1.redhat-${full-perfectus-build}</felix-utils-version>
+        <felix-utils-version>1.6.0</felix-utils-version>
         <felix.obr.version>1.6.6</felix.obr.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
         <geronimo-annotation.version>1.1.1</geronimo-annotation.version>
@@ -198,6 +205,7 @@
         <geronimo-jaxws.version>1.0</geronimo-jaxws.version>
         <geronimo-jms.version>1.1.1</geronimo-jms.version>
         <geronimo-jpa.version>1.1</geronimo-jpa.version>
+        <geronimo-jta.version>1.1.1</geronimo-jta.version>
         <geronimo-saaj.version>1.0.0</geronimo-saaj.version>
         <geronimo-servlet.version>1.2</geronimo-servlet.version>
         <geronimo-ws-metadata.version>1.1.3</geronimo-ws-metadata.version>
@@ -245,7 +253,7 @@
         <jsch-smx-version>0.1.49_1</jsch-smx-version>
         <json4s-version>3.2.4_1</json4s-version>
         <junit-version>4.11</junit-version>
-        <karaf-version>2.3.0.redhat-${full-perfectus-build}</karaf-version>
+        <karaf-version>2.4.0.redhat-620003</karaf-version>
         <libvirt-bundle-version>1.1</libvirt-bundle-version>
         <libvirt-version>0.4.7</libvirt-version>
         <log4j-version>1.2.17</log4j-version>
@@ -264,9 +272,9 @@
         <openshift.client.version>2.5.0.Final</openshift.client.version>
         <ops4j-base.version>1.4.0</ops4j-base.version>
         <ops4j-pax-exam-version>3.4.0</ops4j-pax-exam-version>
-        <ops4j-pax-swissbox-bnd.version>1.6.0</ops4j-pax-swissbox-bnd.version>
-        <ops4j-pax-swissbox-optional-jcl.version>1.6.0</ops4j-pax-swissbox-optional-jcl.version>
-        <ops4j-pax-swissbox-property.version>1.6.0</ops4j-pax-swissbox-property.version>
+        <ops4j-pax-swissbox-bnd.version>1.7.0</ops4j-pax-swissbox-bnd.version>
+        <ops4j-pax-swissbox-optional-jcl.version>1.7.0</ops4j-pax-swissbox-optional-jcl.version>
+        <ops4j-pax-swissbox-property.version>1.7.0</ops4j-pax-swissbox-property.version>
         <ops4j-pax-web-version>3.0.5</ops4j-pax-web-version>
         <org.apache.servicemix.bundles.jzlib.version>1.1.3_2</org.apache.servicemix.bundles.jzlib.version>
         <org.apache.servicemix.bundles.dnsjava.version>2.1.1_1</org.apache.servicemix.bundles.dnsjava.version>
@@ -275,10 +283,10 @@
         <osgi-metadata-version>4.0.0.CR1</osgi-metadata-version>
         <osgi-version>5.0.0</osgi-version>
         <pax-runner-version>1.7.6</pax-runner-version>
-        <pax.logging.version>1.7.2</pax.logging.version>
+        <pax.logging.version>1.7.3</pax.logging.version>
         <pax.url.mvn.commons.version>${pax.url.version}</pax.url.mvn.commons.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
-        <pax.url.version>1.3.7</pax.url.version>
+        <pax.url.version>2.1.0</pax.url.version>
         <qpid-jms-version>0.28</qpid-jms-version>
         <reflections-version>0.9.8_1</reflections-version>
         <rhq-metrics-version>0.2.0.20140626-M2</rhq-metrics-version>
@@ -303,11 +311,11 @@
         <spring-data-rest-version>2.0.2.RELEASE</spring-data-rest-version>
         <spring-osgi-version>1.2.1</spring-osgi-version>
         <spring-version>3.2.9.RELEASE</spring-version>
-        <sshd-version>0.9.0</sshd-version>
+        <sshd-version>0.11.0</sshd-version>
         <sshj.version>0.8.1</sshj.version>
         <swagger-version>1.3.2_1</swagger-version>
         <swagger-scala-version>2.10.2</swagger-scala-version>
-        <tinybundles-version>1.0.0</tinybundles-version>
+        <tinybundles-version>2.0.0</tinybundles-version>
         <tomcat-version>7.0.54</tomcat-version>
         <tomee-version>1.6.0.2</tomee-version>
         <validation-api-version>1.1.0.Final</validation-api-version>
@@ -471,6 +479,14 @@
             <name>Public online Restlet repository</name>
             <url>http://maven.restlet.org</url>
         </repository>
+        <repository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
     </repositories>
 
     <!-- Note: repo.fusesource.com is the correct repo for JBoss Fuse and it is not a mistake -->
@@ -511,6 +527,14 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </pluginRepository>
     </pluginRepositories>
 
@@ -1965,11 +1989,6 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.karaf.shell</groupId>
-                <artifactId>org.apache.karaf.shell.dev2</artifactId>
-                <version>${karaf-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.karaf.shell</groupId>
                 <artifactId>org.apache.karaf.shell.packages</artifactId>
                 <version>${karaf-version}</version>
             </dependency>
@@ -2225,11 +2244,6 @@
             <dependency>
                 <groupId>org.ops4j.pax.url</groupId>
                 <artifactId>pax-url-aether</artifactId>
-                <version>${pax.url.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ops4j.pax.url</groupId>
-                <artifactId>pax-url-mvn</artifactId>
                 <version>${pax.url.version}</version>
             </dependency>
             <dependency>

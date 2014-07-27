@@ -281,8 +281,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         String featuresUrls = collectionAsString(defaultProfile.getRepositories());
         Set<String> features = new LinkedHashSet<String>();
 
-        features.add("fabric-agent");
-        features.add("fabric-git");
+        features.add("fabric-core");
         //features.addAll(defaultProfile.getFeatures());
         String containerName = options.getName();
 

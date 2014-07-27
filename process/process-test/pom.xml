@@ -48,7 +48,7 @@
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
-            <artifactId>pax-url-mvn</artifactId>
+            <artifactId>pax-url-aether</artifactId>
         </dependency>
 
         <!-- Libraries -->

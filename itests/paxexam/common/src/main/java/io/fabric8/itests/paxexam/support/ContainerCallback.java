@@ -48,7 +48,7 @@ public enum ContainerCallback implements Callback<Container> {
     THREAD_DUMP {
         @Override
         public void call(Container container) {
-            System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " threads --dump"));
+            System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " dev:threads"));
         }
     },
 

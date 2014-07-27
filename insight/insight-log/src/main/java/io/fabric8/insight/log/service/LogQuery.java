@@ -27,6 +27,8 @@ import org.apache.karaf.shell.log.LruList;
 import org.apache.karaf.shell.log.VmLogAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
@@ -35,7 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  * An implementation of {@link LogQueryMBean} using the embedded pax appender used by karaf
  */
-public class LogQuery extends LogQuerySupport implements LogQueryMBean {
+public class LogQuery extends LogQuerySupport implements LogQueryMBean, BundleListener {
     private transient Logger LOG = LoggerFactory.getLogger(LogQuery.class);
 
     private BundleContext bundleContext;
@@ -53,12 +55,22 @@ public class LogQuery extends LogQuerySupport implements LogQueryMBean {
         ServiceTrackerCustomizer customizer = null;
         serviceTracker = new ServiceTracker(bundleContext, "org.ops4j.pax.logging.spi.PaxAppender", customizer);
         serviceTracker.open();
+
+        bundleContext.addBundleListener(this);
     }
 
     public void destroy() throws Exception {
+        bundleContext.removeBundleListener(this);
         if (serviceTracker != null) {
             serviceTracker.close();
             serviceTracker = null;
+        }
+    }
+
+    @Override
+    public void bundleChanged(BundleEvent event) {
+        if (event.getType() == BundleEvent.UNRESOLVED) {
+            mapper.getTypeFactory().clearCache();
         }
     }
 

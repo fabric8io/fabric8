@@ -33,15 +33,16 @@
 
   <properties>
       <fuse.osgi.export>
-          io.fabric8.common.util*;version=${project.version}
+          io.fabric8.common.util.*;version=${project.version}
       </fuse.osgi.export>
     <fuse.osgi.import.defaults>
     </fuse.osgi.import.defaults>
     <fuse.osgi.import.before.defaults />
     <fuse.osgi.import.additional />
-    <fuse.osgi.import.pkg>
+    <fuse.osgi.import>
         *
-    </fuse.osgi.import.pkg>
+    </fuse.osgi.import>
+      <fuse.osgi.private.pkg/>
   </properties>
 
   <dependencies>

@@ -32,9 +32,6 @@
 
     <properties>
         <fuse.osgi.export>
-            org.jolokia.osgi.servlet;uses:="org.osgi.service.http,org.osgi.framework,javax.servlet";version="${jolokia-version}",
-            org.jolokia.restrictor;uses:="javax.management,javax.xml.parsers,org.w3c.dom,org.xml.sax";version="${jolokia-version}",
-            org.jolokia.util;version="${jolokia-version}",
             io.fabric8.redirect;version="${project.version}"
         </fuse.osgi.export>
         <fuse.osgi.import>

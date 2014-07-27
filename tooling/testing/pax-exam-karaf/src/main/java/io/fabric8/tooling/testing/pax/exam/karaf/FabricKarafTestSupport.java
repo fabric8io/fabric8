@@ -19,6 +19,7 @@ import io.fabric8.api.ServiceLocator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.security.PrivilegedAction;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -27,10 +28,13 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+import javax.security.auth.Subject;
 
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
+import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.junit.Assert;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
@@ -42,6 +46,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FabricKarafTestSupport {
 
@@ -52,6 +58,8 @@ public class FabricKarafTestSupport {
     public static final Long COMMAND_TIMEOUT = 70000L;
 
     static final ExecutorService executor = Executors.newCachedThreadPool();
+
+    static final Logger LOGGER = LoggerFactory.getLogger(FabricKarafTestSupport.class);
 
     @Inject
     protected BundleContext bundleContext;
@@ -165,32 +173,42 @@ public class FabricKarafTestSupport {
         commandSession.put("USER", "karaf");
         FutureTask<String> commandFuture = new FutureTask<String>(new Callable<String>() {
             public String call() throws Exception {
-                for (String command : commands) {
-                    boolean keepRunning = true;
+                Subject subject = new Subject();
+                subject.getPrincipals().add(new UserPrincipal("admin"));
+                subject.getPrincipals().add(new RolePrincipal("admin"));
+                subject.getPrincipals().add(new RolePrincipal("manager"));
+                subject.getPrincipals().add(new RolePrincipal("viewer"));
+                return Subject.doAs(subject, new PrivilegedAction<String>() {
+                    @Override
+                    public String run() {
+                        for (String command : commands) {
+                            boolean keepRunning = true;
 
-                    if (!silent) {
-                        System.out.println(command);
-                        System.out.flush();
-                    }
+                            if (!silent) {
+                                System.out.println(command);
+                                System.out.flush();
+                            }
+                            LOGGER.info("Executing command: " + command);
 
-                    while (!Thread.currentThread().isInterrupted() && keepRunning) {
-                        try {
-                            commandSession.execute(command);
-                            keepRunning = false;
-                        } catch (Exception e) {
-                            if (retryException(e)) {
-                                keepRunning = true;
-                                sleep(1000);
-                            } else {
-                                throw new CommandExecutionException(e);
+                            while (!Thread.currentThread().isInterrupted() && keepRunning) {
+                                try {
+                                    commandSession.execute(command);
+                                    keepRunning = false;
+                                } catch (Exception e) {
+                                    if (retryException(e)) {
+                                        keepRunning = true;
+                                        sleep(1000);
+                                    } else {
+                                        throw new CommandExecutionException(e);
+                                    }
+                                }
                             }
                         }
+                        printStream.flush();
+                        return byteArrayOutputStream.toString();
                     }
-                }
-                printStream.flush();
-                return byteArrayOutputStream.toString();
+                });
             }
-
         });
 
         try {
