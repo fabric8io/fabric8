@@ -134,7 +134,7 @@ public class EnsembleTest {
                     Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), FabricEnsembleSupport.PROVISION_TIMEOUT);
                 }
             } finally {
-                ContainerBuilder.destroy(containers);
+                ContainerBuilder.stop(containers);
             }
         } finally {
             fabricProxy.close();

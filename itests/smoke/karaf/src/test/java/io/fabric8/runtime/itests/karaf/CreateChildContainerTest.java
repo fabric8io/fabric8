@@ -94,7 +94,7 @@ public class CreateChildContainerTest {
             Assert.assertEquals("childA1", child.getId());
             Assert.assertEquals("root", child.getParent().getId());
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 
@@ -110,7 +110,7 @@ public class CreateChildContainerTest {
             String ensembleUrl = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " zk:get /fabric/configs/ensemble/url");
             Assert.assertTrue("Child should use custom ZK server port, but was: " + ensembleUrl, ensembleUrl.contains("${zk:root/ip}:2345"));
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 
@@ -124,8 +124,7 @@ public class CreateChildContainerTest {
         CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/sshIdleTimeout=1800002 test");
         CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/fabric.config.merge=true test");
 
-        Set<Container> containers = ContainerBuilder.child(1).withName("childC")
-            .withProfiles("test")
+        Set<Container> containers = ContainerBuilder.child(1).withName("childC").withProfiles("test")
 //            .withJvmOpts("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5006")
             .assertProvisioningResult().build();
 
@@ -142,7 +141,7 @@ public class CreateChildContainerTest {
             Assert.assertTrue(shellPid.contains("sshHost"));
             Assert.assertTrue(shellPid.contains("sshIdleTimeout = 1800002"));
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 
