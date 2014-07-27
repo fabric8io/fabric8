@@ -136,7 +136,7 @@ public class ContainerUpgradeAndRollbackTest {
                 Assert.assertTrue("Expected no camel-hazelcast installed on container: " + container.getId(), bundles.isEmpty());
             }
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 }

@@ -101,7 +101,7 @@ public class DeploymentAgentTest {
         CommandSupport.executeCommand("fabric:profile-edit --pid io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=http://repo1.maven.org/maven2@id=m2central default 1.1");
         CommandSupport.executeCommand("fabric:profile-edit --pid test-profile 1.1");
 
-        Set<Container> containers = ContainerBuilder.create().withName("cnt").withProfiles("test-profile").assertProvisioningResult().build();
+        Set<Container> containers = ContainerBuilder.create().withName("cntA").withProfiles("test-profile").assertProvisioningResult().build();
         try {
             //We want to remove all repositories from fabric-agent.
             for (Container container : containers) {
@@ -117,7 +117,7 @@ public class DeploymentAgentTest {
                 System.out.flush();
             }
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 
@@ -129,14 +129,13 @@ public class DeploymentAgentTest {
         CommandSupport.executeCommand("fabric:profile-edit --pid io.fabric8.agent/resolve.optional.imports=true test-profile");
         CommandSupport.executeCommand("fabric:profile-edit --features spring-struts test-profile");
 
-        Set<Container> containers = ContainerBuilder.create().withName("cnt").withProfiles("test-profile").assertProvisioningResult().build();
+        Set<Container> containers = ContainerBuilder.create().withName("cntB").withProfiles("test-profile").assertProvisioningResult().build();
         try {
             String command = "fabric:container-connect -u admin -p admin " + containers.iterator().next().getId() + " osgi:list -s | grep org.apache.servicemix.bundles.struts";
             String result = CommandSupport.executeCommand(command);
-            assertTrue("After setting resolve.optional.imports to \"true\", dependency bundles should install",
-                result.contains("org.apache.servicemix.bundles.struts"));
+            assertTrue("Result contains struts, but was: " + result, result.contains("org.apache.servicemix.bundles.struts"));
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 
