@@ -43,6 +43,7 @@ import io.fabric8.git.GitDataStore;
 import io.fabric8.git.GitListener;
 import io.fabric8.git.GitProxyService;
 import io.fabric8.git.GitService;
+import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.zookeeper.ZkPath;
 
 import java.io.File;
@@ -71,7 +72,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -113,7 +113,6 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
-import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
@@ -500,9 +499,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     checkoutVersion(git, parentId);
                     createOrCheckoutVersion(git, versionId);
                     if (attributes != null) {
-                        for (Entry<String, String> att : attributes.entrySet()) {
-                            setVersionAttributeInternal(context, versionId, att.getKey(), att.getValue());
-                        }
+                        setVersionAttributesInternal(git, context, versionId, attributes);
                     }
                     context.commitMessage("Create version: " + parentId + " => " + versionId);
                     return null;
@@ -524,9 +521,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     context.commitMessage("Create version: " + version);
                     String versionId = version.getId();
                     createOrCheckoutVersion(git, version.getId());
-                    for (Entry<String, String> entry : version.getAttributes().entrySet()) {
-                        setVersionAttributeInternal(context, versionId, entry.getKey(), entry.getValue());
-                    }
+                    setVersionAttributesInternal(git, context, versionId, version.getAttributes());
                     for (Profile profile : version.getProfiles()) {
                         createOrUpdateProfile(context, profile, true, new HashSet<String>());
                     }
@@ -1122,12 +1117,20 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         return relativePath.replace(File.separatorChar, '/');
     }
     
-    private Map<String, String> getVersionAttributesInternal(String version) {
-        return dataStore.get().getVersionAttributes(version);
+    private Map<String, String> getVersionAttributesInternal(Git git, GitContext context, String versionId) throws IOException {
+        File rootDirectory = GitHelpers.getRootGitDirectory(git);
+        File file = new File(rootDirectory, GitHelpers.VERSION_ATTRIBUTES);
+        if (!file.exists()) {
+            return Collections.emptyMap();
+        }
+        return DataStoreUtils.toMap(Files.readBytes(file));
     }
 
-    private void setVersionAttributeInternal(GitContext context, String version, String key, String value) {
-        dataStore.get().setVersionAttribute(version, key, value);
+    private void setVersionAttributesInternal(Git git, GitContext context, String versionId, Map<String, String> attributes) throws IOException, GitAPIException {
+        File rootDirectory = GitHelpers.getRootGitDirectory(git);
+        File file = new File(rootDirectory, GitHelpers.VERSION_ATTRIBUTES);
+        Files.writeToFile(file, DataStoreUtils.toBytes(attributes));
+        addFiles(git, file);
     }
 
     private void assertReadLock() {
@@ -1693,14 +1696,14 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             assertWriteLock();
             GitOperation<Version> gitop = new GitOperation<Version>() {
                 public Version call(Git git, GitContext context) throws Exception {
-                    return loadVersion(git, versionId);
+                    return loadVersion(git, context, versionId);
                 }
             };
             GitContext context = new GitContext().requirePull();
             return executeInternal(context, null, gitop);
         }
         
-        private Version loadVersion(Git git, String versionId) throws Exception {
+        private Version loadVersion(Git git, GitContext context, String versionId) throws Exception {
             
             // Collect the profiles with parent hierarchy unresolved
             VersionBuilder vbuilder = VersionBuilder.Factory.create(versionId);
@@ -1710,7 +1713,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             
             // Use a new version builder for resolved profiles
             vbuilder = VersionBuilder.Factory.create(versionId);
-            vbuilder.setAttributes(getVersionAttributesInternal(versionId));
+            vbuilder.setAttributes(getVersionAttributesInternal(git, context, versionId));
             
             // Resolve the profile hierarchies
             for (Profile profile : auxVersion.getProfiles()) {

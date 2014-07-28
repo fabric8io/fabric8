@@ -39,13 +39,6 @@ public interface DataStore {
     void untrackConfiguration(Runnable callback);
 
     //
-    // Version management
-    //
-    
-    Map<String, String> getVersionAttributes(String version);
-    void setVersionAttribute(String version, String key, String value);
-    
-    //
     // Container management
     //
 

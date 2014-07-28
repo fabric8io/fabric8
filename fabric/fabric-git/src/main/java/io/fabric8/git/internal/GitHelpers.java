@@ -40,6 +40,7 @@ public class GitHelpers {
 
     static final String CONFIGS = "fabric";
     static final String CONFIGS_PROFILES = CONFIGS + File.separator + "profiles";
+    static final String VERSION_ATTRIBUTES = "version.attributes";
     
     /**
      * Returns the root directory of the git repo which contains the ".git" directory
