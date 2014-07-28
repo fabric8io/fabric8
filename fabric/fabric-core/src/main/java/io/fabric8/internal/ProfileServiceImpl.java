@@ -24,6 +24,7 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
 import io.fabric8.api.scr.AbstractComponent;
@@ -37,7 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -59,7 +59,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     @Reference(referenceInterface = RuntimeProperties.class)
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<>();
     
-    private String lastOverlayProfile;
+    private final Map<String, Profile> lastOverlayProfile = new HashMap<String, Profile>();
     
     @Activate
     void activate() throws Exception {
@@ -201,21 +201,28 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         if (profile.isOverlay()) {
             overlayProfile = profile;
         } else {
+            String profileId = profile.getId();
             String environment = runtimeProperties.get().getProperty(SystemProperties.FABRIC_ENVIRONMENT);
-            ProfileBuilder builder = ProfileBuilder.Factory.create(profile.getVersion(), profile.getId());
+            ProfileBuilder builder = ProfileBuilder.Factory.create(profile.getVersion(), profileId);
             builder.addOptions(new OverlayOptionsProvider(profile, environment));
             overlayProfile = builder.getProfile();
-            synchronized (this) {
-                String longString = overlayProfile.toLongString();
-                if (!longString.equals(lastOverlayProfile)) {
+            synchronized (lastOverlayProfile) {
+                Profile lastOverlay = lastOverlayProfile.get(profileId);
+                String longString = Profiles.getProfileInfo(overlayProfile);
+                String lastString = lastOverlay != null ? Profiles.getProfileInfo(lastOverlay) : null;
+                if (lastOverlay == null || !longString.equals(lastString)) {
                     LOGGER.info("Changed Overlay" + longString);
+                    if (lastOverlay != null) {
+                        LOGGER.info("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
+                    }
                     LOGGER.info("Called from ", new RuntimeException());
-                    lastOverlayProfile = longString;
+                    lastOverlayProfile.put(profileId, overlayProfile);
                 }
             }
         }
         return overlayProfile;
     }
+    
     
     static class OverlayOptionsProvider implements OptionsProvider<ProfileBuilder> {
 

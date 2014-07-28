@@ -25,9 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Helper methods for working with profiles
@@ -373,5 +377,42 @@ public final class Profiles {
         if (!profileIds.contains(profileId)) {
             throw new IllegalArgumentException("Profile " + profileId + " is not valid");
         }
+    }
+
+    /**
+     * Get a long profile info string
+     */
+    public static String getProfileInfo(Profile profile) {
+        StringBuilder builder = new StringBuilder("Profile[ver=" + profile.getVersion() + ",id=" + profile.getId() + "]");
+        builder.append("\nAttributes");
+        for (Entry<String, String> entry : profile.getAttributes().entrySet()) {
+            builder.append("\n  " + entry.getKey() + " = " + entry.getValue());
+        }
+        builder.append("\nConfigurations");
+        for (Entry<String, Map<String, String>> entry : profile.getConfigurations().entrySet()) {
+            Map<String, String> config = entry.getValue();
+            builder.append("\n  " + entry.getKey());
+            for (Entry<String, String> citem : config.entrySet()) {
+                builder.append("\n    " + citem.getKey() + " = " + citem.getValue());
+            }
+        }
+        builder.append("\nFiles");
+        for (String fileKey : profile.getFileConfigurations().keySet()) {
+            if (!fileKey.endsWith(Profile.PROPERTIES_SUFFIX)) {
+                builder.append("\n  " + fileKey);
+            }
+        }
+        return builder.toString();
+    }
+    
+    /**
+     * Get the diff string of two profiles
+     */
+    public static String getProfileDifference(Profile leftProfile, Profile rightProfile) {
+        StringBuilder builder = new StringBuilder("ProfileDiff [ver=" + leftProfile.getVersion() + ",id=" + leftProfile.getId() + "] vs. [ver=" + rightProfile.getVersion() + ",id=" + rightProfile.getId() + "]");
+        builder.append("\nAttributes diff: " + Maps.difference(leftProfile.getAttributes(), rightProfile.getAttributes()));
+        builder.append("\nConfigurations diff: " + Maps.difference(leftProfile.getConfigurations(), rightProfile.getConfigurations()));
+        builder.append("\nFiles diff: " + Sets.difference(leftProfile.getFileConfigurations().keySet(), rightProfile.getFileConfigurations().keySet()));
+        return builder.toString();
     }
 }
