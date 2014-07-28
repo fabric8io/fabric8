@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.slf4j.Logger;
@@ -389,19 +390,20 @@ public final class Profiles {
         IllegalArgumentAssertion.assertNotNull(profile, "profile");
         StringBuilder builder = new StringBuilder("Profile[ver=" + profile.getVersion() + ",id=" + profile.getId() + "]");
         builder.append("\nAttributes");
-        for (Entry<String, String> entry : profile.getAttributes().entrySet()) {
+        Map<String, String> attributes = new TreeMap<>(profile.getAttributes());
+        for (Entry<String, String> entry : attributes.entrySet()) {
             builder.append("\n  " + entry.getKey() + " = " + entry.getValue());
         }
         builder.append("\nConfigurations");
-        for (Entry<String, Map<String, String>> entry : profile.getConfigurations().entrySet()) {
-            Map<String, String> config = entry.getValue();
-            builder.append("\n  " + entry.getKey());
+        for (String pid : new TreeSet<>(profile.getConfigurations().keySet())) {
+            builder.append("\n  " + pid);
+            Map<String, String> config = new TreeMap<>(profile.getConfiguration(pid));
             for (Entry<String, String> citem : config.entrySet()) {
                 builder.append("\n    " + citem.getKey() + " = " + citem.getValue());
             }
         }
         builder.append("\nFiles");
-        for (String fileKey : profile.getFileConfigurations().keySet()) {
+        for (String fileKey : new TreeSet<>(profile.getFileConfigurations().keySet())) {
             if (!fileKey.endsWith(Profile.PROPERTIES_SUFFIX)) {
                 builder.append("\n  " + fileKey);
             }
@@ -443,16 +445,16 @@ public final class Profiles {
             builder.append("\nConfigurations");
             builder.append("\n  left only: " + leftOnlyPids);
             for (String pid : leftOnlyPids) {
-                Map<String, String> config = leftProfile.getConfiguration(pid);
                 builder.append("\n  " + pid);
+                Map<String, String> config = new TreeMap<>(leftProfile.getConfiguration(pid));
                 for (Entry<String, String> citem : config.entrySet()) {
                     builder.append("\n    " + citem.getKey() + " = " + citem.getValue());
                 }
             }
             builder.append("\n  right only: " + rightOnlyPids);
             for (String pid : rightOnlyPids) {
-                Map<String, String> config = rightProfile.getConfiguration(pid);
                 builder.append("\n  " + pid);
+                Map<String, String> config = new TreeMap<>(rightProfile.getConfiguration(pid));
                 for (Entry<String, String> citem : config.entrySet()) {
                     builder.append("\n    " + citem.getKey() + " = " + citem.getValue());
                 }
