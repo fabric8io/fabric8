@@ -318,6 +318,30 @@ final class ProfileImpl implements Profile {
         return "Profile[ver=" + versionId + ",id=" + profileId + ",atts=" + getAttributes() + "]";
     }
 
+    @Override
+    public String toLongString() {
+        StringBuilder builder = new StringBuilder("Profile[ver=" + versionId + ",id=" + profileId + "]");
+        builder.append("\nAttributes");
+        for (Entry<String, String> entry : attributes.entrySet()) {
+            builder.append("\n  " + entry.getKey() + " = " + entry.getValue());
+        }
+        builder.append("\nConfigurations");
+        for (Entry<String, Map<String, String>> entry : configurations.entrySet()) {
+            Map<String, String> config = entry.getValue();
+            builder.append("\n  " + entry.getKey());
+            for (Entry<String, String> citem : config.entrySet()) {
+                builder.append("\n    " + citem.getKey() + " = " + citem.getValue());
+            }
+        }
+        builder.append("\nFiles");
+        for (String fileKey : fileConfigurations.keySet()) {
+            if (!fileKey.endsWith(Profile.PROPERTIES_SUFFIX)) {
+                builder.append("\n  " + fileKey);
+            }
+        }
+        return builder.toString();
+    }
+
     enum ConfigListType {
         BUNDLES("bundle"), 
         ENDORSED("endorsed"), 

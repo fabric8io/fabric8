@@ -150,4 +150,9 @@ public interface Profile extends Comparable<Profile>, HasId {
     boolean isHidden();
 
     String getProfileHash();
+
+    /**
+     * Returns a long string representation
+     */
+    String toLongString();
 }
