@@ -232,7 +232,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         // Call the bootstrap {@link DataStoreTemplate}
         DataStoreTemplate template = runtimeProperties.get().removeRuntimeAttribute(DataStoreTemplate.class);
         if (template != null) {
-            LOGGER.info("Using template: " + template);
+            LOGGER.debug("Using template: " + template);
             template.doWith(this, dataStore.get());
         }
 
@@ -244,7 +244,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         // Authenticator.setDefault(new FabricGitLocalHostAuthenticator(proxyService));
         ProxySelector fabricProxySelector = new FabricGitLocalHostProxySelector(defaultProxySelector, proxyService);
         ProxySelector.setDefault(fabricProxySelector);
-        LOGGER.info("Setting up FabricProxySelector: {}", fabricProxySelector);
+        LOGGER.debug("Setting up FabricProxySelector: {}", fabricProxySelector);
 
         if (configuredUrl != null) {
             gitListener.runRemoteUrlChanged(configuredUrl);
@@ -359,7 +359,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             throw FabricException.launderThrowable(ex);
         }
 
-        LOGGER.info("Restoring ProxySelector to original: {}", defaultProxySelector);
+        LOGGER.debug("Restoring ProxySelector to original: {}", defaultProxySelector);
         ProxySelector.setDefault(defaultProxySelector);
         // authenticator disabled, until properly tested it does not affect others, as Authenticator is static in the JVM
         // reset authenticator by setting it to null
@@ -599,7 +599,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            LOGGER.info("Create " + Profiles.getProfileInfo(profile, true));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Create {}", Profiles.getProfileInfo(profile, true));
+            } else {
+                LOGGER.info("Create {}", profile);
+            }
             GitOperation<String> gitop = new GitOperation<String>() {
                 public String call(Git git, GitContext context) throws Exception {
                     checkoutProfileBranch(profile.getVersion(), profile.getId());
@@ -617,8 +621,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            Profile wasProfile = getRequiredProfile(profile.getVersion(), profile.getId());
-            LOGGER.info("Update " + Profiles.getProfileDifference(wasProfile, profile));
+            if (LOGGER.isDebugEnabled()) {
+                Profile wasProfile = getRequiredProfile(profile.getVersion(), profile.getId());
+                LOGGER.debug("Update " + Profiles.getProfileDifference(wasProfile, profile));
+            } else {
+                LOGGER.info("Update {}", profile);
+            }
             GitOperation<String> gitop = new GitOperation<String>() {
                 public String call(Git git, GitContext context) throws Exception {
                     checkoutProfileBranch(profile.getVersion(), profile.getId());
@@ -1013,14 +1021,14 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
             if (hasChanged) {
                 LOGGER.info("Changed after pull!");
-                LOGGER.info("Called from ...", new RuntimeException());
+                LOGGER.debug("Called from ...", new RuntimeException());
                 if (credentialsProvider != null) {
                     // TODO lets test if the profiles directory is present after checking out version 1.0?
                     GitHelpers.getProfilesDirectory(git);
                 }
                 return true;
             } else {
-                LOGGER.info("No change after pull!");
+                LOGGER.debug("No change after pull!");
                 return false;
             }
             
@@ -1630,7 +1638,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 }
             });
             int count = zips != null ? zips.length : 0;
-            LOGGER.info("Found {} .zip files to import", count);
+            LOGGER.debug("Found {} .zip files to import", count);
 
             if (zips != null && zips.length > 0) {
                 for (String name : zips) {
@@ -1647,7 +1655,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 }
             });
             count = props != null ? props.length : 0;
-            LOGGER.info("Found {} .properties files to import", count);
+            LOGGER.debug("Found {} .properties files to import", count);
             try {
                 if (props != null && props.length > 0) {
                     for (String name : props) {
