@@ -507,8 +507,8 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     }
 
                 }
-            } catch (Exception e) {
-                // ignored
+            } catch (Exception ex) {
+                LOGGER.error("Cannot reconfigure container", ex);
             }
         }
     }

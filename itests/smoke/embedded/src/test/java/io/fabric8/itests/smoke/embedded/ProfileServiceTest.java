@@ -21,7 +21,6 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
-import io.fabric8.api.VersionBuilder;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 
 import java.util.Collections;
@@ -52,10 +51,9 @@ public class ProfileServiceTest {
         ProfileService profileService = ServiceLocator.getRequiredService(ProfileService.class);
 
         // fabric:profile-create prfA
-        Profile prfA10 = ProfileBuilder.Factory.create("1.0", "prfA")
-                .addConfiguration("pidA", Collections.singletonMap("keyA", "valA"))
-                .getProfile();
-        prfA10 = profileService.createProfile(prfA10);
+        ProfileBuilder pbA10 = ProfileBuilder.Factory.create("1.0", "prfA")
+                .addConfiguration("pidA", Collections.singletonMap("keyA", "valA"));
+        Profile prfA10 = profileService.createProfile(pbA10.getProfile());
         Assert.assertEquals("1.0", prfA10.getVersion());
         Assert.assertEquals("prfA", prfA10.getId());
         Assert.assertEquals("valA", prfA10.getConfiguration("pidA").get("keyA"));
@@ -65,22 +63,23 @@ public class ProfileServiceTest {
         
         // fabric:version-create --parent 1.0 1.1
         Version v11 = profileService.createVersion("1.0", "1.1", null);
-        Profile prfA11 = v11.getRequiredProfile("prfA");
-        Assert.assertEquals("1.1", prfA11.getVersion());
-        Assert.assertEquals("prfA", prfA11.getId());
-        Assert.assertEquals("valA", prfA11.getConfiguration("pidA").get("keyA"));
+        Profile prfA11a = v11.getRequiredProfile("prfA");
+        Assert.assertEquals("1.1", prfA11a.getVersion());
+        Assert.assertEquals("prfA", prfA11a.getId());
+        Assert.assertEquals("valA", prfA11a.getConfiguration("pidA").get("keyA"));
         
         // Verify access to original profile
         profileService.getRequiredVersion("1.0").getRequiredProfile("prfA");
         profileService.getRequiredVersion("1.1").getRequiredProfile("prfA");
         
-        prfA11 = ProfileBuilder.Factory.createFrom(prfA11)
-                .addConfiguration("pidA", Collections.singletonMap("keyB", "valB"))
-                .getProfile();
-        prfA11 = profileService.updateProfile(prfA11);
-        Assert.assertEquals("1.1", prfA11.getVersion());
-        Assert.assertEquals("prfA", prfA11.getId());
-        Assert.assertEquals("valB", prfA11.getConfiguration("pidA").get("keyB"));
+        ProfileBuilder pbA11 = ProfileBuilder.Factory.createFrom(prfA11a)
+                .addConfiguration("pidA", Collections.singletonMap("keyB", "valB"));
+        Profile prfA11b = profileService.updateProfile(pbA11.getProfile());
+        Assert.assertEquals("1.1", prfA11b.getVersion());
+        Assert.assertEquals("prfA", prfA11b.getId());
+        Assert.assertEquals("valB", prfA11b.getConfiguration("pidA").get("keyB"));
+        
+        Assert.assertNotEquals(prfA11a, prfA11b);
         
         // Verify access to original profile
         profileService.getRequiredVersion("1.0").getRequiredProfile("prfA");
