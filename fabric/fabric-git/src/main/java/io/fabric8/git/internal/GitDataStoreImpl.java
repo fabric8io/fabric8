@@ -616,7 +616,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            LOGGER.info("Update " + Profiles.getProfileInfo(profile, true));
+            Profile wasProfile = getRequiredProfile(profile.getVersion(), profile.getId());
+            LOGGER.info("Update " + Profiles.getProfileDifference(wasProfile, profile));
             GitOperation<String> gitop = new GitOperation<String>() {
                 public String call(Git git, GitContext context) throws Exception {
                     checkoutProfileBranch(profile.getVersion(), profile.getId());
