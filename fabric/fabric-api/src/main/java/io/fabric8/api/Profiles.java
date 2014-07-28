@@ -459,7 +459,7 @@ public final class Profiles {
                     builder.append("\n    " + citem.getKey() + " = " + citem.getValue());
                 }
             }
-            builder.append("\n  common: ");
+            builder.append("\n  common: " + commonPids);
             for (String pid : commonPids) {
                 Map<String, String> leftConfig = leftProfile.getConfiguration(pid);
                 Map<String, String> rightConfig = rightProfile.getConfiguration(pid);

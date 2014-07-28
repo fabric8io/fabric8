@@ -144,6 +144,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private static final int GIT_COMMIT_SHORT_LENGTH = 7;
     private static final String MASTER_BRANCH = "master";
     private static final int MAX_COMMITS_WITHOUT_GC = 40;
+    private static final long AQUIRE_LOCK_TIMEOUT = 10 * 1000L;
 
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<>();
@@ -379,7 +380,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         final WriteLock writeLock = readWriteLock.writeLock();
         boolean success;
         try {
-            success = writeLock.tryLock() || writeLock.tryLock(10, TimeUnit.SECONDS);
+            success = writeLock.tryLock() || writeLock.tryLock(AQUIRE_LOCK_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex) {
             success = false;
         }
@@ -398,7 +399,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         final ReadLock readLock = readWriteLock.readLock();
         boolean success;
         try {
-            success = readLock.tryLock() || readLock.tryLock(10, TimeUnit.SECONDS);
+            success = readLock.tryLock() || readLock.tryLock(AQUIRE_LOCK_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex) {
             success = false;
         }
@@ -1699,7 +1700,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     class VersionCacheLoader extends CacheLoader<String, Version> {
         
         @Override
-        public Version load(final String versionId) throws Exception {
+        public Version load(final String versionId) {
             assertWriteLock();
             GitOperation<Version> gitop = new GitOperation<Version>() {
                 public Version call(Git git, GitContext context) throws Exception {

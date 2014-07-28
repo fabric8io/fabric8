@@ -31,6 +31,7 @@ import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.EnsembleModificationFailed;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.LockHandle;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileRegistry;
@@ -151,8 +152,8 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
 
     public void createCluster(final List<String> containers, CreateEnsembleOptions options) {
         assertValid();
-        final List<String> oldContainers = getEnsembleContainers();
         try {
+            List<String> oldContainers = getEnsembleContainers();
             if (containers == null || containers.size() == 2) {
                 throw new EnsembleModificationFailed("One or at least 3 containers must be used to create a zookeeper ensemble", EnsembleModificationFailed.Reason.INVALID_ARGUMENTS);
             }
@@ -238,17 +239,16 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             ensembleProperties.put("dataDir", options.getZooKeeperServerDataDir() + File.separator + newClusterId);
             
             // create new ensemble
-            String profileId = "fabric-ensemble-" + newClusterId;
-            IllegalStateAssertion.assertFalse(profileRegistry.get().hasProfile(versionId, profileId), "Profile already exists: " + versionId + "/" + profileId);
-            ProfileBuilder ensembleProfileBuilder = ProfileBuilder.Factory.create(versionId, profileId);
+            String ensembleProfileId = "fabric-ensemble-" + newClusterId;
+            IllegalStateAssertion.assertFalse(profileRegistry.get().hasProfile(versionId, ensembleProfileId), "Profile already exists: " + versionId + "/" + ensembleProfileId);
+            ProfileBuilder ensembleProfileBuilder = ProfileBuilder.Factory.create(versionId, ensembleProfileId);
             ensembleProfileBuilder.addAttribute(Profile.ABSTRACT, "true").addAttribute(Profile.HIDDEN, "true");
-            ensembleProfileBuilder.addFileConfiguration(ensemblePropertiesName, DataStoreUtils.toBytes(ensembleProperties));
-            String ensembleProfileId = profileRegistry.get().createProfile(ensembleProfileBuilder.getProfile());
 
             int index = 1;
             String connectionUrl = "";
             String realConnectionUrl = "";
             String containerList = "";
+            List<Profile> memberProfiles = new ArrayList<>();
             for (String container : containers) {
                 String ip = getSubstitutedPath(curator.get(), ZkPath.CONTAINER_IP.getPath(container));
 
@@ -282,12 +282,12 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 memberProperties.put("clientPortAddress", bindAddress);
 
                 // Create ensemble member profile
-                profileId = "fabric-ensemble-" + newClusterId + "-" + index;
-                IllegalStateAssertion.assertFalse(profileRegistry.get().hasProfile(versionId, profileId), "Profile already exists: " + versionId + "/" + profileId);
-                ProfileBuilder memberProfileBuilder = ProfileBuilder.Factory.create(versionId, profileId);
+                String memberProfileId = "fabric-ensemble-" + newClusterId + "-" + index;
+                IllegalStateAssertion.assertFalse(profileRegistry.get().hasProfile(versionId, memberProfileId), "Profile already exists: " + versionId + "/" + memberProfileId);
+                ProfileBuilder memberProfileBuilder = ProfileBuilder.Factory.create(versionId, memberProfileId);
                 memberProfileBuilder.addAttribute(Profile.HIDDEN, "true").addAttribute(Profile.PARENTS, ensembleProfileId);
                 memberProfileBuilder.addFileConfiguration(memberPropertiesName, DataStoreUtils.toBytes(memberProperties));
-                profileRegistry.get().createProfile(memberProfileBuilder.getProfile());
+                memberProfiles.add(memberProfileBuilder.getProfile());
 
                 if (connectionUrl.length() > 0) {
                     connectionUrl += ",";
@@ -301,7 +301,21 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 containerList += container;
                 index++;
             }
-
+            
+            LockHandle writeLock = profileRegistry.get().aquireWriteLock();
+            try {
+                // Create the ensemble profile
+                ensembleProfileBuilder.addFileConfiguration(ensemblePropertiesName, DataStoreUtils.toBytes(ensembleProperties));
+                profileRegistry.get().createProfile(ensembleProfileBuilder.getProfile());
+                
+                // Create the member profiles
+                for (Profile memberProfile : memberProfiles) {
+                    profileRegistry.get().createProfile(memberProfile);
+                }
+            } finally {
+                writeLock.unlock();
+            }
+            
             index = 1;
             for (String container : containers) {
                 // add this container to the ensemble
