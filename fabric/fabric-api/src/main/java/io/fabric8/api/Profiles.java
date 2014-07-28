@@ -23,15 +23,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
+import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 
 /**
  * Helper methods for working with profiles
@@ -383,6 +386,7 @@ public final class Profiles {
      * Get a long profile info string
      */
     public static String getProfileInfo(Profile profile) {
+        IllegalArgumentAssertion.assertNotNull(profile, "profile");
         StringBuilder builder = new StringBuilder("Profile[ver=" + profile.getVersion() + ",id=" + profile.getId() + "]");
         builder.append("\nAttributes");
         for (Entry<String, String> entry : profile.getAttributes().entrySet()) {
@@ -409,10 +413,47 @@ public final class Profiles {
      * Get the diff string of two profiles
      */
     public static String getProfileDifference(Profile leftProfile, Profile rightProfile) {
-        StringBuilder builder = new StringBuilder("ProfileDiff [ver=" + leftProfile.getVersion() + ",id=" + leftProfile.getId() + "] vs. [ver=" + rightProfile.getVersion() + ",id=" + rightProfile.getId() + "]");
-        builder.append("\nAttributes diff: " + Maps.difference(leftProfile.getAttributes(), rightProfile.getAttributes()));
-        builder.append("\nConfigurations diff: " + Maps.difference(leftProfile.getConfigurations(), rightProfile.getConfigurations()));
-        builder.append("\nFiles diff: " + Sets.difference(leftProfile.getFileConfigurations().keySet(), rightProfile.getFileConfigurations().keySet()));
-        return builder.toString();
+        IllegalArgumentAssertion.assertNotNull(leftProfile, "leftProfile");
+        IllegalArgumentAssertion.assertNotNull(rightProfile, "rightProfile");
+        if (leftProfile.equals(rightProfile)) {
+            return "ProfileDiff [ver=" + leftProfile.getVersion() + ",id=" + leftProfile.getId() + "] - equals";        
+        } else {
+            StringBuilder builder = new StringBuilder("ProfileDiff [ver=" + leftProfile.getVersion() + ",id=" + leftProfile.getId() + "] vs. [ver=" + rightProfile.getVersion() + ",id=" + rightProfile.getId() + "]");        
+            MapDifference<String, String> attributeDiff = Maps.difference(leftProfile.getAttributes(), rightProfile.getAttributes());
+            SetView<String> leftOnlyPids = Sets.difference(leftProfile.getConfigurations().keySet(), rightProfile.getConfigurations().keySet());
+            SetView<String> rightOnlyPids = Sets.difference(rightProfile.getConfigurations().keySet(), leftProfile.getConfigurations().keySet());
+            SetView<String> commonPids = Sets.union(leftProfile.getConfigurations().keySet(), rightProfile.getConfigurations().keySet());
+            SetView<String> leftOnlyFiles = Sets.difference(leftProfile.getFileConfigurations().keySet(), rightProfile.getFileConfigurations().keySet());
+            SetView<String> rightOnlyFiles = Sets.difference(rightProfile.getFileConfigurations().keySet(), leftProfile.getFileConfigurations().keySet());
+            builder.append("\nAttributes");
+            builder.append("\n  " + attributeDiff);
+            builder.append("\nConfigurations");
+            builder.append("\n  left only: " + leftOnlyPids);
+            for (String pid : leftOnlyPids) {
+                Map<String, String> config = leftProfile.getConfiguration(pid);
+                builder.append("\n  " + pid);
+                for (Entry<String, String> citem : config.entrySet()) {
+                    builder.append("\n    " + citem.getKey() + " = " + citem.getValue());
+                }
+            }
+            builder.append("\n  right only: " + rightOnlyPids);
+            for (String pid : rightOnlyPids) {
+                Map<String, String> config = rightProfile.getConfiguration(pid);
+                builder.append("\n  " + pid);
+                for (Entry<String, String> citem : config.entrySet()) {
+                    builder.append("\n    " + citem.getKey() + " = " + citem.getValue());
+                }
+            }
+            builder.append("\n  common: " + commonPids);
+            for (String pid : commonPids) {
+                Map<String, String> leftConfig = leftProfile.getConfiguration(pid);
+                Map<String, String> rightConfig = rightProfile.getConfiguration(pid);
+                builder.append("\n  " + pid + ": " + Maps.difference(leftConfig, rightConfig));
+            }
+            builder.append("\nFiles");
+            builder.append("\n  left only: " + leftOnlyFiles);
+            builder.append("\n  right only: " + rightOnlyFiles);
+            return builder.toString();
+        }
     }
 }

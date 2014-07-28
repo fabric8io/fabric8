@@ -20,6 +20,7 @@ import io.fabric8.api.CreateEnsembleOptions.Builder;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 
@@ -80,6 +81,7 @@ public class ProfileServiceTest {
         Assert.assertEquals("valB", prfA11b.getConfiguration("pidA").get("keyB"));
         
         Assert.assertNotEquals(prfA11a, prfA11b);
+        System.out.println(Profiles.getProfileDifference(prfA11a, prfA11b));
         
         // Verify access to original profile
         profileService.getRequiredVersion("1.0").getRequiredProfile("prfA");
