@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -383,6 +384,8 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
     protected ProjectRequirements toProjectRequirements(UploadContext context) {
         ProjectRequirements requirements = new ProjectRequirements();
+
+        requirements.setParentProfiles(Collections.<String>emptyList());
 
         DependencyDTO rootDependency = new DependencyDTO();
         rootDependency.setGroupId(context.getGroupId());
