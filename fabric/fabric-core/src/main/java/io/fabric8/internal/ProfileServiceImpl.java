@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -57,6 +58,8 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     private final ValidatingReference<ProfileRegistry> profileRegistry = new ValidatingReference<>();
     @Reference(referenceInterface = RuntimeProperties.class)
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<>();
+    
+    private String lastOverlayProfile;
     
     @Activate
     void activate() throws Exception {
@@ -202,8 +205,14 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
             ProfileBuilder builder = ProfileBuilder.Factory.create(profile.getVersion(), profile.getId());
             builder.addOptions(new OverlayOptionsProvider(profile, environment));
             overlayProfile = builder.getProfile();
-            LOGGER.info("Overlay" + overlayProfile.toLongString());
-            LOGGER.info("Called from ", new RuntimeException());
+            synchronized (this) {
+                String longString = overlayProfile.toLongString();
+                if (!longString.equals(lastOverlayProfile)) {
+                    LOGGER.info("Changed Overlay" + longString);
+                    LOGGER.info("Called from ", new RuntimeException());
+                    lastOverlayProfile = longString;
+                }
+            }
         }
         return overlayProfile;
     }
