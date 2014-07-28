@@ -202,6 +202,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
             ProfileBuilder builder = ProfileBuilder.Factory.create(profile.getVersion(), profile.getId());
             builder.addOptions(new OverlayOptionsProvider(profile, environment));
             overlayProfile = builder.getProfile();
+            LOGGER.info("Overlay profile");
         }
         return overlayProfile;
     }
@@ -223,11 +224,10 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
 
         @Override
         public ProfileBuilder addOptions(ProfileBuilder builder) {
-            builder.setAttributes(self.getAttributes());
-            builder.setParents(self.getParents());
+            // Attributes & Configurations are derived from FileConfigurations
             builder.setFileConfigurations(getFileConfigurations());
-            builder.setConfigurations(getConfigurations());
             builder.setLastModified(getLastModified());
+            builder.setParents(self.getParents());
             builder.setOverlay(true);
             return builder;
         }
@@ -246,26 +246,6 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
                         ctrl.data = DataStoreUtils.toBytes(ctrl.props);
                     }
                     rc.put(entry.getKey(), ctrl.data);
-                }
-                return rc;
-            } catch (Exception e) {
-                throw FabricException.launderThrowable(e);
-            }
-        }
-        
-        private Map<String, Map<String, String>> getConfigurations() {
-            try {
-                Map<String, SupplementControl> aggregate = new HashMap<String, SupplementControl>();
-                for (Profile profile : getInheritedProfiles()) {
-                    supplement(profile, aggregate);
-                }
-
-                Map<String, Map<String, String>> rc = new HashMap<String, Map<String, String>>();
-                for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
-                    SupplementControl ctrl = entry.getValue();
-                    if (ctrl.props != null) {
-                        rc.put(DataStoreUtils.stripSuffix(entry.getKey(), ".properties"), DataStoreUtils.toMap(ctrl.props));
-                    }
                 }
                 return rc;
             } catch (Exception e) {

@@ -20,11 +20,9 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getByteData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getPropertiesAsMap;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
 import io.fabric8.api.AutoScaleStatus;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreateContainerOptions;
@@ -198,34 +196,6 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
     @Override
     public void untrackConfiguration(Runnable callback) {
         callbacks.remove(callback);
-    }
-
-    @Override
-    public Map<String, String> getVersionAttributes(String version) {
-        assertValid();
-        try {
-            String node = ZkPath.CONFIG_VERSION.getPath(version);
-            return getPropertiesAsMap(treeCache, node);
-        } catch (Exception e) {
-            throw FabricException.launderThrowable(e);
-        }
-    }
-
-    @Override
-    public void setVersionAttribute(String version, String key, String value) {
-        assertValid();
-        try {
-            Map<String, String> props = getVersionAttributes(version);
-            if (value != null) {
-                props.put(key, value);
-            } else {
-                props.remove(key);
-            }
-            String node = ZkPath.CONFIG_VERSION.getPath(version);
-            setPropertiesAsMap(curator.get(), node, props);
-        } catch (Exception e) {
-            throw FabricException.launderThrowable(e);
-        }
     }
 
     @Override
