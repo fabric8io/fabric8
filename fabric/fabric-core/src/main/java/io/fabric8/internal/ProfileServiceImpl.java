@@ -59,7 +59,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     @Reference(referenceInterface = RuntimeProperties.class)
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<>();
     
-    private final Map<String, Profile> lastOverlayProfile = new HashMap<String, Profile>();
+    private final Map<String, Profile> lastOverlayProfiles = new HashMap<String, Profile>();
     
     @Activate
     void activate() throws Exception {
@@ -206,17 +206,21 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
             ProfileBuilder builder = ProfileBuilder.Factory.create(profile.getVersion(), profileId);
             builder.addOptions(new OverlayOptionsProvider(profile, environment));
             overlayProfile = builder.getProfile();
-            synchronized (lastOverlayProfile) {
-                Profile lastOverlay = lastOverlayProfile.get(profileId);
-                String longString = Profiles.getProfileInfo(overlayProfile);
-                String lastString = lastOverlay != null ? Profiles.getProfileInfo(lastOverlay) : null;
-                if (lastOverlay == null || !longString.equals(lastString)) {
-                    LOGGER.info("Changed Overlay" + longString);
-                    if (lastOverlay != null) {
-                        LOGGER.info("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
+            
+            // Log the overlay profile difference
+            if (LOGGER.isInfoEnabled()) {
+                synchronized (lastOverlayProfiles) {
+                    Profile lastOverlay = lastOverlayProfiles.get(profileId);
+                    String longString = Profiles.getProfileInfo(overlayProfile);
+                    String lastString = lastOverlay != null ? Profiles.getProfileInfo(lastOverlay) : null;
+                    if (lastOverlay == null || !longString.equals(lastString)) {
+                        LOGGER.info("Changed Overlay" + longString);
+                        if (lastOverlay != null) {
+                            LOGGER.info("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
+                        }
+                        LOGGER.info("Called from ", new RuntimeException());
+                        lastOverlayProfiles.put(profileId, overlayProfile);
                     }
-                    LOGGER.info("Called from ", new RuntimeException());
-                    lastOverlayProfile.put(profileId, overlayProfile);
                 }
             }
         }
