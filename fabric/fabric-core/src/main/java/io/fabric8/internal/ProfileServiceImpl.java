@@ -242,10 +242,10 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
 
         @Override
         public ProfileBuilder addOptions(ProfileBuilder builder) {
-            // Attributes & Configurations are derived from FileConfigurations
+            builder.setAttributes(self.getAttributes());
             builder.setFileConfigurations(getFileConfigurations());
+            builder.setConfigurations(getConfigurations());
             builder.setLastModified(getLastModified());
-            builder.setParents(self.getParents());
             builder.setOverlay(true);
             return builder;
         }
@@ -271,6 +271,26 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
             }
         }
         
+        private Map<String, Map<String, String>> getConfigurations() {
+            try {
+                Map<String, SupplementControl> aggregate = new HashMap<String, SupplementControl>();
+                for (Profile profile : getInheritedProfiles()) {
+                    supplement(profile, aggregate);
+                }
+
+                Map<String, Map<String, String>> rc = new HashMap<String, Map<String, String>>();
+                for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
+                    SupplementControl ctrl = entry.getValue();
+                    if (ctrl.props != null) {
+                        rc.put(DataStoreUtils.stripSuffix(entry.getKey(), ".properties"), DataStoreUtils.toMap(ctrl.props));
+                    }
+                }
+                return rc;
+            } catch (Exception e) {
+                throw FabricException.launderThrowable(e);
+            }
+        }
+        
         private List<Profile> getInheritedProfiles() {
             List<Profile> profiles = new ArrayList<>();
             fillParentProfiles(self, profiles);
@@ -278,10 +298,10 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         }
 
         private void fillParentProfiles(Profile profile, List<Profile> profiles) {
-            for (Profile p : profile.getParents()) {
-                fillParentProfiles(p, profiles);
-            }
             if (!profiles.contains(profile)) {
+                for (Profile p : profile.getParents()) {
+                    fillParentProfiles(p, profiles);
+                }
                 profiles.add(profile);
             }
         }
