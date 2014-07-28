@@ -158,7 +158,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         
         Profile overlayProfile;
         if (profile.isOverlay()) {
-            LOGGER.info("getOverlayProfile, given profile is already an overlay: " + profile);
+            LOGGER.debug("getOverlayProfile, given profile is already an overlay: " + profile);
             overlayProfile = profile;
         } else {
             String profileId = profile.getId();
@@ -168,17 +168,17 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
             overlayProfile = builder.getProfile();
             
             // Log the overlay profile difference
-            if (LOGGER.isInfoEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 synchronized (lastOverlayProfiles) {
                     Profile lastOverlay = lastOverlayProfiles.get(profileId);
                     String longString = Profiles.getProfileInfo(overlayProfile, true);
                     String lastString = lastOverlay != null ? Profiles.getProfileInfo(lastOverlay, true) : null;
                     if (lastOverlay == null || !longString.equals(lastString)) {
-                        LOGGER.info("Changed Overlay" + longString);
+                        LOGGER.debug("Changed Overlay" + longString);
                         if (lastOverlay != null) {
-                            LOGGER.info("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
+                            LOGGER.debug("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
                         }
-                        LOGGER.info("Called from ", new RuntimeException());
+                        LOGGER.debug("Called from ", new RuntimeException());
                         lastOverlayProfiles.put(profileId, overlayProfile);
                     }
                 }
