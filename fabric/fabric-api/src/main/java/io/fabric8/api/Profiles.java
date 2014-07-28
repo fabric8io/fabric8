@@ -459,11 +459,13 @@ public final class Profiles {
                     builder.append("\n    " + citem.getKey() + " = " + citem.getValue());
                 }
             }
-            builder.append("\n  common: " + commonPids);
+            builder.append("\n  common: ");
             for (String pid : commonPids) {
                 Map<String, String> leftConfig = leftProfile.getConfiguration(pid);
                 Map<String, String> rightConfig = rightProfile.getConfiguration(pid);
-                builder.append("\n  " + pid + ": " + Maps.difference(leftConfig, rightConfig));
+                if (!leftConfig.equals(rightConfig)) {
+                    builder.append("\n  " + pid + ": " + Maps.difference(leftConfig, rightConfig));
+                }
             }
             builder.append("\nFiles");
             builder.append("\n  left only: " + leftOnlyFiles);
