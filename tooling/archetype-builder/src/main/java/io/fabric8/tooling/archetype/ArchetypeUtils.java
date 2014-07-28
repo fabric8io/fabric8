@@ -35,6 +35,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import io.fabric8.common.util.Files;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +58,8 @@ public class ArchetypeUtils {
 
     static {
         for (String scdn : sourceCodeDirNames) {
-            sourceCodeDirPaths.add("src/main/" + scdn);
-            sourceCodeDirPaths.add("src/test/" + scdn);
+            sourceCodeDirPaths.add(Files.normalizePath("src/main/" + scdn));
+            sourceCodeDirPaths.add(Files.normalizePath("src/test/" + scdn));
         }
         sourceCodeDirPaths.addAll(Arrays.asList("target", "build", "pom.xml", "archetype-metadata.xml"));
     }
