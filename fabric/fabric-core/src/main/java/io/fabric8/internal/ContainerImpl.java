@@ -740,6 +740,8 @@ public class ContainerImpl implements Container {
 
 	static class ContainerProfileOptions implements OptionsProvider<ProfileBuilder> {
 
+	    private static Logger LOGGER = LoggerFactory.getLogger(ContainerImpl.class);
+	    
 		private final String cntId;
 		private final DataStore dataStore;
 	    private final Version version;
@@ -758,12 +760,12 @@ public class ContainerImpl implements Container {
 	    private List<Profile> getParents() {
 	        List<Profile> parents = new ArrayList<>();
 			for (String prfid : dataStore.getContainerProfiles(cntId)) {
-	            try {
-	                Profile profile = version.getRequiredProfile(prfid);
-	                parents.add(profile);
-	            } catch (Exception e) {
-	                //We ignore profiles that threw an error (e.g. they don't exist).
-	            }
+                Profile profile = version.getProfile(prfid);
+                if (profile != null) {
+                    parents.add(profile);
+                } else {
+                    LOGGER.warn("Container profile '" + prfid + "' not found in: " + version + " - Ignoring!");
+                }
 	        }
 	        return parents;
 	    }
