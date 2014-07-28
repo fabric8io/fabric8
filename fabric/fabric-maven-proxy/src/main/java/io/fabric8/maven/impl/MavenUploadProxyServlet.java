@@ -49,29 +49,19 @@ public class MavenUploadProxyServlet extends MavenDownloadProxyServlet {
                 path = path.substring(1);
             }
 
+            UploadContext result;
             // handle move
             String location = req.getHeader(LOCATION_HEADER);
             if (location != null) {
-                UploadContext result = move(location, path);
-                addHeaders(resp, result.headers());
-                resp.setStatus(HttpServletResponse.SC_ACCEPTED);
-                return;
+                result = move(location, path);
+            } else {
+                result = doUpload(req.getInputStream(), path);
             }
 
-            UploadContext result = doUpload(req.getInputStream(), path);
             if (result.status()) {
+                handleDeploy(req, result);
+
                 addHeaders(resp, result.headers());
-
-                String profile = req.getParameter("profile");
-                String version = req.getParameter("version");
-                if (profile != null && version != null) {
-                    ProjectRequirements requirements = toProjectRequirements(result);
-                    requirements.setProfileId(profile);
-                    requirements.setVersion(version);
-
-                    DeployResults deployResults = addToProfile(requirements);
-                    LOGGER.info(String.format("Deployed artifact %s to profile: %s", result.toArtifact(), deployResults));
-                }
 
                 resp.setStatus(HttpServletResponse.SC_ACCEPTED);
             } else {
@@ -89,6 +79,19 @@ public class MavenUploadProxyServlet extends MavenDownloadProxyServlet {
             resp.flushBuffer();
         }
 
+    }
+
+    private void handleDeploy(HttpServletRequest req, UploadContext result) throws Exception {
+        String profile = req.getParameter("profile");
+        String version = req.getParameter("version");
+        if (profile != null && version != null) {
+            ProjectRequirements requirements = toProjectRequirements(result);
+            requirements.setProfileId(profile);
+            requirements.setVersion(version);
+
+            DeployResults deployResults = addToProfile(requirements);
+            LOGGER.info(String.format("Deployed artifact %s to profile: %s", result.toArtifact(), deployResults));
+        }
     }
 
     private static void addHeaders(HttpServletResponse resp, Map<String, String> headers) {
