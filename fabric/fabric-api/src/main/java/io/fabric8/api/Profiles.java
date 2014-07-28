@@ -385,7 +385,7 @@ public final class Profiles {
     /**
      * Get a long profile info string
      */
-    public static String getProfileInfo(Profile profile) {
+    public static String getProfileInfo(Profile profile, boolean parents) {
         IllegalArgumentAssertion.assertNotNull(profile, "profile");
         StringBuilder builder = new StringBuilder("Profile[ver=" + profile.getVersion() + ",id=" + profile.getId() + "]");
         builder.append("\nAttributes");
@@ -406,7 +406,20 @@ public final class Profiles {
                 builder.append("\n  " + fileKey);
             }
         }
+        if (parents) {
+            appendParentProfiles(builder, profile, new HashSet<String>());
+        }
         return builder.toString();
+    }
+    
+    private static void appendParentProfiles(StringBuilder builder, Profile profile, HashSet<String> profiles) {
+        if (!profiles.contains(profile.getId())) {
+            for (Profile parent : profile.getParents()) {
+                appendParentProfiles(builder, parent, profiles);
+                builder.append("\n\nParent of " + profile.getId() + " - " + getProfileInfo(parent, false));
+            }
+            profiles.add(profile.getId());
+        }
     }
     
     /**

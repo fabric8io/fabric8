@@ -155,7 +155,37 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     @Override
     public Profile getOverlayProfile(Profile profile) {
         assertValid();
-        return getOverlayInternal(profile);
+        
+        Profile overlayProfile;
+        if (profile.isOverlay()) {
+            LOGGER.info("getOverlayProfile, given profile is already an overlay: " + profile);
+            overlayProfile = profile;
+        } else {
+            String profileId = profile.getId();
+            String environment = runtimeProperties.get().getProperty(SystemProperties.FABRIC_ENVIRONMENT);
+            ProfileBuilder builder = ProfileBuilder.Factory.create(profile.getVersion(), profileId);
+            builder.addOptions(new OverlayOptionsProvider(profile, environment));
+            overlayProfile = builder.getProfile();
+            
+            // Log the overlay profile difference
+            if (LOGGER.isInfoEnabled()) {
+                synchronized (lastOverlayProfiles) {
+                    Profile lastOverlay = lastOverlayProfiles.get(profileId);
+                    String longString = Profiles.getProfileInfo(overlayProfile, true);
+                    String lastString = lastOverlay != null ? Profiles.getProfileInfo(lastOverlay, true) : null;
+                    if (lastOverlay == null || !longString.equals(lastString)) {
+                        LOGGER.info("Changed Overlay" + longString);
+                        if (lastOverlay != null) {
+                            LOGGER.info("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
+                        }
+                        LOGGER.info("Computed from " + Profiles.getProfileInfo(profile, true));
+                        LOGGER.info("Called from ", new RuntimeException());
+                        lastOverlayProfiles.put(profileId, overlayProfile);
+                    }
+                }
+            }
+        }
+        return overlayProfile;
     }
 
     @Override
@@ -196,38 +226,6 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         }
     }
 
-    private Profile getOverlayInternal(Profile profile) {
-        Profile overlayProfile;
-        if (profile.isOverlay()) {
-            overlayProfile = profile;
-        } else {
-            String profileId = profile.getId();
-            String environment = runtimeProperties.get().getProperty(SystemProperties.FABRIC_ENVIRONMENT);
-            ProfileBuilder builder = ProfileBuilder.Factory.create(profile.getVersion(), profileId);
-            builder.addOptions(new OverlayOptionsProvider(profile, environment));
-            overlayProfile = builder.getProfile();
-            
-            // Log the overlay profile difference
-            if (LOGGER.isInfoEnabled()) {
-                synchronized (lastOverlayProfiles) {
-                    Profile lastOverlay = lastOverlayProfiles.get(profileId);
-                    String longString = Profiles.getProfileInfo(overlayProfile);
-                    String lastString = lastOverlay != null ? Profiles.getProfileInfo(lastOverlay) : null;
-                    if (lastOverlay == null || !longString.equals(lastString)) {
-                        LOGGER.info("Changed Overlay" + longString);
-                        if (lastOverlay != null) {
-                            LOGGER.info("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
-                        }
-                        LOGGER.info("Called from ", new RuntimeException());
-                        lastOverlayProfiles.put(profileId, overlayProfile);
-                    }
-                }
-            }
-        }
-        return overlayProfile;
-    }
-    
-    
     static class OverlayOptionsProvider implements OptionsProvider<ProfileBuilder> {
 
         private final Profile self;
@@ -275,7 +273,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         }
         
         private List<Profile> getInheritedProfiles() {
-            List<Profile> profiles = new ArrayList<Profile>();
+            List<Profile> profiles = new ArrayList<>();
             fillParentProfiles(self, profiles);
             return profiles;
         }
@@ -290,12 +288,6 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         }
 
         private void supplement(Profile profile, Map<String, SupplementControl> aggregate) throws Exception {
-            // TODO fix this, should this every happen???
-            if (profile instanceof OverlayOptionsProvider) {
-                if (((OverlayOptionsProvider) profile).self.equals(self)) {
-                    return;
-                }
-            }
 
             Map<String, byte[]> configs = profile.getFileConfigurations();
             for (String key : configs.keySet()) {
