@@ -202,7 +202,8 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
             ProfileBuilder builder = ProfileBuilder.Factory.create(profile.getVersion(), profile.getId());
             builder.addOptions(new OverlayOptionsProvider(profile, environment));
             overlayProfile = builder.getProfile();
-            LOGGER.info("Overlay profile");
+            LOGGER.info("Overlay" + overlayProfile.toLongString());
+            LOGGER.info("Called from ", new RuntimeException());
         }
         return overlayProfile;
     }

@@ -186,6 +186,11 @@ public class ProfileFacade implements Profile, HasId {
     }
 
     @Override
+    public String toLongString() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public int compareTo(Profile profile) {
         throw new UnsupportedOperationException();
     }
