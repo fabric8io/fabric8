@@ -91,7 +91,7 @@ public class CreateChildContainerTest {
         try {
             Assert.assertEquals("One container", 1, containers.size());
             Container child = containers.iterator().next();
-            Assert.assertEquals("childA1", child.getId());
+            Assert.assertEquals("childA", child.getId());
             Assert.assertEquals("root", child.getParent().getId());
         } finally {
             ContainerBuilder.stop(containers);
@@ -131,7 +131,7 @@ public class CreateChildContainerTest {
         try {
             Assert.assertEquals("One container", 1, containers.size());
             Container child = containers.iterator().next();
-            Assert.assertEquals("childC1", child.getId());
+            Assert.assertEquals("childC", child.getId());
             Assert.assertEquals("root", child.getParent().getId());
             String logPid = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " config:proplist --pid org.apache.karaf.log");
             String shellPid = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " config:proplist --pid org.apache.karaf.shell");
