@@ -15,37 +15,6 @@
  */
 package io.fabric8.git.internal;
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
-import io.fabric8.api.Constants;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.DataStoreTemplate;
-import io.fabric8.api.FabricException;
-import io.fabric8.api.GitContext;
-import io.fabric8.api.LockHandle;
-import io.fabric8.api.Profile;
-import io.fabric8.api.ProfileBuilder;
-import io.fabric8.api.ProfileBuilders;
-import io.fabric8.api.ProfileRegistry;
-import io.fabric8.api.Profiles;
-import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.Version;
-import io.fabric8.api.VersionBuilder;
-import io.fabric8.api.VersionSequence;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.Configurer;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.Strings;
-import io.fabric8.common.util.Zips;
-import io.fabric8.git.GitDataStore;
-import io.fabric8.git.GitListener;
-import io.fabric8.git.GitProxyService;
-import io.fabric8.git.GitService;
-import io.fabric8.utils.DataStoreUtils;
-import io.fabric8.zookeeper.ZkPath;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -82,6 +51,37 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import io.fabric8.api.Constants;
+import io.fabric8.api.DataStore;
+import io.fabric8.api.DataStoreTemplate;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.GitContext;
+import io.fabric8.api.LockHandle;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileBuilders;
+import io.fabric8.api.ProfileRegistry;
+import io.fabric8.api.Profiles;
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.Version;
+import io.fabric8.api.VersionBuilder;
+import io.fabric8.api.VersionSequence;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.Files;
+import io.fabric8.common.util.Strings;
+import io.fabric8.common.util.Zips;
+import io.fabric8.git.GitDataStore;
+import io.fabric8.git.GitListener;
+import io.fabric8.git.GitProxyService;
+import io.fabric8.git.GitService;
+import io.fabric8.utils.DataStoreUtils;
+import io.fabric8.zookeeper.ZkPath;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.shared.SharedCount;
@@ -123,9 +123,10 @@ import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import static io.fabric8.service.EnvPlaceholderResolver.removeTokens;
+import static io.fabric8.service.EnvPlaceholderResolver.resolveExpression;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
 
 /**
  * A git based implementation of {@link DataStore} which stores the profile
@@ -1088,14 +1089,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
      * Imports one or more profile zips into the given version
      */
     private String doImportProfiles(Git git, GitContext context, List<String> profileZipUrls) throws GitAPIException, IOException {
-        // we cannot use fabricService as it has not been initialized yet, so we can only support
-        // dynamic version of one token ${version:fabric} in the urls
-        String fabricVersion = dataStore.get().getFabricReleaseVersion();
-
         File profilesDirectory = GitHelpers.getProfilesDirectory(git);
-        for (String profileZipUrl : profileZipUrls) {
-            String token = "\\$\\{version:fabric\\}";
-            String url = profileZipUrl.replaceFirst(token, fabricVersion);
+        for (String url : profileZipUrls) {
             URL zipUrl;
             try {
                 zipUrl = new URL(url);
@@ -1622,7 +1617,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
             git.add().addFilepattern(fixFilePattern(pattern)).call();
         }
-        
+
         @SuppressWarnings("unchecked")
         void initialImportFromPath(Path fromPath) {
             LOGGER.info("Importing additional profiles from file system directory: {}", fromPath);
@@ -1630,7 +1625,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             List<String> profiles = new ArrayList<String>();
 
             // find any zip files
-
             String[] zips = fromPath.toFile().list(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
@@ -1679,9 +1673,42 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 LOGGER.warn("Error importing profiles due " + e.getMessage() + ". This exception is ignored.");
             }
 
-            if (!profiles.isEmpty()) {
-                LOGGER.info("Importing additional profiles from {} url locations ...", profiles.size());
-                importProfiles(dataStore.get().getDefaultVersion(), profiles);
+            // we cannot use fabricService as it has not been initialized yet, so we can only support
+            // dynamic version of one token ${version:fabric} in the urls
+            String fabricVersion = dataStore.get().getFabricReleaseVersion();
+
+            // parse the profiles for tokens and environment variables
+            List<String> replaced = new ArrayList<>();
+            for (String profileZipUrl : profiles) {
+                String token = "\\$\\{version:fabric\\}";
+                String url = profileZipUrl.replaceFirst(token, fabricVersion);
+
+                // remove placeholder tokens which the EnvPlaceholderResolver do not expect
+                url = removeTokens(url);
+                // resolve the url as it may point to a system environment to be used
+                url = resolveExpression(url, null, false);
+
+                // maybe there is more in the same url so we split by comma
+                String[] urls = url.split(",");
+
+                // and then add each url to the list of replaced profile urls
+                for (String s : urls) {
+                    s = s.trim();
+                    // skip profiles which is marked as off/false etc
+                    // for example people can turn off quickstarts by setting environment variable FABRIC8_IMPORT_PROFILE_URLS=false
+                    if ("false".equals(s) || "off".equals(s)) {
+                        continue;
+                    }
+                    replaced.add(s);
+                }
+            }
+
+            if (!replaced.isEmpty()) {
+                LOGGER.info("Importing additional profiles from {} url locations ...", replaced.size());
+                importProfiles(dataStore.get().getDefaultVersion(), replaced);
+                for (String url : replaced) {
+                    LOGGER.info("Importing additional profile: {}", url);
+                }
                 LOGGER.info("Importing additional profiles done");
             }
         }
