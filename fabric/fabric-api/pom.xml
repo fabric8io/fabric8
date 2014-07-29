@@ -33,7 +33,9 @@
     <properties>
         <fuse.osgi.import>
             com.fasterxml.jackson.annotation.*,
+            com.google.common.*,
             org.jboss.gravia.utils,
+            org.jboss.gravia.runtime,
             org.osgi.framework,
             org.osgi.service.metatype, 
             org.osgi.util.tracker,
@@ -52,6 +54,10 @@
             <groupId>org.jboss.gravia</groupId>
             <artifactId>gravia-runtime-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
         
         <!-- Provided Dependencies -->
         <dependency>
@@ -63,6 +69,10 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-runtime-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

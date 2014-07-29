@@ -15,6 +15,17 @@
  */
 package io.fabric8.commands.hadoop;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.CreateChildContainerOptions;
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.CreateContainerOptions;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
+import io.fabric8.api.Version;
+
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,13 +37,6 @@ import java.util.Map;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
-import io.fabric8.api.Container;
-import io.fabric8.api.CreateChildContainerOptions;
-import io.fabric8.api.CreateContainerMetadata;
-import io.fabric8.api.CreateContainerOptions;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
 
 @Command(scope = "hadoop", name = "create", description = "Create an Hadoop cluster")
 public class CreateAction extends AbstractAction {
@@ -61,9 +65,11 @@ public class CreateAction extends AbstractAction {
     @Option(name = "--force")
     private boolean force = false;
 
+    private final ProfileService profileService;
     private final FabricService fabricService;
 
     CreateAction(FabricService fabricService) {
+        this.profileService = fabricService.adapt(ProfileService.class);
         this.fabricService = fabricService;
     }
 
@@ -100,6 +106,7 @@ public class CreateAction extends AbstractAction {
                 }
             }
         }
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
         for (String p : Arrays.asList("hadoop-" + name,
                                       "hadoop-" + name + "-namenode",
                                       "hadoop-" + name + "-secondary-namenode",
@@ -109,72 +116,75 @@ public class CreateAction extends AbstractAction {
                                       "insight-hdfs-" + name)) {
             Profile profile = null;
             try {
-                profile = fabricService.getDefaultVersion().getProfile(p);
+                profile = fabricService.getRequiredDefaultVersion().getProfile(p);
             } catch (Throwable t) {
                 // Ignore
             }
             if (profile != null) {
+            	String versionId = profile.getVersion();
+                String profileId = profile.getId();
                 if (force) {
-                    profile.delete();
+                    profileService.deleteProfile(fabricService, versionId, profileId, force);
                 } else {
-                    throw new IllegalStateException("Profile " + profile.getId() + " already exists. Use --force to recreate the profiles.");
+					throw new IllegalStateException("Profile " + profileId + " already exists. Use --force to recreate the profiles.");
                 }
             }
         }
 
-        Version version = fabricService.getDefaultVersion();
-        Profile hadoop = version.getProfile("hadoop");
+        Version version = fabricService.getRequiredDefaultVersion();
+        Profile hadoop = version.getRequiredProfile("hadoop");
         Map<String, Map<String, String>> configs;
 
-        Profile cluster = version.createProfile("hadoop-" + name);
-        cluster.setParents(new Profile[] { hadoop });
+        String versionId = version.getId();
+        ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, "hadoop-" + name);
+        builder.addParent(hadoop);
         configs = new HashMap<String, Map<String, String>>();
         configs.put("io.fabric8.hadoop", new HashMap<String, String>());
         configs.get("io.fabric8.hadoop").put("fs.default.name", "hdfs://${zk:" + nameNode + "/ip}:9000");
         configs.get("io.fabric8.hadoop").put("dfs.http.address", "hdfs://${zk:" + nameNode + "/ip}:9002");
-        cluster.setConfigurations(configs);
+        Profile cluster = profileService.createProfile(builder.setConfigurations(configs).getProfile());
 
-        Profile nameNodeProfile = version.createProfile("hadoop-" + name + "-namenode");
-        nameNodeProfile.setParents(new Profile[]{cluster});
+        builder = ProfileBuilder.Factory.create(versionId, "hadoop-" + name + "-namenode");
+        builder.addParent(cluster);
         configs = new HashMap<String, Map<String, String>>();
         configs.put("io.fabric8.hadoop", new HashMap<String, String>());
         configs.get("io.fabric8.hadoop").put("nameNode", "true");
-        nameNodeProfile.setConfigurations(configs);
+        Profile nameNodeProfile = profileService.createProfile(builder.setConfigurations(configs).getProfile());
 
-        Profile secondaryNameNodeProfile = version.createProfile("hadoop-" + name + "-secondary-namenode");
-        secondaryNameNodeProfile.setParents(new Profile[]{cluster});
+        builder = ProfileBuilder.Factory.create(versionId, "hadoop-" + name + "-secondary-namenode");
+        builder.addParent(cluster);
         configs = new HashMap<String, Map<String, String>>();
         configs.put("io.fabric8.hadoop", new HashMap<String, String>());
         configs.get("io.fabric8.hadoop").put("secondaryNameNode", "true");
-        secondaryNameNodeProfile.setConfigurations(configs);
+        Profile secondaryNameNodeProfile = profileService.createProfile(builder.setConfigurations(configs).getProfile());
 
-        Profile dataNodeProfile = version.createProfile("hadoop-" + name + "-datanode");
-        dataNodeProfile.setParents(new Profile[]{cluster});
+        builder = ProfileBuilder.Factory.create(versionId, "hadoop-" + name + "-datanode");
+        builder.addParent(cluster);
         configs = new HashMap<String, Map<String, String>>();
         configs.put("io.fabric8.hadoop", new HashMap<String, String>());
         configs.get("io.fabric8.hadoop").put("dataNode", "true");
-        dataNodeProfile.setConfigurations(configs);
+        Profile dataNodeProfile = profileService.createProfile(builder.setConfigurations(configs).getProfile());
 
-        Profile jobTrackerProfile = version.createProfile("hadoop-" + name + "-job-tracker");
-        jobTrackerProfile.setParents(new Profile[]{cluster});
+        builder = ProfileBuilder.Factory.create(versionId, "hadoop-" + name + "-job-tracker");
+        builder.addParent(cluster);
         configs = new HashMap<String, Map<String, String>>();
         configs.put("io.fabric8.hadoop", new HashMap<String, String>());
         configs.get("io.fabric8.hadoop").put("jobTracker", "true");
-        jobTrackerProfile.setConfigurations(configs);
+        Profile jobTrackerProfile = profileService.createProfile(builder.setConfigurations(configs).getProfile());
 
-        Profile taskTrackerProfile = version.createProfile("hadoop-" + name + "-task-tracker");
-        taskTrackerProfile.setParents(new Profile[]{cluster});
+        builder = ProfileBuilder.Factory.create(versionId, "hadoop-" + name + "-task-tracker");
+        builder.addParent(cluster);
         configs = new HashMap<String, Map<String, String>>();
         configs.put("io.fabric8.hadoop", new HashMap<String, String>());
         configs.get("io.fabric8.hadoop").put("taskTracker", "true");
-        taskTrackerProfile.setConfigurations(configs);
+        Profile taskTrackerProfile = profileService.createProfile(builder.setConfigurations(configs).getProfile());
 
-        Profile insightProfile = version.createProfile("insight-hdfs-" + name);
-        insightProfile.setParents(new Profile[]{ version.getProfile("insight-hdfs")});
+        builder = ProfileBuilder.Factory.create(versionId, "insight-hdfs-" + name);
+        builder.addParent(version.getRequiredProfile("insight-hdfs"));
         configs = new HashMap<String, Map<String, String>>();
         configs.put("io.fabric8.insight.elasticsearch-default", new HashMap<String, String>());
         configs.get("io.fabric8.insight.elasticsearch-default").put("gateway.hdfs.uri", "hdfs://${zk:" + nameNode + "/ip}:9000");
-        insightProfile.setConfigurations(configs);
+        Profile insightProfile = profileService.createProfile(builder.setConfigurations(configs).getProfile());
 
         // Name node
         Container nameNodeContainer = findContainer(containers, nameNode);

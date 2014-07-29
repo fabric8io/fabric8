@@ -15,23 +15,15 @@
  */
 package io.fabric8.configadmin;
 
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
 import io.fabric8.api.Constants;
+import io.fabric8.api.Container;
 import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
-
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.url.URLStreamHandlerService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,6 +37,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.url.URLStreamHandlerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.configadmin.bridge", label = "Fabric8 Config Admin Bridge", metatype = false)
@@ -103,58 +105,60 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
             @Override
             public void run() {
                 if (isValid()) {
-                    updateInternal();
+                    try {
+                        updateInternal();
+                    } catch (Throwable th) {
+                        if (isValid()) {
+                            LOGGER.warn("Exception when tracking configurations. This exception will be ignored.", th);
+                        } else {
+                            LOGGER.debug("Exception when tracking configurations. This exception will be ignored because services have been unbound in the mean time.", th);
+                        }
+                    }
                 }
             }
         });
     }
 
-    private synchronized void updateInternal() {
-        Profile profile = null;
-
-        try {
-            profile = fabricService.get().getCurrentContainer().getOverlayProfile();
-        } catch (Exception ex) {
-            LOGGER.debug("Failed to read container profile. This exception will be ignored..", ex);
+    private synchronized void updateInternal() throws Exception {
+        
+        Container currentContainer = fabricService.get().getCurrentContainer();
+        Profile overlayProfile = currentContainer.getOverlayProfile();
+        
+        if (overlayProfile.getConfiguration(Constants.AGENT_PID).isEmpty()) {
+            LOGGER.warn("Overlay profile has empty agent configuration: " + overlayProfile);
             return;
         }
-
-        try {
-
-            final Map<String, Map<String, String>> pidProperties = profile.getConfigurations();
-            List<Configuration> configs = asList(configAdmin.get().listConfigurations("(" + FABRIC_ZOOKEEPER_PID + "=*)"));
-            // FABRIC-803: the agent may use the configuration provided by features definition if not managed
-            //   by fabric.  However, in order for this to work, we need to make sure managed configurations
-            //   are all registered before the agent kicks in.  Hence, the agent configuration is updated
-            //   after all other configurations.
-            // Process all configurations but agent
-            for (String pid : pidProperties.keySet()) {
-                if (!pid.equals(Constants.AGENT_PID)) {
-                    Hashtable<String, Object> c = new Hashtable<String, Object>();
-                    c.putAll(pidProperties.get(pid));
-                    updateConfig(configs, pid, c);
-                }
+        
+        Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), overlayProfile);
+        Map<String, Map<String, String>> configurations = effectiveProfile.getConfigurations();
+        List<Configuration> zkConfigs = asList(configAdmin.get().listConfigurations("(" + FABRIC_ZOOKEEPER_PID + "=*)"));
+        
+        // FABRIC-803: the agent may use the configuration provided by features definition if not managed
+        //   by fabric.  However, in order for this to work, we need to make sure managed configurations
+        //   are all registered before the agent kicks in.  Hence, the agent configuration is updated
+        //   after all other configurations.
+        
+        // Process all configurations but agent
+        for (String pid : configurations.keySet()) {
+            if (!pid.equals(Constants.AGENT_PID)) {
+                Hashtable<String, Object> c = new Hashtable<String, Object>();
+                c.putAll(configurations.get(pid));
+                updateConfig(zkConfigs, pid, c);
             }
-            // Process agent configuration last
-            for (String pid : pidProperties.keySet()) {
-                if (pid.equals(Constants.AGENT_PID)) {
-                    Hashtable<String, Object> c = new Hashtable<String, Object>();
-                    c.putAll(pidProperties.get(pid));
-                    c.put(Profile.HASH, String.valueOf(profile.getProfileHash()));
-                    updateConfig(configs, pid, c);
-                }
+        }
+        // Process agent configuration last
+        for (String pid : configurations.keySet()) {
+            if (pid.equals(Constants.AGENT_PID)) {
+                Hashtable<String, Object> c = new Hashtable<String, Object>();
+                c.putAll(configurations.get(pid));
+                c.put(Profile.HASH, String.valueOf(effectiveProfile.getProfileHash()));
+                updateConfig(zkConfigs, pid, c);
             }
-            for (Configuration config : configs) {
-                LOGGER.info("Deleting configuration {}", config.getPid());
-                fabricService.get().getPortService().unregisterPort(fabricService.get().getCurrentContainer(), config.getPid());
-                config.delete();
-            }
-        } catch (Throwable e) {
-            if (isValid()) {
-                LOGGER.warn("Exception when tracking configurations. This exception will be ignored.", e);
-            } else {
-                LOGGER.debug("Exception when tracking configurations. This exception will be ignored because services have been unbound in the mean time.", e);
-            }
+        }
+        for (Configuration config : zkConfigs) {
+            LOGGER.info("Deleting configuration {}", config.getPid());
+            fabricService.get().getPortService().unregisterPort(fabricService.get().getCurrentContainer(), config.getPid());
+            config.delete();
         }
     }
 
@@ -199,6 +203,7 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
         }
     }
 
+    @SuppressWarnings("unchecked")
     private <T> List<T> asList(T... a) {
         List<T> l = new ArrayList<T>();
         if (a != null) {
@@ -280,17 +285,12 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
 
         NamedThreadFactory(String prefix) {
             SecurityManager s = System.getSecurityManager();
-            group = (s != null) ? s.getThreadGroup() :
-                    Thread.currentThread().getThreadGroup();
-            namePrefix = prefix + "-" +
-                    poolNumber.getAndIncrement() +
-                    "-thread-";
+            group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+            namePrefix = prefix + "-" + poolNumber.getAndIncrement() + "-thread-";
         }
 
         public Thread newThread(Runnable r) {
-            Thread t = new Thread(group, r,
-                    namePrefix + threadNumber.getAndIncrement(),
-                    0);
+            Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
             if (t.isDaemon())
                 t.setDaemon(false);
             if (t.getPriority() != Thread.NORM_PRIORITY)

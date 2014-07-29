@@ -88,7 +88,7 @@ public class ProfileEditTest {
             System.err.println(CommandSupport.executeCommand("fabric:profile-edit --pid my.pid/key=value default"));
 
             //Check that my.pid has been added to the default profile
-            Profile profile = fabricService.getDefaultVersion().getProfile("default");
+            Profile profile = fabricService.getRequiredDefaultVersion().getRequiredProfile("default");
             Assert.assertNotNull(profile);
             Map<String, Map<String, String>> configurations = profile.getConfigurations();
             Assert.assertNotNull(configurations);
@@ -100,6 +100,7 @@ public class ProfileEditTest {
 
             //Check append options for a pid.
             System.err.println(CommandSupport.executeCommand("fabric:profile-edit --append --pid my.pid/key=othervalue default"));
+            profile = fabricService.getRequiredDefaultVersion().getRequiredProfile("default");
             configurations = profile.getConfigurations();
             Assert.assertTrue(configurations.containsKey("my.pid"));
             myPid = configurations.get("my.pid");
@@ -108,6 +109,7 @@ public class ProfileEditTest {
             Assert.assertEquals("value,othervalue", myPid.get("key"));
 
             System.err.println(CommandSupport.executeCommand("fabric:profile-edit --remove --pid my.pid/key=value default"));
+            profile = fabricService.getRequiredDefaultVersion().getRequiredProfile("default");
             configurations = profile.getConfigurations();
             Assert.assertTrue(configurations.containsKey("my.pid"));
             myPid = configurations.get("my.pid");
@@ -117,6 +119,7 @@ public class ProfileEditTest {
 
             //Check append options for a pid.
             System.err.println(CommandSupport.executeCommand("fabric:profile-edit --remove --pid my.pid/key=othervalue default"));
+            profile = fabricService.getRequiredDefaultVersion().getRequiredProfile("default");
             configurations = profile.getConfigurations();
             Assert.assertTrue(configurations.containsKey("my.pid"));
             myPid = configurations.get("my.pid");
@@ -126,6 +129,7 @@ public class ProfileEditTest {
 
             //Check assign option with '='.
             System.err.println(CommandSupport.executeCommand("fabric:profile-edit --pid my.pid/key=prop1=value1 default"));
+            profile = fabricService.getRequiredDefaultVersion().getRequiredProfile("default");
             configurations = profile.getConfigurations();
             Assert.assertTrue(configurations.containsKey("my.pid"));
             myPid = configurations.get("my.pid");
@@ -135,6 +139,7 @@ public class ProfileEditTest {
 
             //Check multiple properties
             System.err.println(CommandSupport.executeCommand("fabric:profile-edit --pid my.pid/key1=value1 --pid my.pid/key2=value2 default"));
+            profile = fabricService.getRequiredDefaultVersion().getRequiredProfile("default");
             configurations = profile.getConfigurations();
             Assert.assertTrue(configurations.containsKey("my.pid"));
             myPid = configurations.get("my.pid");
@@ -149,7 +154,7 @@ public class ProfileEditTest {
             System.err.println(CommandSupport.executeCommand("fabric:profile-edit --pid my.pid2 --import-pid default"));
 
             //Check that my.pid has been added to the default profile
-            profile = fabricService.getDefaultVersion().getProfile("default");
+            profile = fabricService.getRequiredDefaultVersion().getRequiredProfile("default");
             Assert.assertNotNull(profile);
             configurations = profile.getConfigurations();
             Assert.assertNotNull(configurations);
@@ -163,10 +168,12 @@ public class ProfileEditTest {
             Assert.assertEquals("value2", myPid2.get("key2"));
 
             System.err.println(CommandSupport.executeCommand("fabric:profile-edit --pid my.pid2/key1 --delete default"));
+            profile = fabricService.getRequiredDefaultVersion().getRequiredProfile("default");
             Map<String, String> configuration = profile.getConfiguration("my.pid2");
             Assert.assertFalse(configuration.containsKey("key1"));
 
             System.err.println(CommandSupport.executeCommand("fabric:profile-edit --pid my.pid2 --delete default"));
+            profile = fabricService.getRequiredDefaultVersion().getRequiredProfile("default");
             configurations = profile.getConfigurations();
             Assert.assertFalse(configurations.containsKey("my.pid2"));
         } finally {

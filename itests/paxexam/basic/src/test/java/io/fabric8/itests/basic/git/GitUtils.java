@@ -18,11 +18,11 @@ package io.fabric8.itests.basic.git;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import io.fabric8.api.ContainerRegistration;
-import io.fabric8.api.ServiceLocator;
 import io.fabric8.git.GitNode;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.internal.ZooKeeperGroup;
+import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
 import io.fabric8.zookeeper.ZkPath;
 
 import java.io.IOException;
@@ -77,9 +77,6 @@ public class GitUtils {
 
     /**
      * Wait until the version znode gets updated (indicating that entries has been bridge from/to git).
-     * @param curator       The {@link CuratorFramework} instance to use for looking up the registry.
-     * @param branch        The name of the branch/version.
-     * @throws Exception
      */
     public  static void waitForBranchUpdate(CuratorFramework curator, String branch) throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
@@ -90,9 +87,7 @@ public class GitUtils {
             }
         };
 
-        for (int i = 0;
-             curator.checkExists().usingWatcher(watcher).forPath(ZkPath.CONFIG_VERSION.getPath(branch)) == null && i < 3;
-             i++) {
+        for (int i = 0; curator.checkExists().usingWatcher(watcher).forPath(ZkPath.CONFIG_VERSION.getPath(branch)) == null && i < 3; i++) {
             Thread.sleep(1000);
         }
 

@@ -20,10 +20,10 @@ import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
-import io.fabric8.api.ServiceLocator;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.api.Version;
 import io.fabric8.tooling.testing.pax.exam.karaf.FabricKarafTestSupport;
+import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
@@ -64,13 +64,6 @@ public class FabricTestSupport extends FabricKarafTestSupport {
 
     static final String KARAF_VERSION = "2.3.0.redhat-610379";
 
-    /**
-     * Creates a child {@link Agent} with the given name.
-     */
-    private Container createChildContainer(FabricService fabricService, String name, String parent, String profileName) throws Exception {
-        return createChildContainer(fabricService, name, parent, profileName, null);
-    }
-
     private Container createChildContainer(FabricService fabricService, String name, String parent, String profileName, String jvmOpts) throws Exception {
 
         Thread.sleep(DEFAULT_WAIT);
@@ -92,8 +85,8 @@ public class FabricTestSupport extends FabricKarafTestSupport {
                 throw new Exception("Error creating child container:" + name, metadata[0].getFailure());
             }
             Container container = metadata[0].getContainer();
-            Version version = fabricService.getDefaultVersion();
-            Profile profile = version.getProfile(profileName);
+            Version version = fabricService.getRequiredDefaultVersion();
+            Profile profile = version.getRequiredProfile(profileName);
             Assert.assertNotNull("Expected to find profile with name:" + profileName, profile);
             container.setProfiles(new Profile[] { profile });
             Provision.containersStatus(Arrays.asList(container), "success", PROVISION_TIMEOUT);
@@ -148,7 +141,7 @@ public class FabricTestSupport extends FabricKarafTestSupport {
 
         Container container = fabricService.getContainer(containerName);
         Version version = container.getVersion();
-        Profile[] profiles = new Profile[] { version.getProfile(profileName) };
+        Profile[] profiles = new Profile[] { version.getRequiredProfile(profileName) };
         Profile[] currentProfiles = container.getProfiles();
 
         Arrays.sort(profiles);
@@ -159,7 +152,7 @@ public class FabricTestSupport extends FabricKarafTestSupport {
             same = false;
         } else {
             for (int i = 0; i < currentProfiles.length; i++) {
-                if (!currentProfiles[i].configurationEquals(profiles[i])) {
+                if (!currentProfiles[i].equals(profiles[i])) {
                     same = false;
                 }
             }

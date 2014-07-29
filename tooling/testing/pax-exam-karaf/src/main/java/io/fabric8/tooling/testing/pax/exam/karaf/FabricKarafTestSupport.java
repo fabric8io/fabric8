@@ -15,8 +15,6 @@
  */
 package io.fabric8.tooling.testing.pax.exam.karaf;
 
-import io.fabric8.api.ServiceLocator;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.Callable;

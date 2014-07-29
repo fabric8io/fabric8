@@ -49,7 +49,7 @@ public class FabricDTO {
     public FabricDTO(FabricService fabricService) {
         this.zookeeperUrl = fabricService.getZookeeperUrl();
         this.currentContainerName = fabricService.getCurrentContainerName();
-        this.defaultVersion = Profiles.versionId(fabricService.getDefaultVersion());
+        this.defaultVersion = fabricService.getDefaultVersionId();
         this.environment = fabricService.getEnvironment();
         this.mavenRepoURI = asString(fabricService.getMavenRepoURI());
         this.mavenRepoUploadURI = asString(fabricService.getMavenRepoUploadURI());

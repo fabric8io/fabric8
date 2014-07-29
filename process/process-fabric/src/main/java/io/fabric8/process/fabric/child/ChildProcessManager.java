@@ -15,15 +15,15 @@
  */
 package io.fabric8.process.fabric.child;
 
-import io.fabric8.agent.download.DownloadManager;
-import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.OptionsProvider;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
 import io.fabric8.common.util.Objects;
 import io.fabric8.deployer.JavaContainers;
-import io.fabric8.internal.ProfileOverlayImpl;
 import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.Installation;
@@ -34,15 +34,17 @@ import io.fabric8.process.manager.support.CompositeTask;
 import io.fabric8.process.manager.support.InstallDeploymentsTask;
 import io.fabric8.process.manager.support.ProcessUtils;
 import io.fabric8.service.child.ChildConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
@@ -77,14 +79,13 @@ public class ChildProcessManager {
         // TODO check that the installation is the same
         uninstallProcess(requirements);
 
-        String id = requirements.getId();
+        //String id = requirements.getId();
         InstallOptions installOptions = requirements.createInstallOptions();
         Profile processProfile = getProcessProfile(requirements, true);
         Profile deployProcessProfile = getProcessProfile(requirements, false);
-        Map<String, String> configuration = ProcessUtils.getProcessLayout(processProfile, requirements.getLayout());
+        Map<String, String> configuration = ProcessUtils.getProcessLayout(fabricService, processProfile, requirements.getLayout());
 
-        DownloadManager downloadManager = DownloadManagers
-                .createDownloadManager(fabricService, executorService);
+        //DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, executorService);
         InstallTask applyConfiguration = new ApplyConfigurationTask(configuration, installOptions.getProperties());
         List<Profile> profiles = new ArrayList<Profile>();
         profiles.add(deployProcessProfile);
@@ -121,8 +122,9 @@ public class ChildProcessManager {
 
     protected Profile getProcessProfile(ProcessRequirements requirements, boolean includeController) {
         Container container = fabricService.getCurrentContainer();
-        ProcessProfile profile = new ProcessProfile(container, requirements, fabricService, includeController);
-        return new ProfileOverlayImpl(profile, fabricService.getEnvironment(), true, fabricService);
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        Profile processProfile = getProcessProfile(requirements, includeController, container);
+        return Profiles.getEffectiveProfile(fabricService, profileService.getOverlayProfile(processProfile));
     }
 
     protected Installation findProcessInstallation(String id) {
@@ -136,5 +138,46 @@ public class ChildProcessManager {
         return null;
     }
 
+	private Profile getProcessProfile(ProcessRequirements requirements, boolean includeController, Container container) {
+		String versionId = container.getVersion().getId();
+		String profileId = "process-profile-" + requirements.getId();
+		ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
+		ProcessProfileOptions optionsProvider = new ProcessProfileOptions(container, requirements, includeController);
+		return builder.addOptions(optionsProvider).getProfile();
+	}
 
+	static class ProcessProfileOptions implements OptionsProvider<ProfileBuilder> {
+
+	    private final Container container;
+	    private final ProcessRequirements requirements;
+	    private final boolean includeContainerProfile;
+
+	    ProcessProfileOptions(Container container, ProcessRequirements requirements, boolean includeContainerProfile) {
+	        this.container = container;
+	        this.requirements = requirements;
+	        this.includeContainerProfile = includeContainerProfile;
+	    }
+
+	    @Override
+		public ProfileBuilder addOptions(ProfileBuilder builder) {
+	    	builder.addAttribute(Profile.ABSTRACT, Boolean.TRUE.toString());
+	    	builder.addAttribute(Profile.LOCKED, Boolean.TRUE.toString());
+	    	builder.addAttribute(Profile.HIDDEN, Boolean.TRUE.toString());
+	    	builder.addParents(getParents());
+			return builder;
+		}
+
+	    private List<Profile> getParents() {
+	        List<String> parents = requirements.getProfiles();
+	        List<Profile> profiles = new LinkedList<Profile>();
+	        if (includeContainerProfile) {
+	            profiles.add(container.getOverlayProfile());
+	        }
+	        for (String parent : parents) {
+	            Profile p = container.getVersion().getRequiredProfile(parent);
+	            profiles.add(p);
+	        }
+	        return profiles;
+	    }
+	}
 }

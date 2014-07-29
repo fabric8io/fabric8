@@ -15,20 +15,23 @@
  */
 package io.fabric8.partition.internal.repositories;
 
-import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
-import com.google.common.io.Resources;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.git.internal.GitDataStore;
+import io.fabric8.api.ProfileRegistry;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.DataStore;
 import io.fabric8.partition.internal.BaseWorkItemRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
 
 public class ProfileWorkItemRepository extends BaseWorkItemRepository implements Runnable {
 
@@ -36,18 +39,18 @@ public class ProfileWorkItemRepository extends BaseWorkItemRepository implements
 
     private final String name;
     private final FabricService fabricService;
-    private final GitDataStore dataStore;
-    private final String profile;
+    private final DataStore dataStore;
+    private final String profileId;
     private final String folderPath;
 
     private volatile String lastModified = "";
 
-    public ProfileWorkItemRepository(String name, GitDataStore dataStore, String partitionsPath, FabricService fabricService) {
+    public ProfileWorkItemRepository(String name, DataStore dataStore, String partitionsPath, FabricService fabricService) {
         this.name = name;
         this.dataStore = dataStore;
         this.fabricService = fabricService;
         int index = partitionsPath.indexOf("/");
-        this.profile = partitionsPath.substring((ProfileWorkItemRepositoryFactory.SCHME + ":").length(), index);
+        this.profileId = partitionsPath.substring((ProfileWorkItemRepositoryFactory.SCHME + ":").length(), index);
         this.folderPath = partitionsPath.substring(index + 1);
     }
 
@@ -72,9 +75,9 @@ public class ProfileWorkItemRepository extends BaseWorkItemRepository implements
     public List<String> listWorkItemLocations() {
         List<String> items = Lists.newArrayList();
         try {
+            ProfileService profileService = fabricService.adapt(ProfileService.class);
             String version = dataStore.getContainerVersion(name);
-            Version v = fabricService.getVersion(version);
-            Profile p = v.getProfile(profile);
+            Profile p = profileService.getRequiredProfile(version, profileId);
             for (String f : p.getFileConfigurations().keySet()) {
                 if (f.startsWith(folderPath)) {
                     items.add(f);
@@ -98,10 +101,12 @@ public class ProfileWorkItemRepository extends BaseWorkItemRepository implements
 
     @Override
     public void run() {
-       String modifed = dataStore.getLastModified(dataStore.getContainerVersion(name), profile);
-       if (!modifed.equals(lastModified)) {
+       ProfileRegistry profileRegistry = fabricService.adapt(ProfileRegistry.class);
+       String versionId = dataStore.getContainerVersion(name);
+       Profile profile = profileRegistry.getProfile(versionId, versionId);
+       if (profile != null && !profile.getProfileHash().equals(lastModified)) {
            notifyListeners();
-           lastModified = modifed;
+           lastModified = profile.getProfileHash();
        }
     }
 }

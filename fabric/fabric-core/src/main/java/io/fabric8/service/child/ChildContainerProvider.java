@@ -25,24 +25,24 @@ import io.fabric8.api.CreateChildContainerMetadata;
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreationStateListener;
-import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.PortService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.internal.ContainerImpl;
-import io.fabric8.internal.ProfileOverlayImpl;
 import io.fabric8.service.ContainerTemplate;
 import io.fabric8.utils.AuthenticationUtils;
 import io.fabric8.utils.Ports;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -266,9 +266,8 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             jvmOptsBuilder.append(" -D" + ZkDefs.MANUAL_IP + "=" + options.getManualIp());
         }
 
-        FabricService fservice = fabricService.get();
-        Map<String, String> dataStoreProperties = new HashMap<String, String>(options.getDataStoreProperties());
-        dataStoreProperties.put(DataStore.DATASTORE_TYPE_PROPERTY, fservice.getDataStore().getType());
+        DataStore dataStore = fabricService.get().adapt(DataStore.class);
+        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
 
         for (Map.Entry<String, String> dataStoreEntries : options.getDataStoreProperties().entrySet()) {
             String key = dataStoreEntries.getKey();
@@ -276,9 +275,9 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             jvmOptsBuilder.append(" -D" + Constants.DATASTORE_TYPE_PID + "." + key + "=" + value);
         }
 
-        Profile profile = parent.getVersion().getProfile("default");
-        Profile defaultProfile = new ProfileOverlayImpl(profile, fservice.getEnvironment(), true, fservice);
-        String featuresUrls = collectionAsString(defaultProfile.getRepositories());
+        Profile profile = parent.getVersion().getRequiredProfile("default");
+        Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), profileService.getOverlayProfile(profile));
+        String featuresUrls = collectionAsString(effectiveProfile.getRepositories());
         Set<String> features = new LinkedHashSet<String>();
 
         features.add("fabric-agent");
@@ -286,7 +285,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         //features.addAll(defaultProfile.getFeatures());
         String containerName = options.getName();
 
-        PortService portService = fservice.getPortService();
+        PortService portService = fabricService.get().getPortService();
         Set<Integer> usedPorts = portService.findUsedPortByHost(parent);
 
         CreateChildContainerMetadata metadata = new CreateChildContainerMetadata();
@@ -296,12 +295,12 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         int minimumPort = parent.getMinimumPort();
         int maximumPort = parent.getMaximumPort();
 
-        fservice.getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMin, String.valueOf(minimumPort));
-        fservice.getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMax, String.valueOf(maximumPort));
-        inheritAddresses(fservice, parent.getId(), containerName, options);
+        dataStore.setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMin, String.valueOf(minimumPort));
+        dataStore.setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMax, String.valueOf(maximumPort));
+        inheritAddresses(fabricService.get(), parent.getId(), containerName, options);
 
         //We are creating a container instance, just for the needs of port registration.
-        Container child = new ContainerImpl(parent, containerName, fservice) {
+        Container child = new ContainerImpl(parent, containerName, fabricService.get()) {
             @Override
             public String getIp() {
                 return parent.getIp();
@@ -357,31 +356,32 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     /**
      * Links child container resolver and addresses to its parents resolver and addresses.
      */
-    private void inheritAddresses(FabricService service, String parent, String name, CreateChildContainerOptions options) throws Exception {
+    private void inheritAddresses(FabricService fabricService, String parent, String name, CreateChildContainerOptions options) throws Exception {
+        DataStore dataStore = fabricService.adapt(DataStore.class);
         if (options.getManualIp() != null) {
-            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.ManualIp, options.getManualIp());
+            dataStore.setContainerAttribute(name, DataStore.ContainerAttribute.ManualIp, options.getManualIp());
         } else {
-            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.ManualIp, "${zk:" + parent + "/manualip}");
+            dataStore.setContainerAttribute(name, DataStore.ContainerAttribute.ManualIp, "${zk:" + parent + "/manualip}");
         }
 
         //Link to the addresses from the parent container.
-        service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.LocalHostName, "${zk:" + parent + "/localhostname}");
-        service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.LocalIp, "${zk:" + parent + "/localip}");
-        service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.PublicIp, "${zk:" + parent + "/publicip}");
+        dataStore.setContainerAttribute(name, DataStore.ContainerAttribute.LocalHostName, "${zk:" + parent + "/localhostname}");
+        dataStore.setContainerAttribute(name, DataStore.ContainerAttribute.LocalIp, "${zk:" + parent + "/localip}");
+        dataStore.setContainerAttribute(name, DataStore.ContainerAttribute.PublicIp, "${zk:" + parent + "/publicip}");
 
         if (options.getResolver() != null) {
-            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.Resolver, options.getResolver());
+            dataStore.setContainerAttribute(name, DataStore.ContainerAttribute.Resolver, options.getResolver());
         } else {
-            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.Resolver, "${zk:" + parent + "/resolver}");
+            dataStore.setContainerAttribute(name, DataStore.ContainerAttribute.Resolver, "${zk:" + parent + "/resolver}");
         }
 
         if (options.getBindAddress() != null) {
-            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.BindAddress, options.getBindAddress());
+            dataStore.setContainerAttribute(name, DataStore.ContainerAttribute.BindAddress, options.getBindAddress());
         } else {
-            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.BindAddress, "${zk:" + parent + "/bindaddress}");
+            dataStore.setContainerAttribute(name, DataStore.ContainerAttribute.BindAddress, "${zk:" + parent + "/bindaddress}");
         }
 
-        service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.Ip, "${zk:" + name + "/${zk:" + name + "/resolver}}");
+        dataStore.setContainerAttribute(name, DataStore.ContainerAttribute.Ip, "${zk:" + name + "/${zk:" + name + "/resolver}}");
     }
 
     FabricService getFabricService() {

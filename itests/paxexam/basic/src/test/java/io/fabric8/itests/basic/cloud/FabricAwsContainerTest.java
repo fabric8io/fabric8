@@ -17,8 +17,8 @@ package io.fabric8.itests.basic.cloud;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import io.fabric8.api.ServiceLocator;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
+import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +39,7 @@ import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
 import com.google.common.base.Predicate;
+
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 

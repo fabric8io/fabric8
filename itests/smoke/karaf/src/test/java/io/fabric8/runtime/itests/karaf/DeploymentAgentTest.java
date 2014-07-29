@@ -15,6 +15,7 @@
  */
 package io.fabric8.runtime.itests.karaf;
 
+import static org.junit.Assert.assertTrue;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.runtime.itests.support.CommandSupport;
@@ -31,19 +32,17 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
 import org.jboss.gravia.Constants;
+import org.jboss.gravia.itests.support.AnnotatedContextListener;
+import org.jboss.gravia.itests.support.ArchiveBuilder;
 import org.jboss.gravia.resource.ManifestBuilder;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.Asset;
-import org.jboss.gravia.itests.support.AnnotatedContextListener;
-import org.jboss.gravia.itests.support.ArchiveBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * The purpose of this test is to make sure that everything can be downloaded from the fabric-maven-proxy.
@@ -102,7 +101,7 @@ public class DeploymentAgentTest {
         CommandSupport.executeCommand("fabric:profile-edit --pid io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=http://repo1.maven.org/maven2@id=m2central default 1.1");
         CommandSupport.executeCommand("fabric:profile-edit --pid test-profile 1.1");
 
-        Set<Container> containers = ContainerBuilder.create().withName("cnt").withProfiles("test-profile").assertProvisioningResult().build();
+        Set<Container> containers = ContainerBuilder.create().withName("cntA").withProfiles("test-profile").assertProvisioningResult().build();
         try {
             //We want to remove all repositories from fabric-agent.
             for (Container container : containers) {
@@ -118,7 +117,7 @@ public class DeploymentAgentTest {
                 System.out.flush();
             }
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 
@@ -130,14 +129,13 @@ public class DeploymentAgentTest {
         CommandSupport.executeCommand("fabric:profile-edit --pid io.fabric8.agent/resolve.optional.imports=true test-profile");
         CommandSupport.executeCommand("fabric:profile-edit --features spring-struts test-profile");
 
-        Set<Container> containers = ContainerBuilder.create().withName("cnt").withProfiles("test-profile").assertProvisioningResult().build();
+        Set<Container> containers = ContainerBuilder.create().withName("cntB").withProfiles("test-profile").assertProvisioningResult().build();
         try {
             String command = "fabric:container-connect -u admin -p admin " + containers.iterator().next().getId() + " osgi:list -s | grep org.apache.servicemix.bundles.struts";
             String result = CommandSupport.executeCommand(command);
-            assertTrue("After setting resolve.optional.imports to \"true\", dependency bundles should install",
-                result.contains("org.apache.servicemix.bundles.struts"));
+            assertTrue("Result contains struts, but was: " + result, result.contains("org.apache.servicemix.bundles.struts"));
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 

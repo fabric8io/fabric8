@@ -113,7 +113,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
 
     @Override
     public void groupEvent(Group<AutoScalerNode> group, GroupEvent event) {
-        DataStore dataStore = fabricService.get().getDataStore();
+        DataStore dataStore = fabricService.get().adapt(DataStore.class);
         switch (event) {
             case CONNECTED:
             case CHANGED:
@@ -251,7 +251,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
                         if (requirementsSatisfied(service, requirements, profileRequirement, status)) {
                             profileStatus.creatingContainer();
                             String requirementsVersion = requirements.getVersion();
-                            final String version = Strings.isNotBlank(requirementsVersion) ? requirementsVersion : service.getDefaultVersion().getId();
+                            final String version = Strings.isNotBlank(requirementsVersion) ? requirementsVersion : service.getDefaultVersionId();
                             final AutoScaleRequest command = new AutoScaleRequest(service, version, profile, delta, requirements, profileRequirement, status);
                             new Thread("Creating container for " + command.getProfile()) {
                                 @Override

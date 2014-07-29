@@ -15,20 +15,32 @@
  */
 package io.fabric8.core.jmx;
 
-import org.apache.commons.beanutils.PropertyUtils;
-import io.fabric8.api.*;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Ids;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
+import io.fabric8.api.Version;
 
 import java.beans.PropertyDescriptor;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.beanutils.PropertyUtils;
+import org.jboss.gravia.utils.IllegalArgumentAssertion;
 
 /**
  */
 public class BeanUtils {
 
     private BeanUtils() {
-        //Utils class
+        // Utils class
     }
-    
+
     public static List<String> getFields(Class clazz) {
         List<String> answer = new ArrayList<String>();
 
@@ -80,38 +92,33 @@ public class BeanUtils {
         }
     }
 
-    public static Map<String, Object> convertProfileToMap(FabricService service, Profile profile, List<String> fields) {
+    public static Map<String, Object> convertProfileToMap(FabricService fabricService, Profile profile, List<String> fields) {
 
         Map<String, Object> answer = new HashMap<String, Object>();
 
-        for(String field: fields) {
+        for (String field : fields) {
 
-            if (field.equalsIgnoreCase("configurations") ||
-                field.equalsIgnoreCase("fileConfigurations")) {
+            if (field.equalsIgnoreCase("configurations") || field.equalsIgnoreCase("fileConfigurations")) {
 
                 answer.put(field, fetchConfigurations(profile));
 
             } else if (field.equalsIgnoreCase("childIds")) {
 
-                answer.put(field, fetchChildIds(service, profile));
+                answer.put(field, fetchChildIds(fabricService, profile));
 
-            } else if (field.equalsIgnoreCase("containers") ||
-                       field.equalsIgnoreCase("associatedContainers")) {
+            } else if (field.equalsIgnoreCase("containers") || field.equalsIgnoreCase("associatedContainers")) {
 
-                answer.put(field, fetchContainers(service, profile));
+                answer.put(field, fetchContainers(fabricService, profile));
 
             } else if (field.equalsIgnoreCase("containerCount")) {
 
-                answer.put(field, fetchContainerCount(profile));
+                answer.put(field, fetchContainerCount(fabricService, profile));
 
-            } else if (field.equalsIgnoreCase("parentIds") ||
-                       field.equalsIgnoreCase("parents")) {
+            } else if (field.equalsIgnoreCase("parentIds") || field.equalsIgnoreCase("parents")) {
 
                 answer.put(field, Ids.getIds(profile.getParents()));
 
-            } else if (field.equalsIgnoreCase("class")
-                    || field.equalsIgnoreCase("string")
-                    || field.equalsIgnoreCase("abstractProfile")) {
+            } else if (field.equalsIgnoreCase("class") || field.equalsIgnoreCase("string") || field.equalsIgnoreCase("abstractProfile")) {
 
                 // ignore...
 
@@ -132,34 +139,32 @@ public class BeanUtils {
         }
     }
 
-    public static Map<String, Object> convertContainerToMap(FabricService service, Container container, List<String> fields) {
+    public static Map<String, Object> convertContainerToMap(FabricService fabricService, Container container, List<String> fields) {
         Map<String, Object> answer = new HashMap<String, Object>();
 
-        for(String field: fields) {
+        for (String field : fields) {
 
-            if ( field.equalsIgnoreCase("profiles") ||
-                 field.equalsIgnoreCase("profileIds")) {
+            if (field.equalsIgnoreCase("profiles") || field.equalsIgnoreCase("profileIds")) {
 
                 answer.put(field, Ids.getIds(container.getProfiles()));
 
-            } else if (field.equalsIgnoreCase("childrenIds") ||
-                       field.equalsIgnoreCase("children")) {
+            } else if (field.equalsIgnoreCase("childrenIds") || field.equalsIgnoreCase("children")) {
 
                 answer.put(field, Ids.getIds(container.getChildren()));
 
-            } else if (field.equalsIgnoreCase("parent") ||
-                       field.equalsIgnoreCase("parentId")) {
+            } else if (field.equalsIgnoreCase("parent") || field.equalsIgnoreCase("parentId")) {
 
                 answer.put(field, Ids.getId(container.getParent()));
 
-            } else if (field.equalsIgnoreCase("version") ||
-                       field.equalsIgnoreCase("versionId")) {
+            } else if (field.equalsIgnoreCase("version") || field.equalsIgnoreCase("versionId")) {
 
                 answer.put(field, Ids.getId(container.getVersion()));
 
             } else if (field.equalsIgnoreCase("overlayProfile")) {
 
-                answer.put(field, convertProfileToMap(service, container.getOverlayProfile(), getFields(Profile.class)));
+                Profile overlayProfile = container.getOverlayProfile();
+                Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService, overlayProfile);
+                answer.put(field, convertProfileToMap(fabricService, effectiveProfile, getFields(Profile.class)));
 
             } else {
                 addProperty(container, field, answer);
@@ -170,38 +175,29 @@ public class BeanUtils {
         return answer;
     }
 
-    public static Map<String, Object> convertVersionToMap(FabricService service, Version version, List<String> fields) {
-
+    public static Map<String, Object> convertVersionToMap(FabricService fabricService, Version version, List<String> fields) {
+        IllegalArgumentAssertion.assertNotNull(version, "version");
+        IllegalArgumentAssertion.assertNotNull(fields, "fields");
+        
         Map<String, Object> answer = new HashMap<String, Object>();
-
-        for(String field: fields) {
-            if ( field.equalsIgnoreCase("profiles") ||
-                 field.equalsIgnoreCase("profileIds")) {
-
+        for (String field : fields) {
+            if (field.equalsIgnoreCase("profiles") || field.equalsIgnoreCase("profileIds")) {
                 answer.put(field, Ids.getIds(version.getProfiles()));
-
             } else if (field.equalsIgnoreCase("defaultVersion")) {
-
-                answer.put(field, service.getDefaultVersion().equals(version));
-
-            } else if (field.equalsIgnoreCase("class")
-                    || field.equalsIgnoreCase("string")) {
-                    //|| field.equalsIgnoreCase("sequence")) {
-
+                answer.put(field, fabricService.getRequiredDefaultVersion().equals(version));
+            } else if (field.equalsIgnoreCase("class") || field.equalsIgnoreCase("string")) {
                 // ignore...
-
             } else {
                 addProperty(version, field, answer);
             }
         }
-
         return answer;
     }
 
-
-    public static List<String> fetchChildIds(FabricService service, Profile self) {
+    public static List<String> fetchChildIds(FabricService fabricService, Profile self) {
         List<String> ids = new ArrayList<String>();
-        for(Profile p : service.getVersion(self.getVersion()).getProfiles()) {
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        for (Profile p : profileService.getRequiredVersion(self.getVersion()).getProfiles()) {
             for (Profile parent : p.getParents()) {
                 if (parent.getId().equals(self.getId())) {
                     ids.add(p.getId());
@@ -212,22 +208,23 @@ public class BeanUtils {
         return ids;
     }
 
-
-    public static List<String> fetchContainers(FabricService service, Profile self) {
+    public static List<String> fetchContainers(FabricService fabricService, Profile self) {
         List<String> answer = new ArrayList<String>();
-        for (Container c : self.getAssociatedContainers()) {
+        String versionId = self.getVersion();
+        String profileId = self.getId();
+        for (Container c : fabricService.getAssociatedContainers(versionId, profileId)) {
             answer.add(c.getId());
         }
         return answer;
     }
 
-
-    public static int fetchContainerCount(Profile self) {
-        return self.getAssociatedContainers().length;
+    public static int fetchContainerCount(FabricService fabricService, Profile self) {
+        String versionId = self.getVersion();
+        String profileId = self.getId();
+        return fabricService.getAssociatedContainers(versionId, profileId).length;
     }
 
-
-    public static List<String>fetchConfigurations(Profile self) {
+    public static List<String> fetchConfigurations(Profile self) {
         List<String> answer = new ArrayList<String>();
         answer.addAll(self.getFileConfigurations().keySet());
         return answer;
@@ -240,9 +237,5 @@ public class BeanUtils {
         }
         return answer;
     }
-
-
-
-
 
 }

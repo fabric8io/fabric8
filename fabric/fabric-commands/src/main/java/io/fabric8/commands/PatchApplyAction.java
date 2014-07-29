@@ -15,14 +15,16 @@
  */
 package io.fabric8.commands;
 
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Version;
+import io.fabric8.utils.shell.ShellUtils;
+
 import java.net.URL;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Version;
-import io.fabric8.utils.shell.ShellUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -38,7 +40,7 @@ public class PatchApplyAction extends AbstractAction {
     private String password;
 
     @Option(name = "--version", description = "Only apply upgrades for the given version instead of the default one")
-    private String version;
+    private String versionId;
 
     @Option(name = "--all-versions", description = "Apply patch to all versions instead of the default one")
     private boolean allVersions;
@@ -55,12 +57,17 @@ public class PatchApplyAction extends AbstractAction {
     @Override
     protected Object doExecute() throws Exception {
         List<Version> versions;
-        if (version != null && !version.isEmpty()) {
-            versions = Collections.singletonList(fabricService.getVersion(version));
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        if (versionId != null && !versionId.isEmpty()) {
+            Version version = profileService.getRequiredVersion(versionId);
+            versions = Collections.singletonList(version);
         } else if (allVersions) {
-            versions = Arrays.asList(fabricService.getVersions());
+            versions = new ArrayList<>();
+            for (String versionId : profileService.getVersions()) {
+                versions.add(profileService.getRequiredVersion(versionId));
+            }
         } else {
-            versions = Collections.singletonList(fabricService.getDefaultVersion());
+            versions = Collections.singletonList(fabricService.getRequiredDefaultVersion());
         }
         username = username != null && !username.isEmpty() ? username : ShellUtils.retrieveFabricUser(session);
         password = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);

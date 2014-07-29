@@ -19,26 +19,26 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.runtime.itests.support.CommandSupport;
 import io.fabric8.runtime.itests.support.ContainerBuilder;
+import io.fabric8.runtime.itests.support.FabricEnsembleSupport;
+import io.fabric8.runtime.itests.support.Provision;
 
 import java.io.InputStream;
 import java.util.Set;
 
-import io.fabric8.runtime.itests.support.FabricEnsembleSupport;
-import io.fabric8.runtime.itests.support.Provision;
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
 import org.jboss.gravia.Constants;
+import org.jboss.gravia.itests.support.AnnotatedContextListener;
+import org.jboss.gravia.itests.support.ArchiveBuilder;
 import org.jboss.gravia.resource.ManifestBuilder;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.Asset;
-import org.jboss.gravia.itests.support.AnnotatedContextListener;
-import org.jboss.gravia.itests.support.ArchiveBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -87,14 +87,14 @@ public class CreateChildContainerTest {
     @Test
     public void testCreateChildContainer() throws Exception {
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
-        Set<Container> containers = ContainerBuilder.child(1).withName("child").build();
+        Set<Container> containers = ContainerBuilder.child(1).withName("childA").build();
         try {
             Assert.assertEquals("One container", 1, containers.size());
             Container child = containers.iterator().next();
-            Assert.assertEquals("child1", child.getId());
+            Assert.assertEquals("childA1", child.getId());
             Assert.assertEquals("root", child.getParent().getId());
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 
@@ -103,14 +103,14 @@ public class CreateChildContainerTest {
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n --zookeeper-server-port 2345"));
         System.err.println(CommandSupport.executeCommand("fabric:profile-create --parents default p1"));
         System.err.println(CommandSupport.executeCommand("fabric:profile-edit --features fabric-zookeeper-commands p1"));
-        Set<Container> containers = ContainerBuilder.child(1).withName("child").withProfiles("p1").build();
+        Set<Container> containers = ContainerBuilder.child(1).withName("childB").withProfiles("p1").build();
         Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
         try {
             Container child = containers.iterator().next();
             String ensembleUrl = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " zk:get /fabric/configs/ensemble/url");
-            Assert.assertTrue("Child should use custom ZK server port", ensembleUrl.contains("${zk:root/ip}:2345"));
+            Assert.assertTrue("Child should use custom ZK server port, but was: " + ensembleUrl, ensembleUrl.contains("${zk:root/ip}:2345"));
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 
@@ -124,15 +124,14 @@ public class CreateChildContainerTest {
         CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/sshIdleTimeout=1800002 test");
         CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/fabric.config.merge=true test");
 
-        Set<Container> containers = ContainerBuilder.child(1).withName("child")
-            .withProfiles("test")
+        Set<Container> containers = ContainerBuilder.child(1).withName("childC").withProfiles("test")
 //            .withJvmOpts("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5006")
             .assertProvisioningResult().build();
 
         try {
             Assert.assertEquals("One container", 1, containers.size());
             Container child = containers.iterator().next();
-            Assert.assertEquals("child1", child.getId());
+            Assert.assertEquals("childC1", child.getId());
             Assert.assertEquals("root", child.getParent().getId());
             String logPid = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " config:proplist --pid org.apache.karaf.log");
             String shellPid = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " config:proplist --pid org.apache.karaf.shell");
@@ -142,7 +141,7 @@ public class CreateChildContainerTest {
             Assert.assertTrue(shellPid.contains("sshHost"));
             Assert.assertTrue(shellPid.contains("sshIdleTimeout = 1800002"));
         } finally {
-            ContainerBuilder.destroy(containers);
+            ContainerBuilder.stop(containers);
         }
     }
 

@@ -17,7 +17,8 @@ package io.fabric8.itests.paxexam.support;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.ServiceLocator;
+import io.fabric8.api.ProfileRegistry;
+import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -260,11 +261,12 @@ public class Provision {
     }
 
     public static Boolean profileAvailable(BundleContext bundleContext, String profile, String version, Long timeout) throws Exception {
-        FabricService service = ServiceLocator.awaitService(bundleContext, FabricService.class);
-        for (long t = 0; (!service.getDataStore().hasProfile(version, profile)  && t < timeout); t += 2000L) {
+        FabricService fabricService = ServiceLocator.awaitService(bundleContext, FabricService.class);
+        ProfileRegistry profileRegistry = fabricService.adapt(ProfileRegistry.class);
+        for (long t = 0; (!profileRegistry.hasProfile(version, profile)  && t < timeout); t += 2000L) {
             Thread.sleep(2000L);
         }
-        return service.getDataStore().hasProfile(version, profile);
+        return profileRegistry.hasProfile(version, profile);
     }
 
     public static Object getMBean(final Container container, final ObjectName mbeanName, final Class clazz, final long timeout) throws Exception {

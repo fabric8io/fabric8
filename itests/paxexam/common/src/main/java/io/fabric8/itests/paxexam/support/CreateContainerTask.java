@@ -20,8 +20,8 @@ import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.ServiceLocator;
 import io.fabric8.api.ServiceProxy;
+import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
 
 import java.util.HashSet;
 import java.util.Set;

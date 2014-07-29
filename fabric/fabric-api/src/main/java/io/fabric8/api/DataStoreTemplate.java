@@ -15,6 +15,7 @@
  */
 package io.fabric8.api;
 
+
 /**
  * Describes an {@link DataStore} operation.
  */
@@ -23,5 +24,5 @@ public interface DataStoreTemplate {
     /**
      * Perform an operation on the specified {@link DataStore}.
      */
-    void doWith(DataStore dataStore);
+    void doWith(ProfileRegistry gitDataStore, DataStore dataStore) throws Exception;
 }

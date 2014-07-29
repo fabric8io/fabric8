@@ -16,6 +16,7 @@
 package io.fabric8.api;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -28,7 +29,11 @@ public final class Ids {
     }
 
     public static List<String> getIds(HasId[] hasIds) {
-        List<String> answer = new ArrayList<String>();
+        return getIds(Arrays.asList(hasIds));
+    }
+
+    public static List<String> getIds(List<? extends HasId> hasIds) {
+        List<String> answer = new ArrayList<>();
         if (hasIds != null) {
             for (HasId hasId : hasIds) {
                 String id = hasId.getId();

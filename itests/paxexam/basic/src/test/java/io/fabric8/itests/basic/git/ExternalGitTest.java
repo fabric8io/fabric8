@@ -33,6 +33,7 @@ import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
@@ -93,7 +94,8 @@ public class ExternalGitTest extends FabricGitTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                CoreOptions.wrappedBundle(mavenBundle("io.fabric8", "fabric-utils"))
+                CoreOptions.wrappedBundle(mavenBundle("io.fabric8", "fabric-utils")),
+                KarafDistributionOption.debugConfiguration("5005", false)
         };
     }
 }

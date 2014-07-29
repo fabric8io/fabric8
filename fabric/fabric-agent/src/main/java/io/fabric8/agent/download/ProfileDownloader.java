@@ -30,9 +30,11 @@ import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.common.util.Files;
 import io.fabric8.service.VersionPropertyPointerResolver;
+
 import org.apache.karaf.features.Feature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,9 +90,10 @@ public class ProfileDownloader {
      * Downloads the bundles, features and FABs for all the profiles in this version
      */
     public void downloadVersion(Version version) throws Exception {
-        Profile[] profiles = version.getProfiles();
+        List<Profile> profiles = version.getProfiles();
+        Profile[] prfarray = profiles.toArray(new Profile[profiles.size()]);
         if (listener != null) {
-            listener.beforeDownloadProfiles(profiles);
+            listener.beforeDownloadProfiles(prfarray);
         }
         for (Profile profile : profiles) {
             try {
@@ -109,7 +112,7 @@ public class ProfileDownloader {
             }
         }
         if (listener != null) {
-            listener.afterDownloadProfiles(profiles);
+            listener.afterDownloadProfiles(prfarray);
         }
     }
 
@@ -121,8 +124,9 @@ public class ProfileDownloader {
             listener.beforeDownloadProfile(profile);
         }
 
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
         if (!profile.isOverlay()) {
-            profile = profile.getOverlay();
+            profile = profileService.getOverlayProfile(profile);
         }
 
         DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, executorService);
@@ -201,7 +205,9 @@ public class ProfileDownloader {
                 if (bundle.contains("$")) {
                     // use similar logic as io.fabric8.agent.utils.AgentUtils.getProfileArtifacts method
                     // as we need to substitute version placeholders
-                    bundle = VersionPropertyPointerResolver.replaceVersions(fabricService, profile.getOverlay().getConfigurations(), bundle);
+                    ProfileService profileService = fabricService.adapt(ProfileService.class);
+                    Profile overlay = profileService.getOverlayProfile(profile);
+                    bundle = VersionPropertyPointerResolver.replaceVersions(fabricService, overlay.getConfigurations(), bundle);
                 }
                 bundles.add(bundle);
             }

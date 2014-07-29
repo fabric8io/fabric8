@@ -16,11 +16,21 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Version;
+import io.fabric8.api.VersionBuilder;
+import io.fabric8.api.VersionSequence;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import io.fabric8.api.Version;
 import org.apache.karaf.shell.console.AbstractAction;
+import org.jboss.gravia.utils.IllegalStateAssertion;
 
 @Command(name = "version-create", scope = "fabric", description = "Create a new version, copying all of the profiles from the current latest version into the new version")
 public class VersionCreateAction extends AbstractAction {
@@ -32,7 +42,7 @@ public class VersionCreateAction extends AbstractAction {
     @Option(name = "--description", description = "The description notes of this version.")
     private String description;
     @Argument(index = 0, description = "The new version to create. If not specified, defaults to the next minor version.", required = false)
-    private String name;
+    private String versionId;
 
     private final FabricService fabricService;
 
@@ -40,54 +50,52 @@ public class VersionCreateAction extends AbstractAction {
         this.fabricService = fabricService;
     }
 
-    public FabricService getFabricService() {
-        return fabricService;
-    }
-
     @Override
     protected Object doExecute() throws Exception {
-        Version latestVersion = null;
+        
+        String latestVersion = null;
 
-        Version[] versions = getFabricService().getVersions();
-        int vlength = versions.length;
-        if (vlength > 0) {
-            latestVersion = versions[vlength - 1];
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        List<String> versions = profileService.getVersions();
+        if (versions.size() > 0) {
+            latestVersion = versions.get(versions.size() - 1);
         }
-        if (name == null) {
-            if (latestVersion == null) {
-                throw new IllegalArgumentException("Cannot default the new version name as there are no versions available");
-            }
-            name = latestVersion.getSequence().next().getName();
+        
+        if (versionId == null) {
+            IllegalStateAssertion.assertNotNull(latestVersion, "Cannot default the new version name as there are no versions available");
+            VersionSequence sequence = new VersionSequence(latestVersion);
+            versionId = sequence.next().getName();
         }
 
-        Version parent;
+        // TODO we maybe want to choose the version which is less than the 'name' if it was specified
+        // e.g. if you create a version 1.1 then it should use 1.0 if there is already a 2.0
+        
+        String sourceId = null;
         if (parentVersion == null) {
-            parent = latestVersion;
-            // TODO we maybe want to choose the version which is less than the 'name' if it was specified
-            // e.g. if you create a version 1.1 then it should use 1.0 if there is already a 2.0
+            sourceId = latestVersion;
         } else {
-            parent = getFabricService().getVersion(parentVersion);
-            if (parent == null) {
-                throw new IllegalArgumentException("Cannot find parent version: " + parentVersion);
+            IllegalStateAssertion.assertTrue(profileService.hasVersion(parentVersion), "Cannot find parent version: " + parentVersion);
+            sourceId = parentVersion;
+        }
+        
+        Version targetVersion;
+        if (sourceId != null) {
+            Map<String, String> attributes = description != null ? Collections.singletonMap(Version.DESCRIPTION, description) : null;
+            targetVersion = profileService.createVersion(sourceId, versionId, attributes);
+            System.out.println("Created version: " + versionId + " as copy of: " + sourceId);
+        } else {
+            VersionBuilder builder = VersionBuilder.Factory.create(versionId);
+            if (description != null) {
+                builder.addAttribute(Version.DESCRIPTION, description);
             }
+            targetVersion = profileService.createVersion(builder.getVersion());
+            System.out.println("Create version: " + versionId);
+        }
+        
+        if (defaultVersion == Boolean.TRUE) {
+            fabricService.setDefaultVersionId(targetVersion.getId());
         }
 
-        Version created;
-        if (parent != null) {
-            created = getFabricService().createVersion(parent, name);
-            System.out.println("Created version: " + name + " as copy of: " + parent.getId());
-        } else {
-            created = getFabricService().createVersion(name);
-            System.out.println("Created version: " + name);
-        }
-
-        if (defaultVersion != null && defaultVersion) {
-            getFabricService().setDefaultVersion(created);
-        }
-
-        if (description != null) {
-            created.setAttribute(Version.DESCRIPTION, description);
-        }
         return null;
     }
 }

@@ -21,6 +21,8 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.jmx.ProfileDTO;
 
+import java.util.Set;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -36,6 +38,7 @@ import java.util.List;
  */
 @Produces("application/json")
 public class ProfileResource extends ResourceSupport {
+    
     private final Profile profile;
 
     public ProfileResource(ResourceSupport parent, Profile profile) {
@@ -61,11 +64,7 @@ public class ProfileResource extends ResourceSupport {
      */
     @Path("overlay")
     public ProfileResource overlay() {
-        if (profile.isOverlay()) {
-            return null;
-        } else {
-            return new ProfileResource(this, profile.getOverlay());
-        }
+        throw new UnsupportedOperationException();
     }
 
     @GET
@@ -92,7 +91,7 @@ public class ProfileResource extends ResourceSupport {
     @GET
     @Path("fileNames")
     public java.util.Map<String, String> fileNames() {
-        List<String> fileNames = profile.getConfigurationFileNames();
+        Set<String> fileNames = profile.getConfigurationFileNames();
         return mapToLinks(fileNames, "/file/");
     }
 

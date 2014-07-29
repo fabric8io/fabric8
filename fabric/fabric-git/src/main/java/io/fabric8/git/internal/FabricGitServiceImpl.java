@@ -15,12 +15,19 @@
  */
 package io.fabric8.git.internal;
 
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.api.visibility.VisibleForTesting;
+import io.fabric8.git.GitListener;
+import io.fabric8.git.GitService;
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import io.fabric8.api.visibility.VisibleForTesting;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -30,15 +37,6 @@ import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
-
-import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.git.GitListener;
-import io.fabric8.git.GitService;
-import io.fabric8.utils.SystemProperties;
-import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import org.eclipse.jgit.lib.RepositoryCache;
 
 @ThreadSafe
@@ -94,7 +92,7 @@ public final class FabricGitServiceImpl extends AbstractComponent implements Git
     }
 
     @Override
-    public Git get() throws IOException {
+    public Git getGit() {
         assertValid();
         return git;
     }

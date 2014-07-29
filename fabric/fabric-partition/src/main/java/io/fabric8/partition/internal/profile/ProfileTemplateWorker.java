@@ -15,17 +15,12 @@
  */
 package io.fabric8.partition.internal.profile;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.SetMultimap;
-
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
-import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -36,7 +31,18 @@ import io.fabric8.partition.TaskContext;
 import io.fabric8.partition.WorkItem;
 import io.fabric8.partition.Worker;
 import io.fabric8.service.LockService;
-import io.fabric8.utils.SystemProperties;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.curator.framework.recipes.locks.InterProcessLock;
 import org.apache.felix.scr.annotations.Component;
@@ -52,18 +58,11 @@ import org.osgi.service.component.annotations.Activate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import com.google.common.base.Predicates;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
 
 @ThreadSafe
 @Component(name = "io.fabric8.partition.worker.profile", label = "Fabric8 Profile Partition Worker", metatype = false)
@@ -142,12 +141,13 @@ public final class ProfileTemplateWorker extends AbstractComponent implements Wo
 
     @Override
     public void stop(TaskContext context) {
+        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
         Container current = fabricService.get().getCurrentContainer();
         Version version = current.getVersion();
         String profileId = context.getConfiguration().get(TEMPLATE_PROFILE_PROPERTY_NAME) + "-" + name;
         if (version.hasProfile(profileId)) {
-            //Just delete the profile
-            version.getProfile(profileId).delete(true);
+        	String versionId = version.getId();
+        	profileService.deleteProfile(fabricService.get(), versionId, profileId, true);
         }
     }
 
@@ -170,27 +170,35 @@ public final class ProfileTemplateWorker extends AbstractComponent implements Wo
     }
 
     private void manageProfile(TaskContext context) {
+        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
         Container current = fabricService.get().getCurrentContainer();
         ProfileData profileData = createProfileData(context);
         String profileId = context.getConfiguration().get(TEMPLATE_PROFILE_PROPERTY_NAME) + "-" + name;
         Version version = current.getVersion();
+    	String versionId = version.getId();
 
+    	// [TODO] Revisit lock in ProfileTemplateWorker 
         try {
             if (lock.acquire(60, TimeUnit.SECONDS)) {
                 if (profileData.isEmpty()) {
                     if (version.hasProfile(profileId)) {
-                        //Just delete the profile
-                        version.getProfile(profileId).delete(true);
+                        profileService.deleteProfile(fabricService.get(), versionId, profileId, true);
                     }
                     return;
-                } else if (!version.hasProfile(profileId)) {
-                    //Create the profile
-                    fabricService.get().getDataStore().createProfile(version.getId(), profileId);
                 }
-
-                Profile managedProfile = version.getProfile(profileId);
-                //managedProfile.setConfigurations(profileData.getConfigs());
-                managedProfile.setFileConfigurations(profileData.getFiles());
+                
+                Profile managedProfile;
+                if (version.hasProfile(profileId)) {
+                    Profile profile = profileService.getRequiredProfile(versionId, profileId);
+                    ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
+                    builder.setFileConfigurations(profileData.getFiles());
+                    managedProfile = profileService.updateProfile(builder.getProfile());
+                } else {
+                    ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
+                    builder.setFileConfigurations(profileData.getFiles());
+                    managedProfile = profileService.createProfile(builder.getProfile());
+                }
+                
                 current.addProfiles(managedProfile);
             } else {
                 throw new TimeoutException("Timed out waiting for lock");
@@ -217,7 +225,7 @@ public final class ProfileTemplateWorker extends AbstractComponent implements Wo
         Container current = fabricService.get().getCurrentContainer();
         Version version = current.getVersion();
         String templateProfileName = String.valueOf(context.getConfiguration().get(TEMPLATE_PROFILE_PROPERTY_NAME));
-        Profile templateProfile = version.getProfile(templateProfileName);
+        Profile templateProfile = version.getRequiredProfile(templateProfileName);
         Set<String> allFiles = templateProfile.getFileConfigurations().keySet();
         Iterable<String> mvelFiles = Iterables.filter(allFiles, MvelPredicate.INSTANCE);
         Iterable<String> plainFiles = Iterables.filter(allFiles, Predicates.not(MvelPredicate.INSTANCE));

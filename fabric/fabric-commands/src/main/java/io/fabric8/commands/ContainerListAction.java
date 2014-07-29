@@ -15,15 +15,17 @@
  */
 package io.fabric8.commands;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.DataStore;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Version;
+import io.fabric8.commands.support.CommandUtils;
+
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Locale;
 
-import io.fabric8.api.Container;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Version;
-import io.fabric8.commands.support.CommandUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -46,9 +48,13 @@ public class ContainerListAction extends AbstractAction {
     private String filter = null;
 
     private final FabricService fabricService;
+    private final ProfileService profileService;
+    private final DataStore dataStore;
 
     ContainerListAction(FabricService fabricService) {
         this.fabricService = fabricService;
+        this.profileService = fabricService.adapt(ProfileService.class);
+        this.dataStore = fabricService.adapt(DataStore.class);
     }
 
     @Override
@@ -65,7 +71,7 @@ public class ContainerListAction extends AbstractAction {
         Version ver = null;
         if (version != null) {
             // limit containers to only with same version
-            ver = fabricService.getVersion(version);
+            ver = profileService.getRequiredVersion(version);
         }
 
         if (verbose) {
@@ -90,7 +96,7 @@ public class ContainerListAction extends AbstractAction {
                     marker = "*";
                 }
 
-                List<String> assignedProfiles = fabricService.getDataStore().getContainerProfiles(container.getId());
+                List<String> assignedProfiles = dataStore.getContainerProfiles(container.getId());
                 String firstLine = String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.getType(),
                         container.isAlive(), assignedProfiles.get(0), CommandUtils.status(container));
                 out.println(firstLine);
@@ -120,12 +126,12 @@ public class ContainerListAction extends AbstractAction {
                     marker = "*";
                 }
 
-                String blueprintStatus = fabricService.getDataStore().getContainerAttribute(container.getId(), DataStore.ContainerAttribute.BlueprintStatus, "", false, false);
-                String springStatus = fabricService.getDataStore().getContainerAttribute(container.getId(), DataStore.ContainerAttribute.SpringStatus, "", false, false);
+                String blueprintStatus = dataStore.getContainerAttribute(container.getId(), DataStore.ContainerAttribute.BlueprintStatus, "", false, false);
+                String springStatus = dataStore.getContainerAttribute(container.getId(), DataStore.ContainerAttribute.SpringStatus, "", false, false);
                 blueprintStatus = blueprintStatus.toLowerCase(Locale.ENGLISH);
                 springStatus = springStatus.toLowerCase(Locale.ENGLISH);
 
-                List<String> assignedProfiles = fabricService.getDataStore().getContainerProfiles(container.getId());
+                List<String> assignedProfiles = dataStore.getContainerProfiles(container.getId());
                 String firstLine = String.format(VERBOSE_FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.getType(),
                         container.isAlive(), assignedProfiles.get(0), blueprintStatus, springStatus, CommandUtils.status(container));
                 out.println(firstLine);

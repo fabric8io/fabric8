@@ -59,7 +59,7 @@ public class VersionInfo extends AbstractCommandComponent {
     @Override
     public Action createNewAction() {
         assertValid();
-        return new VersionInfoAction(fabricService.get(), runtimeProperties.get());
+        return new VersionInfoAction(fabricService.get());
     }
 
     void bindFabricService(FabricService fabricService) {

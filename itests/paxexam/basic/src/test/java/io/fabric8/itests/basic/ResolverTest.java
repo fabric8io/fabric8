@@ -20,10 +20,10 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.ServiceLocator;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
+import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
 import io.fabric8.utils.BundleUtils;
 import io.fabric8.zookeeper.ZkPath;
 
