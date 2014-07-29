@@ -15,7 +15,6 @@
  */
 package io.fabric8.deployer;
 
-import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.Containers;
 import io.fabric8.api.FabricRequirements;
@@ -32,6 +31,7 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.JMXUtils;
+import io.fabric8.common.util.Lists;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DeployResults;
 import io.fabric8.deployer.dto.DtoHelper;
@@ -62,7 +62,6 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import io.fabric8.utils.DataStoreUtils;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -173,9 +172,9 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
      */
     private void updateProfileConfiguration(Version version, Profile profile, ProjectRequirements requirements, ProjectRequirements oldRequirements, ProfileBuilder builder) {
         List<String> parentProfiles = Containers.getParentProfileIds(profile);
-        List<String> bundles = profile.getBundles();
-        List<String> features = profile.getFeatures();
-        List<String> repositories = profile.getRepositories();
+        List<String> bundles = Lists.mutableList(profile.getBundles());
+        List<String> features = Lists.mutableList(profile.getFeatures());
+        List<String> repositories = Lists.mutableList(profile.getRepositories());
         if (oldRequirements != null) {
             removeAll(parentProfiles, oldRequirements.getParentProfiles());
             removeAll(bundles, oldRequirements.getBundles());
