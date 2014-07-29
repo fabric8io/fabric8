@@ -204,7 +204,7 @@
         <geronimo-atinject.version>1.0</geronimo-atinject.version>
         <gitective-version>0.9.9</gitective-version>
         <gravia-version>1.1.0.Beta38</gravia-version>
-        <groovy-version>2.3.5</groovy-version>
+        <groovy-version>2.3.6</groovy-version>
         <guava-version>15.0</guava-version>
         <guava.osgi.version.clean>15.0</guava.osgi.version.clean>
         <hadoop-version>1.2.1</hadoop-version>
