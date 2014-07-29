@@ -79,9 +79,22 @@ public class ArchetypeTest {
             // so lets load the requirements and assert they are satisfied
             requirements.profile(profileId).minimumInstances(1);
             FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
+            System.out.println();
+            System.out.println("Managed to create a container for " + profileId + ". Now lets stop it");
+            System.out.println();
 
             // now lets force the container to be stopped
             requirements.profile(profileId).minimumInstances(0).maximumInstances(0);
+            FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
+            System.out.println();
+            System.out.println("Stopped a container for " + profileId + ". Now lets clear requirements");
+            System.out.println();
+            requirements.removeProfileRequirements(profileId);
+            FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
+
+            System.out.println();
+            System.out.println("Removed requirements for profile " + profileId);
+            System.out.println();
         }
     }
 
