@@ -561,10 +561,12 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
                 }
                 return answer;
             }
-        } catch (J4pException e) {
+        } catch (J4pRemoteException e) {
             if (e.getMessage().contains(".InstanceNotFoundException")) {
                 throw new MojoExecutionException("Could not find the mbean " + mbeanName + " in the JVM for " + jolokiaUrl + ". Are you sure this JVM is running the Fabric8 console?");
             } else {
+                getLog().error("Failed to invoke mbean " + mbeanName + " on jolokia URL: " + jolokiaUrl + " with user: " + fabricServer.getUsername() + ". Error: " + e.getErrorType());
+                getLog().error("Stack: " + e.getRemoteStackTrace());
                 throw e;
             }
         }
@@ -576,9 +578,15 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
         ObjectName mbeanName = new ObjectName(FABRIC_MBEAN);
         if (!Strings.isNullOrBlank(profileId) && !Strings.isNullOrBlank(versionId)) {
             getLog().info("Performing profile refresh on mbean: " + mbeanName + " version: " + versionId + " profile: " + profileId);
-            J4pExecRequest request = new J4pExecRequest(mbeanName, "refreshProfile", versionId, profileId);
-            J4pResponse<J4pExecRequest> response = client.execute(request, "POST");
-            response.getValue();
+            try {
+                J4pExecRequest request = new J4pExecRequest(mbeanName, "refreshProfile", versionId, profileId);
+                J4pResponse<J4pExecRequest> response = client.execute(request, "POST");
+                response.getValue();
+            } catch (J4pRemoteException e) {
+                getLog().error("Failed to refresh profile " + profileId + " on mbean " + mbeanName + " on jolokia URL: " + jolokiaUrl + " with user: " + fabricServer.getUsername() + ". Error: " + e.getErrorType());
+                getLog().error("Stack: " + e.getRemoteStackTrace());
+                throw e;
+            }
         }
     }
 
