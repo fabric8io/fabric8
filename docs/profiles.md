@@ -275,10 +275,16 @@ In addition fabric imports additional .zip files from the following two sources:
 1. .zip files which have been copied to the `<fabric_home>/fabric` directory. 
 1. .properties file which haven been copied to the `<fabric_home>/fabric` directory. 
 
-In the .properties files, you specify url locations for .zip files to be imported. For example fabric uses this to import its own quickstarts out of the box, by having a `quickstarts.properties` file with the following content
+In the .properties files, you specify url locations for .zip files to be imported. For example fabric uses this to import additional profiles such as the quickstarts, by having a `io.fabric8.import.profiles.properties` file with the following content
 
-    quickstarts = mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${project.version}/zip/profile
+    importProfileURLs = ${env:FABRIC8_IMPORT_PROFILE_URLS?:mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${version:fabric}/zip/profile}
+
+The url above is using the [environment property resolver](http://fabric8.io/gitbook/propertyResolver.html#env) to either load urls from the given environment variable, or if not provided, then use the default value which is `mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${version:fabric}/zip/profile`. Notice how the url uses the `?:` elvis operator so we can lookup the environment variable, and if not given, then fallback and use the default value. The value `${version:fabric}` will get replaced with the version of fabric8. 
+
+The environment variable `FABRIC8_IMPORT_PROFILE_URLS` can be used to define custom profiles to be loaded instead of the quickstarts. Multiple urls can be separated bt comma. For example to load two custom profiles instead of the quickstarts, then the environment can be configured with:
+
+    export FABRIC8_IMPORT_PROFILE_URLS="mvn:com.foo/myprofiles/1.0,mvn:com.foo/myotherprofiles/1.0"
 
 ##### Disabling quickstarts
 
-This allows easily to disable importing the quickstarts, by either deleting the `quickstarts.properties` file, or disable the above line,  by prefixing the line with the `#` character.
+This allows easily to disable importing the quickstarts, by either deleting the `io.fabric8.import.profiles.properties` file, or disable the above line,  by prefixing the line with the `#` character, or setting the environment variable `FABRIC8_IMPORT_PROFILE_URLS` to the value `false`. 
