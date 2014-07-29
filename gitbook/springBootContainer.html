@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.5" data-basepath="." data-revision="1406575670082">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.5" data-basepath="." data-revision="1406662248754">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -1181,13 +1181,25 @@ there, it will fallback to the next registry in the list. If none of the registr
 desired property, the composite resolver returns <code>null</code>.</p>
 <p>By default the following process registries are aggregated by the Spring Boot container:</p>
 <ul>
-<li><code>ZooKeeperProcessRegistry</code> (if <code>curator-framework</code> is present in the classpath)</li>
+<li><code>ZooKeeperProcessRegistry</code> (if <code>curator-framework</code> jar is present in the classpath)</li>
 <li><code>ClassPathProcessRegistry</code></li>
 <li><code>InMemoryProcessRegistry</code></li>
 </ul>
 <p>The above basically means that Spring Boot container attempts to read properties from the Fabric8 ZooKeeper registry,
 then from the system properties and finally from the files located in the classpath.</p>
-
+<h4 id="zookeeper-process-registry"><a name="zookeeper-process-registry" class="anchor" href="#zookeeper-process-registry"><span class="fa fa-link"></span></a>ZooKeeper process registry</h4>
+<p>If <code>curator-framework</code> jar is present in the classpath, <code>ZooKeeperProcessRegistry</code> will be created. 
+<code>ZooKeeperProcessRegistry</code> attempts to read properties values from the ZooKeeper server.</p>
+<p>In particular ZooKeeper registry will try to connect to the Fabric8 ZooKeeper runtime registry and read properties 
+from it. The default coordinates of Fabric8 runtime registry are <code>localhost:2181</code> (2181 is the default port used by the
+Fabric8 to start ZooKeeper on). If you would like to change it, set <code>fabric8.process.registry.zk.hosts</code>
+system property to the customized list of hosts:</p>
+<pre><code>java -Dfabric8.process.registry.zk.hosts=host1:5555,host2:6666 -jar my-service.jar
+</code></pre><p>ZooKeeper registry interprets dots in the properties names as the slashes in ZNode paths. For example <code>foo.bar</code> property 
+will be resolved as the <code>foo/bar</code> ZNode path.</p>
+<pre><code>@Value(&quot;${foo.bar}&quot;) // try to read foo/bar ZNode from the ZooKeeper
+String bar;
+</code></pre>
                     
                     </section>
                 
