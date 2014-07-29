@@ -54,19 +54,10 @@ public class CommandLineFabricControllerManager extends FabricControllerManagerS
 
     private static final transient Logger LOG = LoggerFactory.getLogger(CommandLineFabricControllerManager.class);
 
-    private File workDirectory;
     private File installDir;
     private String startFabricScriptName = "bin/fabric8-start";
 
     public CommandLineFabricControllerManager() {
-    }
-
-    public File getWorkDirectory() {
-        return workDirectory;
-    }
-
-    public void setWorkDirectory(File workDirectory) {
-        this.workDirectory = workDirectory;
     }
 
     @Override
@@ -101,7 +92,7 @@ public class CommandLineFabricControllerManager extends FabricControllerManagerS
 
         executeCommand(installDir, "./" + startFabricScriptName);
 
-        final FabricController restApi = createFabricRestApi();
+        final FabricController restApi = createFabricController();
         return restApi;
     }
 
@@ -122,7 +113,7 @@ public class CommandLineFabricControllerManager extends FabricControllerManagerS
         killInstanceProcesses(instancesFile);
     }
 
-    protected FabricController createFabricRestApi() {
+    protected FabricController createFabricController() {
         //return new SimpleFabricRestApi();
         return new JolokiaFabricController();
     }

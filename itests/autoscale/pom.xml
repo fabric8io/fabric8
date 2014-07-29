@@ -46,6 +46,7 @@
         </property>
       </activation>
       <modules>
+        <module>autoscale-itests-docker-children</module>
         <module>autoscale-itests-docker</module>
       </modules>
     </profile>
