@@ -90,7 +90,10 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
                 MBeanServerNotification mBeanServerNotification = (MBeanServerNotification) notification;
                 ObjectName mBeanName = mBeanServerNotification.getMBeanName();
                 String type = mBeanServerNotification.getType();
-                onMBeanEvent(getCurrentContainer(), mBeanName, type);
+                Container currentContainer = getCurrentContainer();
+                if (currentContainer != null) {
+                    onMBeanEvent(currentContainer, mBeanName, type);
+                }
             }
         }
     };
@@ -167,23 +170,29 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
         // query all the mbeans and check they are all registered for the current container...
         if (mBeanServer != null) {
             Container container = getCurrentContainer();
-            ObjectName objectName = createObjectName(CXF_API_ENDPOINT_MBEAN_NAME);
-            if (objectName != null && container != null) {
-                Set<ObjectInstance> instances = mBeanServer.queryMBeans(objectName, isCxfServiceEndpointQuery);
-                for (ObjectInstance instance : instances) {
-                    ObjectName oName = instance.getObjectName();
-                    String type = null;
-                    onMBeanEvent(container, oName, type);
+            if (container != null) {
+                ObjectName objectName = createObjectName(CXF_API_ENDPOINT_MBEAN_NAME);
+                if (objectName != null && container != null) {
+                    Set<ObjectInstance> instances = mBeanServer.queryMBeans(objectName, isCxfServiceEndpointQuery);
+                    for (ObjectInstance instance : instances) {
+                        ObjectName oName = instance.getObjectName();
+                        String type = null;
+                        onMBeanEvent(container, oName, type);
+                    }
                 }
-            }
-            if (container == null) {
-                LOGGER.warn("No container available!");
             }
         }
     }
 
     protected Container getCurrentContainer() {
-        return fabricService.get().getCurrentContainer();
+        try {
+            return fabricService.get().getCurrentContainer();
+        } catch (Exception e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Ignoring exception due to current container not being available " + e, e);
+            }
+            return null;
+        }
     }
 
     protected void onMBeanEvent(Container container, ObjectName oName, String type) {
