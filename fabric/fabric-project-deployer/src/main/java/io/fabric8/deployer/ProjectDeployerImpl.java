@@ -161,7 +161,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.addAttribute(Profile.ABSTRACT, "" + isAbstract);
 
-        ProjectRequirements oldRequirements = writeRequirementsJson(requirements, profile);
+        ProjectRequirements oldRequirements = writeRequirementsJson(requirements, profile, builder);
         updateProfileConfiguration(version, profile, requirements, oldRequirements, builder);
 
         return resolveProfileDeployments(requirements, fabricService.get(), profile, builder);
@@ -469,7 +469,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     }
 
 
-    private ProjectRequirements writeRequirementsJson(ProjectRequirements requirements, Profile profile) throws IOException {
+    private ProjectRequirements writeRequirementsJson(ProjectRequirements requirements, Profile profile, ProfileBuilder builder) throws IOException {
         ObjectMapper mapper = DtoHelper.getMapper();
         byte[] json = mapper.writeValueAsBytes(requirements);
         String fileName = DtoHelper.getRequirementsConfigFileName(requirements);
@@ -479,9 +479,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         byte[] oldData = profile.getFileConfiguration(fileName);
 
         LOG.info("Writing file " + fileName + " to profile " + profile);
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.addFileConfiguration(fileName, json);
-        profileRegistry.updateProfile(builder.getProfile());
 
         if (oldData == null || oldData.length == 0) {
             return null;
