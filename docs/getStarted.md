@@ -60,8 +60,8 @@ Then check out the documentation in the [embedded fabric8 wiki](http://localhost
 
 Or check out:
 
- * [how to use the command shell](agent.html)
- * [how to use git with fabric8](git.html)
+ * [how to use the command shell](http://fabric8.io/gitbook/agent.html)
+ * [how to use git with fabric8](http://fabric8.io/gitbook/git.html)
 
 #### Web console for Tomcat or TomEE distributions
 
