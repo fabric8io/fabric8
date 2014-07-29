@@ -18,7 +18,6 @@ package io.fabric8.process.spring.boot.registry;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.retry.RetryOneTime;
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ServerConfig;
@@ -28,20 +27,27 @@ import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
 import java.io.File;
 import java.io.IOException;
 
+import static java.lang.Integer.parseInt;
 import static java.util.UUID.randomUUID;
 
-public class ZooKeeperProcessRegistries {
+public final class ZooKeeperProcessRegistries {
+
+    public static final String ZK_CONNECTION_TIMEOUT_MS_PROPERTY = "fabric8.process.registry.zk.connection.timeout";
 
     private static final int DEFAULT_ZK_BASE_SLEEP = 1000;
     private static final int DEFAULT_ZK_MAX_RETRIES = 3;
+    private static final int DEFAULT_ZK_CONNECTION_TIMEOUT_MS = 5000;
 
     public static RetryPolicy defaultRetryPolicy() {
         return new RetryOneTime(1);
     }
 
     public static CuratorFramework newCurator(String hosts) {
+        String timeoutSystemProperty = System.getProperty(ZK_CONNECTION_TIMEOUT_MS_PROPERTY);
+        int connectionTimeoutMs = timeoutSystemProperty != null ? parseInt(timeoutSystemProperty) : DEFAULT_ZK_CONNECTION_TIMEOUT_MS;
+
         CuratorFramework curator = CuratorFrameworkFactory.builder().
-                connectString(hosts).connectionTimeoutMs(5000).retryPolicy(defaultRetryPolicy()).
+                connectString(hosts).connectionTimeoutMs(connectionTimeoutMs).retryPolicy(defaultRetryPolicy()).
                 build();
         curator.start();
         return curator;

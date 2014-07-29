@@ -25,6 +25,28 @@ import static com.google.common.base.Objects.firstNonNull;
 import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistries.newCurator;
 import static org.apache.zookeeper.KeeperException.NoNodeException;
 
+/**
+ * {@link io.fabric8.process.spring.boot.registry.ProcessRegistry} implementation reading properties from the ZooKeeper
+ * nodes.
+ * <br><br>
+ * If {@code curator-framework} jar is present in the classpath, {@code ZooKeeperProcessRegistry} will be created.
+ * {@code ZooKeeperProcessRegistry} attempts to read properties values from the ZooKeeper server.
+ * <br><br>
+ * In particular ZooKeeper registry will try to connect to the Fabric8 ZooKeeper runtime registry and read properties
+ * from it. The default coordinates of Fabric8 runtime registry are {@code localhost:2181} (2181 is the default port used by the
+ * Fabric8 to start ZooKeeper on). If you would like to change it, set {@code fabric8.process.registry.zk.hosts}
+ * system property to the customized list of hosts:
+ * <br><br>
+ * {@code java -Dfabric8.process.registry.zk.hosts=host1:5555,host2:6666 -jar my-service.jar}
+ * <br><br>
+ * ZooKeeper registry interprets dots in the properties names as the slashes in ZNode paths. For example {@code foo.bar} property
+ * will be resolved as the {@code foo/bar} ZNode path.
+ * <br><br>
+ * <pre>
+ *   {@literal @}Value("${foo.bar}") // try to read foo/bar ZNode from the ZooKeeper
+ *   String bar;
+ * </pre>
+ */
 public class ZooKeeperProcessRegistry implements ProcessRegistry {
 
     private final static Logger LOG = LoggerFactory.getLogger(ZooKeeperProcessRegistry.class);
@@ -39,7 +61,7 @@ public class ZooKeeperProcessRegistry implements ProcessRegistry {
     }
 
     public static ZooKeeperProcessRegistry autodetectZooKeeperProcessRegistry() {
-        String hosts = firstNonNull(System.getProperty("ZOOKEEPER_HOSTS"), "localhost:2181");
+        String hosts = firstNonNull(System.getProperty("fabric8.process.registry.zk.hosts"), "localhost:2181");
         return new ZooKeeperProcessRegistry(hosts);
     }
 
