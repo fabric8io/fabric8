@@ -15,7 +15,10 @@
  */
 package io.fabric8.process.spring.boot.registry;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistries.ZK_CONNECTION_TIMEOUT_MS_PROPERTY;
+import static java.lang.System.setProperty;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = ProcessRegistryAutoConfigurationTest.class)
@@ -35,6 +41,16 @@ public class ProcessRegistryAutoConfigurationTest extends Assert {
     @Value("${foo}")
     String fooValue;
 
+    @BeforeClass
+    public static void beforeClass() {
+        setProperty(ZK_CONNECTION_TIMEOUT_MS_PROPERTY, 1 + "");
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        setProperty(ZK_CONNECTION_TIMEOUT_MS_PROPERTY, 5000 + "");
+    }
+
     @Test
     public void shouldResolveFromSystemProperties() {
         assertEquals("bar", fooValue);
@@ -43,7 +59,7 @@ public class ProcessRegistryAutoConfigurationTest extends Assert {
     @Test
     public void propertyResolverShouldDelegateToProcessRegistry() {
         try {
-            System.setProperty("baz", "qux");
+            setProperty("baz", "qux");
             assertEquals("qux", registry.readProperty("baz"));
         } finally {
             System.clearProperty("baz");
