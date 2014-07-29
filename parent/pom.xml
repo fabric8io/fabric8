@@ -340,7 +340,7 @@
             <id>snapshots</id>
             <properties>
                 <snapshot-build>redhat-610-SNAPSHOT</snapshot-build>
-                <activemq-version>5.9.0.${snapshot-build}</activemq-version>
+                <activemq-version>5.10.0.${snapshot-build}</activemq-version>
                 <aries.blueprint.version>1.0.1.${snapshot-build}</aries.blueprint.version>
                 <aries.jmx.version>1.0.1.${snapshot-build}</aries.jmx.version>
                 <aries.transaction.version>1.0.1.${snapshot-build}</aries.transaction.version>
