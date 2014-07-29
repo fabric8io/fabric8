@@ -58,14 +58,14 @@ public class JolokiaFabricController implements FabricController {
     }
 
     public JolokiaFabricController(String jolokiaUrl) {
-        this(jolokiaUrl, "admin", "admin");
+        this(jolokiaUrl, "admin", "admin", 30000, 30000);
     }
 
-    public JolokiaFabricController(String jolokiaUrl, String user, String password) {
+    public JolokiaFabricController(String jolokiaUrl, String user, String password, int connectionTimeout, int socketTimeout) {
         this.jolokiaUrl = jolokiaUrl;
         this.user = user;
         this.password = password;
-        jolokia = J4pClient.url(jolokiaUrl).user(user).password(password).build();
+        jolokia = J4pClient.url(jolokiaUrl).user(user).password(password).connectionTimeout(connectionTimeout).socketTimeout(socketTimeout).build();
         fabricManager = JolokiaClients.createFabricManager(jolokia);
     }
 
