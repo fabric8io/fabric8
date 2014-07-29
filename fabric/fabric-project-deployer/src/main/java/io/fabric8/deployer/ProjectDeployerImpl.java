@@ -211,9 +211,10 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         builder.setRepositories(repositories);
         String webContextPath = requirements.getWebContextPath();
         if (!Strings.isEmpty(webContextPath)) {
-            Map<String, String> contextPathConfig = profile.getConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID);
-            if (contextPathConfig == null) {
-                contextPathConfig = new HashMap<String, String>();
+            Map<String, String> contextPathConfig = new HashMap<>();
+            Map<String, String> oldValue = profile.getConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID);
+            if (oldValue != null) {
+                contextPathConfig.putAll(oldValue);
             }
             String key = requirements.getGroupId() + "/" + requirements.getArtifactId();
             String current = contextPathConfig.get(key);

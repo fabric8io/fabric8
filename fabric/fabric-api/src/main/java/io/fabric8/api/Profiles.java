@@ -359,15 +359,14 @@ public final class Profiles {
     }
     
     public static void refreshProfile(FabricService fabricService, Profile profile) {
-        
         LOGGER.info("refreshProfile: {}", profile);
         
         ProfileService profileService = fabricService.adapt(ProfileService.class);
-        
         ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
-        Map<String, String> agentConfiguration = builder.getConfiguration(Constants.AGENT_PID);
-        if (agentConfiguration == null) {
-            agentConfiguration = new HashMap<String, String>();
+        Map<String, String> agentConfiguration = new HashMap<String, String>();
+        Map<String, String> oldValue = builder.getConfiguration(Constants.AGENT_PID);
+        if (oldValue != null) {
+            agentConfiguration.putAll(oldValue);
         }
         agentConfiguration.put("lastRefresh." + profile.getId(), String.valueOf(System.currentTimeMillis()));
         builder.addConfiguration(Constants.AGENT_PID, agentConfiguration);
