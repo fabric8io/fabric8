@@ -27,9 +27,9 @@
   </parent>
 
   <groupId>org.jboss.arquillian.container</groupId>
-  <artifactId>arquillian-fabric8-remote</artifactId>
+  <artifactId>arquillian-fabric8-common</artifactId>
 
-  <name>Fabric8 :: Integration Tests :: Arquillian :: Remote Fabric8 Container</name>
+  <name>Fabric8 :: Integration Tests :: Arquillian :: Fabric8 Common</name>
 
   <properties>
   </properties>
@@ -47,11 +47,6 @@
   </dependencyManagement>
 
   <dependencies>
-    <dependency>
-      <groupId>org.jboss.arquillian.container</groupId>
-      <artifactId>arquillian-fabric8-common</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <dependency>
       <groupId>io.fabric8.itests</groupId>
       <artifactId>fabric8-testkit</artifactId>

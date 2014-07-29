@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.arquillian.container.fabric8.remote;
+package org.jboss.arquillian.container.fabric8.docker;
 
 import io.fabric8.testkit.FabricAssertions;
 import io.fabric8.testkit.FabricController;
@@ -37,10 +37,10 @@ import org.jboss.shrinkwrap.descriptor.api.Descriptor;
  * command to create it (so we then test the distribution actually works ;) then we create a {@link FabricController}
  * to be able to interact with the fabric in a test case.
  */
-public class Fabric8Container implements DeployableContainer<Fabric8ContainerConfiguration> {
+public class Fabric8DockerContainer implements DeployableContainer<Fabric8DockerContainerConfiguration> {
     @Inject
     @ApplicationScoped
-    private InstanceProducer<Fabric8ContainerConfiguration> configuration;
+    private InstanceProducer<Fabric8DockerContainerConfiguration> configuration;
 
     @Inject
     @ApplicationScoped
@@ -49,12 +49,12 @@ public class Fabric8Container implements DeployableContainer<Fabric8ContainerCon
     private FabricControllerManagerSupport fabricControllerManager;
 
     @Override
-    public Class<Fabric8ContainerConfiguration> getConfigurationClass() {
-        return Fabric8ContainerConfiguration.class;
+    public Class<Fabric8DockerContainerConfiguration> getConfigurationClass() {
+        return Fabric8DockerContainerConfiguration.class;
     }
 
     @Override
-    public void setup(Fabric8ContainerConfiguration configuration) {
+    public void setup(Fabric8DockerContainerConfiguration configuration) {
         this.configuration.set(configuration);
     }
 
@@ -63,9 +63,9 @@ public class Fabric8Container implements DeployableContainer<Fabric8ContainerCon
         // lets kill any containers that are running before we start
         FabricAssertions.killJavaAndDockerProcesses();
 
-        fabricControllerManager = createFabricControllerManager();
+        Fabric8DockerContainerConfiguration config = configuration.get();
 
-        Fabric8ContainerConfiguration config = configuration.get();
+        fabricControllerManager = createFabricControllerManager(config);
 
         config.configure(fabricControllerManager);
 
@@ -131,8 +131,9 @@ public class Fabric8Container implements DeployableContainer<Fabric8ContainerCon
     }
 
 
-    protected CommandLineFabricControllerManager createFabricControllerManager() {
-        return new CommandLineFabricControllerManager();
+    protected FabricControllerManagerSupport createFabricControllerManager(Fabric8DockerContainerConfiguration config) {
+        return new DockerFabricControllerManager(config
+        );
     }
 
 }
