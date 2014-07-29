@@ -15,19 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.arquillian.container.fabric8.remote;
+package org.jboss.arquillian.container.fabric8.docker;
 
-import org.jboss.arquillian.container.fabric8.common.Fabric8ResourceProvider;
-import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
-import org.jboss.arquillian.core.spi.LoadableExtension;
-import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
+
+import org.jboss.arquillian.container.fabric8.common.Fabric8CommonConfiguration;
 
 /**
- * Extensions for Fabric8
  */
-public class Fabric8ContainerExtension implements LoadableExtension {
-    @Override
-    public void register(ExtensionBuilder builder) {
-        builder.service(DeployableContainer.class, Fabric8Container.class);
+public class Fabric8DockerContainerConfiguration extends Fabric8CommonConfiguration {
+
+    private int[] rootContainerExposedPorts = {
+            22, 1099, 2181, 8101, 8181, 9300, 9301, 44444, 61616
+    };
+
+    public int[] getRootContainerExposedPorts() {
+        return rootContainerExposedPorts;
+    }
+
+    public void setRootContainerExposedPorts(int[] rootContainerExposedPorts) {
+        this.rootContainerExposedPorts = rootContainerExposedPorts;
     }
 }

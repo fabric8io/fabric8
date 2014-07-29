@@ -69,6 +69,12 @@
 				<module>basic</module>
             </modules>
         </profile>
+        <profile>
+            <id>all</id>
+            <modules>
+    			    <module>common</module>
+            </modules>
+        </profile>
     </profiles>
 
 </project>

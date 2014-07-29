@@ -50,6 +50,8 @@ import static org.junit.Assert.fail;
  */
 public class FabricAssertions {
     public static final String KILL_CONTAINERS_FLAG = "fabric8.testkit.killContainers";
+    public static final long DEFAULT_REQUIREMENT_PROVISION_TIMEOUT = 5 * 60 * 1000;
+
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricAssertions.class);
 
     private static long defaultTimeout = 6 * 60 * 1000;
@@ -57,67 +59,13 @@ public class FabricAssertions {
     private static ObjectMapper mapper = new ObjectMapper();
 
     /**
-     * Kill all fabric8 related java processes and docker containers typically created through integration tests
-     */
-    public static void killJavaAndDockerProcesses() {
-        boolean killProcesses = shouldKillProcessesAfterTestRun();
-        if (!killProcesses) {
-            System.out.println("Not destroying the fabric processes due to system property " + FabricAssertions.KILL_CONTAINERS_FLAG + " being " + System.getProperty(FabricAssertions.KILL_CONTAINERS_FLAG));
-            return;
-        }
-        ProcessUtils.killJavaProcesses();
-        ProcessUtils.killDockerContainers();
-    }
-
-    /**
      * Asserts that a fabric can be created and that the requirements can be satisfied
      */
     public static FabricController assertFabricCreate(FabricControllerManager factory, FabricRequirements requirements) throws Exception {
         assertNotNull("FabricRequirements", requirements);
 
-        FabricController restAPI = assertFabricCreate(factory);
-
-        // now lets post the requirements
-        try {
-            restAPI.setRequirements(requirements);
-        } catch (Exception e) {
-            LOG.error("Failed to set requirements: " + e, e);
-            fail(unwrapException(e));
-        }
-        assertRequirementsSatisfied(restAPI, requirements);
-
-        return restAPI;
-    }
-
-    /**
-     * Asserts that the requirements can be satisfied
-     */
-    public static FabricController assertSetRequirementsAndTheyAreSatisfied(final FabricController controller, final FabricRequirements requirements) throws Exception {
-        assertNotNull("FabricController", controller);
-        assertNotNull("FabricRequirements", requirements);
-
-        waitForValidValue(30 * 1000, new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                controller.setRequirements(requirements);
-                FabricRequirements actual = controller.getRequirements();
-                String actualVersion = actual.getVersion();
-                // lets clear the actualVersion as we usually don't set one and it gets defaulted
-                actual.setVersion(requirements.getVersion());
-                boolean answer = RequirementsJson.equal(requirements, actual);
-                if (answer) {
-                    System.out.println("Updated the requirements to: " + RequirementsJson.toJSON(requirements));
-                } else {
-                    System.out.println("Expected: " + RequirementsJson.toJSON(requirements));
-                    System.out.println("Actual:   " + RequirementsJson.toJSON(actual));
-                    System.out.println();
-                }
-                return answer;
-            }
-        });
-
+        FabricController controller = assertFabricCreate(factory);
         assertRequirementsSatisfied(controller, requirements);
-
         return controller;
     }
 
@@ -125,53 +73,57 @@ public class FabricAssertions {
      * Asserts that the requirements are met within the default amount of time
      */
     public static void assertRequirementsSatisfied(FabricController controller, FabricRequirements requirements) throws Exception {
-        assertRequirementsSatisfied(controller, requirements, 5 * 60 * 1000);
+        assertRequirementsSatisfied(controller, requirements, DEFAULT_REQUIREMENT_PROVISION_TIMEOUT);
     }
 
     /**
      * Asserts that the requirements are met within the default amount of time
      */
     public static void assertRequirementsSatisfied(final FabricController controller, final FabricRequirements requirements, long timeout) throws Exception {
+        assertNotNull("FabricController", controller);
+        assertNotNull("FabricRequirements", requirements);
+
         assertNotNull("Should have some FabricRequirements", requirements);
+
         waitForValidValue(timeout, new Callable<Boolean>() {
+            boolean hasUpdatedRequirements = false;
+
             @Override
             public Boolean call() throws Exception {
+                controller.setRequirements(requirements);
+                FabricRequirements actual = controller.getRequirements();
+                String actualVersion = actual.getVersion();
+                // lets clear the actualVersion as we usually don't set one and it gets defaulted
+                actual.setVersion(requirements.getVersion());
+
+                // lets sort them both to ensure ordering
+                requirements.sortProfilesRequirements();
+                actual.sortProfilesRequirements();
+
+                boolean valid = RequirementsJson.equal(requirements, actual);
+                if (!valid) {
+                    System.out.println("Expected: " + RequirementsJson.toJSON(requirements));
+                    System.out.println("Actual:   " + RequirementsJson.toJSON(actual));
+                    System.out.println();
+                    return false;
+                }
+
+                if (!hasUpdatedRequirements) {
+                    hasUpdatedRequirements = true;
+                    System.out.println("Updated the requirements to: " + RequirementsJson.toJSON(requirements));
+                }
+
                 // lets assert we have enough profile containers created
-                boolean valid = true;
                 List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
                 assertNotNull("Should have some profileRequirements", profileRequirements);
                 String version = requirementOrDefaultVersion(controller, requirements);
                 for (ProfileRequirements profileRequirement : profileRequirements) {
                     Integer minimumInstances = profileRequirement.getMinimumInstances();
                     Integer maximumInstances = profileRequirement.getMaximumInstances();
-                    if (minimumInstances != null) {
-                        String profile = profileRequirement.getProfile();
-                        List<String> containerIds = controller.containerIdsForProfile(version, profile);
-                        int current = containerIds.size();
-                        if (current < minimumInstances) {
-                            System.out.println("Still waiting for " + minimumInstances + " instance(s) of profile " + profile + " currently has: " + containerIds);
-                            valid = false;
-                            break;
-                        } else {
-                            // TODO assert the containers are started up OK!
-                            if (checkMinimumInstancesSuccessful(controller, profile, minimumInstances, containerIds)) {
-                                System.out.println("Valid profile " + profile + " requires " + minimumInstances + " instance(s) and has: " + containerIds);
-                            } else {
-                                valid = false;
-                            }
-                        }
-                    }
-                    if (maximumInstances != null) {
-                        String profile = profileRequirement.getProfile();
-                        List<ContainerDTO> containers = controller.containersForProfile(version, profile);
-                        List<ContainerDTO> aliveContainers = Containers.aliveAndSuccessfulContainers(containers);
-                        int current = aliveContainers.size();
-                        if (current > maximumInstances) {
-                            System.out.println("Still waiting for a maximum of " + maximumInstances + " instance(s) of profile " + profile
-                                    + " currently has: " + current + " containers alive which need stopping");
-                            valid = false;
-                            break;
-                        }
+                    String profile = profileRequirement.getProfile();
+                    valid = valid && isProfileInstancesValid(controller, version, profile, minimumInstances, maximumInstances);
+                    if (!valid) {
+                        break;
                     }
                 }
                 if (valid) {
@@ -180,6 +132,70 @@ public class FabricAssertions {
                 return valid;
             }
         });
+    }
+
+    /**
+     * Asserts that the given version and profile have enough instances properly provisioned within the required timeout
+     */
+    public static void assertProfileInstancesValid(final FabricController controller, final String version, final String profile, final Integer minimumInstances, final Integer maximumInstances) throws Exception {
+        assertProfileInstancesValid(controller, version, profile, minimumInstances, maximumInstances, DEFAULT_REQUIREMENT_PROVISION_TIMEOUT);
+    }
+
+    /**
+     * Asserts that the given version and profile have enough instances properly provisioned within the required timeout
+     */
+    public static void assertProfileInstancesValid(final FabricController controller, final String version, final String profile, final Integer minimumInstances, final Integer maximumInstances, long timeout) throws Exception {
+        assertNotNull("FabricController", controller);
+
+        waitForValidValue(timeout, new Callable<Boolean>() {
+
+            @Override
+            public Boolean call() throws Exception {
+                boolean valid = isProfileInstancesValid(controller, version, profile, minimumInstances, maximumInstances);
+                if (valid) {
+                    System.out.println("version: " + version + " profile: " + profile + " has the correct number of instances");
+                }
+                return valid;
+            }
+        });
+    }
+
+    /**
+     * Asserts that the given version and profile has the given minimum and/or maximum instances
+     */
+    public static boolean isProfileInstancesValid(FabricController controller, String version, String profile, Integer minimumInstances, Integer maximumInstances) {
+        boolean valid = true;
+        if (minimumInstances != null) {
+            List<String> containerIds = controller.containerIdsForProfile(version, profile);
+            int current = containerIds.size();
+            if (current < minimumInstances) {
+                System.out.println("Still waiting for " + minimumInstances + " instance(s) of profile " + profile + " currently has: " + containerIds);
+                valid = false;
+            } else {
+                // TODO assert the containers are started up OK!
+                if (checkMinimumInstancesSuccessful(controller, profile, minimumInstances, containerIds)) {
+                    if (minimumInstances > 0) {
+                        System.out.println("Valid profile " + profile + " requires " + minimumInstances + " instance(s) and has: " + containerIds);
+                    }
+                } else {
+                    valid = false;
+                }
+            }
+        }
+        if (maximumInstances != null) {
+            List<ContainerDTO> containers = controller.containersForProfile(version, profile);
+            List<ContainerDTO> aliveContainers = Containers.aliveAndSuccessfulContainers(containers);
+            int current = aliveContainers.size();
+            if (current > maximumInstances) {
+                System.out.println("Still waiting for a maximum of " + maximumInstances + " instance(s) of profile " + profile
+                        + " currently has: " + current + " containers alive which need stopping");
+                valid = false;
+            } else {
+                System.out.println("Profile scaled down: now running a maximum of " + maximumInstances + " instance(s) of profile " + profile
+                        + " currently has: " + current + " container(s)");
+            }
+        }
+        return valid;
     }
 
     protected static boolean checkMinimumInstancesSuccessful(FabricController restAPI, String profile, int minimumInstances, List<String> containerIds) {
@@ -243,14 +259,16 @@ public class FabricAssertions {
      */
     public static FabricController assertFabricCreate(FabricControllerManager factory) throws Exception {
         assertNotNull("FabricFactory", factory);
-        FabricController restAPI = factory.createFabric();
-        assertNotNull("Should have created a REST API", restAPI);
+        FabricController controller = factory.createFabric();
+        assertNotNull("Should have created a REST API", controller);
 
         Thread.sleep(30 * 1000);
 
-        List<String> containerIds = waitForNotEmptyContainerIds(restAPI);
+        List<String> containerIds = waitForNotEmptyContainerIds(controller);
         System.out.println("Found containers: " + containerIds);
-        return restAPI;
+
+        assertProfileInstancesValid(controller, "1.0", "fabric", 1, null);
+        return controller;
     }
 
     public static void assertFileExists(File file) {
@@ -261,6 +279,19 @@ public class FabricAssertions {
     public static void assertDirectoryExists(File file) {
         assertTrue("file does not exist: " + file.getAbsolutePath(), file.exists());
         assertTrue("Not a directory: " + file.getAbsolutePath(), file.isDirectory());
+    }
+
+    /**
+     * Kill all fabric8 related java processes and docker containers typically created through integration tests
+     */
+    public static void killJavaAndDockerProcesses() {
+        boolean killProcesses = shouldKillProcessesAfterTestRun();
+        if (!killProcesses) {
+            System.out.println("Not destroying the fabric processes due to system property " + FabricAssertions.KILL_CONTAINERS_FLAG + " being " + System.getProperty(FabricAssertions.KILL_CONTAINERS_FLAG));
+            return;
+        }
+        ProcessUtils.killJavaProcesses();
+        ProcessUtils.killDockerContainers();
     }
 
     /**

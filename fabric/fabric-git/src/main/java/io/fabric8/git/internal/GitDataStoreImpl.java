@@ -144,7 +144,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private static final int GIT_COMMIT_SHORT_LENGTH = 7;
     private static final String MASTER_BRANCH = "master";
     private static final int MAX_COMMITS_WITHOUT_GC = 40;
-    private static final long AQUIRE_LOCK_TIMEOUT = 10 * 1000L;
+    private static final long AQUIRE_LOCK_TIMEOUT = 20 * 1000L;
 
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<>();

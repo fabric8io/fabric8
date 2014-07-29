@@ -22,63 +22,63 @@
 
   <parent>
     <groupId>io.fabric8.itests</groupId>
-    <artifactId>fabric-itests</artifactId>
+    <artifactId>fabric-itests-arquillian</artifactId>
     <version>1.1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>fabric8-testkit</artifactId>
+  <groupId>org.jboss.arquillian.container</groupId>
+  <artifactId>arquillian-fabric8-docker</artifactId>
 
-  <name>Fabric8 :: Integration Tests :: TestKit</name>
+  <name>Fabric8 :: Integration Tests :: Arquillian :: Docker Fabric8 Container</name>
 
   <properties>
-    <fabric8.testkit.killContainers>true</fabric8.testkit.killContainers>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.jboss.arquillian</groupId>
+        <artifactId>arquillian-bom</artifactId>
+        <version>${arquillian-core-version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>fabric-api</artifactId>
+      <groupId>org.jboss.arquillian.container</groupId>
+      <artifactId>arquillian-fabric8-common</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>fabric-rest</artifactId>
+      <artifactId>fabric-docker-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>fabric-utils</artifactId>
+      <groupId>io.fabric8.itests</groupId>
+      <artifactId>fabric8-testkit</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
+      <groupId>org.jboss.arquillian.container</groupId>
+      <artifactId>arquillian-container-spi</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
+      <groupId>org.jboss.arquillian.container</groupId>
+      <artifactId>arquillian-container-test-spi</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jolokia</groupId>
-      <artifactId>jolokia-client-java</artifactId>
-      <version>${jolokia-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>process-manager</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.jboss.arquillian.test</groupId>
+      <artifactId>arquillian-test-impl-base</artifactId>
+      <version>${arquillian-core-version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>compile</scope>
-    </dependency>
-
-    <!-- Provided Dependencies -->
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <!-- Testing -->
@@ -88,4 +88,23 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <failIfNoTests>false</failIfNoTests>
+          <systemProperties>
+            <!--
+                        <systemProperty>
+                          <key>fabric8</key>
+                          <value>${fabric8.testkit.killContainers}</value>
+                        </systemProperty>
+            -->
+          </systemProperties>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

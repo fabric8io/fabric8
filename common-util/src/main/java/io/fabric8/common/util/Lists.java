@@ -15,19 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.arquillian.container.fabric8.remote;
+package io.fabric8.common.util;
 
-import org.jboss.arquillian.container.fabric8.common.Fabric8ResourceProvider;
-import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
-import org.jboss.arquillian.core.spi.LoadableExtension;
-import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Extensions for Fabric8
  */
-public class Fabric8ContainerExtension implements LoadableExtension {
-    @Override
-    public void register(ExtensionBuilder builder) {
-        builder.service(DeployableContainer.class, Fabric8Container.class);
+public class Lists {
+    /**
+     * Creates a mutable list from a potentially null or immutable list
+     */
+    public static List<String> mutableList(List<String> optionalList) {
+        if (optionalList == null) {
+            return new ArrayList<>();
+        } else {
+            return new ArrayList<>(optionalList);
+        }
     }
 }

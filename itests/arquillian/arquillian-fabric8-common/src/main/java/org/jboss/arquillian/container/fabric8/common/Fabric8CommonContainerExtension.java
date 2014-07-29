@@ -15,19 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.arquillian.container.fabric8.remote;
+package org.jboss.arquillian.container.fabric8.common;
 
-import org.jboss.arquillian.container.fabric8.common.Fabric8ResourceProvider;
-import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 /**
  * Extensions for Fabric8
  */
-public class Fabric8ContainerExtension implements LoadableExtension {
+public class Fabric8CommonContainerExtension implements LoadableExtension {
     @Override
     public void register(ExtensionBuilder builder) {
-        builder.service(DeployableContainer.class, Fabric8Container.class);
+        builder.service(ResourceProvider.class, Fabric8ResourceProvider.class);
     }
 }

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.arquillian.container.fabric8.remote;
+package org.jboss.arquillian.container.fabric8.common;
 
 import io.fabric8.testkit.FabricController;
 import org.jboss.arquillian.core.api.Instance;

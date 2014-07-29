@@ -34,6 +34,7 @@
   <artifactId>autoscale-itests-docker</artifactId>
 
   <name>Fabric8 :: Integration Tests :: AutoScale :: Docker</name>
+  <description>Uses the docker root container manager to create the root container and the docker container provider to create all child containers</description>
 
   <!-- Properties -->
   <properties>
@@ -49,7 +50,7 @@
     <!-- Test Dependencies -->
     <dependency>
       <groupId>org.jboss.arquillian.container</groupId>
-      <artifactId>arquillian-fabric8-remote</artifactId>
+      <artifactId>arquillian-fabric8-docker</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

@@ -31,6 +31,7 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.JMXUtils;
+import io.fabric8.common.util.Lists;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DeployResults;
 import io.fabric8.deployer.dto.DtoHelper;
@@ -159,40 +160,21 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         boolean isAbstract = requirements.isAbstractProfile();
         ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.addAttribute(Profile.ABSTRACT, "" + isAbstract);
-        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
-        profile = profileService.updateProfile(profile);
 
-        ProjectRequirements oldRequirements = writeRequirementsJson(requirements, profile);
-        updateProfileConfiguration(version, profile, requirements, oldRequirements);
+        ProjectRequirements oldRequirements = writeRequirementsJson(requirements, profile, builder);
+        updateProfileConfiguration(version, profile, requirements, oldRequirements, builder);
 
-        Profile overlayProfile = profileService.getOverlayProfile(profile);
-        Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), overlayProfile);
-
-        Container container = null;
-        try {
-            container = fabricService.get().getCurrentContainer();
-        } catch (Exception e) {
-            // ignore
-        }
-
-        Integer minimumInstances = requirements.getMinimumInstances();
-        if (minimumInstances != null) {
-            FabricRequirements fabricRequirements = fabricService.get().getRequirements();
-            ProfileRequirements profileRequirements = fabricRequirements.getOrCreateProfileRequirement(profile.getId());
-            profileRequirements.setMinimumInstances(minimumInstances);
-            fabricService.get().setRequirements(fabricRequirements);
-        }
-        return resolveProfileDeployments(requirements, fabricService.get(), container, profile, effectiveProfile);
+        return resolveProfileDeployments(requirements, fabricService.get(), profile, builder);
     }
 
     /**
      * Removes any old parents / features / repos and adds any new parents / features / repos to the profile
      */
-    private void updateProfileConfiguration(Version version, Profile profile, ProjectRequirements requirements, ProjectRequirements oldRequirements) {
+    private void updateProfileConfiguration(Version version, Profile profile, ProjectRequirements requirements, ProjectRequirements oldRequirements, ProfileBuilder builder) {
         List<String> parentProfiles = Containers.getParentProfileIds(profile);
-        List<String> bundles = profile.getBundles();
-        List<String> features = profile.getFeatures();
-        List<String> repositories = profile.getRepositories();
+        List<String> bundles = Lists.mutableList(profile.getBundles());
+        List<String> features = Lists.mutableList(profile.getFeatures());
+        List<String> repositories = Lists.mutableList(profile.getRepositories());
         if (oldRequirements != null) {
             removeAll(parentProfiles, oldRequirements.getParentProfiles());
             removeAll(bundles, oldRequirements.getBundles());
@@ -204,16 +186,16 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         addAll(features, requirements.getFeatures());
         addAll(repositories, requirements.getFeatureRepositories());
         // Modify the profile through the {@link ProfileBuilder}
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         setParentProfileIds(builder, version, profile, parentProfiles);
         builder.setBundles(bundles);
         builder.setFeatures(features);
         builder.setRepositories(repositories);
         String webContextPath = requirements.getWebContextPath();
         if (!Strings.isEmpty(webContextPath)) {
-            Map<String, String> contextPathConfig = profile.getConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID);
-            if (contextPathConfig == null) {
-                contextPathConfig = new HashMap<String, String>();
+            Map<String, String> contextPathConfig = new HashMap<>();
+            Map<String, String> oldValue = profile.getConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID);
+            if (oldValue != null) {
+                contextPathConfig.putAll(oldValue);
             }
             String key = requirements.getGroupId() + "/" + requirements.getArtifactId();
             String current = contextPathConfig.get(key);
@@ -230,8 +212,6 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
                 builder.addFileConfiguration(fileName, description.getBytes());
             }
         }
-        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
-        profile = profileService.updateProfile(builder.getProfile());
     }
 
     /**
@@ -269,75 +249,89 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         }
     }
 
-    private DeployResults resolveProfileDeployments(ProjectRequirements requirements, FabricService fabric, Container container, Profile profile, Profile overlay) throws Exception {
+    private DeployResults resolveProfileDeployments(ProjectRequirements requirements, FabricService fabric, Profile profile, ProfileBuilder builder) throws Exception {
         DependencyDTO rootDependency = requirements.getRootDependency();
-
-        List<Feature> allFeatures = new ArrayList<Feature>();
-        for (String repoUri : overlay.getRepositories()) {
-            RepositoryImpl repo = new RepositoryImpl(URI.create(repoUri));
-            repo.load();
-            allFeatures.addAll(Arrays.asList(repo.getFeatures()));
-        }
+        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
 
         if (rootDependency != null) {
             // as a hack lets just add this bundle in
             LOG.info("Got root: " + rootDependency);
+            List<String> parentIds = profile.getParentIds();
+            // TODO we maybe should detect a karaf based container in a nicer way than this?
+            boolean isKarafContainer = parentIds.contains("karaf") || parentIds.contains("containers-karaf");
+            boolean addBundleDependencies = Objects.equal("bundle", rootDependency.getType()) || isKarafContainer;
+            if (addBundleDependencies) {
+                Profile overlay = profileService.getOverlayProfile(profile);
 
-            String bundleUrl = rootDependency.toBundleUrlWithType();
-
-            List<String> features = new ArrayList<String>();
-            List<String> bundles = new ArrayList<String>();
-            List<String> optionals = new ArrayList<String>();
-
-            if (requirements.getFeatures() != null) {
-                features.addAll(requirements.getFeatures());
-            }
-            if (requirements.getBundles() != null) {
-                bundles.addAll(requirements.getBundles());
-            }
-
-            bundles.add(bundleUrl);
-            LOG.info("Adding bundle: " + bundleUrl);
-
-            for (DependencyDTO dependency : rootDependency.getChildren()) {
-                if ("test".equals(dependency.getScope()) || "provided".equals(dependency.getScope())) {
-                    continue;
+                List<Feature> allFeatures = new ArrayList<Feature>();
+                for (String repoUri : overlay.getRepositories()) {
+                    RepositoryImpl repo = new RepositoryImpl(URI.create(repoUri));
+                    repo.load();
+                    allFeatures.addAll(Arrays.asList(repo.getFeatures()));
                 }
-                if ("jar".equals(dependency.getType())) {
-                    String match = getAllServiceMixBundles().get(dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion());
-                    if (match != null) {
-                        LOG.info("Replacing artifact " + dependency + " with servicemix bundle " + match);
-                        String[] parts = match.split(":");
-                        dependency.setGroupId(parts[0]);
-                        dependency.setArtifactId(parts[1]);
-                        dependency.setVersion(parts[2]);
-                        dependency.setType("bundle");
+
+                String bundleUrl = rootDependency.toBundleUrlWithType();
+
+                List<String> features = new ArrayList<String>();
+                List<String> bundles = new ArrayList<String>();
+                List<String> optionals = new ArrayList<String>();
+
+                if (requirements.getFeatures() != null) {
+                    features.addAll(requirements.getFeatures());
+                }
+                if (requirements.getBundles() != null) {
+                    bundles.addAll(requirements.getBundles());
+                }
+
+                bundles.add(bundleUrl);
+                LOG.info("Adding bundle: " + bundleUrl);
+
+                for (DependencyDTO dependency : rootDependency.getChildren()) {
+                    if ("test".equals(dependency.getScope()) || "provided".equals(dependency.getScope())) {
+                        continue;
                     }
-                }
-                String prefix = dependency.toBundleUrlWithoutVersion();
-                List<Feature> matching = new ArrayList<>();
-                for (Feature feature : allFeatures) {
-                    for (BundleInfo bi : feature.getBundles()) {
-                        if (!bi.isDependency() && bi.getLocation().startsWith(prefix)) {
-                            matching.add(feature);
-                            break;
+                    if ("jar".equals(dependency.getType())) {
+                        String match = getAllServiceMixBundles().get(dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion());
+                        if (match != null) {
+                            LOG.info("Replacing artifact " + dependency + " with servicemix bundle " + match);
+                            String[] parts = match.split(":");
+                            dependency.setGroupId(parts[0]);
+                            dependency.setArtifactId(parts[1]);
+                            dependency.setVersion(parts[2]);
+                            dependency.setType("bundle");
                         }
                     }
+                    String prefix = dependency.toBundleUrlWithoutVersion();
+                    List<Feature> matching = new ArrayList<>();
+                    for (Feature feature : allFeatures) {
+                        for (BundleInfo bi : feature.getBundles()) {
+                            if (!bi.isDependency() && bi.getLocation().startsWith(prefix)) {
+                                matching.add(feature);
+                                break;
+                            }
+                        }
+                    }
+                    if (matching.size() == 1) {
+                        LOG.info("Found a matching feature for bundle " + dependency.toBundleUrl() + ": " + matching.get(0).getId());
+                        features.add(matching.get(0).getName());
+                    } else {
+                        LOG.info("Adding optional bundle: " + dependency.toBundleUrlWithType());
+                        optionals.add(dependency.toBundleUrlWithType());
+                    }
                 }
-                if (matching.size() == 1) {
-                    LOG.info("Found a matching feature for bundle " + dependency.toBundleUrl() + ": " + matching.get(0).getId());
-                    features.add(matching.get(0).getName());
-                } else {
-                    LOG.info("Adding optional bundle: " + dependency.toBundleUrlWithType());
-                    optionals.add(dependency.toBundleUrlWithType());
-                }
+                // Modify the profile through the {@link ProfileBuilder}
+                builder.setBundles(bundles).setOptionals(optionals).setFeatures(features);
             }
+        }
 
-            // Modify the profile through the {@link ProfileBuilder}
-            ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
-            builder.setBundles(bundles).setOptionals(optionals).setFeatures(features);
-            ProfileService profileService = fabricService.get().adapt(ProfileService.class);
-            profile = profileService.updateProfile(builder.getProfile());
+        profile = profileService.updateProfile(builder.getProfile());
+
+        Integer minimumInstances = requirements.getMinimumInstances();
+        if (minimumInstances != null) {
+            FabricRequirements fabricRequirements = fabricService.get().getRequirements();
+            ProfileRequirements profileRequirements = fabricRequirements.getOrCreateProfileRequirement(profile.getId());
+            profileRequirements.setMinimumInstances(minimumInstances);
+            fabricService.get().setRequirements(fabricRequirements);
         }
 
         // lets find a hawtio profile and version
@@ -475,7 +469,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     }
 
 
-    private ProjectRequirements writeRequirementsJson(ProjectRequirements requirements, Profile profile) throws IOException {
+    private ProjectRequirements writeRequirementsJson(ProjectRequirements requirements, Profile profile, ProfileBuilder builder) throws IOException {
         ObjectMapper mapper = DtoHelper.getMapper();
         byte[] json = mapper.writeValueAsBytes(requirements);
         String fileName = DtoHelper.getRequirementsConfigFileName(requirements);
@@ -485,9 +479,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         byte[] oldData = profile.getFileConfiguration(fileName);
 
         LOG.info("Writing file " + fileName + " to profile " + profile);
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
         builder.addFileConfiguration(fileName, json);
-        profileRegistry.updateProfile(builder.getProfile());
 
         if (oldData == null || oldData.length == 0) {
             return null;

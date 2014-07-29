@@ -61,31 +61,41 @@ public class ArchetypeTest {
         // generate and deploy archetypes
         File workDir = new File(System.getProperty("basedir", "."), "target/generated-projects");
         workDir.mkdirs();
+        boolean addedBroker = false;
         Map<ArchetypeInfo, String> archetypeToProfileMap = new HashMap<>();
         for (ArchetypeInfo archetype : archetypes) {
             String profileId = assertGenerateArchetype(archetype, workDir, mavenSettingsFile);
             archetypeToProfileMap.put(archetype, profileId);
-        }
-
-        FabricRequirements requirements = new FabricRequirements();
-        requirements.profile("mq-default").minimumInstances(1);
-        FabricAssertions.assertSetRequirementsAndTheyAreSatisfied(fabricController, requirements);
-
-
-        // deploying each profile should have caused the requirements to be updated to add them all now
-        // so lets load the requirements and assert they are satisfied
-
-        // lets create containers for each archetype
-        for (ArchetypeInfo archetype : archetypes) {
-            String profileId = archetypeToProfileMap.get(archetype);
             assertNotNull("Should have a profile ID for " + archetype, profileId);
+
+            FabricRequirements requirements = fabricController.getRequirements();
+            if (!addedBroker) {
+                addedBroker = true;
+                requirements.profile("mq-default").minimumInstances(1);
+                FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
+            }
+
+            // deploying each profile should have caused the requirements to be updated to add them all now
+            // so lets load the requirements and assert they are satisfied
             requirements.profile(profileId).minimumInstances(1);
-            FabricAssertions.assertSetRequirementsAndTheyAreSatisfied(fabricController, requirements);
+            FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
+            System.out.println();
+            System.out.println("Managed to create a container for " + profileId + ". Now lets stop it");
+            System.out.println();
 
             // now lets force the container to be stopped
             requirements.profile(profileId).minimumInstances(0).maximumInstances(0);
-        }
+            FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
+            System.out.println();
+            System.out.println("Stopped a container for " + profileId + ". Now lets clear requirements");
+            System.out.println();
+            requirements.removeProfileRequirements(profileId);
+            FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
 
+            System.out.println();
+            System.out.println("Removed requirements for profile " + profileId);
+            System.out.println();
+        }
     }
 
     protected String assertGenerateArchetype(ArchetypeInfo archetype, File workDir, File mavenSettingsFile) throws Exception {

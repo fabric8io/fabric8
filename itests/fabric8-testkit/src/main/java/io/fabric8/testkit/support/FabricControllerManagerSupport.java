@@ -21,6 +21,7 @@ import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.common.util.Strings;
 import io.fabric8.testkit.FabricControllerManager;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ import static io.fabric8.common.util.Strings.join;
 /**
  */
 public abstract class FabricControllerManagerSupport implements FabricControllerManager {
+    protected File workDirectory;
     private Set<String> profiles = new HashSet<>();
     private String[] allowInheritedEnvironmentVariables = {"JAVA_HOME", "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MAVEN_HOME", "PATH", "USER"};
     private Map<String,String> environmentVariables = new HashMap<>();
@@ -94,5 +96,13 @@ public abstract class FabricControllerManagerSupport implements FabricController
         } else {
             environmentVariables.put(name, value);
         }
+    }
+
+    public File getWorkDirectory() {
+        return workDirectory;
+    }
+
+    public void setWorkDirectory(File workDirectory) {
+        this.workDirectory = workDirectory;
     }
 }

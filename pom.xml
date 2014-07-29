@@ -3415,13 +3415,13 @@
         <module>fab</module>
         <module>fabric8-maven-plugin</module>
         <module>quickstarts</module>
+        <module>tooling</module>
         <module>fabric</module>
         <module>insight</module>
         <module>mq</module>
         <module>process</module>
         <module>runtime</module>
         <module>gateway</module>
-        <module>tooling</module>
         <module>itests</module>
         <!-- 
         	Modules that are relevant for the default distribution
