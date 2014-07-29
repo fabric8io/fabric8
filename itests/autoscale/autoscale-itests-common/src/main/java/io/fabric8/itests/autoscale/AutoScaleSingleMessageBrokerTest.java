@@ -52,6 +52,5 @@ public class AutoScaleSingleMessageBrokerTest {
         // now lets ensure that the autoscaler can scale back down again, stopping the broker
         requirements.profile("mq-default").minimumInstances(0).maximumInstances(0);
         FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
-        fabricController;
     }
 }
