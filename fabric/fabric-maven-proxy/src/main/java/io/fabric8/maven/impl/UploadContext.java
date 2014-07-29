@@ -30,6 +30,7 @@ class UploadContext {
     private String groupId;
     private String artifactId;
     private String version;
+    private String type;
 
     private UploadContext() {
     }
@@ -82,7 +83,15 @@ class UploadContext {
         this.version = version;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public String toArtifact() {
-        return String.format("%s:%s:%s", groupId, artifactId, version);
+        return String.format("%s:%s:%s:%s", groupId, artifactId, type, version);
     }
 }

@@ -312,6 +312,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
                 result.setGroupId(artifact.getGroupId());
                 result.setArtifactId(artifact.getArtifactId());
                 result.setVersion(artifact.getVersion());
+                result.setType(artifact.getExtension());
 
                 LOGGER.log(Level.INFO, "Artifact installed: " + artifact.toString());
             } catch (Exception e) {
@@ -391,6 +392,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         rootDependency.setGroupId(context.getGroupId());
         rootDependency.setArtifactId(context.getArtifactId());
         rootDependency.setVersion(context.getVersion());
+        rootDependency.setType(context.getType());
         requirements.setRootDependency(rootDependency);
 
         return requirements;
