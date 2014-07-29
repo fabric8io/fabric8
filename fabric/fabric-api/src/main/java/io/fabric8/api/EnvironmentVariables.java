@@ -19,6 +19,7 @@ package io.fabric8.api;
  * Environment variables for working with fabric8
  */
 public class EnvironmentVariables {
+
     /**
      * The PID for environment variables to inject into docker processes
      */
@@ -58,7 +59,6 @@ public class EnvironmentVariables {
      */
     public static final String FABRIC8_JPDA_PROXY_PORT = "FABRIC8_JPDA_PROXY_PORT";
 
-
     /**
      * The URL of the jolokia URL for a process
      */
@@ -67,6 +67,11 @@ public class EnvironmentVariables {
     /**
      * The initial set of profiles added to the root node when creating a new profile
      */
-    public static final String FABRIC8_PROFILES = "FABRIC8_PROFILES"
-            ;
+    public static final String FABRIC8_PROFILES = "FABRIC8_PROFILES";
+
+    /**
+     * Additional URLs of profiles to import on creating fabric. Multiple URLs is separated by comma.
+     */
+    public static final String FABRIC8_IMPORT_PROFILE_URLS = "FABRIC8_IMPORT_PROFILE_URLS";
+
 }
