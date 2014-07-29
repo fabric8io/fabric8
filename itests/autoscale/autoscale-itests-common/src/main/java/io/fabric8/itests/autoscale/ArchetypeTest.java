@@ -215,7 +215,7 @@ public class ArchetypeTest {
             assertNotBlank("version", version);
 
             // TODO lets ignore broken archetypes
-            if (artifactId.contains("cdi") || artifactId.contains("drools")) {
+            if (artifactId.contains("cdi") || artifactId.contains("drools") || artifactId.contains("camel-errorhandler") || artifactId.contains("cxf-code-first")) {
                 continue;
             }
             ArchetypeInfo info = new ArchetypeInfo(groupId, artifactId, version, repository);
