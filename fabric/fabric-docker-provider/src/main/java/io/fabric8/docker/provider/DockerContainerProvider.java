@@ -19,7 +19,6 @@ import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.ContainerAutoScalerFactory;
 import io.fabric8.api.ContainerProvider;
-import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.EnvironmentVariables;
@@ -38,7 +37,6 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Strings;
 import io.fabric8.container.process.JavaContainerConfig;
 import io.fabric8.container.process.JolokiaAgentHelper;
-import io.fabric8.container.process.ProcessContainerConfig;
 import io.fabric8.container.process.ZooKeeperPublishConfig;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.DockerApiConnectionException;
@@ -388,14 +386,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         if (env == null) {
             env = new ArrayList<>();
         }
-        Set<Map.Entry<String, String>> entries = environmentVariables.entrySet();
-        for (Map.Entry<String, String> entry : entries) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (key != null && value != null) {
-                env.add(key + "=" + value);
-            }
-        }
+        Dockers.addEnvironmentVariablesToList(env, environmentVariables);
         containerConfig.setExposedPorts(exposedPorts);
         containerConfig.setEnv(env);
 

@@ -20,6 +20,7 @@ package org.jboss.arquillian.container.fabric8.docker;
 import io.fabric8.common.util.Strings;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.DockerFactory;
+import io.fabric8.docker.api.Dockers;
 import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.ContainerInfo;
@@ -70,6 +71,8 @@ public class DockerFabricControllerManager extends FabricControllerManagerSuppor
         }
         containerConfig.setExposedPorts(exposedPorts);
 
+        List<String> envList = Dockers.toEnvList(createChildEnvironmentVariables());
+        containerConfig.setEnv(envList);
         String containerName = "root";
         ContainerCreateStatus status = docker.containerCreate(containerConfig, containerName);
         rootDockerContainerId = status.getId();
