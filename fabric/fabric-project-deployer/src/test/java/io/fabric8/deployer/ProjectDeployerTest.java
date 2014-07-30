@@ -331,7 +331,7 @@ public class ProjectDeployerTest {
     }
 
     protected void assertHasVersion(String version) {
-        List<String> versions = dataStore.getVersions();
+        List<String> versions = dataStore.getVersionIds();
         LOG.info("Has versions: " + versions);
 
         assertNotNull("No version list returned!", versions);

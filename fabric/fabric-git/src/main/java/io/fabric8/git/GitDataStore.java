@@ -21,5 +21,5 @@ public interface GitDataStore {
 
     Iterable<PushResult> doPush(Git git, GitContext context) throws Exception;
     
-    <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst, GitContext context);
+    <T> T gitOperation(GitOperation<T> operation, GitContext context, PersonIdent personIdent);
 }
