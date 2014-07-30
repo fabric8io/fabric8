@@ -416,7 +416,7 @@ public class CachingGitDataStoreTest {
     }
 
     protected void assertHasVersion(String version) {
-        List<String> versions = dataStore.getVersions();
+        List<String> versions = dataStore.getVersionIds();
         System.out.println("Has versions: " + versions);
 
         assertNotNull("No version list returned!", versions);
@@ -425,7 +425,7 @@ public class CachingGitDataStoreTest {
     }
 
     protected void assertHasNotVersion(String version) {
-        List<String> versions = dataStore.getVersions();
+        List<String> versions = dataStore.getVersionIds();
         System.out.println("Has versions: " + versions);
 
         assertNotNull("No version list returned!", versions);
