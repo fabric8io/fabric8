@@ -106,6 +106,8 @@
             OSGI-INF/io.fabric8.commands.support.AddProfileCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.BundleLocationCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.ClusterCompleter.xml,
+            OSGI-INF/io.fabric8.commands.support.EnsembleAddCompleter.xml,
+            OSGI-INF/io.fabric8.commands.support.EnsembleRemoveCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.FeaturesCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.FeaturesUrlCompleter.xml,
             OSGI-INF/io.fabric8.commands.support.PidCompleter.xml,
