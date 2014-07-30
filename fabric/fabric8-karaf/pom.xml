@@ -713,15 +713,4 @@ TODO - zapped to try fix perfectus!
 		</repository>
     </repositories>
     
-    <profiles>
-        <profile>
-            <id>dev</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-                <developerUserPassword>admin=admin,admin</developerUserPassword>
-            </properties>
-        </profile>
-    </profiles>
 </project>
