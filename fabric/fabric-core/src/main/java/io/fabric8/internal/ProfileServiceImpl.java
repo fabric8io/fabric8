@@ -90,7 +90,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     @Override
     public List<String> getVersions() {
         assertValid();
-        return profileRegistry.get().getVersions();
+        return profileRegistry.get().getVersionIds();
     }
 
     @Override
