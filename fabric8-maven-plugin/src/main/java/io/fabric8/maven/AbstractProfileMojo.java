@@ -159,6 +159,13 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     private String featureRepos;
 
     /**
+     * If enabled then the OSGi resolver is used to try deduce extra bundles or features
+     * required to be added from the transitive maven dependencies.
+     */
+    @Parameter(property = "fabric8.useResolver")
+    private boolean useResolver;
+
+    /**
      * The minimum number of instances of this profile which we require to run.
      */
     @Parameter(property = "fabric8.minInstanceCount", defaultValue = "1")
@@ -356,6 +363,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         requirements.setFeatureRepositories(featureReposList);
         if (minInstanceCount != null) {
             requirements.setMinimumInstances(minInstanceCount);
+        }
+        if (useResolver) {
+            requirements.setUseResolver(Boolean.TRUE);
         }
     }
 

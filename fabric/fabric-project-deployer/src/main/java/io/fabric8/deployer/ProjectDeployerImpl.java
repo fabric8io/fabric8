@@ -260,7 +260,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
             // TODO we maybe should detect a karaf based container in a nicer way than this?
             boolean isKarafContainer = parentIds.contains("karaf") || parentIds.contains("containers-karaf");
             boolean addBundleDependencies = Objects.equal("bundle", rootDependency.getType()) || isKarafContainer;
-            if (addBundleDependencies) {
+            if (addBundleDependencies && requirements.isUseResolver()) {
                 Profile overlay = profileService.getOverlayProfile(profile);
 
                 List<Feature> allFeatures = new ArrayList<Feature>();
@@ -271,6 +271,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
                 }
 
                 String bundleUrl = rootDependency.toBundleUrlWithType();
+                LOG.info("Using resolver to add extra features and bundles on " + bundleUrl);
 
                 List<String> features = new ArrayList<String>();
                 List<String> bundles = new ArrayList<String>();

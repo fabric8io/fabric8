@@ -344,6 +344,10 @@ Or specify the command line:
 <td>replaceReadmeLinksPrefix</td>
 <td>Used by the `zip` goal, which allows to prefix any links in the `readme.md` files to make the links work in both github and as links in the fabric wiki. For example the fabric quickstarts uses this, by prefixing with `/fabric/profiles/quickstarts/`.</td>
 </tr>
+<tr>
+<td>useResolver</td>
+<td>Whether or not the OSGi resolver is used for bundles or karaf based containers to deduce the additional bundles or features that need to be added to your projects dependencies to be able to satisfy the OSGi package imports. Defaults to false.</td>
+</tr>
 </table>
 
 ### Generating Karaf shell scripts for each profile
