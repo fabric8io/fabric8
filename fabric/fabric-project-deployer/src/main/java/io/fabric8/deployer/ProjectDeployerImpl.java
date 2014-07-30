@@ -257,35 +257,35 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
             // as a hack lets just add this bundle in
             LOG.info("Got root: " + rootDependency);
             List<String> parentIds = profile.getParentIds();
+            Profile overlay = profileService.getOverlayProfile(profile);
+
+            String bundleUrl = rootDependency.toBundleUrlWithType();
+            LOG.info("Using resolver to add extra features and bundles on " + bundleUrl);
+
+            List<String> features = new ArrayList<String>();
+            List<String> bundles = new ArrayList<String>();
+            List<String> optionals = new ArrayList<String>();
+
+            if (requirements.getFeatures() != null) {
+                features.addAll(requirements.getFeatures());
+            }
+            if (requirements.getBundles() != null) {
+                bundles.addAll(requirements.getBundles());
+            }
+
+            bundles.add(bundleUrl);
+            LOG.info("Adding bundle: " + bundleUrl);
+
             // TODO we maybe should detect a karaf based container in a nicer way than this?
             boolean isKarafContainer = parentIds.contains("karaf") || parentIds.contains("containers-karaf");
             boolean addBundleDependencies = Objects.equal("bundle", rootDependency.getType()) || isKarafContainer;
             if (addBundleDependencies && requirements.isUseResolver()) {
-                Profile overlay = profileService.getOverlayProfile(profile);
-
                 List<Feature> allFeatures = new ArrayList<Feature>();
                 for (String repoUri : overlay.getRepositories()) {
                     RepositoryImpl repo = new RepositoryImpl(URI.create(repoUri));
                     repo.load();
                     allFeatures.addAll(Arrays.asList(repo.getFeatures()));
                 }
-
-                String bundleUrl = rootDependency.toBundleUrlWithType();
-                LOG.info("Using resolver to add extra features and bundles on " + bundleUrl);
-
-                List<String> features = new ArrayList<String>();
-                List<String> bundles = new ArrayList<String>();
-                List<String> optionals = new ArrayList<String>();
-
-                if (requirements.getFeatures() != null) {
-                    features.addAll(requirements.getFeatures());
-                }
-                if (requirements.getBundles() != null) {
-                    bundles.addAll(requirements.getBundles());
-                }
-
-                bundles.add(bundleUrl);
-                LOG.info("Adding bundle: " + bundleUrl);
 
                 for (DependencyDTO dependency : rootDependency.getChildren()) {
                     if ("test".equals(dependency.getScope()) || "provided".equals(dependency.getScope())) {
@@ -321,8 +321,9 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
                     }
                 }
                 // Modify the profile through the {@link ProfileBuilder}
-                builder.setBundles(bundles).setOptionals(optionals).setFeatures(features);
+                builder.setOptionals(optionals).setFeatures(features);
             }
+            builder.setBundles(bundles);
         }
 
         profile = profileService.updateProfile(builder.getProfile());
