@@ -38,7 +38,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static org.junit.Assert.assertNotNull;
@@ -50,7 +52,7 @@ import static org.junit.Assert.fail;
  */
 public class FabricAssertions {
     public static final String KILL_CONTAINERS_FLAG = "fabric8.testkit.killContainers";
-    public static final long DEFAULT_REQUIREMENT_PROVISION_TIMEOUT = 5 * 60 * 1000;
+    public static final long DEFAULT_REQUIREMENT_PROVISION_TIMEOUT = 10 * 60 * 1000;
 
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricAssertions.class);
 
@@ -87,6 +89,7 @@ public class FabricAssertions {
 
         waitForValidValue(timeout, new Callable<Boolean>() {
             boolean hasUpdatedRequirements = false;
+            Set<String> previousValidProfileIds = new HashSet<String>();
 
             @Override
             public Boolean call() throws Exception {
@@ -114,6 +117,7 @@ public class FabricAssertions {
                 }
 
                 // lets assert we have enough profile containers created
+                Set<String> validProfileIds = new HashSet<String>();
                 List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
                 assertNotNull("Should have some profileRequirements", profileRequirements);
                 String version = requirementOrDefaultVersion(controller, requirements);
@@ -121,13 +125,17 @@ public class FabricAssertions {
                     Integer minimumInstances = profileRequirement.getMinimumInstances();
                     Integer maximumInstances = profileRequirement.getMaximumInstances();
                     String profile = profileRequirement.getProfile();
-                    valid = valid && isProfileInstancesValid(controller, version, profile, minimumInstances, maximumInstances);
-                    if (!valid) {
+                    boolean wasValid = previousValidProfileIds.contains(profile);
+                    valid = valid && isProfileInstancesValid(controller, version, profile, minimumInstances, maximumInstances, wasValid);
+                    if (valid) {
+                        validProfileIds.add(profile);
+                    } else {
                         break;
                     }
                 }
+                previousValidProfileIds = validProfileIds;
                 if (valid) {
-                    System.out.println("Fabric requirements are all satisfied!");
+                    System.out.println("Fabric requirements are all satisfied for profiles: " + validProfileIds);
                 }
                 return valid;
             }
@@ -151,7 +159,7 @@ public class FabricAssertions {
 
             @Override
             public Boolean call() throws Exception {
-                boolean valid = isProfileInstancesValid(controller, version, profile, minimumInstances, maximumInstances);
+                boolean valid = isProfileInstancesValid(controller, version, profile, minimumInstances, maximumInstances, false);
                 if (valid) {
                     System.out.println("version: " + version + " profile: " + profile + " has the correct number of instances");
                 }
@@ -163,7 +171,7 @@ public class FabricAssertions {
     /**
      * Asserts that the given version and profile has the given minimum and/or maximum instances
      */
-    public static boolean isProfileInstancesValid(FabricController controller, String version, String profile, Integer minimumInstances, Integer maximumInstances) {
+    public static boolean isProfileInstancesValid(FabricController controller, String version, String profile, Integer minimumInstances, Integer maximumInstances, boolean wasValid) {
         boolean valid = true;
         if (minimumInstances != null) {
             List<String> containerIds = controller.containerIdsForProfile(version, profile);
@@ -173,9 +181,11 @@ public class FabricAssertions {
                 valid = false;
             } else {
                 // TODO assert the containers are started up OK!
-                if (checkMinimumInstancesSuccessful(controller, profile, minimumInstances, containerIds)) {
+                if (checkMinimumInstancesSuccessful(controller, profile, minimumInstances, containerIds, wasValid)) {
                     if (minimumInstances > 0) {
-                        System.out.println("Valid profile " + profile + " requires " + minimumInstances + " instance(s) and has: " + containerIds);
+                        if (!wasValid) {
+                            System.out.println("Valid profile " + profile + " requires " + minimumInstances + " instance(s) and has: " + containerIds);
+                        }
                     }
                 } else {
                     valid = false;
@@ -191,25 +201,28 @@ public class FabricAssertions {
                         + " currently has: " + current + " containers alive which need stopping");
                 valid = false;
             } else {
-                System.out.println("Profile scaled down: now running a maximum of " + maximumInstances + " instance(s) of profile " + profile
-                        + " currently has: " + current + " container(s)");
+                if (!wasValid) {
+                    System.out.println("Profile scaled down: now running a maximum of " + maximumInstances + " instance(s) of profile " + profile
+                            + " currently has: " + current + " container(s)");
+                }
             }
         }
         return valid;
     }
 
-    protected static boolean checkMinimumInstancesSuccessful(FabricController restAPI, String profile, int minimumInstances, List<String> containerIds) {
+    protected static boolean checkMinimumInstancesSuccessful(FabricController restAPI, String profile, int minimumInstances, List<String> containerIds, boolean wasValid) {
         int successful = 0;
         for (String containerId : containerIds) {
             ContainerDTO container = restAPI.getContainer(containerId);
             if (container == null) {
                 System.out.println("No ContainerDTO for " + containerId);
             } else {
-                System.out.println("Container " + containerId + " alive: " + container.isAlive() + " result: " + container.getProvisionResult()
-                        + " status: " + container.getProvisionStatus() + " complete: " + container.isProvisioningComplete()
-                        + " pending: " + container.isProvisioningPending() + " " + container.getProvisionException());
+                if (!wasValid) {
+                    System.out.println("Container " + containerId + " alive: " + container.isAlive() + " result: " + container.getProvisionResult()
+                            + " status: " + container.getProvisionStatus() + " complete: " + container.isProvisioningComplete()
+                            + " pending: " + container.isProvisioningPending() + " " + container.getProvisionException());
+                }
                 if (container.isAliveAndOK() && container.isProvisioningComplete() && !container.isProvisioningPending() && "success".equals(container.getProvisionResult())) {
-                    System.out.println("Container + " + containerId + " is up!");
                     successful += 1;
                     if (LOG.isDebugEnabled()) {
                         List<String> fields = BeanUtils.getFields(ContainerDTO.class);
