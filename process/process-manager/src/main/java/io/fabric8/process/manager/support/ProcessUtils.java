@@ -135,7 +135,7 @@ public class ProcessUtils {
      * This is handy for unit testing to ensure there's no stray karaf, wildfly, tomcat or java containers running.
      */
     public static int killJavaProcesses() {
-        return killJavaProcesses("karaf", "jboss", "catalina", "spring.Main");
+        return killJavaProcesses("karaf", "jboss", "catalina", "spring.Main", "FabricSpringApplication");
     }
 
     /**
