@@ -15,8 +15,26 @@
  */
 package io.fabric8.jaxb.dynamic.profile;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.Containers;
+import io.fabric8.api.DataStore;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRegistry;
+import io.fabric8.api.Profiles;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.common.util.Maps;
+import io.fabric8.common.util.Strings;
+import io.fabric8.git.GitService;
+import io.fabric8.git.internal.GitHelpers;
+import io.fabric8.jaxb.dynamic.CompileResults;
+import io.fabric8.jaxb.dynamic.CompileResultsHandler;
+import io.fabric8.jaxb.dynamic.DynamicCompiler;
+import io.fabric8.jaxb.dynamic.DynamicXJC;
+import io.hawt.introspect.Introspector;
+import io.hawt.util.introspect.ClassLoaderProvider;
+
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,11 +51,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.google.common.base.Throwables;
-
-import io.hawt.util.introspect.ClassLoaderProvider;
-import io.hawt.introspect.Introspector;
-
 import org.apache.aries.util.AriesFrameworkUtil;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.felix.scr.annotations.Activate;
@@ -48,31 +61,11 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
-
-import io.fabric8.common.util.Maps;
-import io.fabric8.common.util.Strings;
-import io.fabric8.api.Container;
-import io.fabric8.api.Containers;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.GitContext;
-import io.fabric8.api.Profile;
-import io.fabric8.api.ProfileRegistry;
-import io.fabric8.api.Profiles;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.git.GitService;
-import io.fabric8.git.internal.GitHelpers;
-import io.fabric8.git.internal.GitOperation;
-import io.fabric8.git.internal.GitProfiles;
-import io.fabric8.jaxb.dynamic.CompileResults;
-import io.fabric8.jaxb.dynamic.CompileResultsHandler;
-import io.fabric8.jaxb.dynamic.DynamicCompiler;
-import io.fabric8.jaxb.dynamic.DynamicXJC;
-
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Throwables;
 
 /**
  * Watches the {@link DataStore} for XSD files to recompile

@@ -69,7 +69,6 @@ public class EmbeddedContainerRegistration extends AbstractComponent implements 
     @Reference(referenceInterface = GeoLocationService.class)
     private final ValidatingReference<GeoLocationService> geoLocationService = new ValidatingReference<GeoLocationService>();
 
-
     @Activate
     void activate() {
         activateInternal();
