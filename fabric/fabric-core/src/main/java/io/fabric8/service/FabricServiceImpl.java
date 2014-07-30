@@ -548,8 +548,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 try {
                     configurer.configure(exportConfig, config);
                 } catch (Exception e) {
-                    LOGGER.error("Failed to load configuration for " + configName + " of " + config + " due to: " + e, e);
-                    throw new ProfileDependencyException(options.getProfiles(), config.getProfileWildcards(), config.getProfileTags(), e);
+                    throw new FabricException("Failed to load configuration for " + configName + " of " + config + " due to: " + e, e);
                 }
 
                 // Ensure dependent container exists
@@ -557,7 +556,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                     try {
                         List<String> children = getChildren(this.curator.get(), config.getZookeeperPath());
                         if (children == null || children.isEmpty()) {
-                            throw new ProfileDependencyException(options.getProfiles(), config.getProfileWildcards(), config.getProfileTags());
+                            throw new ProfileDependencyException(options.getProfiles(), config.getProfileWildcards(), config.getProfileTags(), config.getSummary());
                         }
 
                         boolean dependencyFound = false;
@@ -598,10 +597,10 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                         }
 
                         if (!dependencyFound) {
-                            throw new ProfileDependencyException(options.getProfiles(), config.getProfileWildcards(), config.getProfileTags());
+                            throw new ProfileDependencyException(options.getProfiles(), config.getProfileWildcards(), config.getProfileTags(), config.getSummary());
                         }
                     } catch (Exception e) {
-                        throw new ProfileDependencyException(options.getProfiles(), config.getProfileWildcards(), config.getProfileTags(), e);
+                        throw new ProfileDependencyException(options.getProfiles(), config.getProfileWildcards(), config.getProfileTags(), config.getSummary(), e);
                     }
                 }
             }
