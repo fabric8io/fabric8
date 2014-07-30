@@ -156,6 +156,23 @@
             <version>${jetty-version}</version>
         </dependency>
 
+        <!-- these explicit transitive dependencies avoid issues of 8.x bleeding into the generated archetype -->
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-http</artifactId>
+            <version>${jetty-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-io</artifactId>
+            <version>${jetty-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+            <version>${jetty-version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.jsr311-api-1.1.1</artifactId>
@@ -265,6 +282,7 @@
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-java2wadl-plugin</artifactId>
+                <version>${cxf-version}</version>
                 <executions>
                     <execution>
                         <id>process-classes</id>

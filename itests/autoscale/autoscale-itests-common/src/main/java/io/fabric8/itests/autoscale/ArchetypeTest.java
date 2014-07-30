@@ -93,7 +93,7 @@ public class ArchetypeTest {
                     }
                 } else {
                     // TODO lets ignore broken archetypes
-                    if (artifactId.contains("cxf-cdi") || artifactId.contains("drools")) {
+                    if (artifactId.contains("drools")) {
                         ignore = true;
                     }
                 }
