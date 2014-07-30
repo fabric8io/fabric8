@@ -229,7 +229,7 @@ public class EmbeddedContainerRegistration extends AbstractComponent implements 
         this.geoLocationService.bind(service);
     }
 
-    void ubindGeoLocationService(GeoLocationService service) {
+    void unbindGeoLocationService(GeoLocationService service) {
         this.geoLocationService.unbind(service);
     }
 }

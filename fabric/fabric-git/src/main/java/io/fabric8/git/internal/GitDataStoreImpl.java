@@ -30,6 +30,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -262,11 +263,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         try {
             // Get initial versions
             getInitialVersions();
-
-            // import additional profiles
-            Path homePath = runtimeProperties.get().getHomePath();
-            Path fromPath = homePath.resolve(importDir);
-            importExportHandler.initialImportFromPath(fromPath);
         } finally {
             writeLock.unlock();
         }
@@ -816,7 +812,9 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public void importFromFileSystem(String from) {
-        importExportHandler.importFromFileSystem(from);
+        Path importBase = Paths.get(from);
+        importExportHandler.importFromFileSystem(importBase);
+        importExportHandler.importZipAndArtifacts(importBase.getParent());
     }
 
     @Override
@@ -1444,12 +1442,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     
     class ImportExportHandler {
 
-        void importFromFileSystem(final String importPath) {
+        void importFromFileSystem(final Path importPath) {
             LockHandle writeLock = aquireWriteLock();
             try {
                 assertValid();
 
-                File sourceDir = new File(importPath);
+                File sourceDir = importPath.toFile();
                 if (!sourceDir.isDirectory())
                     throw new IllegalArgumentException("Not a valid source dir: " + sourceDir.getAbsolutePath());
 
@@ -1623,7 +1621,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
 
         @SuppressWarnings("unchecked")
-        void initialImportFromPath(Path fromPath) {
+        void importZipAndArtifacts(Path fromPath) {
             LOGGER.info("Importing additional profiles from file system directory: {}", fromPath);
 
             List<String> profiles = new ArrayList<String>();
