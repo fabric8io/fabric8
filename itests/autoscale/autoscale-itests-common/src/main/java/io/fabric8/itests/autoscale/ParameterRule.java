@@ -17,7 +17,6 @@
  */
 package io.fabric8.itests.autoscale;
 
-import org.jboss.arquillian.container.test.api.Deployment;
 import org.junit.rules.MethodRule;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
@@ -28,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,6 +38,7 @@ import static org.junit.Assert.fail;
  */
 public class ParameterRule<T> implements MethodRule {
     private static final transient Logger LOG = LoggerFactory.getLogger(ParameterRule.class);
+    protected static List<String> ignoredTests = new ArrayList<>();
 
     private final Collection<T> params;
 
@@ -60,6 +59,12 @@ public class ParameterRule<T> implements MethodRule {
         };
     }
 
+    public static void addIgnoredTest(String test) {
+        if (!ignoredTests.contains(test)) {
+            ignoredTests.add(test);
+        }
+    }
+
     private void evaluateParametersInClient(Statement base, Object target) throws Throwable {
         if (isRunningInContainer()) {
             ignoreStatementExecution(base);
@@ -69,6 +74,8 @@ public class ParameterRule<T> implements MethodRule {
     }
 
     private void evaluateParamsToTarget(Statement base, Object target) throws Throwable {
+        ignoredTests.clear();
+
         // lets fail at the end
         List<Throwable> failures = new ArrayList<>();
         List<String> failedTests = new ArrayList<>();
@@ -81,15 +88,27 @@ public class ParameterRule<T> implements MethodRule {
             targetField.set(target, param);
             try {
                 System.out.println();
-                System.out.println("Running test " + base + " " + target);
+                System.out.println();
+                System.out.println("======================================================================================");
+                System.out.println("RUNNING test: " + target);
                 base.evaluate();
+                System.out.println("SUCCESS test: " + target);
+                System.out.println();
             } catch (Throwable e) {
+                System.out.println("======================================================================================");
                 System.out.println();
                 System.out.println("FAILED: " + target + ". " + e);
+                e.printStackTrace();
                 LOG.error("Failed test " + target + " on " + base + ". " + e, e);
                 failedTests.add("" + target);
                 failures.add(e);
             }
+        }
+        if (ignoredTests.size() > 0) {
+            System.out.println();
+            System.out.println("======================================================================================");
+            System.out.println("IGNORED tests: " + ignoredTests);
+            System.out.println("======================================================================================");
         }
         if (failures.size() > 0) {
             fail("Tests failed " + failedTests);

@@ -20,7 +20,6 @@ package io.fabric8.itests.autoscale;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.testkit.FabricAssertions;
 import io.fabric8.testkit.FabricController;
-
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;

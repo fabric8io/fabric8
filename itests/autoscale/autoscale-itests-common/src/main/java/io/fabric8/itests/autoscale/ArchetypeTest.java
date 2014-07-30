@@ -65,7 +65,7 @@ public class ArchetypeTest {
     @Rule
     public ParameterRule<String> rule = new ParameterRule<>(findArchetypeIds());
 
-    private static Map<String, ArchetypeInfo> archetypeIdToArchetypeInfoMap = new TreeMap<>();
+    protected static Map<String, ArchetypeInfo> archetypeIdToArchetypeInfoMap = new TreeMap<>();
 
     boolean addedBroker = false;
 
@@ -83,24 +83,28 @@ public class ArchetypeTest {
             Set<String> artifactIds = archetypeIdToArchetypeInfoMap.keySet();
             Set<String> answer = new TreeSet<>();
 
-            // lets allow a specific archetype to be run via a system property...
+            // lets allow a specific archetypes to be run via a system property...
             String testArtifactId = System.getProperty(ARTIFACTID_SYSTEM_PROPERTY);
-            if (Strings.isNotBlank(testArtifactId)) {
-                if (artifactIds.contains(testArtifactId)) {
-                    answer.add(testArtifactId);
-                } else {
-                    fail("System property " + ARTIFACTID_SYSTEM_PROPERTY + " value of '" + testArtifactId + "' is not a valid artifact id for the fabric8 archetypes");
-                }
-            } else {
-                for (String artifactId : artifactIds) {
-                    // TODO lets ignore broken archetypes
-                    if (artifactId.contains("cdi") || artifactId.contains("drools") ||
-                            artifactId.contains("camel-errorhandler") || artifactId.contains("cxf-code-first") ||
-                            artifactId.contains("karaf-cxf-secure")) {
-                        continue;
+            for (String artifactId : artifactIds) {
+                boolean ignore = false;
+                if (Strings.isNotBlank(testArtifactId)) {
+                    if (!artifactId.contains(testArtifactId)) {
+                        ignore = true;
                     }
+                } else {
+                    // TODO lets ignore broken archetypes
+                    if (artifactId.contains("cdi") || artifactId.contains("drools") || artifactId.contains("dozer")) {
+                        ignore = true;
+                    }
+                }
+                if (ignore) {
+                    ParameterRule.addIgnoredTest("ArchetypeTest(" + artifactId + ")");
+                } else {
                     answer.add(artifactId);
                 }
+            }
+            if (Strings.isNotBlank(testArtifactId) && answer.isEmpty()) {
+                fail("System property " + ARTIFACTID_SYSTEM_PROPERTY + " value of '" + testArtifactId + "' is not a valid artifact id for the fabric8 archetypes");
             }
             return answer;
         } catch (Exception e) {
@@ -163,8 +167,6 @@ public class ArchetypeTest {
 
     protected String assertGenerateArchetype(ArchetypeInfo archetype, File workDir, File mavenSettingsFile) throws Exception {
         System.out.println();
-        System.out.println();
-        System.out.println("======================================================================================");
         System.out.println(archetype.groupId + "/" + archetype.artifactId + "/" + archetype.version + " : generate archetype...");
         System.out.println("======================================================================================");
         System.out.println();
