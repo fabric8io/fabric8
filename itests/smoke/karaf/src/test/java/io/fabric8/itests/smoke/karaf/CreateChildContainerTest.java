@@ -100,7 +100,6 @@ public class CreateChildContainerTest {
     }
 
     @Test
-    @Ignore("[FABRIC-1124] CreateChildContainerTest fails with: Command not found zk:get")
     public void testCreateChildContainerWithCustomZKServerPort() throws Exception {
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n --zookeeper-server-port 2345"));
         System.err.println(CommandSupport.executeCommand("fabric:profile-create --parents default p1"));

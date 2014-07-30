@@ -382,9 +382,6 @@ public class DeploymentAgent implements ManagedService {
         if (props == null || Boolean.parseBoolean((String) props.get("disabled"))) {
             return false;
         }
-        if (props.get("disabled") != null && "true".equalsIgnoreCase(props.get("disabled").toString())) {
-            return false;
-        }
 
         // Adding the maven proxy URL to the list of repositories.
         addMavenProxies(props, fabricService.getService());
