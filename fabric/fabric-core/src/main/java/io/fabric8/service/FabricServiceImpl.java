@@ -21,6 +21,7 @@ import static io.fabric8.utils.DataStoreUtils.substituteBundleProperty;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
@@ -53,17 +54,20 @@ import io.fabric8.api.PortService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileRegistry;
+import io.fabric8.api.ProfileDependencyException;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
-import io.fabric8.api.VersionBuilder;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.api.visibility.VisibleForTesting;
 import io.fabric8.internal.ContainerImpl;
+import io.fabric8.internal.ProfileDependencyConfig;
+import io.fabric8.internal.ProfileDependencyKind;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.SystemProperties;
@@ -79,6 +83,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -169,6 +174,9 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
     @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private final Map<String, PlaceholderResolver> placeholderResolvers = new ConcurrentHashMap<String, PlaceholderResolver>();
+
+    @Reference
+    private Configurer configurer;
 
     private String defaultRepo = FabricService.DEFAULT_REPO_URI;
     private BundleContext bundleContext;
@@ -447,6 +455,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 listener = new NullCreationStateListener();
             }
 
+            validateProfileDependencies(options);
+
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             Map optionsMap = mapper.readValue(mapper.writeValueAsString(options), Map.class);
@@ -523,6 +533,78 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         } catch (Exception e) {
             LOGGER.error("Failed to create containers " + e, e);
             throw FabricException.launderThrowable(e);
+        }
+    }
+
+    protected void validateProfileDependencies(CreateContainerOptions options) {
+        Map<String, Map<String, String>> profileDependencies = Profiles.getOverlayFactoryConfigurations(this, options.getProfiles(), options.getVersion(), ProfileDependencyConfig.PROFILE_DEPENDENCY_CONFIG_PID);
+        Set<Map.Entry<String, Map<String, String>>> entries = profileDependencies.entrySet();
+        for (Map.Entry<String, Map<String, String>> entry : entries) {
+            String configName = entry.getKey();
+            Map<String, String> exportConfig = entry.getValue();
+
+            if (exportConfig != null && !exportConfig.isEmpty()) {
+                ProfileDependencyConfig config = new ProfileDependencyConfig();
+                try {
+                    configurer.configure(exportConfig, config);
+                } catch (Exception e) {
+                    LOGGER.error("Failed to load configuration for " + configName + " of " + config + " due to: " + e, e);
+                    throw new ProfileDependencyException(options.getProfiles(), config.getProfileWildcards(), config.getProfileTags(), e);
+                }
+
+                // Ensure dependent container exists
+                if (ProfileDependencyKind.ZOOKEEPER_SERVICE.equals(config.getKind())) {
+                    try {
+                        List<String> children = getChildren(this.curator.get(), config.getZookeeperPath());
+                        if (children == null || children.isEmpty()) {
+                            throw new ProfileDependencyException(options.getProfiles(), config.getProfileWildcards(), config.getProfileTags());
+                        }
+
+                        boolean dependencyFound = false;
+                        Iterator<String> childIterator = children.iterator();
+
+                        while (!dependencyFound && childIterator.hasNext()) {
+                            String containerName = childIterator.next();
+                            Container container = this.getContainer(containerName);
+                            Profile[] profiles = container.getProfiles();
+                            int profileCount = 0;
+
+                            while (!dependencyFound && profileCount < profiles.length) {
+                                Profile profile = profiles[profileCount];
+                                if (config.getProfileWildcards() != null) {
+                                    for (String profileWildcard : config.getProfileWildcards()) {
+                                        if (profile.getId().contains(profileWildcard)) {
+                                            dependencyFound = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (!dependencyFound && config.getProfileTags() != null) {
+                                    List<String> profileTags = profile.getTags();
+                                    int foundTags = 0;
+
+                                    for (String configProfileTag : config.getProfileTags()) {
+                                        if (profileTags.contains(configProfileTag)) {
+                                            foundTags++;
+                                        }
+                                    }
+
+                                    if (foundTags == config.getProfileTags().length) {
+                                        dependencyFound = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!dependencyFound) {
+                            throw new ProfileDependencyException(options.getProfiles(), config.getProfileWildcards(), config.getProfileTags());
+                        }
+                    } catch (Exception e) {
+                        throw new ProfileDependencyException(options.getProfiles(), config.getProfileWildcards(), config.getProfileTags(), e);
+                    }
+                }
+            }
         }
     }
 
