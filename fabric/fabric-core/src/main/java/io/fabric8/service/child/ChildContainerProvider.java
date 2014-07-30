@@ -25,6 +25,7 @@ import io.fabric8.api.CreateChildContainerMetadata;
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreationStateListener;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.PortService;
@@ -32,7 +33,6 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
-import io.fabric8.api.DataStore;
 import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
@@ -241,6 +241,9 @@ public final class ChildContainerProvider extends AbstractComponent implements C
 
         if (options.getJvmOpts() == null || !options.getJvmOpts().contains("-Xmx")) {
             jvmOptsBuilder.append(" -Xmx512m");
+        }
+        if (options.getJvmOpts() == null || !options.getJvmOpts().contains("-XX:MaxPermSize=")) {
+            jvmOptsBuilder.append(" -XX:MaxPermSize=256m");
         }
         if (options.isEnsembleServer()) {
             jvmOptsBuilder.append(" ").append(CreateEnsembleOptions.ENSEMBLE_AUTOSTART + "=true");
