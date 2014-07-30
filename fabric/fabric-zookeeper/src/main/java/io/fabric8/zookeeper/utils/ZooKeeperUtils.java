@@ -192,6 +192,15 @@ public final class ZooKeeperUtils {
         }
     }
 
+    public static String getStringDataSafe(CuratorFramework curator, String path) throws Exception {
+        byte[] bytes = getData(curator, path);
+        if (bytes == null) {
+            return null;
+        } else {
+            return new String(bytes, UTF_8);
+        }
+    }
+
     /**
      * Returns the data for the given path or null if it doesn not exist
      */
@@ -299,7 +308,7 @@ public final class ZooKeeperUtils {
     }
 
     public static Properties getProperties(CuratorFramework curator, String path) throws Exception {
-        String value = getStringData(curator, path);
+        String value = getStringDataSafe(curator, path);
         Properties properties = new Properties();
         if (value != null) {
             try {
