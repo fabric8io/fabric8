@@ -490,14 +490,21 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         this.remoteRef.set(remote);
     }
 
-    private Version getVersionFromCache(String versionId, String profileId) {
+    private Version getVersionFromCache(final String versionId, final String profileId) {
+        IllegalArgumentAssertion.assertNotNull(versionId, "versionId");
         LockHandle writeLock = aquireWriteLock();
         try {
-            if (checkoutProfileBranch(getGit(), versionId, profileId)) {
-                return versionCache.get(versionId);
-            } else {
-                return null;
-            }
+            assertValid();
+            GitOperation<Version> gitop = new GitOperation<Version>() {
+                public Version call(Git git, GitContext context) throws Exception {
+                    if (checkoutProfileBranch(getGit(), versionId, profileId)) {
+                        return versionCache.get(versionId);
+                    } else {
+                        return null;
+                    }
+                }
+            };
+            return executeRead(gitop);
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
         } finally {
@@ -506,12 +513,16 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private Profile getProfileFromCache(String versionId, String profileId) {
+        IllegalArgumentAssertion.assertNotNull(versionId, "versionId");
+        IllegalArgumentAssertion.assertNotNull(profileId, "profileId");
         Version version = getVersionFromCache(versionId, profileId);
         return version != null ? version.getProfile(profileId) : null;
     }
 
     @Override
     public String createVersion(final String sourceId, final String targetId, final Map<String, String> attributes) {
+        IllegalArgumentAssertion.assertNotNull(sourceId, "sourceId");
+        IllegalArgumentAssertion.assertNotNull(targetId, "targetId");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -536,6 +547,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public String createVersion(final Version version) {
+        IllegalArgumentAssertion.assertNotNull(version, "version");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -580,6 +592,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public boolean hasVersion(final String versionId) {
+        IllegalArgumentAssertion.assertNotNull(versionId, "versionId");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -596,7 +609,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public Version getVersion(final String versionId) {
-        assertValid();
         return getVersionFromCache(versionId, null);
     }
 
@@ -609,6 +621,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public void deleteVersion(final String versionId) {
+        IllegalArgumentAssertion.assertNotNull(versionId, "versionId");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -629,6 +642,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public String createProfile(final Profile profile) {
+        IllegalArgumentAssertion.assertNotNull(profile, "profile");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -650,6 +664,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public String updateProfile(final Profile profile) {
+        IllegalArgumentAssertion.assertNotNull(profile, "profile");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -669,14 +684,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public boolean hasProfile(final String versionId, final String profileId) {
-        assertValid();
         Profile profile = getProfileFromCache(versionId, profileId);
         return profile != null;
     }
 
     @Override
     public Profile getProfile(final String versionId, final String profileId) {
-        assertValid();
         return getProfileFromCache(versionId, profileId);
     }
 
@@ -697,6 +710,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public void deleteProfile(final String versionId, final String profileId) {
+        IllegalArgumentAssertion.assertNotNull(versionId, "versionId");
+        IllegalArgumentAssertion.assertNotNull(profileId, "profileId");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -827,7 +842,9 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public void importProfiles(final String versionId, final List<String> profileZipUrls) {
+    public void importProfiles(final String versionId, final List<String> importUrls) {
+        IllegalArgumentAssertion.assertNotNull(versionId, "versionId");
+        IllegalArgumentAssertion.assertNotNull(importUrls, "importUrls");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -836,7 +853,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     // TODO(tdi): Is it correct to implicitly create the version?
                     createOrCheckoutVersion(git, versionId);
                     //checkoutRequiredProfileBranch(git, versionId, null);
-                    return doImportProfiles(git, context, profileZipUrls);
+                    return doImportProfiles(git, context, importUrls);
                 }
             };
             executeWrite(gitop);
@@ -846,34 +863,40 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public void importFromFileSystem(String from) {
-        importExportHandler.importFromFileSystem(from);
+    public void importFromFileSystem(String importPath) {
+        IllegalArgumentAssertion.assertNotNull(importPath, "importPath");
+        importExportHandler.importFromFileSystem(importPath);
     }
 
     @Override
-    public void exportProfiles(String versionId, String outputFileName, String wildcard) {
-        importExportHandler.exportProfiles(versionId, outputFileName, wildcard);
+    public void exportProfiles(String versionId, String outputName, String wildcard) {
+        IllegalArgumentAssertion.assertNotNull(versionId, "versionId");
+        IllegalArgumentAssertion.assertNotNull(outputName, "outputName");
+        importExportHandler.exportProfiles(versionId, outputName, wildcard);
     }
 
     @Override
     public Iterable<PushResult> doPush(Git git, GitContext context) throws Exception {
+        IllegalArgumentAssertion.assertNotNull(git, "git");
         LockHandle readLock = aquireReadLock();
         try {
             assertValid();
             LOGGER.info("External call to push");
-            return doPushInternal(git, context, getCredentialsProvider());
+            return doPushInternal(git, context != null ? context : new GitContext(), getCredentialsProvider());
         } finally {
             readLock.unlock();
         }
     }
 
     @Override
-    public <T> T gitOperation(PersonIdent personIdent, GitOperation<T> gitop, boolean pullFirst, GitContext context) {
+    public <T> T gitOperation(GitOperation<T> gitop, GitContext context, PersonIdent personIdent) {
+        IllegalArgumentAssertion.assertNotNull(gitop, "gitop");
+        IllegalArgumentAssertion.assertNotNull(context, "context");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
             LOGGER.info("External call to execute a git operation: " + gitop);
-            return executeInternal(context.setRequirePull(pullFirst), personIdent, gitop);
+            return executeInternal(context, personIdent, gitop);
         } finally {
             writeLock.unlock();
         }
@@ -975,7 +998,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             StoredConfig config = repository.getConfig();
             String url = config.getString("remote", remoteRef.get(), "url");
             if (Strings.isNullOrBlank(url)) {
-                LOGGER.info("No remote repository defined for the git repository at {} so not doing a pull", GitHelpers.getRootGitDirectory(git));
+                LOGGER.debug("No remote repository defined for the git repository at {} so not doing a pull", GitHelpers.getRootGitDirectory(git));
                 return false;
             }
             
@@ -1102,10 +1125,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
      * Pushes any committed changes to the remote repo
      */
     private Iterable<PushResult> doPushInternal(Git git, GitContext context, CredentialsProvider credentialsProvider) {
-        if (context == null) {
-            LOGGER.warn("Cannot push due to null context");
-            return Collections.EMPTY_LIST;
-        }
         assertReadLock();
         IllegalStateAssertion.assertTrue(context.incrementPushCount(), "Push not required in context");
         Iterable<PushResult> results = Collections.emptyList();
@@ -1128,9 +1147,9 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     /**
      * Imports one or more profile zips into the given version
      */
-    private String doImportProfiles(Git git, GitContext context, List<String> profileZipUrls) throws GitAPIException, IOException {
+    private String doImportProfiles(Git git, GitContext context, List<String> importUrls) throws GitAPIException, IOException {
         File profilesDirectory = GitHelpers.getProfilesDirectory(git);
-        for (String url : profileZipUrls) {
+        for (String url : importUrls) {
             URL zipUrl;
             try {
                 zipUrl = new URL(url);
@@ -1148,7 +1167,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         }
         addFiles(git, profilesDirectory);
-        context.commitMessage("Added profile zip(s) " + profileZipUrls);
+        context.commitMessage("Added profile zip(s) " + importUrls);
         return null;
     }
     
@@ -1531,12 +1550,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         }
 
-        void exportProfiles(final String versionId, final String outputFileName, String wildcard) {
+        void exportProfiles(final String versionId, final String outputName, String wildcard) {
             LockHandle writeLock = aquireWriteLock();
             try {
                 assertValid();
                 
-                final File outputFile = new File(outputFileName);
+                final File outputFile = new File(outputName);
                 outputFile.getParentFile().mkdirs();
                 
                 // Setup the file filter
