@@ -15,8 +15,8 @@
  */
 package io.fabric8.process.manager;
 
+import io.fabric8.common.util.Processes;
 import io.fabric8.process.manager.config.ProcessConfig;
-import io.fabric8.process.manager.support.ProcessUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,7 +79,7 @@ public class Installation implements Serializable {
             answer = aController.getPid();
         }
         if (answer != null) {
-            if (!ProcessUtils.isProcessAlive(answer)) {
+            if (!Processes.isProcessAlive(answer)) {
                 answer = null;
             }
         }

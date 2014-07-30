@@ -25,10 +25,10 @@ import io.fabric8.api.jmx.ContainerDTO;
 import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Filters;
 import io.fabric8.common.util.IOHelpers;
+import io.fabric8.common.util.Processes;
 import io.fabric8.common.util.Strings;
 import io.fabric8.core.jmx.BeanUtils;
 import io.fabric8.internal.RequirementsJson;
-import io.fabric8.process.manager.support.ProcessUtils;
 import org.jolokia.client.exception.J4pRemoteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -303,8 +303,8 @@ public class FabricAssertions {
             System.out.println("Not destroying the fabric processes due to system property " + FabricAssertions.KILL_CONTAINERS_FLAG + " being " + System.getProperty(FabricAssertions.KILL_CONTAINERS_FLAG));
             return;
         }
-        ProcessUtils.killJavaProcesses();
-        ProcessUtils.killDockerContainers();
+        Processes.killJavaProcesses();
+        Processes.killDockerContainers();
     }
 
     /**

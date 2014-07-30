@@ -20,7 +20,7 @@ package io.fabric8.testkit.support;
 import io.fabric8.common.util.Closeables;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.IOHelpers;
-import io.fabric8.process.manager.support.ProcessUtils;
+import io.fabric8.common.util.Processes;
 import io.fabric8.testkit.FabricAssertions;
 import io.fabric8.testkit.FabricController;
 import io.fabric8.testkit.jolokia.JolokiaFabricController;
@@ -141,7 +141,7 @@ public class CommandLineFabricControllerManager extends FabricControllerManagerS
                             Long pid = Long.parseLong(pidText);
                             if (pid != null) {
                                 System.out.println("Killing process " + pid);
-                                int status = ProcessUtils.killProcess(pid, "-9");
+                                int status = Processes.killProcess(pid, "-9");
                                 if (status != 0) {
                                     System.err.println("Failed to kill process " + pid + ". Got " + status);
                                 }
