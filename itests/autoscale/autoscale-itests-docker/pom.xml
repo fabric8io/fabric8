@@ -59,6 +59,7 @@
       <artifactId>arquillian-junit-container</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
       <artifactId>arquillian-testenricher-cdi</artifactId>
@@ -68,6 +69,14 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- lets force the local fabric8:fabric8 image to be created again -->
+    <dependency>
+      <groupId>io.fabric8.itests.autoscale</groupId>
+      <artifactId>autoscale-itests-docker-children</artifactId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -81,66 +90,6 @@
     </testResources>
 
     <plugins>
-      <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>${maven-dependency-plugin-version}</version>
-        <executions>
-          <execution>
-            <id>copy-distro</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>io.fabric8</groupId>
-                  <artifactId>fabric8-karaf</artifactId>
-                  <version>${project.version}</version>
-                  <type>zip</type>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${basedir}/target/test-classes/docker</outputDirectory>
-                  <destFileName>fabric8.zip</destFileName>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <phase>test-compile</phase>
-            <configuration>
-              <target>
-                <echo>pulling the latest docker fabric8/fabric image</echo>
-                <exec executable="docker" failonerror="true">
-                  <arg value="pull"/>
-                  <arg value="fabric8/fabric8"/>
-                </exec>
-                <echo>docker fabric8/fabric image now pulled!</echo>
-                <echo></echo>
-                <echo>lets create a new container image</echo>
-                <exec executable="docker" failonerror="true">
-                  <arg value="build"/>
-                  <arg value="-t"/>
-                  <arg value="fabric8:fabric8"/>
-                  <arg value="${basedir}/target/test-classes/docker"/>
-                </exec>
-                <echo></echo>
-                <echo>Done! Created a local docker image fabric8:fabric8!</echo>
-                <echo></echo>
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
