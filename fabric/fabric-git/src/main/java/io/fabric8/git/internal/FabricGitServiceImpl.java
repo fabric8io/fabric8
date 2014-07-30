@@ -84,6 +84,7 @@ public final class FabricGitServiceImpl extends AbstractComponent implements Git
             try {
                 Git git = Git.init().setDirectory(repo).call();
                 git.commit().setMessage("First Commit").setCommitter("fabric", "user@fabric").call();
+                git.tag().setName(GitHelpers.ROOT_TAG).setMessage("Tag the root commit").call();
                 return git;
             } catch (GitAPIException ex) {
                 throw new IOException(ex);
