@@ -324,13 +324,13 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
     }
 
     private <T> T gitReadOperation(GitOperation<T> operation) {
-        return gitDataStore.get().gitOperation(null, operation, false, new GitContext());
+        GitContext context = new GitContext().requirePull();
+        return gitDataStore.get().gitOperation(operation, context, null);
     }
 
     private <T> T gitWriteOperation(PersonIdent personIdent, GitOperation<T> operation) {
-        GitContext context = new GitContext();
-        context.requireCommit();
-        return gitDataStore.get().gitOperation(personIdent, operation, true, context);
+        GitContext context = new GitContext().requirePull().requireCommit().requirePush();
+        return gitDataStore.get().gitOperation(operation, context, personIdent);
     }
 
     // [FIXME] Test case polutes public API

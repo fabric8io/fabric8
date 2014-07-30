@@ -43,12 +43,10 @@ import org.osgi.service.cm.ConfigurationAdmin;
 @RunWith(Arquillian.class)
 public class FabricBootstrapTest {
 
-    private static final String SYSTEM_PASSWORD = "systempassword";
-
     @Test
     public void testFabricCreate() throws Exception {
 
-        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).zookeeperPassword(SYSTEM_PASSWORD).waitForProvision(false);
+        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).waitForProvision(false);
         CreateEnsembleOptions options = builder.build();
 
         ZooKeeperClusterBootstrap bootstrap = ServiceLocator.getRequiredService(ZooKeeperClusterBootstrap.class);
@@ -68,7 +66,7 @@ public class FabricBootstrapTest {
         ConfigurationAdmin configAdmin = ServiceLocator.getRequiredService(ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configAdmin.getConfiguration(io.fabric8.api.Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
-        Assert.assertEquals("Expected provided zookeeper password", PasswordEncoder.encode(SYSTEM_PASSWORD), dictionary.get("zookeeper.password"));
+        Assert.assertNotNull("Expected provided zookeeper url", dictionary.get("zookeeper.url"));
 
         assertConfigurations(configAdmin);
     }
@@ -76,7 +74,6 @@ public class FabricBootstrapTest {
     private void assertConfigurations(ConfigurationAdmin configAdmin) throws Exception {
         Configuration config = configAdmin.listConfigurations("(service.pid=" + Constants.ZOOKEEPER_CLIENT_PID + ")")[0];
         Assert.assertNotNull("Configuration not null", config);
-        Assert.assertNotNull("zookeeper.password not null", config.getProperties().get("zookeeper.password"));
         Assert.assertNotNull("zookeeper.url not null", config.getProperties().get("zookeeper.url"));
         config = configAdmin.listConfigurations("(service.factoryPid=" + Constants.ZOOKEEPER_SERVER_PID + ")")[0];
         Assert.assertNotNull("Configuration not null", config);
