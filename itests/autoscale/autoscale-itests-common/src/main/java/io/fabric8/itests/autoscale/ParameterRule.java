@@ -74,8 +74,6 @@ public class ParameterRule<T> implements MethodRule {
     }
 
     private void evaluateParamsToTarget(Statement base, Object target) throws Throwable {
-        ignoredTests.clear();
-
         // lets fail at the end
         List<Throwable> failures = new ArrayList<>();
         List<String> failedTests = new ArrayList<>();
@@ -109,6 +107,7 @@ public class ParameterRule<T> implements MethodRule {
             System.out.println("======================================================================================");
             System.out.println("IGNORED tests: " + ignoredTests);
             System.out.println("======================================================================================");
+            ignoredTests.clear();
         }
         if (failures.size() > 0) {
             fail("Tests failed " + failedTests);
