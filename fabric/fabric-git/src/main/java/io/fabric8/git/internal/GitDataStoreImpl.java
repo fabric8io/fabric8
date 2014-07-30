@@ -1066,6 +1066,10 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
      * Pushes any committed changes to the remote repo
      */
     private Iterable<PushResult> doPushInternal(Git git, GitContext context, CredentialsProvider credentialsProvider) {
+        if (context == null) {
+            LOGGER.warn("Cannot push due to null context");
+            return Collections.EMPTY_LIST;
+        }
         assertReadLock();
         IllegalStateAssertion.assertTrue(context.incrementPushCount(), "Push not required in context");
         Iterable<PushResult> results = Collections.emptyList();
