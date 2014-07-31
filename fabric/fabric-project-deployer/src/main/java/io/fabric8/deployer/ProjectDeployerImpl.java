@@ -38,6 +38,7 @@ import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.insight.log.support.Strings;
 import io.fabric8.internal.Objects;
+import io.fabric8.service.VersionPropertyPointerResolver;
 import io.fabric8.service.child.ChildConstants;
 
 import java.io.File;
@@ -281,7 +282,8 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
             boolean addBundleDependencies = Objects.equal("bundle", rootDependency.getType()) || isKarafContainer;
             if (addBundleDependencies && requirements.isUseResolver()) {
                 List<Feature> allFeatures = new ArrayList<Feature>();
-                for (String repoUri : overlay.getRepositories()) {
+                for (String repoUriWithExpressions : overlay.getRepositories()) {
+                    String repoUri = VersionPropertyPointerResolver.replaceVersions(fabric, overlay.getConfigurations(), repoUriWithExpressions);
                     RepositoryImpl repo = new RepositoryImpl(URI.create(repoUri));
                     repo.load();
                     allFeatures.addAll(Arrays.asList(repo.getFeatures()));
