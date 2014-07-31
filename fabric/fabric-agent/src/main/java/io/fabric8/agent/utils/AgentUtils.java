@@ -73,9 +73,14 @@ public class AgentUtils {
 
     public static Map<String, Parser> getProfileArtifacts(FabricService fabricService, DownloadManager downloadManager, Profile profile, Callback<String> callback) throws Exception {
         List<String> bundles = profile.getBundles();
+        Set<Feature> features = getFeatures(fabricService, downloadManager, profile);
+        return getProfileArtifacts(fabricService, profile, bundles, features, callback);
+    }
+
+    public static Set<Feature> getFeatures(FabricService fabricService, DownloadManager downloadManager, Profile profile) throws Exception {
         Set<Feature> features = new HashSet<Feature>();
         addFeatures(features, fabricService, downloadManager, profile);
-        return getProfileArtifacts(fabricService, profile, bundles, features, callback);
+        return features;
     }
 
 
@@ -243,8 +248,7 @@ public class AgentUtils {
      */
     public static Map<String, File> downloadProfileArtifacts(FabricService fabricService, DownloadManager downloadManager, Profile profile) throws Exception {
         List<String> bundles = profile.getBundles();
-        Set<Feature> features = new HashSet<Feature>();
-        addFeatures(features, fabricService, downloadManager, profile);
+        Set<Feature> features = getFeatures(fabricService, downloadManager, profile);
         return downloadBundles(downloadManager, features, bundles, Collections.EMPTY_SET);
     }
 
