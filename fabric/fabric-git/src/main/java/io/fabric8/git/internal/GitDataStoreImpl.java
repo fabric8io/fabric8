@@ -175,6 +175,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private int commitsWithoutGC = MAX_COMMITS_WITHOUT_GC;
     private Map<String, String> dataStoreProperties;
     private ProxySelector defaultProxySelector;
+    private boolean notificationRequired;
     private String lastFetchWarning;
     private SharedCount counter;
     private String remoteUrl;
@@ -357,6 +358,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         return new LockHandle() {
             @Override
             public void unlock() {
+                if (notificationRequired && readWriteLock.getWriteHoldCount() == 1) {
+                    try {
+                        dataStore.get().fireChangeNotifications();
+                    } finally {
+                        notificationRequired = false;
+                    }
+                }
                 writeLock.unlock();
             }
         };
@@ -936,7 +944,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             
             // Notify on successful pull/commit
             if (changeNotification) {
-                fireChangeNotification();
+                versionCache.invalidateAll();
+                notificationRequired = true;
             }
             
             return result;
@@ -946,11 +955,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             LOGGER.trace("Restoring ThreadContextClassLoader to {}", tccl);
             Thread.currentThread().setContextClassLoader(tccl);
         }
-    }
-
-    private void fireChangeNotification() {
-        versionCache.invalidateAll();
-        dataStore.get().fireChangeNotifications();
     }
 
     /**
@@ -1393,8 +1397,9 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                             config.save();
                             // Make sure that we don't delete branches at this pull.
                             if (doPullInternal(git, context, getCredentialsProvider(), false)) {
-                                fireChangeNotification();
                                 doPushInternal(git, context, getCredentialsProvider());
+                                versionCache.invalidateAll();
+                                notificationRequired = true;
                             }
                         }
                         return null;
