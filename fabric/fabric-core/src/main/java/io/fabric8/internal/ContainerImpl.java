@@ -754,20 +754,21 @@ public class ContainerImpl implements Container {
 
 	    @Override
 		public ProfileBuilder addOptions(ProfileBuilder builder) {
-	    	return builder.addParents(getParents());
-		}
-
-	    private List<Profile> getParents() {
-	        List<Profile> parents = new ArrayList<>();
-			for (String prfid : dataStore.getContainerProfiles(cntId)) {
-                Profile profile = version.getProfile(prfid);
+	        List<String> missingProfiles = new ArrayList<>();
+			for (String profileId : dataStore.getContainerProfiles(cntId)) {
+                Profile profile = version.getProfile(profileId);
                 if (profile != null) {
-                    parents.add(profile);
+                    builder.addParent(profile);
                 } else {
-                    LOGGER.warn("Container profile '" + prfid + "' not found in: " + version + " - Ignoring!");
+                    missingProfiles.add(profileId);
                 }
 	        }
-	        return parents;
+			if (!missingProfiles.isEmpty()) {
+	            LOGGER.warn("Container overlay has missing profiles: {}", missingProfiles);
+                builder.addAttribute("missing.profiles", missingProfiles.toString());
+                // builder.addConfiguration(Constants.AGENT_PID, "disabled", "true");
+			}
+			return builder;
 	    }
 	}
 }
