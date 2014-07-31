@@ -89,13 +89,14 @@ public class EnsembleTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testAddAndRemove() throws Exception {
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
         ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            Set<Container> containers = ContainerBuilder.create(2).withName("smoke.ensA").assertProvisioningResult().build();
+            Set<Container> containers = ContainerBuilder.create(2).withName("smoke.ensA").assertProvisioningResult().build(fabricService);
             try {
                 Deque<Container> containerQueue = new LinkedList<Container>(containers);
                 Deque<Container> addedContainers = new LinkedList<Container>();
@@ -136,7 +137,7 @@ public class EnsembleTest {
                     Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), FabricEnsembleSupport.PROVISION_TIMEOUT);
                 }
             } finally {
-                ContainerBuilder.stop(containers);
+                ContainerBuilder.stop(fabricService, containers);
             }
         } finally {
             fabricProxy.close();

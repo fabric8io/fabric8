@@ -96,11 +96,12 @@ public class ContainerRegistrationTest {
         ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
-
+            FabricService fabricService = fabricProxy.getService();
+            
             System.out.println(CommandSupport.executeCommand("fabric:profile-create --parents default child-profile"));
             Assert.assertTrue(Provision.profileAvailable("child-profile", "1.0", FabricEnsembleSupport.PROVISION_TIMEOUT));
 
-            Set<Container> containers = ContainerBuilder.create(1,1).withName("basic.cnt").withProfiles("child-profile").assertProvisioningResult().build();
+            Set<Container> containers = ContainerBuilder.create(1,1).withName("basic.cnt").withProfiles("child-profile").assertProvisioningResult().build(fabricService);
             try {
                 Container child1 = containers.iterator().next();
                 System.out.println(CommandSupport.executeCommand("fabric:profile-edit --import-pid --pid org.apache.karaf.shell child-profile"));
@@ -124,7 +125,7 @@ public class ContainerRegistrationTest {
                 Assert.assertTrue("sshUrl ends with 8105, but was: " + sshUrl, sshUrl.endsWith("8105"));
                 Assert.assertTrue("jmxUrl contains 55555, but was: " + jmxUrl, jmxUrl.contains("55555"));
             } finally {
-                ContainerBuilder.stop(containers);
+                ContainerBuilder.stop(fabricService, containers);
             }
         } finally {
             fabricProxy.close();

@@ -109,7 +109,7 @@ public class JoinTest {
                 Provision.containersExist(Arrays.asList("smoke.childD"), FabricEnsembleSupport.PROVISION_TIMEOUT);
                 Container childD = fabricService.getContainer("smoke.childD");
                 System.err.println(CommandSupport.executeCommand("fabric:container-list"));
-                Provision.containersStatus(Arrays.asList(childD), "success", FabricEnsembleSupport.PROVISION_TIMEOUT);
+                Provision.containerStatus(Arrays.asList(childD), "success", FabricEnsembleSupport.PROVISION_TIMEOUT);
                 System.err.println(CommandSupport.executeCommand("fabric:container-list"));
             } finally {
                 System.err.println(CommandSupport.executeCommand("admin:stop smoke.childD"));

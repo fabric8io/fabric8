@@ -22,6 +22,7 @@ import io.fabric8.runtime.itests.support.CommandSupport;
 import io.fabric8.runtime.itests.support.ContainerBuilder;
 import io.fabric8.runtime.itests.support.FabricEnsembleSupport;
 import io.fabric8.runtime.itests.support.Provision;
+import io.fabric8.runtime.itests.support.ServiceProxy;
 
 import java.io.InputStream;
 import java.util.Set;
@@ -35,6 +36,7 @@ import org.jboss.gravia.Constants;
 import org.jboss.gravia.itests.support.AnnotatedContextListener;
 import org.jboss.gravia.itests.support.ArchiveBuilder;
 import org.jboss.gravia.resource.ManifestBuilder;
+import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
@@ -88,6 +90,7 @@ public class DeploymentAgentTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testFeatureRepoResolution() throws Exception {
         CommandSupport.executeCommand("fabric:create --force --clean -n");
 
@@ -101,27 +104,35 @@ public class DeploymentAgentTest {
         CommandSupport.executeCommand("fabric:profile-edit --pid io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=http://repo1.maven.org/maven2@id=m2central default 1.1");
         CommandSupport.executeCommand("fabric:profile-edit --pid test-profile 1.1");
 
-        Set<Container> containers = ContainerBuilder.create().withName("smoke.cntA").withProfiles("test-profile").assertProvisioningResult().build();
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
-            //We want to remove all repositories from fabric-agent.
-            for (Container container : containers) {
-                CommandSupport.executeCommand("fabric:container-upgrade 1.1 " + container.getId());
-                System.out.flush();
-            }
-            Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
-            CommandSupport.executeCommand("fabric:container-list");
+            FabricService fabricService = fabricProxy.getService();
+            Set<Container> containers = ContainerBuilder.create().withName("smoke.cntA").withProfiles("test-profile").assertProvisioningResult().build(fabricService);
+            try {
+                //We want to remove all repositories from fabric-agent.
+                for (Container container : containers) {
+                    CommandSupport.executeCommand("fabric:container-upgrade 1.1 " + container.getId());
+                    System.out.flush();
+                }
+                Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
+                CommandSupport.executeCommand("fabric:container-list");
 
-            for (Container container : containers) {
-                CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list");
-                CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " config:proplist --pid org.ops4j.pax.url.mvn");
-                System.out.flush();
+                for (Container container : containers) {
+                    CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list");
+                    CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " config:proplist --pid org.ops4j.pax.url.mvn");
+                    System.out.flush();
+                }
+            } finally {
+                ContainerBuilder.stop(fabricService, containers);
             }
         } finally {
-            ContainerBuilder.stop(containers);
+            fabricProxy.close();
         }
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testResolveOptionalImports() throws Exception {
         CommandSupport.executeCommand("fabric:create --force --clean -n");
 
@@ -129,13 +140,20 @@ public class DeploymentAgentTest {
         CommandSupport.executeCommand("fabric:profile-edit --pid io.fabric8.agent/resolve.optional.imports=true test-profile");
         CommandSupport.executeCommand("fabric:profile-edit --features spring-struts test-profile");
 
-        Set<Container> containers = ContainerBuilder.create().withName("smoke.cntB").withProfiles("test-profile").assertProvisioningResult().build();
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
-            String command = "fabric:container-connect -u admin -p admin " + containers.iterator().next().getId() + " osgi:list -s | grep org.apache.servicemix.bundles.struts";
-            String result = CommandSupport.executeCommand(command);
-            assertTrue("Result contains struts, but was: " + result, result.contains("org.apache.servicemix.bundles.struts"));
+            FabricService fabricService = fabricProxy.getService();
+            Set<Container> containers = ContainerBuilder.create().withName("smoke.cntB").withProfiles("test-profile").assertProvisioningResult().build(fabricService);
+            try {
+                String command = "fabric:container-connect -u admin -p admin " + containers.iterator().next().getId() + " osgi:list -s | grep org.apache.servicemix.bundles.struts";
+                String result = CommandSupport.executeCommand(command);
+                assertTrue("Result contains struts, but was: " + result, result.contains("org.apache.servicemix.bundles.struts"));
+            } finally {
+                ContainerBuilder.stop(fabricService, containers);
+            }
         } finally {
-            ContainerBuilder.stop(containers);
+            fabricProxy.close();
         }
     }
 

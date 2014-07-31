@@ -146,75 +146,61 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
     /**
      * Create the containers.
      */
-    public Set<Container> build(Collection<B> buildersList) {
+    private Set<Container> build(FabricService fabricService, Collection<B> buildersList) {
         Set<Container> containers = new HashSet<Container>();
-        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
-        try {
-            FabricService fabricService = fabricProxy.getService();
-            CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
+        CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
 
-            int tasks = 0;
-            for (B options : buildersList) {
-                options.profiles(profileNames);
-                if (!options.isEnsembleServer()) {
-                    options.zookeeperUrl(fabricService.getZookeeperUrl());
-                    completionService.submit(new CreateContainerTask(fabricService, options));
-                    tasks++;
-                }
+        int tasks = 0;
+        for (B options : buildersList) {
+            options.profiles(profileNames);
+            if (!options.isEnsembleServer()) {
+                options.zookeeperUrl(fabricService.getZookeeperUrl());
+                completionService.submit(new CreateContainerTask(fabricService, options));
+                tasks++;
             }
-            try {
-                for (int i = 0; i < tasks; i++) {
-                    Future<Set<Container>> futureContainerSet = completionService.poll(CREATE_TIMEOUT, TimeUnit.MILLISECONDS);
-                    Set<Container> containerSet = futureContainerSet.get();
-                    containers.addAll(containerSet);
-                }
+        }
+        try {
+            for (int i = 0; i < tasks; i++) {
+                Future<Set<Container>> futureContainerSet = completionService.poll(CREATE_TIMEOUT, TimeUnit.MILLISECONDS);
+                Set<Container> containerSet = futureContainerSet.get();
+                containers.addAll(containerSet);
+            }
 
-                try {
-                    if (waitForProvisioning) {
-                        Provision.containerStatus(containers, provisionTimeOut);
-                    }
-                    if (assertProvisioningResult) {
-                        Provision.provisioningSuccess(containers, provisionTimeOut);
-                    }
-                } catch (Exception e) {
-                    throw FabricException.launderThrowable(e);
+            try {
+                if (waitForProvisioning) {
+                    Provision.containerStatus(containers, "success", provisionTimeOut);
+                }
+                if (assertProvisioningResult) {
+                    Provision.provisioningSuccess(containers, provisionTimeOut);
                 }
             } catch (Exception e) {
                 throw FabricException.launderThrowable(e);
             }
-            return containers;
-        } finally {
-            fabricProxy.close();
+        } catch (Exception e) {
+            throw FabricException.launderThrowable(e);
         }
+        return containers;
     }
 
     /**
      * Create the containers.
      */
-    public Set<Container> build() {
+    public Set<Container> build(FabricService fabricService) {
         ServiceLocator.awaitService(ContainerRegistration.class);
-        return build(Arrays.<B> asList(getOptionsBuilder()));
+        return build(fabricService, Arrays.<B> asList(getOptionsBuilder()));
     }
 
     /**
      * Destroy the given containers
      */
-    public static void destroy(Set<Container> containers) {
-        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
-        try {
-            FabricService fabricService = fabricProxy.getService();
-            for (Container aux : containers) {
-                String cntId = aux.getId();
-                try {
-                    fabricService.destroyContainer(cntId, true);
-                } catch (Exception ex) {
-                    new FabricException("Cannot destroy container: " + cntId, ex).printStackTrace(System.err);
-                }
+    public static void destroy(FabricService fabricService, Set<Container> containers) {
+        for (Container aux : containers) {
+            String cntId = aux.getId();
+            try {
+                fabricService.destroyContainer(cntId, true);
+            } catch (Exception ex) {
+                new FabricException("Cannot destroy container: " + cntId, ex).printStackTrace(System.err);
             }
-        } finally {
-            fabricProxy.close();
         }
     }
 
@@ -222,21 +208,14 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * Stop the given containers.
      * The container directory will not get deleted.
      */
-    public static void stop(Set<Container> containers) {
-        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
-        try {
-            FabricService fabricService = fabricProxy.getService();
-            for (Container aux : containers) {
-                String cntId = aux.getId();
-                try {
-                    fabricService.stopContainer(cntId, true);
-                } catch (Exception ex) {
-                    new FabricException("Cannot stop container: " + cntId, ex).printStackTrace(System.err);
-                }
+    public static void stop(FabricService fabricService, Set<Container> containers) {
+        for (Container aux : containers) {
+            String cntId = aux.getId();
+            try {
+                fabricService.stopContainer(cntId, true);
+            } catch (Exception ex) {
+                new FabricException("Cannot stop container: " + cntId, ex).printStackTrace(System.err);
             }
-        } finally {
-            fabricProxy.close();
         }
     }
 }
