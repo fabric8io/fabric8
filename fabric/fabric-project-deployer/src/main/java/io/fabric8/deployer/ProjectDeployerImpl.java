@@ -15,6 +15,9 @@
  */
 package io.fabric8.deployer;
 
+import io.fabric8.agent.download.DownloadManager;
+import io.fabric8.agent.download.DownloadManagers;
+import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.Containers;
 import io.fabric8.api.FabricRequirements;
@@ -49,11 +52,14 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -80,6 +86,8 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static io.fabric8.agent.download.ProfileDownloader.getMavenCoords;
+
 /**
  * Allows projects to be deployed into a profile using Jolokia / REST or build plugins such as a maven plugin
  */
@@ -88,6 +96,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
         policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service(ProjectDeployer.class)
 public final class ProjectDeployerImpl extends AbstractComponent implements ProjectDeployer, ProjectDeployerMXBean {
+    public static final String[] RESOLVER_IGNORE_BUNDLE_PREFIXES = {"org.slf4j", "log4j"};
 
     private static final transient Logger LOG = LoggerFactory.getLogger(ProjectDeployerImpl.class);
     public static ObjectName OBJECT_NAME;
@@ -107,6 +116,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private BundleContext bundleContext;
     private Map<String, String> servicemixBundles;
@@ -281,14 +291,32 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
             boolean isKarafContainer = parentIds.contains("karaf") || parentIds.contains("containers-karaf");
             boolean addBundleDependencies = Objects.equal("bundle", rootDependency.getType()) || isKarafContainer;
             if (addBundleDependencies && requirements.isUseResolver()) {
-                List<Feature> allFeatures = new ArrayList<Feature>();
-                for (String repoUriWithExpressions : overlay.getRepositories()) {
-                    String repoUri = VersionPropertyPointerResolver.replaceVersions(fabric, overlay.getConfigurations(), repoUriWithExpressions);
-                    RepositoryImpl repo = new RepositoryImpl(URI.create(repoUri));
-                    repo.load();
-                    allFeatures.addAll(Arrays.asList(repo.getFeatures()));
+
+                // lets build up a list of all current active features and bundles along with all discovered features
+                List<Feature> availableFeatures = new ArrayList<Feature>();
+                addAvailableFeaturesFromProfile(availableFeatures, fabric, overlay);
+
+                Set<String> currentBundleLocations = new HashSet<>();
+                currentBundleLocations.addAll(bundles);
+
+                // lets add the current features
+                DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, executorService);
+                Set<Feature> currentFeatures = AgentUtils.getFeatures(fabric, downloadManager, overlay);
+                addBundlesFromProfile(currentBundleLocations, overlay);
+
+                List<String> parentProfileIds = requirements.getParentProfiles();
+                if (parentProfileIds != null) {
+                    for (String parentProfileId : parentProfileIds) {
+                        Profile parentProfile = profileService.getProfile(profile.getVersion(), parentProfileId);
+                        Profile parentOverlay = profileService.getOverlayProfile(parentProfile);
+                        Set<Feature> parentFeatures = AgentUtils.getFeatures(fabric, downloadManager, parentOverlay);
+                        currentFeatures.addAll(parentFeatures);
+                        addAvailableFeaturesFromProfile(availableFeatures, fabric, parentOverlay);
+                        addBundlesFromProfile(currentBundleLocations, parentOverlay);
+                    }
                 }
 
+                // lets add all known features from the known repositories
                 for (DependencyDTO dependency : rootDependency.getChildren()) {
                     if ("test".equals(dependency.getScope()) || "provided".equals(dependency.getScope())) {
                         continue;
@@ -305,21 +333,46 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
                         }
                     }
                     String prefix = dependency.toBundleUrlWithoutVersion();
-                    List<Feature> matching = new ArrayList<>();
-                    for (Feature feature : allFeatures) {
-                        for (BundleInfo bi : feature.getBundles()) {
-                            if (!bi.isDependency() && bi.getLocation().startsWith(prefix)) {
-                                matching.add(feature);
-                                break;
+                    Feature feature = findFeatureWithBundleLocationPrefix(currentFeatures, prefix);
+                    if (feature != null) {
+                        LOG.info("Feature is already is in the profile " + feature.getId() + " for " + dependency.toBundleUrl() );
+                    } else {
+                        feature = findFeatureWithBundleLocationPrefix(availableFeatures, prefix);
+                        if (feature != null) {
+                            String name = feature.getName();
+                            if (features.contains(name)) {
+                                LOG.info("Feature is already added " + name + " for " + dependency.toBundleUrl() );
+                            } else {
+                                LOG.info("Found a matching feature for bundle " + dependency.toBundleUrl() + ": " + feature.getId());
+                                features.add(name);
+                            }
+                        } else {
+                            String bundleUrlWithType = dependency.toBundleUrlWithType();
+                            String foundBundleUri = findBundleUri(currentBundleLocations, prefix);
+                            if (foundBundleUri != null) {
+                                LOG.info("Bundle already included " + foundBundleUri + " for " + bundleUrlWithType);
+                            } else {
+                                boolean ignore = false;
+                                String bundleWithoutMvnPrefix = getMavenCoords(bundleUrlWithType);
+                                for (String ignoreBundlePrefix : RESOLVER_IGNORE_BUNDLE_PREFIXES) {
+                                    if (bundleWithoutMvnPrefix.startsWith(ignoreBundlePrefix)) {
+                                        ignore = true;
+                                        break;
+                                    }
+                                }
+                                if (ignore) {
+                                    LOG.info("Ignoring bundle: " + bundleUrlWithType);
+                                } else {
+                                    boolean optional = dependency.isOptional();
+                                    LOG.info("Adding " + (optional ? "optional " : "") + " bundle: " + bundleUrlWithType);
+                                    if (optional) {
+                                        optionals.add(bundleUrlWithType);
+                                    } else {
+                                        bundles.add(bundleUrlWithType);
+                                    }
+                                }
                             }
                         }
-                    }
-                    if (matching.size() == 1) {
-                        LOG.info("Found a matching feature for bundle " + dependency.toBundleUrl() + ": " + matching.get(0).getId());
-                        features.add(matching.get(0).getName());
-                    } else {
-                        LOG.info("Adding optional bundle: " + dependency.toBundleUrlWithType());
-                        optionals.add(dependency.toBundleUrlWithType());
                     }
                 }
                 // Modify the profile through the {@link ProfileBuilder}
@@ -349,6 +402,70 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         String profilePath = Profiles.convertProfileIdToPath(profile.getId());
         profileUrl += "index.html#/wiki/branch/" + profile.getVersion() + "/view/fabric/profiles/" + profilePath;
         return new DeployResults(profile, profileUrl);
+    }
+
+    protected  String findBundleUri(Set<String> bundleLocations, String prefix) {
+        for (String bundleLocation : bundleLocations) {
+            if (bundleLocation.startsWith(prefix)) {
+                return bundleLocation;
+            }
+        }
+        return null;
+    }
+
+    protected void addBundlesFromProfile(Set<String> currentBundleUris, Profile overlay) {
+        List<String> bundles = overlay.getBundles();
+        if (bundles != null) {
+            currentBundleUris.addAll(bundles);
+        }
+    }
+
+    protected void addAvailableFeaturesFromProfile(Collection<Feature> allFeatures, FabricService fabric, Profile overlay) throws Exception {
+        for (String repoUriWithExpressions : overlay.getRepositories()) {
+            String repoUri = VersionPropertyPointerResolver.replaceVersions(fabric, overlay.getConfigurations(), repoUriWithExpressions);
+            RepositoryImpl repo = new RepositoryImpl(URI.create(repoUri));
+            repo.load();
+            allFeatures.addAll(Arrays.asList(repo.getFeatures()));
+        }
+    }
+
+    protected Feature findFeatureWithBundleLocationPrefix(Iterable<Feature> allFeatures, String prefix) {
+        // lets try to find the feature ignoring any dependencies to try find the closest match
+        Feature feature = findFeatureWithBundleLocationPrefix(allFeatures, prefix, false);
+        if (feature == null) {
+            feature = findFeatureWithBundleLocationPrefix(allFeatures, prefix, true);
+        }
+        return feature;
+    }
+
+    protected Feature findFeatureWithBundleLocationPrefix(Iterable<Feature> allFeatures, String prefix, boolean includeDependencies) {
+        for (Feature feature : allFeatures) {
+            Feature matchedFeature = featureMatchesBundleLocationPrefix(feature, prefix, feature, includeDependencies);
+            if (matchedFeature != null) {
+                return matchedFeature;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the owningFeature if this feature or any of its dependent features contains a bundle matching the prefix location or null if there is no match
+     */
+    protected Feature featureMatchesBundleLocationPrefix(Feature feature, String prefix, Feature owningFeature, boolean includeDependencies) {
+        for (BundleInfo bi : feature.getBundles()) {
+            if (!bi.isDependency() && bi.getLocation().startsWith(prefix)) {
+                return owningFeature;
+            }
+        }
+        if (includeDependencies) {
+            for (Feature dependency: feature.getDependencies()) {
+                Feature answer = featureMatchesBundleLocationPrefix(dependency, prefix, owningFeature, true);
+                if (answer != null) {
+                    return answer;
+                }
+            }
+        }
+        return null;
     }
 
     /**
