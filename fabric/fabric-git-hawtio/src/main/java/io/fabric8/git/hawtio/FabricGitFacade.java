@@ -323,14 +323,14 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         GitHelpers.createOrCheckoutBranch(git, branch, gitDataStore.get().getRemote());
     }
 
-    private <T> T gitReadOperation(GitOperation<T> operation) {
-        return gitDataStore.get().gitOperation(null, operation, false, new GitContext());
+    private <T> T gitReadOperation(GitOperation<T> gitop) {
+        GitContext context = new GitContext();
+        return gitDataStore.get().gitOperation(context, gitop, null);
     }
 
-    private <T> T gitWriteOperation(PersonIdent personIdent, GitOperation<T> operation) {
-        GitContext context = new GitContext();
-        context.requireCommit();
-        return gitDataStore.get().gitOperation(personIdent, operation, true, context);
+    private <T> T gitWriteOperation(PersonIdent personIdent, GitOperation<T> gitop) {
+        GitContext context = new GitContext().requireCommit().requirePush();
+        return gitDataStore.get().gitOperation(context, gitop, personIdent);
     }
 
     // [FIXME] Test case polutes public API
