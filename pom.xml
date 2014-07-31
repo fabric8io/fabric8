@@ -212,7 +212,7 @@
         <hawtdispatch-version>1.21</hawtdispatch-version>
         <hawtio-dockerui-version>1.0.3</hawtio-dockerui-version>
         <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
-        <hawtio-version>1.4.12</hawtio-version>
+        <hawtio-version>1.4.14</hawtio-version>
         <jackson-version>1.9.2</jackson-version>
         <jackson2-version>2.4.1</jackson2-version>
         <jackson-module-scala-version>2.1.5_2</jackson-module-scala-version>
