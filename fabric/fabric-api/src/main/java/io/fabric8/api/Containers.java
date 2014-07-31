@@ -71,8 +71,8 @@ public class Containers {
         List<Container> answer = new ArrayList<Container>();
         if (profileId != null) {
             for (Container c : containers) {
-                Version version = c.getVersion();
-                if (version != null && version.getId().equals(versionId) && containerHasProfile(c, profileId)) {
+                String currentId = c.getVersionId();
+                if (currentId != null && currentId.equals(versionId) && containerHasProfile(c, profileId)) {
                     answer.add(c);
                 }
             }

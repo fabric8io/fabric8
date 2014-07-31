@@ -64,6 +64,9 @@ public interface Container extends HasId {
 
     boolean isManaged();
 
+    String getVersionId();
+    void setVersionId(String versionId);
+    
     Version getVersion();
     void setVersion(Version version);
 
