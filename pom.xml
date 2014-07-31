@@ -281,7 +281,7 @@
         <pax.url.version>1.3.7</pax.url.version>
         <qpid-jms-version>0.28</qpid-jms-version>
         <reflections-version>0.9.8_1</reflections-version>
-        <rhq-metrics-version>0.2.0.20140626-M2</rhq-metrics-version>
+        <rhq-metrics-version>0.2.2.20140726-M3</rhq-metrics-version>
         <rrd4j-version>2.0.7</rrd4j-version>
         <scala-version>2.11.2</scala-version>
         <scalamd-version>1.5</scalamd-version>
