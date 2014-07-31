@@ -76,7 +76,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
@@ -169,7 +169,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private final GitDataStoreListener gitListener = new GitDataStoreListener();
     private final AtomicReference<String> remoteRef = new AtomicReference<String>("origin");
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-    private final AtomicBoolean initialPull = new AtomicBoolean();
+    private final AtomicLong pullCount = new AtomicLong();
     private final boolean strictLockAssert = true;
 
     private int commitsWithoutGC = MAX_COMMITS_WITHOUT_GC;
@@ -183,9 +183,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private String configuredUrl;
     @Property(name = "gitPushInterval", label = "Push Interval", description = "The interval between push (value in millis)")
     private long gitPushInterval = 60 * 1000L;
-    // option to use old behavior without the shared counter
-    @Property(name = "gitPullOnPush", label = "Pull before push", description = "Whether to do a push before pull")
-    private boolean gitPullOnPush = false;
     @Property(name = "gitTimeout", label = "Timeout", description = "Timeout connecting to remote git server (value in seconds)")
     private int gitTimeout = 10;
     @Property(name = "importDir", label = "Import Directory", description = "Directory to import additional profiles", value = "fabric")
@@ -265,32 +262,20 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         threadPool.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                LockHandle writeLock = aquireWriteLock();
-                try {
-                    // Do an initial pull to get data
-                    if (!initialPull.compareAndSet(false, true)) {
-                        LOGGER.trace("Performing initial pull");
-                        initialPull.set(pull());
-                        LOGGER.info("Initial pull completed with " + (initialPull.get() ? "success" : "failure"));
+                if (pullCount.get() > 0) {
+                    LockHandle writeLock = aquireWriteLock();
+                    try {
+                        // A commit that failed to push for any reason, will not get pushed until the next commit.
+                        // periodically pushing can address this issue.
+                        LOGGER.trace("Performing timed push");
+                        push();
+                        LOGGER.debug("Performed timed push done");
+                    } catch (Throwable e) {
+                        LOGGER.debug("Error during performed timed pull/push due " + e.getMessage(), e);
+                        LOGGER.warn("Error during performed timed pull/push due " + e.getMessage() + ". This exception is ignored.");
+                    } finally {
+                        writeLock.unlock();
                     }
-
-                    if (gitPullOnPush) {
-                        LOGGER.trace("Performing timed pull");
-                        pull();
-                        LOGGER.debug("Performed timed pull done");
-                    }
-                    
-                    // A commit that failed to push for any reason, will not get pushed until the next commit.
-                    // periodically pushing can address this issue.
-                    LOGGER.trace("Performing timed push");
-                    push();
-                    LOGGER.debug("Performed timed push done");
-                    
-                } catch (Throwable e) {
-                    LOGGER.debug("Error during performed timed pull/push due " + e.getMessage(), e);
-                    LOGGER.warn("Error during performed timed pull/push due " + e.getMessage() + ". This exception is ignored.");
-                } finally {
-                    writeLock.unlock();
                 }
             }
             @Override
@@ -299,35 +284,29 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         }, 1000, gitPushInterval, TimeUnit.MILLISECONDS);
 
-        if (!gitPullOnPush) {
-            LOGGER.info("Using ZooKeeper SharedCount to react when master git repo is changed, so we can do a git pull to the local git repo.");
-            counter = new SharedCount(curator.get(), ZkPath.GIT_TRIGGER.getPath(), 0);
-            counter.addListener(new SharedCountListener() {
-                @Override
-                public void countHasChanged(SharedCountReader sharedCountReader, int value) throws Exception {
-                    
-                    // TODO(tdi): Why sleep a random amount of time on countHasChanged? 
-                    Thread.sleep(1000);
-
-                    LOGGER.info("Watch counter updated to " + value + ", doing a pull");
-                    LockHandle writeLock = aquireWriteLock();
-                    try {
-                        pull();
-                    } catch (Throwable e) {
-                        LOGGER.debug("Error during pull due " + e.getMessage(), e);
-                        LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
-                    } finally {
-                        writeLock.unlock();
-                    }
+        LOGGER.info("Using ZooKeeper SharedCount to react when master git repo is changed, so we can do a git pull to the local git repo.");
+        counter = new SharedCount(curator.get(), ZkPath.GIT_TRIGGER.getPath(), 0);
+        counter.addListener(new SharedCountListener() {
+            @Override
+            public void countHasChanged(SharedCountReader sharedCountReader, int value) throws Exception {
+                LOGGER.info("Watch counter updated to " + value + ", doing a pull");
+                LockHandle writeLock = aquireWriteLock();
+                try {
+                    pull();
+                } catch (Throwable e) {
+                    LOGGER.debug("Error during pull due " + e.getMessage(), e);
+                    LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
+                } finally {
+                    writeLock.unlock();
                 }
+            }
 
-                @Override
-                public void stateChanged(CuratorFramework curatorFramework, ConnectionState connectionState) {
-                    // ignore
-                }
-            });
-            counter.start();
-        }
+            @Override
+            public void stateChanged(CuratorFramework curatorFramework, ConnectionState connectionState) {
+                // ignore
+            }
+        });
+        counter.start();
     }
 
     private void deactivateInternal() {
@@ -358,9 +337,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
         // Closing the shared counter
         try {
-            if (counter != null) {
-                counter.close();
-            }
+            counter.close();
         } catch (IOException ex) {
             LOGGER.warn("Error closing SharedCount due " + ex.getMessage() + ". This exception is ignored.");
         }
@@ -523,7 +500,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return targetId;
                 }
             };
-            return executeWrite(gitop, true);
+            return executeWrite(gitop);
         } finally {
             writeLock.unlock();
         }
@@ -549,7 +526,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return versionId;
                 }
             };
-            return executeWrite(gitop, false);
+            return executeWrite(gitop);
         } finally {
             writeLock.unlock();
         }
@@ -637,7 +614,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return createOrUpdateProfile(context, null, profile, new HashSet<String>());
                 }
             };
-            return executeWrite(gitop, false);
+            return executeWrite(gitop);
         } finally {
             writeLock.unlock();
         }
@@ -656,7 +633,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return createOrUpdateProfile(context, lastProfile, profile, new HashSet<String>());
                 }
             };
-            return executeWrite(gitop, false);
+            return executeWrite(gitop);
         } finally {
             writeLock.unlock();
         }
@@ -705,7 +682,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return null;
                 }
             };
-            executeWrite(gitop, false);
+            executeWrite(gitop);
         } finally {
             writeLock.unlock();
         }
@@ -840,7 +817,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return doImportProfiles(git, context, profileZipUrls);
                 }
             };
-            executeWrite(gitop, true);
+            executeWrite(gitop);
         } finally {
             writeLock.unlock();
         }
@@ -871,12 +848,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public <T> T gitOperation(PersonIdent personIdent, GitOperation<T> gitop, boolean pullFirst, GitContext context) {
+    public <T> T gitOperation(GitContext context, GitOperation<T> gitop, PersonIdent personIdent) {
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
             LOGGER.info("External call to execute a git operation: " + gitop);
-            return executeInternal(context.setRequirePull(pullFirst), personIdent, gitop);
+            return executeInternal(context, personIdent, gitop);
         } finally {
             writeLock.unlock();
         }
@@ -886,8 +863,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         return executeInternal(new GitContext(), null, operation);
     }
 
-    private <T> T executeWrite(GitOperation<T> operation, boolean pullFirst) {
-        GitContext context = new GitContext().setRequirePull(pullFirst).requireCommit().requirePush();
+    private <T> T executeWrite(GitOperation<T> operation) {
+        GitContext context = new GitContext().requirePull().requireCommit().requirePush();
         return executeInternal(context, null, operation);
     }
 
@@ -1057,6 +1034,10 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     }
                 }
             }
+            
+            // Increment global pull count which enables timed pushes
+            pullCount.incrementAndGet();
+            
             if (hasChanged) {
                 LOGGER.info("Changed after pull!");
                 LOGGER.debug("Called from ...", new RuntimeException());
@@ -1349,21 +1330,17 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         @Override
         public void onRemoteUrlChanged(final String updatedUrl) {
             final String actualUrl = configuredUrl != null ? configuredUrl : updatedUrl;
-            if (isValid()) {
-                threadPool.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (isValid() && actualUrl != null) {
-                            runRemoteUrlChanged(actualUrl);
-                        }
-                    }
+            threadPool.submit(new Runnable() {
+                @Override
+                public void run() {
+                    runRemoteUrlChanged(actualUrl);
+                }
 
-                    @Override
-                    public String toString() {
-                        return "RemoteUrlChangedTask";
-                    }
-                });
-            }
+                @Override
+                public String toString() {
+                    return "RemoteUrlChangedTask";
+                }
+            });
         }
 
         @Override
@@ -1387,13 +1364,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                         Repository repository = git.getRepository();
                         StoredConfig config = repository.getConfig();
                         String currentUrl = config.getString("remote", "origin", "url");
-                        if (updateUrl != null && !updateUrl.equals(currentUrl)) {
+                        if (!updateUrl.equals(currentUrl)) {
                             LOGGER.info("Performing on remote url changed from: {} to: {}", currentUrl, updateUrl);
                             remoteUrl = updateUrl;
                             config.setString("remote", "origin", "url", updateUrl);
                             config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
                             config.save();
-                            //Make sure that we don't delete branches at this pull.
+                            // Make sure that we don't delete branches at this pull.
                             if (doPullInternal(git, context, getCredentialsProvider(), false)) {
                                 fireChangeNotification();
                                 doPushInternal(git, context, getCredentialsProvider());
@@ -1605,7 +1582,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return null;
                 }
             };
-            executeWrite(gitop, true);
+            executeWrite(gitop);
         }
         
         /**
@@ -1787,7 +1764,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return loadVersion(git, context, versionId);
                 }
             };
-            GitContext context = new GitContext().requirePull();
+            GitContext context = new GitContext();
             return executeInternal(context, null, gitop);
         }
         

@@ -97,7 +97,7 @@ public final class GitMasterListener extends AbstractComponent implements GroupL
                     LOGGER.warn("Could not render git master URL {}.", masterUrl);
                 }
                 //Catch any possible issue indicating that the URL is invalid.
-                URL url = new URL(substitutedUrl);
+                new URL(substitutedUrl);
                 gitservice.notifyRemoteChanged(substitutedUrl);
             }
         } catch (Exception e) {
