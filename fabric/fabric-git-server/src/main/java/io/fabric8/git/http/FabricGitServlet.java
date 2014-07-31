@@ -16,9 +16,6 @@
 package io.fabric8.git.http;
 
 import java.io.IOException;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +34,6 @@ public class FabricGitServlet extends GitServlet {
     private final CuratorFramework curator;
     private final String path = ZkPath.GIT_TRIGGER.getPath();
     private SharedCount counter;
-    private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
     public FabricGitServlet(CuratorFramework curator) {
         this.curator = curator;
@@ -75,28 +71,15 @@ public class FabricGitServlet extends GitServlet {
         boolean isPush = service != null && service.equals("git-receive-pack");
 
         LOGGER.trace("FabricGitServlet service git service={}, isPush={}", service, isPush);
-
-        // get either a read or write lock (push = write lock, pull = read lock)
-        // as we do not want concurrent writes to the git repo
-        Lock lock = isPush ? rwLock.writeLock() : rwLock.readLock();
+        super.service(req, res);
         try {
-            lock.lock();
-            super.service(req, res);
-        } finally {
-            lock.unlock();
-
             if (isPush) {
-                int value = counter.getCount();
-                int newValue = value + 1;
-                LOGGER.debug("Updating counter to {}", newValue);
-                try {
-                    counter.trySetCount(newValue);
-                } catch (Exception e) {
-                    // we dont want stacktrace in WARN
-                    LOGGER.debug("Error updating counter on ZkPath: " + path + " due " + e.getMessage() + ". This exception is ignored.", e);
-                    LOGGER.warn("Error updating counter on ZkPath: " + path + " due " + e.getMessage() + ". This exception is ignored.");
-                }
+                while (!counter.trySetCount(counter.getCount() + 1)) ;
             }
+        } catch (Exception e) {
+            LOGGER.debug("Error updating counter on ZkPath: " + path + " due " + e.getMessage() + ". This exception is ignored.", e);
+            LOGGER.warn("Error updating counter on ZkPath: " + path + " due " + e.getMessage() + ". This exception is ignored.");
+
         }
     }
 
