@@ -166,6 +166,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     private final ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
 
+    private final ThreadLocal<Boolean> pullAllowedAssociation = new ThreadLocal<>();
     private final ImportExportHandler importExportHandler = new ImportExportHandler();
     private final GitDataStoreListener gitListener = new GitDataStoreListener();
     private final AtomicReference<String> remoteRef = new AtomicReference<String>("origin");
@@ -259,13 +260,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         }
 
-        LockHandle writeLock = aquireWriteLock();
-        try {
-            // Get initial versions
-            getInitialVersions();
-        } finally {
-            writeLock.unlock();
-        }
+        // Get initial versions
+        getInitialVersions();
 
         LOGGER.info("Starting to push to remote git repository every {} millis", gitPushInterval);
         threadPool.scheduleWithFixedDelay(new Runnable() {
@@ -382,6 +378,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             success = false;
         }
         IllegalStateAssertion.assertTrue(success, "Cannot obtain profile write lock in time");
+        allowPullInThreadContext();
         return new LockHandle() {
             @Override
             public void unlock() {
@@ -401,6 +398,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             success = false;
         }
         IllegalStateAssertion.assertTrue(success, "Cannot obtain profile read lock in time");
+        allowPullInThreadContext();
         return new LockHandle() {
             @Override
             public void unlock() {
@@ -409,28 +407,46 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         };
     }
 
+    /**
+     * The idea is that we only do a single pull operation in the context of a read/write lock.
+     * This should happen before the first git operation is executed but not again within the context of the same lock. 
+     */
+    private boolean isPullAllowedInThreadContext() {
+        return pullAllowedAssociation.get();
+    }
+    
+    private void allowPullInThreadContext() {
+        if (readWriteLock.getWriteHoldCount() == 1 || readWriteLock.getReadHoldCount() == 1) {
+            pullAllowedAssociation.set(Boolean.TRUE);
+        }
+    }
+    
     private List<String> getInitialVersions() {
-        assertReadLock();
-        GitOperation<List<String>> gitop = new GitOperation<List<String>>() {
-            public List<String> call(Git git, GitContext context) throws Exception {
-                Collection<String> branches = RepositoryUtils.getBranches(git.getRepository());
-                List<String> answer = new ArrayList<String>();
-                for (String branch : branches) {
-                    String name = branch;
-                    String prefix = "refs/heads/";
-                    if (name.startsWith(prefix)) {
-                        name = name.substring(prefix.length());
-                        if (!name.equals(MASTER_BRANCH)) {
-                            answer.add(name);
+        LockHandle readLock = aquireReadLock();
+        try {
+            GitOperation<List<String>> gitop = new GitOperation<List<String>>() {
+                public List<String> call(Git git, GitContext context) throws Exception {
+                    Collection<String> branches = RepositoryUtils.getBranches(git.getRepository());
+                    List<String> answer = new ArrayList<String>();
+                    for (String branch : branches) {
+                        String name = branch;
+                        String prefix = "refs/heads/";
+                        if (name.startsWith(prefix)) {
+                            name = name.substring(prefix.length());
+                            if (!name.equals(MASTER_BRANCH)) {
+                                answer.add(name);
+                            }
                         }
                     }
+                    versions.clear();
+                    versions.addAll(answer);
+                    return answer;
                 }
-                versions.clear();
-                versions.addAll(answer);
-                return answer;
-            }
-        };
-        return executeRead(gitop);
+            };
+            return executeRead(gitop);
+        } finally {
+            readLock.unlock();
+        }
     }
     
     private boolean pull() {
@@ -539,20 +555,30 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle readLock = aquireReadLock();
         try {
             assertValid();
-            List<String> result = new ArrayList<>(versions);
-            Collections.sort(result, VersionSequence.getComparator());
-            return Collections.unmodifiableList(result);
+            GitOperation<List<String>> gitop = new GitOperation<List<String>>() {
+                public List<String> call(Git git, GitContext context) throws Exception {
+                    List<String> result = new ArrayList<>(versions);
+                    Collections.sort(result, VersionSequence.getComparator());
+                    return Collections.unmodifiableList(result);
+                }
+            };
+            return executeRead(gitop);
         } finally {
             readLock.unlock();
         }
     }
 
     @Override
-    public boolean hasVersion(String versionId) {
+    public boolean hasVersion(final String versionId) {
         LockHandle readLock = aquireReadLock();
         try {
             assertValid();
-            return versions.contains(versionId);
+            GitOperation<Boolean> gitop = new GitOperation<Boolean>() {
+                public Boolean call(Git git, GitContext context) throws Exception {
+                    return versions.contains(versionId);
+                }
+            };
+            return executeRead(gitop);
         } finally {
             readLock.unlock();
         }
@@ -596,11 +622,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Create {}", Profiles.getProfileInfo(profile, true));
-            } else {
-                LOGGER.info("Create {}", profile);
-            }
             GitOperation<String> gitop = new GitOperation<String>() {
                 public String call(Git git, GitContext context) throws Exception {
                     checkoutProfileBranch(profile.getVersion(), profile.getId());
@@ -618,12 +639,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            if (LOGGER.isDebugEnabled()) {
-                Profile wasProfile = getRequiredProfile(profile.getVersion(), profile.getId());
-                LOGGER.debug("Update " + Profiles.getProfileDifference(wasProfile, profile));
-            } else {
-                LOGGER.info("Update {}", profile);
-            }
             GitOperation<String> gitop = new GitOperation<String>() {
                 public String call(Git git, GitContext context) throws Exception {
                     checkoutProfileBranch(profile.getVersion(), profile.getId());
@@ -698,6 +713,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             for (Profile parent : parents) {
                 createOrUpdateProfile(context, parent, allowCreate, profiles);
             }
+            
+            LOGGER.info(allowCreate ? "Create {}" : "Update {}", Profiles.getProfileInfo(profile, false));
             
             // Create the profile branch & directory
             if (allowCreate) {
@@ -827,6 +844,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle readLock = aquireReadLock();
         try {
             assertValid();
+            LOGGER.info("External call to push");
             return doPushInternal(git, context, getCredentialsProvider());
         } finally {
             readLock.unlock();
@@ -834,11 +852,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst, GitContext context) {
+    public <T> T gitOperation(PersonIdent personIdent, GitOperation<T> gitop, boolean pullFirst, GitContext context) {
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            return executeInternal(context.setRequirePull(pullFirst), personIdent, operation);
+            LOGGER.info("External call to execute a git operation: " + gitop);
+            return executeInternal(context.setRequirePull(pullFirst), personIdent, gitop);
         } finally {
             writeLock.unlock();
         }
@@ -879,7 +898,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
 
             boolean changeNotification = false;
-            if (context.isRequirePull()) {
+            if (context.isRequirePull() && isPullAllowedInThreadContext()) {
                 changeNotification = doPullInternal(git, context, getCredentialsProvider(), false);
             }
 
@@ -934,6 +953,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private boolean doPullInternal(Git git, GitContext context, CredentialsProvider credentialsProvider, boolean doDeleteBranches) {
         assertWriteLock();
         IllegalStateAssertion.assertTrue(context.incrementPullCount(), "Pull not required in context");
+        IllegalStateAssertion.assertTrue(isPullAllowedInThreadContext(), "Pull not not allowed in thread context");
         try {
             Repository repository = git.getRepository();
             StoredConfig config = repository.getConfig();
@@ -943,7 +963,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 return false;
             }
             
-            LOGGER.info("Performing a fetch in git repository {} on remote URL: {}", GitHelpers.getRootGitDirectory(git), url);
+            LOGGER.info("Performing a pull git repository {} on remote URL: {}", GitHelpers.getRootGitDirectory(git), url);
             
             // Reset the workspace
             git.reset().setMode(ResetType.HARD).call();
@@ -1035,6 +1055,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             LOGGER.debug("Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git), ex);
             LOGGER.warn("Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git) + " due " + ex.getMessage() + ". This exception is ignored.");
             return false;
+        } finally {
+            pullAllowedAssociation.set(Boolean.FALSE);
         }
     }
     
