@@ -92,27 +92,27 @@ public class JoinTest {
 
             AdminService adminService = ServiceLocator.awaitService(moduleContext, AdminService.class);
             String version = System.getProperty("fabric.version");
-            System.err.println(CommandSupport.executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands child1"));
+            System.err.println(CommandSupport.executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands smoke.childD"));
 
             try {
-                System.err.println(CommandSupport.executeCommand("admin:start child1"));
-                Provision.instanceStarted(Arrays.asList("child1"), FabricEnsembleSupport.PROVISION_TIMEOUT);
+                System.err.println(CommandSupport.executeCommand("admin:start smoke.childD"));
+                Provision.instanceStarted(Arrays.asList("smoke.childD"), FabricEnsembleSupport.PROVISION_TIMEOUT);
                 System.err.println(CommandSupport.executeCommand("admin:list"));
                 String joinCommand = "fabric:join -f --zookeeper-password "+ fabricService.getZookeeperPassword() +" " + fabricService.getZookeeperUrl();
                 String response = "";
                 for (int i = 0; i < 10 && !response.contains("true"); i++) {
-                    response = CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE);
+                    response = CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("smoke.childD").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE);
                     Thread.sleep(1000);
                 }
 
-                System.err.println(CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
-                Provision.containersExist(Arrays.asList("child1"), FabricEnsembleSupport.PROVISION_TIMEOUT);
-                Container child1 = fabricService.getContainer("child1");
+                System.err.println(CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("smoke.childD").getSshPort() + " localhost " + joinCommand));
+                Provision.containersExist(Arrays.asList("smoke.childD"), FabricEnsembleSupport.PROVISION_TIMEOUT);
+                Container childD = fabricService.getContainer("smoke.childD");
                 System.err.println(CommandSupport.executeCommand("fabric:container-list"));
-                Provision.containersStatus(Arrays.asList(child1), "success", FabricEnsembleSupport.PROVISION_TIMEOUT);
+                Provision.containersStatus(Arrays.asList(childD), "success", FabricEnsembleSupport.PROVISION_TIMEOUT);
                 System.err.println(CommandSupport.executeCommand("fabric:container-list"));
             } finally {
-                System.err.println(CommandSupport.executeCommand("admin:stop child1"));
+                System.err.println(CommandSupport.executeCommand("admin:stop smoke.childD"));
             }
         } finally {
             fabricProxy.close();
