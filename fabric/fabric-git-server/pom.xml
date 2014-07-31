@@ -47,7 +47,6 @@
             io.fabric8.git.http,
             org.eclipse.jgit.http.server*
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>OSGI-INF/io.fabric8.git.http.GitHttpServerRegistrationHandler.xml</fuse.osgi.service.component>
     </properties>
 
     <dependencies>

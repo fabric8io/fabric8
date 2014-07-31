@@ -58,18 +58,6 @@
       org.ops4j.util.collections.*;-split-package:=first,
       org.ops4j.util.xml.*;-split-package:=first,
     </fuse.osgi.private.pkg>
-    <fuse.osgi.service.component>
-      <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-      OSGI-INF/io.fabric8.openshift.commands.ApplicationCreate.xml,
-      OSGI-INF/io.fabric8.openshift.commands.ApplicationDestroy.xml,
-      OSGI-INF/io.fabric8.openshift.commands.ApplicationInfo.xml,
-      OSGI-INF/io.fabric8.openshift.commands.ApplicationList.xml,
-      OSGI-INF/io.fabric8.openshift.commands.ApplicationRestart.xml,
-      OSGI-INF/io.fabric8.openshift.commands.ApplicationStart.xml,
-      OSGI-INF/io.fabric8.openshift.commands.ApplicationStop.xml,
-      OSGI-INF/io.fabric8.openshift.commands.ContainerCreateOpenshift.xml,
-      OSGI-INF/io.fabric8.openshift.commands.DomainList.xml
-    </fuse.osgi.service.component>
   </properties>
 
   <dependencies>

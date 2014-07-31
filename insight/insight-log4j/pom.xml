@@ -32,7 +32,6 @@
 
   <properties>
     <pax.url.version>1.5.2</pax.url.version>
-    <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
   </properties>
 
   <dependencies>

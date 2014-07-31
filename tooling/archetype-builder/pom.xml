@@ -35,7 +35,6 @@
         <fuse.osgi.export>
             io.fabric8.tooling.archetype*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>

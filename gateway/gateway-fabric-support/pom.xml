@@ -55,7 +55,6 @@
         <fuse.osgi.private.pkg>
           META-INF.services.*;-split-package:=first,
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>

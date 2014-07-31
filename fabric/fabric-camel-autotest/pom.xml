@@ -40,7 +40,6 @@
       <fuse.osgi.private.pkg>
           io.fabric8.utils,
       </fuse.osgi.private.pkg>
-      <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>

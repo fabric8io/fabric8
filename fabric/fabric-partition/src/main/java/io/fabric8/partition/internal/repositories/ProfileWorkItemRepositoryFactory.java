@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 public class ProfileWorkItemRepositoryFactory extends AbstractComponent implements WorkItemRepositoryFactory {
 
     public static final String TYPE = "profile";
-    public static final String SCHME = TYPE;
+    public static final String SCHEME = TYPE;
     public static final String ID = ID_PREFIX + TYPE;
 
     @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${runtime.id}", propertyPrivate = true)
@@ -59,7 +59,7 @@ public class ProfileWorkItemRepositoryFactory extends AbstractComponent implemen
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<>();
 
-    @Reference(referenceInterface = URLStreamHandlerService.class, target = "url.handler.protocol=" + SCHME)
+    @Reference(referenceInterface = URLStreamHandlerService.class, target = "(url.handler.protocol=" + SCHEME + ")")
     private final ValidatingReference<URLStreamHandlerService> urlHandler = new ValidatingReference<URLStreamHandlerService>();
 
     @Activate

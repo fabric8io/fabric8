@@ -42,7 +42,6 @@
             javax.xml.namespace,
             *
         </fuse.osgi.import>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>

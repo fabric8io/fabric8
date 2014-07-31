@@ -44,7 +44,6 @@
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>OSGI-INF/io.fabric8.vertx.internal.FabricVertxFactoryImpl.xml</fuse.osgi.service.component>
     </properties>
 
     <dependencies>

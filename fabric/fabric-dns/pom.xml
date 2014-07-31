@@ -28,10 +28,6 @@
         </fuse.osgi.private.pkg>
         <fuse.osgi.require.bundle>
         </fuse.osgi.require.bundle>
-        <fuse.osgi.service.component>
-            OSGI-INF/io.fabric8.dns.FabricZoneManager.xml,
-            OSGI-INF/io.fabric8.dns.FabricDnsServer.xml,
-        </fuse.osgi.service.component>
     </properties>
 
     <dependencies>

@@ -88,7 +88,6 @@
                             <Require-Bundle>${fuse.osgi.require.bundle}</Require-Bundle>
                             <Require-Capability>${fuse.osgi.capabilities.require}</Require-Capability>
                             <Provide-Capability>${fuse.osgi.capabilities.provide}</Provide-Capability>
-                            <Service-Component>${fuse.osgi.service.component}</Service-Component>
                             <Fragment-Host>${fuse.osgi.fragment.host}</Fragment-Host>
                         </instructions>
                     </configuration>

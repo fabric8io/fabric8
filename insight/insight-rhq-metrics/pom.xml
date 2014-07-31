@@ -60,10 +60,6 @@
       gnu.trove*;-split-package:=first,
       net.jpountz.lz4*;-split-package:=first,
     </fuse.osgi.private.pkg>
-    <fuse.osgi.service.component>
-      <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-      OSGI-INF/io.fabric8.insight.rhq.metrics.RhqMetricsStorage.xml
-    </fuse.osgi.service.component>
   </properties>
 
   <dependencies>

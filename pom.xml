@@ -118,7 +118,6 @@
         <fuse.osgi.require.bundle />
         <fuse.osgi.capabilities.provide />
         <fuse.osgi.capabilities.require />
-        <fuse.osgi.service.component/>
 
         <fabric-perfectus-version>7.3.0.redhat-${perfectus-build}</fabric-perfectus-version>
         <full-perfectus-build>610${perfectus-build}</full-perfectus-build>

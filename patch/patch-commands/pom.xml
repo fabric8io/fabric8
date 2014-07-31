@@ -43,16 +43,6 @@
     <fuse.osgi.private.pkg>
       io.fabric8.patch.commands*,
     </fuse.osgi.private.pkg>
-    <fuse.osgi.service.component>
-      <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-      OSGI-INF/io.fabric8.patch.commands.support.InstallPatchCompleter.xml,
-      OSGI-INF/io.fabric8.patch.commands.support.UninstallPatchCompleter.xml,
-      OSGI-INF/io.fabric8.patch.commands.Add.xml,
-      OSGI-INF/io.fabric8.patch.commands.Install.xml,
-      OSGI-INF/io.fabric8.patch.commands.List.xml,
-      OSGI-INF/io.fabric8.patch.commands.Rollback.xml,
-      OSGI-INF/io.fabric8.patch.commands.Simulate.xml
-    </fuse.osgi.service.component>
   </properties>
 
   <dependencies>

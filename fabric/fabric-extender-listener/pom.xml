@@ -43,7 +43,6 @@
         <fuse.osgi.dynamic>
             org.springframework.osgi.*
         </fuse.osgi.dynamic>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>
