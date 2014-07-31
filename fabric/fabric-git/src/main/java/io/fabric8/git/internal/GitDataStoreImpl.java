@@ -465,6 +465,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private Version getVersionFromCache(String versionId, String profileId) {
         LockHandle writeLock = aquireWriteLock();
         try {
+            assertValid();
             if (checkoutProfileBranch(getGit(), versionId, profileId)) {
                 return versionCache.get(versionId);
             } else {
@@ -484,6 +485,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public String createVersion(final String sourceId, final String targetId, final Map<String, String> attributes) {
+        IllegalStateAssertion.assertNotNull(sourceId, "sourceId");
+        IllegalStateAssertion.assertNotNull(targetId, "targetId");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -508,6 +511,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public String createVersion(final Version version) {
+        IllegalStateAssertion.assertNotNull(version, "version");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -552,6 +556,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public boolean hasVersion(final String versionId) {
+        IllegalStateAssertion.assertNotNull(versionId, "versionId");
         LockHandle readLock = aquireReadLock();
         try {
             assertValid();
@@ -568,12 +573,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public Version getVersion(final String versionId) {
-        assertValid();
+        IllegalStateAssertion.assertNotNull(versionId, "versionId");
         return getVersionFromCache(versionId, null);
     }
 
     @Override
     public Version getRequiredVersion(final String versionId) {
+        IllegalStateAssertion.assertNotNull(versionId, "versionId");
         Version version = getVersionFromCache(versionId, null);
         IllegalStateAssertion.assertNotNull(version, "Version does not exist: " + versionId);
         return version;
@@ -581,6 +587,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public void deleteVersion(final String versionId) {
+        IllegalStateAssertion.assertNotNull(versionId, "versionId");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -601,6 +608,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public String createProfile(final Profile profile) {
+        IllegalStateAssertion.assertNotNull(profile, "profile");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -622,6 +630,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public String updateProfile(final Profile profile) {
+        IllegalStateAssertion.assertNotNull(profile, "profile");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -641,19 +650,23 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public boolean hasProfile(final String versionId, final String profileId) {
-        assertValid();
+        IllegalStateAssertion.assertNotNull(versionId, "versionId");
+        IllegalStateAssertion.assertNotNull(profileId, "profileId");
         Profile profile = getProfileFromCache(versionId, profileId);
         return profile != null;
     }
 
     @Override
     public Profile getProfile(final String versionId, final String profileId) {
-        assertValid();
+        IllegalStateAssertion.assertNotNull(versionId, "versionId");
+        IllegalStateAssertion.assertNotNull(profileId, "profileId");
         return getProfileFromCache(versionId, profileId);
     }
 
     @Override
     public Profile getRequiredProfile(final String versionId, final String profileId) {
+        IllegalStateAssertion.assertNotNull(versionId, "versionId");
+        IllegalStateAssertion.assertNotNull(profileId, "profileId");
         Profile profile = getProfileFromCache(versionId, profileId);
         IllegalStateAssertion.assertNotNull(profile, "Profile does not exist: " + versionId + "/" + profileId);
         return profile;
@@ -661,6 +674,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public List<String> getProfiles(final String versionId) {
+        IllegalStateAssertion.assertNotNull(versionId, "versionId");
         assertValid();
         Version version = getVersionFromCache(versionId, null);
         List<String> profiles = version != null ? version.getProfileIds() : Collections.<String>emptyList();
@@ -669,6 +683,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public void deleteProfile(final String versionId, final String profileId) {
+        IllegalStateAssertion.assertNotNull(versionId, "versionId");
+        IllegalStateAssertion.assertNotNull(profileId, "profileId");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -806,6 +822,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public void importProfiles(final String versionId, final List<String> profileZipUrls) {
+        IllegalStateAssertion.assertNotNull(versionId, "versionId");
+        IllegalStateAssertion.assertNotNull(profileZipUrls, "profileZipUrls");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -824,19 +842,24 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public void importFromFileSystem(String from) {
-        Path importBase = Paths.get(from);
+    public void importFromFileSystem(String importPath) {
+        IllegalArgumentAssertion.assertNotNull(importPath, "importPath");
+        Path importBase = Paths.get(importPath);
         importExportHandler.importFromFileSystem(importBase);
         importExportHandler.importZipAndArtifacts(importBase.getParent());
     }
 
     @Override
-    public void exportProfiles(String versionId, String outputFileName, String wildcard) {
-        importExportHandler.exportProfiles(versionId, outputFileName, wildcard);
+    public void exportProfiles(String versionId, String outputName, String wildcard) {
+        IllegalArgumentAssertion.assertNotNull(versionId, "versionId");
+        IllegalArgumentAssertion.assertNotNull(outputName, "outputName");
+        importExportHandler.exportProfiles(versionId, outputName, wildcard);
     }
 
     @Override
     public Iterable<PushResult> doPush(Git git, GitContext context) throws Exception {
+        IllegalArgumentAssertion.assertNotNull(git, "git");
+        IllegalArgumentAssertion.assertNotNull(context, "context");
         LockHandle readLock = aquireReadLock();
         try {
             assertValid();
@@ -849,6 +872,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public <T> T gitOperation(GitContext context, GitOperation<T> gitop, PersonIdent personIdent) {
+        IllegalArgumentAssertion.assertNotNull(gitop, "gitop");
+        IllegalArgumentAssertion.assertNotNull(context, "context");
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -1086,10 +1111,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
      * Pushes any committed changes to the remote repo
      */
     private Iterable<PushResult> doPushInternal(Git git, GitContext context, CredentialsProvider credentialsProvider) {
-        if (context == null) {
-            LOGGER.warn("Cannot push due to null context");
-            return Collections.EMPTY_LIST;
-        }
         assertReadLock();
         IllegalStateAssertion.assertTrue(context.incrementPushCount(), "Push not required in context");
         Iterable<PushResult> results = Collections.emptyList();

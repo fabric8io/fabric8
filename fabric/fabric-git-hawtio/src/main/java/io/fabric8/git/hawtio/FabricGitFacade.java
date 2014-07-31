@@ -311,7 +311,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
     @Override
     public Iterable<PushResult> doPush(Git git) throws Exception {
         assertValid();
-        return gitDataStore.get().doPush(git, null);
+        return gitDataStore.get().doPush(git, new GitContext());
     }
 
     @Override
