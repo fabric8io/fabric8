@@ -87,11 +87,11 @@ public class CreateChildContainerTest {
     @Test
     public void testCreateChildContainer() throws Exception {
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
-        Set<Container> containers = ContainerBuilder.child(1).withName("childA").build();
+        Set<Container> containers = ContainerBuilder.child(1).withName("smoke.childA").build();
         try {
             Assert.assertEquals("One container", 1, containers.size());
             Container child = containers.iterator().next();
-            Assert.assertEquals("childA", child.getId());
+            Assert.assertEquals("smoke.childA", child.getId());
             Assert.assertEquals("root", child.getParent().getId());
         } finally {
             ContainerBuilder.stop(containers);
@@ -103,7 +103,7 @@ public class CreateChildContainerTest {
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n --zookeeper-server-port 2345"));
         System.err.println(CommandSupport.executeCommand("fabric:profile-create --parents default p1"));
         System.err.println(CommandSupport.executeCommand("fabric:profile-edit --features fabric-zookeeper-commands p1"));
-        Set<Container> containers = ContainerBuilder.child(1).withName("childB").withProfiles("p1").build();
+        Set<Container> containers = ContainerBuilder.child(1).withName("smoke.childB").withProfiles("p1").build();
         Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
         try {
             Container child = containers.iterator().next();
@@ -125,14 +125,14 @@ public class CreateChildContainerTest {
         CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/sshIdleTimeout=1800002 test");
 
 
-        Set<Container> containers = ContainerBuilder.child(1).withName("childC").withProfiles("test")
+        Set<Container> containers = ContainerBuilder.child(1).withName("smoke.childC").withProfiles("test")
 //            .withJvmOpts("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5006")
             .assertProvisioningResult().build();
 
         try {
             Assert.assertEquals("One container", 1, containers.size());
             Container child = containers.iterator().next();
-            Assert.assertEquals("childC", child.getId());
+            Assert.assertEquals("smoke.childC", child.getId());
             Assert.assertEquals("root", child.getParent().getId());
             String logPid = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " config:proplist --pid org.apache.karaf.log");
             String shellPid = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " config:proplist --pid org.apache.karaf.shell");

@@ -13,11 +13,10 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.itests.smoke.karaf;
+package io.fabric8.itests.basic.karaf;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.runtime.itests.support.CommandSupport;
 import io.fabric8.runtime.itests.support.ContainerBuilder;
 import io.fabric8.runtime.itests.support.FabricEnsembleSupport;
@@ -25,10 +24,6 @@ import io.fabric8.runtime.itests.support.Provision;
 import io.fabric8.runtime.itests.support.ServiceProxy;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.felix.gogo.commands.Action;
@@ -43,24 +38,25 @@ import org.jboss.gravia.resource.ManifestBuilder;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
-import org.jboss.gravia.runtime.ServiceLocator;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+/**
+ * A test for making sure that the container registration info such as jmx url and ssh url are updated, if new values
+ * are assigned to them via the profile.
+ */
 @RunWith(Arquillian.class)
-@Ignore("[FABRIC-1127] Fix EnsembleTest")
-public class EnsembleTest {
+public class ContainerRegistrationTest {
 
     @Deployment
     @StartLevelAware(autostart = true)
     public static Archive<?> deployment() {
-        final ArchiveBuilder archive = new ArchiveBuilder("ensemble-test");
+        final ArchiveBuilder archive = new ArchiveBuilder("container-registration-test");
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
         archive.addPackage(CommandSupport.class.getPackage());
         archive.setManifest(new Asset() {
@@ -88,53 +84,45 @@ public class EnsembleTest {
         return archive.getArchive();
     }
 
+
     @Test
-    public void testAddAndRemove() throws Exception {
-        System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
+    @SuppressWarnings("unchecked")
+    public void testContainerRegistration() throws Exception {
+        System.out.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
+        //System.out.println(executeCommand("shell:info"));
+        //System.out.println(executeCommand("fabric:info"));
+        //System.out.println(executeCommand("fabric:profile-list"));
+
         ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
-            FabricService fabricService = fabricProxy.getService();
-            Set<Container> containers = ContainerBuilder.create(2).withName("smoke.ensA").assertProvisioningResult().build();
+
+            System.out.println(CommandSupport.executeCommand("fabric:profile-create --parents default child-profile"));
+            Assert.assertTrue(Provision.profileAvailable("child-profile", "1.0", FabricEnsembleSupport.PROVISION_TIMEOUT));
+
+            Set<Container> containers = ContainerBuilder.create(1,1).withName("basic.cnt").withProfiles("child-profile").assertProvisioningResult().build();
             try {
-                Deque<Container> containerQueue = new LinkedList<Container>(containers);
-                Deque<Container> addedContainers = new LinkedList<Container>();
+                Container child1 = containers.iterator().next();
+                System.out.println(CommandSupport.executeCommand("fabric:profile-edit --import-pid --pid org.apache.karaf.shell child-profile"));
+                System.out.println(CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/sshPort=8105 child-profile"));
 
-                for (int e = 0; e < 3 && containerQueue.size() >= 2 && containerQueue.size() % 2 == 0; e++) {
-                    Container cnt1 = containerQueue.removeFirst();
-                    Container cnt2 = containerQueue.removeFirst();
-                    addedContainers.add(cnt1);
-                    addedContainers.add(cnt2);
-                    FabricEnsembleSupport.addToEnsemble(fabricService, cnt1, cnt2);
-                    System.err.println(CommandSupport.executeCommand("config:proplist --pid io.fabric8.zookeeper"));
+                System.out.println(CommandSupport.executeCommand("fabric:profile-edit --import-pid --pid org.apache.karaf.management child-profile"));
+                System.out.println(CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.management/rmiServerPort=55555 child-profile"));
+                System.out.println(CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.management/rmiRegistryPort=1100 child-profile"));
+                System.out.println(CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.management/serviceUrl=service:jmx:rmi://localhost:55555/jndi/rmi://localhost:1099/karaf-"+child1.getId()+" child-profile"));
 
-                    System.err.println(CommandSupport.executeCommand("fabric:container-list"));
-                    System.err.println(CommandSupport.executeCommand("fabric:ensemble-list"));
-                    ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.awaitService(moduleContext, ZooKeeperClusterService.class);
-                    Assert.assertNotNull(zooKeeperClusterService);
-                    List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
-                    Assert.assertTrue(ensembleContainersResult.contains(cnt1.getId()));
-                    Assert.assertTrue(ensembleContainersResult.contains(cnt2.getId()));
-                    Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), FabricEnsembleSupport.PROVISION_TIMEOUT);
+                String sshUrl = child1.getSshUrl();
+                String jmxUrl = child1.getJmxUrl();
+                
+                long end = System.currentTimeMillis() + FabricEnsembleSupport.PROVISION_TIMEOUT;
+                while (System.currentTimeMillis() < end && (!sshUrl.endsWith("8105") || !jmxUrl.contains("55555"))) {
+                    Thread.sleep(1000L);
+                    sshUrl = child1.getSshUrl();
+                    jmxUrl = child1.getJmxUrl();
                 }
-
-                for (int e = 0; e < 3 && addedContainers.size() >= 2 && addedContainers.size() % 2 == 0; e++) {
-                    Container cnt1 = addedContainers.removeFirst();
-                    Container cnt2 = addedContainers.removeFirst();
-                    containerQueue.add(cnt1);
-                    containerQueue.add(cnt2);
-                    FabricEnsembleSupport.removeFromEnsemble(fabricService, cnt1, cnt2);
-                    System.err.println(CommandSupport.executeCommand("config:proplist --pid io.fabric8.zookeeper"));
-
-                    System.err.println(CommandSupport.executeCommand("fabric:container-list"));
-                    System.err.println(CommandSupport.executeCommand("fabric:ensemble-list"));
-                    ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.awaitService(moduleContext, ZooKeeperClusterService.class);
-                    Assert.assertNotNull(zooKeeperClusterService);
-                    List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
-                    Assert.assertFalse(ensembleContainersResult.contains(cnt1.getId()));
-                    Assert.assertFalse(ensembleContainersResult.contains(cnt2.getId()));
-                    Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), FabricEnsembleSupport.PROVISION_TIMEOUT);
-                }
+                
+                Assert.assertTrue("sshUrl ends with 8105, but was: " + sshUrl, sshUrl.endsWith("8105"));
+                Assert.assertTrue("jmxUrl contains 55555, but was: " + jmxUrl, jmxUrl.contains("55555"));
             } finally {
                 ContainerBuilder.stop(containers);
             }
