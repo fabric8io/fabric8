@@ -176,6 +176,21 @@ public class ContainerImpl implements Container {
     }
 
     @Override
+    public String getVersionId() {
+        return dataStore.getContainerVersion(id);
+    }
+
+    @Override
+    public void setVersionId(String versionId) {
+        String currentId = getVersionId();
+        if (versionId.compareTo(currentId) != 0) {
+            ProfileService profileService = fabricService.adapt(ProfileService.class);
+            Version version = profileService.getRequiredVersion(versionId);
+            setVersion(version);
+        }
+    }
+
+    @Override
     public Version getVersion() {
         String versionId = dataStore.getContainerVersion(id);
         ProfileService profileService = fabricService.adapt(ProfileService.class);
@@ -184,9 +199,11 @@ public class ContainerImpl implements Container {
 
     @Override
     public void setVersion(Version version) {
-        if (version.compareTo(getVersion()) != 0) {
+        String currentId = getVersionId();
+        int compareResult = version.getId().compareTo(currentId);
+        if (compareResult != 0) {
             if (requiresUpgrade(version) && isManaged()) {
-                String status = version.compareTo(getVersion()) > 0 ? "upgrading" : "downgrading";
+                String status = compareResult > 0 ? "upgrading" : "downgrading";
                 dataStore.setContainerAttribute(id, DataStore.ContainerAttribute.ProvisionStatus, status);
             }
             dataStore.setContainerVersion(id, version.getId());
@@ -631,7 +648,7 @@ public class ContainerImpl implements Container {
      */
     private boolean requiresUpgrade(Version version) {
         boolean requiresUpgrade = false;
-        if (version.compareTo(getVersion()) == 0) {
+        if (version.getId().compareTo(getVersionId()) == 0) {
             return false;
         }
         for (Profile oldProfile : getProfiles()) {
