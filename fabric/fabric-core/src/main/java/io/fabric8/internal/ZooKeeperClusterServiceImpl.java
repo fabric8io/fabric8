@@ -22,6 +22,8 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
+
+import com.google.common.base.Charsets;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateEnsembleOptions;
@@ -71,11 +73,15 @@ import org.apache.felix.scr.annotations.Service;
 import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.zookeeper.cluster.service", label = "Fabric8 ZooKeeper Cluster Service", metatype = false)
 @Service(ZooKeeperClusterService.class)
 public final class ZooKeeperClusterServiceImpl extends AbstractComponent implements ZooKeeperClusterService {
+
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterServiceImpl.class);
 
     @Reference(referenceInterface = ACLProvider.class)
     private final ValidatingReference<ACLProvider> aclProvider = new ValidatingReference<ACLProvider>();
@@ -301,7 +307,8 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 containerList += container;
                 index++;
             }
-            
+
+            LOGGER.info("Creating parent ensemble profile for id: {}.", ensembleProfileId);
             LockHandle writeLock = profileRegistry.get().aquireWriteLock();
             try {
                 // Create the ensemble profile
@@ -310,6 +317,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 
                 // Create the member profiles
                 for (Profile memberProfile : memberProfiles) {
+                    LOGGER.info("Creating member ensemble profile with id: {}.", memberProfile.getId());
                     profileRegistry.get().createProfile(memberProfile);
                 }
             } finally {
@@ -321,6 +329,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 // add this container to the ensemble
                 List<String> profiles = new LinkedList<String>(dataStore.get().getContainerProfiles(container));
                 profiles.add("fabric-ensemble-" + newClusterId + "-" + Integer.toString(index));
+                LOGGER.info("Assigning member ensemble profile with id: {} to {}.", ensembleProfileId + "-" + index, container);
                 dataStore.get().setContainerProfiles(container, profiles);
                 index++;
             }
@@ -337,9 +346,11 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 dst.start();
                 try {
                     long t0 = System.currentTimeMillis();
+                    LOGGER.info("Waiting for ensemble {} to become ready.", newClusterId);
                     if (!dst.getZookeeperClient().blockUntilConnectedOrTimedOut()) {
                         throw new EnsembleModificationFailed("Timed out connecting to new ensemble.", EnsembleModificationFailed.Reason.TIMEOUT);
                     }
+                    LOGGER.info("Copying data from the old ensemble to the new one");
                     copy(curator.get(), dst, "/fabric");
                     setData(dst, ZkPath.CONFIG_ENSEMBLES.getPath(), newClusterId);
                     setData(dst, ZkPath.CONFIG_ENSEMBLE.getPath(newClusterId), containerList);
@@ -356,13 +367,16 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                         }
                     });
 
+                    LOGGER.info("Migrating containers to the new ensemble using url {}.", connectionUrl);
                     setData(dst, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), PasswordEncoder.encode(options.getZookeeperPassword()));
-                    setData(dst, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);                    
-                    setData(curator.get(), ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), PasswordEncoder.encode(options.getZookeeperPassword()));
-                    setData(curator.get(), ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
+                    setData(dst, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
+                    curator.get().inTransaction()
+                            .setData().forPath(ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(),  PasswordEncoder.encode(options.getZookeeperPassword()).getBytes(Charsets.UTF_8))
+                            .and()
+                            .setData().forPath(ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl.getBytes(Charsets.UTF_8))
+                            .and().commit();
 
                     // Wait until all containers switched
-
                     boolean allStarted = false;
                     while (!allStarted && System.currentTimeMillis() - t0 < options.getMigrationTimeout()) {
                         allStarted = true;
@@ -376,7 +390,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     if (!allStarted) {
                         throw new EnsembleModificationFailed("Timeout waiting for containers to join the new ensemble", EnsembleModificationFailed.Reason.TIMEOUT);
                     }
-
+                    LOGGER.info("Migration successful. Cleaning up");
                     // Wait until the new datastore has been registered
                     synchronized (result) {
                         if (result.get() == null) {

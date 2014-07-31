@@ -82,7 +82,7 @@ import org.slf4j.LoggerFactory;
 @Service({ DataStore.class })
 public final class ZkDataStoreImpl extends AbstractComponent implements DataStore, PathChildrenCacheListener {
     
-    private static final transient Logger LOG = LoggerFactory.getLogger(ZkDataStoreImpl.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(ZkDataStoreImpl.class);
     
     private static final String JVM_OPTIONS_PATH = "/fabric/configs/io.fabric8.containers.jvmOptions";
     private static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/io.fabric8.requirements.json";
@@ -131,6 +131,7 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
                 case CHILD_UPDATED:
                 case INITIALIZED:
                     if (shouldRunCallbacks(event.getData().getPath())) {
+                        LOGGER.info("Event {} detected on {}. Sending notification.", event.getType().name(), event.getData().getPath());
                         fireChangeNotifications();
                     }
                     break;
@@ -154,7 +155,6 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
     
     @Override
     public void fireChangeNotifications() {
-        LOG.debug("Firing change notifications!");
         runCallbacks();
     }
     
@@ -171,12 +171,12 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
         assertValid();
         for (Runnable callback : callbacks) {
             try {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Running callback " + callback);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Running callback " + callback);
                 }
                 callback.run();
             } catch (Throwable e) {
-                LOG.warn("Caught: " + e, e);
+                LOGGER.warn("Caught: " + e, e);
             }
         }
     }
