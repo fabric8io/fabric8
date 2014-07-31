@@ -121,8 +121,9 @@ public class CreateChildContainerTest {
         // will wipe out other properties
         CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.log/size=102 test");
         // will *not* wipe out other properties
-        CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/sshIdleTimeout=1800002 test");
         CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/fabric.config.merge=true test");
+        CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/sshIdleTimeout=1800002 test");
+
 
         Set<Container> containers = ContainerBuilder.child(1).withName("childC").withProfiles("test")
 //            .withJvmOpts("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5006")
