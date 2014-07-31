@@ -35,6 +35,8 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
 import org.jboss.gravia.Constants;
+import org.jboss.gravia.itests.support.AnnotatedContextListener;
+import org.jboss.gravia.itests.support.ArchiveBuilder;
 import org.jboss.gravia.resource.ManifestBuilder;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
@@ -42,10 +44,7 @@ import org.jboss.gravia.runtime.RuntimeType;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.Asset;
-import org.jboss.gravia.itests.support.AnnotatedContextListener;
-import org.jboss.gravia.itests.support.ArchiveBuilder;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -95,48 +94,50 @@ public class ContainerUpgradeAndRollbackTest {
      * 7. verify that the child is provisioned according to the old version.
      */
     @Test
+    @SuppressWarnings("unchecked")
     public void testContainerUpgradeAndRollback() throws Exception {
         CommandSupport.executeCommand("fabric:create --force --clean -n");
-        Set<Container> containers = ContainerBuilder.create().withName("smoke.camel").withProfiles("feature-camel").assertProvisioningResult().build();
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
-            CommandSupport.executeCommand("fabric:version-create --parent 1.0 1.1");
-
-            ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-            ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
+            FabricService fabricService = fabricProxy.getService();
+            Set<Container> containers = ContainerBuilder.create().withName("smoke.camel").withProfiles("feature-camel").assertProvisioningResult().build(fabricService);
             try {
+                CommandSupport.executeCommand("fabric:version-create --parent 1.0 1.1");
+
                 //Make sure that the profile change has been applied before changing the version
-                CountDownLatch latch = WaitForConfigurationChange.on(fabricProxy.getService());
+                CountDownLatch latch = WaitForConfigurationChange.on(fabricService);
                 CommandSupport.executeCommand("fabric:profile-edit --features camel-script --features camel-hazelcast feature-camel 1.1");
                 Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+
+                CommandSupport.executeCommand("fabric:profile-display --version 1.1 feature-camel");
+                CommandSupport.executeCommand("fabric:container-upgrade --all 1.1");
+                Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
+                CommandSupport.executeCommand("fabric:container-list");
+                for (Container container : containers) {
+                    Assert.assertEquals("Container should have version 1.1", "1.1", container.getVersion().getId());
+                    String bundles = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list -s | grep camel-hazelcast");
+                    Assert.assertNotNull(bundles);
+                    System.out.println(bundles);
+                    Assert.assertFalse("Expected camel-hazelcast installed on container: " + container.getId(), bundles.isEmpty());
+                }
+
+                CommandSupport.executeCommand("fabric:container-rollback --all 1.0");
+                Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
+                CommandSupport.executeCommand("fabric:container-list");
+
+                for (Container container : containers) {
+                    Assert.assertEquals("Container should have version 1.0", "1.0", container.getVersion().getId());
+                    String bundles = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list -s | grep camel-hazelcast");
+                    Assert.assertNotNull(bundles);
+                    System.out.println(bundles);
+                    Assert.assertTrue("Expected no camel-hazelcast installed on container: " + container.getId(), bundles.isEmpty());
+                }
             } finally {
-                fabricProxy.close();
-            }
-
-            CommandSupport.executeCommand("fabric:profile-display --version 1.1 feature-camel");
-            CommandSupport.executeCommand("fabric:container-upgrade --all 1.1");
-            Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
-            CommandSupport.executeCommand("fabric:container-list");
-            for (Container container : containers) {
-                Assert.assertEquals("Container should have version 1.1", "1.1", container.getVersion().getId());
-                String bundles = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list -s | grep camel-hazelcast");
-                Assert.assertNotNull(bundles);
-                System.out.println(bundles);
-                Assert.assertFalse("Expected camel-hazelcast installed on container: " + container.getId(), bundles.isEmpty());
-            }
-
-            CommandSupport.executeCommand("fabric:container-rollback --all 1.0");
-            Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
-            CommandSupport.executeCommand("fabric:container-list");
-
-            for (Container container : containers) {
-                Assert.assertEquals("Container should have version 1.0", "1.0", container.getVersion().getId());
-                String bundles = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list -s | grep camel-hazelcast");
-                Assert.assertNotNull(bundles);
-                System.out.println(bundles);
-                Assert.assertTrue("Expected no camel-hazelcast installed on container: " + container.getId(), bundles.isEmpty());
+                ContainerBuilder.stop(fabricService, containers);
             }
         } finally {
-            ContainerBuilder.stop(containers);
+            fabricProxy.close();
         }
     }
 }

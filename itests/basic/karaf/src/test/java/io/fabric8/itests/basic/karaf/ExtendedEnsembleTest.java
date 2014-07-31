@@ -100,7 +100,7 @@ public class ExtendedEnsembleTest {
             System.out.println(CommandSupport.executeCommand("fabric:version-create --parent 1.0 1.1"));
             System.out.println(CommandSupport.executeCommand("fabric:container-upgrade --all 1.1"));
             
-            Set<Container> containers = ContainerBuilder.create(2).withName("basic.ensA").withProfiles("default").assertProvisioningResult().build();
+            Set<Container> containers = ContainerBuilder.create(2).withName("basic.ensA").withProfiles("default").assertProvisioningResult().build(fabricService);
             try {
                 Deque<Container> containerQueue = new LinkedList<Container>(containers);
                 Deque<Container> addedContainers = new LinkedList<Container>();
@@ -144,7 +144,7 @@ public class ExtendedEnsembleTest {
                     Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), FabricEnsembleSupport.PROVISION_TIMEOUT);
                 }
             } finally {
-                ContainerBuilder.stop(containers);
+                ContainerBuilder.stop(fabricService, containers);
             }
         } finally {
             fabricProxy.close();
@@ -166,10 +166,11 @@ public class ExtendedEnsembleTest {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
+            
             System.out.println(CommandSupport.executeCommand("fabric:version-create"));
             System.out.println(CommandSupport.executeCommand("fabric:container-upgrade --all 1.1"));
 
-            Set<Container> containers = ContainerBuilder.create(2).withName("basic.ensB").withProfiles("fabric").assertProvisioningResult().build();
+            Set<Container> containers = ContainerBuilder.create(2).withName("basic.ensB").withProfiles("fabric").assertProvisioningResult().build(fabricService);
             try {
                 LinkedList<Container> containerQueue = new LinkedList<Container>(containers);
                 LinkedList<Container> addedContainers = new LinkedList<Container>();
@@ -230,7 +231,7 @@ public class ExtendedEnsembleTest {
                     System.out.println(CommandSupport.executeCommand("fabric:container-rollback 1." + (version - 1) + " " + randomContainer));
                 }
             } finally {
-                ContainerBuilder.stop(containers);
+                ContainerBuilder.stop(fabricService, containers);
             }
         } finally {
             fabricProxy.close();

@@ -21,9 +21,11 @@ import io.fabric8.api.ProfileRegistry;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -50,7 +52,7 @@ public class Provision {
     /**
      * Waits for all container to provision and reach the specified status.
      */
-    public static void containersStatus(Collection<Container> containers, String status, Long timeout) throws Exception {
+    public static void containerStatus(Collection<Container> containers, String status, Long timeout) throws Exception {
         CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(EXECUTOR);
         List<Future<Boolean>> waitForProvisionTasks = new LinkedList<Future<Boolean>>();
         StringBuilder sb = new StringBuilder();
@@ -59,19 +61,11 @@ public class Provision {
             waitForProvisionTasks.add(completionService.submit(new WaitForProvisionTask(c, status, timeout)));
             sb.append(c.getId()).append(" ");
         }
-        System.out.println("Waiting for containers: [" + sb.toString() + "] to successfully provision");
+        System.out.println("Waiting for containers: [" + sb.toString() + "] to reach status: " + status);
         for (int i = 0; i < containers.size(); i++) {
             completionService.poll(timeout, TimeUnit.MILLISECONDS);
         }
     }
-
-    /**
-     * Wait for all container provision successfully provision and reach status success.
-     */
-    public static void containerStatus(Collection<Container> containers, Long timeout) throws Exception {
-        containersStatus(containers, "success", timeout);
-    }
-
 
     /**
      * Wait for all containers to become alive.
@@ -88,11 +82,11 @@ public class Provision {
             waitForProvisionTasks.add(completionService.submit(new WaitForAliveTask(container, alive, timeout)));
             sb.append(container.getId()).append(" ");
         }
-        System.out.println("Waiting for containers: [" + sb.toString() + "] to reach Alive:"+alive);
+        System.out.println("Waiting for containers: [" + sb.toString() + "] to reach Alive: " + alive);
         for (Container container : containers) {
             Future<Boolean> f = completionService.poll(timeout, TimeUnit.MILLISECONDS);
             if ( f == null || !f.get()) {
-                throw new Exception("Container " + container.getId() + " failed to reach Alive:" + alive);
+                throw new Exception("Container " + container.getId() + " failed to reach Alive: " + alive);
             }
         }
     }
@@ -190,27 +184,26 @@ public class Provision {
      * Wait for a container to provision and assert its status.
      */
     public static void provisioningSuccess(Collection<Container> containers, Long timeout) throws Exception {
-        if (containers.isEmpty()) {
-            return;
-        }
-        boolean running = true;
+        Set<Container> cntset = new HashSet<>(containers);
         long startedAt = System.currentTimeMillis();
         long remaining = timeout;
-        while (running && !Thread.interrupted()) {
-            containerStatus(containers, remaining);
-            remaining = timeout + startedAt - System.currentTimeMillis();
+        while (!cntset.isEmpty() && remaining > 0 && !Thread.interrupted()) {
+            containerStatus(containers, "success", remaining);
+            remaining = startedAt + timeout - System.currentTimeMillis();
             for (Container container : containers) {
                 if (!container.isAliveAndOK()) {
                     if(container.getProvisionException() != null) {
                         throw new Exception(container.getProvisionException());
                     }
-                    else if (startedAt + timeout < System.currentTimeMillis()) {
+                    else if (remaining < 0) {
                         throw new Exception("Container " + container.getId() + " failed to provision. Status:" + container.getProvisionStatus() + " Exception:" + container.getProvisionException());
                     }
                 }  else {
-                    running = false;
+                    cntset.remove(container);
                 }
             }
+            Thread.sleep(1000);
+            remaining = startedAt + timeout - System.currentTimeMillis();
         }
     }
 

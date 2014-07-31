@@ -21,6 +21,7 @@ import io.fabric8.runtime.itests.support.CommandSupport;
 import io.fabric8.runtime.itests.support.ContainerBuilder;
 import io.fabric8.runtime.itests.support.FabricEnsembleSupport;
 import io.fabric8.runtime.itests.support.Provision;
+import io.fabric8.runtime.itests.support.ServiceProxy;
 
 import java.io.InputStream;
 import java.util.Set;
@@ -34,6 +35,7 @@ import org.jboss.gravia.Constants;
 import org.jboss.gravia.itests.support.AnnotatedContextListener;
 import org.jboss.gravia.itests.support.ArchiveBuilder;
 import org.jboss.gravia.resource.ManifestBuilder;
+import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
@@ -87,14 +89,21 @@ public class CreateChildContainerTest {
     @Test
     public void testCreateChildContainer() throws Exception {
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
-        Set<Container> containers = ContainerBuilder.child(1).withName("smoke.childA").build();
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
-            Assert.assertEquals("One container", 1, containers.size());
-            Container child = containers.iterator().next();
-            Assert.assertEquals("smoke.childA", child.getId());
-            Assert.assertEquals("root", child.getParent().getId());
+            FabricService fabricService = fabricProxy.getService();
+            Set<Container> containers = ContainerBuilder.child(1).withName("smoke.childA").build(fabricService);
+            try {
+                Assert.assertEquals("One container", 1, containers.size());
+                Container child = containers.iterator().next();
+                Assert.assertEquals("smoke.childA", child.getId());
+                Assert.assertEquals("root", child.getParent().getId());
+            } finally {
+                ContainerBuilder.stop(fabricService, containers);
+            }
         } finally {
-            ContainerBuilder.stop(containers);
+            fabricProxy.close();
         }
     }
 
@@ -103,14 +112,21 @@ public class CreateChildContainerTest {
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n --zookeeper-server-port 2345"));
         System.err.println(CommandSupport.executeCommand("fabric:profile-create --parents default p1"));
         System.err.println(CommandSupport.executeCommand("fabric:profile-edit --features fabric-zookeeper-commands p1"));
-        Set<Container> containers = ContainerBuilder.child(1).withName("smoke.childB").withProfiles("p1").build();
-        Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
-            Container child = containers.iterator().next();
-            String ensembleUrl = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " zk:get /fabric/configs/ensemble/url");
-            Assert.assertTrue("Child should use custom ZK server port, but was: " + ensembleUrl, ensembleUrl.contains("${zk:root/ip}:2345"));
+            FabricService fabricService = fabricProxy.getService();
+            Set<Container> containers = ContainerBuilder.child(1).withName("smoke.childB").withProfiles("p1").build(fabricService);
+            Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
+            try {
+                Container child = containers.iterator().next();
+                String ensembleUrl = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " zk:get /fabric/configs/ensemble/url");
+                Assert.assertTrue("Child should use custom ZK server port, but was: " + ensembleUrl, ensembleUrl.contains("${zk:root/ip}:2345"));
+            } finally {
+                ContainerBuilder.stop(fabricService, containers);
+            }
         } finally {
-            ContainerBuilder.stop(containers);
+            fabricProxy.close();
         }
     }
 
@@ -124,25 +140,31 @@ public class CreateChildContainerTest {
         CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/fabric.config.merge=true test");
         CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/sshIdleTimeout=1800002 test");
 
-
-        Set<Container> containers = ContainerBuilder.child(1).withName("smoke.childC").withProfiles("test")
-//            .withJvmOpts("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5006")
-            .assertProvisioningResult().build();
-
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
-            Assert.assertEquals("One container", 1, containers.size());
-            Container child = containers.iterator().next();
-            Assert.assertEquals("smoke.childC", child.getId());
-            Assert.assertEquals("root", child.getParent().getId());
-            String logPid = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " config:proplist --pid org.apache.karaf.log");
-            String shellPid = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " config:proplist --pid org.apache.karaf.shell");
+            FabricService fabricService = fabricProxy.getService();
+            Set<Container> containers = ContainerBuilder.child(1).withName("smoke.childC").withProfiles("test").assertProvisioningResult().build(fabricService);
 
-            Assert.assertFalse(logPid.contains("pattern"));
-            Assert.assertTrue(logPid.contains("size = 102"));
-            Assert.assertTrue(shellPid.contains("sshHost"));
-            Assert.assertTrue(shellPid.contains("sshIdleTimeout = 1800002"));
+            try {
+                Assert.assertEquals("One container", 1, containers.size());
+                Container child = containers.iterator().next();
+                Assert.assertEquals("smoke.childC", child.getId());
+                Assert.assertEquals("root", child.getParent().getId());
+                String logPid = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId()
+                        + " config:proplist --pid org.apache.karaf.log");
+                String shellPid = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId()
+                        + " config:proplist --pid org.apache.karaf.shell");
+
+                Assert.assertFalse(logPid.contains("pattern"));
+                Assert.assertTrue(logPid.contains("size = 102"));
+                Assert.assertTrue(shellPid.contains("sshHost"));
+                Assert.assertTrue(shellPid.contains("sshIdleTimeout = 1800002"));
+            } finally {
+                ContainerBuilder.stop(fabricService, containers);
+            }
         } finally {
-            ContainerBuilder.stop(containers);
+            fabricProxy.close();
         }
     }
 
