@@ -206,13 +206,11 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
         try {
             FabricService fabricService = fabricProxy.getService();
             for (Container aux : containers) {
+                String cntId = aux.getId();
                 try {
-                    //We want to use the latest metadata
-                    Container container = fabricService.getContainer(aux.getId());
-                    container.destroy(true);
+                    fabricService.destroyContainer(cntId, true);
                 } catch (Exception ex) {
-                    ex.printStackTrace(System.err);
-                    //noop
+                    new FabricException("Cannot destroy container: " + cntId, ex).printStackTrace(System.err);
                 }
             }
         } finally {
@@ -230,13 +228,11 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
         try {
             FabricService fabricService = fabricProxy.getService();
             for (Container aux : containers) {
+                String cntId = aux.getId();
                 try {
-                    //We want to use the latest metadata
-                    Container updated = fabricService.getContainer(aux.getId());
-                    updated.stop(true);
+                    fabricService.stopContainer(cntId, true);
                 } catch (Exception ex) {
-                    ex.printStackTrace(System.err);
-                    //noop
+                    new FabricException("Cannot stop container: " + cntId, ex).printStackTrace(System.err);
                 }
             }
         } finally {

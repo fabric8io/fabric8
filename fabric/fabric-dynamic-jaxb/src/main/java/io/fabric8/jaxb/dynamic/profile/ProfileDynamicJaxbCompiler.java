@@ -16,7 +16,6 @@
 package io.fabric8.jaxb.dynamic.profile;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -55,16 +54,12 @@ import io.fabric8.api.Container;
 import io.fabric8.api.Containers;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.GitContext;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.git.GitService;
 import io.fabric8.git.internal.GitHelpers;
-import io.fabric8.git.internal.GitOperation;
-import io.fabric8.git.internal.GitProfiles;
 import io.fabric8.jaxb.dynamic.CompileResults;
 import io.fabric8.jaxb.dynamic.CompileResultsHandler;
 import io.fabric8.jaxb.dynamic.DynamicCompiler;

@@ -55,7 +55,6 @@ import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 @RunWith(Arquillian.class)
-@Ignore("[FABRIC-1125] Fix basic ExtendedEnsembleTest")
 public class ExtendedEnsembleTest {
 
     @Deployment
@@ -91,6 +90,7 @@ public class ExtendedEnsembleTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    @Ignore("[FABRIC-1125] Fix basic ExtendedEnsembleTest")
     public void testAddAndRemoveWithVersions() throws Exception {
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
         ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
@@ -124,7 +124,7 @@ public class ExtendedEnsembleTest {
                 }
 
                 System.out.println(CommandSupport.executeCommand("fabric:version-create"));
-                System.out.println(CommandSupport.executeCommand("fabric:container-upgrade --all 1.3"));
+                System.out.println(CommandSupport.executeCommand("fabric:container-upgrade --all 1.2"));
 
                 for (int e = 0; e < 3 && addedContainers.size() >= 2 && addedContainers.size() % 2 == 0; e++) {
                     Container cnt1 = addedContainers.removeFirst();
@@ -228,7 +228,6 @@ public class ExtendedEnsembleTest {
                         Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), FabricEnsembleSupport.PROVISION_TIMEOUT);
                     }
                     System.out.println(CommandSupport.executeCommand("fabric:container-rollback 1." + (version - 1) + " " + randomContainer));
-                    //System.out.println(executeCommand("fabric:container-rollback " + getFabricService().getDefaultVersion().getId() + " " + randomContainer));
                 }
             } finally {
                 ContainerBuilder.stop(containers);
