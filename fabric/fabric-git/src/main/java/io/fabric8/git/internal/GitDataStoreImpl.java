@@ -544,7 +544,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     setVersionAttributes(git, context, versionId, version.getAttributes());
                     context.commitMessage("Create version: " + version);
                     for (Profile profile : version.getProfiles()) {
-                        createOrUpdateProfile(context, profile, true, new HashSet<String>());
+                        createOrUpdateProfile(context, null, profile, new HashSet<String>());
                     }
                     return versionId;
                 }
@@ -634,7 +634,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     Version version = getRequiredVersion(versionId);
                     IllegalStateAssertion.assertFalse(version.hasProfile(profileId), "Profile already exists: " + profileId);
                     checkoutRequiredProfileBranch(git, versionId, profileId);
-                    return createOrUpdateProfile(context, profile, true, new HashSet<String>());
+                    return createOrUpdateProfile(context, null, profile, new HashSet<String>());
                 }
             };
             return executeWrite(gitop, false);
@@ -652,8 +652,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 public String call(Git git, GitContext context) throws Exception {
                     String versionId = profile.getVersion();
                     String profileId = profile.getId();
-                    getRequiredProfile(versionId, profileId);
-                    return createOrUpdateProfile(context, profile, false, new HashSet<String>());
+                    Profile lastProfile = getRequiredProfile(versionId, profileId);
+                    return createOrUpdateProfile(context, lastProfile, profile, new HashSet<String>());
                 }
             };
             return executeWrite(gitop, false);
@@ -711,7 +711,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
     }
 
-    private String createOrUpdateProfile(GitContext context, Profile profile, boolean allowCreate, Set<String> profiles) throws IOException, GitAPIException {
+    private String createOrUpdateProfile(GitContext context, Profile lastProfile, Profile profile, Set<String> profiles) throws IOException, GitAPIException {
         assertWriteLock();
 
         String versionId = profile.getVersion();
@@ -722,13 +722,19 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             // Process parents first
             List<Profile> parents = profile.getParents();
             for (Profile parent : parents) {
-                createOrUpdateProfile(context, parent, allowCreate, profiles);
+                Profile lastParent = getProfileFromCache(parent.getVersion(), parent.getId());
+                createOrUpdateProfile(context, lastParent, parent, profiles);
             }
             
-            LOGGER.info(allowCreate ? "Create {}" : "Update {}", Profiles.getProfileInfo(profile, false));
+            if (lastProfile == null) {
+                LOGGER.info("Create {}", Profiles.getProfileInfo(profile, false));
+            } else {
+                LOGGER.info("Update {}", profile);
+                LOGGER.info("Update {}", Profiles.getProfileDifference(lastProfile, profile));
+            }
             
             // Create the profile branch & directory
-            if (allowCreate) {
+            if (lastProfile == null) {
                 createProfileDirectoryAfterCheckout(context, versionId, profileId);
             }
 
