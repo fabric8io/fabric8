@@ -33,10 +33,10 @@
     <name>Fabric8 :: Integration Tests</name>
 
     <modules>
-        <module>fabric8-testkit</module>
-        <module>common</module>
         <module>arquillian</module>
+        <module>testkit</module>
         <module>autoscale</module>
+        <module>common</module>
         <module>smoke</module>
     </modules>
 
@@ -53,13 +53,6 @@
 
     <profiles>
         <profile>
-            <id>all</id>
-            <modules>
-                <module>extra</module>
-                <module>paxexam</module>
-            </modules>
-        </profile>
-        <profile>
             <id>ts.all</id>
             <activation>
                 <property>
@@ -67,6 +60,7 @@
                 </property>
             </activation>
             <modules>
+		        <module>basic</module>
                 <module>extra</module>
                 <module>paxexam</module>
             </modules>
@@ -79,6 +73,7 @@
                 </property>
             </activation>
             <modules>
+		        <module>basic</module>
                 <module>paxexam</module>
             </modules>
         </profile>

@@ -97,7 +97,7 @@ public class ContainerUpgradeAndRollbackTest {
     @Test
     public void testContainerUpgradeAndRollback() throws Exception {
         CommandSupport.executeCommand("fabric:create --force --clean -n");
-        Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
+        Set<Container> containers = ContainerBuilder.create().withName("smoke.camel").withProfiles("feature-camel").assertProvisioningResult().build();
         try {
             CommandSupport.executeCommand("fabric:version-create --parent 1.0 1.1");
 
