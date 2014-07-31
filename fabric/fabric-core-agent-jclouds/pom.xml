@@ -53,7 +53,6 @@
             org.jclouds.aws.util,
             org.jclouds.karaf.utils
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>

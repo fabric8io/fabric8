@@ -46,7 +46,7 @@ public class ZkWorkItemRepositoryFactory extends AbstractComponent implements Wo
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
-    @Reference(referenceInterface = URLStreamHandlerService.class, target = "url.handler.protocol=" + SCHEME)
+    @Reference(referenceInterface = URLStreamHandlerService.class, target = "(url.handler.protocol=" + SCHEME + ")")
     private final ValidatingReference<URLStreamHandlerService> urlHandler = new ValidatingReference<URLStreamHandlerService>();
 
 

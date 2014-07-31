@@ -40,7 +40,6 @@
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>

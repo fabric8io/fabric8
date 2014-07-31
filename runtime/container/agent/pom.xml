@@ -47,7 +47,6 @@
         org.apache.karaf.util.collections.*,
         org.apache.felix.utils.*,
       </fuse.osgi.private.pkg>
-      <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
   </properties>
 
   <dependencies>

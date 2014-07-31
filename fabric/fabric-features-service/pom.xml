@@ -51,7 +51,6 @@
             org.apache.karaf.util.collections;-split-package:=merge-first
         </fuse.osgi.private.pkg>
         <fuse.osgi.services.export>org.apache.karaf.features.FeaturesService</fuse.osgi.services.export>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>

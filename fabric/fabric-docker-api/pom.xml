@@ -64,9 +64,6 @@
     </fuse.osgi.private.pkg>
     <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=jaxrs-api</fuse.osgi.embed.dependency>
 
-    <!--
-    <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
--->
     <mockwebserver.version>20130706</mockwebserver.version>
     <dockerHost></dockerHost>
 

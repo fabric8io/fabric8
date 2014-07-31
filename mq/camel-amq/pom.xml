@@ -39,7 +39,6 @@
       org.apache.activemq.pool,
       *
     </fuse.osgi.import.pkg>
-    <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
   </properties>
 
   <dependencies>

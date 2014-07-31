@@ -50,7 +50,7 @@ public class ProfileWorkItemRepository extends BaseWorkItemRepository implements
         this.dataStore = dataStore;
         this.fabricService = fabricService;
         int index = partitionsPath.indexOf("/");
-        this.profileId = partitionsPath.substring((ProfileWorkItemRepositoryFactory.SCHME + ":").length(), index);
+        this.profileId = partitionsPath.substring((ProfileWorkItemRepositoryFactory.SCHEME + ":").length(), index);
         this.folderPath = partitionsPath.substring(index + 1);
     }
 
@@ -93,7 +93,7 @@ public class ProfileWorkItemRepository extends BaseWorkItemRepository implements
     @Override
     public String readContent(String location) {
         try {
-            return Resources.toString(new URL(ProfileWorkItemRepositoryFactory.SCHME + ":" + location), Charsets.UTF_8);
+            return Resources.toString(new URL(ProfileWorkItemRepositoryFactory.SCHEME + ":" + location), Charsets.UTF_8);
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
         }

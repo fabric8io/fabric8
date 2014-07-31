@@ -58,7 +58,6 @@
             org.sonatype.plexus*,
             org.codehaus.plexus*
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
 	<dependencies>

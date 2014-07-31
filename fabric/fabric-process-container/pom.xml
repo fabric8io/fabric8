@@ -50,10 +50,6 @@
             !org.apache.felix.bundlerepository.*,
             org.osgi.service.event*;resolution:=optional
         </fuse.osgi.import.additional>
-        <fuse.osgi.service.component>
-            <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-          OSGI-INF/io.fabric8.container.process.ProcessControllerFactoryService.xml
-        </fuse.osgi.service.component>
     </properties>
 
     <dependencies>

@@ -41,7 +41,6 @@
             org.osgi.util.tracker;version="[1.0.0,2.0.0)",
             *
         </fuse.osgi.import>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>
