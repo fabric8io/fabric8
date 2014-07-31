@@ -101,6 +101,12 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.hawt</groupId>
+            <artifactId>hawtio-json-schema-mbean</artifactId>
+            <version>${hawtio-version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
