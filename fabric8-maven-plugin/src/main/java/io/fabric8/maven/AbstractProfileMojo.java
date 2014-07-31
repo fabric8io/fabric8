@@ -162,7 +162,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
      * If enabled then the OSGi resolver is used to try deduce extra bundles or features
      * required to be added from the transitive maven dependencies.
      */
-    @Parameter(property = "fabric8.useResolver")
+    @Parameter(property = "fabric8.useResolver", defaultValue = "true")
     private boolean useResolver;
 
     /**
