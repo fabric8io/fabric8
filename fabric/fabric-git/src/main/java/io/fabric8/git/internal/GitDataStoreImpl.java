@@ -99,7 +99,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
-import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.RebaseResult;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -310,21 +310,26 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             counter = new SharedCount(curator.get(), ZkPath.GIT_TRIGGER.getPath(), 0);
             counter.addListener(new SharedCountListener() {
                 @Override
-                public void countHasChanged(SharedCountReader sharedCountReader, int value) throws Exception {
-                    
-                    // TODO(tdi): Why sleep a random amount of time on countHasChanged? 
-                    Thread.sleep(1000);
+                public void countHasChanged(SharedCountReader sharedCountReader, final int value) throws Exception {
+                    //The Shared Count Listeners are executed in the same thread as the Watcher that generated the event.
+                    //This means that the Listener should not hold the thread long. It can't lock, it shouldn't block.
+                    //See: https://cwiki.apache.org/confluence/display/CURATOR/TN1
+                    threadPool.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            LOGGER.info("Watch counter updated to " + value + ", doing a pull");
+                            LockHandle writeLock = aquireWriteLock();
+                            try {
+                                pull();
+                            } catch (Throwable e) {
+                                LOGGER.debug("Error during pull due " + e.getMessage(), e);
+                                LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
+                            } finally {
+                                writeLock.unlock();
+                            }
+                        }
+                    });
 
-                    LOGGER.info("Watch counter updated to " + value + ", doing a pull");
-                    LockHandle writeLock = aquireWriteLock();
-                    try {
-                        pull();
-                    } catch (Throwable e) {
-                        LOGGER.debug("Error during pull due " + e.getMessage(), e);
-                        LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
-                    } finally {
-                        writeLock.unlock();
-                    }
                 }
 
                 @Override
@@ -732,17 +737,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     
     private void setFileConfigurationsInternal(GitContext context, final String versionId, final String profileId, final Map<String, byte[]> fileConfigurations) throws IOException, GitAPIException {
         assertWriteLock();
-
-        // Delete and remove stale file configurations
-        Profile existingProfile = getProfileFromCache(versionId, profileId);
-        if (existingProfile != null) {
-            Set<String> removeFiles = new HashSet<>(existingProfile.getFileConfigurations().keySet());
-            removeFiles.removeAll(fileConfigurations.keySet());
-            if (!removeFiles.isEmpty()) {
-                context.commitMessage("Remove configurations " + removeFiles + " for profile: " + profileId);
-                deleteProfileContent(profileId, removeFiles, null);
-            }
-        }
+        deleteAllProfileContent(profileId, null);
 
         if (!fileConfigurations.isEmpty()) {
             setFileConfigurations(getGit(), profileId, fileConfigurations);
@@ -759,6 +754,15 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             File file = profileDirectory.toPath().resolve(fileKey).toFile();
             recursiveDeleteAndRemove(getGit(), file);
         }
+    }
+
+    private void deleteAllProfileContent(final String profileId, final String fileSuffix) throws IOException, GitAPIException {
+        File profileDirectory = GitHelpers.getProfileDirectory(getGit(), profileId);
+        Set<String> content = new HashSet<>();
+        for (String file : profileDirectory.list()) {
+            content.add(file);
+        }
+        deleteProfileContent(profileId, content, fileSuffix);
     }
     
     private void recursiveDeleteAndRemove(Git git, File file) throws IOException, GitAPIException {
@@ -1010,8 +1014,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                         git.clean().setCleanDirectories(true).call();
                         git.checkout().setName("HEAD").setForce(true).call();
                         git.checkout().setName(version).setForce(true).call();
-                        MergeResult result = git.merge().setStrategy(MergeStrategy.THEIRS).include(remoteBranches.get(version).getObjectId()).call();
-                        if (result.getMergeStatus() != MergeResult.MergeStatus.ALREADY_UP_TO_DATE && hasChanged(git, localCommit, remoteCommit)) {
+                        RebaseResult result = git.rebase().setStrategy(MergeStrategy.THEIRS).setUpstream(remoteBranches.get(version).getObjectId()).call();
+                        if (result.getStatus() != RebaseResult.Status.UP_TO_DATE && hasChanged(git, localCommit, remoteCommit)) {
                             hasChanged = true;
                         }
                         // TODO: handle conflicts
@@ -1167,11 +1171,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private void checkoutVersion(Git git, String version) throws GitAPIException {
+        assertWriteLock();
         GitHelpers.checkoutBranch(git, version);
         addVersion(version);
     }
 
     private void checkoutProfileBranch(final String versionId, final String profileId) throws GitAPIException {
+        assertWriteLock();
         checkoutVersion(getGit(), GitProfiles.getBranch(versionId, profileId));
     }
     
