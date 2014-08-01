@@ -170,6 +170,7 @@ public class JarInstaller implements InstallTask {
             fos = new FileOutputStream(tmpFile);
             Resources.copy(url, fos);
         } catch (Exception ex) {
+            LOG.warn("Could not copy URL: " + url + ". Reason: " + ex, ex);
             Throwables.propagate(ex);
         } finally {
             Closeables.closeQuietly(fos);
