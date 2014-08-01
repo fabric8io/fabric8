@@ -15,7 +15,8 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -50,18 +51,18 @@
 
     <!-- including A developer as it's required by the maven poms going into central -->
     <developers>
-      <developer>
-        <id>geeks</id>
-        <name>Fabric8 Development Team</name>
-        <organization>fabric8</organization>
-        <organizationUrl>http://fabric8.io/</organizationUrl>
-      </developer>
+        <developer>
+            <id>geeks</id>
+            <name>Fabric8 Development Team</name>
+            <organization>fabric8</organization>
+            <organizationUrl>http://fabric8.io/</organizationUrl>
+        </developer>
     </developers>
 
     <scm>
-      <connection>scm:git:git@github.com:fabric8io/fabric8.git</connection>
-      <developerConnection>scm:git:git@github.com:fabric8io/fabric8.git</developerConnection>
-      <url>http://github.com/fabric8io/fabric8/tree/master</url>
+        <connection>scm:git:git@github.com:fabric8io/fabric8.git</connection>
+        <developerConnection>scm:git:git@github.com:fabric8io/fabric8.git</developerConnection>
+        <url>http://github.com/fabric8io/fabric8/tree/master</url>
     </scm>
 
     <prerequisites>
@@ -78,9 +79,11 @@
 
         <!-- OSGi bundles properties -->
         <fuse.osgi.bundle.name>${project.name}</fuse.osgi.bundle.name>
-        <fuse.osgi.import.fabric.version>version="[$(version;==;${fuse.osgi.version}),$(version;=+;${fuse.osgi.version}))"
+        <fuse.osgi.import.fabric.version>
+            version="[$(version;==;${fuse.osgi.version}),$(version;=+;${fuse.osgi.version}))"
         </fuse.osgi.import.fabric.version>
-        <fuse.osgi.import.strict.version>version="[$(version;===;${fuse.osgi.version}),$(version;==+;${fuse.osgi.version}))"
+        <fuse.osgi.import.strict.version>
+            version="[$(version;===;${fuse.osgi.version}),$(version;==+;${fuse.osgi.version}))"
         </fuse.osgi.import.strict.version>
         <fuse.osgi.import.default.version>[$(version;==;$(@)),$(version;+;$(@)))</fuse.osgi.import.default.version>
         <fuse.osgi.import.defaults>
@@ -93,8 +96,8 @@
             org.osgi.service.component.*;version="[1.1,2.0)",
             scala*;version="[2.11,2.12)"
         </fuse.osgi.import.defaults>
-        <fuse.osgi.import.before.defaults />
-        <fuse.osgi.import.additional />
+        <fuse.osgi.import.before.defaults/>
+        <fuse.osgi.import.additional/>
         <fuse.osgi.import.pkg>
             io.fabric8.*;${fuse.osgi.import.fabric.version},
             ${fuse.osgi.import.before.defaults},
@@ -102,17 +105,17 @@
             ${fuse.osgi.import.additional},
             *
         </fuse.osgi.import.pkg>
-        <fuse.osgi.activator />
+        <fuse.osgi.activator/>
         <fuse.osgi.failok>false</fuse.osgi.failok>
         <fuse.osgi.private.pkg></fuse.osgi.private.pkg>
         <fuse.osgi.export>io.fabric8.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
         <fuse.osgi.split.pkg>-split-package:=first</fuse.osgi.split.pkg>
         <fuse.osgi.import>${fuse.osgi.import.pkg}</fuse.osgi.import>
-        <fuse.osgi.dynamic />
+        <fuse.osgi.dynamic/>
         <fuse.osgi.symbolic.name>${project.groupId}.${project.artifactId}</fuse.osgi.symbolic.name>
         <fuse.osgi.exclude.dependencies>false</fuse.osgi.exclude.dependencies>
         <fuse.osgi.resource>{maven-resources}</fuse.osgi.resource>
-        <fuse.osgi.services.export />
+        <fuse.osgi.services.export/>
         <fuse.osgi.embed.dependency>!*</fuse.osgi.embed.dependency>
         <fuse.osgi.embed.transitive>false</fuse.osgi.embed.transitive>
         <fuse.osgi.require.bundle />
@@ -122,7 +125,7 @@
         <fabric-perfectus-version>7.3.0.redhat-${perfectus-build}</fabric-perfectus-version>
         <full-perfectus-build>610${perfectus-build}</full-perfectus-build>
 
-         <!-- ServiceMix legal shared resources -->
+        <!-- ServiceMix legal shared resources -->
         <servicemix.legal.version>1.0</servicemix.legal.version>
 
         <activemq-version>5.10.0</activemq-version>
@@ -249,6 +252,7 @@
         <jna-bundle-version>1.1</jna-bundle-version>
         <jna-version>3.3.0</jna-version>
         <jolokia-version>1.2.2</jolokia-version>
+        <jgroups-version>3.4.4.Final</jgroups-version>
         <jsch-smx-version>0.1.49_1</jsch-smx-version>
         <json4s-version>3.2.4_1</json4s-version>
         <junit-version>4.11</junit-version>
@@ -335,18 +339,18 @@
     </properties>
 
     <distributionManagement>
-      <repository>
-          <id>jboss-releases-repository</id>
-          <name>JBoss Releases Repository</name>
-          <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2</url>
-      </repository>
-<!--
-      <snapshotRepository>
-          <id>jboss-snapshots-repository</id>
-          <name>JBoss Snapshots Repository</name>
-          <url>https://repository.jboss.org/nexus/content/repositories/snapshots</url>
-      </snapshotRepository>
--->
+        <repository>
+            <id>jboss-releases-repository</id>
+            <name>JBoss Releases Repository</name>
+            <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2</url>
+        </repository>
+        <!--
+              <snapshotRepository>
+                  <id>jboss-snapshots-repository</id>
+                  <name>JBoss Snapshots Repository</name>
+                  <url>https://repository.jboss.org/nexus/content/repositories/snapshots</url>
+              </snapshotRepository>
+        -->
     </distributionManagement>
 
     <repositories>
@@ -422,7 +426,7 @@
                 <enabled>false</enabled>
                 <updatePolicy>never</updatePolicy>
             </snapshots>
-        </repository> 
+        </repository>
         <repository>
             <id>jboss-public-repository-group</id>
             <name>JBoss Public Repository Group</name>
@@ -601,7 +605,7 @@
                 <artifactId>fabric-zookeeper-spring</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>             
+            <dependency>
                 <groupId>io.fabric8.tooling.testing</groupId>
                 <artifactId>pax-exam-karaf</artifactId>
                 <version>${project.version}</version>
@@ -2040,10 +2044,10 @@
                 <groupId>org.apache.karaf.features</groupId>
                 <artifactId>org.apache.karaf.features.command</artifactId>
                 <exclusions>
-                	<exclusion>
-		                <groupId>org.apache.felix</groupId>
-		                <artifactId>org.apache.felix.bundlerepository</artifactId>
-                	</exclusion>
+                    <exclusion>
+                        <groupId>org.apache.felix</groupId>
+                        <artifactId>org.apache.felix.bundlerepository</artifactId>
+                    </exclusion>
                 </exclusions>
                 <version>${karaf-version}</version>
             </dependency>
@@ -2051,10 +2055,10 @@
                 <groupId>org.apache.karaf.features</groupId>
                 <artifactId>org.apache.karaf.features.core</artifactId>
                 <exclusions>
-                	<exclusion>
-		                <groupId>org.apache.felix</groupId>
-		                <artifactId>org.apache.felix.bundlerepository</artifactId>
-                	</exclusion>
+                    <exclusion>
+                        <groupId>org.apache.felix</groupId>
+                        <artifactId>org.apache.felix.bundlerepository</artifactId>
+                    </exclusion>
                 </exclusions>
                 <version>${karaf-version}</version>
             </dependency>
@@ -2246,8 +2250,8 @@
                 <version>${pax.url.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.ops4j.pax.url</groupId>
-               <artifactId>pax-url-wrap</artifactId>
+                <groupId>org.ops4j.pax.url</groupId>
+                <artifactId>pax-url-wrap</artifactId>
                 <version>${pax.url.version}</version>
             </dependency>
 
@@ -2970,7 +2974,7 @@
                 <artifactId>cxf-tools-wsdlto-frontend-javascript</artifactId>
                 <version>${cxf-version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.jboss.arquillian.container</groupId>
                 <artifactId>arquillian-container-karaf-managed</artifactId>
@@ -3002,10 +3006,10 @@
                 <version>${arquillian-osgi-version}</version>
             </dependency>
             <dependency>
-	            <groupId>org.jboss.gravia</groupId>
-	            <artifactId>gravia-arquillian-container-embedded</artifactId>
+                <groupId>org.jboss.gravia</groupId>
+                <artifactId>gravia-arquillian-container-embedded</artifactId>
                 <version>${gravia-version}</version>
-        	</dependency>
+            </dependency>
             <dependency>
                 <groupId>org.jboss.gravia</groupId>
                 <artifactId>gravia-container-common</artifactId>
@@ -3418,6 +3422,14 @@
                 <artifactId>wildfly-server</artifactId>
                 <version>${wildfly-version}</version>
             </dependency>
+
+            <!-- JGroups -->
+
+            <dependency>
+                <groupId>org.jgroups</groupId>
+                <artifactId>jgroups</artifactId>
+                <version>${jgroups-version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -3445,10 +3457,10 @@
 
     <profiles>
         <profile>
-          <id>site</id>
-          <modules>
-            <module>website</module>
-          </modules>
+            <id>site</id>
+            <modules>
+                <module>website</module>
+            </modules>
         </profile>
         <profile>
             <id>all</id>
@@ -3466,29 +3478,29 @@
         <profile>
             <id>release</id>
             <build>
-              <plugins>
-                <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-enforcer-plugin</artifactId>
-                  <version>1.3.1</version>
-                  <executions>
-                    <execution>
-                      <id>enforce-no-snapshots</id>
-                      <goals>
-                        <goal>enforce</goal>
-                      </goals>
-                      <configuration>
-                        <rules>
-                          <requireReleaseDeps>
-                            <message>No Snapshots Allowed!</message>
-                          </requireReleaseDeps>
-                        </rules>
-                        <fail>true</fail>
-                      </configuration>
-                    </execution>
-                  </executions>
-                </plugin>
-              </plugins>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.3.1</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-no-snapshots</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireReleaseDeps>
+                                            <message>No Snapshots Allowed!</message>
+                                        </requireReleaseDeps>
+                                    </rules>
+                                    <fail>true</fail>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
             </build>
         </profile>
         <profile>
@@ -3501,36 +3513,36 @@
             <id>license</id>
             <build>
                 <plugins>
-                  <plugin>
-                    <groupId>com.mycila</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                    <version>2.6</version>
-                    <configuration>
-                        <includes>
-                            <include>src/main/java/**</include>
-                            <include>src/test/java/**</include>
-                            <include>pom.xml</include>
-                            <include>**/*.xml</include>
-                            <include>**/*.cfg</include>
-                            <include>**/*.properties</include>
-                        </includes>
-                        <excludes>
-                            <!-- exclude sampel data -->
-                            <exclude>**/src/data/**</exclude>
-                            <exclude>**/resources/data/**</exclude>
-                            <!-- exclude hidden dir -->
-                            <exclude>**/.*/**</exclude>
-                        </excludes>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-              </plugins>
+                    <plugin>
+                        <groupId>com.mycila</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                        <version>2.6</version>
+                        <configuration>
+                            <includes>
+                                <include>src/main/java/**</include>
+                                <include>src/test/java/**</include>
+                                <include>pom.xml</include>
+                                <include>**/*.xml</include>
+                                <include>**/*.cfg</include>
+                                <include>**/*.properties</include>
+                            </includes>
+                            <excludes>
+                                <!-- exclude sampel data -->
+                                <exclude>**/src/data/**</exclude>
+                                <exclude>**/resources/data/**</exclude>
+                                <!-- exclude hidden dir -->
+                                <exclude>**/.*/**</exclude>
+                            </excludes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
             </build>
         </profile>
     </profiles>

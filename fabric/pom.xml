@@ -16,7 +16,8 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-project</artifactId>
@@ -28,16 +29,16 @@
     <groupId>io.fabric8</groupId>
     <artifactId>fabric-project</artifactId>
     <packaging>pom</packaging>
-    
+
     <name>Fabric8 :: Project</name>
 
     <licenses>
-      <license>
-        <name>FuseSource Fabric License</name>
-        <url>fabric_license.txt</url>
-        <distribution>repo</distribution>
-        <comments>Fabric license is based on ASL 2.0</comments>
-      </license>
+        <license>
+            <name>FuseSource Fabric License</name>
+            <url>fabric_license.txt</url>
+            <distribution>repo</distribution>
+            <comments>Fabric license is based on ASL 2.0</comments>
+        </license>
     </licenses>
 
     <modules>
@@ -83,6 +84,7 @@
         <module>fabric-zookeeper</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-zookeeper-commands</module>
+        <module>fabric-zookeeper-jgroups</module>
         <module>fabric8-karaf</module>
         <!-- 
         	Modules that are relevant for the default distribution
