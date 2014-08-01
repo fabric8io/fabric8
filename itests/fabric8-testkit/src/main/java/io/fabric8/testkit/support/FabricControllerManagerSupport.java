@@ -49,7 +49,7 @@ public abstract class FabricControllerManagerSupport implements FabricController
     /**
      * Sets the names of the environment variables which are passed through to any child process created
      */
-    public void setAllowInheritedEnvironmentVariables(String[] allowInheritedEnvironmentVariables) {
+    public void setAllowInheritedEnvironmentVariables(String... allowInheritedEnvironmentVariables) {
         this.allowInheritedEnvironmentVariables = allowInheritedEnvironmentVariables;
     }
 

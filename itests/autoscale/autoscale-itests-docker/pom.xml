@@ -93,6 +93,10 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <includes>
+            <include>**/*Test.*</include>
+            <include>**/AutoScaleSingleMessageBrokerTest.*</include>
+          </includes>
           <excludes>
             <exclude>**/ArchetypeTest.*</exclude>
           </excludes>

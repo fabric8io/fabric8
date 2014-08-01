@@ -51,7 +51,6 @@ public class JolokiaFabricController implements FabricController {
     private final J4pClient jolokia;
     private final FabricManagerMBean fabricManager;
     private String fabricMBean = "io.fabric8:type=Fabric";
-    private String defaultRestAPI = "http://localhost:8181/api/fabric8";
 
     public JolokiaFabricController() {
         this("http://localhost:8181/jolokia");

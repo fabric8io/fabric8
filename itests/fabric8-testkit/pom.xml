@@ -40,11 +40,13 @@
       <artifactId>fabric-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+<!--
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-rest</artifactId>
       <version>${project.version}</version>
     </dependency>
+-->
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-utils</artifactId>
