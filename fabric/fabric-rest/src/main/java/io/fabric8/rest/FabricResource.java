@@ -33,6 +33,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.api.jmx.FabricStatusDTO;
+import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
