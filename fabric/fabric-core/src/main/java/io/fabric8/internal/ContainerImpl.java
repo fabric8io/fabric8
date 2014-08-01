@@ -49,6 +49,7 @@ import java.util.Properties;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
+import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
@@ -237,15 +238,9 @@ public class ContainerImpl implements Container {
         List<String> profileIds = new ArrayList<String>();
         if (profiles != null) {
             for (Profile profile : profiles) {
-                if (!versionId.equals(profile.getVersion())) {
-                    throw new IllegalArgumentException("Version mismatch setting profile " + profile.getId() + " with version "
-                            + profile.getVersion() + " expected version " + versionId);
-                } else if (profile.isAbstract()) {
-                    throw new IllegalArgumentException("The profile " + profile.getId() + " is abstract and can not "
-                            + "be associated to containers");
-                } else if (profile.getId().matches(ENSEMBLE_PROFILE_PATTERN) && !currentProfileIds.contains(profile.getId())) {
-                    throw new IllegalArgumentException("The profile " + profile.getId() + " is not assignable.");
-                }
+                IllegalArgumentAssertion.assertTrue(versionId.equals(profile.getVersion()), "Version mismatch setting profile " + profile + ", expected version " + versionId);
+                IllegalArgumentAssertion.assertFalse(profile.isAbstract(), "The profile " + profile + " is abstract and can not be associated to containers");
+                IllegalArgumentAssertion.assertFalse(profile.getId().matches(ENSEMBLE_PROFILE_PATTERN) && !currentProfileIds.contains(profile.getId()), "The profile " + profile + " is not assignable.");
                 profileIds.add(profile.getId());
             }
         }
