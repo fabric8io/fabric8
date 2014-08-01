@@ -310,17 +310,26 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             counter = new SharedCount(curator.get(), ZkPath.GIT_TRIGGER.getPath(), 0);
             counter.addListener(new SharedCountListener() {
                 @Override
-                public void countHasChanged(SharedCountReader sharedCountReader, int value) throws Exception {
-                    LOGGER.info("Watch counter updated to " + value + ", doing a pull");
-                    LockHandle writeLock = aquireWriteLock();
-                    try {
-                        pull();
-                    } catch (Throwable e) {
-                        LOGGER.debug("Error during pull due " + e.getMessage(), e);
-                        LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
-                    } finally {
-                        writeLock.unlock();
-                    }
+                public void countHasChanged(SharedCountReader sharedCountReader, final int value) throws Exception {
+                    //The Shared Count Listeners are executed in the same thread as the Watcher that generated the event.
+                    //This means that the Listener should not hold the thread long. It can't lock, it shouldn't block.
+                    //See: https://cwiki.apache.org/confluence/display/CURATOR/TN1
+                    threadPool.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            LOGGER.info("Watch counter updated to " + value + ", doing a pull");
+                            LockHandle writeLock = aquireWriteLock();
+                            try {
+                                pull();
+                            } catch (Throwable e) {
+                                LOGGER.debug("Error during pull due " + e.getMessage(), e);
+                                LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
+                            } finally {
+                                writeLock.unlock();
+                            }
+                        }
+                    });
+
                 }
 
                 @Override
