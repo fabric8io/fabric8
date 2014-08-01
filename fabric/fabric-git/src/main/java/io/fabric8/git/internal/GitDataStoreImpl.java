@@ -647,15 +647,30 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            GitOperation<String> gitop = new GitOperation<String>() {
-                public String call(Git git, GitContext context) throws Exception {
-                    String versionId = profile.getVersion();
-                    String profileId = profile.getId();
-                    Profile lastProfile = getRequiredProfile(versionId, profileId);
-                    return createOrUpdateProfile(context, lastProfile, profile, new HashSet<String>());
+            
+            // Get the existing profile with pull
+            final String versionId = profile.getVersion();
+            final String profileId = profile.getId();
+            GitOperation<Profile> getop = new GitOperation<Profile>() {
+                public Profile call(Git git, GitContext context) throws Exception {
+                    return getProfileFromCache(versionId, profileId);
                 }
             };
-            return executeWrite(gitop);
+            GitContext context = new GitContext().requirePull();
+            final Profile lastProfile = executeInternal(context, null, getop);
+            IllegalStateAssertion.assertNotNull(lastProfile, "Profile does not exist: " + versionId + "/" + profileId);
+            
+            if (!lastProfile.equals(profile)) {
+                GitOperation<String> gitop = new GitOperation<String>() {
+                    public String call(Git git, GitContext context) throws Exception {
+                        return createOrUpdateProfile(context, lastProfile, profile, new HashSet<String>());
+                    }
+                };
+                return executeWrite(gitop);
+            } else {
+                LOGGER.info("Skip unchanged profile update for: {}", profile);
+                return lastProfile.getId();
+            }
         } finally {
             writeLock.unlock();
         }
