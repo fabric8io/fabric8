@@ -772,7 +772,9 @@ public class ContainerImpl implements Container {
 	    @Override
 		public ProfileBuilder addOptions(ProfileBuilder builder) {
 	        List<String> missingProfiles = new ArrayList<>();
-			for (String profileId : dataStore.getContainerProfiles(cntId)) {
+			List<String> profileIds = dataStore.getContainerProfiles(cntId);
+			LOGGER.info("Building container overlay for {} with profile: {}", cntId, profileIds);
+            for (String profileId : profileIds) {
                 Profile profile = version.getProfile(profileId);
                 if (profile != null) {
                     builder.addParent(profile);

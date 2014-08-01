@@ -290,7 +290,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         counter.addListener(new SharedCountListener() {
             @Override
             public void countHasChanged(SharedCountReader sharedCountReader, int value) throws Exception {
+                
                 LOGGER.info("Watch counter updated to " + value + ", doing a pull");
+                
+                // TODO(tdi): Why sleep a random amount of time on countHasChanged? 
+                Thread.sleep(1000);
+                
                 LockHandle writeLock = aquireWriteLock();
                 try {
                     pull();
