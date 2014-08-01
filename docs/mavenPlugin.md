@@ -136,33 +136,28 @@ At any point in your tree of maven projects you can define a maven **fabric8.pro
 
 ### Specifying features, additional bundles, repositories and parent profiles
 
-You can also specify additional configuration in the maven plugin like this:
+As of 1.1.0.CR6 we have the [OSGi Resolver](http://fabric8.io/gitbook/osgiResolver.html) which if you are deploying a **bundle** packaging project it will try to automatically choose the best parent profiles, features and bundles for your bundle.
 
-    <plugins>
-      <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-maven-plugin</artifactId>
-        <configuration>
-          <profile>my-rest</profile>
-          <features>fabric-cxf-registry fabric-cxf cxf war swagger</features>
-          <featureRepos>mvn:org.apache.cxf.karaf/apache-cxf/${version:cxf}/xml/features</featureRepos>
-        </configuration>
-      </plugin>
-    </plugins>
+You can also explicitly specify additional configuration in the maven plugin using maven properties...
+
+    <properties>
+        <!-- fabric8 deploy profile configuration -->
+        <fabric8.profile>quickstarts-karaf-cxf-rest</fabric8.profile>
+        <fabric8.parentProfiles>feature-cxf</fabric8.parentProfiles>
+        <fabric8.features>cxf-jaxrs swagger</fabric8.features>
+    </properties>
 
 Notice we can pass in a space-separated list of features to include in the profile.
 
 We've used space separated lists for the parent profile IDs, features, repositories and bundles so that its easy to reuse maven properties for these values (for example to add some extra features in a child maven project while inheriting from the parent project).
 
-#### Specifying the minimum number of required containers for the profile
+The [OSGi Resolver](http://fabric8.io/gitbook/osgiResolver.html) will add any missing dependencies via analysing your projects dependency tree (ignoring all test and provided scope dependencies).
 
-You can specify the minimum number of instances of a profile that are expected via the **fabric8.minInstanceCount** property. This value defaults to **1** so that it means the profile you deploy should be instantiated. See the [requirements documentation](requirements.html) for more details.
+So to force the OSGi Resovler to ignore a particular dependency in your pom.xml, just mark it as scope provided.
 
-What this means is that out of the box if you deploy a profile then view the Profiles tab in the Runtime section of the console, you should see a warning if the profile is not running yet. If you then click on the red button for the missing profile it takes you straight to the _Create Container_ page for the  profile. This means you don't have to go hunting around the wiki for the profile to create.
+If you wish you can disable the OSGi Resolver completely just specify the **fabric8.useResolver** property as being **false**.
 
-Also if you deploy the **autoscale** profile then this will automatically create new containers if their requirement count increases.
-
-#### Specifying configuration using maven properties
+#### Specifying configuration using maven properties on the command line
 
 You can also use maven property values (or command line arguments) to specify the configuration values by prefixing the property name with **fabric8.**.
 
@@ -237,9 +232,32 @@ Keep in mind that even if Maven resource filtering is not enabled, `${project.gr
 `${project.version}` placeholders will be still expanded into the project version of the current Maven module.
 
 
+#### Specifying the minimum number of required containers for the profile
+
+You can specify the minimum number of instances of a profile that are expected via the **fabric8.minInstanceCount** property. This value defaults to **1** so that it means the profile you deploy should be instantiated. See the [requirements documentation](requirements.html) for more details.
+
+What this means is that out of the box if you deploy a profile then view the Profiles tab in the Runtime section of the console, you should see a warning if the profile is not running yet. If you then click on the red button for the missing profile it takes you straight to the _Create Container_ page for the  profile. This means you don't have to go hunting around the wiki for the profile to create.
+
+Also if you deploy the **autoscale** profile then this will automatically create new containers if their requirement count increases.
+
+
 ### Specifying Properties
 
-The following properties can be specified as elements inside the &lt;configuration&gt; section of the plugin in your pom.xml. e.g. the _profile_ configuration can be passed like this:
+Our recommendation is to use maven properties to configure the fabric8 maven plugin as follows; you just need to add the **fabric8.** prefix to any property name. This is then easier to work with across multi-maven projects and its easier to inherit values etc.
+
+    <project>
+      ...
+      <properties>
+        <fabric8.profile>my-foo</fabric8.profile>
+        ...
+      </properties>
+      ...
+
+Which is equivalent to specifying them on the command line:
+
+    mvn fabric8:deploy -Dfabric8.profile=my-foo
+
+If you really want to you can specify the properties (without the **fabric8.** prefix) in the plugin configuration:
 
     <plugins>
       <plugin>
@@ -251,19 +269,6 @@ The following properties can be specified as elements inside the &lt;configurati
       </plugin>
     </plugins>
 
-Or you can specify these properties using the command line or maven build properties - prefixing the property names with **fabric8.** for example to set the profile name, you could add this to your pom.xml..
-
-    <project>
-      ...
-      <properties>
-        <fabric8.profile>my-foo</fabric8.profile>
-        ...
-      </properties>
-      ...
-
-Or specify the command line:
-
-    mvn fabric8:deploy -Dfabric8.profile=my-foo
 
 ### Property Reference
 
