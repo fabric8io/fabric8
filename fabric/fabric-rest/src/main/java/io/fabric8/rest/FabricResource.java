@@ -145,7 +145,9 @@ public class FabricResource extends ResourceSupport {
     @POST
     @Path("requirements")
     public void setRequirements(FabricRequirements requirements) throws IOException {
+        Objects.notNull(requirements, "requirements");
         FabricService service = getFabricService();
+        Objects.notNull(service, "FabricService");
         service.setRequirements(requirements);
     }
 
