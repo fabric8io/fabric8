@@ -92,15 +92,7 @@
         <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.jsr311-api-1.1.1</artifactId>
-        </dependency>
-
-        <!--
-            We are also building a small Java client application that we can use to test our web web services.
-            For performing the HTTP requests, we are using Apache Commons HttpClient.
-        -->
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!--
@@ -118,6 +110,17 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!--
+            We are also building a small Java client application that we can use to test our web web services.
+            For performing the HTTP requests, we are using Apache Commons HttpClient.
+        -->
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!--
           Add the slf4j-log4j12 dependency jar for testing
         -->
