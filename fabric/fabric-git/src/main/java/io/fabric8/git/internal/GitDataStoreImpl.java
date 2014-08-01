@@ -1049,7 +1049,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 }
                 // Create new local branches
                 else if (!localBranches.containsKey(version)) {
-                    chacheVersionId(version);
+                    cacheVersionId(version);
                     git.checkout().setCreateBranch(true).setName(version).setStartPoint(remoteRef.get() + "/" + version)
                             .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK).setForce(true).call();
                     hasChanged = true;
@@ -1215,7 +1215,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private void createOrCheckoutVersion(Git git, String versionId) throws GitAPIException {
         assertWriteLock();
         GitHelpers.createOrCheckoutBranch(git, versionId, remoteRef.get());
-        chacheVersionId(versionId);
+        cacheVersionId(versionId);
     }
 
     private boolean checkoutProfileBranch(Git git, String versionId, String profileId) throws GitAPIException {
@@ -1259,7 +1259,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         return gitService.get().getGit();
     }
     
-    private void chacheVersionId(String versionId) {
+    private void cacheVersionId(String versionId) {
         if (!MASTER_BRANCH.equals(versionId)) {
             versions.add(versionId);
         }
