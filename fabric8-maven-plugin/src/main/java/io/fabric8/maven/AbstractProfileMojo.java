@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -398,17 +399,52 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 }
                 return "containers-java";
             } else if ("war".equals(packaging)) {
-                // TODO we could check for JEE dependencies and pick tomee/wildfly?
                 return "containers-tomcat";
+            } else if ("ear".equals(packaging)) {
+                return "containers-wildfly";
             }
         }
-        return "karaf";
+        return findOSGiDefaultParentProfiles(requirements);
     }
 
-    protected String resolveProfileFromJars(List<URL> jars) {
-        URLClassLoader classLoader = new URLClassLoader(jars.toArray(new URL[jars.size()]));
-        Map<String, String> mainToProfileMap = getDefaultClassToProfileMap();
+    protected String resolveProfileFromJars(List<URL> urls) {
+        URLClassLoader classLoader = createURLClassLoader(urls);
+        Map<String, String> mainToProfileMap = getDefaultJavaClassToParentProfileMap();
+        String defaultProfile = "containers-java";
+        return resolveProfileFromClassMap(classLoader, mainToProfileMap, defaultProfile);
+    }
 
+    protected String findOSGiDefaultParentProfiles(ProjectRequirements requirements) throws MojoExecutionException {
+        URLClassLoader classLoader = getCompileClassLoader();
+        Map<String, String> classToProfileMap = getDefaultOSGiClassToParentProfileMap();
+        Set<Map.Entry<String, String>> entries = classToProfileMap.entrySet();
+        List<String> parentProfileNames = new ArrayList<>();
+        for (Map.Entry<String, String> entry : entries) {
+            String className = entry.getKey();
+            String profileName = entry.getValue();
+            if (hasClass(classLoader, className)) {
+                getLog().info("Found class: " + className + " so adding the parent profile: " + profileName);
+                parentProfileNames.add(profileName);
+            }
+        }
+        if (parentProfileNames.isEmpty()) {
+            return "karaf";
+        } else {
+            return Strings.join(parentProfileNames, " ");
+        }
+    }
+
+    protected Map<String, String> getDefaultOSGiClassToParentProfileMap() {
+        Map<String,String> classToProfileMap = new LinkedHashMap<String, String>();
+        // TODO it'd be nice to find these automatically by querying the fabric itself for profiles
+        // for a PID?
+        classToProfileMap.put("org.apache.camel.CamelContext", "feature-camel");
+        classToProfileMap.put("org.apache.cxf.Bus", "feature-cxf");
+        return classToProfileMap;
+
+    }
+
+    protected String resolveProfileFromClassMap(URLClassLoader classLoader, Map<String, String> mainToProfileMap, String defaultProfile) {
         Set<Map.Entry<String, String>> entries = mainToProfileMap.entrySet();
         for (Map.Entry<String, String> entry : entries) {
             String mainClass = entry.getKey();
@@ -418,20 +454,41 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 return profileName;
             }
         }
-        return "containers-java";
+        return defaultProfile;
     }
 
-    protected Map<String, String> getDefaultClassToProfileMap() {
-        Map<String,String> mainToProfileMap = new LinkedHashMap<String, String>();
+    protected URLClassLoader getCompileClassLoader() throws MojoExecutionException {
+        List<URL> urls = new ArrayList<>();
+        try {
+            for (Object object : project.getCompileClasspathElements()) {
+                if (object != null) {
+                    String path = object.toString();
+                    File file = new File(path);
+                    URL url = file.toURI().toURL();
+                    urls.add(url);
+                }
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Failed to resolve classpath: " + e, e);
+        }
+        return createURLClassLoader(urls);
+    }
+
+    protected static URLClassLoader createURLClassLoader(Collection<URL> jars) {
+        return new URLClassLoader(jars.toArray(new URL[jars.size()]));
+    }
+
+    protected Map<String, String> getDefaultJavaClassToParentProfileMap() {
+        Map<String,String> classToProfileMap = new LinkedHashMap<String, String>();
         // TODO it'd be nice to find these automatically by querying the fabric itself for profiles
         // for the PID and "mainClass" value?
-        mainToProfileMap.put("org.springframework.boot.SpringApplication", "containers-java.spring.boot");
-        mainToProfileMap.put("io.fabric8.process.spring.boot.container.FabricSpringApplication", "containers-java.spring.boot");
-        mainToProfileMap.put("org.apache.camel.spring.Main", "containers-java.camel.spring");
-        mainToProfileMap.put("org.osgi.framework.BundleContext", "containers-java.pojosr");
-        mainToProfileMap.put("org.apache.camel.blueprint.ErrorHandlerType", "containers-java.pojosr");
-        mainToProfileMap.put("javax.enterprise.context.ApplicationScoped", "containers-java.weld");
-        return mainToProfileMap;
+        classToProfileMap.put("org.springframework.boot.SpringApplication", "containers-java.spring.boot");
+        classToProfileMap.put("io.fabric8.process.spring.boot.container.FabricSpringApplication", "containers-java.spring.boot");
+        classToProfileMap.put("org.apache.camel.spring.Main", "containers-java.camel.spring");
+        classToProfileMap.put("org.osgi.framework.BundleContext", "containers-java.pojosr");
+        classToProfileMap.put("org.apache.camel.blueprint.ErrorHandlerType", "containers-java.pojosr");
+        classToProfileMap.put("javax.enterprise.context.ApplicationScoped", "containers-java.weld");
+        return classToProfileMap;
     }
 
     protected boolean hasClass(URLClassLoader classLoader, String className) {
