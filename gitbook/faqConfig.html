@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Apache CXF | Fabric8 Documentation</title>
+        <title>Configuration Questions | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./cxfFabric.html" />
+        <link rel="next" href="./faqUsing.html" />
         
         
-        <link rel="prev" href="./camelEndpointMaster.html" />
+        <link rel="prev" href="./faqGeneral.html" />
         
 
-        <meta property="og:title" content="Apache CXF | Fabric8 Documentation">
+        <meta property="og:title" content="Configuration Questions | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="7.3" data-basepath="." data-revision="1406989880554">
+    <div class="book" data-github="fabric8io/fabric8" data-level="8.2" data-basepath="." data-revision="1406989880554">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -709,7 +709,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 86.79245283018868%;min-width: 84.90566037735849%;"></div>
+        <div class="inner" style="width: 96.22641509433963%;min-width: 94.33962264150944%;"></div>
     </div>
     <div class="chapters">
     
@@ -807,15 +807,15 @@
     
         <a href="./cxf.html" title="Apache CXF" class="chapter done " data-progress="7.3" style="left: 86.79245283018868%;"></a>
     
-        <a href="./cxfFabric.html" title="CXF Fabric" class="chapter  " data-progress="7.3.1" style="left: 88.67924528301887%;"></a>
+        <a href="./cxfFabric.html" title="CXF Fabric" class="chapter done " data-progress="7.3.1" style="left: 88.67924528301887%;"></a>
     
-        <a href="./spring.html" title="Spring framework" class="chapter  " data-progress="7.4" style="left: 90.56603773584905%;"></a>
+        <a href="./spring.html" title="Spring framework" class="chapter done " data-progress="7.4" style="left: 90.56603773584905%;"></a>
     
-        <a href="./FAQ.html" title="FAQ" class="chapter  new-chapter" data-progress="8" style="left: 92.45283018867924%;"></a>
+        <a href="./FAQ.html" title="FAQ" class="chapter done new-chapter" data-progress="8" style="left: 92.45283018867924%;"></a>
     
-        <a href="./faqGeneral.html" title="General Questions" class="chapter  " data-progress="8.1" style="left: 94.33962264150944%;"></a>
+        <a href="./faqGeneral.html" title="General Questions" class="chapter done " data-progress="8.1" style="left: 94.33962264150944%;"></a>
     
-        <a href="./faqConfig.html" title="Configuration Questions" class="chapter  " data-progress="8.2" style="left: 96.22641509433963%;"></a>
+        <a href="./faqConfig.html" title="Configuration Questions" class="chapter done " data-progress="8.2" style="left: 96.22641509433963%;"></a>
     
         <a href="./faqUsing.html" title="Questions On Using Fabric8" class="chapter  " data-progress="8.3" style="left: 98.11320754716981%;"></a>
     
@@ -826,15 +826,30 @@
 
                 <div class="page-inner">
                 
+                    <section class="normal" id="section-gitbook_24">
+                    
+                        <h3 id="configuration-questions"><a name="configuration-questions" class="anchor" href="#configuration-questions"><span class="fa fa-link"></span></a>Configuration Questions</h3>
+<h4 id="how-can-i-edit-fabric8-s-configuration-via-git-"><a name="how-can-i-edit-fabric8-s-configuration-via-git-" class="anchor" href="#how-can-i-edit-fabric8-s-configuration-via-git-"><span class="fa fa-link"></span></a>How can I edit fabric8&apos;s configuration via git?</h4>
+<p>Please see the <a href="http://fabric8.io/gitbook/git.html" target="_blank">these instructions on working with git and fabric8</a></p>
+<h4 id="how-do-i-add-new-containers-to-an-ensemble-"><a name="how-do-i-add-new-containers-to-an-ensemble-" class="anchor" href="#how-do-i-add-new-containers-to-an-ensemble-"><span class="fa fa-link"></span></a>How do I add new containers to an ensemble?</h4>
+<p>Check out <a href="http://fabric8.io/gitbook/registry.html#adding-containers-to-the-ensemble" target="_blank">this article on adding a new container to an ensemble</a></p>
+<h4 id="how-do-i-configure-fabric8-to-use-my-local-maven-repository-or-a-custom-remote-repository-"><a name="how-do-i-configure-fabric8-to-use-my-local-maven-repository-or-a-custom-remote-repository-" class="anchor" href="#how-do-i-configure-fabric8-to-use-my-local-maven-repository-or-a-custom-remote-repository-"><span class="fa fa-link"></span></a>How do I configure fabric8 to use my local maven repository or a custom remote repository?</h4>
+<p>If you are running a fabric right now then clicking on the <a href="http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/default.profile/io.fabric8.agent.properties" target="_blank">default profile&apos;s io.fabric8.agent.properties</a> should let you view the current maven repositories configuration. Edit that file to add whatever maven repositories you wish.</p>
+<p>The other option is to clone your git repository and edit this file then git push it back again. Please see the <a href="http://fabric8.io/gitbook/git.html" target="_blank">these instructions for how to work with git and fabric8</a></p>
+<p>If you haven&apos;t yet created a fabric, in the fabric8 distribution you can edit the file <strong>fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties</strong> then if you create a new fabric it should have this configuration included.</p>
+
+                    
+                    </section>
+                
                 </div>
             </div>
         </div>
 
         
-        <a href="./camelEndpointMaster.html" class="navigation navigation-prev " aria-label="Previous page: master: endpoint"><i class="fa fa-angle-left"></i></a>
+        <a href="./faqGeneral.html" class="navigation navigation-prev " aria-label="Previous page: General Questions"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./cxfFabric.html" class="navigation navigation-next " aria-label="Next page: CXF Fabric"><i class="fa fa-angle-right"></i></a>
+        <a href="./faqUsing.html" class="navigation navigation-next " aria-label="Next page: Questions On Using Fabric8"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

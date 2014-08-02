@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Apache CXF | Fabric8 Documentation</title>
+        <title>Questions On Using Fabric8 | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./cxfFabric.html" />
+        <link rel="next" href="./faqIssues.html" />
         
         
-        <link rel="prev" href="./camelEndpointMaster.html" />
+        <link rel="prev" href="./faqConfig.html" />
         
 
-        <meta property="og:title" content="Apache CXF | Fabric8 Documentation">
+        <meta property="og:title" content="Questions On Using Fabric8 | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="7.3" data-basepath="." data-revision="1406989880554">
+    <div class="book" data-github="fabric8io/fabric8" data-level="8.3" data-basepath="." data-revision="1406989880554">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -709,7 +709,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 86.79245283018868%;min-width: 84.90566037735849%;"></div>
+        <div class="inner" style="width: 98.11320754716981%;min-width: 96.22641509433963%;"></div>
     </div>
     <div class="chapters">
     
@@ -807,17 +807,17 @@
     
         <a href="./cxf.html" title="Apache CXF" class="chapter done " data-progress="7.3" style="left: 86.79245283018868%;"></a>
     
-        <a href="./cxfFabric.html" title="CXF Fabric" class="chapter  " data-progress="7.3.1" style="left: 88.67924528301887%;"></a>
+        <a href="./cxfFabric.html" title="CXF Fabric" class="chapter done " data-progress="7.3.1" style="left: 88.67924528301887%;"></a>
     
-        <a href="./spring.html" title="Spring framework" class="chapter  " data-progress="7.4" style="left: 90.56603773584905%;"></a>
+        <a href="./spring.html" title="Spring framework" class="chapter done " data-progress="7.4" style="left: 90.56603773584905%;"></a>
     
-        <a href="./FAQ.html" title="FAQ" class="chapter  new-chapter" data-progress="8" style="left: 92.45283018867924%;"></a>
+        <a href="./FAQ.html" title="FAQ" class="chapter done new-chapter" data-progress="8" style="left: 92.45283018867924%;"></a>
     
-        <a href="./faqGeneral.html" title="General Questions" class="chapter  " data-progress="8.1" style="left: 94.33962264150944%;"></a>
+        <a href="./faqGeneral.html" title="General Questions" class="chapter done " data-progress="8.1" style="left: 94.33962264150944%;"></a>
     
-        <a href="./faqConfig.html" title="Configuration Questions" class="chapter  " data-progress="8.2" style="left: 96.22641509433963%;"></a>
+        <a href="./faqConfig.html" title="Configuration Questions" class="chapter done " data-progress="8.2" style="left: 96.22641509433963%;"></a>
     
-        <a href="./faqUsing.html" title="Questions On Using Fabric8" class="chapter  " data-progress="8.3" style="left: 98.11320754716981%;"></a>
+        <a href="./faqUsing.html" title="Questions On Using Fabric8" class="chapter done " data-progress="8.3" style="left: 98.11320754716981%;"></a>
     
         <a href="./faqIssues.html" title="Known Issues" class="chapter  " data-progress="8.4" style="left: 100%;"></a>
     
@@ -826,15 +826,52 @@
 
                 <div class="page-inner">
                 
+                    <section class="normal" id="section-gitbook_27">
+                    
+                        <h3 id="questions-on-using-fabric8"><a name="questions-on-using-fabric8" class="anchor" href="#questions-on-using-fabric8"><span class="fa fa-link"></span></a>Questions On Using Fabric8</h3>
+<h4 id="how-can-i-automate-the-creation-of-a-fabric-"><a name="how-can-i-automate-the-creation-of-a-fabric-" class="anchor" href="#how-can-i-automate-the-creation-of-a-fabric-"><span class="fa fa-link"></span></a>How can I automate the creation of a fabric?</h4>
+<p>Many customers want an easy, repeatable way to spin up a fabric and all the various containers they need in an automated way such as for <a href="http://fabric8.io/gitbook/continuousDeployment.html" target="_blank">Continuous Deployment</a>.</p>
+<p>To do this fabric8 has an <a href="http://fabric8.io/gitbook/requirements.html" target="_blank">Auto Scaler</a> which allows you to define how many instances of each profile you need and the auto scaler will automatically create the containers you need; using the available resources and automatically create new containers if there is a hardware or software failure.</p>
+<h4 id="how-should-i-compose-profiles-which-contain-blueprint-or-spring-xml-files-"><a name="how-should-i-compose-profiles-which-contain-blueprint-or-spring-xml-files-" class="anchor" href="#how-should-i-compose-profiles-which-contain-blueprint-or-spring-xml-files-"><span class="fa fa-link"></span></a>How should I compose profiles which contain blueprint or spring XML files?</h4>
+<p><a href="http://fabric8.io/gitbook/profiles.html" target="_blank">Profiles</a> are designed so that they can be <em>combined</em> together into a container; or they can use inheritance to <em>override</em> properties.</p>
+<p>If you wish to combine profiles together you need to make sure that if you want to <em>combine</em> rather than <em>override</em> you need to ensure that the properties files in each profile use either different file names or different keys.</p>
+<p>For example if you have 3 different blueprint/spring XML files inside each profile which you want to combine so that all 3 will be executed; name each one differently and use a different key name in the <strong>io.fabric8.agent.properties</strong> files. e.g. the <a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/mq.bank1.profile" target="_blank">bank1</a>, <a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/mq.bank2.profile" target="_blank">bank2</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/mq.bank3.profile" target="_blank">bank3</a> profiles in the <a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/" target="_blank">MQ based loan broker example</a> all use a different blueprint XML file and key in the <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/mq.bank1.profile/io.fabric8.agent.properties#L22" target="_blank">io.fabric8.agent.properties file</a></p>
+<h4 id="how-should-i-deploy-fabric8-in-a-2-data-centre-scenario-where-either-data-centre-can-fail-"><a name="how-should-i-deploy-fabric8-in-a-2-data-centre-scenario-where-either-data-centre-can-fail-" class="anchor" href="#how-should-i-deploy-fabric8-in-a-2-data-centre-scenario-where-either-data-centre-can-fail-"><span class="fa fa-link"></span></a>How should I deploy fabric8 in a 2 data centre scenario where either data centre can fail?</h4>
+<p>A typical fabric8 installation has a ZooKeeper ensemble (a number of ZooKeeper servers connected together; either 1, 3, 5, 7 of them; usually 3 or 5) so that if there are failures or a network split, every node knows whether or not its part of the master split - to avoid the split brain problem. This lets fabric8 reliably create master
+/ slaves and federated clusters such that there&apos;s no split brain / network partition issues.</p>
+<p>If there are only exactly 2 data centres and either is allowed to fail and the other takes over; then there&apos;s no real way to solve this the single-ZooKeeper ensemble route automatically; since there&apos;s no way to achieve quorum in either data centre. (Its trivial to have, say, 2 ZK servers in one DC X and 1 in the DC Y; but then if DC X fails; you can&apos;t achieve quorum automatically.</p>
+<p>There&#x2019;s a few ways this could work; it depends on trade-offs really. Our recommended approach is:</p>
+<ul>
+<li>run 2 ZK ensembles in each DC. This then means things work fine; either DC can fail at any time. It does mean that you cannot have one global master service any more; you can only have DC-local masters (e.g. a master broker in each DC). Then you store/forward between the DCs. There&apos;s a <a href="https://github.com/fabric8io/fabric8/issues/622" target="_blank">pending issue</a> to try make a 2-data centre and 2-fabric deployment appear more like a single logical fabric (by having a form of store/foward bridging at the ZK level).</li>
+</ul>
+<p>If you want to favour one DC so that its the master and have some manual recovery mechanism you could consider this approach (though its not really recommended):</p>
+<ul>
+<li>pick one DC as the master and run more ZK servers there. If that DC fails, you have to manually decide its down (and make sure the ZK servers are manually taken down) then run some more in the remaining DC. i.e. a manual failover process if the master fails (though automatic if the slave fails).</li>
+</ul>
+<h4 id="how-should-i-use-spring-4-with-fabric8-"><a name="how-should-i-use-spring-4-with-fabric8-" class="anchor" href="#how-should-i-use-spring-4-with-fabric8-"><span class="fa fa-link"></span></a>How should I use Spring 4 with fabric8?</h4>
+<p>Fabric8 has awesome support for Spring 4 with the <a href="(http://fabric8.io/gitbook/springBootContainer.html">Spring Boot Container</a>.</p>
+<p>If you&apos;ve been previously using OSGi or <a href="http://karaf.apache.org/" target="_blank">Apache Karaf</a> as your application server then Spring 4 poses a challenge as its not currently available as valid OSGi bundles. So to use Spring 4 we recommend you consider moving to the <a href="(http://fabric8.io/gitbook/javaContainer.html">Java Container</a> in particular the <a href="(http://fabric8.io/gitbook/springBootContainer.html">Spring Boot Container</a></p>
+<h4 id="should-i-use-features-"><a name="should-i-use-features-" class="anchor" href="#should-i-use-features-"><span class="fa fa-link"></span></a>Should I use features?</h4>
+<p>If you&apos;re using OSGi or <a href="http://karaf.apache.org/" target="_blank">Apache Karaf</a> as your application server and you&apos;ve already developed features XML files for grouping bundles together as a logical application; thats all cool and they work great in fabric8.</p>
+<p>However there&apos;s not really a big need to develop them going forward; as its easier to just create a <a href="http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven" target="_blank">profile zip file as part of your maven build</a> which can automatically include all your bundles for your project.</p>
+<p>In addition the <a href="http://fabric8.io/gitbook/osgiResolver.html" target="_blank">OSGi Resolver</a> provides a great way to automatically default the correct parent profiles, features and bundles to make it easier to get your OSGi bundles deploying correctly.</p>
+<h4 id="i-cannot-start-fabric8-on-windows"><a name="i-cannot-start-fabric8-on-windows" class="anchor" href="#i-cannot-start-fabric8-on-windows"><span class="fa fa-link"></span></a>I cannot start fabric8 on Windows</h4>
+<p>There is a known issue with Java and Windows when using IP6 capable network. You may see errors such as <code>java.net.SocketException: Permission denied: no further information</code>. To resolve this set the <code>KARAF_OPTS</code> to the following in the <code>bin/setenv.bat</code> file.</p>
+<pre><code>KARAF_OPTS=&quot;-Djava.net.preferIPv4Stack=true&quot;
+</code></pre><p>For more details see the <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/net/ipv6_guide/" target="_blank">IP6 Java network guide</a> and this <a href="https://access.redhat.com/site/solutions/757533" target="_blank">knowledgebase solution</a>.</p>
+
+                    
+                    </section>
+                
                 </div>
             </div>
         </div>
 
         
-        <a href="./camelEndpointMaster.html" class="navigation navigation-prev " aria-label="Previous page: master: endpoint"><i class="fa fa-angle-left"></i></a>
+        <a href="./faqConfig.html" class="navigation navigation-prev " aria-label="Previous page: Configuration Questions"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./cxfFabric.html" class="navigation navigation-next " aria-label="Next page: CXF Fabric"><i class="fa fa-angle-right"></i></a>
+        <a href="./faqIssues.html" class="navigation navigation-next " aria-label="Next page: Known Issues"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

@@ -98,9 +98,7 @@
       <div class="col-md-12">
       <h1>FAQ</h1></p>
 
-<h3 id = "General_Questions">General Questions</h3>
-
-<p>General questions on all things fabric8.</p>
+<p>  ### General Questions</p>
 
 <h4 id = "What_is_the_license_">What is the license?</h4>
 
@@ -126,9 +124,11 @@
 
 <h4 id = "Deprecations">Deprecations</h4>
 
-<p>FAB (Fuse Application Bundles) has been deprecated for the 1.1 release, and is scheduled to be removed in the following release. </p>
+<p>FAB (Fuse Application Bundles) has been deprecated for the 1.1 release, and is scheduled to be removed in the following release.</p>
 
-<h3 id = "Configuration_questions">Configuration questions</h3>
+<p>The long term replacement is the <a href="http://fabric8.io/gitbook/osgiResolver.html">OSGi Resolver</a> or if you wish to work with jars rather than bundles then use the <a href="(http://fabric8.io/gitbook/javaContainer.html">Java Container</a></p>
+
+<p>  ### Configuration Questions</p>
 
 <h4 id = "How_can_I_edit_fabric8_s_configuration_via_git_">How can I edit fabric8's configuration via git?</h4>
 
@@ -146,7 +146,21 @@
 
 <p>If you haven't yet created a fabric, in the fabric8 distribution you can edit the file <strong>fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties</strong> then if you create a new fabric it should have this configuration included.</p>
 
-<h3 id = "General_Questions_about_using_fabric8">General Questions about using fabric8</h3>
+<p>  ### Questions On Using Fabric8</p>
+
+<h4 id = "How_can_I_automate_the_creation_of_a_fabric_">How can I automate the creation of a fabric?</h4>
+
+<p>Many customers want an easy, repeatable way to spin up a fabric and all the various containers they need in an automated way such as for <a href="http://fabric8.io/gitbook/continuousDeployment.html">Continuous Deployment</a>.</p>
+
+<p>To do this fabric8 has an <a href="http://fabric8.io/gitbook/requirements.html">Auto Scaler</a> which allows you to define how many instances of each profile you need and the auto scaler will automatically create the containers you need; using the available resources and automatically create new containers if there is a hardware or software failure.</p>
+
+<h4 id = "How_should_I_compose_profiles_which_contain_blueprint_or_spring_XML_files_">How should I compose profiles which contain blueprint or spring XML files?</h4>
+
+<p><a href="http://fabric8.io/gitbook/profiles.html">Profiles</a> are designed so that they can be <em>combined</em> together into a container; or they can use inheritance to <em>override</em> properties.</p>
+
+<p>If you wish to combine profiles together you need to make sure that if you want to <em>combine</em> rather than <em>override</em> you need to ensure that the properties files in each profile use either different file names or different keys.</p>
+
+<p>For example if you have 3 different blueprint/spring XML files inside each profile which you want to combine so that all 3 will be executed; name each one differently and use a different key name in the <strong>io.fabric8.agent.properties</strong> files. e.g. the <a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/mq.bank1.profile">bank1</a>, <a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/mq.bank2.profile">bank2</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/mq.bank3.profile">bank3</a> profiles in the <a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/">MQ based loan broker example</a> all use a different blueprint XML file and key in the <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/mq.bank1.profile/io.fabric8.agent.properties#L22">io.fabric8.agent.properties file</a></p>
 
 <h4 id = "How_should_I_deploy_fabric8_in_a_2_data_centre_scenario_where_either_data_centre_can_fail_">How should I deploy fabric8 in a 2 data centre scenario where either data centre can fail?</h4>
 
@@ -167,6 +181,20 @@
 <li>pick one DC as the master and run more ZK servers there. If that DC fails, you have to manually decide its down (and make sure the ZK servers are manually taken down) then run some more in the remaining DC. i.e. a manual failover process if the master fails (though automatic if the slave fails).</li>
 </ul>
 
+<h4 id = "How_should_I_use_Spring_4_with_fabric8_">How should I use Spring 4 with fabric8?</h4>
+
+<p>Fabric8 has awesome support for Spring 4 with the <a href="(http://fabric8.io/gitbook/springBootContainer.html">Spring Boot Container</a>.</p>
+
+<p>If you've been previously using OSGi or <a href="http://karaf.apache.org/">Apache Karaf</a> as your application server then Spring 4 poses a challenge as its not currently available as valid OSGi bundles. So to use Spring 4 we recommend you consider moving to the <a href="(http://fabric8.io/gitbook/javaContainer.html">Java Container</a> in particular the <a href="(http://fabric8.io/gitbook/springBootContainer.html">Spring Boot Container</a></p>
+
+<h4 id = "Should_I_use_features_">Should I use features?</h4>
+
+<p>If you're using OSGi or <a href="http://karaf.apache.org/">Apache Karaf</a> as your application server and you've already developed features XML files for grouping bundles together as a logical application; thats all cool and they work great in fabric8.</p>
+
+<p>However there's not really a big need to develop them going forward; as its easier to just create a <a href="http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven">profile zip file as part of your maven build</a> which can automatically include all your bundles for your project.</p>
+
+<p>In addition the <a href="http://fabric8.io/gitbook/osgiResolver.html">OSGi Resolver</a> provides a great way to automatically default the correct parent profiles, features and bundles to make it easier to get your OSGi bundles deploying correctly.</p>
+
 <h4 id = "I_cannot_start_fabric8_on_Windows">I cannot start fabric8 on Windows</h4>
 
 <p>There is a known issue with Java and Windows when using IP6 capable network. You may see errors such as <code>java.net.SocketException: Permission denied: no further information</code>. To resolve this set the <code>KARAF_OPTS</code> to the following in the <code>bin/setenv.bat</code> file.</p>
@@ -175,7 +203,7 @@
 
 <p>For more details see the <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/net/ipv6&#95;guide/">IP6 Java network guide</a> and this <a href="https://access.redhat.com/site/solutions/757533">knowledgebase solution</a>.</p>
 
-<h3 id = "Known_issues_about_using_fabric8">Known issues about using fabric8</h3>
+<p>  ### Known issues about using fabric8</p>
 
 <h4 id = "Why_does_the_welcome_screen_print_two_times_">Why does the welcome screen print two times?</h4>
 
@@ -223,7 +251,7 @@
                 <a href="articles/index.html">Articles and Demos</a>
               </li>
               <li>
-                <a href="faq/index.html">FAQ</a>
+                <a href="/gitbook/FAQ.html">FAQ</a>
               </li>
               <li>
                 <a href="/developers/index.html">Developers</a>
