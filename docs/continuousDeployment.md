@@ -153,3 +153,8 @@ Different teams and companies have different policies for moving software throug
 
 We'd love to [hear from you](http://fabric8.io/community/index.html) how you get on using fabric8 in your continuous deployment pipeline. If you have any suggestions for how we can improve fabric8 to better support your continuous deployment pipeline please [raise an issue](https://github.com/fabric8io/fabric8/issues) we love feedback!
 
+### Automating the creation of a fabric
+
+Many customers want an easy, repeatable way to spin up a fabric and all the various containers they need in an automated way. This is particularly useful as part of a _Continuous Deployment_ build process for performing integration, load & soak testing.
+
+To do this fabric8 has an [Auto Scaler](http://fabric8.io/gitbook/requirements.html) which allows you to define how many instances of each profile you need and the auto scaler will automatically create the containers you need; using the available resources and automatically create new containers if there is a hardware or software failure.
