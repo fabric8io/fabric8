@@ -33,7 +33,6 @@ import org.junit.runner.RunWith;
  */
 @RunAsClient
 @RunWith(Arquillian.class)
-@Ignore("[FABRIC-1120] Fix autoscale integration tests")
 public class AutoScaleSingleMessageBrokerTest {
 
     @ArquillianResource

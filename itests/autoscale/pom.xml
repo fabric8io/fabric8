@@ -34,10 +34,20 @@
 
   <modules>
     <module>autoscale-itests-common</module>
-    <module>autoscale-itests-remote</module>
   </modules>
 
   <profiles>
+    <profile>
+      <id>autoscale</id>
+      <activation>
+        <property>
+          <name>autoscale</name>
+        </property>
+      </activation>
+      <modules>
+        <module>autoscale-itests-remote</module>
+      </modules>
+    </profile>
     <profile>
       <id>docker</id>
       <activation>
