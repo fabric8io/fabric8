@@ -38,10 +38,10 @@
 
   <profiles>
     <profile>
-      <id>autoscale</id>
+      <id>ts.autoscale</id>
       <activation>
         <property>
-          <name>autoscale</name>
+          <name>ts.autoscale</name>
         </property>
       </activation>
       <modules>
