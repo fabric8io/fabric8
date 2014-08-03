@@ -18,6 +18,7 @@ package io.fabric8.itests.smoke.embedded;
 import io.fabric8.api.Constants;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreateEnsembleOptions.Builder;
+import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.GitContext;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
@@ -59,7 +60,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
  * Test the {@link ProfileService} with external git repo
  */
 @RunWith(Arquillian.class)
-public class ExternalGitRepositoryTest {
+public class RemoteGitRepositoryTest {
 
     private static File remoteRoot;
     private static Git git;
@@ -69,6 +70,7 @@ public class ExternalGitRepositoryTest {
     
     @BeforeClass
     public static void beforeClass() throws Exception {
+        ServiceLocator.awaitService(BootstrapComplete.class);
         Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).waitForProvision(false);
         ServiceLocator.getRequiredService(ZooKeeperClusterBootstrap.class).create(builder.build());
 

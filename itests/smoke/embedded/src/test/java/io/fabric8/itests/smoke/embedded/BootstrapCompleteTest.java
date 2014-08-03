@@ -15,6 +15,7 @@
  */
 package io.fabric8.itests.smoke.embedded;
 
+import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.git.GitService;
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
@@ -33,8 +34,9 @@ public class BootstrapCompleteTest {
 
     @Test
     public void testBootstrapConfiguration() {
-        BootstrapConfiguration service = ServiceLocator.getRequiredService(BootstrapConfiguration.class);
-        CreateEnsembleOptions options = service.getBootstrapOptions();
+        ServiceLocator.awaitService(BootstrapComplete.class);
+        BootstrapConfiguration bootConfig = ServiceLocator.getRequiredService(BootstrapConfiguration.class);
+        CreateEnsembleOptions options = bootConfig.getBootstrapOptions();
         Assert.assertFalse("Ensemble start", options.isEnsembleStart());
     }
 
