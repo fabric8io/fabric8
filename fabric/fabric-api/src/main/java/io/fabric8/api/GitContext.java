@@ -15,7 +15,6 @@
  */
 package io.fabric8.api;
 
-import org.jboss.gravia.utils.IllegalStateAssertion;
 
 
 /**
@@ -26,21 +25,11 @@ public class GitContext {
     private boolean requirePull;
     private boolean requireCommit;
     private boolean requirePush;
-    private int pullCount;
-    private int commitCount;
-    private int pushCount;
     private String pushBranch;
+    private String checkoutId;
     private StringBuilder commitMessage = new StringBuilder();
 
     public GitContext() {
-    }
-    
-    public GitContext(GitContext context) {
-        this.requirePull = context.requirePull;
-        this.requirePush = context.requirePush;
-        this.requireCommit = context.requireCommit;
-        this.pushBranch = context.pushBranch;
-        this.commitMessage = new StringBuilder(context.getCommitMessage());
     }
     
     /**
@@ -60,16 +49,6 @@ public class GitContext {
         return this;
     }
 
-    public boolean incrementPullCount() {
-        if (requirePull) {
-            IllegalStateAssertion.assertEquals(0, pullCount, "Cannot execute multiple pull requests");
-            IllegalStateAssertion.assertEquals(0, commitCount, "Cannot execute pull after commit");
-            IllegalStateAssertion.assertEquals(0, pushCount, "Cannot execute pull after push");
-            pullCount++;
-        }
-        return requirePull;
-    }
-    
     /**
      * Indicates a commit is required after this operation completes
      */
@@ -87,15 +66,6 @@ public class GitContext {
         return this;
     }
 
-    public boolean incrementCommitCount() {
-        if (requireCommit) {
-            IllegalStateAssertion.assertEquals(0, commitCount, "Cannot execute multiple commit requests");
-            IllegalStateAssertion.assertEquals(0, pushCount, "Cannot execute commit after push");
-            commitCount++;
-        }
-        return requireCommit;
-    }
-    
     /**
      * Indicates a  push will be required after the operation is completed.
      */
@@ -113,14 +83,6 @@ public class GitContext {
         return this;
     }
 
-    public boolean incrementPushCount() {
-        if (requirePush) {
-            IllegalStateAssertion.assertEquals(0, pushCount, "Cannot execute multiple push requests");
-            pushCount++;
-        }
-        return requirePush;
-    }
-    
     public String getPushBranch() {
         return pushBranch;
     }
@@ -128,6 +90,14 @@ public class GitContext {
     public GitContext setPushBranch(String pushBranch) {
         this.pushBranch = pushBranch;
         return this;
+    }
+
+    public String getCheckoutId() {
+        return checkoutId;
+    }
+
+    public void setCheckoutId(String checkoutId) {
+        this.checkoutId = checkoutId;
     }
 
     /**

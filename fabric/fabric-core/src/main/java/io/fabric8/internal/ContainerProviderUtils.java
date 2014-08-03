@@ -165,7 +165,7 @@ public final class ContainerProviderUtils {
         for (Map.Entry<String, String> entry : options.getDataStoreProperties().entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            replacePropertyValue(sb, "etc/" + Constants.DATASTORE_TYPE_PID + ".cfg", key, value);
+            replacePropertyValue(sb, "etc/" + Constants.DATASTORE_PID + ".cfg", key, value);
         }
         //Apply port range
         sb.append("BIND_ADDRESS=").append(options.getBindAddress() != null && !options.getBindAddress().isEmpty() ? options.getBindAddress() : "0.0.0.0").append("\n");

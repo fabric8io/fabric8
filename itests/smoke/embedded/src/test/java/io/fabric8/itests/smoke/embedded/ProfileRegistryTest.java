@@ -17,7 +17,6 @@ package io.fabric8.itests.smoke.embedded;
 
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreateEnsembleOptions.Builder;
-import io.fabric8.api.LockHandle;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileRegistry;
@@ -28,7 +27,6 @@ import io.fabric8.api.ZooKeeperClusterBootstrap;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.gravia.runtime.ServiceLocator;

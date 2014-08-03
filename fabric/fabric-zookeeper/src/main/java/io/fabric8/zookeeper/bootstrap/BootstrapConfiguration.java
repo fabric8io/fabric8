@@ -245,7 +245,7 @@ public class BootstrapConfiguration extends AbstractComponent {
     }
 
     public void createOrUpdateDataStoreConfig(CreateEnsembleOptions options) throws IOException {
-        Configuration config = configAdmin.get().getConfiguration(Constants.DATASTORE_TYPE_PID, null);
+        Configuration config = configAdmin.get().getConfiguration(Constants.DATASTORE_PID, null);
         Dictionary<String, Object> properties = config.getProperties();
         if (properties == null || properties.isEmpty()) {
             boolean updateConfig = false;
