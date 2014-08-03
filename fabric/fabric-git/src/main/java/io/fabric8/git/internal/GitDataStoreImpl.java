@@ -104,6 +104,7 @@ import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -1117,17 +1118,31 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private boolean doPushInternal(Git git, GitContext context, CredentialsProvider credentialsProvider, List<PushResult> results) throws Exception {
         assertWriteLock();
         
-        Repository repository = git.getRepository();
-        StoredConfig config = repository.getConfig();
-        String url = config.getString("remote", remoteRef.get(), "url");
-        if (url == null) {
+        StoredConfig config = git.getRepository().getConfig();
+        String remoteUrl = config.getString("remote", remoteRef.get(), "url");
+        if (remoteUrl == null) {
             LOGGER.info("No remote repository defined, so not doing a push");
             return false;
         }
+
+        LOGGER.info("Pushing last change to: {}", remoteUrl);
         
+        int retries = 5;
+        Iterator<PushResult> resit = null;
+        TransportException lastPushException = null;
         List<RemoteRefUpdate> rejectedUpdates = new ArrayList<>();
-        Iterator<PushResult> resit = git.push().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setPushAll().call().iterator();
-        while (resit.hasNext()) {
+        while (resit == null && retries-- > 0) {
+            try {
+                resit = git.push().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setPushAll().call().iterator();
+                lastPushException = null;
+            } catch (TransportException ex) {
+                lastPushException = ex;
+                Thread.sleep(1000L);
+            }
+        }
+        
+        // Collect the updates that are not ok
+        while (resit != null && resit.hasNext()) {
             PushResult pushResult = resit.next();
             if (results != null) {
                 results.add(pushResult);
@@ -1140,7 +1155,9 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 }
             }
         }
-        if (!rejectedUpdates.isEmpty()) {
+        
+        // Reset to the last known good rev and make the commit/push fail
+        if (lastPushException != null || !rejectedUpdates.isEmpty()) {
             String checkoutId = context.getCheckoutId();
             if (checkoutId != null) {
                 String branch = GitHelpers.currentBranch(git);
@@ -1148,7 +1165,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 LOGGER.warn("Resetting branch '{}' to: {}", branch, commit);
                 git.reset().setMode(ResetType.HARD).setRef(checkoutId).call();
             }
-            throw new IllegalStateException("Cannot fast forward, remote repository has already changed.");
+            if (!rejectedUpdates.isEmpty()) {
+                throw new IllegalStateException("Cannot fast forward, remote repository has already changed.");
+            } else {
+                throw new IllegalStateException("Cannot push last profile update.", lastPushException);
+            }
         }
         
         return false;

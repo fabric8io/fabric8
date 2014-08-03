@@ -15,16 +15,16 @@
  */
 package io.fabric8.itests.smoke.embedded;
 
+import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreateEnsembleOptions.Builder;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.PortService;
-import io.fabric8.api.DataStore;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.git.GitService;
-import io.fabric8.utils.PasswordEncoder;
 
 import java.util.Dictionary;
 
@@ -32,6 +32,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.gravia.runtime.ServiceLocator;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.Configuration;
@@ -43,14 +44,15 @@ import org.osgi.service.cm.ConfigurationAdmin;
 @RunWith(Arquillian.class)
 public class FabricBootstrapTest {
 
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        ServiceLocator.awaitService(BootstrapComplete.class);
+        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).waitForProvision(true);
+        ServiceLocator.getRequiredService(ZooKeeperClusterBootstrap.class).create(builder.build());
+    }
+    
     @Test
     public void testFabricCreate() throws Exception {
-
-        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).waitForProvision(false);
-        CreateEnsembleOptions options = builder.build();
-
-        ZooKeeperClusterBootstrap bootstrap = ServiceLocator.getRequiredService(ZooKeeperClusterBootstrap.class);
-        bootstrap.create(options);
 
         FabricService fabricService = ServiceLocator.getRequiredService(FabricService.class);
         Container[] containers = fabricService.getContainers();

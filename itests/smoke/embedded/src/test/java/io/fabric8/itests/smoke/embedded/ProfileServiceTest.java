@@ -17,6 +17,7 @@ package io.fabric8.itests.smoke.embedded;
 
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreateEnsembleOptions.Builder;
+import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileService;
@@ -42,11 +43,12 @@ public class ProfileServiceTest {
     private ProfileService profileService;
     
     @BeforeClass
-    public static void beforeClass() {
+    public static void beforeClass() throws Exception {
+        ServiceLocator.awaitService(BootstrapComplete.class);
         Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).waitForProvision(false);
         ServiceLocator.getRequiredService(ZooKeeperClusterBootstrap.class).create(builder.build());
     }
-
+    
     @Before
     public void setUp() {
         profileService = ServiceLocator.getRequiredService(ProfileService.class);

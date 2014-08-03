@@ -27,6 +27,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
  * Indicates the completion of the bootstrap process before the fabric is created.
@@ -36,13 +37,15 @@ import org.apache.felix.scr.annotations.Service;
 public final class BootstrapCompleteService extends AbstractComponent implements BootstrapComplete {
 
     @Reference
-    private ACLManager aclManagerAvailable;
+    private ACLManager aclManager;
     @Reference
-    private GitService gitServiceAvailable;
+    private ConfigurationAdmin configAdmin;
     @Reference
-    private ManagedCuratorFrameworkAvailable managedCuratorAvailable;
+    private GitService gitService;
     @Reference
-    private ZooKeeperClusterBootstrap zookeeperBootstrapAvailable;
+    private ManagedCuratorFrameworkAvailable managedCurator;
+    @Reference
+    private ZooKeeperClusterBootstrap zookeeperBootstrap;
 
     @Activate
     void activate() {
