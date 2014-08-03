@@ -113,14 +113,12 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
                     ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, "default");
                     builder.addConfiguration("io.fabric8.jaas", jaasConfig);
                     builder.addFileConfiguration("io.fabric8.zookeeper.properties", DataStoreUtils.toBytes(zkProps));
-                    String createdId = profileRegistry.createProfile(builder.getProfile());
-                    defaultProfile = profileRegistry.getRequiredProfile(versionId, createdId);
+                    profileRegistry.createProfile(builder.getProfile());
                 } else {
                     ProfileBuilder builder = ProfileBuilder.Factory.createFrom(defaultProfile);
                     builder.addConfiguration("io.fabric8.jaas", jaasConfig);
                     builder.addFileConfiguration("io.fabric8.zookeeper.properties", DataStoreUtils.toBytes(zkProps));
-                    String updatedId = profileRegistry.updateProfile(builder.getProfile());
-                    defaultProfile = profileRegistry.getRequiredProfile(versionId, updatedId);
+                    profileRegistry.updateProfile(builder.getProfile());
                 }
 
                 ZooKeeperUtils.setData(curator, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), "${zk:" + name + "/ip}:" + zooKeeperServerConnectionPort);

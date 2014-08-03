@@ -34,36 +34,38 @@ public interface ProfileBuilder extends AttributableBuilder<ProfileBuilder> {
 
     ProfileBuilder version(String versionId);
 
-    ProfileBuilder addParent(Profile profile);
-
-    ProfileBuilder addParents(List<Profile> profiles);
-
     List<String> getParents();
     
     Profile getParent(String profileId);
     
+    ProfileBuilder addParent(Profile profile);
+
+    ProfileBuilder addParents(List<Profile> profiles);
+
     ProfileBuilder setParents(List<Profile> profiles);
     
     ProfileBuilder removeParent(String profileId);
-
-    ProfileBuilder setConfigurations(Map<String, Map<String, String>> configurations);
-
-    ProfileBuilder addConfiguration(String pid, Map<String, String> configuration);
 
     Set<String> getConfigurationKeys();
     
     Map<String, String> getConfiguration(String pid);
     
+    ProfileBuilder addConfiguration(String pid, Map<String, String> config);
+
+    ProfileBuilder addConfiguration(String pid, String key, String value);
+
+    ProfileBuilder setConfigurations(Map<String, Map<String, String>> configs);
+
     ProfileBuilder deleteConfiguration(String pid);
     
     Set<String> getFileConfigurationKeys();
     
     byte[] getFileConfiguration(String key);
     
-    ProfileBuilder setFileConfigurations(Map<String, byte[]> configurations);
-
     ProfileBuilder addFileConfiguration(String fileName, byte[] data);
     
+    ProfileBuilder setFileConfigurations(Map<String, byte[]> configs);
+
     ProfileBuilder deleteFileConfiguration(String fileName);
     
     ProfileBuilder setBundles(List<String> values);

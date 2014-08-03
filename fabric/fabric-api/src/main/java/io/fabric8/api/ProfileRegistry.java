@@ -39,9 +39,9 @@ public interface ProfileRegistry {
     //
 
     /**
-     * Create a version as a copy from the given parent version 
+     * Create a version as a copy from the given source version identity 
      */
-    void createVersion(String parentId, String versionId, Map<String, String> attributes);
+    String createVersion(String sourceId, String targetId, Map<String, String> attributes);
 
     /**
      * Create the given version in the data store
@@ -52,7 +52,7 @@ public interface ProfileRegistry {
     /**
      * Get the ordered list of available versions
      */
-    List<String> getVersions();
+    List<String> getVersionIds();
 
     /**
      * True if the data store contains the given version

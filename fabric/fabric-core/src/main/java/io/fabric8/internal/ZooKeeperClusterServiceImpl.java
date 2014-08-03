@@ -308,16 +308,17 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 index++;
             }
 
-            LOGGER.info("Creating parent ensemble profile for id: {}.", ensembleProfileId);
             LockHandle writeLock = profileRegistry.get().aquireWriteLock();
             try {
                 // Create the ensemble profile
                 ensembleProfileBuilder.addFileConfiguration(ensemblePropertiesName, DataStoreUtils.toBytes(ensembleProperties));
-                profileRegistry.get().createProfile(ensembleProfileBuilder.getProfile());
+                Profile ensembleProfile = ensembleProfileBuilder.getProfile();
+                LOGGER.info("Creating parent ensemble profile: {}", ensembleProfile);
+                profileRegistry.get().createProfile(ensembleProfile);
                 
                 // Create the member profiles
                 for (Profile memberProfile : memberProfiles) {
-                    LOGGER.info("Creating member ensemble profile with id: {}.", memberProfile.getId());
+                    LOGGER.info("Creating member ensemble profile: {}", memberProfile);
                     profileRegistry.get().createProfile(memberProfile);
                 }
             } finally {

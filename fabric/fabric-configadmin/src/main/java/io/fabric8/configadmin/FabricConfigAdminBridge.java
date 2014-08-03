@@ -123,13 +123,8 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
         
         Container currentContainer = fabricService.get().getCurrentContainer();
         Profile overlayProfile = currentContainer.getOverlayProfile();
-        
-        if (overlayProfile.getConfiguration(Constants.AGENT_PID).isEmpty()) {
-            LOGGER.warn("Overlay profile has empty agent configuration: " + overlayProfile);
-            return;
-        }
-        
         Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), overlayProfile);
+        
         Map<String, Map<String, String>> configurations = effectiveProfile.getConfigurations();
         List<Configuration> zkConfigs = asList(configAdmin.get().listConfigurations("(" + FABRIC_ZOOKEEPER_PID + "=*)"));
         

@@ -134,6 +134,17 @@ public class ContainerFacade implements Container, HasId {
     }
 
     @Override
+    public String getVersionId() {
+        return getFieldValue("versionId");
+    }
+
+
+    @Override
+    public void setVersionId(String versionId) {
+        Helpers.exec(j4p, "applyVersionToContainers(java.lang.String, java.util.List)", versionId, Helpers.toList(id));
+    }
+
+    @Override
     public Version getVersion() {
         String version = getFieldValue("versionId");
         return new VersionFacade(j4p, version);

@@ -17,10 +17,10 @@ package io.fabric8.itests.smoke.embedded;
 
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreateEnsembleOptions.Builder;
+import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileService;
-import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 
@@ -29,6 +29,8 @@ import java.util.Collections;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.gravia.runtime.ServiceLocator;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -38,18 +40,23 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class ProfileServiceTest {
 
-    private static final String SYSTEM_PASSWORD = "systempassword";
-
+    private ProfileService profileService;
+    
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        ServiceLocator.awaitService(BootstrapComplete.class);
+        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).waitForProvision(false);
+        ServiceLocator.getRequiredService(ZooKeeperClusterBootstrap.class).create(builder.build());
+    }
+    
+    @Before
+    public void setUp() {
+        profileService = ServiceLocator.getRequiredService(ProfileService.class);
+        Assert.assertNotNull("ProfileService not null", profileService);
+    }
+    
     @Test
     public void testFabricCreate() throws Exception {
-
-        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).zookeeperPassword(SYSTEM_PASSWORD).waitForProvision(false);
-        CreateEnsembleOptions options = builder.build();
-
-        ZooKeeperClusterBootstrap bootstrap = ServiceLocator.getRequiredService(ZooKeeperClusterBootstrap.class);
-        bootstrap.create(options);
-
-        ProfileService profileService = ServiceLocator.getRequiredService(ProfileService.class);
 
         // fabric:profile-create prfA
         ProfileBuilder pbA10 = ProfileBuilder.Factory.create("1.0", "prfA")
@@ -81,7 +88,7 @@ public class ProfileServiceTest {
         Assert.assertEquals("valB", prfA11b.getConfiguration("pidA").get("keyB"));
         
         Assert.assertNotEquals(prfA11a, prfA11b);
-        System.out.println(Profiles.getProfileDifference(prfA11a, prfA11b));
+        // System.out.println(Profiles.getProfileDifference(prfA11a, prfA11b));
         
         // Verify access to original profile
         profileService.getRequiredVersion("1.0").getRequiredProfile("prfA");

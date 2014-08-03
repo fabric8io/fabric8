@@ -71,6 +71,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.KeeperException;
+import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -415,12 +416,15 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
         assertValid();
         try {
             String versionId = getStringData(curator.get(), ZkPath.CONFIG_CONTAINER.getPath(containerId));
+            Set<String> idset = new HashSet<>();
             StringBuilder sb = new StringBuilder();
             for (String profileId : profileIds) {
+                IllegalArgumentAssertion.assertFalse(idset.contains(profileId), "Duplicate profile id in: " + profileIds);
                 if (sb.length() > 0) {
                     sb.append(" ");
                 }
                 sb.append(profileId);
+                idset.add(profileId);
             }
             setData(curator.get(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), sb.toString());
         } catch (Exception e) {

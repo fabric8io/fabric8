@@ -287,21 +287,19 @@ final class ProfileImpl implements Profile {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!(obj instanceof ProfileImpl))
-            return false;
+        if (this == obj) return true;
+        if (!(obj instanceof ProfileImpl)) return false;
         ProfileImpl other = (ProfileImpl) obj;
 
         // Equality based on identity
-        if (!profileId.equals(other.profileId) || versionId.equals(other.versionId))
+        if (!profileId.equals(other.profileId) || !versionId.equals(other.versionId))
             return false;
 
         // Equality based on profile content
         // [TODO] Remove content based profile equality when identity is based
         // on unique revision
 
-        if (parents.equals(other.parents))
+        if (!parents.equals(other.parents))
             return false;
 
         if (!configurations.equals(other.configurations))

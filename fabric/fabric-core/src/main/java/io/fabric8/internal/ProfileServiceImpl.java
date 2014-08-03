@@ -90,7 +90,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     @Override
     public List<String> getVersions() {
         assertValid();
-        return profileRegistry.get().getVersions();
+        return profileRegistry.get().getVersionIds();
     }
 
     @Override
@@ -168,17 +168,17 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
             overlayProfile = builder.getProfile();
             
             // Log the overlay profile difference
-            if (LOGGER.isDebugEnabled()) {
+            if (LOGGER.isInfoEnabled()) {
                 synchronized (lastOverlayProfiles) {
                     Profile lastOverlay = lastOverlayProfiles.get(profileId);
                     String longString = Profiles.getProfileInfo(overlayProfile, true);
                     String lastString = lastOverlay != null ? Profiles.getProfileInfo(lastOverlay, true) : null;
                     if (lastOverlay == null || !longString.equals(lastString)) {
-                        LOGGER.debug("Changed Overlay" + longString);
+                        LOGGER.info("Changed Overlay" + longString);
                         if (lastOverlay != null) {
-                            LOGGER.debug("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
+                            LOGGER.info("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
                         }
-                        LOGGER.debug("Called from ", new RuntimeException());
+                        LOGGER.info("Called from ", new RuntimeException());
                         lastOverlayProfiles.put(profileId, overlayProfile);
                     }
                 }

@@ -49,6 +49,7 @@ import java.util.Properties;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
+import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
@@ -176,6 +177,21 @@ public class ContainerImpl implements Container {
     }
 
     @Override
+    public String getVersionId() {
+        return dataStore.getContainerVersion(id);
+    }
+
+    @Override
+    public void setVersionId(String versionId) {
+        String currentId = getVersionId();
+        if (versionId.compareTo(currentId) != 0) {
+            ProfileService profileService = fabricService.adapt(ProfileService.class);
+            Version version = profileService.getRequiredVersion(versionId);
+            setVersion(version);
+        }
+    }
+
+    @Override
     public Version getVersion() {
         String versionId = dataStore.getContainerVersion(id);
         ProfileService profileService = fabricService.adapt(ProfileService.class);
@@ -184,9 +200,11 @@ public class ContainerImpl implements Container {
 
     @Override
     public void setVersion(Version version) {
-        if (version.compareTo(getVersion()) != 0) {
+        String currentId = getVersionId();
+        int compareResult = version.getId().compareTo(currentId);
+        if (compareResult != 0) {
             if (requiresUpgrade(version) && isManaged()) {
-                String status = version.compareTo(getVersion()) > 0 ? "upgrading" : "downgrading";
+                String status = compareResult > 0 ? "upgrading" : "downgrading";
                 dataStore.setContainerAttribute(id, DataStore.ContainerAttribute.ProvisionStatus, status);
             }
             dataStore.setContainerVersion(id, version.getId());
@@ -220,15 +238,9 @@ public class ContainerImpl implements Container {
         List<String> profileIds = new ArrayList<String>();
         if (profiles != null) {
             for (Profile profile : profiles) {
-                if (!versionId.equals(profile.getVersion())) {
-                    throw new IllegalArgumentException("Version mismatch setting profile " + profile.getId() + " with version "
-                            + profile.getVersion() + " expected version " + versionId);
-                } else if (profile.isAbstract()) {
-                    throw new IllegalArgumentException("The profile " + profile.getId() + " is abstract and can not "
-                            + "be associated to containers");
-                } else if (profile.getId().matches(ENSEMBLE_PROFILE_PATTERN) && !currentProfileIds.contains(profile.getId())) {
-                    throw new IllegalArgumentException("The profile " + profile.getId() + " is not assignable.");
-                }
+                IllegalArgumentAssertion.assertTrue(versionId.equals(profile.getVersion()), "Version mismatch setting profile " + profile + ", expected version " + versionId);
+                IllegalArgumentAssertion.assertFalse(profile.isAbstract(), "The profile " + profile + " is abstract and can not be associated to containers");
+                IllegalArgumentAssertion.assertFalse(profile.getId().matches(ENSEMBLE_PROFILE_PATTERN) && !currentProfileIds.contains(profile.getId()), "The profile " + profile + " is not assignable.");
                 profileIds.add(profile.getId());
             }
         }
@@ -631,7 +643,7 @@ public class ContainerImpl implements Container {
      */
     private boolean requiresUpgrade(Version version) {
         boolean requiresUpgrade = false;
-        if (version.compareTo(getVersion()) == 0) {
+        if (version.getId().compareTo(getVersionId()) == 0) {
             return false;
         }
         for (Profile oldProfile : getProfiles()) {
@@ -754,20 +766,23 @@ public class ContainerImpl implements Container {
 
 	    @Override
 		public ProfileBuilder addOptions(ProfileBuilder builder) {
-	    	return builder.addParents(getParents());
-		}
-
-	    private List<Profile> getParents() {
-	        List<Profile> parents = new ArrayList<>();
-			for (String prfid : dataStore.getContainerProfiles(cntId)) {
-                Profile profile = version.getProfile(prfid);
+	        List<String> missingProfiles = new ArrayList<>();
+			List<String> profileIds = dataStore.getContainerProfiles(cntId);
+			LOGGER.info("Building container overlay for {} with profile: {}", cntId, profileIds);
+            for (String profileId : profileIds) {
+                Profile profile = version.getProfile(profileId);
                 if (profile != null) {
-                    parents.add(profile);
+                    builder.addParent(profile);
                 } else {
-                    LOGGER.warn("Container profile '" + prfid + "' not found in: " + version + " - Ignoring!");
+                    missingProfiles.add(profileId);
                 }
 	        }
-	        return parents;
+			if (!missingProfiles.isEmpty()) {
+	            LOGGER.warn("Container overlay has missing profiles: {}", missingProfiles);
+                builder.addAttribute("missing.profiles", missingProfiles.toString());
+                // builder.addConfiguration(Constants.AGENT_PID, "disabled", "true");
+			}
+			return builder;
 	    }
 	}
 }
