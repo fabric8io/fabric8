@@ -21,7 +21,6 @@ import io.fabric8.common.util.Strings;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jgit.api.Git;
@@ -74,13 +73,21 @@ public class GitHelpers {
         return Profiles.convertProfileIdToPath(profileId);
     }
 
+    public static RevCommit getVersionLastCommit(Git git, String branch) {
+        return getLastCommit(git, branch, GitHelpers.CONFIGS_PROFILES);
+    }
+    
     public static RevCommit getProfileLastCommit(Git git, String branch, String profilePath) {
+        return getLastCommit(git, branch, GitHelpers.CONFIGS_PROFILES + "/" + profilePath);
+    }
+
+    private static RevCommit getLastCommit(Git git, String branch, String path) {
         RevCommit profileRef = null;
         try {
             Ref versionRef = git.getRepository().getRefDatabase().getRef(branch);
             if (versionRef != null) {
                 String revision = versionRef.getObjectId().getName();
-                profileRef = CommitUtils.getLastCommit(git.getRepository(), revision, GitHelpers.CONFIGS_PROFILES + "/" + profilePath);
+                profileRef = CommitUtils.getLastCommit(git.getRepository(), revision, path != null ? path : ".");
             }
         } catch (IOException ex) {
             // ignore

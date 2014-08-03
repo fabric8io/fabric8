@@ -275,7 +275,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         for (Map.Entry<String, String> dataStoreEntries : options.getDataStoreProperties().entrySet()) {
             String key = dataStoreEntries.getKey();
             String value = dataStoreEntries.getValue();
-            jvmOptsBuilder.append(" -D" + Constants.DATASTORE_TYPE_PID + "." + key + "=" + value);
+            jvmOptsBuilder.append(" -D" + Constants.DATASTORE_PID + "." + key + "=" + value);
         }
 
         Profile profile = parent.getVersion().getRequiredProfile("default");

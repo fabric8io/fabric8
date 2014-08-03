@@ -77,15 +77,12 @@ public final class FabricGitServiceImpl extends AbstractComponent implements Git
     }
 
 
-    private Git openOrInit(File repo) throws IOException {
+    private Git openOrInit(File localRepo) throws IOException {
         try {
-            return Git.open(repo);
+            return Git.open(localRepo);
         } catch (RepositoryNotFoundException e) {
             try {
-                Git git = Git.init().setDirectory(repo).call();
-                git.commit().setMessage("First Commit").setCommitter("fabric", "user@fabric").call();
-                git.tag().setName(GitHelpers.ROOT_TAG).setMessage("Tag the root commit").call();
-                return git;
+                return Git.init().setDirectory(localRepo).call();
             } catch (GitAPIException ex) {
                 throw new IOException(ex);
             }

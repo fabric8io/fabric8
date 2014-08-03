@@ -49,7 +49,6 @@ import org.jboss.osgi.metadata.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -90,7 +89,6 @@ public class ExtendedEnsembleTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    @Ignore("[FABRIC-1125] Fix basic ExtendedEnsembleTest")
     public void testAddAndRemoveWithVersions() throws Exception {
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
         ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
