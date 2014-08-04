@@ -69,7 +69,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -96,32 +95,16 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ListBranchCommand;
-import org.eclipse.jgit.api.MergeCommand.FastForwardMode;
-import org.eclipse.jgit.api.MergeResult;
-import org.eclipse.jgit.api.ResetCommand.ResetType;
-import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
-import org.eclipse.jgit.transport.RemoteRefUpdate;
-import org.eclipse.jgit.transport.RemoteRefUpdate.Status;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.eclipse.jgit.treewalk.AbstractTreeIterator;
-import org.eclipse.jgit.treewalk.CanonicalTreeParser;
-import org.gitective.core.CommitUtils;
 import org.gitective.core.RepositoryUtils;
 import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.jboss.gravia.utils.IllegalStateAssertion;
@@ -147,7 +130,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
     private static final String AGENT_METADATA_FILE = "io.fabric8.agent.properties";
     private static final int GIT_COMMIT_SHORT_LENGTH = 7;
-    private static final String MASTER_BRANCH = "master";
     private static final int MAX_COMMITS_WITHOUT_GC = 40;
     private static final long AQUIRE_LOCK_TIMEOUT = 20 * 1000L;
 
@@ -171,7 +153,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     private final ImportExportHandler importExportHandler = new ImportExportHandler();
     private final GitDataStoreListener gitListener = new GitDataStoreListener();
-    private final AtomicReference<String> remoteRef = new AtomicReference<String>("origin");
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final AtomicLong pullCount = new AtomicLong();
     private final boolean strictLockAssert = true;
@@ -179,8 +160,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private int commitsWithoutGC = MAX_COMMITS_WITHOUT_GC;
     private Map<String, String> dataStoreProperties;
     private ProxySelector defaultProxySelector;
+    private PullPushPolicy pullPushPolicy;
     private boolean notificationRequired;
-    private String lastFetchWarning;
     private SharedCount counter;
     private String remoteUrl;
 
@@ -210,6 +191,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         }
         this.dataStoreProperties = Collections.unmodifiableMap(properties);
+        this.pullPushPolicy = new DefaultPullPushPolicy(getGit(), GitHelpers.REMOTE_ORIGIN, gitTimeout);
 
         // DataStore activation accesses public API that is private by {@link AbstractComponent#assertValid()).
         // We activate the component first and rollback on error
@@ -417,7 +399,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                         String prefix = "refs/heads/";
                         if (name.startsWith(prefix)) {
                             name = name.substring(prefix.length());
-                            if (!name.equals(MASTER_BRANCH)) {
+                            if (!name.equals(GitHelpers.MASTER_BRANCH)) {
                                 answer.add(name);
                             }
                         }
@@ -458,17 +440,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public Map<String, String> getDataStoreProperties() {
         return Collections.unmodifiableMap(dataStoreProperties);
-    }
-
-    @Override
-    public String getRemote() {
-        return remoteRef.get();
-    }
-
-    @Override
-    public void setRemote(String remote) {
-        IllegalArgumentAssertion.assertNotNull(remote, "Remote name cannot be null");
-        this.remoteRef.set(remote);
     }
 
     private Version getVersionFromCache(String versionId, String profileId) {
@@ -679,7 +650,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     // on the same branch so we prohibit parent profiles that may get created on another branch. 
     private void assertNoParentProfilesWithMasterBranch(Profile profile) {
         String branch = GitHelpers.getProfileBranch(profile.getVersion(), profile.getId());
-        IllegalArgumentAssertion.assertTrue(!MASTER_BRANCH.equals(branch) || profile.getParents().isEmpty(), "Parent profiles in master branch not supported");
+        IllegalArgumentAssertion.assertTrue(!GitHelpers.MASTER_BRANCH.equals(branch) || profile.getParents().isEmpty(), "Parent profiles in master branch not supported");
     }
 
     @Override
@@ -891,7 +862,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             assertValid();
             LOGGER.info("External call to push");
             List<PushResult> results = new ArrayList<>();
-            doPushInternal(git, context, getCredentialsProvider(), results);
+            pullPushPolicy.doPush(context, getCredentialsProvider(), results);
             return results;
         } finally {
             writeLock.unlock();
@@ -947,7 +918,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
 
             if (context.isRequirePull()) {
-                if (doPullInternal(git, context, getCredentialsProvider(), false)) {
+                if (pullPushPolicy.doPull(context, getCredentialsProvider(), false, versions)) {
                     versionCache.invalidateAll();
                     notificationRequired = true;
                 }
@@ -962,7 +933,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
 
             if (context.isRequirePush()) {
-                doPushInternal(git, context, getCredentialsProvider(), null);
+                pullPushPolicy.doPush(context, getCredentialsProvider(), null);
             }
             
             return result;
@@ -1009,172 +980,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
     }
     
-    /**
-     * Performs a pull so the git repo is pretty much up to date before we start performing operations on it.
-     * @param doDeleteBranches    Flag that determines if local branches that don't exist in remote should get deleted.
-     */
-    private boolean doPullInternal(Git git, GitContext context, CredentialsProvider credentialsProvider, boolean doDeleteBranches) {
-        assertWriteLock();
-        try {
-            Repository repository = git.getRepository();
-            StoredConfig config = repository.getConfig();
-            String url = config.getString("remote", remoteRef.get(), "url");
-            if (url == null) {
-                LOGGER.info("No remote repository defined, so not doing a pull");
-                return false;
-            }
-            
-            LOGGER.info("Performing a pull on remote URL: {}", url);
-            
-            try {
-                git.fetch().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setRemote(remoteRef.get()).call();
-                lastFetchWarning = null;
-            } catch (Exception ex) {
-                String fetchWarning = ex.getMessage();
-                if (!fetchWarning.equals(lastFetchWarning)) {
-                    LOGGER.warn("Fetch failed because of: " + fetchWarning);
-                    LOGGER.info("Fetch failed - the error will be ignored", ex);
-                    lastFetchWarning = fetchWarning;
-                }
-                return false;
-            }
-
-            // Get local and remote branches
-            Map<String, Ref> localBranches = new HashMap<String, Ref>();
-            Map<String, Ref> remoteBranches = new HashMap<String, Ref>();
-            Set<String> gitVersions = new HashSet<String>();
-            for (Ref ref : git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()) {
-                if (ref.getName().startsWith("refs/remotes/" + remoteRef.get() + "/")) {
-                    String name = ref.getName().substring(("refs/remotes/" + remoteRef.get() + "/").length());
-                    remoteBranches.put(name, ref);
-                    gitVersions.add(name);
-                } else if (ref.getName().startsWith("refs/heads/")) {
-                    String name = ref.getName().substring(("refs/heads/").length());
-                    localBranches.put(name, ref);
-                    gitVersions.add(name);
-                }
-            }
-
-            boolean hasChanged = false;
-            
-            // Check git commits
-            if (!remoteBranches.isEmpty()) {
-                for (String version : gitVersions) {
-                    // Delete unneeded local branches.
-                    if (!remoteBranches.containsKey(version)) {
-                        // We never want to delete the master branch.
-                        if (doDeleteBranches && !version.equals(MASTER_BRANCH)) {
-                            try {
-                                git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
-                            } catch (CannotDeleteCurrentBranchException ex) {
-                                git.checkout().setName(MASTER_BRANCH).setForce(true).call();
-                                git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
-                            }
-                            removeVersionFromCaches(version);
-                            hasChanged = true;
-                        }
-                    } else if (!localBranches.containsKey(version)) {
-                        // Create new local branches
-                        cacheVersionId(version);
-                        git.checkout().setCreateBranch(true).setName(version).setStartPoint(remoteRef.get() + "/" + version)
-                                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK).setForce(true).call();
-                        hasChanged = true;
-                    } else {
-                        String localCommit = localBranches.get(version).getObjectId().getName();
-                        String remoteCommit = remoteBranches.get(version).getObjectId().getName();
-                        if (!localCommit.equals(remoteCommit)) {
-                            git.clean().setCleanDirectories(true).call();
-                            git.checkout().setName("HEAD").setForce(true).call();
-                            git.checkout().setName(version).setForce(true).call();
-                            MergeResult result = git.merge().setFastForward(FastForwardMode.FF_ONLY).include(remoteBranches.get(version).getObjectId()).call();
-                            hasChanged = result.getMergeStatus() != MergeResult.MergeStatus.ALREADY_UP_TO_DATE && hasChanged(git, localCommit, remoteCommit);
-                        }
-                    }
-                }
-            }
-            
-            // Increment global pull count which enables timed pushes
-            pullCount.incrementAndGet();
-            
-            if (hasChanged) {
-                LOGGER.info("Changed after pull!");
-                LOGGER.debug("Called from ...", new RuntimeException());
-                return true;
-            } else {
-                LOGGER.info("No change after pull!");
-                return false;
-            }
-            
-        } catch (Throwable ex) {
-            LOGGER.debug("Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git), ex);
-            LOGGER.warn("Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git) + " due " + ex.getMessage() + ". This exception is ignored.");
-            return false;
-        }
-    }
-    
-    /**
-     * Pushes any committed changes to the remote repo
-     */
-    private boolean doPushInternal(Git git, GitContext context, CredentialsProvider credentialsProvider, List<PushResult> results) throws Exception {
-        assertWriteLock();
-        
-        StoredConfig config = git.getRepository().getConfig();
-        String remoteUrl = config.getString("remote", remoteRef.get(), "url");
-        if (remoteUrl == null) {
-            LOGGER.info("No remote repository defined, so not doing a push");
-            return false;
-        }
-
-        LOGGER.info("Pushing last change to: {}", remoteUrl);
-        
-        int retries = 5;
-        Iterator<PushResult> resit = null;
-        TransportException lastPushException = null;
-        List<RemoteRefUpdate> rejectedUpdates = new ArrayList<>();
-        while (resit == null && retries-- > 0) {
-            try {
-                resit = git.push().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setPushAll().call().iterator();
-                lastPushException = null;
-            } catch (TransportException ex) {
-                lastPushException = ex;
-                Thread.sleep(1000L);
-            }
-        }
-        
-        // Collect the updates that are not ok
-        while (resit != null && resit.hasNext()) {
-            PushResult pushResult = resit.next();
-            if (results != null) {
-                results.add(pushResult);
-            }
-            for (RemoteRefUpdate refUpdate : pushResult.getRemoteUpdates()) {
-                LOGGER.info("Remote ref update: {}" + refUpdate);
-                Status status = refUpdate.getStatus();
-                if (status != Status.OK && status != Status.UP_TO_DATE) {
-                    rejectedUpdates.add(refUpdate);
-                }
-            }
-        }
-        
-        // Reset to the last known good rev and make the commit/push fail
-        if (lastPushException != null || !rejectedUpdates.isEmpty()) {
-            String checkoutId = context.getCheckoutId();
-            if (checkoutId != null) {
-                String branch = GitHelpers.currentBranch(git);
-                RevCommit commit = CommitUtils.getCommit(git.getRepository(), checkoutId);
-                LOGGER.warn("Resetting branch '{}' to: {}", branch, commit);
-                git.reset().setMode(ResetType.HARD).setRef(checkoutId).call();
-            }
-            if (!rejectedUpdates.isEmpty()) {
-                throw new IllegalStateException("Cannot fast forward, remote repository has already changed.");
-            } else {
-                throw new IllegalStateException("Cannot push last profile update.", lastPushException);
-            }
-        }
-        
-        return false;
-    }
-
     /**
      * Imports one or more profile zips into the given version
      */
@@ -1250,7 +1055,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     private void createOrCheckoutVersion(Git git, String versionId) throws GitAPIException {
         assertWriteLock();
-        GitHelpers.createOrCheckoutBranch(git, versionId, remoteRef.get());
+        GitHelpers.createOrCheckoutBranch(git, versionId, GitHelpers.REMOTE_ORIGIN);
         cacheVersionId(versionId);
     }
 
@@ -1302,7 +1107,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
     
     private void cacheVersionId(String versionId) {
-        if (!MASTER_BRANCH.equals(versionId)) {
+        if (!GitHelpers.MASTER_BRANCH.equals(versionId)) {
             versions.add(versionId);
         }
     }
@@ -1310,42 +1115,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private void removeVersionFromCaches(String versionId) {
         versionCache.invalidate(versionId);
         versions.remove(versionId);
-    }
-    
-    /**
-     * Checks if there is an actual difference between two commits.
-     * In some cases a container may push a commit, without actually modifying anything.
-     * So comparing the commit hashes is not always enough. We need to actually diff the two commits.
-     *
-     * @param git    The {@link Git} instance to use.
-     * @param before The hash of the first commit.
-     * @param after  The hash of the second commit.
-     */
-    private boolean hasChanged(Git git, String before, String after) throws IOException, GitAPIException {
-        if (isCommitEqual(before, after)) {
-            return false;
-        }
-        Repository db = git.getRepository();
-        List<DiffEntry> entries = git.diff().setOldTree(getTreeIterator(db, before)).setNewTree(getTreeIterator(db, after)).call();
-        return entries.size() > 0;
-    }
-    
-    private AbstractTreeIterator getTreeIterator(Repository db, String name) throws IOException {
-        final ObjectId id = db.resolve(name);
-        if (id == null)
-            throw new IllegalArgumentException(name);
-        final CanonicalTreeParser p = new CanonicalTreeParser();
-        final ObjectReader or = db.newObjectReader();
-        try {
-            p.reset(or, new RevWalk(db).parseTree(id));
-            return p;
-        } finally {
-            or.release();
-        }
-    }
-
-    private static boolean isCommitEqual(Object a, Object b) {
-        return (a == b) || (a != null && a.equals(b));
     }
     
     void bindConfigurer(Configurer service) {
@@ -1435,19 +1204,19 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     public Void call(Git git, GitContext context) throws Exception {
                         Repository repository = git.getRepository();
                         StoredConfig config = repository.getConfig();
-                        String currentUrl = config.getString("remote", "origin", "url");
+                        String currentUrl = config.getString("remote", GitHelpers.REMOTE_ORIGIN, "url");
                         if (!updateUrl.equals(currentUrl)) {
                             
                             LOGGER.info("Remote url change from: {} to: {}", currentUrl, updateUrl);
                             
                             remoteUrl = updateUrl;
-                            config.setString("remote", "origin", "url", updateUrl);
-                            config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
+                            config.setString("remote", GitHelpers.REMOTE_ORIGIN, "url", updateUrl);
+                            config.setString("remote", GitHelpers.REMOTE_ORIGIN, "fetch", "+refs/heads/*:refs/remotes/origin/*");
                             config.save();
                             
                             // Make sure that we don't delete branches at this pull.
-                            boolean hasChanged = doPullInternal(git, context, getCredentialsProvider(), false);
-                            hasChanged |= doPushInternal(git, context, getCredentialsProvider(), null); 
+                            boolean hasChanged = pullPushPolicy.doPull(context, getCredentialsProvider(), false, versions);
+                            hasChanged |= pullPushPolicy.doPush(context, getCredentialsProvider(), null); 
                             if (hasChanged) {
                                 versionCache.invalidateAll();
                                 notificationRequired = true;
@@ -1543,13 +1312,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 assertValid();
 
                 File sourceDir = importPath.toFile();
-                if (!sourceDir.isDirectory())
-                    throw new IllegalArgumentException("Not a valid source dir: " + sourceDir.getAbsolutePath());
+                IllegalArgumentAssertion.assertTrue(sourceDir.isDirectory(), "Not a valid source dir: " + sourceDir);
 
                 // lets try and detect the old ZooKeeper style file layout and transform it into the git layout
                 // so we may /fabric/configs/versions/1.0/profiles => /fabric/profiles in branch 1.0
-                File fabricsDir = new File(sourceDir, "fabric");
-                File configs = new File(fabricsDir, "configs");
+                File fabricDir = new File(sourceDir, "fabric");
+                File configs = new File(fabricDir, "configs");
                 String defaultVersion = dataStore.get().getDefaultVersion();
                 if (configs.exists()) {
                     LOGGER.info("Importing the old ZooKeeper layout");
@@ -1571,7 +1339,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                             }
                         }
                     }
-                    File metrics = new File(fabricsDir, "metrics");
+                    File metrics = new File(fabricDir, "metrics");
                     if (metrics.exists()) {
                         LOGGER.info("Importing metrics from " + metrics + " to branch " + defaultVersion);
                         importFromFileSystem(metrics, GitHelpers.CONFIGS, defaultVersion, false);
@@ -1579,8 +1347,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 } else {
                     // default to version 1.0
                     String version = "1.0";
-                    LOGGER.info("Importing " + fabricsDir + " as version " + version);
-                    importFromFileSystem(fabricsDir, "", version, false);
+                    LOGGER.info("Importing " + fabricDir + " as version " + version);
+                    importFromFileSystem(fabricDir, "", version, false);
                 }
             } finally {
                 writeLock.unlock();
@@ -1638,7 +1406,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             return null;
         }
         
-        private void importFromFileSystem(final File from, final String destinationPath, final String versionId, final boolean isProfileDir) {
+        private void importFromFileSystem(final File fabricDir, final String destinationPath, final String versionId, final boolean isProfileDir) {
             assertWriteLock();
             GitOperation<Void> gitop = new GitOperation<Void>() {
                 public Void call(Git git, GitContext context) throws Exception {
@@ -1650,11 +1418,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                         toDir = new File(toDir, destinationPath);
                     }
                     if (isProfileDir) {
-                        recursiveAddLegacyProfileDirectoryFiles(git, from, toDir, destinationPath);
+                        recursiveAddLegacyProfileDirectoryFiles(git, fabricDir, toDir, destinationPath);
                     } else {
-                        recursiveCopyAndAdd(git, from, toDir, destinationPath, false);
+                        recursiveCopyAndAdd(git, fabricDir, toDir, destinationPath, false);
                     }
-                    context.commitMessage("Imported from " + from);
+                    context.commitMessage("Imported from " + fabricDir);
                     return null;
                 }
             };

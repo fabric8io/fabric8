@@ -126,7 +126,7 @@ public interface ProfileRegistry {
     
     void importProfiles(String versionId, List<String> profileZipUrls);
 
-    void importFromFileSystem(String from);
+    void importFromFileSystem(String importPath);
 
     void exportProfiles(String versionId, String outputFileName, String wildcard);
 }

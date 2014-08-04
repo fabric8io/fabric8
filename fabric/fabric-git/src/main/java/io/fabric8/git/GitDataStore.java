@@ -9,16 +9,6 @@ import org.eclipse.jgit.transport.PushResult;
 
 public interface GitDataStore {
 
-    /**
-     * Get the name of the remote repository
-     */
-    String getRemote();
-
-    /**
-     * Set the name of the remote repository
-     */
-    void setRemote(String remote);
-
     Iterable<PushResult> doPush(Git git, GitContext context) throws Exception;
     
     <T> T gitOperation(GitContext context, GitOperation<T> operation, PersonIdent personIdent);
