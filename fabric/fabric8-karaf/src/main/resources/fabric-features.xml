@@ -708,9 +708,8 @@
 
 
     <feature name="jolokia" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-core</feature>
-        <feature>http</feature>
-        <bundle>mvn:io.fabric8/fabric-jolokia/${project.version}</bundle>
+      <feature>http</feature>
+      <bundle>mvn:org.jolokia/jolokia-osgi/${jolokia-version}</bundle>
     </feature>
 
     <feature name="gateway-core" version="${project.version}" resolver="(obr)">
