@@ -104,6 +104,11 @@
             </exclusion>
         </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.metatype</artifactId>
+      <version>${felix-metatype-version}</version>
+    </dependency>
 
     <!-- maven plugin dependencies -->
     <dependency>

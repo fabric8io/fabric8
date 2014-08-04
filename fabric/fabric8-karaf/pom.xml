@@ -695,6 +695,22 @@ TODO - zapped to try fix perfectus!
            				</lifecycleMappingMetadata>
            			</configuration>
            		</plugin>
+
+              <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                  <execution>
+                    <id>copy-metatype</id>
+                    <phase>package</phase>
+                    <goals>
+                      <goal>copy-metatype</goal>
+                    </goals>
+                  </execution>
+                </executions>
+              </plugin>
+
            	</plugins>
            </pluginManagement>
        </build>
