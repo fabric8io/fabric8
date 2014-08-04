@@ -27,8 +27,7 @@ import org.jgroups.annotations.Property;
 import org.jgroups.conf.ClassConfigurator;
 
 /**
- * @author <a href="mailto:ales.justin@jboss.org">Ales Justin</a>
- * @author Bela Ban
+ * Bean based ping; configure properties to provide the curator.
  */
 @MBean(description = "ZooKeeper based discovery protocol. Acts as a ZooKeeper client and accesses ZooKeeper servers " +
     "to fetch discovery information")
