@@ -167,11 +167,7 @@
            <dependency>
                <groupId>io.fabric8</groupId>
                <artifactId>fabric-jaas</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>io.fabric8</groupId>
-               <artifactId>fabric-jolokia</artifactId>
-           </dependency>
+             </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
                <artifactId>fabric-ldap</artifactId>
