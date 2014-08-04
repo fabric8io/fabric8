@@ -379,6 +379,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     public void destroyContainer(Container container, boolean force) {
         assertValid();
         String containerId = container.getId();
+        Exception providerException = null;
         LOGGER.info("Destroying container {}", containerId);
         boolean destroyed = false;
         try {
@@ -387,10 +388,13 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 try {
                     provider.stop(container);
                 } catch (Exception ex) {
+                    providerException = ex;
                     //Ignore error while stopping and try to destroy.
                 }
                 provider.destroy(container);
                 destroyed = true;
+            } else {
+                throw new FabricException("Container's lifecycle not managed by Fabric8 (the container was not created by Fabric8).");
             }
 
         } finally {
@@ -405,6 +409,9 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 }
             } catch (Exception e) {
                 LOGGER.warn("Failed to cleanup container {} entries due to: {}. This will be ignored.", containerId, e.getMessage());
+            }
+            if (providerException != null) {
+                throw FabricException.launderThrowable(providerException);
             }
         }
     }
