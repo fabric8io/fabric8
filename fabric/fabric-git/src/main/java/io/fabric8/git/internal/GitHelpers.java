@@ -44,6 +44,8 @@ public class GitHelpers {
     static final String CONFIGS = "fabric";
     static final String CONFIGS_PROFILES = CONFIGS + File.separator + "profiles";
     static final String VERSION_ATTRIBUTES = "version.attributes";
+    static final String REMOTE_ORIGIN = "origin";
+    static final String MASTER_BRANCH = "master";
     static final String ROOT_TAG = "root";
     
     static final Pattern ENSEMBLE_PROFILE_PATTERN = Pattern.compile("fabric-ensemble-[0-9]+|fabric-ensemble-[0-9]+-[0-9]+");

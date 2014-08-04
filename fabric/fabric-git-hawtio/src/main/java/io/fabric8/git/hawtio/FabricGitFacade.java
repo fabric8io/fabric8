@@ -320,7 +320,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         if (Strings.isBlank(branch)) {
             branch = "master";
         }
-        GitHelpers.createOrCheckoutBranch(git, branch, gitDataStore.get().getRemote());
+        GitHelpers.createOrCheckoutBranch(git, branch, "origin");
     }
 
     private <T> T gitReadOperation(GitOperation<T> gitop) {
