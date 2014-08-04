@@ -173,7 +173,7 @@ public class RemoteGitRepositoryTest {
             profileRegistry.createProfile(pbuilder.getProfile());
             Assert.fail("IllegalStateException expected");
         } catch (IllegalStateException ex) {
-            Assert.assertTrue(ex.getMessage(), ex.getMessage().startsWith("Cannot fast forward"));
+            Assert.assertTrue(ex.getMessage(), ex.getMessage().startsWith("Push rejected"));
         }
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfD"));
         

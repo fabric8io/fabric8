@@ -41,6 +41,8 @@ import io.fabric8.git.GitDataStore;
 import io.fabric8.git.GitListener;
 import io.fabric8.git.GitProxyService;
 import io.fabric8.git.GitService;
+import io.fabric8.git.internal.PullPushPolicy.PullPolicyResult;
+import io.fabric8.git.internal.PullPushPolicy.PushPolicyResult;
 import io.fabric8.service.EnvPlaceholderResolver;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.zookeeper.ZkPath;
@@ -77,7 +79,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
@@ -154,7 +155,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private final ImportExportHandler importExportHandler = new ImportExportHandler();
     private final GitDataStoreListener gitListener = new GitDataStoreListener();
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-    private final AtomicLong pullCount = new AtomicLong();
     private final boolean strictLockAssert = true;
 
     private int commitsWithoutGC = MAX_COMMITS_WITHOUT_GC;
@@ -167,8 +167,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Property(name = "configuredUrl", label = "External Git Repository URL", description = "The URL to a fixed external git repository")
     private String configuredUrl;
-    @Property(name = "gitPushInterval", label = "Push Interval", description = "The interval between push (value in millis)")
-    private long gitPushInterval = 60 * 1000L;
     @Property(name = "gitTimeout", label = "Timeout", description = "Timeout connecting to remote git server (value in seconds)")
     private int gitTimeout = 10;
     @Property(name = "importDir", label = "Import Directory", description = "Directory to import additional profiles", value = "fabric")
@@ -253,32 +251,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         // Get initial versions
         getInitialVersions();
 
-        LOGGER.info("Starting to push to remote git repository every {} millis", gitPushInterval);
-        threadPool.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                if (pullCount.get() > 0) {
-                    LockHandle writeLock = aquireWriteLock();
-                    try {
-                        // A commit that failed to push for any reason, will not get pushed until the next commit.
-                        // periodically pushing can address this issue.
-                        LOGGER.trace("Performing timed push");
-                        push();
-                        LOGGER.debug("Performed timed push done");
-                    } catch (Throwable e) {
-                        LOGGER.debug("Error during performed timed pull/push due " + e.getMessage(), e);
-                        LOGGER.warn("Error during performed timed pull/push due " + e.getMessage() + ". This exception is ignored.");
-                    } finally {
-                        writeLock.unlock();
-                    }
-                }
-            }
-            @Override
-            public String toString() {
-                return "TimedPushTask";
-            }
-        }, 1000, gitPushInterval, TimeUnit.MILLISECONDS);
-
         LOGGER.info("Using ZooKeeper SharedCount to react when master git repo is changed, so we can do a git pull to the local git repo.");
         counter = new SharedCount(curator.get(), ZkPath.GIT_TRIGGER.getPath(), 0);
         counter.addListener(new SharedCountListener() {
@@ -292,7 +264,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 
                 LockHandle writeLock = aquireWriteLock();
                 try {
-                    pull();
+                    doPullInternal(new GitContext(), getCredentialsProvider());
                 } catch (Throwable e) {
                     LOGGER.debug("Error during pull due " + e.getMessage(), e);
                     LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
@@ -413,28 +385,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         } finally {
             readLock.unlock();
         }
-    }
-    
-    private boolean pull() {
-        assertWriteLock();
-        GitOperation<Boolean> gitop = new GitOperation<Boolean>() {
-            public Boolean call(Git git, GitContext context) throws Exception {
-                return true;
-            }
-        };
-        GitContext context = new GitContext().requirePull();
-        return executeInternal(context, null, gitop);
-    }
-
-    private void push() {
-        assertReadLock();
-        GitOperation<Object> gitop = new GitOperation<Object>() {
-            public Object call(Git git, GitContext context) throws Exception {
-                return null;
-            }
-        };
-        GitContext context = new GitContext().requirePush();
-        executeInternal(context, null, gitop);
     }
     
     @Override
@@ -861,9 +811,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         try {
             assertValid();
             LOGGER.info("External call to push");
-            List<PushResult> results = new ArrayList<>();
-            pullPushPolicy.doPush(context, getCredentialsProvider(), results);
-            return results;
+            PushPolicyResult pushResult = doPushInternal(context, getCredentialsProvider());
+            return pushResult.getPushResults();
         } finally {
             writeLock.unlock();
         }
@@ -918,10 +867,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
 
             if (context.isRequirePull()) {
-                if (pullPushPolicy.doPull(context, getCredentialsProvider(), false, versions)) {
-                    versionCache.invalidateAll();
-                    notificationRequired = true;
-                }
+                doPullInternal(context, getCredentialsProvider());
             }
 
             T result = operation.call(git, context);
@@ -933,7 +879,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
 
             if (context.isRequirePush()) {
-                pullPushPolicy.doPush(context, getCredentialsProvider(), null);
+                doPushInternal(context, getCredentialsProvider());
             }
             
             return result;
@@ -980,6 +926,39 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
     }
     
+    private PullPolicyResult doPullInternal(GitContext context, CredentialsProvider credentialsProvider) throws Exception {
+        PullPolicyResult pullResult = pullPushPolicy.doPull(context, getCredentialsProvider());
+        if (pullResult.getLastException() != null) {
+            throw pullResult.getLastException();
+        }
+        if (pullResult.localUpdateRequired()) {
+            versionCache.invalidateAll();
+            notificationRequired = true;
+        }
+        if (!versions.equals(pullResult.getVersions())) {
+            versions.clear();
+            versions.addAll(pullResult.getVersions());
+            versionCache.invalidateAll();
+            notificationRequired = true;
+        }
+        if (pullResult.remoteUpdateRequired()) {
+            doPushInternal(context, credentialsProvider);
+            notificationRequired = true;
+        }
+        return pullResult;
+    }
+
+    private PushPolicyResult doPushInternal(GitContext context, CredentialsProvider credentialsProvider) throws Exception {
+        PushPolicyResult pushResult = pullPushPolicy.doPush(context, credentialsProvider);
+        if (pushResult.getLastException() != null) {
+            throw pushResult.getLastException();
+        }
+        if (!pushResult.getRejectedUpdates().isEmpty()) {
+            throw new IllegalStateException("Push rejected: " + pushResult.getRejectedUpdates());
+        }
+        return pushResult;
+    }
+
     /**
      * Imports one or more profile zips into the given version
      */
@@ -1213,14 +1192,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                             config.setString("remote", GitHelpers.REMOTE_ORIGIN, "url", updateUrl);
                             config.setString("remote", GitHelpers.REMOTE_ORIGIN, "fetch", "+refs/heads/*:refs/remotes/origin/*");
                             config.save();
-                            
-                            // Make sure that we don't delete branches at this pull.
-                            boolean hasChanged = pullPushPolicy.doPull(context, getCredentialsProvider(), false, versions);
-                            hasChanged |= pullPushPolicy.doPush(context, getCredentialsProvider(), null); 
-                            if (hasChanged) {
-                                versionCache.invalidateAll();
-                                notificationRequired = true;
-                            }
+
+                            doPullInternal(context, getCredentialsProvider());
                         }
                         return null;
                     }
