@@ -62,6 +62,14 @@
           <lineEnding>unix</lineEnding>
           <filtered>true</filtered>
       </fileSet>
+
+      <!-- Copy over the examples without filtering ... -->
+      <fileSet>
+          <directory>${project.build.directory}/metatype</directory>
+          <outputDirectory>/metatype</outputDirectory>
+          <lineEnding>unix</lineEnding>
+          <filtered>false</filtered>
+      </fileSet>
   </fileSets>
 
 </component>
