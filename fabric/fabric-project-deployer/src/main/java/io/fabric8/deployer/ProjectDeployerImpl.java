@@ -201,6 +201,10 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         builder.setBundles(bundles);
         builder.setFeatures(features);
         builder.setRepositories(repositories);
+        Boolean locked = requirements.getLocked();
+        if (locked != null) {
+            builder.setLocked(locked);
+        }
         String webContextPath = requirements.getWebContextPath();
         if (!Strings.isEmpty(webContextPath)) {
             Map<String, String> contextPathConfig = new HashMap<>();

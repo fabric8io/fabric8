@@ -353,6 +353,10 @@ If you really want to you can specify the properties (without the **fabric8.** p
 <td>useResolver</td>
 <td>Whether or not the OSGi resolver is used for bundles or karaf based containers to deduce the additional bundles or features that need to be added to your projects dependencies to be able to satisfy the OSGi package imports. Defaults to false.</td>
 </tr>
+<tr>
+<td>locked</td>
+<td>Whether or not the created profile should be locked (so its read only). Defaults to false.</td>
+</tr>
 </table>
 
 ### Generating Karaf shell scripts for each profile

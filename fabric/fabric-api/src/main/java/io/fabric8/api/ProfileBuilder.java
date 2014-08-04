@@ -57,7 +57,7 @@ public interface ProfileBuilder extends AttributableBuilder<ProfileBuilder> {
     ProfileBuilder setConfigurations(Map<String, Map<String, String>> configs);
 
     ProfileBuilder deleteConfiguration(String pid);
-    
+
     Set<String> getFileConfigurationKeys();
     
     byte[] getFileConfiguration(String key);
@@ -84,6 +84,8 @@ public interface ProfileBuilder extends AttributableBuilder<ProfileBuilder> {
     
     ProfileBuilder setOverlay(boolean overlay);
     
+    ProfileBuilder setLocked(boolean flag);
+
     ProfileBuilder setLastModified(String lastModified);
     
     Profile getProfile();

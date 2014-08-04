@@ -540,6 +540,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
                 + "profile: " + requirements.getProfileId()
                 + " with parent profile(s): " + requirements.getParentProfiles()
                 + (requirements.isUseResolver() ? " using OSGi resolver" : ""));
+                + (requirements.isLocked() ? " locked" : ""));
         getLog().info("About to invoke mbean " + mbeanName + " on jolokia URL: " + jolokiaUrl + " with user: " + fabricServer.getUsername());
         getLog().debug("JSON: " + json);
         try {

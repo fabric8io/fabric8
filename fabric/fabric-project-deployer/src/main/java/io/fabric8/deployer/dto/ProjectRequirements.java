@@ -36,6 +36,7 @@ public class ProjectRequirements {
     private DependencyDTO rootDependency;
     private String webContextPath;
     private Boolean useResolver;
+    private Boolean locked;
 
     @Override
     public String toString() {
@@ -164,5 +165,17 @@ public class ProjectRequirements {
 
     public void setUseResolver(Boolean useResolver) {
         this.useResolver = useResolver;
+    }
+
+    public Boolean getLocked() {
+        return locked;
+    }
+
+    public void setLocked(Boolean locked) {
+        this.locked = locked;
+    }
+
+    public boolean isLocked() {
+        return locked != null && locked.booleanValue();
     }
 }

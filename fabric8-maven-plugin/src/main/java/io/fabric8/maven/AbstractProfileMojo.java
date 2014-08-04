@@ -167,6 +167,12 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     private boolean useResolver;
 
     /**
+     * Specifies whether or not to specify that the profile should be locked.
+     */
+    @Parameter(property = "fabric8.locked")
+    private Boolean locked;
+
+    /**
      * The minimum number of instances of this profile which we require to run.
      */
     @Parameter(property = "fabric8.minInstanceCount", defaultValue = "1")
@@ -350,6 +356,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         }
         if (Strings.isNotBlank(webContextPath)) {
             requirements.setWebContextPath(webContextPath);
+        }
+        if (locked != null) {
+            requirements.setLocked(locked);
         }
         List<String> bundleList = parameterToStringList(bundles);
         if (parentProfiles == null || parentProfiles.length() <= 0) {

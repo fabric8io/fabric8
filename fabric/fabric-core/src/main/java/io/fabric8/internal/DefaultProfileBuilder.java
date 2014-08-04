@@ -46,7 +46,8 @@ import org.jboss.gravia.utils.IllegalStateAssertion;
 final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implements AttributableBuilder<ProfileBuilder>, ProfileBuilder {
 
     private static final String PARENTS_ATTRIBUTE_KEY = Profile.ATTRIBUTE_PREFIX + Profile.PARENTS;
-	
+    private static final String LOCKED_ATTRIBUTE_KEY = Profile.ATTRIBUTE_PREFIX + Profile.LOCKED;
+
     private String versionId;
 	private String profileId;
 	private Map<String, Profile> parentMapping = new LinkedHashMap<>();
@@ -149,6 +150,18 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
         return pspec;
     }
     
+    @Override
+    public ProfileBuilder setLocked(boolean flag) {
+        Map<String, String> config = getConfigurationInternal(Constants.AGENT_PID);
+        if (flag) {
+            config.put(LOCKED_ATTRIBUTE_KEY, "true");
+        } else {
+            config.remove(LOCKED_ATTRIBUTE_KEY);
+        }
+        addConfiguration(Constants.AGENT_PID, config);
+        return this;
+    }
+
     @Override
     public Set<String> getFileConfigurationKeys() {
         return fileMapping.keySet();
