@@ -7,19 +7,40 @@ import java.util.Set;
 
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
 
 public interface PullPushPolicy {
 
+    interface PullPolicyResult {
+        
+        boolean localUpdateRequired();
+        
+        boolean remoteUpdateRequired();
+        
+        Set<String> getVersions();
+        
+        Exception getLastException();
+    }
+
+    interface PushPolicyResult {
+    
+        List<PushResult> getPushResults();
+        
+        List<RemoteRefUpdate> getAcceptedUpdates();
+        
+        List<RemoteRefUpdate> getRejectedUpdates();
+        
+        Exception getLastException();
+    }
+    
     /**
      * Pull the version/profile state from the remote repository
-     * @return true if the local workspace changed
      */
-    boolean doPull(GitContext context, CredentialsProvider credentialsProvider, boolean doDeleteBranches, Set<String> versionCache);
+    PullPolicyResult doPull(GitContext context, CredentialsProvider credentialsProvider);
 
     /**
      * Push the version/profile state to the remote repository
-     * @return true if the local workspace changed
      */
-    boolean doPush(GitContext context, CredentialsProvider credentialsProvider, List<PushResult> results) throws Exception;
+    PushPolicyResult doPush(GitContext context, CredentialsProvider credentialsProvider);
 
 }
