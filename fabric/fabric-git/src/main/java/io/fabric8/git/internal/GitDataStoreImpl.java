@@ -129,7 +129,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     
     private static final String GIT_REMOTE_USER = "gitRemoteUser";
     private static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
-    private static final String AGENT_METADATA_FILE = "io.fabric8.agent.properties";
     private static final int GIT_COMMIT_SHORT_LENGTH = 7;
     private static final int MAX_COMMITS_WITHOUT_GC = 40;
     private static final long AQUIRE_LOCK_TIMEOUT = 20 * 1000L;
@@ -721,7 +720,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             File[] files = profileDir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    return !AGENT_METADATA_FILE.equals(name);
+                    return !Constants.AGENT_PROPERTIES.equals(name);
                 }
             });
             for (File file : files) {
@@ -896,7 +895,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
      */
     private String doCreateProfile(Git git, GitContext context, String versionId, String profileId) throws IOException, GitAPIException {
         File profileDirectory = GitHelpers.getProfileDirectory(git, profileId);
-        File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
+        File metadataFile = new File(profileDirectory, Constants.AGENT_PROPERTIES);
         IllegalStateAssertion.assertFalse(metadataFile.exists(), "Profile metadata file already exists: " + metadataFile);
         profileDirectory.mkdirs();
         Files.writeToFile(metadataFile, "#Profile:" + profileId + "\n", Charset.defaultCharset());
@@ -1047,7 +1046,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         String branch = checkoutProfileBranch(git, context, versionId, profileId);
         IllegalStateAssertion.assertNotNull(branch, "Cannot checkout profile branch: " + versionId + "/" + profileId);
         RevCommit lastCommit = GitHelpers.getVersionLastCommit(git, branch);
-        LOGGER.info("Last commit for {}/{}: {}", versionId, profileId, lastCommit);
         if (lastCommit != null) {
             String checkoutId = lastCommit.getId().abbreviate(GIT_COMMIT_SHORT_LENGTH).name();
             context.setCheckoutId(checkoutId);

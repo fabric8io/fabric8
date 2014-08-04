@@ -33,6 +33,8 @@ import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeCommand.FastForwardMode;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.MergeResult.MergeStatus;
+import org.eclipse.jgit.api.RebaseCommand.Operation;
+import org.eclipse.jgit.api.RebaseResult;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
@@ -45,6 +47,7 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.RemoteRefUpdate.Status;
 import org.gitective.core.CommitUtils;
+import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,48 +120,71 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
             boolean remoteChange = false;
             Set<String> versions = new TreeSet<>();
             
-            if (!remoteBranches.isEmpty()) {
-                for (String branch : allBranches) {
-                    
-                    // Delete a local branch that does not exist remotely, but not master 
-                    if (localBranches.containsKey(branch) && !remoteBranches.containsKey(branch) && !GitHelpers.MASTER_BRANCH.equals(branch)) {
-                        LOGGER.info("Deleting local branch: {}", branch);
-                        if (branch.equals(GitHelpers.currentBranch(git))) {
-                            git.checkout().setName(GitHelpers.MASTER_BRANCH).setForce(true).call();
-                        }
-                        git.branchDelete().setBranchNames(branch).setForce(true).call();
-                        localChange = true;
-                    } 
-                    
-                    // Create a local branch that exists remotely
-                    else if (!localBranches.containsKey(branch) && remoteBranches.containsKey(branch)) {
-                        LOGGER.info("Adding local branch: {}", branch);
-                        git.checkout().setCreateBranch(true).setName(branch).setStartPoint(remoteRef + "/" + branch).setUpstreamMode(SetupUpstreamMode.TRACK).setForce(true).call();
-                        versions.add(branch);
-                        localChange = true;
-                    }
-                    
-                    // Update a local branch that also exists remotely
-                    else if (localBranches.containsKey(branch) && remoteBranches.containsKey(branch)) {
-                        ObjectId localObjectId = localBranches.get(branch).getObjectId();
-                        ObjectId remoteObjectId = remoteBranches.get(branch).getObjectId();
-                        String localCommit = localObjectId.getName();
-                        String remoteCommit = remoteObjectId.getName();
-                        if (!localCommit.equals(remoteCommit)) {
-                            LOGGER.info("Updating local branch: {}", branch);
-                            git.clean().setCleanDirectories(true).call();
-                            git.checkout().setName("HEAD").setForce(true).call();
-                            git.checkout().setName(branch).setForce(true).call();
-                            MergeResult result = git.merge().setFastForward(FastForwardMode.FF_ONLY).include(remoteObjectId).call();
-                            MergeStatus mergeStatus = result.getMergeStatus();
-                            if (mergeStatus == MergeStatus.FAST_FORWARD) {
+            // Remote repository has no branches, force a push
+            if (remoteBranches.isEmpty()) {
+                LOGGER.info("Pulled from an empty remote repository");
+                return new AbstractPullPolicyResult(versions, false, true, null);
+            }
+            
+            // Verify master branch and do a checkout of it when we have it locally (already)
+            IllegalStateAssertion.assertTrue(remoteBranches.containsKey(GitHelpers.MASTER_BRANCH), "Remote repository does not have a master branch");
+            if (localBranches.containsKey(GitHelpers.MASTER_BRANCH)) {
+                git.checkout().setName(GitHelpers.MASTER_BRANCH).setForce(true).call();
+            }
+            
+            // Iterate over all local/remote branches
+            for (String branch : allBranches) {
+                
+                // Delete a local branch that does not exist remotely, but not master 
+                if (localBranches.containsKey(branch) && !remoteBranches.containsKey(branch) && !GitHelpers.MASTER_BRANCH.equals(branch)) {
+                    LOGGER.info("Deleting local branch: {}", branch);
+                    git.branchDelete().setBranchNames(branch).setForce(true).call();
+                    localChange = true;
+                } 
+                
+                // Create a local branch that exists remotely
+                else if (!localBranches.containsKey(branch) && remoteBranches.containsKey(branch)) {
+                    LOGGER.info("Adding local branch: {}", branch);
+                    git.checkout().setCreateBranch(true).setName(branch).setStartPoint(remoteRef + "/" + branch).setUpstreamMode(SetupUpstreamMode.TRACK).setForce(true).call();
+                    versions.add(branch);
+                    localChange = true;
+                }
+                
+                // Update a local branch that also exists remotely
+                else if (localBranches.containsKey(branch) && remoteBranches.containsKey(branch)) {
+                    ObjectId localObjectId = localBranches.get(branch).getObjectId();
+                    ObjectId remoteObjectId = remoteBranches.get(branch).getObjectId();
+                    String localCommit = localObjectId.getName();
+                    String remoteCommit = remoteObjectId.getName();
+                    if (!localCommit.equals(remoteCommit)) {
+                        LOGGER.info("Updating local branch: {}", branch);
+                        git.clean().setCleanDirectories(true).call();
+                        git.checkout().setName("HEAD").setForce(true).call();
+                        git.checkout().setName(branch).setForce(true).call();
+                        MergeResult mergeResult = git.merge().setFastForward(FastForwardMode.FF_ONLY).include(remoteObjectId).call();
+                        MergeStatus mergeStatus = mergeResult.getMergeStatus();
+                        if (mergeStatus == MergeStatus.FAST_FORWARD) {
+                            localChange = true;
+                        } else if (mergeStatus == MergeStatus.ABORTED) {
+                            LOGGER.info("Cannot fast forward branch {}, attempting rebase", branch);
+                            RebaseResult rebaseResult = git.rebase().setUpstream(remoteCommit).call();
+                            RebaseResult.Status rebaseStatus = rebaseResult.getStatus();
+                            if (rebaseStatus == RebaseResult.Status.OK) {
                                 localChange = true;
-                            } else if (mergeStatus != MergeStatus.ALREADY_UP_TO_DATE) {
-                                throw new IllegalStateException("Cannot fast forward branch: " + branch);
+                                remoteChange = true;
+                            } else {
+                                LOGGER.info("Rebase on branch {} failed, restoring remote branch", branch);
+                                git.rebase().setOperation(Operation.ABORT).call();
+                                git.checkout().setName(GitHelpers.MASTER_BRANCH).setForce(true).call();
+                                git.branchDelete().setBranchNames(branch).setForce(true).call();
+                                git.checkout().setCreateBranch(true).setName(branch).setStartPoint(remoteRef + "/" + branch).setUpstreamMode(SetupUpstreamMode.TRACK).setForce(true).call();
+                                localChange = true;
                             }
+                        } else {
+                            throw new IllegalStateException("Cannot fast forward branch " + branch + ", status: " + mergeStatus);
                         }
-                        versions.add(branch);
                     }
+                    versions.add(branch);
                 }
             }
             

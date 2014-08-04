@@ -28,6 +28,7 @@ import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.git.GitDataStore;
 import io.fabric8.git.internal.GitOperation;
+import io.fabric8.utils.DataStoreUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,12 +40,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.gitective.core.CommitUtils;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.gravia.runtime.ServiceLocator;
 import org.junit.AfterClass;
@@ -124,38 +131,41 @@ public class RemoteGitRepositoryTest {
     }
     
     @Test
-    public void createAndDeleteProfileLocal() throws Exception {
+    public void createProfileLocal() throws Exception {
         
         String versionId = "1.0";
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfA"));
         
         ProfileBuilder pbuilder = ProfileBuilder.Factory.create(versionId, "prfA");
-        String profileId = profileRegistry.createProfile(pbuilder.getProfile());
-        Assert.assertTrue(profileExists("1.0", "prfA"));
+        profileRegistry.createProfile(pbuilder.addAttribute("foo", "aaa").getProfile());
+        Profile profile = profileRegistry.getRequiredProfile(versionId, "prfA");
+        Assert.assertEquals("aaa", profile.getAttributes().get("foo"));
         
-        profileRegistry.deleteProfile(versionId, profileId);
+        profileRegistry.deleteProfile(versionId, "prfA");
         Assert.assertFalse(profileExists("1.0", "prfA"));
     }
 
     @Test
-    public void createAndDeleteProfileRemote() throws Exception {
+    public void createProfileRemote() throws Exception {
         
         final String versionId = "1.0";
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfB"));
         
-        createProfileRemote(versionId, "prfB");
+        createProfileRemote(versionId, "prfB", Collections.singletonMap("foo", "bbb"));
         
         GitOperation<Profile> gitop = new GitOperation<Profile>() {
             public Profile call(Git git, GitContext context) throws Exception {
                 return profileRegistry.getProfile(versionId, "prfB");
             }
         };
-        Profile profile = gitDataStore.gitOperation(new GitContext().requirePull(), gitop, null);
+        GitContext context = new GitContext().requirePull();
+        Profile profile = gitDataStore.gitOperation(context, gitop, null);
         Assert.assertEquals("1.0", profile.getVersion());
         Assert.assertEquals("prfB", profile.getId());
+        Assert.assertEquals("bbb", profile.getAttributes().get("foo"));
         
         deleteProfileRemote(versionId, "prfB");
-        profile = gitDataStore.gitOperation(new GitContext().requirePull(), gitop, null);
+        profile = gitDataStore.gitOperation(context, gitop, null);
         Assert.assertNull(profile);
     }
 
@@ -166,7 +176,7 @@ public class RemoteGitRepositoryTest {
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfC"));
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfD"));
         
-        createProfileRemote(versionId, "prfC");
+        createProfileRemote(versionId, "prfC", null);
         
         ProfileBuilder pbuilder = ProfileBuilder.Factory.create(versionId, "prfD");
         try {
@@ -180,6 +190,79 @@ public class RemoteGitRepositoryTest {
         deleteProfileRemote(versionId, "prfC");
     }
 
+    @Test
+    public void rebaseOnFailedPull() throws Exception {
+        
+        final String versionId = "1.0";
+        Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfE"));
+        Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfF"));
+        
+        checkoutBranch(versionId);
+        RevCommit head = CommitUtils.getHead(git.getRepository());
+        
+        ProfileBuilder pbuilder = ProfileBuilder.Factory.create(versionId, "prfE");
+        profileRegistry.createProfile(pbuilder.getProfile());
+        Assert.assertTrue(profileExists("1.0", "prfE"));
+
+        // Remove the last commit from the remote repository
+        git.reset().setMode(ResetType.HARD).setRef(head.getName()).call();
+        Assert.assertFalse(profileExists("1.0", "prfE"));
+        
+        createProfileRemote(versionId, "prfF", null);
+        Assert.assertTrue(profileExists("1.0", "prfF"));
+        
+        GitOperation<Profile> gitop = new GitOperation<Profile>() {
+            public Profile call(Git git, GitContext context) throws Exception {
+                return profileRegistry.getProfile(versionId, "prfF");
+            }
+        };
+        GitContext context = new GitContext().requirePull();
+        Profile profile = gitDataStore.gitOperation(context, gitop, null);
+        Assert.assertEquals("1.0", profile.getVersion());
+        Assert.assertEquals("prfF", profile.getId());
+        
+        profileRegistry.deleteProfile(versionId, "prfE");
+        profileRegistry.deleteProfile(versionId, "prfF");
+        Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfE"));
+        Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfF"));
+    }
+    
+    @Test
+    public void rejectOnFailedPull() throws Exception {
+        
+        final String versionId = "1.0";
+        Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfG"));
+        
+        checkoutBranch(versionId);
+        RevCommit head = CommitUtils.getHead(git.getRepository());
+        
+        ProfileBuilder pbuilder = ProfileBuilder.Factory.create(versionId, "prfG");
+        profileRegistry.createProfile(pbuilder.addAttribute("foo", "aaa").getProfile());
+        Profile profile = profileRegistry.getRequiredProfile(versionId, "prfG");
+        Assert.assertEquals("aaa", profile.getAttributes().get("foo"));
+
+        // Remove the last commit from the remote repository
+        git.reset().setMode(ResetType.HARD).setRef(head.getName()).call();
+        Assert.assertFalse(profileExists("1.0", "prfG"));
+        
+        createProfileRemote(versionId, "prfG", Collections.singletonMap("foo", "bbb"));
+        Assert.assertTrue(profileExists("1.0", "prfG"));
+        
+        GitOperation<Profile> gitop = new GitOperation<Profile>() {
+            public Profile call(Git git, GitContext context) throws Exception {
+                return profileRegistry.getProfile(versionId, "prfG");
+            }
+        };
+        GitContext context = new GitContext().requirePull();
+        profile = gitDataStore.gitOperation(context, gitop, null);
+        Assert.assertEquals("1.0", profile.getVersion());
+        Assert.assertEquals("prfG", profile.getId());
+        Assert.assertEquals("bbb", profile.getAttributes().get("foo"));
+        
+        profileRegistry.deleteProfile(versionId, "prfG");
+        Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfG"));
+    }
+    
     private boolean profileExists(String versionId, String profileId) throws Exception {
         checkoutBranch(versionId);
         checkoutBranch(versionId);
@@ -192,30 +275,45 @@ public class RemoteGitRepositoryTest {
         git.checkout().setName(versionId).setForce(true).call();
     }
 
-    private void createProfileRemote(String versionId, String profileId) throws Exception {
+    private String createProfileRemote(String versionId, String profileId, Map<String, String> attributes) throws Exception {
         checkoutBranch(versionId);
-        Properties properties = new Properties();
-        File pidFile = new File(remoteRoot, "fabric/profiles/" + profileId + ".profile/" + Constants.AGENT_PID);
+        Properties agentprops = new Properties();
+        if (attributes != null) {
+            for (Entry<String, String> entry : attributes.entrySet()) {
+                agentprops.setProperty(Profile.ATTRIBUTE_PREFIX + entry.getKey(), entry.getValue());
+            }
+        }
+        File pidFile = new File(remoteRoot, "fabric/profiles/" + profileId + ".profile/" + Constants.AGENT_PROPERTIES);
         pidFile.getParentFile().mkdirs();
-        properties.store(new FileOutputStream(pidFile), "Profile: " + profileId);
+        DataStoreUtils.toBytes(agentprops);
+        FileOutputStream fos = new FileOutputStream(pidFile);
+        try {
+            fos.write(DataStoreUtils.toBytes(agentprops));
+        } finally {
+            fos.close();
+        }
         git.add().addFilepattern(".").call();
         git.commit().setMessage("Create profile: " + profileId).call();
+        return profileId;
     }
 
     private void deleteProfileRemote(String versionId, String profileId) throws Exception {
         checkoutBranch(versionId);
         Path profilePath = new File(remoteRoot, "fabric/profiles/" + profileId + ".profile").toPath();
-        recursiveRemove(profilePath);
-        git.commit().setMessage("Delete profile: " + profileId).call();
+        if (recursiveRemove(profilePath)) {
+            git.commit().setMessage("Delete profile: " + profileId).call();
+        }
     }
 
-    private static void recursiveRemove(final Path rootPath) throws IOException {
+    private static boolean recursiveRemove(final Path rootPath) throws IOException {
+        final AtomicInteger fileCount = new AtomicInteger();
         if (rootPath.toFile().exists()) {
             Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
                 public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
                     Path pattern = remoteRoot.toPath().relativize(path);
                     try {
                         git.rm().addFilepattern(pattern.toString()).call();
+                        fileCount.incrementAndGet();
                     } catch (Exception ex) {
                         throw new IllegalStateException(ex);
                     }
@@ -223,17 +321,22 @@ public class RemoteGitRepositoryTest {
                 }
             });
         }
+        return fileCount.get() > 0;
     }
 
-    private static void recursiveDelete(Path rootPath) throws IOException {
+    private static boolean recursiveDelete(Path rootPath) throws IOException {
+        final AtomicInteger fileCount = new AtomicInteger();
         if (rootPath.toFile().exists()) {
             Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    file.toFile().delete();
+                    if (file.toFile().delete()) {
+                        fileCount.incrementAndGet();
+                    }
                     return FileVisitResult.CONTINUE;
                 }
             });
         }
+        return fileCount.get() > 0;
     }
 }
