@@ -573,20 +573,26 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             String scope = artifact.getScope();
             answer.setScope(scope);
             answer.setType(artifact.getType());
+            // there is a bug if we try to resolve the current projects artiffact for a "jar" packaging
+            // before we've installed it then this operation will force the jar not be installed
+            // so lets ignore this for the maven project's artifact
             if (artifact.getClassifier() == null && "jar".equals(artifact.getType())) {
-                try {
-                    ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-                    request.setArtifact(artifact);
-                    request.setRemoteRepositories(remoteRepositories);
-                    request.setLocalRepository(localRepository);
-                    resolver.resolve(request);
-                    JarInputStream jis = new JarInputStream(new FileInputStream(artifact.getFile()));
-                    Manifest man = jis.getManifest();
-                    String bsn = man.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
-                    if (bsn != null) {
-                        answer.setType("bundle");
-                    } else {
-                        // Try to find a matching servicemix bundle for it
+                if (project.getArtifact().equals(artifact)) {
+                    getLog().debug("Ignoring bundle check on the maven project artifact: " + artifact + " as this causes issues with the maven-install-plugin and we can assume the project packaging is accurate");
+                } else {
+                    try {
+                        ArtifactResolutionRequest request = new ArtifactResolutionRequest();
+                        request.setArtifact(artifact);
+                        request.setRemoteRepositories(remoteRepositories);
+                        request.setLocalRepository(localRepository);
+                        resolver.resolve(request);
+                        JarInputStream jis = new JarInputStream(new FileInputStream(artifact.getFile()));
+                        Manifest man = jis.getManifest();
+                        String bsn = man.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
+                        if (bsn != null) {
+                            answer.setType("bundle");
+                        } else {
+                            // Try to find a matching servicemix bundle for it
                         /*
                         Map<String, String> bundles = getAllServiceMixBundles();
                         getLog().debug("Trying to find a matching bundle for " + artifact);
@@ -599,9 +605,10 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                             getLog().info("Replacing artifact " + artifact + " with servicemix bundle " + match);
                         }
                         */
+                        }
+                    } catch (Exception e) {
+                        getLog().debug("Error checking artifact type for " + artifact, e);
                     }
-                } catch (Exception e) {
-                    getLog().debug("Error checking artifact type for " + artifact, e);
                 }
             }
             answer.setOptional(artifact.isOptional());
