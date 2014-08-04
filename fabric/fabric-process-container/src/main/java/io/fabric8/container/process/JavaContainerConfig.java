@@ -30,7 +30,7 @@ import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8
 /**
  * Represents the configuration for a Java Container when used with a child or docker container
  */
-@Component(name = "io.fabric8.container.java", label = "Fabric8 Java Child Container Configuration", immediate = false, metatype = true)
+@Component(name = "io.fabric8.container.java", label = "Fabric8 Java Child Container Configuration", immediate = true, metatype = true)
 public class JavaContainerConfig {
 
     @Property(label = "Jar URL", cardinality = 1,

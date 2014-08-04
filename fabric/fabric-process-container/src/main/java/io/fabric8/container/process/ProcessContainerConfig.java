@@ -40,7 +40,7 @@ import java.util.Set;
 /**
  * Represents the configuration of a {@link io.fabric8.process.manager.ProcessManager} based child container
  */
-@Component(name = "io.fabric8.container.process", label = "Fabric8 Process Child Container Configuration", immediate = false, metatype = true)
+@Component(name = "io.fabric8.container.process", label = "Fabric8 Process Child Container Configuration", immediate = true, metatype = true)
 public class ProcessContainerConfig {
     @Property(label = "Process name", description = "The descriptive name to refer to this process when listing the processes on this machine.")
     private String processName;
