@@ -123,6 +123,11 @@
         <groupId>org.apache.felix</groupId>
         <artifactId>org.apache.felix.scr.annotations</artifactId>
       </dependency>
+      <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.metatype</artifactId>
+        <version>${felix-metatype-version}</version>
+      </dependency>
     </dependencies>
 
     <build>
