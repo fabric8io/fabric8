@@ -26,6 +26,7 @@ import io.fabric8.api.ProfileService;
 import io.fabric8.api.jmx.MetaTypeObjectSummaryDTO;
 import io.fabric8.api.jmx.MetaTypeSummaryDTO;
 import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.JMXUtils;
 import io.fabric8.common.util.Objects;
@@ -34,7 +35,10 @@ import org.apache.felix.metatype.MetaDataReader;
 import org.apache.felix.metatype.OCD;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -45,9 +49,14 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -64,8 +73,12 @@ import java.util.zip.ZipEntry;
  */
 @Component(name = "io.fabric8.agent.commands.support.ProfileMetadata",
         label = "Fabric8 Profile Metadata Service",
-        immediate = true, metatype = false)
+        policy = ConfigurationPolicy.OPTIONAL,
+        immediate = true, metatype = true)
 public class ProfileMetadata extends AbstractComponent implements ProfileMetadataMXBean {
+    protected static String PROPERTIES_SUFFIX = ".properties";
+    protected static String XML_SUFFIX = ".xml";
+
     private static final Logger LOG = LoggerFactory.getLogger(ProfileMetadata.class);
 
     private static ObjectName OBJECT_NAME;
@@ -78,6 +91,14 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
         }
     }
 
+    @Property(name = "metaTypeFolder", value = "${runtime.home}/metatype",
+            label = "Metatype Directory",
+            description = "Directory containing the MetaType metadata files")
+    private File metaTypeFolder;
+
+    @Reference
+    private Configurer configurer;
+
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
@@ -86,17 +107,27 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Activate
-    void activate(BundleContext bundleContext) throws Exception {
+    void activate(Map<String, ?> configuration) throws Exception {
+        updateConfiguration(configuration);
         activateComponent();
         if (mbeanServer != null) {
             StandardMBean mbean = new StandardMBean(this, ProfileMetadataMXBean.class);
             JMXUtils.registerMBean(mbean, mbeanServer, OBJECT_NAME);
         }
+    }
 
+
+    @Modified
+    void modified(Map<String, ?> configuration) throws Exception {
+        updateConfiguration(configuration);
+    }
+
+    private void updateConfiguration(Map<String, ?> configuration) throws Exception {
+        configurer.configure(configuration, this);
     }
 
     @Deactivate
-    void deactivate(BundleContext bundleContext) throws Exception {
+    void deactivate() throws Exception {
         deactivateComponent();
         if (mbeanServer != null) {
             JMXUtils.unregisterMBean(mbeanServer, OBJECT_NAME);
@@ -120,6 +151,7 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
         Objects.notNull(immediateProfile, "Profile for versionId: " + versionId + ", profileId: " + profileId);
         Profile profile = profileService.getOverlayProfile(immediateProfile);
 
+        Set<String> pids = new HashSet<>();
         Map<String, File> fileMap = AgentUtils.downloadProfileArtifacts(service, downloadManager, profile);
         Set<Map.Entry<String, File>> entries = fileMap.entrySet();
         for (Map.Entry<String, File> entry : entries) {
@@ -130,36 +162,83 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
                 continue;
             }
             addMetaTypeInformation(answer, service, uri, file);
+            pids.add(uri);
+        }
+
+        // lets check if the MetaType folder exists
+        if (metaTypeFolder != null && metaTypeFolder.exists() && metaTypeFolder.isDirectory()) {
+            Set<String> configurationFileNames = profile.getConfigurationFileNames();
+            for (String configName : configurationFileNames) {
+                if (configName.endsWith(PROPERTIES_SUFFIX) && configName.indexOf('/') < 0) {
+                    String pid = configName.substring(0, configName.length() - PROPERTIES_SUFFIX.length());
+                    if (pid.length() > 0) {
+                        if (pids.add(pid)) {
+                            File pidFolder = new File(metaTypeFolder, pid);
+                            File xmlFile = new File(pidFolder, "metatype.xml");
+                            File propertiesFile = new File(pidFolder, "metatype.properties");
+                            addMetaTypeInformation(answer, service, pid, xmlFile, propertiesFile);
+                        }
+                    }
+                }
+            }
         }
         return answer;
+    }
+
+    protected void addMetaTypeInformation(MetaTypeSummaryDTO summary, FabricService service, String pid, File xmlFile, File propertiesFile) throws IOException {
+        if (!xmlFile.exists()) {
+            LOG.info("Warning! " + xmlFile + " does not exist so no OSGi MetaType metadata");
+            return;
+        }
+        MetaDataReader reader = new MetaDataReader();
+        MetaData metadata = reader.parse(new FileInputStream(xmlFile));
+        // lets try get the i18n properties
+        Properties properties = new Properties();
+        if (propertiesFile.exists() && propertiesFile.isFile()) {
+            properties.load(new FileInputStream(propertiesFile));
+        }
+        addMetaData(summary, metadata, properties);
     }
 
     protected void addMetaTypeInformation(MetaTypeSummaryDTO summary, FabricService service, String uri, File file) throws IOException {
         JarFile jarFile = new JarFile(file);
         Enumeration<JarEntry> entries = jarFile.entries();
+        Map<String,MetaData> metadataMap = new HashMap<>();
+        Map<String,Properties> propertiesMap = new HashMap<>();
         while (entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
             String name = entry.getName();
             if (name.startsWith("OSGI-INF/metatype/")) {
-                if (name.endsWith(".xml")) {
+                if (name.endsWith(XML_SUFFIX)) {
                     MetaDataReader reader = new MetaDataReader();
                     InputStream in = jarFile.getInputStream(entry);
                     if (in != null) {
                         MetaData metadata = reader.parse(in);
-                        // lets try get the i18n properties
-                        Properties properties = new Properties();
-                        String propertiesFile = name.substring(0, name.length() - 3) + "properties";
-                        ZipEntry propertiesEntry = jarFile.getEntry(propertiesFile);
-                        if (propertiesEntry != null) {
-                            InputStream propertiesIn = jarFile.getInputStream(entry);
-                            if (propertiesIn != null) {
-                                properties.load(propertiesIn);
-                            }
+                        if (metadata != null) {
+                            String pid = name.substring(0, name.length() - XML_SUFFIX.length());
+                            metadataMap.put(pid, metadata);
                         }
-                        addMetaData(summary, metadata, properties);
+                    }
+                } else if (name.endsWith(PROPERTIES_SUFFIX)) {
+                    String pid = name.substring(0, name.length() - PROPERTIES_SUFFIX.length());
+                    Properties properties = new Properties();
+                    InputStream in = jarFile.getInputStream(entry);
+                    if (in != null) {
+                        properties.load(in);
+                        propertiesMap.put(pid, properties);
                     }
                 }
             }
+        }
+        Set<Map.Entry<String, MetaData>> metadataEntries = metadataMap.entrySet();
+        for (Map.Entry<String, MetaData> metadataEntry : metadataEntries) {
+            String pid = metadataEntry.getKey();
+            MetaData metadata = metadataEntry.getValue();
+            Properties properties = propertiesMap.get(pid);
+            if (properties == null) {
+                properties = new Properties();
+            }
+            addMetaData(summary, metadata, properties);
         }
     }
 
@@ -200,7 +279,6 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
         this.fabricService.unbind(fabricService);
     }
 
-
     void bindMBeanServer(MBeanServer mbeanServer) {
         this.mbeanServer = mbeanServer;
     }
@@ -208,5 +286,4 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
     void unbindMBeanServer(MBeanServer mbeanServer) {
         this.mbeanServer = null;
     }
-
 }

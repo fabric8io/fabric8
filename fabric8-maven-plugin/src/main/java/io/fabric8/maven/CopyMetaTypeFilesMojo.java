@@ -1,6 +1,7 @@
 package io.fabric8.maven;
 
 import io.fabric8.common.util.Files;
+import io.fabric8.common.util.IOHelpers;
 import org.apache.felix.metatype.MetaData;
 import org.apache.felix.metatype.MetaDataReader;
 import org.apache.maven.plugin.AbstractMojo;
@@ -11,11 +12,13 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +33,8 @@ import java.util.zip.ZipEntry;
  */
 @Mojo(name = "copy-metatype")
 public class CopyMetaTypeFilesMojo extends AbstractMojo {
+    protected static String PROPERTIES_SUFFIX = ".properties";
+    protected static String XML_SUFFIX = ".xml";
 
     @Parameter(property = "inputDir", defaultValue = "${project.build.directory}/features-repo")
     private File inputDir = new File("target/system");
@@ -96,37 +101,58 @@ public class CopyMetaTypeFilesMojo extends AbstractMojo {
         try {
             JarFile jarFile = new JarFile(file);
             Enumeration<JarEntry> entries = jarFile.entries();
+            Map<String,String> xmlMap = new HashMap<>();
+            Map<String,MetaData> metadataMap = new HashMap<>();
+            Map<String,Properties> propertiesMap = new HashMap<>();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
                 String name = entry.getName();
                 if (name.startsWith("OSGI-INF/metatype/")) {
-                    if (name.endsWith(".xml")) {
+                    if (name.endsWith(XML_SUFFIX)) {
                         MetaDataReader reader = new MetaDataReader();
                         InputStream in = jarFile.getInputStream(entry);
                         if (in != null) {
-                            MetaData metadata = reader.parse(in);
-
-                            // lets try get the i18n properties
-                            Properties properties = new Properties();
-                            String propertiesFile = name.substring(0, name.length() - 3) + "properties";
-                            ZipEntry propertiesEntry = jarFile.getEntry(propertiesFile);
-                            if (propertiesEntry != null) {
-                                InputStream propertiesIn = jarFile.getInputStream(entry);
-                                if (propertiesIn != null) {
-                                    properties.load(propertiesIn);
-                                }
+                            String text = IOHelpers.readFully(in);
+                            MetaData metadata = reader.parse(new ByteArrayInputStream(text.getBytes()));
+                            if (metadata != null) {
+                                String pid = name.substring(0, name.length() - XML_SUFFIX.length());
+                                xmlMap.put(pid, text);
+                                metadataMap.put(pid, metadata);
                             }
-                            writeMetaTypeObjects(metadata, properties, jarFile, entry);
+                        }
+                    } else if (name.endsWith(PROPERTIES_SUFFIX)) {
+                        String pid = name.substring(0, name.length() - PROPERTIES_SUFFIX.length());
+                        Properties properties = new Properties();
+                        InputStream in = jarFile.getInputStream(entry);
+                        if (in != null) {
+                            properties.load(in);
+                            propertiesMap.put(pid, properties);
                         }
                     }
                 }
             }
+            Set<Map.Entry<String, MetaData>> metadataEntries = metadataMap.entrySet();
+            for (Map.Entry<String, MetaData> metadataEntry : metadataEntries) {
+                String pid = metadataEntry.getKey();
+                MetaData metadata = metadataEntry.getValue();
+                Properties properties = propertiesMap.get(pid);
+                if (properties == null) {
+                    properties = new Properties();
+                }
+                String xml = xmlMap.get(pid);
+                if (xml == null) {
+                   getLog().warn("Missing XML file for " + pid);
+                } else {
+                    writeMetaTypeObjects(metadata, properties, xml);
+                }
+            }
+
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to process jar " + file + ". " + e, e);
         }
     }
 
-    protected void writeMetaTypeObjects(MetaData metadata, Properties properties, JarFile jarFile, JarEntry jarEntry) throws IOException {
+    protected void writeMetaTypeObjects(MetaData metadata, Properties properties, String xml) throws IOException {
         Map<String, Object> map = metadata.getDesignates();
         Set<Map.Entry<String, Object>> entries = map.entrySet();
         for (Map.Entry<String, Object> entry : entries) {
@@ -138,8 +164,7 @@ public class CopyMetaTypeFilesMojo extends AbstractMojo {
             }
             pidOutDir.mkdirs();
             File xmlFile = new File(pidOutDir, "metatype.xml");
-            InputStream in = jarFile.getInputStream(jarEntry);
-            Files.copy(in, new FileOutputStream(xmlFile));
+            Files.writeToFile(xmlFile, xml.getBytes());
             if (properties.size() > 0) {
                 File propertiesFile = new File(pidOutDir, "metatype.properties");
                 properties.store(new FileOutputStream(propertiesFile), "Generated from jar by fabric8-maven-plugin");
