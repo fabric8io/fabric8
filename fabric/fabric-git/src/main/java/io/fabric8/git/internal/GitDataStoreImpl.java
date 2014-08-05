@@ -41,8 +41,9 @@ import io.fabric8.git.GitDataStore;
 import io.fabric8.git.GitListener;
 import io.fabric8.git.GitProxyService;
 import io.fabric8.git.GitService;
-import io.fabric8.git.internal.PullPushPolicy.PullPolicyResult;
-import io.fabric8.git.internal.PullPushPolicy.PushPolicyResult;
+import io.fabric8.git.PullPushPolicy;
+import io.fabric8.git.PullPushPolicy.PullPolicyResult;
+import io.fabric8.git.PullPushPolicy.PushPolicyResult;
 import io.fabric8.service.EnvPlaceholderResolver;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.zookeeper.ZkPath;
@@ -147,7 +148,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Reference
     private Configurer configurer;
-
+    
     private final ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
 
     private final ImportExportHandler importExportHandler = new ImportExportHandler();
@@ -262,7 +263,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 
                 LockHandle writeLock = aquireWriteLock();
                 try {
-                    doPullInternal(new GitContext(), getCredentialsProvider());
+                    doPullInternal(new GitContext(), getCredentialsProvider(), true);
                 } catch (Throwable e) {
                     LOGGER.debug("Error during pull due " + e.getMessage(), e);
                     LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
@@ -338,9 +339,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         };
     }
 
-    // The read lock is not public because we cannot upgrade
-    // to a write lock, which would be required when we need to pull 
-    private LockHandle aquireReadLock() {
+    @Override
+    public LockHandle aquireReadLock() {
         final ReadLock readLock = readWriteLock.readLock();
         boolean success;
         try {
@@ -865,7 +865,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
 
             if (context.isRequirePull()) {
-                doPullInternal(context, getCredentialsProvider());
+                doPullInternal(context, getCredentialsProvider(), true);
             }
 
             T result = operation.call(git, context);
@@ -924,8 +924,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
     }
     
-    private PullPolicyResult doPullInternal(GitContext context, CredentialsProvider credentialsProvider) {
-        PullPolicyResult pullResult = pullPushPolicy.doPull(context, getCredentialsProvider());
+    private PullPolicyResult doPullInternal(GitContext context, CredentialsProvider credentialsProvider, boolean allowVersionDelete) {
+        PullPolicyResult pullResult = pullPushPolicy.doPull(context, getCredentialsProvider(), allowVersionDelete);
         if (pullResult.getLastException() != null) {
             LOGGER.warn("Pull failed", pullResult.getLastException());
         }
@@ -1191,7 +1191,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                             config.setString("remote", GitHelpers.REMOTE_ORIGIN, "fetch", "+refs/heads/*:refs/remotes/origin/*");
                             config.save();
 
-                            doPullInternal(context, getCredentialsProvider());
+                            doPullInternal(context, getCredentialsProvider(), false);
                         }
                         return null;
                     }
