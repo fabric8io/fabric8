@@ -16,7 +16,8 @@
 package io.fabric8.runtime.container.karaf;
 
 import io.fabric8.api.GeoLocationService;
-import io.fabric8.common.util.Strings;
+import io.fabric8.api.PortService;
+import io.fabric8.internal.ImmutableContainerBuilder;
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
@@ -34,8 +35,6 @@ import org.apache.zookeeper.data.Stat;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerRegistration;
-import io.fabric8.api.FabricException;
-import io.fabric8.api.FabricService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -72,7 +71,6 @@ import static io.fabric8.zookeeper.ZkPath.CONTAINER_IP;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_JMX;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_HOSTNAME;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_MANUAL_IP;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MAX;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MIN;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_RESOLVER;
@@ -83,7 +81,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.delete;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
@@ -119,12 +117,15 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-    @Reference(referenceInterface = FabricService.class)
-    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = PortService.class)
+    private final ValidatingReference<PortService> portService = new ValidatingReference<PortService>();
     @Reference(referenceInterface = GeoLocationService.class)
     private final ValidatingReference<GeoLocationService> geoLocationService = new ValidatingReference<GeoLocationService>();
     @Reference(referenceInterface = BootstrapConfiguration.class)
     private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
+
+    private String runtimeIdentity;
+    private String ip;
 
     @Activate
     void activate() {
@@ -139,7 +140,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
 
     private void activateInternal() {
         RuntimeProperties sysprops = runtimeProperties.get();
-        String runtimeIdentity = sysprops.getRuntimeIdentity();
+        runtimeIdentity = sysprops.getRuntimeIdentity();
         String version = sysprops.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
         String profiles = sysprops.getProperty("fabric.profiles");
         try {
@@ -162,7 +163,6 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
             ZooKeeperUtils.createDefault(curator.get(), CONTAINER_RESOLVER.getPath(runtimeIdentity), getContainerResolutionPolicy(curator.get(), runtimeIdentity));
             setData(curator.get(), CONTAINER_LOCAL_HOSTNAME.getPath(runtimeIdentity), HostUtils.getLocalHostName());
             setData(curator.get(), CONTAINER_LOCAL_IP.getPath(runtimeIdentity), HostUtils.getLocalIp());
-            setData(curator.get(), CONTAINER_IP.getPath(runtimeIdentity), getContainerPointer(curator.get(), runtimeIdentity));
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
             for (String resolver : ZkDefs.VALID_RESOLVERS) {
@@ -171,10 +171,13 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     setData(curator.get(), CONTAINER_ADDRESS.getPath(runtimeIdentity, resolver), address);
                 }
             }
+
+            ip =  getSubstitutedData(curator.get(), getContainerPointer(curator.get(), runtimeIdentity));
+            setData(curator.get(), CONTAINER_IP.getPath(runtimeIdentity), ip);
             createDefault(curator.get(), CONTAINER_GEOLOCATION.getPath(runtimeIdentity), geoLocationService.get().getGeoLocation());
 
             //We are creating a dummy container object, since this might be called before the actual container is ready.
-            Container current = getContainer();
+            Container current = new ImmutableContainerBuilder().id(runtimeIdentity).ip(ip).build();
 
             System.setProperty(SystemProperties.JAVA_RMI_SERVER_HOSTNAME, current.getIp());
             registerJmx(current);
@@ -229,8 +232,8 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         int rmiServerConenctionPort = getRmiServerConnectionPort(container);
         String jmxUrl = getJmxUrl(container.getId(), rmiServerConenctionPort, rmiRegistryConnectionPort);
         setData(curator.get(), CONTAINER_JMX.getPath(container.getId()), jmxUrl);
-        fabricService.get().getPortService().registerPort(container, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY, rmiRegistryPort);
-        fabricService.get().getPortService().registerPort(container, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY, rmiServerPort);
+        portService.get().registerPort(container, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY, rmiRegistryPort);
+        portService.get().registerPort(container, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY, rmiServerPort);
         Configuration configuration = configAdmin.get().getConfiguration(MANAGEMENT_PID, null);
         updateIfNeeded(configuration, RMI_REGISTRY_BINDING_PORT_KEY, rmiRegistryPort);
         updateIfNeeded(configuration, RMI_SERVER_BINDING_PORT_KEY, rmiServerPort);
@@ -269,7 +272,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         int sshConnectionPort = getSshConnectionPort(container);
         String sshUrl = getSshUrl(container.getId(), sshConnectionPort);
         setData(curator.get(), CONTAINER_SSH.getPath(container.getId()), sshUrl);
-        fabricService.get().getPortService().registerPort(container, SSH_PID, SSH_BINDING_PORT_KEY, sshPort);
+        portService.get().registerPort(container, SSH_PID, SSH_BINDING_PORT_KEY, sshPort);
         Configuration configuration = configAdmin.get().getConfiguration(SSH_PID, null);
         updateIfNeeded(configuration, SSH_BINDING_PORT_KEY, sshPort);
     }
@@ -300,12 +303,12 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID, null);
         if(httpEnabled){
         	int httpPort = getHttpPort(container);
-        	fabricService.get().getPortService().registerPort(container, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
+        	portService.get().registerPort(container, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
         	updateIfNeeded(configuration, HTTP_BINDING_PORT_KEY, httpPort);
         }
         if(httpsEnabled){
         	int httpsPort = getHttpsPort(container);
-        	fabricService.get().getPortService().registerPort(container, HTTP_PID, HTTPS_BINDING_PORT_KEY, httpsPort);
+        	portService.get().registerPort(container, HTTP_PID, HTTPS_BINDING_PORT_KEY, httpsPort);
         	updateIfNeeded(configuration, HTTPS_BINDING_PORT_KEY, httpsPort);
         }
     }
@@ -365,8 +368,8 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
      */
     private int getOrAllocatePortForKey(Container container, String pid, String key, int defaultValue) throws IOException, KeeperException, InterruptedException {
         Configuration config = configAdmin.get().getConfiguration(pid, null);
-        Set<Integer> unavailable = fabricService.get().getPortService().findUsedPortByHost(container);
-        int port = fabricService.get().getPortService().lookupPort(container, pid, key);
+        Set<Integer> unavailable = portService.get().findUsedPortByHost(container);
+        int port = portService.get().lookupPort(container, pid, key);
         if (port > 0) {
             return port;
         } else if (config.getProperties() != null && config.getProperties().get(key) != null) {
@@ -448,7 +451,8 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
     public void configurationEvent(ConfigurationEvent event) {
         if (isValid()) {
             try {
-                Container current = getContainer();
+                Container current = new ImmutableContainerBuilder().id(runtimeIdentity).ip(ip).build();
+
                 RuntimeProperties sysprops = runtimeProperties.get();
                 String runtimeIdentity = sysprops.getRuntimeIdentity();
                 if (event.getPid().equals(SSH_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
@@ -457,9 +461,9 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     int sshConnectionPort = getSshConnectionPort(current, sshPort);
                     String sshUrl = getSshUrl(runtimeIdentity, sshConnectionPort);
                     setData(curator.get(), CONTAINER_SSH.getPath(runtimeIdentity), sshUrl);
-                    if (fabricService.get().getPortService().lookupPort(current, SSH_PID, SSH_BINDING_PORT_KEY) != sshPort) {
-                        fabricService.get().getPortService().unregisterPort(current, SSH_PID);
-                        fabricService.get().getPortService().registerPort(current, SSH_PID, SSH_BINDING_PORT_KEY, sshPort);
+                    if (portService.get().lookupPort(current, SSH_PID, SSH_BINDING_PORT_KEY) != sshPort) {
+                        portService.get().unregisterPort(current, SSH_PID);
+                        portService.get().registerPort(current, SSH_PID, SSH_BINDING_PORT_KEY, sshPort);
                     }
                 }
                 if (event.getPid().equals(HTTP_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
@@ -471,9 +475,9 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     if(httpEnabled){
                     	int httpPort = Integer.parseInt((String) config.getProperties().get(HTTP_BINDING_PORT_KEY));
                     	httpConnectionPort = getHttpConnectionPort(current, httpPort);
-                    	if (fabricService.get().getPortService().lookupPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY) != httpPort) {
-                            fabricService.get().getPortService().unregisterPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY);
-                            fabricService.get().getPortService().registerPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
+                    	if (portService.get().lookupPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY) != httpPort) {
+                            portService.get().unregisterPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY);
+                            portService.get().registerPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
                         }
                     }
                     if(httpsEnabled){
@@ -481,9 +485,9 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     	if(httpConnectionPort == -1){
                     		httpConnectionPort = getHttpsConnectionPort(current);
                     	}
-                    	if (fabricService.get().getPortService().lookupPort(current, HTTP_PID, HTTPS_BINDING_PORT_KEY) != httpsPort) {
-                            fabricService.get().getPortService().unregisterPort(current, HTTP_PID, HTTPS_BINDING_PORT_KEY);
-                            fabricService.get().getPortService().registerPort(current, HTTP_PID, HTTPS_BINDING_PORT_KEY, httpsPort);
+                    	if (portService.get().lookupPort(current, HTTP_PID, HTTPS_BINDING_PORT_KEY) != httpsPort) {
+                            portService.get().unregisterPort(current, HTTP_PID, HTTPS_BINDING_PORT_KEY);
+                            portService.get().registerPort(current, HTTP_PID, HTTPS_BINDING_PORT_KEY, httpsPort);
                         }
                     }
                     String httpUrl = getHttpUrl(protocol, runtimeIdentity, httpConnectionPort);
@@ -499,42 +503,17 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     setData(curator.get(), CONTAINER_JMX.getPath(runtimeIdentity), jmxUrl);
                     //Whenever the JMX URL changes we need to make sure that the java.rmi.server.hostname points to a valid address.
                     System.setProperty(SystemProperties.JAVA_RMI_SERVER_HOSTNAME, current.getIp());
-                    if (fabricService.get().getPortService().lookupPort(current, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY) != rmiRegistryPort
-                            || fabricService.get().getPortService().lookupPort(current, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY) != rmiServerPort) {
-                        fabricService.get().getPortService().unregisterPort(current, MANAGEMENT_PID);
-                        fabricService.get().getPortService().registerPort(current, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY, rmiServerPort);
-                        fabricService.get().getPortService().registerPort(current, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY, rmiRegistryPort);
+                    if (portService.get().lookupPort(current, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY) != rmiRegistryPort
+                            || portService.get().lookupPort(current, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY) != rmiServerPort) {
+                        portService.get().unregisterPort(current, MANAGEMENT_PID);
+                        portService.get().registerPort(current, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY, rmiServerPort);
+                        portService.get().registerPort(current, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY, rmiRegistryPort);
                     }
 
                 }
             } catch (Exception ex) {
                 LOGGER.error("Cannot reconfigure container", ex);
             }
-        }
-    }
-
-    /**
-     * Gets the current {@link Container}.
-     *
-     * @return The current container if registered or a dummy wrapper of the name and ip.
-     */
-    private Container getContainer() {
-        try {
-            return fabricService.get().getCurrentContainer();
-        } catch (Exception ex) {
-            LOGGER.error("Cannot obtain current container, using dummy wrapper", ex);
-            final RuntimeProperties sysprops = runtimeProperties.get();
-            final String runtimeIdentity = sysprops.getRuntimeIdentity();
-            return new ContainerImpl(null, runtimeIdentity, fabricService.get()) {
-                @Override
-                public String getIp() {
-                    try {
-                        return getSubstitutedPath(curator.get(), CONTAINER_IP.getPath(runtimeIdentity));
-                    } catch (Exception e) {
-                        throw FabricException.launderThrowable(e);
-                    }
-                }
-            };
         }
     }
 
@@ -562,12 +541,12 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         this.runtimeProperties.unbind(service);
     }
 
-    void bindFabricService(FabricService fabricService) {
-        this.fabricService.bind(fabricService);
+    void bindPortService(PortService service) {
+        this.portService.bind(service);
     }
 
-    void unbindFabricService(FabricService fabricService) {
-        this.fabricService.unbind(fabricService);
+    void unbindPortService(PortService service) {
+        this.portService.unbind(service);
     }
 
     void bindGeoLocationService(GeoLocationService service) {
