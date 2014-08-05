@@ -15,12 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.agent.commands.support;
+package io.fabric8.agent.commands.metadata;
 
+import io.fabric8.api.jmx.MetaTypeObjectDTO;
 import io.fabric8.api.jmx.MetaTypeSummaryDTO;
+
+import java.util.Map;
 
 /**
  */
 public interface ProfileMetadataMXBean {
     MetaTypeSummaryDTO metaTypeSummary(String versionId, String profileId) throws Exception;
+
+    MetaTypeObjectDTO getPidMetaTypeObject(String versionId, String profileId, String pid) throws Exception;
 }

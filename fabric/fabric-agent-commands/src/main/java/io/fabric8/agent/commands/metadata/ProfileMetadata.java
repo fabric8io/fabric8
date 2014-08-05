@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.agent.commands.support;
+package io.fabric8.agent.commands.metadata;
 
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
@@ -23,6 +23,8 @@ import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileService;
+import io.fabric8.api.jmx.MetaTypeAttributeDTO;
+import io.fabric8.api.jmx.MetaTypeObjectDTO;
 import io.fabric8.api.jmx.MetaTypeObjectSummaryDTO;
 import io.fabric8.api.jmx.MetaTypeSummaryDTO;
 import io.fabric8.api.scr.AbstractComponent;
@@ -30,6 +32,7 @@ import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.JMXUtils;
 import io.fabric8.common.util.Objects;
+import org.apache.felix.metatype.AD;
 import org.apache.felix.metatype.MetaData;
 import org.apache.felix.metatype.MetaDataReader;
 import org.apache.felix.metatype.OCD;
@@ -40,7 +43,6 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,28 +52,30 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
+
+import static io.fabric8.api.jmx.MetaTypeAttributeDTO.typeName;
 
 
 /**
  * A service to determine the OSGi MetaType information for a profile which is not yet running
  * by discoverying the OSGi MetaType XML files inside the bundles of a profile
  */
-@Component(name = "io.fabric8.agent.commands.support.ProfileMetadata",
+@Component(name = "io.fabric8.agent.commands.metadata.ProfileMetadata",
         label = "Fabric8 Profile Metadata Service",
         policy = ConfigurationPolicy.OPTIONAL,
         immediate = true, metatype = true)
@@ -137,7 +141,18 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
 
     @Override
     public MetaTypeSummaryDTO metaTypeSummary(String versionId, String profileId) throws Exception {
-        MetaTypeSummaryDTO answer = new MetaTypeSummaryDTO();
+        final MetaTypeSummaryDTO answer = new MetaTypeSummaryDTO();
+        MetadataHandler handler = new MetadataHandler() {
+            @Override
+            public void invoke(MetaData metadata, Properties resources) {
+                addMetaData(answer, metadata, resources);
+            }
+        };
+        findMetadataForProfile(versionId, profileId, handler);
+        return answer;
+    }
+
+    protected void findMetadataForProfile(String versionId, String profileId, MetadataHandler handler) throws Exception {
         FabricService service = fabricService.get();
         Objects.notNull(service, "FabricService");
 
@@ -161,7 +176,7 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
                 LOG.warn("File " + file + " is not an existing file for " + uri + ". Ignoring");
                 continue;
             }
-            addMetaTypeInformation(answer, service, uri, file);
+            addMetaTypeInformation(handler, uri, file);
             pids.add(uri);
         }
 
@@ -176,16 +191,77 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
                             File pidFolder = new File(metaTypeFolder, pid);
                             File xmlFile = new File(pidFolder, "metatype.xml");
                             File propertiesFile = new File(pidFolder, "metatype.properties");
-                            addMetaTypeInformation(answer, service, pid, xmlFile, propertiesFile);
+                            addMetaTypeInformation(handler, xmlFile, propertiesFile);
                         }
                     }
                 }
             }
         }
+    }
+
+    @Override
+    public MetaTypeObjectDTO getPidMetaTypeObject(String versionId, String profileId, final String pid) throws Exception {
+        final AtomicReference<MetaTypeObjectDTO> answer = new AtomicReference<>(null);
+        MetadataHandler handler = new MetadataHandler() {
+            @Override
+            public void invoke(MetaData metadata, Properties resources) {
+                Map<String, Object> map = metadata.getDesignates();
+                Map<String,Object> objects = metadata.getObjectClassDefinitions();
+                Set<Map.Entry<String, Object>> entries = map.entrySet();
+                for (Map.Entry<String, Object> entry : entries) {
+                    String aPid = entry.getKey();
+                    Object value = objects.get(aPid);
+                    if (Objects.equal(pid, aPid) && value instanceof OCD) {
+                        OCD ocd = (OCD) value;
+                        answer.set(createMetaTypeObjectDTO(resources, ocd));
+                    }
+                }
+            }
+        };
+        findMetadataForProfile(versionId, profileId, handler);
+        return answer.get();
+    }
+
+    protected static MetaTypeObjectDTO createMetaTypeObjectDTO(Properties resources, OCD ocd) {
+        MetaTypeObjectDTO answer = new MetaTypeObjectDTO();
+        answer.setId(ocd.getID());
+        answer.setName(localize(resources, ocd.getName()));
+        answer.setDescription(localize(resources, ocd.getDescription()));
+
+        List<MetaTypeAttributeDTO> attributeList = new ArrayList<>();
+
+        Map<String,Object> attributes = ocd.getAttributeDefinitions();
+        Set<Map.Entry<String, Object>> entries = attributes.entrySet();
+        for (Map.Entry<String, Object> entry : entries) {
+            String name = entry.getKey();
+            Object value = entry.getValue();
+            if (value instanceof AD) {
+                AD ad = (AD) value;
+                MetaTypeAttributeDTO attributeDTO = createMetaTypeAttributeDTO(resources, ocd, name, ad);
+                if (attributeDTO != null) {
+                    attributeList.add(attributeDTO);
+                }
+            }
+        }
+        answer.setAttributes(attributeList);
         return answer;
     }
 
-    protected void addMetaTypeInformation(MetaTypeSummaryDTO summary, FabricService service, String pid, File xmlFile, File propertiesFile) throws IOException {
+    protected static MetaTypeAttributeDTO createMetaTypeAttributeDTO(Properties resources, OCD ocd, String name, AD ad) {
+        MetaTypeAttributeDTO answer = new MetaTypeAttributeDTO();
+        answer.setId(ad.getID());
+        answer.setName(localize(resources, ad.getName()));
+        answer.setDescription(localize(resources, ad.getDescription()));
+        answer.setCardinality(ad.getCardinality());
+        answer.setDefaultValue(ad.getDefaultValue());
+        answer.setOptionLabels(ad.getOptionLabels());
+        answer.setOptionValues(ad.getOptionValues());
+        answer.setRequired(ad.isRequired());
+        answer.setTypeName(typeName(ad.getType()));
+        return answer;
+    }
+
+    protected void addMetaTypeInformation(MetadataHandler handler, File xmlFile, File propertiesFile) throws IOException {
         if (!xmlFile.exists()) {
             LOG.info("Warning! " + xmlFile + " does not exist so no OSGi MetaType metadata");
             return;
@@ -197,10 +273,10 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
         if (propertiesFile.exists() && propertiesFile.isFile()) {
             properties.load(new FileInputStream(propertiesFile));
         }
-        addMetaData(summary, metadata, properties);
+        handler.invoke(metadata, properties);
     }
 
-    protected void addMetaTypeInformation(MetaTypeSummaryDTO summary, FabricService service, String uri, File file) throws IOException {
+    protected void addMetaTypeInformation(MetadataHandler handler, String uri, File file) throws IOException {
         JarFile jarFile = new JarFile(file);
         Enumeration<JarEntry> entries = jarFile.entries();
         Map<String,MetaData> metadataMap = new HashMap<>();
@@ -238,16 +314,17 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
             if (properties == null) {
                 properties = new Properties();
             }
-            addMetaData(summary, metadata, properties);
+            handler.invoke(metadata, properties);
         }
     }
 
     protected void addMetaData(MetaTypeSummaryDTO summary, MetaData metadata, Properties resources) {
-        Map<String,Object> objectClassDefinitions = metadata.getObjectClassDefinitions();
-        Set<Map.Entry<String, Object>> entries = objectClassDefinitions.entrySet();
+        Map<String, Object> map = metadata.getDesignates();
+        Map<String,Object> objects = metadata.getObjectClassDefinitions();
+        Set<Map.Entry<String, Object>> entries = map.entrySet();
         for (Map.Entry<String, Object> entry : entries) {
             String pid = entry.getKey();
-            Object value = entry.getValue();
+            Object value = objects.get(pid);
             if (value instanceof OCD) {
                 OCD ocd = (OCD) value;
                 MetaTypeObjectSummaryDTO object = summary.getOrCreateMetaTypeSummaryDTO(pid);
@@ -258,7 +335,7 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
         }
     }
 
-    protected String localize(Properties resources, String string) {
+    protected static String localize(Properties resources, String string) {
         if (string != null && string.startsWith("%") && resources != null) {
             string = string.substring(1);
             try {
