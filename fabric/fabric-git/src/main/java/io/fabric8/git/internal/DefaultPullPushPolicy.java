@@ -37,6 +37,7 @@ import org.eclipse.jgit.api.RebaseCommand.Operation;
 import org.eclipse.jgit.api.RebaseResult;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -95,10 +96,12 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
                 }
             }
         }
+
+        // No meaningful processing after GitAPIException
         if (lastException != null) {
             return new AbstractPullPolicyResult(lastException);
         }
-
+        
         // Get local and remote branches
         Map<String, Ref> localBranches = new HashMap<String, Ref>();
         Map<String, Ref> remoteBranches = new HashMap<String, Ref>();
@@ -230,9 +233,20 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
             }
         }
         
+        // Allow the commit to stay in the repository in case of a TransportException
+        if (lastException != null) {
+            return new AbstractPushPolicyResult(lastException);
+        }
+        
         List<PushResult> pushResults = new ArrayList<>();
         List<RemoteRefUpdate> acceptedUpdates = new ArrayList<>();
         List<RemoteRefUpdate> rejectedUpdates = new ArrayList<>();
+        
+        // Allow tthe commit to stay in the repository in case of a TransportException
+        if (lastException instanceof TransportException) {
+            LOGGER.warn("Cannot push because of: {}", lastException.toString());
+            return new AbstractPushPolicyResult(pushResults, acceptedUpdates, rejectedUpdates, lastException);
+        }
         
         // Collect the updates that are not ok
         while (resit != null && resit.hasNext()) {
@@ -319,6 +333,10 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
         
         AbstractPushPolicyResult() {
             this(Collections.<PushResult>emptyList(), Collections.<RemoteRefUpdate>emptyList(), Collections.<RemoteRefUpdate>emptyList(), null);
+        }
+
+        AbstractPushPolicyResult(Exception lastException) {
+            this(Collections.<PushResult>emptyList(), Collections.<RemoteRefUpdate>emptyList(), Collections.<RemoteRefUpdate>emptyList(), lastException);
         }
 
         AbstractPushPolicyResult(List<PushResult> pushResults, List<RemoteRefUpdate> acceptedUpdates, List<RemoteRefUpdate> rejectedUpdates, Exception lastException) {
