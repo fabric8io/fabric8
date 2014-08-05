@@ -22,11 +22,12 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.jboss.gravia.utils.IllegalStateAssertion;
 
 public abstract class AbstractRuntimeProperties extends AbstractComponent implements RuntimeProperties {
 
-    private final Map<Class<?>, Object> attributes = new HashMap<>();
+    private final Map<String, Object> attributes = new HashMap<>();
     private String identity;
     private Path homePath;
     private Path dataPath;
@@ -86,26 +87,31 @@ public abstract class AbstractRuntimeProperties extends AbstractComponent implem
 
     @Override
     public <T> void putRuntimeAttribute(Class<T> key, T value) {
+        IllegalArgumentAssertion.assertNotNull(key, "key");
+        IllegalArgumentAssertion.assertNotNull(value, "value");
         synchronized (attributes) {
-            Object exist = attributes.get(key);
+            // Use string to normalize keys from different class loaders
+            Object exist = attributes.get(key.getName());
             IllegalStateAssertion.assertNull(exist, "Runtime already contains attribute: " + exist);
-            attributes.put(key, value);
+            attributes.put(key.getName(), value);
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getRuntimeAttribute(Class<T> key) {
+        IllegalArgumentAssertion.assertNotNull(key, "key");
         synchronized (attributes) {
-            return (T) attributes.get(key);
+            return (T) attributes.get(key.getName());
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> T removeRuntimeAttribute(Class<T> key) {
+        IllegalArgumentAssertion.assertNotNull(key, "key");
         synchronized (attributes) {
-            return (T) attributes.remove(key);
+            return (T) attributes.remove(key.getName());
         }
     }
 
