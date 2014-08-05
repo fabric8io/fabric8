@@ -32,10 +32,22 @@
     <repository>mvn:org.apache.karaf.assemblies.features/spring/${karaf-version}/xml/features</repository>
     <repository>mvn:org.apache.karaf.assemblies.features/enterprise/${karaf-version}/xml/features</repository>
 
-    <feature name="karaf" version="${karaf-version}" resolver="(obr)">
-        <!-- we need 1.2.9-SNAPSHOT as 1.2.8 does not advertise the ConfigurationAdmin service -->
-        <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/${felix-configadmin-version}</bundle>
+    <!--
+    org/ops4j/pax/url/pax-url-aether/2.1.0/pax-url-aether-2.1.0.jar=5
+org/ops4j/pax/url/pax-url-wrap/2.1.0/pax-url-wrap-2.1.0-uber.jar=5
+org/ops4j/pax/logging/pax-logging-api/1.7.3/pax-logging-api-1.7.3.jar=8
+org/ops4j/pax/logging/pax-logging-service/1.7.3/pax-logging-service-1.7.3.jar=8
+org/apache/felix/org.apache.felix.configadmin/1.6.0/org.apache.felix.configadmin-1.6.0.jar=10
+org/apache/felix/org.apache.felix.fileinstall/3.4.0/org.apache.felix.fileinstall-3.4.0.jar=11
+org/apache/karaf/features/org.apache.karaf.features.core/2.4.0.redhat-620004/org.apache.karaf.features.core-2.4.0.redhat-620004.jar=15
+org/apache/felix/org.apache.felix.metatype/1.0.10/org.apache.felix.metatype-1.0.10.jar=19
+org/apache/felix/org.apache.felix.eventadmin/1.3.2/org.apache.felix.eventadmin-1.3.2.jar=20
+org/apache/karaf/admin/org.apache.karaf.admin.management/2.4.0.redhat-620004/org.apache.karaf.admin.management-2.4.0.redhat-620004.jar=80
 
+-->
+
+    <feature name="karaf" version="${karaf-version}" resolver="(obr)">
+        <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/${felix-configadmin-version}</bundle>
         <bundle>mvn:org.ops4j.pax.url/pax-url-aether/${pax.url.version}</bundle>
         <bundle>mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}/jar/uber</bundle>
 
