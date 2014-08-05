@@ -15,6 +15,7 @@
  */
 package io.fabric8.service;
 
+import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -31,6 +32,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 
 @ThreadSafe
@@ -41,6 +43,11 @@ public final class PortPlaceholderResolver extends AbstractComponent implements 
 
     public static final String RESOLVER_SCHEME = "port";
     private static final Pattern PORT_PROPERTY_URL_PATTERN = Pattern.compile("port:([\\d]+),([\\d]+)");
+
+    //The registration is responsible for registering the initial port values of the container.
+    //The port placeholder resolver can be reliably used ONLY after that.
+    @Reference
+    private ContainerRegistration containerRegistration;
 
     @Activate
     void activate() {
