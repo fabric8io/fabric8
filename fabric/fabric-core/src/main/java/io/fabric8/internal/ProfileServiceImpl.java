@@ -59,11 +59,23 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     @Reference(referenceInterface = RuntimeProperties.class)
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<>();
     
-    private final Map<String, Profile> lastOverlayProfiles = new HashMap<String, Profile>();
+    static class OverlayAudit {
+        Map<String, Profile> overlayProfiles = new HashMap<String, Profile>();
+    }
     
     @Activate
     void activate() throws Exception {
+        getOverlayAudit();
         activateComponent();
+    }
+
+    private OverlayAudit getOverlayAudit() {
+        RuntimeProperties sysprops = runtimeProperties.get();
+        OverlayAudit audit = sysprops.getRuntimeAttribute(OverlayAudit.class);
+        if (audit == null) {
+            sysprops.putRuntimeAttribute(OverlayAudit.class, audit = new OverlayAudit());
+        }
+        return audit;
     }
 
     @Deactivate
@@ -155,31 +167,32 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     @Override
     public Profile getOverlayProfile(Profile profile) {
         assertValid();
-        
         Profile overlayProfile;
-        if (profile.isOverlay()) {
-            LOGGER.debug("getOverlayProfile, given profile is already an overlay: " + profile);
-            overlayProfile = profile;
-        } else {
-            String profileId = profile.getId();
-            String environment = runtimeProperties.get().getProperty(SystemProperties.FABRIC_ENVIRONMENT);
-            ProfileBuilder builder = ProfileBuilder.Factory.create(profile.getVersion(), profileId);
-            builder.addOptions(new OverlayOptionsProvider(profile, environment));
-            overlayProfile = builder.getProfile();
-            
-            // Log the overlay profile difference
-            if (LOGGER.isInfoEnabled()) {
-                synchronized (lastOverlayProfiles) {
-                    Profile lastOverlay = lastOverlayProfiles.get(profileId);
+        synchronized (this) {
+            if (profile.isOverlay()) {
+                LOGGER.debug("getOverlayProfile, given profile is already an overlay: " + profile);
+                overlayProfile = profile;
+            } else {
+                String profileId = profile.getId();
+                String environment = runtimeProperties.get().getProperty(SystemProperties.FABRIC_ENVIRONMENT);
+                ProfileBuilder builder = ProfileBuilder.Factory.create(profile.getVersion(), profileId);
+                builder.addOptions(new OverlayOptionsProvider(profile, environment));
+                overlayProfile = builder.getProfile();
+                
+                // Log the overlay profile difference
+                if (LOGGER.isInfoEnabled()) {
+                    OverlayAudit audit = getOverlayAudit();
+                    Profile lastOverlay = audit.overlayProfiles.get(profileId);
                     String longString = Profiles.getProfileInfo(overlayProfile, true);
                     String lastString = lastOverlay != null ? Profiles.getProfileInfo(lastOverlay, true) : null;
-                    if (lastOverlay == null || !longString.equals(lastString)) {
-                        LOGGER.info("Changed Overlay" + longString);
-                        if (lastOverlay != null) {
-                            LOGGER.info("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
-                        }
+                    if (lastOverlay == null) {
+                        LOGGER.info("Overlay" + longString);
                         LOGGER.info("Called from ", new RuntimeException());
-                        lastOverlayProfiles.put(profileId, overlayProfile);
+                        audit.overlayProfiles.put(profileId, overlayProfile);
+                    } else if (!longString.equals(lastString)) {
+                        LOGGER.info("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
+                        LOGGER.info("Called from ", new RuntimeException());
+                        audit.overlayProfiles.put(profileId, overlayProfile);
                     }
                 }
             }
