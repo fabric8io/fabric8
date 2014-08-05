@@ -17,10 +17,9 @@ package io.fabric8.itests.smoke.karaf;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.runtime.itests.support.CommandSupport;
-import io.fabric8.runtime.itests.support.FabricEnsembleSupport;
-import io.fabric8.runtime.itests.support.Provision;
-import io.fabric8.runtime.itests.support.ServiceProxy;
+import io.fabric8.itests.support.CommandSupport;
+import io.fabric8.itests.support.ProvisionSupport;
+import io.fabric8.itests.support.ServiceProxy;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -45,6 +44,7 @@ import org.jboss.shrinkwrap.api.asset.Asset;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
 
 @RunWith(Arquillian.class)
 public class JoinTest {
@@ -69,7 +69,7 @@ public class JoinTest {
                     builder.addImportPackages(RuntimeLocator.class, FabricService.class);
                     builder.addImportPackages(AbstractCommand.class, Action.class);
                     builder.addImportPackage("org.apache.felix.service.command;status=provisional");
-                    builder.addImportPackages(ConfigurationAdmin.class, AdminService.class);
+                    builder.addImportPackages(ConfigurationAdmin.class, Logger.class, AdminService.class);
                     return builder.openStream();
                 } else {
                     ManifestBuilder builder = new ManifestBuilder();
@@ -96,7 +96,7 @@ public class JoinTest {
 
             try {
                 System.err.println(CommandSupport.executeCommand("admin:start smoke.childD"));
-                Provision.instanceStarted(Arrays.asList("smoke.childD"), FabricEnsembleSupport.PROVISION_TIMEOUT);
+                ProvisionSupport.instanceStarted(Arrays.asList("smoke.childD"), ProvisionSupport.PROVISION_TIMEOUT);
                 System.err.println(CommandSupport.executeCommand("admin:list"));
                 String joinCommand = "fabric:join -f --zookeeper-password "+ fabricService.getZookeeperPassword() +" " + fabricService.getZookeeperUrl();
                 String response = "";
@@ -106,10 +106,10 @@ public class JoinTest {
                 }
 
                 System.err.println(CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("smoke.childD").getSshPort() + " localhost " + joinCommand));
-                Provision.containersExist(Arrays.asList("smoke.childD"), FabricEnsembleSupport.PROVISION_TIMEOUT);
+                ProvisionSupport.containersExist(Arrays.asList("smoke.childD"), ProvisionSupport.PROVISION_TIMEOUT);
                 Container childD = fabricService.getContainer("smoke.childD");
                 System.err.println(CommandSupport.executeCommand("fabric:container-list"));
-                Provision.containerStatus(Arrays.asList(childD), "success", FabricEnsembleSupport.PROVISION_TIMEOUT);
+                ProvisionSupport.containerStatus(Arrays.asList(childD), "success", ProvisionSupport.PROVISION_TIMEOUT);
                 System.err.println(CommandSupport.executeCommand("fabric:container-list"));
             } finally {
                 System.err.println(CommandSupport.executeCommand("admin:stop smoke.childD"));

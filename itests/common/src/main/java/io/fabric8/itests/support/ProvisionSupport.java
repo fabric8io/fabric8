@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.runtime.itests.support;
+package io.fabric8.itests.support;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
@@ -45,8 +45,10 @@ import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.ServiceLocator;
 
-public class Provision {
+public class ProvisionSupport {
 
+    public static final Long PROVISION_TIMEOUT = 60000L;
+    
     private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
 
     /**
@@ -244,5 +246,4 @@ public class Provision {
 
         return completionService.poll(timeout, TimeUnit.MILLISECONDS).get();
     }
-
 }

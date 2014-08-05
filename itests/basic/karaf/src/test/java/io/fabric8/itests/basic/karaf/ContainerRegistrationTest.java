@@ -17,11 +17,10 @@ package io.fabric8.itests.basic.karaf;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.runtime.itests.support.CommandSupport;
-import io.fabric8.runtime.itests.support.ContainerBuilder;
-import io.fabric8.runtime.itests.support.FabricEnsembleSupport;
-import io.fabric8.runtime.itests.support.Provision;
-import io.fabric8.runtime.itests.support.ServiceProxy;
+import io.fabric8.itests.support.CommandSupport;
+import io.fabric8.itests.support.ContainerBuilder;
+import io.fabric8.itests.support.ProvisionSupport;
+import io.fabric8.itests.support.ServiceProxy;
 
 import java.io.InputStream;
 import java.util.Set;
@@ -46,6 +45,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
 
 /**
  * A test for making sure that the container registration info such as jmx url and ssh url are updated, if new values
@@ -73,7 +73,7 @@ public class ContainerRegistrationTest {
                     builder.addImportPackages(RuntimeLocator.class, FabricService.class);
                     builder.addImportPackages(AbstractCommand.class, Action.class);
                     builder.addImportPackage("org.apache.felix.service.command;status=provisional");
-                    builder.addImportPackages(ConfigurationAdmin.class);
+                    builder.addImportPackages(ConfigurationAdmin.class, Logger.class);
                     return builder.openStream();
                 } else {
                     ManifestBuilder builder = new ManifestBuilder();
@@ -101,7 +101,7 @@ public class ContainerRegistrationTest {
             FabricService fabricService = fabricProxy.getService();
             
             System.out.println(CommandSupport.executeCommand("fabric:profile-create --parents default child-profile"));
-            Assert.assertTrue(Provision.profileAvailable("child-profile", "1.0", FabricEnsembleSupport.PROVISION_TIMEOUT));
+            Assert.assertTrue(ProvisionSupport.profileAvailable("child-profile", "1.0", ProvisionSupport.PROVISION_TIMEOUT));
 
             Set<Container> containers = ContainerBuilder.create(1,1).withName("basic.cnt").withProfiles("child-profile").assertProvisioningResult().build(fabricService);
             try {
@@ -117,7 +117,7 @@ public class ContainerRegistrationTest {
                 String sshUrl = child1.getSshUrl();
                 String jmxUrl = child1.getJmxUrl();
                 
-                long end = System.currentTimeMillis() + FabricEnsembleSupport.PROVISION_TIMEOUT;
+                long end = System.currentTimeMillis() + ProvisionSupport.PROVISION_TIMEOUT;
                 while (System.currentTimeMillis() < end && (!sshUrl.endsWith("8105") || !jmxUrl.contains("55555"))) {
                     Thread.sleep(1000L);
                     sshUrl = child1.getSshUrl();

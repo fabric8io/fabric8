@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.runtime.itests.support;
+package io.fabric8.itests.support;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerRegistration;
@@ -168,10 +168,10 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
 
             try {
                 if (waitForProvisioning) {
-                    Provision.containerStatus(containers, "success", provisionTimeOut);
+                    ProvisionSupport.containerStatus(containers, "success", provisionTimeOut);
                 }
                 if (assertProvisioningResult) {
-                    Provision.provisioningSuccess(containers, provisionTimeOut);
+                    ProvisionSupport.provisioningSuccess(containers, provisionTimeOut);
                 }
             } catch (Exception e) {
                 throw FabricException.launderThrowable(e);

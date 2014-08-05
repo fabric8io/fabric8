@@ -18,11 +18,10 @@ package io.fabric8.itests.smoke.karaf;
 import static org.junit.Assert.assertTrue;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.runtime.itests.support.CommandSupport;
-import io.fabric8.runtime.itests.support.ContainerBuilder;
-import io.fabric8.runtime.itests.support.FabricEnsembleSupport;
-import io.fabric8.runtime.itests.support.Provision;
-import io.fabric8.runtime.itests.support.ServiceProxy;
+import io.fabric8.itests.support.CommandSupport;
+import io.fabric8.itests.support.ContainerBuilder;
+import io.fabric8.itests.support.ProvisionSupport;
+import io.fabric8.itests.support.ServiceProxy;
 
 import java.io.InputStream;
 import java.util.Set;
@@ -45,6 +44,7 @@ import org.jboss.shrinkwrap.api.asset.Asset;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
 
 /**
  * The purpose of this test is to make sure that everything can be downloaded from the fabric-maven-proxy.
@@ -76,7 +76,7 @@ public class DeploymentAgentTest {
                     builder.addImportPackages(RuntimeLocator.class, FabricService.class);
                     builder.addImportPackages(AbstractCommand.class, Action.class);
                     builder.addImportPackage("org.apache.felix.service.command;status=provisional");
-                    builder.addImportPackages(ConfigurationAdmin.class);
+                    builder.addImportPackages(ConfigurationAdmin.class, Logger.class);
                     return builder.openStream();
                 } else {
                     ManifestBuilder builder = new ManifestBuilder();
@@ -115,7 +115,7 @@ public class DeploymentAgentTest {
                     CommandSupport.executeCommand("fabric:container-upgrade 1.1 " + container.getId());
                     System.out.flush();
                 }
-                Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
+                ProvisionSupport.provisioningSuccess(containers, ProvisionSupport.PROVISION_TIMEOUT);
                 CommandSupport.executeCommand("fabric:container-list");
 
                 for (Container container : containers) {

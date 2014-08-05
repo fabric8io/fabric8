@@ -171,6 +171,8 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
                         MergeStatus mergeStatus = mergeResult.getMergeStatus();
                         if (mergeStatus == MergeStatus.FAST_FORWARD) {
                             localChange = true;
+                        } else if (mergeStatus == MergeStatus.ALREADY_UP_TO_DATE) {
+                            // do nothing
                         } else if (mergeStatus == MergeStatus.ABORTED) {
                             LOGGER.info("Cannot fast forward branch {}, attempting rebase", branch);
                             RebaseResult rebaseResult = git.rebase().setUpstream(remoteCommit).call();

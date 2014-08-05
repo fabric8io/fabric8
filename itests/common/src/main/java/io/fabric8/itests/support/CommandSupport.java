@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.runtime.itests.support;
+package io.fabric8.itests.support;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -37,6 +37,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test helper utility
@@ -44,6 +46,8 @@ import org.osgi.framework.ServiceRegistration;
  * @since 03-Feb-2014
  */
 public final class CommandSupport {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandSupport.class);
 
     // Hide ctor
     private CommandSupport() {
@@ -105,6 +109,8 @@ public final class CommandSupport {
 
     private static void executeCommand(String cmdstr, CommandSession commandSession) {
 
+        LOGGER.info(cmdstr);
+        
         Bundle bundle = FrameworkUtil.getBundle(CommandSupport.class);
         BundleContext context = bundle.getBundleContext();
         ServiceRegistration<CommandSession> reg = context.registerService(CommandSession.class, commandSession, null);

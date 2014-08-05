@@ -13,11 +13,11 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.runtime.itests;
+package io.fabric8.itests;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
-import io.fabric8.runtime.itests.support.CommandSupport;
+import io.fabric8.itests.support.CommandSupport;
 
 import java.io.InputStream;
 

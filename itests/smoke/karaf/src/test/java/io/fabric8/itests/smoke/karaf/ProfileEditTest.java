@@ -17,8 +17,8 @@ package io.fabric8.itests.smoke.karaf;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
-import io.fabric8.runtime.itests.support.CommandSupport;
-import io.fabric8.runtime.itests.support.ServiceProxy;
+import io.fabric8.itests.support.CommandSupport;
+import io.fabric8.itests.support.ServiceProxy;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -42,6 +42,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
 
 @RunWith(Arquillian.class)
 public class ProfileEditTest {
@@ -64,7 +65,7 @@ public class ProfileEditTest {
                     builder.addImportPackages(RuntimeLocator.class, FabricService.class);
                     builder.addImportPackages(AbstractCommand.class, Action.class);
                     builder.addImportPackage("org.apache.felix.service.command;status=provisional");
-                    builder.addImportPackages(ConfigurationAdmin.class);
+                    builder.addImportPackages(ConfigurationAdmin.class, Logger.class);
                     return builder.openStream();
                 } else {
                     ManifestBuilder builder = new ManifestBuilder();

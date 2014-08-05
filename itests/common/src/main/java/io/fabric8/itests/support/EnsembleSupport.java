@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.runtime.itests.support;
+package io.fabric8.itests.support;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.EnsembleModificationFailed;
@@ -21,9 +21,7 @@ import io.fabric8.api.FabricService;
 
 import java.util.Arrays;
 
-public class FabricEnsembleSupport {
-
-    public static final Long PROVISION_TIMEOUT = 60000L;
+public class EnsembleSupport {
 
     public static void addToEnsemble(FabricService fabricService, Container... containers) throws Exception {
         StringBuilder sb = new StringBuilder();
@@ -57,7 +55,7 @@ public class FabricEnsembleSupport {
             } catch (Exception ex) {
                 if (isRetriable(ex)) {
                     System.err.println("Not ready for ensemble modification! Retrying...");
-                    Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
+                    ProvisionSupport.provisioningSuccess(Arrays.asList(fabricService.getContainers()), ProvisionSupport.PROVISION_TIMEOUT);
                     now = System.currentTimeMillis();
                 } else {
                     throw ex;

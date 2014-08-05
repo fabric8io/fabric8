@@ -17,12 +17,11 @@ package io.fabric8.itests.basic.karaf;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.runtime.itests.support.CommandSupport;
-import io.fabric8.runtime.itests.support.ContainerBuilder;
-import io.fabric8.runtime.itests.support.FabricEnsembleSupport;
-import io.fabric8.runtime.itests.support.Provision;
-import io.fabric8.runtime.itests.support.ServiceProxy;
-import io.fabric8.runtime.itests.support.WaitForConfigurationChange;
+import io.fabric8.itests.support.CommandSupport;
+import io.fabric8.itests.support.ContainerBuilder;
+import io.fabric8.itests.support.ProvisionSupport;
+import io.fabric8.itests.support.ServiceProxy;
+import io.fabric8.itests.support.WaitForConfigurationChange;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
 import java.io.InputStream;
@@ -51,6 +50,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
 
 @RunWith(Arquillian.class)
 public class ExtendedUpgradeAndRollbackTest  {
@@ -73,7 +73,7 @@ public class ExtendedUpgradeAndRollbackTest  {
                     builder.addImportPackages(RuntimeLocator.class, FabricService.class);
                     builder.addImportPackages(AbstractCommand.class, Action.class);
                     builder.addImportPackage("org.apache.felix.service.command;status=provisional");
-                    builder.addImportPackages(ConfigurationAdmin.class);
+                    builder.addImportPackages(ConfigurationAdmin.class, Logger.class);
                     builder.addImportPackages(CuratorFramework.class, ZooKeeperUtils.class);
                     return builder.openStream();
                 } else {
@@ -112,7 +112,7 @@ public class ExtendedUpgradeAndRollbackTest  {
                 Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
 
                 System.out.println(CommandSupport.executeCommand("fabric:container-upgrade --all 1.1"));
-                Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
+                ProvisionSupport.provisioningSuccess(containers, ProvisionSupport.PROVISION_TIMEOUT);
                 System.out.println(CommandSupport.executeCommand("fabric:container-list"));
 
                 for (Container container : containers) {
@@ -123,7 +123,7 @@ public class ExtendedUpgradeAndRollbackTest  {
                     Assert.assertFalse("Expected camel-hazelcast installed on container:"+container.getId()+".", bundles.isEmpty());
                 }
                 System.out.println(CommandSupport.executeCommand("fabric:container-rollback --all 1.0"));
-                Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
+                ProvisionSupport.provisioningSuccess(containers, ProvisionSupport.PROVISION_TIMEOUT);
                 System.out.println(CommandSupport.executeCommand("fabric:container-list"));
                 for (Container container : containers) {
                     Assert.assertEquals("Container should have version 1.0", "1.0", container.getVersion().getId());
@@ -161,7 +161,7 @@ public class ExtendedUpgradeAndRollbackTest  {
             Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("feature-camel").assertProvisioningResult().build(fabricService);
             try {
                 System.out.println(CommandSupport.executeCommand("fabric:container-rollback --all 1.0"));
-                Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
+                ProvisionSupport.provisioningSuccess(containers, ProvisionSupport.PROVISION_TIMEOUT);
                 for (Container container : containers) {
                     Assert.assertEquals("Container should have version 1.0", "1.0", container.getVersion().getId());
                     Assert.assertNotNull(ZooKeeperUtils.exists(ServiceLocator.awaitService(CuratorFramework.class), "/fabric/configs/versions/1.0/containers/" + container.getId()));

@@ -17,11 +17,10 @@ package io.fabric8.itests.smoke.karaf;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
-import io.fabric8.runtime.itests.support.CommandSupport;
-import io.fabric8.runtime.itests.support.ContainerBuilder;
-import io.fabric8.runtime.itests.support.FabricEnsembleSupport;
-import io.fabric8.runtime.itests.support.Provision;
-import io.fabric8.runtime.itests.support.ServiceProxy;
+import io.fabric8.itests.support.CommandSupport;
+import io.fabric8.itests.support.ContainerBuilder;
+import io.fabric8.itests.support.ProvisionSupport;
+import io.fabric8.itests.support.ServiceProxy;
 
 import java.io.InputStream;
 import java.util.Set;
@@ -46,6 +45,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
 
 /**
  * Test the fabric:create command
@@ -73,7 +73,7 @@ public class CreateChildContainerTest {
                     builder.addImportPackages(RuntimeLocator.class, FabricService.class);
                     builder.addImportPackages(AbstractCommand.class, Action.class);
                     builder.addImportPackage("org.apache.felix.service.command;status=provisional");
-                    builder.addImportPackages(ConfigurationAdmin.class, ServiceTracker.class);
+                    builder.addImportPackages(ConfigurationAdmin.class, Logger.class);
                     return builder.openStream();
                 } else {
                     ManifestBuilder builder = new ManifestBuilder();
@@ -117,7 +117,7 @@ public class CreateChildContainerTest {
         try {
             FabricService fabricService = fabricProxy.getService();
             Set<Container> containers = ContainerBuilder.child(1).withName("smoke.childB").withProfiles("p1").build(fabricService);
-            Provision.provisioningSuccess(containers, FabricEnsembleSupport.PROVISION_TIMEOUT);
+            ProvisionSupport.provisioningSuccess(containers, ProvisionSupport.PROVISION_TIMEOUT);
             try {
                 Container child = containers.iterator().next();
                 String ensembleUrl = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId() + " zk:get /fabric/configs/ensemble/url");

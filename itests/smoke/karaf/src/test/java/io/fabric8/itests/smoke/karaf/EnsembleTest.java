@@ -18,11 +18,11 @@ package io.fabric8.itests.smoke.karaf;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterService;
-import io.fabric8.runtime.itests.support.CommandSupport;
-import io.fabric8.runtime.itests.support.ContainerBuilder;
-import io.fabric8.runtime.itests.support.FabricEnsembleSupport;
-import io.fabric8.runtime.itests.support.Provision;
-import io.fabric8.runtime.itests.support.ServiceProxy;
+import io.fabric8.itests.support.CommandSupport;
+import io.fabric8.itests.support.ContainerBuilder;
+import io.fabric8.itests.support.EnsembleSupport;
+import io.fabric8.itests.support.ProvisionSupport;
+import io.fabric8.itests.support.ServiceProxy;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -51,6 +51,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
 
 @RunWith(Arquillian.class)
 public class EnsembleTest {
@@ -73,7 +74,7 @@ public class EnsembleTest {
                     builder.addImportPackages(RuntimeLocator.class, FabricService.class);
                     builder.addImportPackages(AbstractCommand.class, Action.class);
                     builder.addImportPackage("org.apache.felix.service.command;status=provisional");
-                    builder.addImportPackages(ConfigurationAdmin.class);
+                    builder.addImportPackages(ConfigurationAdmin.class, Logger.class);
                     return builder.openStream();
                 } else {
                     ManifestBuilder builder = new ManifestBuilder();
@@ -104,7 +105,7 @@ public class EnsembleTest {
                     Container cnt2 = containerQueue.removeFirst();
                     addedContainers.add(cnt1);
                     addedContainers.add(cnt2);
-                    FabricEnsembleSupport.addToEnsemble(fabricService, cnt1, cnt2);
+                    EnsembleSupport.addToEnsemble(fabricService, cnt1, cnt2);
                     System.err.println(CommandSupport.executeCommand("config:proplist --pid io.fabric8.zookeeper"));
 
                     System.err.println(CommandSupport.executeCommand("fabric:container-list"));
@@ -114,7 +115,7 @@ public class EnsembleTest {
                     List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                     Assert.assertTrue(ensembleContainersResult.contains(cnt1.getId()));
                     Assert.assertTrue(ensembleContainersResult.contains(cnt2.getId()));
-                    Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), FabricEnsembleSupport.PROVISION_TIMEOUT);
+                    ProvisionSupport.provisioningSuccess(Arrays.asList(fabricService.getContainers()), ProvisionSupport.PROVISION_TIMEOUT);
                 }
 
                 for (int e = 0; e < 3 && addedContainers.size() >= 2 && addedContainers.size() % 2 == 0; e++) {
@@ -122,7 +123,7 @@ public class EnsembleTest {
                     Container cnt2 = addedContainers.removeFirst();
                     containerQueue.add(cnt1);
                     containerQueue.add(cnt2);
-                    FabricEnsembleSupport.removeFromEnsemble(fabricService, cnt1, cnt2);
+                    EnsembleSupport.removeFromEnsemble(fabricService, cnt1, cnt2);
                     System.err.println(CommandSupport.executeCommand("config:proplist --pid io.fabric8.zookeeper"));
 
                     System.err.println(CommandSupport.executeCommand("fabric:container-list"));
@@ -132,7 +133,7 @@ public class EnsembleTest {
                     List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                     Assert.assertFalse(ensembleContainersResult.contains(cnt1.getId()));
                     Assert.assertFalse(ensembleContainersResult.contains(cnt2.getId()));
-                    Provision.provisioningSuccess(Arrays.asList(fabricService.getContainers()), FabricEnsembleSupport.PROVISION_TIMEOUT);
+                    ProvisionSupport.provisioningSuccess(Arrays.asList(fabricService.getContainers()), ProvisionSupport.PROVISION_TIMEOUT);
                 }
             } finally {
                 ContainerBuilder.stop(fabricService, containers);

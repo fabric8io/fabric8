@@ -187,11 +187,9 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
                     String lastString = lastOverlay != null ? Profiles.getProfileInfo(lastOverlay, true) : null;
                     if (lastOverlay == null) {
                         LOGGER.info("Overlay" + longString);
-                        LOGGER.info("Called from ", new RuntimeException());
                         audit.overlayProfiles.put(profileId, overlayProfile);
                     } else if (!longString.equals(lastString)) {
                         LOGGER.info("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
-                        LOGGER.info("Called from ", new RuntimeException());
                         audit.overlayProfiles.put(profileId, overlayProfile);
                     }
                 }

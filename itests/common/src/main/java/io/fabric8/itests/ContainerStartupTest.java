@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.runtime.itests;
+package io.fabric8.itests;
 
 
 import io.fabric8.api.Container;
@@ -21,7 +21,7 @@ import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreateEnsembleOptions.Builder;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
-import io.fabric8.runtime.itests.support.CommandSupport;
+import io.fabric8.itests.support.CommandSupport;
 import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.PasswordEncoder;
 
@@ -45,6 +45,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
 
 /**
  * Test basic {@link FabricService} functionality
@@ -73,7 +74,7 @@ public class ContainerStartupTest {
                     builder.addBundleVersion("1.0.0");
                     builder.addManifestHeader(Constants.GRAVIA_ENABLED, Boolean.TRUE.toString());
                     builder.addImportPackages(RuntimeLocator.class, FabricService.class);
-                    builder.addImportPackages(ConfigurationAdmin.class);
+                    builder.addImportPackages(ConfigurationAdmin.class, Logger.class);
                     return builder.openStream();
                 } else {
                     ManifestBuilder builder = new ManifestBuilder();
