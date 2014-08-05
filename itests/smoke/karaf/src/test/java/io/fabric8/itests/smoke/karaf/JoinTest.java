@@ -84,6 +84,7 @@ public class JoinTest {
 
     @Test
 	public void testJoin() throws Exception {
+        System.err.println(CommandSupport.executeCommand("features:install admin"));
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
         ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();;
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
@@ -92,7 +93,7 @@ public class JoinTest {
 
             AdminService adminService = ServiceLocator.awaitService(moduleContext, AdminService.class);
             String version = System.getProperty("fabric.version");
-            System.err.println(CommandSupport.executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands smoke.childD"));
+            System.err.println(CommandSupport.executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric smoke.childD"));
 
             try {
                 System.err.println(CommandSupport.executeCommand("admin:start smoke.childD"));
