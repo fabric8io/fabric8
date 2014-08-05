@@ -36,10 +36,11 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
                 <Set name="host">
                     <Property name="jetty.host"/>
                 </Set>
-                <!-- The port value is synchronised with the profile pax-web property port value -->
+                <!-- We explicitly set port to 0 to avoid port conflicts, then a real port will be picked
+                     from org.ops4j.pax.web pid, which is PortService aware
+                -->
                 <Set name="port">
-                    <Property name="jetty.port" 
-                    	default="@{profile.getConfiguration('org.ops4j.pax.web').get('org.osgi.service.http.port')}"/>
+                    <Property name="jetty.port" default="0"/>
                 </Set>
                 <Set name="maxIdleTime">300000</Set>
                 <Set name="Acceptors">2</Set>
