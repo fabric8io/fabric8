@@ -105,6 +105,7 @@ public class GitHelpers {
             String name = ref.getName();
             if (equals(name, fullName)) {
                 localBranchExists = true;
+                break;
             }
         }
         return localBranchExists;
@@ -141,7 +142,9 @@ public class GitHelpers {
         String current = currentBranch(git);
         if (!equals(current, branch) && !localBranchExists(git, branch) ) {
             ref = git.checkout().setName(branch).setForce(true).setCreateBranch(true).call();
-            configureBranch(git, branch, remote);
+            if (remote != null) {
+                configureBranch(git, branch, remote);
+            }
         } else {
             ref = git.checkout().setName(branch).setForce(true).call();
         }

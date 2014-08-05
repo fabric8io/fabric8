@@ -25,8 +25,6 @@ public class GitContext {
     private boolean requirePull;
     private boolean requireCommit;
     private boolean requirePush;
-    private String pushBranch;
-    private String checkoutId;
     private StringBuilder commitMessage = new StringBuilder();
 
     public GitContext() {
@@ -81,23 +79,6 @@ public class GitContext {
     public GitContext setRequirePush(boolean requirePush) {
         this.requirePush = requirePush;
         return this;
-    }
-
-    public String getPushBranch() {
-        return pushBranch;
-    }
-
-    public GitContext setPushBranch(String pushBranch) {
-        this.pushBranch = pushBranch;
-        return this;
-    }
-
-    public String getCheckoutId() {
-        return checkoutId;
-    }
-
-    public void setCheckoutId(String checkoutId) {
-        this.checkoutId = checkoutId;
     }
 
     /**

@@ -865,7 +865,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
 
             if (context.isRequirePull()) {
-                doPullInternal(context, getCredentialsProvider(), true);
+                doPullInternal(context, getCredentialsProvider(), false);
             }
 
             T result = operation.call(git, context);
@@ -877,7 +877,10 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
 
             if (context.isRequirePush()) {
-                doPushInternal(context, getCredentialsProvider());
+                PushPolicyResult pushResult = doPushInternal(context, getCredentialsProvider());
+                if (!pushResult.getRejectedUpdates().isEmpty()) {
+                    throw new IllegalStateException("Push rejected: " + pushResult.getRejectedUpdates());
+                }
             }
             
             return result;
@@ -926,36 +929,27 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     
     private PullPolicyResult doPullInternal(GitContext context, CredentialsProvider credentialsProvider, boolean allowVersionDelete) {
         PullPolicyResult pullResult = pullPushPolicy.doPull(context, getCredentialsProvider(), allowVersionDelete);
-        if (pullResult.getLastException() != null) {
-            LOGGER.warn("Pull failed", pullResult.getLastException());
-        }
-        if (pullResult.localUpdateRequired()) {
-            versionCache.invalidateAll();
-            notificationRequired = true;
-        }
-        Set<String> pullVersions = pullResult.getVersions();
-        if (!pullVersions.isEmpty() && !pullVersions.equals(versions)) {
-            versions.clear();
-            versions.addAll(pullVersions);
-            versionCache.invalidateAll();
-            notificationRequired = true;
-        }
-        if (pullResult.remoteUpdateRequired()) {
-            doPushInternal(context, credentialsProvider);
-            notificationRequired = true;
+        if (pullResult.getLastException() == null) {
+            if (pullResult.localUpdateRequired()) {
+                versionCache.invalidateAll();
+                notificationRequired = true;
+            }
+            Set<String> pullVersions = pullResult.getVersions();
+            if (!pullVersions.isEmpty() && !pullVersions.equals(versions)) {
+                versions.clear();
+                versions.addAll(pullVersions);
+                versionCache.invalidateAll();
+                notificationRequired = true;
+            }
+            if (pullResult.remoteUpdateRequired()) {
+                doPushInternal(context, credentialsProvider);
+            }
         }
         return pullResult;
     }
 
     private PushPolicyResult doPushInternal(GitContext context, CredentialsProvider credentialsProvider) {
-        PushPolicyResult pushResult = pullPushPolicy.doPush(context, credentialsProvider);
-        if (pushResult.getLastException() != null) {
-            LOGGER.warn("Push failed", pushResult.getLastException());
-        }
-        if (!pushResult.getRejectedUpdates().isEmpty()) {
-            throw new IllegalStateException("Push rejected: " + pushResult.getRejectedUpdates());
-        }
-        return pushResult;
+        return pullPushPolicy.doPush(context, credentialsProvider);
     }
 
     /**
@@ -1045,11 +1039,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private void checkoutRequiredProfileBranch(Git git, GitContext context, String versionId, String profileId) throws GitAPIException {
         String branch = checkoutProfileBranch(git, context, versionId, profileId);
         IllegalStateAssertion.assertNotNull(branch, "Cannot checkout profile branch: " + versionId + "/" + profileId);
-        RevCommit lastCommit = GitHelpers.getVersionLastCommit(git, branch);
-        if (lastCommit != null) {
-            String checkoutId = lastCommit.getId().abbreviate(GIT_COMMIT_SHORT_LENGTH).name();
-            context.setCheckoutId(checkoutId);
-        }
     }
     
     private CredentialsProvider getCredentialsProvider() {

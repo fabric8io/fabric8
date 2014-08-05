@@ -27,6 +27,7 @@ import io.fabric8.api.ProfileService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.git.GitDataStore;
+import io.fabric8.git.internal.GitHelpers;
 import io.fabric8.git.internal.GitOperation;
 import io.fabric8.utils.DataStoreUtils;
 
@@ -42,6 +43,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -49,11 +51,15 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand.ListMode;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.gitective.core.CommitUtils;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.gravia.runtime.ServiceLocator;
+import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -82,13 +88,31 @@ public class RemoteGitRepositoryTest {
         ServiceLocator.getRequiredService(ZooKeeperClusterBootstrap.class).create(builder.build());
 
         Path dataPath = ServiceLocator.getRequiredService(RuntimeProperties.class).getDataPath();
+        Path localRepoPath = dataPath.resolve(Paths.get("git", "local", "fabric"));
         Path remoteRepoPath = dataPath.resolve(Paths.get("git", "remote", "fabric"));
         remoteRoot = remoteRepoPath.toFile();
         recursiveDelete(remoteRoot.toPath());
         remoteRoot.mkdirs();
         
         URL remoteUrl = remoteRepoPath.toFile().toURI().toURL(); 
-        git = Git.init().setDirectory(remoteRoot).call();
+        git = Git.cloneRepository()
+           .setURI(localRepoPath.toFile().toURI().toString())
+           .setDirectory(remoteRoot)
+           .setCloneAllBranches(true)
+           .setNoCheckout(true)
+           .call();
+        
+        // Checkout all remote branches
+        for (Ref ref : git.branchList().setListMode(ListMode.REMOTE).call()) {
+            String refName = ref.getName();
+            String startPoint = refName.substring(refName.indexOf("origin"));
+            String branchName = refName.substring(refName.lastIndexOf('/') + 1);
+            git.checkout().setCreateBranch(true).setName(branchName).setStartPoint(startPoint).call();
+        }
+        
+        // Verify that we have these branches
+        checkoutRequiredBranch("master");
+        checkoutRequiredBranch("1.0");
         
         ConfigurationAdmin configAdmin = ServiceLocator.getRequiredService(ConfigurationAdmin.class);
         Configuration config = configAdmin.getConfiguration(Constants.DATASTORE_PID);
@@ -153,6 +177,7 @@ public class RemoteGitRepositoryTest {
         
         createProfileRemote(versionId, "prfB", Collections.singletonMap("foo", "bbb"));
         
+        // Get the profile from local repo, doing a pull first
         GitOperation<Profile> gitop = new GitOperation<Profile>() {
             public Profile call(Git git, GitContext context) throws Exception {
                 return profileRegistry.getProfile(versionId, "prfB");
@@ -160,6 +185,7 @@ public class RemoteGitRepositoryTest {
         };
         GitContext context = new GitContext().requirePull();
         Profile profile = gitDataStore.gitOperation(context, gitop, null);
+        
         Assert.assertEquals("1.0", profile.getVersion());
         Assert.assertEquals("prfB", profile.getId());
         Assert.assertEquals("bbb", profile.getAttributes().get("foo"));
@@ -197,7 +223,7 @@ public class RemoteGitRepositoryTest {
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfE"));
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfF"));
         
-        checkoutBranch(versionId);
+        checkoutRequiredBranch(versionId);
         RevCommit head = CommitUtils.getHead(git.getRepository());
         
         ProfileBuilder pbuilder = ProfileBuilder.Factory.create(versionId, "prfE");
@@ -233,7 +259,7 @@ public class RemoteGitRepositoryTest {
         final String versionId = "1.0";
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfG"));
         
-        checkoutBranch(versionId);
+        checkoutRequiredBranch(versionId);
         RevCommit head = CommitUtils.getHead(git.getRepository());
         
         ProfileBuilder pbuilder = ProfileBuilder.Factory.create(versionId, "prfG");
@@ -263,20 +289,13 @@ public class RemoteGitRepositoryTest {
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfG"));
     }
     
-    private boolean profileExists(String versionId, String profileId) throws Exception {
-        checkoutBranch(versionId);
-        checkoutBranch(versionId);
-        return new File(remoteRoot, "fabric/profiles/" + profileId + ".profile").exists();
+    private static boolean profileExists(String versionId, String profileId) throws Exception {
+        boolean success = checkoutBranch(versionId);
+        return success && new File(remoteRoot, "fabric/profiles/" + profileId + ".profile").exists();
     }
 
-    private void checkoutBranch(String versionId) throws Exception {
-        // The remote workspace is dirty after the push ?!?
-        git.reset().setMode(ResetType.HARD).call();
-        git.checkout().setName(versionId).setForce(true).call();
-    }
-
-    private String createProfileRemote(String versionId, String profileId, Map<String, String> attributes) throws Exception {
-        checkoutBranch(versionId);
+    private static String createProfileRemote(String versionId, String profileId, Map<String, String> attributes) throws Exception {
+        checkoutRequiredBranch(versionId);
         Properties agentprops = new Properties();
         if (attributes != null) {
             for (Entry<String, String> entry : attributes.entrySet()) {
@@ -297,12 +316,22 @@ public class RemoteGitRepositoryTest {
         return profileId;
     }
 
-    private void deleteProfileRemote(String versionId, String profileId) throws Exception {
-        checkoutBranch(versionId);
+    private static void deleteProfileRemote(String versionId, String profileId) throws Exception {
+        checkoutRequiredBranch(versionId);
         Path profilePath = new File(remoteRoot, "fabric/profiles/" + profileId + ".profile").toPath();
         if (recursiveRemove(profilePath)) {
             git.commit().setMessage("Delete profile: " + profileId).call();
         }
+    }
+
+    private static boolean checkoutBranch(String versionId) throws GitAPIException {
+        git.reset().setMode(ResetType.HARD).call(); // The workspace has staged files after a push ?!?
+        return GitHelpers.checkoutBranch(git, versionId);
+    }
+
+    private static void checkoutRequiredBranch(String versionId) throws GitAPIException {
+        boolean success = checkoutBranch(versionId);
+        IllegalStateAssertion.assertTrue(success, "Cannot checkout branch: " + versionId);
     }
 
     private static boolean recursiveRemove(final Path rootPath) throws IOException {
