@@ -34,6 +34,12 @@ public interface ProfileRegistry {
      */
     LockHandle aquireWriteLock();
     
+    /**
+     * Aquire a read lock for the profile datastore
+     * A read lock cannot be upgraded to a writelock
+     */
+    LockHandle aquireReadLock();
+    
     //
     // Version management
     //

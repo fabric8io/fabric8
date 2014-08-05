@@ -16,6 +16,7 @@
 package io.fabric8.git.internal;
 
 import io.fabric8.api.GitContext;
+import io.fabric8.git.PullPushPolicy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,7 +71,7 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
     }
 
     @Override
-    public PullPolicyResult doPull(GitContext context, CredentialsProvider credentialsProvider) {
+    public synchronized PullPolicyResult doPull(GitContext context, CredentialsProvider credentialsProvider, boolean allowVersionDelete) {
         Repository repository = git.getRepository();
         StoredConfig config = repository.getConfig();
         String url = config.getString("remote", remoteRef, "url");
@@ -126,7 +127,9 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
             // Remote repository has no branches, force a push
             if (remoteBranches.isEmpty()) {
                 LOGGER.info("Pulled from an empty remote repository");
-                return new AbstractPullPolicyResult(versions, false, true, null);
+                return new AbstractPullPolicyResult(versions, false, !localBranches.isEmpty(), null);
+            } else {
+                LOGGER.info("Processing remote branches: {}", remoteBranches);
             }
             
             // Verify master branch and do a checkout of it when we have it locally (already)
@@ -139,7 +142,7 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
             for (String branch : allBranches) {
                 
                 // Delete a local branch that does not exist remotely, but not master 
-                if (localBranches.containsKey(branch) && !remoteBranches.containsKey(branch) && !GitHelpers.MASTER_BRANCH.equals(branch)) {
+                if (allowVersionDelete && localBranches.containsKey(branch) && !remoteBranches.containsKey(branch) && !GitHelpers.MASTER_BRANCH.equals(branch)) {
                     LOGGER.info("Deleting local branch: {}", branch);
                     git.branchDelete().setBranchNames(branch).setForce(true).call();
                     localChange = true;
@@ -205,7 +208,7 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
     }
     
     @Override
-    public PushPolicyResult doPush(GitContext context, CredentialsProvider credentialsProvider) {
+    public synchronized PushPolicyResult doPush(GitContext context, CredentialsProvider credentialsProvider) {
         
         StoredConfig config = git.getRepository().getConfig();
         String remoteUrl = config.getString("remote", remoteRef, "url");

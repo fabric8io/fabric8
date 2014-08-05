@@ -1,4 +1,4 @@
-package io.fabric8.git.internal;
+package io.fabric8.git;
 
 import io.fabric8.api.GitContext;
 
@@ -36,7 +36,7 @@ public interface PullPushPolicy {
     /**
      * Pull the version/profile state from the remote repository
      */
-    PullPolicyResult doPull(GitContext context, CredentialsProvider credentialsProvider);
+    PullPolicyResult doPull(GitContext context, CredentialsProvider credentialsProvider, boolean allowVersionDelete);
 
     /**
      * Push the version/profile state to the remote repository
