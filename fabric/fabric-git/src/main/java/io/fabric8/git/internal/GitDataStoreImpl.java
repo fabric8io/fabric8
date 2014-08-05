@@ -78,7 +78,6 @@ import java.util.StringTokenizer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
@@ -925,18 +924,19 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
     }
     
-    private PullPolicyResult doPullInternal(GitContext context, CredentialsProvider credentialsProvider) throws Exception {
+    private PullPolicyResult doPullInternal(GitContext context, CredentialsProvider credentialsProvider) {
         PullPolicyResult pullResult = pullPushPolicy.doPull(context, getCredentialsProvider());
         if (pullResult.getLastException() != null) {
-            throw pullResult.getLastException();
+            LOGGER.warn("Pull failed", pullResult.getLastException());
         }
         if (pullResult.localUpdateRequired()) {
             versionCache.invalidateAll();
             notificationRequired = true;
         }
-        if (!versions.equals(pullResult.getVersions())) {
+        Set<String> pullVersions = pullResult.getVersions();
+        if (!pullVersions.isEmpty() && !pullVersions.equals(versions)) {
             versions.clear();
-            versions.addAll(pullResult.getVersions());
+            versions.addAll(pullVersions);
             versionCache.invalidateAll();
             notificationRequired = true;
         }
@@ -947,10 +947,10 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         return pullResult;
     }
 
-    private PushPolicyResult doPushInternal(GitContext context, CredentialsProvider credentialsProvider) throws Exception {
+    private PushPolicyResult doPushInternal(GitContext context, CredentialsProvider credentialsProvider) {
         PushPolicyResult pushResult = pullPushPolicy.doPush(context, credentialsProvider);
         if (pushResult.getLastException() != null) {
-            throw pushResult.getLastException();
+            LOGGER.warn("Push failed", pushResult.getLastException());
         }
         if (!pushResult.getRejectedUpdates().isEmpty()) {
             throw new IllegalStateException("Push rejected: " + pushResult.getRejectedUpdates());
