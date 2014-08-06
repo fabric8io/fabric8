@@ -21,10 +21,14 @@ import io.fabric8.itests.support.CommandSupport;
 import io.fabric8.itests.support.ContainerBuilder;
 import io.fabric8.itests.support.ProvisionSupport;
 import io.fabric8.itests.support.ServiceProxy;
+import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -37,6 +41,7 @@ import org.jboss.gravia.resource.ManifestBuilder;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
+import org.jboss.gravia.runtime.ServiceLocator;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.Asset;
@@ -46,17 +51,13 @@ import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 
-/**
- * A test for making sure that the container registration info such as jmx url and ssh url are updated, if new values
- * are assigned to them via the profile.
- */
 @RunWith(Arquillian.class)
-public class ContainerRegistrationTest {
+public class ExtendedCreateChildContainerTest {
 
     @Deployment
     @StartLevelAware(autostart = true)
     public static Archive<?> deployment() {
-        final ArchiveBuilder archive = new ArchiveBuilder("container-registration-test");
+        final ArchiveBuilder archive = new ArchiveBuilder("extended-child-container-test");
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
         archive.addPackage(CommandSupport.class.getPackage());
         archive.setManifest(new Asset() {
@@ -72,6 +73,7 @@ public class ContainerRegistrationTest {
                     builder.addImportPackages(AbstractCommand.class, Action.class);
                     builder.addImportPackage("org.apache.felix.service.command;status=provisional");
                     builder.addImportPackages(ConfigurationAdmin.class, Logger.class);
+                    builder.addImportPackages(CuratorFramework.class, ZooKeeperUtils.class, ZkPath.class);
                     return builder.openStream();
                 } else {
                     ManifestBuilder builder = new ManifestBuilder();
@@ -83,11 +85,10 @@ public class ContainerRegistrationTest {
         });
         return archive.getArchive();
     }
-
-
+    
     @Test
-    @SuppressWarnings("unchecked")
-    public void testContainerRegistration() throws Exception {
+    // [FABRIC-370] Incomplete cleanup of registry entries when deleting containers.
+    public void testContainerDelete() throws Exception {
         System.out.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
         //System.out.println(executeCommand("shell:info"));
         //System.out.println(executeCommand("fabric:info"));
@@ -97,33 +98,59 @@ public class ContainerRegistrationTest {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            
-            System.out.println(CommandSupport.executeCommand("fabric:profile-create --parents default child-profile"));
-            Assert.assertTrue(ProvisionSupport.profileAvailable("child-profile", "1.0", ProvisionSupport.PROVISION_TIMEOUT));
+            System.out.println(CommandSupport.executeCommand("fabric:version-create"));
 
-            Set<Container> containers = ContainerBuilder.create(1,1).withName("basic.cntA").withProfiles("child-profile").assertProvisioningResult().build(fabricService);
+            Set<Container> containers = ContainerBuilder.child(1).withName("basic.cntB").assertProvisioningResult().build(fabricService);
             try {
-                Container cntA = containers.iterator().next();
-                System.out.println(CommandSupport.executeCommand("fabric:profile-edit --import-pid --pid org.apache.karaf.shell child-profile"));
-                System.out.println(CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/sshPort=8105 child-profile"));
-
-                System.out.println(CommandSupport.executeCommand("fabric:profile-edit --import-pid --pid org.apache.karaf.management child-profile"));
-                System.out.println(CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.management/rmiServerPort=55555 child-profile"));
-                System.out.println(CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.management/rmiRegistryPort=1100 child-profile"));
-                System.out.println(CommandSupport.executeCommand("fabric:profile-edit --pid org.apache.karaf.management/serviceUrl=service:jmx:rmi://localhost:55555/jndi/rmi://localhost:1099/karaf-"+cntA.getId()+" child-profile"));
-
-                String sshUrl = cntA.getSshUrl();
-                String jmxUrl = cntA.getJmxUrl();
-                
-                long end = System.currentTimeMillis() + ProvisionSupport.PROVISION_TIMEOUT;
-                while (System.currentTimeMillis() < end && (!sshUrl.endsWith("8105") || !jmxUrl.contains("55555"))) {
-                    Thread.sleep(1000L);
-                    sshUrl = cntA.getSshUrl();
-                    jmxUrl = cntA.getJmxUrl();
+                CuratorFramework curator = ServiceLocator.awaitService(CuratorFramework.class);
+                for (Container cnt : new HashSet<>(containers)) {
+                    try {
+                        cnt.destroy();
+                        containers.remove(cnt);
+                        Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.1", cnt.getId())));
+                        Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", cnt.getId())));
+                        Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONTAINER.getPath(cnt.getId())));
+                        Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONTAINER_DOMAINS.getPath(cnt.getId())));
+                        Assert.assertNull(ZooKeeperUtils.exists(curator, ZkPath.CONTAINER_PROVISION.getPath(cnt.getId())));
+                    } catch (Exception ex) {
+                        //ignore
+                    }
                 }
-                
-                Assert.assertTrue("sshUrl ends with 8105, but was: " + sshUrl, sshUrl.endsWith("8105"));
-                Assert.assertTrue("jmxUrl contains 55555, but was: " + jmxUrl, jmxUrl.contains("55555"));
+            } finally {
+                ContainerBuilder.destroy(fabricService, containers);
+            }
+        } finally {
+            fabricProxy.close();
+        }
+    }
+
+    @Test
+    // [FABRIC-482] Fabric doesn't allow remote host user/password to be changed once the container is created.
+    public void testContainerWithPasswordChange() throws Exception {
+        System.out.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
+        //System.out.println(executeCommand("shell:info"));
+        //System.out.println(executeCommand("fabric:info"));
+        //System.out.println(executeCommand("fabric:profile-list"));
+
+        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
+        try {
+            FabricService fabricService = fabricProxy.getService();
+            Set<Container> containers = ContainerBuilder.child(1).withName("basic.cntB").assertProvisioningResult().build(fabricService);
+            try {
+                Container cntB = containers.iterator().next();
+                System.out.println(
+                        CommandSupport.executeCommands(
+                                "jaas:manage --realm karaf --module io.fabric8.jaas.ZookeeperLoginModule",
+                                "jaas:userdel admin",
+                                "jaas:useradd admin newpassword",
+                                "jaas:roleadd admin admin",
+                                "jaas:update"
+                        )
+                );
+                System.out.println(CommandSupport.executeCommand("fabric:container-stop --user admin --password newpassword " + cntB.getId()));
+                ProvisionSupport.containersAlive(containers, false, ProvisionSupport.PROVISION_TIMEOUT);
+                containers.remove(cntB);
             } finally {
                 ContainerBuilder.stop(fabricService, containers);
             }
