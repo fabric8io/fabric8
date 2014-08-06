@@ -16,17 +16,15 @@
 package io.fabric8.git.http;
 
 import io.fabric8.api.FabricService;
-import io.fabric8.api.LockHandle;
-import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.TargetContainer;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Files;
+import io.fabric8.git.GitDataStore;
 import io.fabric8.git.GitHttpEndpoint;
 import io.fabric8.git.GitNode;
-import io.fabric8.git.GitService;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.internal.ZooKeeperGroup;
@@ -83,10 +81,10 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-    @Reference(referenceInterface = GitService.class)
-    private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
     @Reference(referenceInterface = HttpService.class)
     private final ValidatingReference<HttpService> httpService = new ValidatingReference<HttpService>();
+    @Reference(referenceInterface = GitDataStore.class)
+    private final ValidatingReference<GitDataStore> gitDataStore = new ValidatingReference<>();
     @Reference(referenceInterface = RuntimeProperties.class)
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
@@ -182,7 +180,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         // Init and clone the local repo.
         File fabricRoot = fabricRepoPath.toFile();
         if (!fabricRoot.exists()) {
-            File localRepo = gitService.get().getGit().getRepository().getDirectory();
+            File localRepo = gitDataStore.get().getGit().getRepository().getDirectory();
             Git.cloneRepository()
                 .setTimeout(10)
                 .setBare(true)
@@ -257,18 +255,16 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         this.curator.unbind(curator);
     }
 
-    void bindGitService(GitService service) {
-        this.gitService.bind(service);
+    void bindGitDataStore(GitDataStore service) {
+        this.gitDataStore.bind(service);
     }
-
-    void unbindGitService(GitService service) {
-        this.gitService.unbind(service);
+    void unbindGitDataStore(GitDataStore service) {
+        this.gitDataStore.unbind(service);
     }
 
     void bindHttpService(HttpService service) {
         this.httpService.bind(service);
     }
-
     void unbindHttpService(HttpService service) {
         this.httpService.unbind(service);
     }

@@ -313,6 +313,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             LOGGER.warn("Error closing SharedCount due " + ex.getMessage() + ". This exception is ignored.");
         }
     }
+    
+    @Override
+    public Git getGit() {
+        return gitService.get().getGit();
+    }
 
     @Override
     public LockHandle aquireWriteLock() {
@@ -1068,10 +1073,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         return properties.get(GIT_REMOTE_PASSWORD);
     }
 
-    private Git getGit() {
-        return gitService.get().getGit();
-    }
-    
     private void cacheVersionId(String versionId) {
         if (!GitHelpers.MASTER_BRANCH.equals(versionId)) {
             versions.add(versionId);
