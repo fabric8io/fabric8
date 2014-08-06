@@ -48,6 +48,7 @@ public final class ContainerProviderUtils {
     private static final String FIRST_FABRIC_DIRECTORY = "ls -l | grep fabric8-karaf | grep ^d | awk '{ print $NF }' | sort -n | head -1";
 
     private static final String RUN_FUNCTION = loadFunction("run.sh");
+    private static final String SUDO_N_FUNCTION = loadFunction("sudo_n.sh");
     private static final String DOWNLOAD_FUNCTION = loadFunction("download.sh");
     private static final String MAVEN_DOWNLOAD_FUNCTION = loadFunction("maven_download.sh");
     private static final String INSTALL_JDK = loadFunction("install_open_jdk.sh");
@@ -66,12 +67,17 @@ public final class ContainerProviderUtils {
 	private static final String FIND_FREE_PORT = loadFunction("find_free_port.sh");
     private static final String WAIT_FOR_PORT = loadFunction("wait_for_port.sh");
     private static final String EXTRACT_ZIP = loadFunction("extract_zip.sh");
+    private static final String GENERATE_SSH_KEYS = loadFunction("generate_ssh_keys.sh");
 
     public static final int DEFAULT_SSH_PORT = 8101;
     public static final int DEFAULT_RMI_SERVER_PORT = 44444;
     public static final int DEFAULT_RMI_REGISTRY_PORT = 1099;
     public static final String DEFAULT_JMX_SERVER_URL = "";
 	public static final int DEFAULT_HTTP_PORT = 8181;
+
+    private static final String DISTNAME_PATTERN = "fabric8-%s-%s.zip";
+    private static final String SYSTEM_DIST = "system/io/fabric8/fabric8-%s/%s";
+
 
     private static final String[] FALLBACK_REPOS = {"https://repo.fusesource.com/nexus/content/groups/public/", "https://repo.fusesource.com/nexus/content/groups/ea/", "https://repo.fusesource.com/nexus/content/repositories/snapshots/"};
 
@@ -87,6 +93,9 @@ public final class ContainerProviderUtils {
      * @throws MalformedURLException
      */
     public static String buildInstallAndStartScript(String name, CreateRemoteContainerOptions options) throws MalformedURLException, URISyntaxException {
+        String distFilename = String.format(DISTNAME_PATTERN, "karaf", FabricConstants.FABRIC_VERSION);
+        String systemDistPath = String.format(SYSTEM_DIST, "karaf", FabricConstants.FABRIC_VERSION);
+
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
         //Export environmental variables
@@ -97,6 +106,7 @@ public final class ContainerProviderUtils {
         }
 
         sb.append(RUN_FUNCTION).append("\n");
+        sb.append(SUDO_N_FUNCTION).append("\n");
         sb.append(DOWNLOAD_FUNCTION).append("\n");
         sb.append(MAVEN_DOWNLOAD_FUNCTION).append("\n");
         sb.append(UPDATE_PKGS).append("\n");
@@ -114,6 +124,7 @@ public final class ContainerProviderUtils {
 		sb.append(FIND_FREE_PORT).append("\n");
         sb.append(WAIT_FOR_PORT).append("\n");
         sb.append(EXTRACT_ZIP).append("\n");
+        sb.append(GENERATE_SSH_KEYS).append("\n");
         sb.append("run mkdir -p ").append(options.getPath()).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");
         sb.append("run mkdir -p ").append(name).append("\n");
@@ -137,6 +148,8 @@ public final class ContainerProviderUtils {
         fallbackRepositories.addAll(Arrays.asList(FALLBACK_REPOS));
         extractZipIntoDirectory(sb, options.getProxyUri(), "io.fabric8", "fabric8-karaf", FabricConstants.FABRIC_VERSION, fallbackRepositories);
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
+        sb.append("run mkdir -p ").append(systemDistPath).append("\n");
+        sb.append("run cp ../").append(distFilename).append(" ").append(systemDistPath).append("/\n");
         sb.append("run chmod +x bin/*").append("\n");
         List<String> lines = new ArrayList<String>();
         String globalResolver = options.getResolver() != null ? options.getResolver() : ZkDefs.DEFAULT_RESOLVER;
@@ -152,7 +165,7 @@ public final class ContainerProviderUtils {
         for (Map.Entry<String, String> entry : options.getDataStoreProperties().entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            replacePropertyValue(sb, "etc/" + Constants.DATASTORE_TYPE_PID + ".cfg", key, value);
+            replacePropertyValue(sb, "etc/" + Constants.DATASTORE_PID + ".cfg", key, value);
         }
         //Apply port range
         sb.append("BIND_ADDRESS=").append(options.getBindAddress() != null && !options.getBindAddress().isEmpty() ? options.getBindAddress() : "0.0.0.0").append("\n");
@@ -228,6 +241,7 @@ public final class ContainerProviderUtils {
             }
         }
 
+        sb.append("generate_ssh_keys").append("\n");
         sb.append("configure_hostnames").append(" ").append(options.getHostNameContext()).append("\n");
 
         String jvmOptions = options.getJvmOpts();
@@ -262,6 +276,7 @@ public final class ContainerProviderUtils {
             }
         }
         sb.append(RUN_FUNCTION).append("\n");
+        sb.append(SUDO_N_FUNCTION).append("\n");
         sb.append(KARAF_CHECK).append("\n");
         sb.append(CONFIGURE_HOSTNAMES).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");
@@ -300,6 +315,7 @@ public final class ContainerProviderUtils {
             }
         }
         sb.append(RUN_FUNCTION).append("\n");
+        sb.append(SUDO_N_FUNCTION).append("\n");
         sb.append(KARAF_KILL).append("\n");
 
         sb.append("run cd ").append(options.getPath()).append("\n");
@@ -326,6 +342,7 @@ public final class ContainerProviderUtils {
             }
         }
         sb.append(RUN_FUNCTION).append("\n");
+        sb.append(SUDO_N_FUNCTION).append("\n");
         sb.append(KARAF_KILL).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");
         sb.append("run cd ").append(name).append("\n");
@@ -369,20 +386,21 @@ public final class ContainerProviderUtils {
 
     private static void extractZipIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version, Iterable<String> fallbackRepos) throws URISyntaxException {
         String file = artifactId + "-" + version + ".zip";
+        List<String> allRepos = new ArrayList<>();
         //TODO: There may be cases where this is not good enough
         if (proxy != null) {
             String baseProxyURL = (!proxy.toString().endsWith("/")) ? proxy.toString() + "/" : proxy.toString();
-
-
-            sb.append("maven_download ").append(baseProxyURL).append(" ")
-                    .append(groupId).append(" ")
-                    .append(artifactId).append(" ")
-                    .append(version).append(" ")
-                    .append("zip").append("\n");
+            allRepos.add(baseProxyURL);
         }
 
         for (String fallbackRepo : fallbackRepos) {
-            sb.append("if [ ! -f " + file + " ] ; then ").append("maven_download ").append(fallbackRepo).append(" ")
+            allRepos.add(fallbackRepo);
+        }
+
+        sb.append("cp /tmp/" + file + " " + file).append("\n");
+
+        for (String repo : allRepos) {
+            sb.append("if [ ! -f " + file + " ] && [ ! -s " + file + "] ; then ").append("maven_download ").append(repo).append(" ")
                     .append(groupId).append(" ")
                     .append(artifactId).append(" ")
                     .append(version).append(" ")

@@ -37,6 +37,8 @@
 
   <!-- Properties -->
   <properties>
+    <!-- lets allow the artifactId to be specified as a system property so we can just run the test on a single archetype id -->
+    <ArchetypeTest.artifactId></ArchetypeTest.artifactId>
   </properties>
 
   <dependencies>
@@ -131,6 +133,7 @@
               <systemPropertyVariables>
                 <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>
                 <target.container>remote</target.container>
+                <ArchetypeTest.artifactId>${ArchetypeTest.artifactId}</ArchetypeTest.artifactId>
               </systemPropertyVariables>
             </configuration>
           </plugin>

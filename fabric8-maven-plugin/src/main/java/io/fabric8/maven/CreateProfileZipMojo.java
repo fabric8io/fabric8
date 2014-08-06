@@ -65,7 +65,6 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
  * Generates a ZIP file of the profile configuration
  */
 @Mojo(name = "zip", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
-@Execute(phase = LifecyclePhase.PACKAGE)
 public class CreateProfileZipMojo extends AbstractProfileMojo {
 
     /**

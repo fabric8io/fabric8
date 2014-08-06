@@ -29,6 +29,11 @@ jvmArgs() {
 APP_USER=""
 SERVICE="process"
 
+SERVICE_NAME="$FABRIC8_RUNTIME_ID"
+if [ -f "${SERVICE_NAME}" ] ; then
+  SERVICE_NAME="$SERVICE"
+fi
+
 #
 # Discover the APP_BASE from the location of this script.
 #
@@ -90,6 +95,10 @@ JVM_ARGS=`jvmArgs`
 APP_ARGS="$FABRIC8_MAIN_ARGS"
 MAIN_JAR="$APP_BASE/lib/main.jar"
 MAIN_CLASS="$FABRIC8_JAVA_MAIN"
+STOP_TIMEOUT="$FABRIC8_PROCESS_STOP_TIMEOUT"
+if [ -f "${STOP_TIMEOUT}" ] ; then
+  STOP_TIMEOUT="30"
+fi
 
 # Source the /etc/defaults script if it exists so it can modify the 
 # env vars setup so far..
@@ -117,23 +126,27 @@ status() {
 }
 
 stop() {
+  echo "Gracefully Stopping ${SERVICE_NAME} within ${STOP_TIMEOUT} second(s)"
+
   if [ -f "${PID_FILE}" ] ; then
     pid=`cat "${PID_FILE}"`
     kill $@ ${pid} > /dev/null
   fi
-  for i in 1 2 3 4 5 ; do
+  
+  for num in $(seq 1 $STOP_TIMEOUT); do
     status
     if [ $? -eq 0 ] ; then
       return 0
     fi
     sleep 1
   done
-  echo "Could not stop process ${pid}"
+  echo "Could not gracefully stop ${SERVICE_NAME} with pid: ${pid} within $STOP_TIMEOUT second(s)"
   return 1
 }
 
 start() {
 
+  echo "Starting ${SERVICE_NAME}"
   status
   if [ $? -eq 1 ] ; then
     echo "Already running."
@@ -171,35 +184,38 @@ start() {
   sleep 1
   status
   if [ $? -eq 0 ] ; then
-    echo "Could not start ${SERVICE}"
+    echo "Could not start ${SERVICE_NAME}"
     return 1
   fi
-  echo "${SERVICE} is now running (${pid})"
+  echo "${SERVICE_NAME} is now running (${pid})"
   return 0
 }
 
 case $1 in
   start)
-    echo "Starting ${SERVICE}"
     start
     exit $?
   ;;
 
   force-stop)
-    echo "Forcibly Stopping ${SERVICE}"
+    echo "Forcibly Stopping ${SERVICE_NAME}"
     stop -9
     exit $?
   ;;
 
   stop)
-    echo "Gracefully Stopping ${SERVICE}"
     stop
     exit $?
   ;;
 
   restart)
-    echo "Restarting ${SERVICE}"
+    echo "Restarting ${SERVICE_NAME}"
     stop
+    status
+    if [ $? -eq 1 ] ; then
+      echo "${SERVICE_NAME} did not stop cleanly within the time so killing it..."
+      force-stop
+    fi
     start
     exit $?
   ;;
@@ -207,9 +223,9 @@ case $1 in
   status)
     status
     if [ $? -eq 0 ] ; then
-      echo "${SERVICE} is stopped"
+      echo "${SERVICE_NAME} is stopped"
     else
-      echo "${SERVICE} is running (${pid})"
+      echo "${SERVICE_NAME} is running (${pid})"
     fi
     exit 0
   ;;

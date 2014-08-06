@@ -15,7 +15,7 @@
  */
 package io.fabric8.itests.paxexam.support;
 
-import io.fabric8.api.ServiceLocator;
+import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
 
 import java.util.concurrent.Callable;
 

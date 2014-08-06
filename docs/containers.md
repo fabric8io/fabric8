@@ -1,6 +1,6 @@
 ## Containers
 
-Fabric8 supports a wide range of different _container providers_ to allow different technologies, frameworks and application server technologies and programming models to be used to develop applicatinos and then deploy them on all things from bare metal, on premise and hybrid clouds.
+Fabric8 supports a wide range of different _container providers_ to allow different technologies, frameworks and application server technologies and programming models to be used to develop applications and then deploy them on all things from bare metal, on premise and hybrid clouds.
 
 Fabric8 supports the following kinds of container:
 

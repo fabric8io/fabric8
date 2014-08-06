@@ -18,18 +18,19 @@ package io.fabric8.features;
 import static io.fabric8.utils.features.FeatureUtils.search;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.OptionsProvider;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.internal.ProfileImpl;
-import io.fabric8.internal.ProfileOverlayImpl;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -226,6 +227,16 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
         unsupportedUninstallFeature(featureName);
     }
 
+    @Override
+    public void uninstallFeature(String s, EnumSet<Option> options) throws Exception {
+        uninstallFeature(s);
+    }
+
+    @Override
+    public void uninstallFeature(String s, String s2, EnumSet<Option> options) throws Exception {
+        uninstallFeature(s, s2);
+    }
+
     private void unsupportedUninstallFeature(String s) {
         throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --delete --features %s target-profile instead. See fabric:profile-edit --help for more information.", s));
     }
@@ -255,7 +266,9 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
         Set<Feature> installed = new HashSet<Feature>();
             try {
                 Map<String, Map<String, Feature>> allFeatures = getFeatures(installedRepositories);
-                for (String featureName : fabricService.get().getCurrentContainer().getOverlayProfile().getFeatures()) {
+                Profile overlayProfile = fabricService.get().getCurrentContainer().getOverlayProfile();
+                Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), overlayProfile);
+                for (String featureName : effectiveProfile.getFeatures()) {
                     try {
                         Feature f;
                         if (featureName.contains("/")) {
@@ -338,9 +351,10 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
         Set<String> repositoryUris = new LinkedHashSet<String>();
         Set<Repository> repos = new LinkedHashSet<Repository>();
 
-        Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();
-        if (profile.getRepositories() != null) {
-            for (String uri : profile.getRepositories()) {
+        Profile overlayProfile = fabricService.get().getCurrentContainer().getOverlayProfile();
+        Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), overlayProfile);
+        if (effectiveProfile.getRepositories() != null) {
+            for (String uri : effectiveProfile.getRepositories()) {
                 repositoryUris.add(uri);
             }
         }
@@ -380,80 +394,23 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
         }
     }
 
-    private class VersionProfile extends ProfileImpl {
-
-        private VersionProfile(Version version) {
-            super("#version-" + version.getId(),
-                    version.getId(),
-                    fabricService.get());
-        }
-
-        @Override
-        public Profile[] getParents() {
-            return fabricService.get().getVersion(getVersion()).getProfiles();
-        }
-
-        @Override
-        public Map<String, String> getAttributes() {
-            return Collections.emptyMap();
-        }
-
-        @Override
-        public void setAttribute(String key, String value) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Container[] getAssociatedContainers() {
-            return new Container[0];
-        }
-
-        @Override
-        public Map<String, byte[]> getFileConfigurations() {
-            return Collections.emptyMap();
-        }
-
-        @Override
-        public void setFileConfigurations(Map<String, byte[]> configurations) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Map<String, Map<String, String>> getConfigurations() {
-            return Collections.emptyMap();
-        }
-
-        @Override
-        public void setConfigurations(Map<String, Map<String, String>> configurations) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void delete() {
-            throw new UnsupportedOperationException();
-        }
-
-        /**
-         * Returns the time in milliseconds of the last modification of the profile.
-         */
-        @Override
-        public String getProfileHash() {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-
     /**
      * Creates an aggregation of all available {@link Profile}s.
      */
     private Profile getAllProfilesOverlay() {
-        FabricService fservice = fabricService.get();
-        Container container = fservice.getCurrentContainer();
+        Container container = fabricService.get().getCurrentContainer();
+        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
         Version version = container.getVersion();
-
-        Profile p = new VersionProfile(version);
-        return new ProfileOverlayImpl(p, fservice.getEnvironment(), true, fservice);
+        Profile versionProfile = getVersionProfile(version);
+        return Profiles.getEffectiveProfile(fabricService.get(), profileService.getOverlayProfile(versionProfile));
     }
+
+	private Profile getVersionProfile(Version version) {
+		String profileId = "#version-" + version.getId();
+		ProfileBuilder builder = ProfileBuilder.Factory.create(profileId).version(version.getId());
+		VersionProfileOptionsProvider optionsProvider = new VersionProfileOptionsProvider(version);
+		return builder.addOptions(optionsProvider).getProfile();
+	}
 
     void bindFabricService(FabricService fabricService) {
         this.fabricService.bind(fabricService);
@@ -461,5 +418,19 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
 
     void unbindFabricService(FabricService fabricService) {
         this.fabricService.unbind(fabricService);
+    }
+
+    static class VersionProfileOptionsProvider implements OptionsProvider<ProfileBuilder> {
+
+    	private final Version version;
+    	
+        private VersionProfileOptionsProvider(Version version) {
+        	this.version = version;
+        }
+
+        @Override
+		public ProfileBuilder addOptions(ProfileBuilder builder) {
+			return builder.addParents(version.getProfiles());
+		}
     }
 }

@@ -40,7 +40,6 @@
             io.fabric8.utils.shell;-split-package:=first,
         </fuse.osgi.private.pkg>
         <!--<fuse.osgi.embed.dependency>artifactId=archetype-builder;classifier=archetype-catalog</fuse.osgi.embed.dependency>-->
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <build>

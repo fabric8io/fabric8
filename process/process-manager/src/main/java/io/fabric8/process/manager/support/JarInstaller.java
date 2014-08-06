@@ -15,7 +15,7 @@
  */
 package io.fabric8.process.manager.support;
 
-import aQute.lib.osgi.Jar;
+import aQute.bnd.osgi.Jar;
 import com.google.common.base.Throwables;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
@@ -170,6 +170,7 @@ public class JarInstaller implements InstallTask {
             fos = new FileOutputStream(tmpFile);
             Resources.copy(url, fos);
         } catch (Exception ex) {
+            LOG.warn("Could not copy URL: " + url + ". Reason: " + ex, ex);
             Throwables.propagate(ex);
         } finally {
             Closeables.closeQuietly(fos);

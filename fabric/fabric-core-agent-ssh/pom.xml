@@ -38,11 +38,6 @@
             io.fabric8.utils.shell;-split-package:=first,
             org.jclouds.karaf.utils;-split-package:=first
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>
-            <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/io.fabric8.service.ssh.SshContainerProvider.xml,
-            OSGI-INF/io.fabric8.service.ssh.commands.ContainerCreateSsh.xml
-        </fuse.osgi.service.component>
     </properties>
 
     <dependencies>

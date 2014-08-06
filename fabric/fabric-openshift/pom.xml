@@ -35,6 +35,7 @@
       io.fabric8.openshift*;-noimport:=true
     </fuse.osgi.export>
     <fuse.osgi.import.additional>
+      org.osgi.service.event*;resolution:=optional,
       org.apache.karaf.features*;resolution:=optional,
     </fuse.osgi.import.additional>
     <fuse.osgi.private.pkg>
@@ -51,23 +52,12 @@
       io.fabric8.utils.shell;-split-package:=first,
       org.apache.karaf.features.*;-split-package:=first,
       org.apache.karaf.util.collections.*;-split-package:=first,
+      org.apache.karaf.util;-split-package:=first,
       org.apache.felix.utils.*;-split-package:=first,
       org.ops4j.pax.url.maven.commons.*;-split-package:=first,
       org.ops4j.util.collections.*;-split-package:=first,
       org.ops4j.util.xml.*;-split-package:=first,
     </fuse.osgi.private.pkg>
-    <fuse.osgi.service.component>
-      <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-      OSGI-INF/io.fabric8.openshift.commands.ApplicationCreate.xml,
-      OSGI-INF/io.fabric8.openshift.commands.ApplicationDestroy.xml,
-      OSGI-INF/io.fabric8.openshift.commands.ApplicationInfo.xml,
-      OSGI-INF/io.fabric8.openshift.commands.ApplicationList.xml,
-      OSGI-INF/io.fabric8.openshift.commands.ApplicationRestart.xml,
-      OSGI-INF/io.fabric8.openshift.commands.ApplicationStart.xml,
-      OSGI-INF/io.fabric8.openshift.commands.ApplicationStop.xml,
-      OSGI-INF/io.fabric8.openshift.commands.ContainerCreateOpenshift.xml,
-      OSGI-INF/io.fabric8.openshift.commands.DomainList.xml
-    </fuse.osgi.service.component>
   </properties>
 
   <dependencies>

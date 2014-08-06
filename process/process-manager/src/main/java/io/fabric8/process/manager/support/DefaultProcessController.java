@@ -20,6 +20,7 @@ import com.google.common.io.Files;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import io.fabric8.common.util.ExecParseUtils;
+import io.fabric8.common.util.Processes;
 import io.fabric8.process.manager.ProcessController;
 import io.fabric8.process.manager.config.ProcessConfig;
 import io.fabric8.process.manager.support.command.CommandFailedException;
@@ -111,7 +112,7 @@ public class DefaultProcessController implements ProcessController {
         if (Strings.isNullOrEmpty(customCommand)) {
             // lets just kill it
             LOG.info("No stop command configured so lets just try killing it " + this);
-            return ProcessUtils.killProcess(getPid(), "");
+            return Processes.killProcess(getPid(), "");
         }
         return runConfigCommandValueOrLaunchScriptWith(customCommand, "stop");
     }
@@ -122,7 +123,7 @@ public class DefaultProcessController implements ProcessController {
         if (Strings.isNullOrEmpty(customCommand)) {
             // lets stop it
             LOG.info("No kill command configured so lets just try killing it " + this);
-            return ProcessUtils.killProcess(getPid(), "-9");
+            return Processes.killProcess(getPid(), "-9");
         }
         return runConfigCommandValueOrLaunchScriptWith(customCommand, "kill");
     }

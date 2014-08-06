@@ -58,11 +58,7 @@ public class MetaTypeSummaryDTO {
         if (pids != null) {
             long bundleId = bundle.getBundleId();
             for (String pid : pids) {
-                MetaTypeObjectSummaryDTO summary = this.pids.get(pid);
-                if (summary == null) {
-                    summary = new MetaTypeObjectSummaryDTO(pid);
-                    this.pids.put(pid, summary);
-                }
+                MetaTypeObjectSummaryDTO summary = getOrCreateMetaTypeSummaryDTO(pid);
                 if (factory) {
                     summary.getFactoryPidBundleIds().add(bundleId);
                 } else {
@@ -74,6 +70,15 @@ public class MetaTypeSummaryDTO {
                 }
             }
         }
+    }
+
+    public MetaTypeObjectSummaryDTO getOrCreateMetaTypeSummaryDTO(String pid) {
+        MetaTypeObjectSummaryDTO summary = this.pids.get(pid);
+        if (summary == null) {
+            summary = new MetaTypeObjectSummaryDTO(pid);
+            this.pids.put(pid, summary);
+        }
+        return summary;
     }
 
     /**

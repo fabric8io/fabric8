@@ -15,6 +15,7 @@
  */
 package io.fabric8.process.manager.support;
 
+import io.fabric8.common.util.Processes;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ public class ProcessUtilsTest extends Assert {
     public void shouldParseProcessesIds() {
         if(IS_OS_UNIX) {
             // When
-            List<Long> processIds = ProcessUtils.getProcessIds();
+            List<Long> processIds = Processes.getProcessIds();
 
             // Then
             assertFalse(processIds.isEmpty());

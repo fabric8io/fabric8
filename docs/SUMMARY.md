@@ -47,3 +47,8 @@
   * [Apache CXF](cxf.md)
     * [CXF Fabric](cxfFabric.md)
   * [Spring framework](spring.md)
+* [FAQ](FAQ.md)
+  * [General Questions](faqGeneral.md)
+  * [Configuration Questions](faqConfig.md)
+  * [Questions On Using Fabric8](faqUsing.md)
+  * [Known Issues](faqIssues.md)

@@ -507,8 +507,8 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     }
 
                 }
-            } catch (Exception e) {
-                // ignored
+            } catch (Exception ex) {
+                LOGGER.error("Cannot reconfigure container", ex);
             }
         }
     }
@@ -521,10 +521,11 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
     private Container getContainer() {
         try {
             return fabricService.get().getCurrentContainer();
-        } catch (Exception e) {
+        } catch (Exception ex) {
+            LOGGER.error("Cannot obtain current container, using dummy wrapper", ex);
             final RuntimeProperties sysprops = runtimeProperties.get();
             final String runtimeIdentity = sysprops.getRuntimeIdentity();
-            return new ContainerImpl(null, runtimeIdentity, null) {
+            return new ContainerImpl(null, runtimeIdentity, fabricService.get()) {
                 @Override
                 public String getIp() {
                     try {

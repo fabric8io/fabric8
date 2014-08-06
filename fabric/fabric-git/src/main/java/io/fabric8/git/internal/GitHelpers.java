@@ -15,17 +15,22 @@
  */
 package io.fabric8.git.internal;
 
+import io.fabric8.api.Profiles;
+import io.fabric8.common.util.Strings;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Pattern;
 
-import io.fabric8.common.util.Strings;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
-
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.gitective.core.CommitUtils;
+import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +38,63 @@ import org.slf4j.LoggerFactory;
  * A bunch of helper methods for working with Git
  */
 public class GitHelpers {
-    private static final transient Logger LOG = LoggerFactory.getLogger(GitHelpers.class);
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitHelpers.class);
 
+    static final String CONFIGS = "fabric";
+    static final String CONFIGS_PROFILES = CONFIGS + File.separator + "profiles";
+    static final String VERSION_ATTRIBUTES = "version.attributes";
+    static final String REMOTE_ORIGIN = "origin";
+    static final String MASTER_BRANCH = "master";
+    static final String ROOT_TAG = "root";
+    
+    static final Pattern ENSEMBLE_PROFILE_PATTERN = Pattern.compile("fabric-ensemble-[0-9]+|fabric-ensemble-[0-9]+-[0-9]+");
+    
     /**
      * Returns the root directory of the git repo which contains the ".git" directory
      */
     public static File getRootGitDirectory(Git git) {
         return git.getRepository().getDirectory().getParentFile();
+    }
+
+    public static File getProfilesDirectory(Git git) {
+        return new File(GitHelpers.getRootGitDirectory(git), CONFIGS_PROFILES);
+    }
+
+    public static  File getProfileDirectory(Git git, String profileId) {
+        File profilesDirectory = getProfilesDirectory(git);
+        String path = convertProfileIdToDirectory(profileId);
+        return new File(profilesDirectory, path);
+    }
+
+    /**
+     * Takes a profile ID of the form "foo-bar" and if we are using directory trees for profiles then
+     * converts it to "foo/bar.profile"
+     */
+    public static String convertProfileIdToDirectory(String profileId) {
+        return Profiles.convertProfileIdToPath(profileId);
+    }
+
+    public static RevCommit getVersionLastCommit(Git git, String branch) {
+        return getLastCommit(git, branch, GitHelpers.CONFIGS_PROFILES);
+    }
+    
+    public static RevCommit getProfileLastCommit(Git git, String branch, String profilePath) {
+        return getLastCommit(git, branch, GitHelpers.CONFIGS_PROFILES + "/" + profilePath);
+    }
+
+    private static RevCommit getLastCommit(Git git, String branch, String path) {
+        RevCommit profileRef = null;
+        try {
+            Ref versionRef = git.getRepository().getRefDatabase().getRef(branch);
+            if (versionRef != null) {
+                String revision = versionRef.getObjectId().getName();
+                profileRef = CommitUtils.getLastCommit(git.getRepository(), revision, path != null ? path : ".");
+            }
+        } catch (IOException ex) {
+            // ignore
+        }
+        return profileRef;
     }
 
     public static boolean localBranchExists(Git git, String branch) throws GitAPIException {
@@ -50,6 +105,7 @@ public class GitHelpers {
             String name = ref.getName();
             if (equals(name, fullName)) {
                 localBranchExists = true;
+                break;
             }
         }
         return localBranchExists;
@@ -86,43 +142,50 @@ public class GitHelpers {
         String current = currentBranch(git);
         if (!equals(current, branch) && !localBranchExists(git, branch) ) {
             ref = git.checkout().setName(branch).setForce(true).setCreateBranch(true).call();
-            configureBranch(git, branch, remote);
+            if (remote != null) {
+                configureBranch(git, branch, remote);
+            }
         } else {
             ref = git.checkout().setName(branch).setForce(true).call();
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Checked out branch " + branch + " with results " + ref.getName());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Checked out branch " + branch + " with results " + ref.getName());
         }
     }
 
-    public static void checkoutBranch(Git git, String branch) throws GitAPIException {
+    public static boolean checkoutBranch(Git git, String branch) throws GitAPIException {
         String current = currentBranch(git);
         if (equals(current, branch)) {
-            return;
+            return true;
         } else if (localBranchExists(git, branch)) {
             Ref ref = git.checkout().setName(branch).setForce(true).call();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Checked out branch " + branch + " with results " + ref.getName());
-            }
+            LOGGER.debug("Checked out branch {} with results: ", branch, ref.getName());
+            return true;
         } else {
-            LOG.debug("Branch " + branch + "not found!");
+            LOGGER.debug("Branch {} not found!", branch);
+            return false;
         }
     }
 
-    public static void removeBranch(Git git, String branch) throws GitAPIException {
+    public static boolean checkoutTag(Git git, String tagName) throws GitAPIException {
+        git.checkout().setName(tagName).setForce(true).call();
+        LOGGER.debug("Checked out tag: {}", tagName);
+        return true;
+    }
+
+    public static boolean removeBranch(Git git, String branch) throws GitAPIException {
+        IllegalStateAssertion.assertFalse("master".equals(branch), "Cannot remove master branch");
         if (localBranchExists(git, branch)) {
             String current = currentBranch(git);
             if (equals(current, branch)) {
-                // cannot remove current
                 checkoutBranch(git, "master");
-                return;
             }
             List<String> list = git.branchDelete().setBranchNames(branch).setForce(true).call();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Deleted branch " + branch + " with results " + list);
-            }
+            LOGGER.debug("Deleted branch {} with results: {}", branch, list);
+            return true;
         } else {
-            LOG.debug("Branch " + branch + "not found!");
+            LOGGER.debug("Branch {} not found!", branch);
+            return true;
         }
     }
 
@@ -137,7 +200,7 @@ public class GitHelpers {
                 try {
                     config.save();
                 } catch (IOException e) {
-                    LOG.error("Failed to configure the branch configuration to " + getRootGitDirectory(git)
+                    LOGGER.error("Failed to configure the branch configuration to " + getRootGitDirectory(git)
                             + " with branch " + branch + " on remote repo: " + remote + ". " + e, e);
                 }
             }
@@ -146,5 +209,16 @@ public class GitHelpers {
 
     static boolean equals(Object a, Object b) {
         return (a == b) || (a != null && a.equals(b));
+    }
+
+    /**
+     * Returns the git branch of the given profile identity.
+     */
+    public static String getProfileBranch(String versionId, String profileId) {
+        if (profileId != null && ENSEMBLE_PROFILE_PATTERN.matcher(profileId).matches()) {
+            return "master";
+        } else {
+            return versionId;
+        }
     }
 }

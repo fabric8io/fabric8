@@ -34,10 +34,20 @@
 
   <modules>
     <module>autoscale-itests-common</module>
-    <module>autoscale-itests-remote</module>
   </modules>
 
   <profiles>
+    <profile>
+      <id>ts.autoscale</id>
+      <activation>
+        <property>
+          <name>ts.autoscale</name>
+        </property>
+      </activation>
+      <modules>
+        <module>autoscale-itests-remote</module>
+      </modules>
+    </profile>
     <profile>
       <id>docker</id>
       <activation>
@@ -46,6 +56,7 @@
         </property>
       </activation>
       <modules>
+        <module>autoscale-itests-docker-children</module>
         <module>autoscale-itests-docker</module>
       </modules>
     </profile>

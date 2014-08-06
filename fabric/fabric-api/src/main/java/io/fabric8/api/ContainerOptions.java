@@ -238,11 +238,6 @@ public class ContainerOptions implements Serializable {
             return (B) this;
         }
 
-        public B dataStoreType(String type) {
-            this.dataStoreProperties.put(DataStore.DATASTORE_TYPE_PROPERTY, type);
-            return (B) this;
-        }
-
         public void setBindAddress(String bindAddress) {
             this.bindAddress = bindAddress;
         }

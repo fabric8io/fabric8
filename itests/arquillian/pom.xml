@@ -32,8 +32,8 @@
   <name>Fabric8 :: Integration Tests :: Arquillian</name>
 
   <modules>
+    <module>arquillian-fabric8-common</module>
     <module>arquillian-fabric8-remote</module>
+    <module>arquillian-fabric8-docker</module>
   </modules>
-
-
 </project>

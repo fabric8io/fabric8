@@ -22,21 +22,17 @@ import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ModuleStatus;
+import io.fabric8.api.OptionsProvider;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.api.ZkDefs;
 import io.fabric8.api.data.BundleInfo;
 import io.fabric8.api.data.ServiceInfo;
 import io.fabric8.common.util.Strings;
 import io.fabric8.service.ContainerTemplate;
-
-import org.osgi.jmx.framework.BundleStateMBean;
-import org.osgi.jmx.framework.ServiceStateMBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -50,6 +46,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
+
+import org.jboss.gravia.utils.IllegalArgumentAssertion;
+import org.osgi.jmx.framework.BundleStateMBean;
+import org.osgi.jmx.framework.ServiceStateMBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ContainerImpl implements Container {
 
     private static final String ENSEMBLE_PROFILE_PATTERN = "fabric-ensemble-[0-9]*-[0-9]*";
@@ -59,6 +64,7 @@ public class ContainerImpl implements Container {
     private final Container parent;
     private final String id;
     private final FabricService fabricService;
+    private final DataStore dataStore;
 
     private CreateContainerMetadata<?> metadata;
 
@@ -66,6 +72,7 @@ public class ContainerImpl implements Container {
         this.parent = parent;
         this.id = id;
         this.fabricService = fabricService;
+        this.dataStore = fabricService.adapt(DataStore.class);
     }
 
     public FabricService getFabricService() {
@@ -81,11 +88,11 @@ public class ContainerImpl implements Container {
     }
 
     public boolean isAlive() {
-        return fabricService.getDataStore().isContainerAlive(id);
+        return dataStore.isContainerAlive(id);
     }
 
     public void setAlive(boolean flag) {
-       fabricService.getDataStore().setContainerAlive(id, flag);
+       dataStore.setContainerAlive(id, flag);
     }
 
     public boolean isRoot() {
@@ -95,7 +102,7 @@ public class ContainerImpl implements Container {
     @Override
     public boolean isEnsembleServer() {
         try {
-            List<String> containers = fabricService.getDataStore().getEnsembleContainers();
+            List<String> containers = dataStore.getEnsembleContainers();
             for (String container : containers) {
                 if (id.equals(container)) {
                     return true;
@@ -163,36 +170,50 @@ public class ContainerImpl implements Container {
     public boolean isManaged() {
         Map<String, String> agentConfig = getOverlayProfile().getConfiguration(Constants.AGENT_PID);
         if (agentConfig != null) {
-            String disabled = getOverlayProfile().getConfiguration(Constants.AGENT_PID).get("disabled");
-            return !"true".equals(disabled);
+            return !Boolean.parseBoolean(agentConfig.get("disabled"));
         }
         //if for any reason the profiles are not available yet, then assume the container is managed.
         return true;
     }
 
     @Override
-    public Version getVersion() {
-        String versionId = fabricService.getDataStore().getContainerVersion(id);
-        if (versionId == null) {
-            return null;
+    public String getVersionId() {
+        return dataStore.getContainerVersion(id);
+    }
+
+    @Override
+    public void setVersionId(String versionId) {
+        String currentId = getVersionId();
+        if (versionId.compareTo(currentId) != 0) {
+            ProfileService profileService = fabricService.adapt(ProfileService.class);
+            Version version = profileService.getRequiredVersion(versionId);
+            setVersion(version);
         }
-        return fabricService.getVersion(versionId);
+    }
+
+    @Override
+    public Version getVersion() {
+        String versionId = dataStore.getContainerVersion(id);
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        return versionId != null ? profileService.getVersion(versionId) : null;
     }
 
     @Override
     public void setVersion(Version version) {
-        if (version.compareTo(getVersion()) != 0) {
+        String currentId = getVersionId();
+        int compareResult = version.getId().compareTo(currentId);
+        if (compareResult != 0) {
             if (requiresUpgrade(version) && isManaged()) {
-                String status = version.compareTo(getVersion()) > 0 ? "upgrading" : "downgrading";
-                fabricService.getDataStore().setContainerAttribute(id, DataStore.ContainerAttribute.ProvisionStatus, status);
+                String status = compareResult > 0 ? "upgrading" : "downgrading";
+                dataStore.setContainerAttribute(id, DataStore.ContainerAttribute.ProvisionStatus, status);
             }
-            fabricService.getDataStore().setContainerVersion(id, version.getId());
+            dataStore.setContainerVersion(id, version.getId());
         }
     }
 
     @Override
     public Long getProcessId() {
-        String pid = fabricService.getDataStore().getContainerAttribute(id, DataStore.ContainerAttribute.ProcessId, null, false, false);
+        String pid = dataStore.getContainerAttribute(id, DataStore.ContainerAttribute.ProcessId, null, false, false);
         if( pid == null )
             return null;
         return Long.valueOf(pid);
@@ -200,39 +221,33 @@ public class ContainerImpl implements Container {
 
     public Profile[] getProfiles() {
         Version version = getVersion();
-        List<String> profileIds = fabricService.getDataStore().getContainerProfiles(id);
+        List<String> profileIds = dataStore.getContainerProfiles(id);
         List<Profile> profiles = new ArrayList<Profile>();
         for (String profileId : profileIds) {
-            profiles.add(version.getProfile(profileId));
+            profiles.add(version.getRequiredProfile(profileId));
         }
         if (profiles.isEmpty()) {
-            profiles.add(version.getProfile(ZkDefs.DEFAULT_PROFILE));
+            profiles.add(version.getRequiredProfile(ZkDefs.DEFAULT_PROFILE));
         }
         return profiles.toArray(new Profile[profiles.size()]);
     }
 
     public void setProfiles(Profile[] profiles) {
-        String versionId = fabricService.getDataStore().getContainerVersion(id);
-        List<String> currentProfileIds = fabricService.getDataStore().getContainerProfiles(id);
+        String versionId = dataStore.getContainerVersion(id);
+        List<String> currentProfileIds = dataStore.getContainerProfiles(id);
         List<String> profileIds = new ArrayList<String>();
         if (profiles != null) {
             for (Profile profile : profiles) {
-                if (!versionId.equals(profile.getVersion())) {
-                    throw new IllegalArgumentException("Version mismatch setting profile " + profile.getId() + " with version "
-                            + profile.getVersion() + " expected version " + versionId);
-                } else if (profile.isAbstract()) {
-                    throw new IllegalArgumentException("The profile " + profile.getId() + " is abstract and can not "
-                            + "be associated to containers");
-                } else if (profile.getId().matches(ENSEMBLE_PROFILE_PATTERN) && !currentProfileIds.contains(profile.getId())) {
-                    throw new IllegalArgumentException("The profile " + profile.getId() + " is not assignable.");
-                }
+                IllegalArgumentAssertion.assertTrue(versionId.equals(profile.getVersion()), "Version mismatch setting profile " + profile + ", expected version " + versionId);
+                IllegalArgumentAssertion.assertFalse(profile.isAbstract(), "The profile " + profile + " is abstract and can not be associated to containers");
+                IllegalArgumentAssertion.assertFalse(profile.getId().matches(ENSEMBLE_PROFILE_PATTERN) && !currentProfileIds.contains(profile.getId()), "The profile " + profile + " is not assignable.");
                 profileIds.add(profile.getId());
             }
         }
         if (profileIds.isEmpty()) {
             profileIds.add(ZkDefs.DEFAULT_PROFILE);
         }
-        fabricService.getDataStore().setContainerProfiles(id, profileIds);
+        dataStore.setContainerProfiles(id, profileIds);
     }
 
     @Override
@@ -243,9 +258,12 @@ public class ContainerImpl implements Container {
             updatedProfileList.add(p);
         }
 
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
         for (Profile addedProfile : addedProfiles) {
-            if (!addedProfile.exists()) {
-                throw new IllegalArgumentException("Profile "+addedProfile.getId()+" doesn't exist.");
+        	String versionId = addedProfile.getVersion();
+            String profileId = addedProfile.getId();
+            if (!profileService.hasProfile(versionId, profileId)) {
+				throw new IllegalArgumentException("Profile " + profileId + " doesn't exist.");
             } else if (!updatedProfileList.contains(addedProfile)) {
                 updatedProfileList.add(addedProfile);
             }
@@ -254,105 +272,23 @@ public class ContainerImpl implements Container {
     }
 
     @Override
-    public void removeProfiles(Profile... profiles) {
-        List<Profile> removedProfiles = Arrays.asList(profiles);
-        List<Profile> updatedProfileList = new LinkedList<Profile>();
-        for (String p : fabricService.getDataStore().getContainerProfiles(id)) {
-            Profile profile = getVersion().hasProfile(p) ? getVersion().getProfile(p) : new ProfileImpl(p, getVersion().getId(), fabricService);
-            if (!removedProfiles.contains(profile))
-                updatedProfileList.add(profile);
+    public void removeProfiles(String... profileIds) {
+        List<String> removedProfiles = Arrays.asList(profileIds);
+        List<Profile> updatedProfileList = new LinkedList<>();
+        for (String profileId : dataStore.getContainerProfiles(id)) {
+            if (!removedProfiles.contains(profileId)) {
+                Profile profile = getVersion().getProfile(profileId);
+                if (profile != null) {
+                    updatedProfileList.add(profile);
+                }
+            }
         }
         setProfiles(updatedProfileList.toArray(new Profile[updatedProfileList.size()]));
     }
 
-
     public Profile getOverlayProfile() {
-        return new ProfileOverlayImpl(new ContainerProfile(), fabricService.getEnvironment(), true, fabricService);
-    }
-
-    private class ContainerProfile extends ProfileImpl {
-        private ContainerProfile() {
-            super("#container-" + ContainerImpl.this.id,
-                    ContainerImpl.this.getVersion().getId(),
-                    ContainerImpl.this.fabricService);
-        }
-
-        @Override
-        public Profile[] getParents() {
-            Version v = fabricService.getVersion(getVersion());
-            List<Profile> parents = new ArrayList<Profile>();
-            for (String p :fabricService.getDataStore().getContainerProfiles(id)) {
-                try {
-                    parents.add(v.getProfile(p));
-                } catch (Exception e) {
-                    //We ignore profiles that threw an error (e.g. they don't exist).
-                }
-            }
-            return parents.toArray(new Profile[parents.size()]);
-        }
-
-        @Override
-        public Map<String, String> getAttributes() {
-            return Collections.emptyMap();
-        }
-
-        @Override
-        public void setAttribute(String key, String value) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Container[] getAssociatedContainers() {
-            return new Container[]{ContainerImpl.this};
-        }
-
-        @Override
-        public Map<String, byte[]> getFileConfigurations() {
-            return Collections.emptyMap();
-        }
-
-        @Override
-        public void setFileConfigurations(Map<String, byte[]> configurations) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Map<String, Map<String, String>> getConfigurations() {
-            return Collections.emptyMap();
-        }
-
-        @Override
-        public void setConfigurations(Map<String, Map<String, String>> configurations) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void delete() {
-            throw new UnsupportedOperationException();
-        }
-
-        /**
-         * Returns the time in milliseconds of the last modification of the profile.
-         */
-        @Override
-        public String getProfileHash() {
-            StringBuilder sb = new StringBuilder();
-            Version v = fabricService.getVersion(getVersion());
-            boolean first = true;
-            for (String p :fabricService.getDataStore().getContainerProfiles(id)) {
-                try {
-                    if (!first) {
-                        sb.append("-");
-                    } else {
-                        first = false;
-                    }
-                    sb.append(v.getProfile(p));
-                } catch (Exception e) {
-                    //We ignore profiles that threw an error (e.g. they don't exist).
-                }
-            }
-            return sb.toString();
-        }
+		ProfileService profileService = fabricService.adapt(ProfileService.class);
+		return profileService.getOverlayProfile(getContainerProfile());
     }
 
     public String getLocation() {
@@ -695,7 +631,7 @@ public class ContainerImpl implements Container {
 
     private CreateContainerMetadata<?> getMetadata(ClassLoader classLoader) {
         try {
-            return fabricService.getDataStore().getContainerMetadata(id, classLoader);
+            return dataStore.getContainerMetadata(id, classLoader);
         } catch (Exception e) {
             logger.debug("Error while retrieving metadata. This exception will be ignored.", e);
             return null;
@@ -707,14 +643,14 @@ public class ContainerImpl implements Container {
      */
     private boolean requiresUpgrade(Version version) {
         boolean requiresUpgrade = false;
-        if (version.compareTo(getVersion()) == 0) {
+        if (version.getId().compareTo(getVersionId()) == 0) {
             return false;
         }
         for (Profile oldProfile : getProfiles()) {
-            // get new profile
             Profile newProfile = version.getProfile(oldProfile.getId());
-            if (newProfile != null && !oldProfile.agentConfigurationEquals(newProfile)) {
+            if (newProfile != null && !Profiles.agentConfigurationEquals(fabricService, oldProfile, newProfile)) {
                 requiresUpgrade = true;
+                break;
             }
         }
         return requiresUpgrade;
@@ -771,19 +707,19 @@ public class ContainerImpl implements Container {
     }
 
     private String getOptionalAttribute(DataStore.ContainerAttribute attribute, String def) {
-        return fabricService.getDataStore().getContainerAttribute(id, attribute, def, false, false);
+        return dataStore.getContainerAttribute(id, attribute, def, false, false);
     }
 
     private String getNullableSubstitutedAttribute(DataStore.ContainerAttribute attribute) {
-        return fabricService.getDataStore().getContainerAttribute(id, attribute, null, false, true);
+        return dataStore.getContainerAttribute(id, attribute, null, false, true);
     }
 
     private String getMandatorySubstitutedAttribute(DataStore.ContainerAttribute attribute) {
-        return fabricService.getDataStore().getContainerAttribute(id, attribute, null, true, true);
+        return dataStore.getContainerAttribute(id, attribute, null, true, true);
     }
 
     private void setAttribute(DataStore.ContainerAttribute attribute, String value) {
-        fabricService.getDataStore().setContainerAttribute(id, attribute, value);
+        dataStore.setContainerAttribute(id, attribute, value);
     }
 
     private String getExtenderStatus() {
@@ -805,4 +741,48 @@ public class ContainerImpl implements Container {
     private ModuleStatus getBlueprintStatus() {
         return Enum.valueOf(ModuleStatus.class, getOptionalAttribute(DataStore.ContainerAttribute.BlueprintStatus, ModuleStatus.STARTED.name()));
     }
+
+	private Profile getContainerProfile() {
+		Version version = getVersion();
+		String profileId = "#container-" + getId();
+		ProfileBuilder builder = ProfileBuilder.Factory.create(profileId).version(version.getId());
+		ContainerProfileOptions optionsProvider = new ContainerProfileOptions(getId(), version, dataStore);
+		return builder.addOptions(optionsProvider).getProfile();
+	}
+
+	static class ContainerProfileOptions implements OptionsProvider<ProfileBuilder> {
+
+	    private static Logger LOGGER = LoggerFactory.getLogger(ContainerImpl.class);
+	    
+		private final String cntId;
+		private final DataStore dataStore;
+	    private final Version version;
+
+	    ContainerProfileOptions(String cntId, Version version, DataStore dataStore) {
+	    	this.dataStore = dataStore;
+	    	this.version = version;
+	    	this.cntId = cntId;
+	    }
+
+	    @Override
+		public ProfileBuilder addOptions(ProfileBuilder builder) {
+	        List<String> missingProfiles = new ArrayList<>();
+			List<String> profileIds = dataStore.getContainerProfiles(cntId);
+			LOGGER.info("Building container overlay for {} with profile: {}", cntId, profileIds);
+            for (String profileId : profileIds) {
+                Profile profile = version.getProfile(profileId);
+                if (profile != null) {
+                    builder.addParent(profile);
+                } else {
+                    missingProfiles.add(profileId);
+                }
+	        }
+			if (!missingProfiles.isEmpty()) {
+	            LOGGER.warn("Container overlay has missing profiles: {}", missingProfiles);
+                builder.addAttribute("missing.profiles", missingProfiles.toString());
+                // builder.addConfiguration(Constants.AGENT_PID, "disabled", "true");
+			}
+			return builder;
+	    }
+	}
 }

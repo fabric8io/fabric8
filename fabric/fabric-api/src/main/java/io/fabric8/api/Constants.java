@@ -21,7 +21,8 @@ package io.fabric8.api;
 public interface Constants {
 
     String AGENT_PID = "io.fabric8.agent";
-    String DATASTORE_TYPE_PID = "io.fabric8.datastore";
+    String AGENT_PROPERTIES = AGENT_PID + Profile.PROPERTIES_SUFFIX;
+    String DATASTORE_PID = "io.fabric8.datastore";
     String ZOOKEEPER_CLIENT_PID = "io.fabric8.zookeeper";
     String ZOOKEEPER_SERVER_PID = "io.fabric8.zookeeper.server";
 

@@ -38,8 +38,6 @@
     <fuse.osgi.split.pkg/>
     <fuse.osgi.embed.dependency/>
     <fuse.osgi.import.pkg>*</fuse.osgi.import.pkg>
-    <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
-
     <fabric8.profile>activemq.demo</fabric8.profile>
     <fabric8.parentProfiles>karaf</fabric8.parentProfiles>
     <fabric8.features>mq-fabric</fabric8.features>

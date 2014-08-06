@@ -64,6 +64,9 @@ public interface Container extends HasId {
 
     boolean isManaged();
 
+    String getVersionId();
+    void setVersionId(String versionId);
+    
     Version getVersion();
     void setVersion(Version version);
 
@@ -72,7 +75,7 @@ public interface Container extends HasId {
     Profile[] getProfiles();
     void setProfiles(Profile[] profiles);
     void addProfiles(Profile... profiles);
-    void removeProfiles(Profile... profiles);
+    void removeProfiles(String... profileIds);
 
     Profile getOverlayProfile();
 

@@ -526,9 +526,27 @@ desired property, the composite resolver returns `null`.
 
 By default the following process registries are aggregated by the Spring Boot container:
 
- * `ZooKeeperProcessRegistry` (if `curator-framework` is present in the classpath)
+ * `ZooKeeperProcessRegistry` (if `curator-framework` jar is present in the classpath)
  * `ClassPathProcessRegistry`
  * `InMemoryProcessRegistry`
 
 The above basically means that Spring Boot container attempts to read properties from the Fabric8 ZooKeeper registry,
 then from the system properties and finally from the files located in the classpath.
+
+#### ZooKeeper process registry
+
+If `curator-framework` jar is present in the classpath, `ZooKeeperProcessRegistry` will be created. 
+`ZooKeeperProcessRegistry` attempts to read properties values from the ZooKeeper server.
+
+In particular ZooKeeper registry will try to connect to the Fabric8 ZooKeeper runtime registry and read properties 
+from it. The default coordinates of Fabric8 runtime registry are `localhost:2181` (2181 is the default port used by the
+Fabric8 to start ZooKeeper on). If you would like to change it, set `fabric8.process.registry.zk.hosts`
+system property to the customized list of hosts:
+
+    java -Dfabric8.process.registry.zk.hosts=host1:5555,host2:6666 -jar my-service.jar
+
+ZooKeeper registry interprets dots in the properties names as the slashes in ZNode paths. For example `foo.bar` property 
+will be resolved as the `foo/bar` ZNode path.
+
+    @Value("${foo.bar}") // try to read foo/bar ZNode from the ZooKeeper
+    String bar;

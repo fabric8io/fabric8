@@ -23,6 +23,7 @@ import io.fabric8.testkit.FabricController;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -44,6 +45,10 @@ public class AutoScaleSingleMessageBrokerTest {
         FabricRequirements requirements = new FabricRequirements();
         requirements.profile("mq-default").minimumInstances(1);
 
-        FabricAssertions.assertSetRequirementsAndTheyAreSatisfied(fabricController, requirements);
+        FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
+
+        // now lets ensure that the autoscaler can scale back down again, stopping the broker
+        requirements.profile("mq-default").minimumInstances(0).maximumInstances(0);
+        FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
     }
 }

@@ -14,6 +14,9 @@ and also defines the OSGi framework that is going to be used.
 Each profile can have none, one or more parents, and this allows you to have profile hierarchies and a container can be assigned to one or more profiles.
 Profiles are also versioned, which allows you to keep different versions of each profile and then upgrade or rollback containers by changing the version of the profiles they use.
 
+Each profile may also define none, one or more dependents. This allows a profile to specify any containers that must be active for it to start, an example would be requiring that
+a MongoDB container is active so that a profile can use it as a database.
+
 ### Profile hierarchies
 It is quite often that multiple profiles share similar bits of configuration. Its quite common for different applications to use common frameworks libraries etc. Defining everything from group up for each profile can be a real pain and is not that easy to maintain.
 To avoid having duplicate configuration across profiles and reduce the required maintenance, Fabric uses a hierarchical model for profiles, which allows you to build a generic profile which contains common configuration and then inherit the common bits.
@@ -30,6 +33,25 @@ Fabric provides a rich set of profiles *"out of the box" that can be used as the
 * **mq-base** A profile that inherit the **karaf** profile and defines the  *mq-fabric* feature
 * **mq** It is a child of the **mq-base** profile and it also provides a fuse mq broker configuration.
 * **esb** It is a child of **camel**,**mq** & more profiles and also defines the *Fuse ESB* feature repository.
+
+### Profile dependencies
+A profile defines a dependency within a `io.fabric8.profile.dependency-[name].properties` file, where `[name]` can be any descriptive name for a particular dependency.
+ 
+This is an example dependency defining that a container must exist with the MongoDB profile:
+
+```
+kind = ZOOKEEPER_SERVICE
+zookeeperPath = /fabric/registry/clusters/mongodb/default
+summary = You must have a MongoDB instance running to be able to start this profile.
+profileWildcards = mongodb
+```
+
+`kind` only supports `ZOOKEEPER_SERVICE` as a method of determining whether a dependency is present.
+`zookeeperPath` defines the path in the registry whose child nodes will be containers of the appropriate profile(s) for this dependency.
+`profileWildcards` defines what profile ids to match on. If an id within `profileWildcards` is not contained within part of a profile id of the container, then no match is made.
+`summary` specifies a message to be displayed in hawt.io when no dependent container is found.
+
+Dependencies will attempt to match by `profileWildcards` first, and if no dependent container is found, it will then use `profileTags`. For a match to be made by `profileTags`, all the tags specified must be present on the profile of the dependent container. A match is still made if the dependent container has more tags than was defined in `profileTags`. 
 
 ### Changing the profile of a container
 At any given time you are able to change one of more of the profiles that are assigned to a container. You can use the [fabric:container-change-profile](commands/fabric-container-change-profile.html) command as shown below:
@@ -275,10 +297,16 @@ In addition fabric imports additional .zip files from the following two sources:
 1. .zip files which have been copied to the `<fabric_home>/fabric` directory. 
 1. .properties file which haven been copied to the `<fabric_home>/fabric` directory. 
 
-In the .properties files, you specify url locations for .zip files to be imported. For example fabric uses this to import its own quickstarts out of the box, by having a `quickstarts.properties` file with the following content
+In the .properties files, you specify url locations for .zip files to be imported. For example fabric uses this to import additional profiles such as the quickstarts, by having a `io.fabric8.import.profiles.properties` file with the following content
 
-    quickstarts = mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${project.version}/zip/profile
+    importProfileURLs = ${env:FABRIC8_IMPORT_PROFILE_URLS?:mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${version:fabric}/zip/profile}
+
+The url above is using the [environment property resolver](http://fabric8.io/gitbook/propertyResolver.html#env) to either load urls from the given environment variable, or if not provided, then use the default value which is `mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${version:fabric}/zip/profile`. Notice how the url uses the `?:` elvis operator so we can lookup the environment variable, and if not given, then fallback and use the default value. The value `${version:fabric}` will get replaced with the version of fabric8. 
+
+The environment variable `FABRIC8_IMPORT_PROFILE_URLS` can be used to define custom profiles to be loaded instead of the quickstarts. Multiple urls can be separated bt comma. For example to load two custom profiles instead of the quickstarts, then the environment can be configured with:
+
+    export FABRIC8_IMPORT_PROFILE_URLS="mvn:com.foo/myprofiles/1.0,mvn:com.foo/myotherprofiles/1.0"
 
 ##### Disabling quickstarts
 
-This allows easily to disable importing the quickstarts, by either deleting the `quickstarts.properties` file, or disable the above line,  by prefixing the line with the `#` character.
+This allows easily to disable importing the quickstarts, by either deleting the `io.fabric8.import.profiles.properties` file, or disable the above line,  by prefixing the line with the `#` character, or setting the environment variable `FABRIC8_IMPORT_PROFILE_URLS` to the value `false`. 

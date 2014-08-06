@@ -17,6 +17,8 @@ package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.utils.FabricValidations;
 
@@ -30,7 +32,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 public class ProfileDeleteAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version to delete. Defaults to the current default version.")
-    private String version;
+    private String versionId;
     @Option(name = "--force", description = "Force the removal of the profile from all assigned containers.")
     private boolean force;
     @Argument(index = 0, required = true, name = "profile", description = "Name of the profile to delete.")
@@ -50,11 +52,13 @@ public class ProfileDeleteAction extends AbstractAction {
     @Override
     protected Object doExecute() throws Exception {
         FabricValidations.validateProfileName(name);
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-
-        for (Profile profile : ver.getProfiles()) {
-            if (name.equals(profile.getId())) {
-                profile.delete(force);
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        Version version = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getRequiredDefaultVersion();
+        for (Profile profile : version.getProfiles()) {
+        	String versionId = profile.getVersion();
+            String profileId = profile.getId();
+			if (name.equals(profileId)) {
+			    profileService.deleteProfile(fabricService, versionId, profileId, force);
             }
         }
         return null;

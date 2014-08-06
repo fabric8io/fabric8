@@ -56,10 +56,10 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         sb.append("]");
 
         System.out.println("Testing profile:" + profileName + " on container:" + sb.toString() + " by adding feature:" + featureNames);
-        Version version = fabricService.getDefaultVersion();
+        Version version = fabricService.getRequiredDefaultVersion();
 
-        Profile defaultProfile = version.getProfile("default");
-        Profile targetProfile = version.getProfile(profileName);
+        Profile defaultProfile = version.getRequiredProfile("default");
+        Profile targetProfile = version.getRequiredProfile(profileName);
 
         for (Container container : containers) {
             //We set container to default to clean the container up.
@@ -96,7 +96,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
 
         for (Container container : containers) {
             //We set the container to default to clean up the profile.
-            if (!defaultProfile.configurationEquals(targetProfile)) {
+            if (!defaultProfile.equals(targetProfile)) {
                 setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
             }
             container.setProfiles(new Profile[]{defaultProfile});

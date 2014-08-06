@@ -86,7 +86,7 @@ public class BootstrapConfiguration extends AbstractComponent {
     public static final String COMPONENT_NAME = COMPONENT_PID;
 
     public static final String DEFAULT_ADMIN_USER = "admin";
-    public static final String DEFAULT_ADMIN_ROLE = "admin";
+    public static final String DEFAULT_ADMIN_ROLE = "admin,manager,viewer";
     public static final String ROLE_DELIMITER = ",";
 
     @Reference
@@ -124,6 +124,8 @@ public class BootstrapConfiguration extends AbstractComponent {
     private String globalResolver = "localhostname";
     @Property(name = "manualip", label = "Global Resolver", description = "The manally set ip", value = "${manualip}")
     private String manualip;
+    @Property(name = "publichostname", label = "Public Hostname", description = "The public hostname", value = "${publichostname}")
+    private String publichostname;
     @Property(name = "runtime.id", label = "Container Name", description = "The name of the container", value = "${runtime.id}", propertyPrivate = true)
     private String runtimeId;
     @Property(name = "homeDir", label = "Container Home", description = "The homeDir directory of the container", value = "${runtime.home}", propertyPrivate = true)
@@ -243,7 +245,7 @@ public class BootstrapConfiguration extends AbstractComponent {
     }
 
     public void createOrUpdateDataStoreConfig(CreateEnsembleOptions options) throws IOException {
-        Configuration config = configAdmin.get().getConfiguration(Constants.DATASTORE_TYPE_PID, null);
+        Configuration config = configAdmin.get().getConfiguration(Constants.DATASTORE_PID, null);
         Dictionary<String, Object> properties = config.getProperties();
         if (properties == null || properties.isEmpty()) {
             boolean updateConfig = false;
@@ -307,10 +309,13 @@ public class BootstrapConfiguration extends AbstractComponent {
             return HostUtils.getLocalHostName();
         } else if (oResolver.equals(ZkDefs.LOCAL_IP)) {
             return HostUtils.getLocalIp();
+        } else if (oResolver.equals(ZkDefs.PUBLIC_HOSTNAME) && (publichostname != null && !publichostname.isEmpty())) {
+            return publichostname;
         } else if (oResolver.equals(ZkDefs.MANUAL_IP) && (oManualIp != null && !oManualIp.isEmpty())) {
             return oManualIp;
-        } else
+        } else {
             return HostUtils.getLocalHostName();
+        }
     }
 
     private void loadPropertiesFrom(Dictionary<String, Object> dictionary, String from) {

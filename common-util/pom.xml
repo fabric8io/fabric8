@@ -25,7 +25,6 @@
       <relativePath>../parent</relativePath>
     </parent>
 
-  <groupId>io.fabric8</groupId>
   <artifactId>common-util</artifactId>
   <packaging>bundle</packaging>
 
@@ -33,22 +32,22 @@
 
   <properties>
       <fuse.osgi.export>
-          io.fabric8.common.util*;version=${project.version}
+          io.fabric8.common.util.*;version=${project.version}
       </fuse.osgi.export>
     <fuse.osgi.import.defaults>
     </fuse.osgi.import.defaults>
     <fuse.osgi.import.before.defaults />
     <fuse.osgi.import.additional />
-    <fuse.osgi.import.pkg>
+    <fuse.osgi.import>
         *
-    </fuse.osgi.import.pkg>
+    </fuse.osgi.import>
+      <fuse.osgi.private.pkg/>
   </properties>
 
   <dependencies>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>${slf4j-version}</version>
       </dependency>
   </dependencies>
 

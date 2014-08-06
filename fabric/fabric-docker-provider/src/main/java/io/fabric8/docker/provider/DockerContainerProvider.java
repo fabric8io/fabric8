@@ -26,6 +26,7 @@ import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.api.ZkDefs;
@@ -36,6 +37,7 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Strings;
 import io.fabric8.container.process.JavaContainerConfig;
 import io.fabric8.container.process.JolokiaAgentHelper;
+import io.fabric8.container.process.ZooKeeperPublishConfig;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.DockerApiConnectionException;
 import io.fabric8.docker.api.DockerFactory;
@@ -48,27 +50,6 @@ import io.fabric8.docker.provider.javacontainer.JavaDockerContainerImageBuilder;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
-
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.Properties;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,7 +66,26 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static io.fabric8.container.process.JolokiaAgentHelper.substituteVariableExpression;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.docker", label = "Fabric8 Docker Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
@@ -216,12 +216,13 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         List<Profile> profileOverlays = new ArrayList<>();
         Version version = null;
         if (profileIds != null && versionId != null) {
-            version = service.getVersion(versionId);
+            ProfileService profileService = fabricService.get().adapt(ProfileService.class);
+            version = profileService.getVersion(versionId);
             if (version != null) {
                 for (String profileId : profileIds) {
-                    Profile profile = version.getProfile(profileId);
+                    Profile profile = version.getRequiredProfile(profileId);
                     if (profile != null) {
-                        Profile overlay = profile.getOverlay();
+                        Profile overlay = profileService.getOverlayProfile(profile);
                         profileOverlays.add(overlay);
                         Map<String, String> dockerConfig = overlay.getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
                         if (dockerConfig != null) {
@@ -233,9 +234,10 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                     }
                 }
                 if (version.hasProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID)) {
-                    Profile profile = version.getProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID);
+                    Profile profile = version.getRequiredProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID);
                     if (profile != null) {
-                        Map<String, String> dockerConfig = profile.getOverlay().getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
+                        Profile overlay = profileService.getOverlayProfile(profile);
+                        Map<String, String> dockerConfig = overlay.getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
                         if (dockerConfig != null) {
                             dockerProviderConfig.putAll(dockerConfig);
                         }
@@ -246,9 +248,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         if (ports == null || ports.size() == 0) {
             // lets find the defaults from the docker profile
             if (version == null) {
-                version = service.getDefaultVersion();
+                version = service.getRequiredDefaultVersion();
             }
-            Profile dockerProfile = version.getProfile("docker");
+            Profile dockerProfile = version.getRequiredProfile("docker");
             ports = dockerProfile.getConfiguration(ChildConstants.PORTS_PID);
             if (ports == null || ports.size() == 0) {
                 LOG.warn("Could not a docker ports configuration for: " + ChildConstants.PORTS_PID);
@@ -259,11 +261,11 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
         Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(service, options);
 
-        String image = substituteVariableExpression(containerConfig.getImage(), environmentVariables, service, curator.getOptional(), true);
+        String image = JolokiaAgentHelper.substituteVariableExpression(containerConfig.getImage(), environmentVariables, service, curator.getOptional(), true);
         if (Strings.isNullOrBlank(image)) {
-            image = substituteVariableExpression(configOverlay.get(DockerConstants.PROPERTIES.IMAGE), environmentVariables, service, curator.getOptional(), true);
+            image = JolokiaAgentHelper.substituteVariableExpression(configOverlay.get(DockerConstants.PROPERTIES.IMAGE), environmentVariables, service, curator.getOptional(), true);
             if (Strings.isNullOrBlank(image)) {
-                image = substituteVariableExpression(dockerProviderConfig.get(DockerConstants.PROPERTIES.IMAGE), environmentVariables, service, curator.getOptional(), true);
+                image = JolokiaAgentHelper.substituteVariableExpression(dockerProviderConfig.get(DockerConstants.PROPERTIES.IMAGE), environmentVariables, service, curator.getOptional(), true);
             }
             if (Strings.isNullOrBlank(image)) {
                 image = System.getenv(DockerConstants.EnvironmentVariables.FABRIC8_DOCKER_DEFAULT_IMAGE);
@@ -384,14 +386,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         if (env == null) {
             env = new ArrayList<>();
         }
-        Set<Map.Entry<String, String>> entries = environmentVariables.entrySet();
-        for (Map.Entry<String, String> entry : entries) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (key != null && value != null) {
-                env.add(key + "=" + value);
-            }
-        }
+        Dockers.addEnvironmentVariablesToList(env, environmentVariables);
         containerConfig.setExposedPorts(exposedPorts);
         containerConfig.setEnv(env);
 
@@ -412,6 +407,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             metadata.setContainerType(containerType);
             metadata.setOverridenResolver(ZkDefs.MANUAL_IP);
             metadata.setCreateOptions(options);
+
+            publishZooKeeperValues(options, environmentVariables);
+
             if (jolokiaUrl != null) {
                 metadata.setJolokiaUrl(jolokiaUrl);
                 startJolokiaKeepAlive(metadata);
@@ -425,6 +423,25 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         return metadata;
     }
 
+    protected void publishZooKeeperValues(CreateDockerContainerOptions options, Map<String, String> environmentVariables) {
+        Map<String, Map<String, String>> publishConfigurations = Profiles.getOverlayFactoryConfigurations(fabricService.get(), options.getProfiles(), options.getVersion(), ZooKeeperPublishConfig.PROCESS_CONTAINER_ZK_PUBLISH_PID);
+        Set<Map.Entry<String, Map<String, String>>> entries = publishConfigurations.entrySet();
+        for (Map.Entry<String, Map<String, String>> entry : entries) {
+            String configName = entry.getKey();
+            Map<String, String> exportConfig = entry.getValue();
+
+            if (exportConfig != null && !exportConfig.isEmpty()) {
+                JolokiaAgentHelper.substituteEnvironmentVariableExpressions(exportConfig, environmentVariables, fabricService.get(), curator.get(), true);
+                ZooKeeperPublishConfig config = new ZooKeeperPublishConfig();
+                try {
+                    configurer.configure(exportConfig, config);
+                    config.publish(curator.get(), null, null, null, environmentVariables);
+                } catch (Exception e) {
+                    LOG.warn("Failed to publish configuration " + configName + " of " + config + " due to: " + e, e);
+                }
+            }
+        }
+    }
 
     @Override
     public void start(Container container) {

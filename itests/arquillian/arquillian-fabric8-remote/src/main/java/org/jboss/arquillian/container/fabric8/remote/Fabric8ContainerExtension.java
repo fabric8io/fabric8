@@ -17,6 +17,7 @@
  */
 package org.jboss.arquillian.container.fabric8.remote;
 
+import org.jboss.arquillian.container.fabric8.common.Fabric8ResourceProvider;
 import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
@@ -28,6 +29,5 @@ public class Fabric8ContainerExtension implements LoadableExtension {
     @Override
     public void register(ExtensionBuilder builder) {
         builder.service(DeployableContainer.class, Fabric8Container.class);
-        builder.service(ResourceProvider.class, Fabric8ResourceProvider.class);
     }
 }

@@ -35,7 +35,6 @@
         <fuse.osgi.export>
             io.fabric8.tooling.archetype*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>
@@ -72,13 +71,6 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.fabric8.insight</groupId>
-            <artifactId>insight-maven</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>

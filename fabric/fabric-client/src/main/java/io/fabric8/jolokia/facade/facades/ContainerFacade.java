@@ -17,9 +17,11 @@ package io.fabric8.jolokia.facade.facades;
 
 import io.fabric8.api.*;
 import io.fabric8.jolokia.facade.utils.Helpers;
+
 import org.jolokia.client.J4pClient;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -132,6 +134,17 @@ public class ContainerFacade implements Container, HasId {
     }
 
     @Override
+    public String getVersionId() {
+        return getFieldValue("versionId");
+    }
+
+
+    @Override
+    public void setVersionId(String versionId) {
+        Helpers.exec(j4p, "applyVersionToContainers(java.lang.String, java.util.List)", versionId, Helpers.toList(id));
+    }
+
+    @Override
     public Version getVersion() {
         String version = getFieldValue("versionId");
         return new VersionFacade(j4p, version);
@@ -172,14 +185,14 @@ public class ContainerFacade implements Container, HasId {
     }
 
     @Override
-    public void removeProfiles(Profile... profiles) {
-        List<String> ids = Helpers.extractIds(profiles);
+    public void removeProfiles(String... profileIds) {
+        List<String> ids = Arrays.asList(profileIds);
         Helpers.exec(j4p, "removeProfilesFromContainer(java.lang.String, java.util.List)", id, ids);
     }
 
     @Override
     public Profile getOverlayProfile() {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override

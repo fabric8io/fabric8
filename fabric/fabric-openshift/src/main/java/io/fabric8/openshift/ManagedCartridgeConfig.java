@@ -53,7 +53,7 @@ public class ManagedCartridgeConfig {
      */
     public static ManagedCartridgeConfig loadConfig(FabricService fabricService, String containerId)
             throws IOException {
-        String propertiesText = fabricService.getDataStore().getContainerAttribute(containerId,
+        String propertiesText = fabricService.adapt(DataStore.class).getContainerAttribute(containerId,
                 DataStore.ContainerAttribute.OpenShift, "", false, substitutedStringValue);
 
         if (propertiesText == null) {
@@ -87,7 +87,7 @@ public class ManagedCartridgeConfig {
 
         LOG.info("Saved managed cartridge configuration: " + propertiesText);
 
-        fabricService.getDataStore().setContainerAttribute(containerId,
+        fabricService.adapt(DataStore.class).setContainerAttribute(containerId,
                 DataStore.ContainerAttribute.OpenShift, propertiesText);
         return config;
     }

@@ -44,6 +44,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.jboss.gravia.runtime.Runtime;
+import org.jboss.gravia.runtime.spi.EnvPropertiesProvider;
 
 @ThreadSafe
 @Component(label = "Karaf Runtime Properties Service", immediate = true, metatype = false)
@@ -70,6 +71,9 @@ public class KarafPropertiesService extends AbstractRuntimeProperties {
 
     private void activateInternal() {
         Runtime runtime = this.runtime.get();
+        if (runtime.getProperty(EnvPropertiesProvider.ENV_PREFIX_KEY) == null) {
+            System.setProperty(EnvPropertiesProvider.ENV_PREFIX_KEY,  "FABRIC8_");
+        }
         if (runtime.getProperty(RUNTIME_IDENTITY) == null) {
             System.setProperty(RUNTIME_IDENTITY, System.getProperty("karaf.name", System.getenv(EnvironmentVariables.RUNTIME_ID)));
         }

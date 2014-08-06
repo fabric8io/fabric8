@@ -24,5 +24,6 @@ public interface CreateRemoteContainerOptions extends CreateContainerOptions {
     Map<String, String> getUsers();
     Map<String, String> getEnvironmentalVariables();
     Map<String, String> getDataStoreProperties();
+    Boolean doUploadDistribution();
     List<String> getFallbackRepositories();
 }

@@ -21,8 +21,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -84,5 +86,32 @@ public class Dockers {
             }
         }
         return "";
+    }
+
+    /**
+     * Adds the given map of environment variables to the given environment list so that it can be passed into the
+     * {@link io.fabric8.docker.api.container.ContainerConfig#setEnv(java.util.List)} function
+     */
+    public static void addEnvironmentVariablesToList(List<String> envList, Map<String, String> environmentVariables) {
+        if (environmentVariables != null) {
+            Set<Map.Entry<String, String>> entries = environmentVariables.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (key != null && value != null) {
+                    envList.add(key + "=" + value);
+                }
+            }
+        }
+    }
+
+    /**
+     * Converts the environment variables Map into a list so that it can be passed into the
+     * {@link io.fabric8.docker.api.container.ContainerConfig#setEnv(java.util.List)} function
+     */
+    public static List<String> toEnvList(Map<String, String> environmentVariables) {
+        List<String> envList = new ArrayList<>();
+        addEnvironmentVariablesToList(envList, environmentVariables);
+        return envList;
     }
 }

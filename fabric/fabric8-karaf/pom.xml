@@ -439,10 +439,7 @@
                                    <feature>fabric-project-deployer</feature>
                                    <feature>fabric-web</feature>
                                    <feature>gravia</feature>
-<!--
-TODO - zapped to try fix perfectus!
                                    <feature>mq-fabric</feature>
--->
                                    <feature>insight-elasticsearch</feature>
                                    <feature>insight-log-storage</feature>
                                    <feature>process-manager</feature>
@@ -575,6 +572,20 @@ TODO - zapped to try fix perfectus!
                      </execution>
                  </executions>
              </plugin>
+             <plugin>
+               <groupId>io.fabric8</groupId>
+               <artifactId>fabric8-maven-plugin</artifactId>
+               <version>${project.version}</version>
+               <executions>
+                 <execution>
+                   <id>copy-metatype</id>
+                   <phase>package</phase>
+                   <goals>
+                     <goal>copy-metatype</goal>
+                   </goals>
+                 </execution>
+               </executions>
+             </plugin>
                <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-assembly-plugin</artifactId>
@@ -618,6 +629,7 @@ TODO - zapped to try fix perfectus!
                     </execution>
                 </executions>
             </plugin>
+
                <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-dependency-plugin</artifactId>
@@ -706,17 +718,11 @@ TODO - zapped to try fix perfectus!
             <name>ServiceMix Maven 2 repository</name>
             <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
         </repository>
+		<repository>
+	        <id>shibboleth-public</id>
+	        <name>Shibboleth Public</name>
+			<url>http://build.shibboleth.net/nexus/content/repositories/public/</url>
+		</repository>
     </repositories>
     
-    <profiles>
-        <profile>
-            <id>dev</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-                <developerUserPassword>admin=admin,admin</developerUserPassword>
-            </properties>
-        </profile>
-    </profiles>
 </project>

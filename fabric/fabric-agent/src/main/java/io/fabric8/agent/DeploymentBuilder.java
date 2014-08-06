@@ -31,8 +31,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import aQute.lib.osgi.Macro;
-import aQute.lib.osgi.Processor;
+import aQute.bnd.osgi.Macro;
+import aQute.bnd.osgi.Processor;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.repository.AggregateRepository;
 import io.fabric8.agent.repository.StaticRepository;
@@ -51,9 +51,11 @@ import io.fabric8.fab.osgi.FabBundleInfo;
 import io.fabric8.fab.osgi.FabResolver;
 import io.fabric8.fab.osgi.FabResolverFactory;
 import org.apache.felix.resolver.ResolverImpl;
+import org.apache.felix.resolver.Util;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
 import org.apache.karaf.features.BundleInfo;
+import org.apache.karaf.features.Conditional;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
 import org.osgi.framework.BundleContext;
@@ -80,6 +82,12 @@ import static io.fabric8.utils.PatchUtils.extractUrl;
 import static io.fabric8.utils.PatchUtils.extractVersionRange;
 import static org.apache.felix.resolver.Util.getSymbolicName;
 import static org.apache.felix.resolver.Util.getVersion;
+import static org.osgi.framework.namespace.IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE;
+import static org.osgi.framework.namespace.IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE;
+import static org.osgi.framework.namespace.IdentityNamespace.IDENTITY_NAMESPACE;
+import static org.osgi.resource.Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE;
+import static org.osgi.resource.Namespace.RESOLUTION_MANDATORY;
+import static org.osgi.resource.Namespace.RESOLUTION_OPTIONAL;
 
 /**
  */
@@ -105,6 +113,8 @@ public class DeploymentBuilder {
 
     Set<Feature> featuresToRegister = new HashSet<Feature>();
 
+    Map<String, Map<VersionRange, Map<String, String>>> metadata;
+
     public DeploymentBuilder(DownloadManager manager,
                              FabResolverFactory fabResolverFactory,
                              Collection<Repository> repositories,
@@ -129,11 +139,13 @@ public class DeploymentBuilder {
                          Set<String> fabs,
                          Set<String> reqs,
                          Set<String> overrides,
-                         Set<String> optionals) throws IOException, MultiException, InterruptedException, ResolutionException {
+                         Set<String> optionals,
+                         Map<String, Map<VersionRange, Map<String, String>>> metadata) throws IOException, MultiException, InterruptedException, ResolutionException {
         this.downloader = new AgentUtils.FileDownloader(manager);
         this.resources = new ConcurrentHashMap<String, Resource>();
         this.providers = new ConcurrentHashMap<String, StreamProvider>();
         this.requirements = new ResourceImpl("dummy", "dummy", Version.emptyVersion);
+        this.metadata = metadata;
         // First, gather all bundle resources
         for (String feature : features) {
             registerMatchingFeatures(feature);
@@ -188,6 +200,11 @@ public class DeploymentBuilder {
         for (Feature feature : featuresToRegister) {
             Resource resource = FeatureResource.build(feature, featureRange, resources);
             resources.put("feature:" + feature.getName() + "/" + feature.getVersion(), resource);
+            for (Conditional cond : feature.getConditional()) {
+                Feature featCond = cond.asFeature(feature.getName(), feature.getVersion());
+                FeatureResource resCond = FeatureResource.build(feature, cond, featureRange, resources);
+                resources.put("feature:" + featCond.getName() + "/" + featCond.getVersion(), resCond);
+            }
         }
         // Build requirements
         for (String feature : features) {
@@ -314,6 +331,14 @@ public class DeploymentBuilder {
                         for (BundleInfo bundle : f.getBundles()) {
                             downloadAndBuildResource(bundle.getLocation());
                         }
+                        for (Conditional cond : f.getConditional()) {
+                            for (Feature dep : cond.getDependencies()) {
+                                registerMatchingFeatures(dep);
+                            }
+                            for (BundleInfo bundle : cond.getBundles()) {
+                                downloadAndBuildResource(bundle.getLocation());
+                            }
+                        }
                     }
                 }
             }
@@ -354,49 +379,51 @@ public class DeploymentBuilder {
                 throw new IOException("Error parsing requirement", e);
             }
         } else {
-            try {
-                // Find needed service ldap filters
-                List<String> filters = new ArrayList<String>();
-                int oldSize = -1;
-                String tmpUrl = location;
-                while (filters.size() > oldSize) {
-                    oldSize = filters.size();
-                    for (String protocol : PROTOCOLS) {
-                        if (tmpUrl.startsWith(protocol + ":")) {
-                            tmpUrl = tmpUrl.substring(protocol.length() + 1);
-                            String filter = "(&(objectClass=org.osgi.service.url.URLStreamHandlerService)(url.handler.protocol=" + protocol + "))";
-                            filters.add(filter);
-                            break;
+            if (urlHandlersTimeout >= 0) {
+                try {
+                    // Find needed service ldap filters
+                    List<String> filters = new ArrayList<String>();
+                    int oldSize = -1;
+                    String tmpUrl = location;
+                    while (filters.size() > oldSize) {
+                        oldSize = filters.size();
+                        for (String protocol : PROTOCOLS) {
+                            if (tmpUrl.startsWith(protocol + ":")) {
+                                tmpUrl = tmpUrl.substring(protocol.length() + 1);
+                                String filter = "(&(objectClass=org.osgi.service.url.URLStreamHandlerService)(url.handler.protocol=" + protocol + "))";
+                                filters.add(filter);
+                                break;
+                            }
                         }
                     }
-                }
-                // Wait for services if needed
-                if (!filters.isEmpty()) {
-                    BundleContext context = FrameworkUtil.getBundle(getClass()).getBundleContext();
-                    List<ServiceTracker> trackers = new ArrayList<ServiceTracker>();
-                    for (String filter : filters) {
-                        Filter flt = FrameworkUtil.createFilter(filter);
-                        ServiceTracker tracker = new ServiceTracker(context, flt, null);
-                        tracker.open();
-                        trackers.add(tracker);
-                    }
-                    long t0 = System.currentTimeMillis();
-                    boolean hasAll = false;
-                    while (!hasAll && (System.currentTimeMillis() - t0) < urlHandlersTimeout) {
-                        hasAll = true;
+                    // Wait for services if needed
+                    if (!filters.isEmpty()) {
+                        BundleContext context = FrameworkUtil.getBundle(getClass()).getBundleContext();
+                        List<ServiceTracker> trackers = new ArrayList<ServiceTracker>();
+                        for (String filter : filters) {
+                            Filter flt = FrameworkUtil.createFilter(filter);
+                            ServiceTracker tracker = new ServiceTracker(context, flt, null);
+                            tracker.open();
+                            trackers.add(tracker);
+                        }
+                        long t0 = System.currentTimeMillis();
+                        boolean hasAll = false;
+                        while (!hasAll && (System.currentTimeMillis() - t0) < urlHandlersTimeout) {
+                            hasAll = true;
+                            for (ServiceTracker tracker : trackers) {
+                                hasAll &= tracker.waitForService(100) != null;
+                            }
+                        }
                         for (ServiceTracker tracker : trackers) {
-                            hasAll &= tracker.waitForService(100) != null;
+                            tracker.close();
+                        }
+                        if (!hasAll) {
+                            throw new TimeoutException("Timed out waiting for URL handlers: ");
                         }
                     }
-                    for (ServiceTracker tracker : trackers) {
-                        tracker.close();
-                    }
-                    if (!hasAll) {
-                        throw new TimeoutException("Timed out waiting for URL handlers: ");
-                    }
+                } catch (Exception e) {
+                    throw new IOException("Unable to download " + location, e);
                 }
-            } catch (Exception e) {
-                throw new IOException("Unable to download " + location, e);
             }
             downloader.download(location, new AgentUtils.DownloadCallback() {
                 @Override
@@ -476,7 +503,49 @@ public class DeploymentBuilder {
         if (man == null) {
             throw new IllegalArgumentException("Resource " + uri + " does not contain a manifest");
         }
-        return man.getMainAttributes();
+        Attributes attributes = man.getMainAttributes();
+
+        String bsn = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
+        if (bsn != null && bsn.indexOf(';') > 0) {
+            bsn = bsn.substring(0, bsn.indexOf(';'));
+        }
+        Version ver = VersionTable.getVersion(attributes.getValue(Constants.BUNDLE_VERSION));
+
+        Map<VersionRange, Map<String, String>> ranges = metadata != null && bsn != null ? metadata.get(bsn) : null;
+        if (ranges != null) {
+            for (Map.Entry<VersionRange, Map<String, String>> entry2 : ranges.entrySet()) {
+                if (entry2.getKey().contains(ver)) {
+                    for (Map.Entry<String, String> entry3 : entry2.getValue().entrySet()) {
+                        String val = attributes.getValue(entry3.getKey());
+                        if (val != null) {
+                            val += "," + entry3.getValue();
+                        } else {
+                            val = entry3.getValue();
+                        }
+                        attributes.putValue(entry3.getKey(), val);
+                    }
+                }
+            }
+        }
+        return attributes;
+    }
+
+    public static void addIdentityRequirement(ResourceImpl resource, Resource required, boolean mandatory) {
+        for (Capability cap : required.getCapabilities(null)) {
+            if (cap.getNamespace().equals(IDENTITY_NAMESPACE)) {
+                Map<String, Object> attributes = cap.getAttributes();
+                Map<String, String> dirs = new HashMap<>();
+                dirs.put(REQUIREMENT_RESOLUTION_DIRECTIVE, mandatory ? RESOLUTION_MANDATORY : RESOLUTION_OPTIONAL);
+                Map<String, Object> attrs = new HashMap<>();
+                attrs.put(IDENTITY_NAMESPACE, attributes.get(IDENTITY_NAMESPACE));
+                attrs.put(CAPABILITY_TYPE_ATTRIBUTE, attributes.get(CAPABILITY_TYPE_ATTRIBUTE));
+                Version version = (Version) attributes.get(CAPABILITY_VERSION_ATTRIBUTE);
+                if (version != null) {
+                    attrs.put(CAPABILITY_VERSION_ATTRIBUTE, new VersionRange(version, true));
+                }
+                resource.addRequirement(new RequirementImpl(resource, IDENTITY_NAMESPACE, dirs, attrs));
+            }
+        }
     }
 
 }

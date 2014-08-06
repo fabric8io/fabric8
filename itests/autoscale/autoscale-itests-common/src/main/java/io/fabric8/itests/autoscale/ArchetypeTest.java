@@ -23,8 +23,10 @@ import io.fabric8.testkit.FabricAssertions;
 import io.fabric8.testkit.FabricController;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -36,24 +38,93 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(Arquillian.class)
 public class ArchetypeTest {
+    public static final String ARTIFACTID_SYSTEM_PROPERTY = "ArchetypeTest.artifactId";
+
     private static final transient Logger LOG = LoggerFactory.getLogger(ArchetypeTest.class);
+
+    @Parameterized.Parameter
+    private String archetypeId;
 
     @ArquillianResource
     protected FabricController fabricController;
 
+    @Rule
+    public ParameterRule<String> rule = new ParameterRule<>(findArchetypeIds());
+
+    protected static Map<String, ArchetypeInfo> archetypeIdToArchetypeInfoMap = new TreeMap<>();
+
+    boolean addedBroker = false;
+
+    /**
+     * Returns all the available artifact Ids for the archetypes, filtering out any known
+     * broken archetypes; or just a single artifact id if the {@link #ARTIFACTID_SYSTEM_PROPERTY}
+     * system property is set (making it easy to test just a single archetype id).
+     */
+    public static Set<String> findArchetypeIds() {
+        try {
+            List<ArchetypeInfo> archetypes = findArchetypes();
+            for (ArchetypeInfo archetype : archetypes) {
+                archetypeIdToArchetypeInfoMap.put(archetype.artifactId, archetype);
+            }
+            Set<String> artifactIds = archetypeIdToArchetypeInfoMap.keySet();
+            Set<String> answer = new TreeSet<>();
+
+            // lets allow a specific archetypes to be run via a system property...
+            String testArtifactId = System.getProperty(ARTIFACTID_SYSTEM_PROPERTY);
+            for (String artifactId : artifactIds) {
+                boolean ignore = false;
+                if (Strings.isNotBlank(testArtifactId)) {
+                    if (!artifactId.contains(testArtifactId)) {
+                        ignore = true;
+                    }
+                } else {
+                    // TODO lets ignore broken archetypes
+                    if (artifactId.contains("drools")) {
+                        ignore = true;
+                    }
+                }
+                if (ignore) {
+                    ParameterRule.addIgnoredTest("ArchetypeTest(" + artifactId + ")");
+                } else {
+                    answer.add(artifactId);
+                }
+            }
+            if (Strings.isNotBlank(testArtifactId) && answer.isEmpty()) {
+                fail("System property " + ARTIFACTID_SYSTEM_PROPERTY + " value of '" + testArtifactId + "' is not a valid artifact id for the fabric8 archetypes");
+            }
+            return answer;
+        } catch (Exception e) {
+            LOG.error("Failed to find archetype IDs: " + e, e);
+            e.printStackTrace();
+            fail("Failed to find archetype ids: " + e);
+            return Collections.EMPTY_SET;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "ArchetypeTest(" + archetypeId + ")";
+    }
+
     @Test
-    public void testCreateArchetypes() throws Exception {
-        List<ArchetypeInfo> archetypes = findArchetypes();
+    public void testCreateArchetype() throws Exception {
+        ArchetypeInfo archetype = archetypeIdToArchetypeInfoMap.get(archetypeId);
+        assertNotNull("No archetype found for id: " + archetypeId, archetype);
+
         File mavenSettingsFile = getMavenSettingsFile();
         assertFileExists(mavenSettingsFile);
 
@@ -61,37 +132,41 @@ public class ArchetypeTest {
         // generate and deploy archetypes
         File workDir = new File(System.getProperty("basedir", "."), "target/generated-projects");
         workDir.mkdirs();
-        Map<ArchetypeInfo, String> archetypeToProfileMap = new HashMap<>();
-        for (ArchetypeInfo archetype : archetypes) {
-            String profileId = assertGenerateArchetype(archetype, workDir, mavenSettingsFile);
-            archetypeToProfileMap.put(archetype, profileId);
+
+        String profileId = assertGenerateArchetype(archetype, workDir, mavenSettingsFile);
+        assertNotNull("Should have a profile ID for " + archetype, profileId);
+
+        FabricRequirements requirements = fabricController.getRequirements();
+        if (!addedBroker) {
+            addedBroker = true;
+            requirements.profile("mq-default").minimumInstances(1);
+            FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
         }
-
-        FabricRequirements requirements = new FabricRequirements();
-        requirements.profile("mq-default").minimumInstances(1);
-        FabricAssertions.assertSetRequirementsAndTheyAreSatisfied(fabricController, requirements);
-
 
         // deploying each profile should have caused the requirements to be updated to add them all now
         // so lets load the requirements and assert they are satisfied
+        requirements.profile(profileId).minimumInstances(1);
+        FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
+        System.out.println();
+        System.out.println("Managed to create a container for " + profileId + ". Now lets stop it");
+        System.out.println();
 
-        // lets create containers for each archetype
-        for (ArchetypeInfo archetype : archetypes) {
-            String profileId = archetypeToProfileMap.get(archetype);
-            assertNotNull("Should have a profile ID for " + archetype, profileId);
-            requirements.profile(profileId).minimumInstances(1);
-            FabricAssertions.assertSetRequirementsAndTheyAreSatisfied(fabricController, requirements);
+        // now lets force the container to be stopped
+        requirements.profile(profileId).minimumInstances(0).maximumInstances(0);
+        FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
+        System.out.println();
+        System.out.println("Stopped a container for " + profileId + ". Now lets clear requirements");
+        System.out.println();
+        requirements.removeProfileRequirements(profileId);
+        FabricAssertions.assertRequirementsSatisfied(fabricController, requirements);
 
-            // now lets force the container to be stopped
-            requirements.profile(profileId).minimumInstances(0).maximumInstances(0);
-        }
-
+        System.out.println();
+        System.out.println("Removed requirements for profile " + profileId);
+        System.out.println();
     }
 
     protected String assertGenerateArchetype(ArchetypeInfo archetype, File workDir, File mavenSettingsFile) throws Exception {
         System.out.println();
-        System.out.println();
-        System.out.println("======================================================================================");
         System.out.println(archetype.groupId + "/" + archetype.artifactId + "/" + archetype.version + " : generate archetype...");
         System.out.println("======================================================================================");
         System.out.println();
@@ -187,7 +262,7 @@ public class ArchetypeTest {
     }
 
 
-    public List<ArchetypeInfo> findArchetypes() throws Exception {
+    public static List<ArchetypeInfo> findArchetypes() throws Exception {
         File archetypeCatalogXml = getArchetypeCatalog();
 
 
@@ -204,10 +279,6 @@ public class ArchetypeTest {
             assertNotBlank("artifactId", artifactId);
             assertNotBlank("version", version);
 
-            // TODO lets ignore broken archetypes
-            if (artifactId.contains("cdi") || artifactId.contains("drools")) {
-                continue;
-            }
             ArchetypeInfo info = new ArchetypeInfo(groupId, artifactId, version, repository);
             answer.add(info);
             System.out.println("Created " + info);

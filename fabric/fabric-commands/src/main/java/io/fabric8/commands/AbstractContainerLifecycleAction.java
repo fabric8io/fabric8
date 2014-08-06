@@ -17,6 +17,7 @@ package io.fabric8.commands;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 
 import java.util.Collection;
@@ -43,9 +44,11 @@ public abstract class AbstractContainerLifecycleAction extends AbstractAction {
     List<String> containers = null;
 
     protected final FabricService fabricService;
+    protected final DataStore dataStore;
 
     AbstractContainerLifecycleAction(FabricService fabricService) {
         this.fabricService = fabricService;
+        this.dataStore = fabricService.adapt(DataStore.class);
     }
 
     void applyUpdatedCredentials(Container container) {
@@ -53,7 +56,7 @@ public abstract class AbstractContainerLifecycleAction extends AbstractAction {
             CreateContainerMetadata<?> metadata = container.getMetadata();
             if (metadata != null) {
                 metadata.updateCredentials(user, password);
-                fabricService.getDataStore().setContainerMetadata(container.getMetadata());
+                dataStore.setContainerMetadata(container.getMetadata());
             }
         }
     }

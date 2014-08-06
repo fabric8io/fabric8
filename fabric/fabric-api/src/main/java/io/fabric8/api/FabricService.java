@@ -32,7 +32,7 @@ public interface FabricService {
 
     String getEnvironment();
 
-    void substituteConfigurations(Map<String, Map<String, String>> configurations);
+    Map<String, Map<String, String>> substituteConfigurations(Map<String, Map<String, String>> configurations);
 
     /**
      * Track configuration changes.
@@ -52,6 +52,8 @@ public interface FabricService {
      */
     Container[] getContainers();
 
+    Container[] getAssociatedContainers(String versionId, String profileId);
+    
     /**
      * Finds the {@link Container} with the specified name.
      * @param name  The name of the {@link Container}.
@@ -99,45 +101,22 @@ public interface FabricService {
     /**
      * Returns the default {@link Version}.
      */
-    Version getDefaultVersion();
+    String getDefaultVersionId();
 
     /**
      * Sets the default {@link Version}.
      */
-    void setDefaultVersion(Version version);
+    void setDefaultVersionId(String versionId);
 
     /**
-     * Returns all {@link Version}s.
+     * Returns the default {@link Version}.
      */
-    Version[] getVersions();
+    Version getDefaultVersion();
 
     /**
-     * Finds the {@link Version} with the specified name.
-     * @param name  The name of the {@link Version}.
-     * @return      The {@link Version} that matches the name.
+     * Returns the default {@link Version}.
      */
-    Version getVersion(String name);
-
-    /**
-     * Creates a new {@link Version}.
-     * @param version   The name of the {@link Version} to be created.
-     * @return          The new {@link Version}.
-     */
-    Version createVersion(String version);
-
-    /**
-     * Creates a new {@link Version} with the specified parent {@link Version} and name.
-     * @param parent        The parent {@link Version}
-     * @param version       The name of the new {@link Version}.
-     */
-    Version createVersion(Version parent, String version);
-
-    /**
-     * Deletes a {@link Version} with the specified name.
-     *
-     * @param version       The name of the new {@link Version}.
-     */
-    void deleteVersion(String version);
+    Version getRequiredDefaultVersion();
 
     /**
      * Lookup a container provider by name
@@ -191,34 +170,6 @@ public interface FabricService {
     String getZookeeperPassword();
 
     /**
-     * Returns all the {@link Profile}s for the specified {@link Version}.
-     * @deprecated Use {@link Version#getProfiles()}
-     */
-    @Deprecated
-    Profile[] getProfiles(String version);
-
-    /**
-     * Gets the {@link Profile} that matches the specified {@link Version} and name.
-     * @deprecated Use {@link Version#getProfile(String)}
-     */
-    @Deprecated
-    Profile getProfile(String version, String name);
-
-    /**
-     * Creates a new {@link Profile} with the specified {@link Version} and name.
-     * @deprecated Use {@link Version#createProfile(String)}
-     */
-    @Deprecated
-    Profile createProfile(String version, String name);
-
-    /**
-     * Deletes the specified {@link Profile}.
-     * @deprecated Use Profile#delete() instead
-     */
-    @Deprecated
-    void deleteProfile(Profile profile);
-
-    /**
      * Returns the {@link Container} on which the method is executed.
      */
     Container getCurrentContainer();
@@ -259,11 +210,6 @@ public interface FabricService {
      * Get hte port service.
      */
     PortService getPortService();
-
-    /**
-     * Get the {@link DataStore}
-     */
-    DataStore getDataStore();
 
     /**
      * Get the default JVM options used when creating containers

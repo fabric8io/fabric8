@@ -17,14 +17,16 @@ package io.fabric8.partition.internal.repositories;
 
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.git.internal.GitDataStore;
+import io.fabric8.git.GitDataStore;
+import io.fabric8.git.internal.GitDataStoreImpl;
 import io.fabric8.partition.WorkItemRepository;
 import io.fabric8.partition.WorkItemRepositoryFactory;
-import io.fabric8.utils.SystemProperties;
+
+import java.util.Map;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -35,8 +37,6 @@ import org.osgi.service.url.URLStreamHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-
 @Component(name = ProfileWorkItemRepositoryFactory.ID, label = "Fabric8 Profile Work Item WorkItemRepository", metatype = true)
 @Service(WorkItemRepositoryFactory.class)
 @org.apache.felix.scr.annotations.Properties(
@@ -44,10 +44,8 @@ import java.util.Map;
 )
 public class ProfileWorkItemRepositoryFactory extends AbstractComponent implements WorkItemRepositoryFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProfileWorkItemRepositoryFactory.class);
-
     public static final String TYPE = "profile";
-    public static final String SCHME = TYPE;
+    public static final String SCHEME = TYPE;
     public static final String ID = ID_PREFIX + TYPE;
 
     @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${runtime.id}", propertyPrivate = true)
@@ -55,13 +53,13 @@ public class ProfileWorkItemRepositoryFactory extends AbstractComponent implemen
     @Reference
     private Configurer configurer;
 
-    @Reference(referenceInterface = DataStore.class, target = "(type=caching-git)")
-    private final ValidatingReference<GitDataStore> dataStore = new ValidatingReference<GitDataStore>();
+    @Reference(referenceInterface = DataStore.class)
+    private final ValidatingReference<DataStore> dataStore = new ValidatingReference<>();
 
     @Reference(referenceInterface = FabricService.class)
-    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<>();
 
-    @Reference(referenceInterface = URLStreamHandlerService.class, target = "url.handler.protocol=" + SCHME)
+    @Reference(referenceInterface = URLStreamHandlerService.class, target = "(url.handler.protocol=" + SCHEME + ")")
     private final ValidatingReference<URLStreamHandlerService> urlHandler = new ValidatingReference<URLStreamHandlerService>();
 
     @Activate
@@ -87,15 +85,11 @@ public class ProfileWorkItemRepositoryFactory extends AbstractComponent implemen
     }
 
     void bindDataStore(DataStore dataStore) {
-        if (dataStore instanceof GitDataStore) {
-            this.dataStore.bind((GitDataStore) dataStore);
-        }
+        this.dataStore.bind(dataStore);
     }
 
     void unbindDataStore(DataStore dataStore) {
-        if (dataStore instanceof GitDataStore) {
-            this.dataStore.unbind((GitDataStore) dataStore);
-        }
+        this.dataStore.unbind(dataStore);
     }
 
     void bindFabricService(FabricService fabricService) {

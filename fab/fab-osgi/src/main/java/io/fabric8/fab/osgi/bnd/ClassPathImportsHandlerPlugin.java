@@ -15,8 +15,9 @@
  */
 package io.fabric8.fab.osgi.bnd;
 
-import aQute.lib.osgi.Analyzer;
-import aQute.lib.osgi.Processor;
+import aQute.bnd.header.Parameters;
+import aQute.bnd.osgi.Analyzer;
+import aQute.bnd.osgi.Processor;
 import aQute.lib.spring.XMLType;
 import aQute.lib.spring.XMLTypeProcessor;
 import org.slf4j.Logger;
@@ -48,7 +49,7 @@ public class ClassPathImportsHandlerPlugin extends XMLTypeProcessor {
     }
 
     protected void process(List<XMLType> types, String resource, String paths, String pattern) throws Exception {
-        Map<String,Map<String,String>> map = Processor.parseHeader(paths, null);
+        Parameters map = Processor.parseHeader(paths, null);
         for ( String path : map.keySet() ) {
             types.add( new ClassPathImportsXmlType( getClass().getResource(resource), path, pattern ));
         }

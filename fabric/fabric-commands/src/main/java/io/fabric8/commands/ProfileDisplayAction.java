@@ -19,11 +19,13 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.utils.FabricValidations;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,27 +33,29 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
+import org.apache.karaf.shell.console.AbstractAction;
 
 import com.google.common.base.Charsets;
-import org.apache.karaf.shell.console.AbstractAction;
 
 @Command(name = "profile-display", scope = "fabric", description = "Displays information about the specified version of the specified profile (where the version defaults to the current default version)")
 public class ProfileDisplayAction extends AbstractAction {
 
     @Option(name = "--version", description = "Select a specific profile version. Defaults to the current default version.")
-    private String version;
+    private String versionId;
     @Option(name = "--overlay", aliases = "-o", description = "Shows the effective profile settings, taking into account the settings inherited from parent profiles.")
     private Boolean overlay = false;
     @Option(name = "--display-resources", aliases = "-r", description = "Displays the content of additional profile resources.")
     private Boolean displayResources = false;
     @Argument(index = 0, required = true, name = "profile", description = "The name of the profile.")
     @CompleterValues(index = 0)
-    private String name;
+    private String profileId;
 
     private final FabricService fabricService;
+    private final ProfileService profileService;
 
     ProfileDisplayAction(FabricService fabricService) {
         this.fabricService = fabricService;
+        this.profileService = fabricService.adapt(ProfileService.class);
     }
 
     public FabricService getFabricService() {
@@ -60,11 +64,10 @@ public class ProfileDisplayAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        FabricValidations.validateProfileName(name);
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-
-        for (Profile profile : ver.getProfiles()) {
-            if (name.equals(profile.getId())) {
+        FabricValidations.validateProfileName(profileId);
+        Version version = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getRequiredDefaultVersion();
+        for (Profile profile : version.getProfiles()) {
+            if (profileId.equals(profile.getId())) {
                 displayProfile(profile);
             }
         }
@@ -88,25 +91,30 @@ public class ProfileDisplayAction extends AbstractAction {
         out.println();
     }
 
-    private void displayProfile(Profile p) {
+    private void displayProfile(Profile profile) {
         PrintStream output = session.getConsole();
 
-        output.println("Profile id: " + p.getId());
-        output.println("Version   : " + p.getVersion());
+        output.println("Profile id: " + profile.getId());
+        output.println("Version   : " + profile.getVersion());
 
         output.println("Attributes: ");
-        Map<String, String> props = p.getAttributes();
+        Map<String, String> props = profile.getAttributes();
         for (String key : props.keySet()) {
             output.println("\t" + key + ": " + props.get(key));
         }
 
-        output.printf("Containers: %s\n", toString(p.getAssociatedContainers()));
+    	String versionId = profile.getVersion();
+    	String profileId = profile.getId();
+        output.printf("Containers: %s\n", toString(fabricService.getAssociatedContainers(versionId, profileId)));
 
-        Profile profile = overlay ? p.getOverlay() : p;
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        if (overlay) {
+            profile = profileService.getOverlayProfile(profile);
+        }
 
-        Map<String, Map<String, String>> configuration = profile.getConfigurations();
+        Map<String, Map<String, String>> configuration = new HashMap<>(profile.getConfigurations());
         Map<String, byte[]> resources = profile.getFileConfigurations();
-        Map<String,String> agentConfiguration = profile.getContainerConfiguration();
+        Map<String,String> agentConfiguration = profile.getConfiguration(Constants.AGENT_PID);
         List<String> agentProperties = new ArrayList<String>();
         List<String> systemProperties = new ArrayList<String>();
         List<String> configProperties = new ArrayList<String>();

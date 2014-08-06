@@ -16,73 +16,87 @@
 package io.fabric8.internal;
 
 import io.fabric8.api.Constants;
-import io.fabric8.api.Container;
 import io.fabric8.api.FabricException;
-import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.Profile;
-import io.fabric8.api.FabricService;
 import io.fabric8.api.Profiles;
-import io.fabric8.api.Version;
+import io.fabric8.utils.DataStoreUtils;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.StringTokenizer;
 
-public class ProfileImpl implements Profile {
+/**
+ * This immutable profile implementation.
+ */
+final class ProfileImpl implements Profile {
 
-    private final String id;
-    private final String version;
-    private final FabricService fabricService;
+    private final String versionId;
+    private final String profileId;
+    private final Map<String, String> attributes = new HashMap<>();
+    private final Map<String, Profile> parents = new LinkedHashMap<>();
+    private final Map<String, byte[]> fileConfigurations = new HashMap<>();
+    private final Map<String, Map<String, String>> configurations = new HashMap<>();
+    private final boolean isOverlay;
+    private final String lastModified;
 
-    public ProfileImpl(String id, String version, FabricService service) {
-        this.id = id;
-        this.version = version;
-        this.fabricService = service;
+    // Only the {@link ProfileBuilder} should construct this
+    ProfileImpl(String versionId, String profileId, List<Profile> parents, Map<String, byte[]> fileConfigs, String lastModified, boolean isOverlay) {
+        this.profileId = profileId;
+        this.versionId = versionId;
+        this.lastModified = lastModified;
+        this.isOverlay = isOverlay;
+
+        // Parents
+        for (Profile parent : parents) {
+            this.parents.put(parent.getId(), parent);
+        }
+        
+        // File configurations and derived configurations
+        for (Entry<String, byte[]> entry : fileConfigs.entrySet()) {
+            String fileKey = entry.getKey();
+            byte[] bytes = entry.getValue();
+            fileConfigurations.put(fileKey, bytes);
+            if (fileKey.endsWith(Profile.PROPERTIES_SUFFIX)) {
+                String pid = fileKey.substring(0, fileKey.indexOf(Profile.PROPERTIES_SUFFIX));
+                configurations.put(pid, Collections.unmodifiableMap(DataStoreUtils.toMap(bytes)));
+            }
+        }
+        
+        // Attributes are agent configuration with prefix 'attribute.'  
+        Map<String, String> agentConfig = configurations.get(Constants.AGENT_PID);
+        if (agentConfig != null) {
+            int prefixLength = Profile.ATTRIBUTE_PREFIX.length();
+            for (Entry<String, String> entry : agentConfig.entrySet()) {
+                String key = entry.getKey();
+                if (key.startsWith(Profile.ATTRIBUTE_PREFIX)) {
+                    attributes.put(key.substring(prefixLength), entry.getValue());
+                }
+            }
+        }
     }
 
     public String getId() {
-        return id;
+        return profileId;
     }
 
     public String getVersion() {
-        return version;
+        return versionId;
     }
 
     @Override
     public Map<String, String> getAttributes() {
-        return fabricService.getDataStore().getProfileAttributes(version, id);
+        return Collections.unmodifiableMap(attributes);
     }
 
-    @Override
-    public void setAttribute(String key, String value) {
-        fabricService.getDataStore().setProfileAttribute(version, id, key, value);
-    }
-
-    //In some cases we need to sort profiles by Id.
     @Override
     public int compareTo(Profile profile) {
-        return id.compareTo(profile.getId());
-    }
-
-    public enum ConfigListType {
-        LIBRARIES("lib"),
-        ENDORSED("endorsed"),
-        EXTENSION("extension"),
-        BUNDLES("bundle"),
-        FABS("fab"),
-        FEATURES("feature"),
-        REPOSITORIES("repository"),
-        OVERRIDES("override"),
-        OPTIONALS("optional"),
-        TAGS("tags");
-
-        private String value;
-
-        private ConfigListType(String value) {
-            this.value = value;
-        }
-        public String toString() {
-            return value;
-        }
+        return profileId.compareTo(profile.getId());
     }
 
     @Override
@@ -127,42 +141,71 @@ public class ProfileImpl implements Profile {
     }
 
     @Override
-    public void setBundles(List<String> values) {
-        setContainerConfigList(this, values, ConfigListType.BUNDLES);
+    public List<String> getParentIds() {
+        return Collections.unmodifiableList(new ArrayList<>(parents.keySet()));
+    }
+
+    public List<Profile> getParents() {
+        return Collections.unmodifiableList(new ArrayList<>(parents.values()));
     }
 
     @Override
-    public void setFabs(List<String> values) {
-        setContainerConfigList(this, values, ConfigListType.FABS);
+    public boolean isAbstract() {
+        return Boolean.parseBoolean(getAttributes().get(ABSTRACT));
     }
 
     @Override
-    public void setFeatures(List<String> values) {
-        setContainerConfigList(this, values, ConfigListType.FEATURES);
+    public boolean isLocked() {
+        return Boolean.parseBoolean(getAttributes().get(LOCKED));
     }
 
     @Override
-    public void setRepositories(List<String> values) {
-        setContainerConfigList(this, values, ConfigListType.REPOSITORIES);
+    public boolean isHidden() {
+        return Boolean.parseBoolean(getAttributes().get(HIDDEN));
+    }
+
+    public boolean isOverlay() {
+        return isOverlay;
     }
 
     @Override
-    public void setOverrides(List<String> values) {
-        setContainerConfigList(this, values, ConfigListType.OVERRIDES);
+    public Map<String, byte[]> getFileConfigurations() {
+        return Collections.unmodifiableMap(fileConfigurations);
     }
 
     @Override
-    public void setOptionals(List<String> values) {
-        setContainerConfigList(this, values, ConfigListType.OPTIONALS);
+    public Set<String> getConfigurationFileNames() {
+        return Collections.unmodifiableSet(fileConfigurations.keySet());
     }
 
-    public static List<String> getContainerConfigList(Profile p, ConfigListType type) {
+    @Override
+    public byte[] getFileConfiguration(String fileName) {
+        return fileConfigurations.get(fileName);
+    }
+
+    public Map<String, Map<String, String>> getConfigurations() {
+        return Collections.unmodifiableMap(configurations);
+    }
+
+    @Override
+    public Map<String, String> getConfiguration(String pid) {
+        Map<String, String> config = configurations.get(pid);
+        config = config != null ? config : Collections.<String, String> emptyMap();
+        return Collections.unmodifiableMap(config);
+    }
+
+    @Override
+    public String getProfileHash() {
+        return lastModified;
+    }
+
+    static List<String> getContainerConfigList(Profile p, ConfigListType type) {
         try {
-            Map<String, String> containerProps = p.getContainerConfiguration();
+            Map<String, String> containerProps = p.getConfiguration(Constants.AGENT_PID);
             List<String> rc = new ArrayList<String>();
             String prefix = type + ".";
-            for ( Map.Entry<String, String> e : containerProps.entrySet() ) {
-                if ( (e.getKey()).startsWith(prefix) ) {
+            for (Map.Entry<String, String> e : containerProps.entrySet()) {
+                if ((e.getKey()).startsWith(prefix)) {
                     rc.add(e.getValue());
                 }
             }
@@ -173,107 +216,9 @@ public class ProfileImpl implements Profile {
         }
     }
 
-    public static void setContainerConfigList(Profile p, List<String> values, ConfigListType type) {
-        Map<String,Map<String, String>> config = p.getConfigurations();
-        String prefix = type + ".";
-        Map<String, String> map = config.get(Constants.AGENT_PID);
-        if (map == null) {
-            map = new HashMap<String, String>();
-            config.put(Constants.AGENT_PID, map);
-        } else {
-            List<String> keys = new ArrayList<String>(map.keySet());
-            for (String key : keys) {
-                if (key.startsWith(prefix)) {
-                    map.remove(key);
-                }
-            }
-        }
-        for (String value : values) {
-            map.put(prefix + value, value);
-        }
-        p.setConfigurations(config);
-    }
-
-    public Profile[] getParents() {
-        try {
-            String str = getAttributes().get(PARENTS);
-            if (str == null || str.isEmpty()) {
-                return new Profile[0];
-            }
-            str = str.trim();
-            List<Profile> profiles = new ArrayList<Profile>();
-            Version v = fabricService.getVersion(version);
-            for (String p : str.split(" ")) {
-                profiles.add(v.getProfile(p));
-            }
-            return profiles.toArray(new Profile[profiles.size()]);
-        } catch (Exception e) {
-            throw FabricException.launderThrowable(e);
-        }
-    }
-
-    public void setParents(Profile[] parents) {
-        if (parents == null) {
-            setAttribute(PARENTS, null);
-            return;
-        } else assertNotLocked();
-
-        try {
-            StringBuilder sb = new StringBuilder();
-            for (Profile parent : parents) {
-                if (!version.equals(parent.getVersion())) {
-                    throw new IllegalArgumentException("Version mismatch setting parent profile " + parent.getId() + " with version "
-                            + parent.getVersion() + ". Expected version " + version);
-                } else if (!parent.exists()) {
-                    throw new IllegalArgumentException("Parent profile " + parent.getId() + " with version " + parent.getVersion() + " doesn't exist.");
-                }
-                if (sb.length() > 0) {
-                    sb.append(" ");
-                }
-                sb.append(parent.getId());
-            }
-            setAttribute(PARENTS, sb.toString());
-        } catch (Exception e) {
-            throw FabricException.launderThrowable(e);
-        }
-    }
-
-    public Container[] getAssociatedContainers() {
-        try {
-            List<Container> rc = new ArrayList<Container>();
-            Container[] containers = fabricService.getContainers();
-            for (Container container : containers) {
-                if (!container.getVersion().getId().equals(getVersion())) {
-                    continue;
-                }
-                for (Profile p : container.getProfiles()) {
-                    if (this.equals(p)) {
-                        rc.add(container);
-                        break;
-                    }
-                }
-            }
-            return rc.toArray(new Container[0]);
-        } catch (Exception e) {
-            throw FabricException.launderThrowable(e);
-        }
-    }
-
-    public boolean isOverlay() {
-        return false;
-    }
-
-    public Profile getOverlay() {
-        return new ProfileOverlayImpl(this, fabricService.getEnvironment());
-    }
-
-    public Profile getOverlay(boolean substitute) {
-        return new ProfileOverlayImpl(this, fabricService.getEnvironment(), substitute, fabricService);
-    }
-
     @Override
     public String getIconURL() {
-        List<String> fileNames = getConfigurationFileNames();
+        Set<String> fileNames = getConfigurationFileNames();
         for (String fileName : fileNames) {
             if (fileName.startsWith("icon.")) {
                 String id = getId();
@@ -286,13 +231,13 @@ public class ProfileImpl implements Profile {
 
     @Override
     public String getSummaryMarkdown() {
-        byte[] data = getFileConfigurationLocalOrOverlay("Summary.md");
+        byte[] data = getFileConfiguration("Summary.md");
         if (data != null) {
             return new String(data);
         }
 
         // lets return the first line of the ReadMe.md as a default value
-        data = getFileConfigurationLocalOrOverlay("ReadMe.md");
+        data = getFileConfiguration("ReadMe.md");
         if (data != null) {
             String readMe = new String(data).trim();
             StringTokenizer iter = new StringTokenizer(readMe, "\n");
@@ -312,15 +257,7 @@ public class ProfileImpl implements Profile {
         }
         return null;
     }
-
-    protected byte[] getFileConfigurationLocalOrOverlay(String summaryMarkdownFileName) {
-        byte[] data = getFileConfiguration(summaryMarkdownFileName);
-        if (data == null && !isOverlay()) {
-            data = getOverlay().getFileConfiguration(summaryMarkdownFileName);
-        }
-        return data;
-    }
-
+    
     @Override
     public List<String> getTags() {
         List<String> answer = getContainerConfigList(this, ConfigListType.TAGS);
@@ -337,200 +274,68 @@ public class ProfileImpl implements Profile {
         }
         return answer;
     }
-
-    @Override
-    public void setTags(List<String> tags) {
-        setContainerConfigList(this, tags, ConfigListType.TAGS);
-    }
-
-    @Override
-    public Map<String, byte[]> getFileConfigurations() {
-        return fabricService.getDataStore().getFileConfigurations(version, id);
-    }
-
-    @Override
-    public List<String> getConfigurationFileNames() {
-        return fabricService.getDataStore().getConfigurationFileNames(version, id);
-    }
-
-    @Override
-    public byte[] getFileConfiguration(String fileName) {
-        return fabricService.getDataStore().getFileConfiguration(version, id, fileName);
-    }
-
-    @Override
-    public void setFileConfigurations(Map<String, byte[]> configurations) {
-        assertNotLocked();
-        fabricService.getDataStore().setFileConfigurations(version, id, configurations);
-    }
-
-    public Map<String, Map<String, String>> getConfigurations() {
-        return fabricService.getDataStore().getConfigurations(version, id);
-    }
-
-    @Override
-    public Map<String, String> getConfiguration(String pid) {
-        return fabricService.getDataStore().getConfiguration(version, id, pid);
-    }
-
-    @Override
-    public Map<String, String> getContainerConfiguration() {
-        Map<String, String> map = getConfigurations().get(Constants.AGENT_PID);
-        if (map == null) {
-            map = new HashMap<String, String>();
-        }
-        return map;
-    }
-
-    public void setConfigurations(Map<String, Map<String, String>> configurations) {
-        assertNotLocked();
-        fabricService.getDataStore().setConfigurations(version, id, configurations);
-    }
-
-    @Override
-    public void setConfiguration(String pid, Map<String, String> configuration) {
-        assertNotLocked();
-        fabricService.getDataStore().setConfiguration(version, id, pid, configuration);
-    }
-
-    @Override
-    public void setConfigurationFile(String fileName, byte[] data) {
-        assertNotLocked();
-        fabricService.getDataStore().setConfigurationFile(version, id, fileName, data);
-    }
-
-    public void refresh() {
-        Map<String, Map<String, String>> configuration = this.getConfigurations();
-        Map<String, String> agentConfiguration = configuration.get(Constants.AGENT_PID);
-        if (agentConfiguration == null) {
-            agentConfiguration = new HashMap<String, String>();
-        }
-        agentConfiguration.put("lastRefresh." + id, String.valueOf(System.currentTimeMillis()));
-        this.setConfigurations(configuration);
-    }
-
-    public void delete() {
-        delete(false);
-    }
-
-    public void delete(boolean force) {
-        // TODO: what about child profiles ?
-        Container[] containers = getAssociatedContainers();
-        if (containers.length == 0) {
-            fabricService.getDataStore().deleteProfile(version, id);
-        } else if (force) {
-            for (Container container : containers) {
-                container.removeProfiles(this);
-            }
-            fabricService.getDataStore().deleteProfile(version, id);
-        } else {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Cannot delete profile:").append(id).append(".");
-            sb.append("Profile has assigned ").append(containers.length).append(" container(s):");
-            for (Container c :containers) {
-                sb.append(" ").append(c.getId());
-            }
-            sb.append(". Use force option to also remove the profile from the containers.");
-            throw new FabricException(sb.toString());
-        }
-
-        // lets remove any pending requirements on this profile
-        FabricRequirements requirements = fabricService.getRequirements();
-        if (requirements.removeProfileRequirements(id)) {
-            try {
-                fabricService.setRequirements(requirements);
-            } catch (IOException e) {
-                throw new FabricException("Failed to update requirements after deleting profile " + id + ". " + e, e);
-            }
-        }
-    }
-
-    public boolean configurationEquals(Profile other) {
-         Profile[] parents = getParents();
-         Profile[] otherParents = other.getParents();
-         Arrays.sort(parents);
-         Arrays.sort(otherParents);
-         if (!getConfigurations().equals(other.getConfigurations())) {
-             return false;
-         }
-         if (parents.length != otherParents.length) {
-             return false;
-         }
-
-         for (int i = 0; i < parents.length; i++) {
-             if (!parents[i].configurationEquals(otherParents[i])) {
-                 return false;
-             }
-         }
-         return true;
-    }
-
-    /**
-     * Checks of the agent configuration of the current {@link Profile} matcher the other {@link Profile}.
-     * @param other
-     * @return
-     */
-    public boolean agentConfigurationEquals(Profile other) {
-        ProfileOverlayImpl selfOverlay = new ProfileOverlayImpl(this, fabricService.getEnvironment());
-        return selfOverlay.agentConfigurationEquals(other);
-    }
-
-    @Override
-    public boolean exists() {
-        return fabricService.getVersion(version).hasProfile(id);
-    }
-
-    @Override
-    public String toString() {
-        return "ProfileImpl[" +
-                "id='" + id + '\'' +
-                ", version='" + version + '\'' +
-                ']';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ProfileImpl profile = (ProfileImpl) o;
-        if (!id.equals(profile.id)) return false;
-        if (!version.equals(profile.version)) return false;
-        return true;
-    }
-
+    
     @Override
     public int hashCode() {
-        int result = id.hashCode();
-        result = 31 * result + version.hashCode();
+        int result = profileId.hashCode();
+        result = 31 * result + versionId.hashCode();
+        result = 31 * result + parents.hashCode();
+        result = 31 * result + configurations.hashCode();
+        result = 31 * result + fileConfigurations.hashCode();
         return result;
     }
 
     @Override
-    public boolean isAbstract() {
-        return Boolean.parseBoolean(getAttributes().get(ABSTRACT));
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof ProfileImpl)) return false;
+        ProfileImpl other = (ProfileImpl) obj;
+
+        // Equality based on identity
+        if (!profileId.equals(other.profileId) || !versionId.equals(other.versionId))
+            return false;
+
+        // Equality based on profile content
+        // [TODO] Remove content based profile equality when identity is based
+        // on unique revision
+
+        if (!parents.equals(other.parents))
+            return false;
+
+        if (!configurations.equals(other.configurations))
+            return false;
+
+        if (!fileConfigurations.keySet().equals(other.fileConfigurations.keySet()))
+            return false;
+
+        return true;
     }
 
     @Override
-    public boolean isLocked() {
-        return Boolean.parseBoolean(getAttributes().get(LOCKED));
+    public String toString() {
+        return "Profile[ver=" + versionId + ",id=" + profileId + ",atts=" + getAttributes() + "]";
     }
 
-    @Override
-	public boolean isHidden() {
-		return Boolean.parseBoolean(getAttributes().get(HIDDEN));
-	}
+    enum ConfigListType {
+        BUNDLES("bundle"), 
+        ENDORSED("endorsed"), 
+        EXTENSION("extension"), 
+        FABS("fab"), 
+        FEATURES("feature"), 
+        LIBRARIES("lib"), 
+        OPTIONALS("optional"),
+        OVERRIDES("override"), 
+        REPOSITORIES("repository"), 
+        TAGS("tags"); 
 
-    /**
-     * Returns the time in milliseconds of the last modification of the profile.
-     */
-    @Override
-    public String getProfileHash() {
-        return fabricService.getDataStore().getLastModified(version, id);
-    }
+        private String value;
 
-    protected void assertNotLocked() {
-        if (isLocked()) {
-            throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
+        private ConfigListType(String value) {
+            this.value = value;
+        }
+
+        public String toString() {
+            return value;
         }
     }
 }

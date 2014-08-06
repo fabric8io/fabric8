@@ -36,6 +36,7 @@
             io.fabric8.docker.provider.commands;-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
+          org.osgi.service.event*;resolution:=optional,
           io.fabric8.docker.api*,
           <!--
                 CXF version
@@ -55,17 +56,12 @@
           io.fabric8.utils.shell;-split-package:=first,
           org.apache.karaf.features.*;-split-package:=first,
           org.apache.karaf.util.collections.*;-split-package:=first,
+          org.apache.karaf.util;-split-package:=first,
           org.apache.felix.utils.*;-split-package:=first,
           org.ops4j.pax.url.maven.commons.*;-split-package:=first,
           org.ops4j.util.collections.*;-split-package:=first,
           org.ops4j.util.xml.*;-split-package:=first,
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>
-            <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/io.fabric8.docker.provider.commands.ContainerCreateDocker.xml,
-            OSGI-INF/io.fabric8.docker.provider.DockerApiRegistry.xml,
-            OSGI-INF/io.fabric8.docker.provider.DockerContainerProvider.xml
-        </fuse.osgi.service.component>
     </properties>
 
     <dependencies>

@@ -17,7 +17,9 @@ package io.fabric8.api.scr;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.fabric8.api.InvalidComponentException;
 import io.fabric8.api.jcip.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

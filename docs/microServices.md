@@ -1,6 +1,6 @@
 ## Micro Services
 
-There's lots of heated debate of late on micro services and what they are. From our perspective its simply about about creating separate (JVM) processes using the [Java Container](javaContainer.html) for each service so that each service is self contained, isolated, managed and has a minimal footprint.
+There's lots of heated debate of late on micro services and what they are. From our perspective its simply about about creating separate (JVM) processes using the [Java Container](http://fabric8.io/gitbook/javaContainer.html) for each service so that each service is self contained, isolated, managed and has a minimal footprint.
 
 You just choose whatever jars go onto the static flat classpath; just enough to function well but not necessarily including a whole Application Server (though you are free to embed whatever libraries and frameworks you need including embedding whatever parts of, say, [Apache Tomcat](http://tomcat.apache.org/), [Apache Karaf](http://karaf.apache.org/) or [WildFly](http://wildfly.org/) you wish to use).
 

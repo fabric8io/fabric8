@@ -61,7 +61,7 @@ import java.util.concurrent.ConcurrentMap;
 @Component(name = "io.fabric8.container.process.controller", label = "Fabric8 Child Process Container Controller",
         policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service(ProcessControllerFactory.class)
-public class ProcessControllerFactoryService extends AbstractComponent implements ProcessControllerFactory {
+public final class ProcessControllerFactoryService extends AbstractComponent implements ProcessControllerFactory {
     private static final transient Logger LOG = LoggerFactory.getLogger(ProcessControllerFactoryService.class);
 
     private static final int DEFAULT_EXTERNAL_PORT = 9000;
@@ -89,7 +89,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
 
     private Timer keepAliveTimer;
 
-    protected final Runnable configurationChangeHandler = new Runnable() {
+    private final Runnable configurationChangeHandler = new Runnable() {
         @Override
         public void run() {
             onConfigurationChanged();
@@ -113,11 +113,8 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
         };
         keepAliveTimer.schedule(timerTask, monitorPollTime, monitorPollTime);
 
-
-        DataStore dataStore = getDataStore();
-        if (dataStore != null) {
-            dataStore.trackConfiguration(configurationChangeHandler);
-        }
+        DataStore dataStore = fabricService.get().adapt(DataStore.class);
+        dataStore.trackConfiguration(configurationChangeHandler);
     }
 
     @Deactivate
@@ -125,10 +122,8 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
         if (zkMasterCache != null) {
             zkMasterCache = null;
         }
-        DataStore dataStore = getDataStore();
-        if (dataStore != null) {
-            dataStore.untrackConfiguration(configurationChangeHandler);
-        }
+        DataStore dataStore = fabricService.get().adapt(DataStore.class);
+        dataStore.untrackConfiguration(configurationChangeHandler);
         if (keepAliveTimer != null) {
             keepAliveTimer.cancel();
             keepAliveTimer = null;
@@ -230,7 +225,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
         return builder.toString();
     }
 
-    protected void onConfigurationChanged() {
+    private void onConfigurationChanged() {
         ProcessManager manager = getProcessManager();
         FabricService fabric = getFabricService();
         if (manager != null && fabric != null) {
@@ -272,7 +267,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
         return loadZooKeeperPaths(id);
     }
 
-    protected Set<String> loadZooKeeperPaths(String id) {
+    private Set<String> loadZooKeeperPaths(String id) {
         HashSet<String> newValue = new HashSet<String>();
         Set<String> oldValue = containerToZKPathMap.putIfAbsent(id, newValue);
         return oldValue != null ? oldValue : newValue;
@@ -301,7 +296,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
         deleteContainerZooKeeperPaths(id);
     }
 
-    protected void deleteContainerPathsForDeadContainers(Set<String> aliveIds) {
+    private void deleteContainerPathsForDeadContainers(Set<String> aliveIds) {
         Set<String> containerIds = new HashSet<String>(containerToZKPathMap.keySet());
         containerIds.removeAll(aliveIds);
         for (String id : containerIds) {
@@ -316,7 +311,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
         }
     }
 
-    protected void deleteZooKeeperPaths(Set<String> zkPaths) {
+    private void deleteZooKeeperPaths(Set<String> zkPaths) {
         for (String path : zkPaths) {
             try {
                 CuratorFramework curatorFramework = getCuratorFramework();
@@ -331,7 +326,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
         }
     }
 
-    protected ProcessManagerController createProcessManagerController() {
+    private ProcessManagerController createProcessManagerController() {
         return new ProcessManagerController(this, configurer, getProcessManager(), getFabricService(), getCuratorFramework());
     }
 
@@ -339,20 +334,12 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
         return curator.get();
     }
 
-    protected ProcessManager getProcessManager() {
+    private ProcessManager getProcessManager() {
         return processManager.get();
     }
 
     FabricService getFabricService() {
         return fabricService.get();
-    }
-
-    protected DataStore getDataStore() {
-        FabricService service = getFabricService();
-        if (service != null) {
-            return service.getDataStore();
-        }
-        return null;
     }
 
     void bindConfigurer(Configurer configurer) {
@@ -389,7 +376,7 @@ public class ProcessControllerFactoryService extends AbstractComponent implement
     }
 
 
-    protected void checkProcessesStatus() {
+    private void checkProcessesStatus() {
         ProcessManager manager = getProcessManager();
         FabricService fabric = getFabricService();
         if (manager != null && fabric != null) {

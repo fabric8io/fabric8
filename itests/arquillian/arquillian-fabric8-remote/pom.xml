@@ -48,6 +48,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.jboss.arquillian.container</groupId>
+      <artifactId>arquillian-fabric8-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>io.fabric8.itests</groupId>
       <artifactId>fabric8-testkit</artifactId>
       <version>${project.version}</version>

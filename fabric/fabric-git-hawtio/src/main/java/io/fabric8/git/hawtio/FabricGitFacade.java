@@ -15,11 +15,27 @@
  */
 package io.fabric8.git.hawtio;
 
+import static io.fabric8.git.internal.GitHelpers.getRootGitDirectory;
+import io.fabric8.api.GitContext;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.Validatable;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.api.scr.ValidationSupport;
+import io.fabric8.git.GitDataStore;
+import io.fabric8.git.internal.GitHelpers;
+import io.fabric8.git.internal.GitOperation;
+import io.hawt.git.CommitInfo;
+import io.hawt.git.CommitTreeInfo;
+import io.hawt.git.FileContents;
+import io.hawt.git.FileInfo;
+import io.hawt.git.GitFacadeMXBean;
+import io.hawt.git.GitFacadeSupport;
+import io.hawt.util.Strings;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import io.hawt.git.CommitTreeInfo;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -30,33 +46,14 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
-
-import io.fabric8.api.DataStore;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.Validatable;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.api.scr.ValidationSupport;
-import io.fabric8.git.internal.GitContext;
-import io.fabric8.git.internal.GitDataStore;
-import io.fabric8.git.internal.GitHelpers;
-import io.fabric8.git.internal.GitOperation;
-
-import io.hawt.git.CommitInfo;
-import io.hawt.git.FileContents;
-import io.hawt.git.FileInfo;
-import io.hawt.git.GitFacadeMXBean;
-import io.hawt.git.GitFacadeSupport;
-import io.hawt.util.Strings;
 import org.eclipse.jgit.util.Base64;
-
-import static io.fabric8.git.internal.GitHelpers.getRootGitDirectory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.git.hawtio", label = "Fabric8 Git Hawtio Service", immediate = true, metatype = false)
 @Service(GitFacadeMXBean.class)
 public final class FabricGitFacade extends GitFacadeSupport implements Validatable {
 
-    @Reference(referenceInterface = DataStore.class, target = "(|(type=git)(type=caching-git))")
+    @Reference(referenceInterface = GitDataStore.class)
     private final ValidatingReference<GitDataStore> gitDataStore = new ValidatingReference<GitDataStore>();
 
     private final ValidationSupport active = new ValidationSupport();
@@ -172,7 +169,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
                 File rootDir = getRootGitDirectory(git);
                 byte[] data = contents.getBytes();
                 CommitInfo answer = doWrite(git, rootDir, branch, path, data, personIdent, commitMessage);
-                context.commit(commitMessage);
+                context.commitMessage(commitMessage);
                 return answer;
             }
         });
@@ -188,7 +185,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
                 File rootDir = getRootGitDirectory(git);
                 byte[] data = Base64.decode(contents);
                 CommitInfo answer = doWrite(git, rootDir, branch, path, data, personIdent, commitMessage);
-                context.commit(commitMessage);
+                context.commitMessage(commitMessage);
                 return answer;
             }
         });
@@ -203,7 +200,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
                 checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
                 Void answer = doRevert(git, rootDir, branch, objectId, blobPath, commitMessage, personIdent);
-                context.commit(commitMessage);
+                context.commitMessage(commitMessage);
                 return answer;
             }
         });
@@ -218,7 +215,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
                 checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
                 RevCommit answer = doRename(git, rootDir, branch, oldPath, newPath, commitMessage, personIdent);
-                context.commit(commitMessage);
+                context.commitMessage(commitMessage);
                 return answer;
             }
         });
@@ -233,7 +230,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
                 checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
                 RevCommit answer = doRemove(git, rootDir, branch, path, commitMessage, personIdent);
-                context.commit(commitMessage);
+                context.commitMessage(commitMessage);
                 return answer;
             }
         });
@@ -244,7 +241,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         gitWriteOperation(null, new GitOperation<Object>() {
             public Object call(Git git, GitContext context) throws Exception {
                 doCreateBranch(git, fromBranch, newBranch);
-                context.commit("Created branch from " + fromBranch + " to " + newBranch);
+                context.commitMessage("Created branch from " + fromBranch + " to " + newBranch);
                 return null;
             }
         });
@@ -259,7 +256,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
                 checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
                 CommitInfo answer = doCreateDirectory(git, rootDir, branch, path, personIdent, commitMessage);
-                context.commit(commitMessage);
+                context.commitMessage(commitMessage);
                 return answer;
             }
         });
@@ -314,7 +311,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
     @Override
     public Iterable<PushResult> doPush(Git git) throws Exception {
         assertValid();
-        return gitDataStore.get().doPush(git, null);
+        return gitDataStore.get().doPush(git, new GitContext());
     }
 
     @Override
@@ -323,17 +320,17 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         if (Strings.isBlank(branch)) {
             branch = "master";
         }
-        GitHelpers.createOrCheckoutBranch(git, branch, gitDataStore.get().getRemote());
+        GitHelpers.createOrCheckoutBranch(git, branch, "origin");
     }
 
-    private <T> T gitReadOperation(GitOperation<T> operation) {
-        return gitDataStore.get().gitOperation(operation, false);
-    }
-
-    private <T> T gitWriteOperation(PersonIdent personIdent, GitOperation<T> operation) {
+    private <T> T gitReadOperation(GitOperation<T> gitop) {
         GitContext context = new GitContext();
-        context.requireCommit();
-        return gitDataStore.get().gitOperation(personIdent, operation, true, context);
+        return gitDataStore.get().gitOperation(context, gitop, null);
+    }
+
+    private <T> T gitWriteOperation(PersonIdent personIdent, GitOperation<T> gitop) {
+        GitContext context = new GitContext().requireCommit().requirePush();
+        return gitDataStore.get().gitOperation(context, gitop, personIdent);
     }
 
     // [FIXME] Test case polutes public API
@@ -346,11 +343,11 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         activate();
     }
 
-    void bindGitDataStore(DataStore gitDataStore) {
-        this.gitDataStore.bind((GitDataStore) gitDataStore);
+    void bindGitDataStore(GitDataStore gitDataStore) {
+        this.gitDataStore.bind(gitDataStore);
     }
 
-    void unbindGitDataStore(DataStore gitDataStore) {
-        this.gitDataStore.unbind((GitDataStore) gitDataStore);
+    void unbindGitDataStore(GitDataStore gitDataStore) {
+        this.gitDataStore.unbind(gitDataStore);
     }
 }

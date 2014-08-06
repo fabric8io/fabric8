@@ -220,9 +220,9 @@ public class ArchetypeBuilder {
 
             if (rootPackage != null) {
                 String packagePath = archetypeUtils.relativePath(mainSrcDir, rootPackage);
-                String packageName = packagePath.replaceAll(Pattern.quote("/"), ".");
+                String packageName = packagePath.replace(File.separatorChar, '.');
                 LOG.debug("Found root package in {}: {}", mainSrcDir, packageName);
-                final String regex = packageName.replaceAll(Pattern.quote("."), "\\.");
+                final String regex = packageName.replace(".", "\\.");
 
                 replaceFunction = new Replacement() {
                     @Override

@@ -22,7 +22,7 @@ import java.util.jar.Manifest;
 import static java.util.UUID.randomUUID;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
-import aQute.lib.osgi.Jar;
+import aQute.bnd.osgi.Jar;
 import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.config.ProcessConfig;
 import io.fabric8.process.manager.InstallOptions;

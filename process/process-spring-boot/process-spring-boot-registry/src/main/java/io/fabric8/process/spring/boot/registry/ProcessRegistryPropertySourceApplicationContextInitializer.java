@@ -15,14 +15,18 @@
  */
 package io.fabric8.process.spring.boot.registry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.Ordered;
 import org.springframework.util.ClassUtils;
 
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistry.autodetectZooKeeperProcessRegistry;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * {@code ApplicationContextInitializer} registering {@link ProcessRegistryPropertySource}.
@@ -48,13 +52,17 @@ import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistry.a
  * The above basically means that Spring Boot container attempts to read properties from the Fabric8 ZooKeeper registry,
  * then from the system properties and finally from the files located in the classpath.
  */
-public class ProcessRegistryPropertySourceApplicationContextInitializer implements ApplicationContextInitializer {
+public class ProcessRegistryPropertySourceApplicationContextInitializer implements ApplicationContextInitializer, Ordered {
+
+    private static final Logger LOG = getLogger(ProcessRegistryPropertySourceApplicationContextInitializer.class);
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         List<ProcessRegistry> registries = newArrayList(new InMemoryProcessRegistry(), new ClassPathProcessRegistry());
 
+        LOG.debug("Looking for ZooKeeperProcessRegistry...");
         if (ClassUtils.isPresent("org.apache.curator.framework.CuratorFramework", getClass().getClassLoader())) {
+            LOG.info("Apache Curator jar found. Creating ZooKeeperProcessRegistry.");
             registries.add(autodetectZooKeeperProcessRegistry());
         }
 
@@ -62,6 +70,11 @@ public class ProcessRegistryPropertySourceApplicationContextInitializer implemen
         ProcessRegistryHolder.processRegistry(registry);
         ProcessRegistryPropertySource propertySource = new ProcessRegistryPropertySource(registry);
         applicationContext.getEnvironment().getPropertySources().addFirst(propertySource);
+    }
+
+    @Override
+    public int getOrder() {
+        return Ordered.HIGHEST_PRECEDENCE + 1000;
     }
 
 }

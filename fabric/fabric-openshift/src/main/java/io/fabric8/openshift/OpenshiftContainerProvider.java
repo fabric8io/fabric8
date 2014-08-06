@@ -15,6 +15,24 @@
  */
 package io.fabric8.openshift;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.ContainerAutoScaler;
+import io.fabric8.api.ContainerAutoScalerFactory;
+import io.fabric8.api.ContainerProvider;
+import io.fabric8.api.CreationStateListener;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.NameValidator;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Version;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
+import io.fabric8.api.scr.ValidatingReference;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,13 +41,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import com.openshift.client.IGearProfile;
-import com.openshift.client.OpenShiftTimeoutException;
 
-import io.fabric8.api.FabricException;
-import io.fabric8.api.FabricRequirements;
-import io.fabric8.api.ProfileRequirements;
-import io.fabric8.api.scr.Configurer;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -40,36 +57,21 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
-import io.fabric8.api.Container;
-import io.fabric8.api.ContainerAutoScaler;
-import io.fabric8.api.ContainerAutoScalerFactory;
-import io.fabric8.api.ContainerProvider;
-import io.fabric8.api.CreationStateListener;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.NameValidator;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.openshift.client.ApplicationScale;
 import com.openshift.client.IApplication;
 import com.openshift.client.IDomain;
+import com.openshift.client.IGearProfile;
 import com.openshift.client.IHttpClient;
 import com.openshift.client.IOpenShiftConnection;
 import com.openshift.client.IUser;
+import com.openshift.client.OpenShiftTimeoutException;
 import com.openshift.client.cartridge.EmbeddableCartridge;
 import com.openshift.client.cartridge.IEmbeddableCartridge;
 import com.openshift.client.cartridge.StandaloneCartridge;
 import com.openshift.internal.client.GearProfile;
-
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.openshift",
@@ -167,12 +169,13 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         String versionId = options.getVersion();
         Map<String, String> openshiftConfigOverlay = new HashMap<String, String>();
         if (profiles != null && versionId != null) {
-            Version version = fabricService.get().getVersion(versionId);
+            ProfileService profileService = fabricService.get().adapt(ProfileService.class);
+            Version version = profileService.getVersion(versionId);
             if (version != null) {
                 for (String profileId : profiles) {
-                    Profile profile = version.getProfile(profileId);
+                    Profile profile = version.getRequiredProfile(profileId);
                     if (profile != null) {
-                        Profile overlay = profile.getOverlay();
+                        Profile overlay = profileService.getOverlayProfile(profile);
                         Map<String, String> openshiftConfig = overlay.getConfiguration(OpenShiftConstants.OPENSHIFT_PID);
                         if (openshiftConfig != null)  {
                             openshiftConfigOverlay.putAll(openshiftConfig);

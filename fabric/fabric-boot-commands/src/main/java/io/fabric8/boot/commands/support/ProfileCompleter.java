@@ -55,8 +55,8 @@ public final class ProfileCompleter extends AbstractCompleterComponent {
     public int complete(String buffer, int cursor, List<String> candidates) {
         StringsCompleter delegate = new StringsCompleter();
         try {
-            Version version = fabricService.getDefaultVersion();
-            Profile[] profiles = version.getProfiles();
+            Version version = fabricService.getRequiredDefaultVersion();
+            List<Profile> profiles = version.getProfiles();
             for (Profile profile : profiles) {
                 delegate.getStrings().add(profile.getId());
             }

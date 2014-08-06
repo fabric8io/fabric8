@@ -67,21 +67,23 @@
             aQute.bnd.annotation.component;
             aQute.bnd.annotation.metatype;
             aQute.bnd.build;
+            aQute.bnd.header;
             aQute.bnd.help;
             aQute.bnd.make;
             aQute.bnd.make.component;
             aQute.bnd.make.metatype;
             aQute.bnd.maven;
+            aQute.bnd.osgi;
+            aQute.bnd.osgi.eclipse;
             aQute.bnd.service;
             aQute.bnd.service.action;
             aQute.bnd.settings;
+            aQute.bnd.version;
             aQute.lib.base64;
             aQute.lib.collections;
             aQute.lib.deployer;
             aQute.lib.hex;
             aQute.lib.io;
-            aQute.lib.osgi;
-            aQute.lib.osgi.eclipse;
             aQute.lib.spring;
             aQute.lib.tag;
             aQute.libg.command;
@@ -93,7 +95,8 @@
             aQute.libg.sed;
             aQute.libg.tarjan;
             aQute.libg.tuple;
-            aQute.libg.version;
+            aQute.libg.version,
+            aQute.service.reporter,
             org.apache.aries.util;
             org.apache.aries.util.internal;
             org.apache.felix.bundleplugin;
@@ -372,6 +375,12 @@
         </dependency>
 
         <dependency>
+            <groupId>biz.aQute.bnd</groupId>
+            <artifactId>bndlib</artifactId>
+            <version>${bndlib-version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.fabric8.fab</groupId>
             <artifactId>fab-osgi</artifactId>
             <version>${project.version}</version>
@@ -394,11 +403,7 @@
             <version>${pax.url.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.url</groupId>
-            <artifactId>pax-url-mvn</artifactId>
-            <scope>provided</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.ops4j.base</groupId>
             <artifactId>ops4j-base-net</artifactId>
@@ -417,6 +422,34 @@
             <artifactId>pax-url-wrap</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.karaf</groupId>
+            <artifactId>apache-karaf</artifactId>
+            <type>zip</type>
+            <version>${karaf-version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.servicemix.specs</groupId>
+                    <artifactId>org.apache.servicemix.specs.jaxp-api-1.4</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.assemblies.features</groupId>
+            <artifactId>standard</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+            <version>${karaf-version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- test server -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>

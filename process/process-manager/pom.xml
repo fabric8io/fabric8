@@ -50,22 +50,6 @@
     <!--
             <fuse.osgi.activator>io.fabric8.process.manager.Activator</fuse.osgi.activator>
     -->
-    <fuse.osgi.service.component>
-      <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-      OSGI-INF/io.fabric8.process.manager.commands.support.KindCompleter.xml,
-      OSGI-INF/io.fabric8.process.manager.commands.support.MainClassCompleter.xml,
-      OSGI-INF/io.fabric8.process.manager.commands.support.ProcessNumberCompleter.xml,
-      OSGI-INF/io.fabric8.process.manager.commands.Environment.xml,
-      OSGI-INF/io.fabric8.process.manager.commands.Install.xml,
-      OSGI-INF/io.fabric8.process.manager.commands.InstallJar.xml,
-      OSGI-INF/io.fabric8.process.manager.commands.Kill.xml,
-      OSGI-INF/io.fabric8.process.manager.commands.ProcessList.xml,
-      OSGI-INF/io.fabric8.process.manager.commands.Restart.xml,
-      OSGI-INF/io.fabric8.process.manager.commands.Start.xml,
-      OSGI-INF/io.fabric8.process.manager.commands.Status.xml,
-      OSGI-INF/io.fabric8.process.manager.commands.Stop.xml,
-      OSGI-INF/io.fabric8.process.manager.commands.Uninstall.xml
-    </fuse.osgi.service.component>
   </properties>
 
   <dependencies>
@@ -82,11 +66,6 @@
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.compendium</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.ops4j.pax.url</groupId>
-      <artifactId>pax-url-mvn</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -140,6 +119,12 @@
       <groupId>io.fabric8.samples</groupId>
       <artifactId>process-sample-camel-spring</artifactId>
       <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.ops4j.pax.url</groupId>
+      <artifactId>pax-url-aether</artifactId>
+      <version>${pax.url.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

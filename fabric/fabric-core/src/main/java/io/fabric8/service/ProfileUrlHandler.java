@@ -30,12 +30,16 @@ import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+
+import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.Validatable;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.api.scr.ValidationSupport;
+
+import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.osgi.service.url.URLStreamHandlerService;
 
@@ -104,15 +108,11 @@ public final class ProfileUrlHandler extends AbstractURLStreamHandlerService imp
         public InputStream getInputStream() throws IOException {
             assertValid();
             String path = url.getPath();
-            Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();
-
-            Map<String, byte[]> configs = profile.getFileConfigurations();
-            if (configs.containsKey(path)) {
-                byte[] b = configs.get(path);
-                return new ByteArrayInputStream(b);
-            } else {
-                throw new IllegalArgumentException("Resource " + path + " does not exist in the profile overlay.");
-            }
+            Container container = fabricService.get().getCurrentContainer();
+            Profile overlayProfile = container.getOverlayProfile();
+            byte[] bytes = overlayProfile.getFileConfiguration(path);
+            IllegalStateAssertion.assertNotNull(bytes, "Resource " + path + " does not exist in the profile overlay.");
+            return new ByteArrayInputStream(bytes);
         }
     }
 

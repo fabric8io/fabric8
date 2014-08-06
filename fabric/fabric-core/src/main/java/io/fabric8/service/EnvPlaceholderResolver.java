@@ -15,13 +15,12 @@
  */
 package io.fabric8.service;
 
+import java.util.Map;
+
 import io.fabric8.api.FabricService;
 import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
-
-import java.util.Map;
-
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -84,11 +83,32 @@ public final class EnvPlaceholderResolver extends AbstractComponent implements P
             defaultValue = expression.substring(idx + ELVIS_OPERATOR.length());
             name = expression.substring(0, idx);
         }
-        String answer = System.getenv(name);
+        String answer = environmentVariables != null ? environmentVariables.get(name) : null;
         if (answer == null) {
-            return preserveUnresolved ? expression : defaultValue;
+            answer = System.getenv(name);
+            if (answer == null) {
+                return preserveUnresolved ? expression : defaultValue;
+            }
         }
         return answer;
-
     }
+
+    /**
+     * Removes any ${env:XXX} token from the given expression which the {@link #resolveExpression(String, java.util.Map, boolean)}
+     * method requires to be removed first.
+     *
+     * @param expression the expression
+     * @return the expression with environment token removed
+     */
+    public static String removeTokens(String expression) {
+        // remove placeholder tokens which the EnvPlaceholderResolver do not expect
+        if (expression.startsWith("${") && expression.endsWith("}")) {
+            expression = expression.substring(2, expression.length() - 1);
+        }
+        if (expression.startsWith("env:")) {
+            expression = expression.substring(4);
+        }
+        return expression;
+    }
+
 }

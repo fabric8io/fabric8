@@ -51,13 +51,13 @@
             org.apache.commons.codec*,
             org.apache.commons.httpclient*,
             org.apache.commons.io*,
+            org.apache.commons.lang*,
             org.jsoup.*,
             org.apache.maven.*;-split-package:=merge-first,
             org.sonatype.aether*,
             org.sonatype.plexus*,
             org.codehaus.plexus*
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
 	<dependencies>
@@ -81,6 +81,16 @@
 		<dependency>
 			<groupId>io.fabric8</groupId>
 			<artifactId>fabric-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.fabric8</groupId>
+			<artifactId>fabric-project-deployer</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>fabric-agent</artifactId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 
 		<!-- Provided Dependencies -->

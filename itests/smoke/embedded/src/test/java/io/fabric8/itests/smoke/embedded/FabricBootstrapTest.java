@@ -15,6 +15,7 @@
  */
 package io.fabric8.itests.smoke.embedded;
 
+import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateEnsembleOptions;
@@ -24,7 +25,6 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.PortService;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.git.GitService;
-import io.fabric8.utils.PasswordEncoder;
 
 import java.util.Dictionary;
 
@@ -32,7 +32,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.gravia.runtime.ServiceLocator;
 import org.junit.Assert;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.Configuration;
@@ -42,19 +42,17 @@ import org.osgi.service.cm.ConfigurationAdmin;
  * Test fabric-core servies
  */
 @RunWith(Arquillian.class)
-@Ignore("[FABRIC-1112] Cannot reliably authenticate with Zookeeper from GitDataStore")
 public class FabricBootstrapTest {
 
-    private static final String SYSTEM_PASSWORD = "systempassword";
-
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        ServiceLocator.awaitService(BootstrapComplete.class);
+        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).waitForProvision(true);
+        ServiceLocator.getRequiredService(ZooKeeperClusterBootstrap.class).create(builder.build());
+    }
+    
     @Test
     public void testFabricCreate() throws Exception {
-
-        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).zookeeperPassword(SYSTEM_PASSWORD).waitForProvision(false);
-        CreateEnsembleOptions options = builder.build();
-
-        ZooKeeperClusterBootstrap bootstrap = ServiceLocator.getRequiredService(ZooKeeperClusterBootstrap.class);
-        bootstrap.create(options);
 
         FabricService fabricService = ServiceLocator.getRequiredService(FabricService.class);
         Container[] containers = fabricService.getContainers();
@@ -70,7 +68,7 @@ public class FabricBootstrapTest {
         ConfigurationAdmin configAdmin = ServiceLocator.getRequiredService(ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configAdmin.getConfiguration(io.fabric8.api.Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
-        Assert.assertEquals("Expected provided zookeeper password", PasswordEncoder.encode(SYSTEM_PASSWORD), dictionary.get("zookeeper.password"));
+        Assert.assertNotNull("Expected provided zookeeper url", dictionary.get("zookeeper.url"));
 
         assertConfigurations(configAdmin);
     }
@@ -78,14 +76,12 @@ public class FabricBootstrapTest {
     private void assertConfigurations(ConfigurationAdmin configAdmin) throws Exception {
         Configuration config = configAdmin.listConfigurations("(service.pid=" + Constants.ZOOKEEPER_CLIENT_PID + ")")[0];
         Assert.assertNotNull("Configuration not null", config);
-        Assert.assertNotNull("zookeeper.password not null", config.getProperties().get("zookeeper.password"));
         Assert.assertNotNull("zookeeper.url not null", config.getProperties().get("zookeeper.url"));
         config = configAdmin.listConfigurations("(service.factoryPid=" + Constants.ZOOKEEPER_SERVER_PID + ")")[0];
         Assert.assertNotNull("Configuration not null", config);
         Assert.assertNotNull("dataDir not null", config.getProperties().get("dataDir"));
-        config = configAdmin.listConfigurations("(service.pid=" + Constants.DATASTORE_TYPE_PID + ")")[0];
+        config = configAdmin.listConfigurations("(service.pid=" + Constants.DATASTORE_PID + ")")[0];
         Assert.assertNotNull("Configuration not null", config);
         Assert.assertNotNull("gitpullperiod not null", config.getProperties().get("gitpullperiod"));
-        Assert.assertNotNull("type not null", config.getProperties().get("type"));
     }
 }

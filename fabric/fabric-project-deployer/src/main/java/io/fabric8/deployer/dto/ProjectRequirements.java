@@ -35,10 +35,16 @@ public class ProjectRequirements {
     private Integer minimumInstances;
     private DependencyDTO rootDependency;
     private String webContextPath;
+    private Boolean useResolver;
+    private Boolean locked;
 
     @Override
     public String toString() {
         return "ProjectRequirements{" + rootDependency + "}";
+    }
+
+    public boolean isUseResolver() {
+        return useResolver != null && useResolver.booleanValue();
     }
 
     public String getProfileId() {
@@ -151,5 +157,25 @@ public class ProjectRequirements {
 
     public void setWebContextPath(String webContextPath) {
         this.webContextPath = webContextPath;
+    }
+
+    public Boolean getUseResolver() {
+        return useResolver;
+    }
+
+    public void setUseResolver(Boolean useResolver) {
+        this.useResolver = useResolver;
+    }
+
+    public Boolean getLocked() {
+        return locked;
+    }
+
+    public void setLocked(Boolean locked) {
+        this.locked = locked;
+    }
+
+    public boolean isLocked() {
+        return locked != null && locked.booleanValue();
     }
 }

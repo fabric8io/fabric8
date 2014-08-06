@@ -15,15 +15,13 @@
  */
 package io.fabric8.api;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Allows the requirements of a profile to be defined so that we can do automatic provisioning,
@@ -31,10 +29,11 @@ import java.util.Map;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FabricRequirements {
+    
     private List<ProfileRequirements> profileRequirements = new ArrayList<ProfileRequirements>();
-    private String version;
     private SshConfiguration sshConfiguration;
     private DockerConfiguration dockerConfiguration;
+    private String version;
 
     public FabricRequirements() {
     }
@@ -143,7 +142,7 @@ public class FabricRequirements {
         sortProfilesRequirements();
     }
 
-    protected void sortProfilesRequirements() {
+    public void sortProfilesRequirements() {
         Collections.sort(profileRequirements);
     }
 

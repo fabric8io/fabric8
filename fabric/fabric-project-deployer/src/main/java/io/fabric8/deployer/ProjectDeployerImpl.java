@@ -15,6 +15,35 @@
  */
 package io.fabric8.deployer;
 
+import io.fabric8.agent.download.DownloadManager;
+import io.fabric8.agent.download.DownloadManagers;
+import io.fabric8.agent.utils.AgentUtils;
+import io.fabric8.api.Container;
+import io.fabric8.api.Containers;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileRegistry;
+import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
+import io.fabric8.api.Version;
+import io.fabric8.api.VersionBuilder;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.JMXUtils;
+import io.fabric8.common.util.Lists;
+import io.fabric8.deployer.dto.DependencyDTO;
+import io.fabric8.deployer.dto.DeployResults;
+import io.fabric8.deployer.dto.DtoHelper;
+import io.fabric8.deployer.dto.ProjectRequirements;
+import io.fabric8.insight.log.support.Strings;
+import io.fabric8.internal.Objects;
+import io.fabric8.service.VersionPropertyPointerResolver;
+import io.fabric8.service.child.ChildConstants;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -23,40 +52,23 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.api.Container;
-import io.fabric8.api.Containers;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.FabricRequirements;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.ProfileRequirements;
-import io.fabric8.api.Profiles;
-import io.fabric8.api.Version;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.Configurer;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.JMXUtils;
-import io.fabric8.deployer.dto.DependencyDTO;
-import io.fabric8.deployer.dto.DeployResults;
-import io.fabric8.deployer.dto.DtoHelper;
-import io.fabric8.deployer.dto.ProjectRequirements;
-import io.fabric8.insight.log.support.Strings;
-import io.fabric8.internal.Objects;
-import io.fabric8.service.child.ChildConstants;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -72,6 +84,10 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static io.fabric8.agent.download.ProfileDownloader.getMavenCoords;
+
 /**
  * Allows projects to be deployed into a profile using Jolokia / REST or build plugins such as a maven plugin
  */
@@ -80,6 +96,7 @@ import org.slf4j.LoggerFactory;
         policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service(ProjectDeployer.class)
 public final class ProjectDeployerImpl extends AbstractComponent implements ProjectDeployer, ProjectDeployerMXBean {
+    public static final String[] RESOLVER_IGNORE_BUNDLE_PREFIXES = {"org.slf4j", "log4j"};
 
     private static final transient Logger LOG = LoggerFactory.getLogger(ProjectDeployerImpl.class);
     public static ObjectName OBJECT_NAME;
@@ -95,16 +112,14 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     @Reference
     private Configurer configurer;
 
-    @Reference(referenceInterface = FabricService.class, bind = "bindFabricService", unbind = "unbindFabricService")
+    @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
-
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private BundleContext bundleContext;
-
     private Map<String, String> servicemixBundles;
-
     private int downloadThreads;
 
     @Activate
@@ -143,7 +158,6 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
 
     @Override
     public DeployResults deployProject(ProjectRequirements requirements) throws Exception {
-        FabricService fabric = getFabricService();
         Version version = getOrCreateVersion(requirements);
 
         // validate that all the parent profiles exists
@@ -154,42 +168,24 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         }
 
         Profile profile = getOrCreateProfile(version, requirements);
-        if (requirements.isAbstractProfile()) {
-            profile.setAttribute(Profile.ABSTRACT, "true");
-        } else {
-            profile.setAttribute(Profile.ABSTRACT, "false");
-        }
+        boolean isAbstract = requirements.isAbstractProfile();
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
+        builder.addAttribute(Profile.ABSTRACT, "" + isAbstract);
 
-        ProjectRequirements oldRequirements = writeRequirementsJson(requirements, profile);
-        updateProfileConfiguration(version, profile, requirements, oldRequirements);
+        ProjectRequirements oldRequirements = writeRequirementsJson(requirements, profile, builder);
+        updateProfileConfiguration(version, profile, requirements, oldRequirements, builder);
 
-        Profile overlay = profile.getOverlay(true);
-
-        Container container = null;
-        try {
-            container = fabric.getCurrentContainer();
-        } catch (Exception e) {
-            // ignore
-        }
-
-        Integer minimumInstances = requirements.getMinimumInstances();
-        if (minimumInstances != null) {
-            FabricRequirements fabricRequirements = fabric.getRequirements();
-            ProfileRequirements profileRequirements = fabricRequirements.getOrCreateProfileRequirement(profile.getId());
-            profileRequirements.setMinimumInstances(minimumInstances);
-            fabric.setRequirements(fabricRequirements);
-        }
-        return resolveProfileDeployments(requirements, fabric, container, profile, overlay);
+        return resolveProfileDeployments(requirements, fabricService.get(), profile, builder);
     }
 
     /**
      * Removes any old parents / features / repos and adds any new parents / features / repos to the profile
      */
-    protected void updateProfileConfiguration(Version version, Profile profile, ProjectRequirements requirements, ProjectRequirements oldRequirements) {
+    private void updateProfileConfiguration(Version version, Profile profile, ProjectRequirements requirements, ProjectRequirements oldRequirements, ProfileBuilder builder) {
         List<String> parentProfiles = Containers.getParentProfileIds(profile);
-        List<String> bundles = profile.getBundles();
-        List<String> features = profile.getFeatures();
-        List<String> repositories = profile.getRepositories();
+        List<String> bundles = Lists.mutableList(profile.getBundles());
+        List<String> features = Lists.mutableList(profile.getFeatures());
+        List<String> repositories = Lists.mutableList(profile.getRepositories());
         if (oldRequirements != null) {
             removeAll(parentProfiles, oldRequirements.getParentProfiles());
             removeAll(bundles, oldRequirements.getBundles());
@@ -200,21 +196,27 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         addAll(bundles, requirements.getBundles());
         addAll(features, requirements.getFeatures());
         addAll(repositories, requirements.getFeatureRepositories());
-        Containers.setParentProfileIds(version, profile, parentProfiles);
-        profile.setBundles(bundles);
-        profile.setFeatures(features);
-        profile.setRepositories(repositories);
+        // Modify the profile through the {@link ProfileBuilder}
+        setParentProfileIds(builder, version, profile, parentProfiles);
+        builder.setBundles(bundles);
+        builder.setFeatures(features);
+        builder.setRepositories(repositories);
+        Boolean locked = requirements.getLocked();
+        if (locked != null) {
+            builder.setLocked(locked);
+        }
         String webContextPath = requirements.getWebContextPath();
         if (!Strings.isEmpty(webContextPath)) {
-            Map<String, String> contextPathConfig = profile.getConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID);
-            if (contextPathConfig == null) {
-                contextPathConfig = new HashMap<String, String>();
+            Map<String, String> contextPathConfig = new HashMap<>();
+            Map<String, String> oldValue = profile.getConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID);
+            if (oldValue != null) {
+                contextPathConfig.putAll(oldValue);
             }
             String key = requirements.getGroupId() + "/" + requirements.getArtifactId();
             String current = contextPathConfig.get(key);
             if (!Objects.equal(current, webContextPath)) {
                 contextPathConfig.put(key, webContextPath);
-                profile.setConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID, contextPathConfig);
+                builder.addConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID, contextPathConfig);
             }
         }
         String description = requirements.getDescription();
@@ -222,12 +224,31 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
             String fileName = "Summary.md";
             byte[] data = profile.getFileConfiguration(fileName);
             if (data == null || data.length == 0 || new String(data).trim().length() == 0) {
-                profile.setConfigurationFile(fileName, description.getBytes());
+                builder.addFileConfiguration(fileName, description.getBytes());
             }
         }
     }
 
-    protected void addAll(List<String> list, List<String> values) {
+    /**
+     * Sets the list of parent profile IDs
+     */
+    private void setParentProfileIds(ProfileBuilder builder, Version version, Profile profile, List<String> parentProfileIds) {
+        List<Profile> list = new ArrayList<>();
+        for (String parentProfileId : parentProfileIds) {
+            Profile parentProfile = null;
+            if (version.hasProfile(parentProfileId)) {
+                parentProfile = version.getRequiredProfile(parentProfileId);
+            }
+            if (parentProfile != null) {
+                list.add(parentProfile);
+            } else {
+                LOG.warn("Could not find parent profile: " + parentProfileId + " in version " + version.getId());
+            }
+        }
+        builder.setParents(list);
+    }
+    
+    private void addAll(List<String> list, List<String> values) {
         if (list != null && values != null) {
             for (String value : values) {
                 if (!list.contains(value)) {
@@ -237,27 +258,24 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         }
     }
 
-    protected void removeAll(List<String> list, List<String> values) {
+    private void removeAll(List<String> list, List<String> values) {
         if (list != null && values != null) {
             list.removeAll(values);
         }
     }
 
-    protected DeployResults resolveProfileDeployments(ProjectRequirements requirements, FabricService fabric, Container container, Profile profile, Profile overlay) throws Exception {
+    private DeployResults resolveProfileDeployments(ProjectRequirements requirements, FabricService fabric, Profile profile, ProfileBuilder builder) throws Exception {
         DependencyDTO rootDependency = requirements.getRootDependency();
-
-        List<Feature> allFeatures = new ArrayList<Feature>();
-        for (String repoUri : overlay.getRepositories()) {
-            RepositoryImpl repo = new RepositoryImpl(URI.create(repoUri));
-            repo.load();
-            allFeatures.addAll(Arrays.asList(repo.getFeatures()));
-        }
+        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
 
         if (rootDependency != null) {
             // as a hack lets just add this bundle in
             LOG.info("Got root: " + rootDependency);
+            List<String> parentIds = profile.getParentIds();
+            Profile overlay = profileService.getOverlayProfile(profile);
 
             String bundleUrl = rootDependency.toBundleUrlWithType();
+            LOG.info("Using resolver to add extra features and bundles on " + bundleUrl);
 
             List<String> features = new ArrayList<String>();
             List<String> bundles = new ArrayList<String>();
@@ -273,43 +291,108 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
             bundles.add(bundleUrl);
             LOG.info("Adding bundle: " + bundleUrl);
 
-            for (DependencyDTO dependency : rootDependency.getChildren()) {
-                if ("test".equals(dependency.getScope()) || "provided".equals(dependency.getScope())) {
-                    continue;
-                }
-                if ("jar".equals(dependency.getType())) {
-                    String match = getAllServiceMixBundles().get(dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion());
-                    if (match != null) {
-                        LOG.info("Replacing artifact " + dependency + " with servicemix bundle " + match);
-                        String[] parts = match.split(":");
-                        dependency.setGroupId(parts[0]);
-                        dependency.setArtifactId(parts[1]);
-                        dependency.setVersion(parts[2]);
-                        dependency.setType("bundle");
+            // TODO we maybe should detect a karaf based container in a nicer way than this?
+            boolean isKarafContainer = parentIds.contains("karaf") || parentIds.contains("containers-karaf");
+            boolean addBundleDependencies = Objects.equal("bundle", rootDependency.getType()) || isKarafContainer;
+            if (addBundleDependencies && requirements.isUseResolver()) {
+
+                // lets build up a list of all current active features and bundles along with all discovered features
+                List<Feature> availableFeatures = new ArrayList<Feature>();
+                addAvailableFeaturesFromProfile(availableFeatures, fabric, overlay);
+
+                Set<String> currentBundleLocations = new HashSet<>();
+                currentBundleLocations.addAll(bundles);
+
+                // lets add the current features
+                DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, executorService);
+                Set<Feature> currentFeatures = AgentUtils.getFeatures(fabric, downloadManager, overlay);
+                addBundlesFromProfile(currentBundleLocations, overlay);
+
+                List<String> parentProfileIds = requirements.getParentProfiles();
+                if (parentProfileIds != null) {
+                    for (String parentProfileId : parentProfileIds) {
+                        Profile parentProfile = profileService.getProfile(profile.getVersion(), parentProfileId);
+                        Profile parentOverlay = profileService.getOverlayProfile(parentProfile);
+                        Set<Feature> parentFeatures = AgentUtils.getFeatures(fabric, downloadManager, parentOverlay);
+                        currentFeatures.addAll(parentFeatures);
+                        addAvailableFeaturesFromProfile(availableFeatures, fabric, parentOverlay);
+                        addBundlesFromProfile(currentBundleLocations, parentOverlay);
                     }
                 }
-                String prefix = dependency.toBundleUrlWithoutVersion();
-                List<Feature> matching = new ArrayList<>();
-                for (Feature feature : allFeatures) {
-                    for (BundleInfo bi : feature.getBundles()) {
-                        if (!bi.isDependency() && bi.getLocation().startsWith(prefix)) {
-                            matching.add(feature);
-                            break;
+
+                // lets add all known features from the known repositories
+                for (DependencyDTO dependency : rootDependency.getChildren()) {
+                    if ("test".equals(dependency.getScope()) || "provided".equals(dependency.getScope())) {
+                        continue;
+                    }
+                    if ("jar".equals(dependency.getType())) {
+                        String match = getAllServiceMixBundles().get(dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion());
+                        if (match != null) {
+                            LOG.info("Replacing artifact " + dependency + " with servicemix bundle " + match);
+                            String[] parts = match.split(":");
+                            dependency.setGroupId(parts[0]);
+                            dependency.setArtifactId(parts[1]);
+                            dependency.setVersion(parts[2]);
+                            dependency.setType("bundle");
+                        }
+                    }
+                    String prefix = dependency.toBundleUrlWithoutVersion();
+                    Feature feature = findFeatureWithBundleLocationPrefix(currentFeatures, prefix);
+                    if (feature != null) {
+                        LOG.info("Feature is already is in the profile " + feature.getId() + " for " + dependency.toBundleUrl() );
+                    } else {
+                        feature = findFeatureWithBundleLocationPrefix(availableFeatures, prefix);
+                        if (feature != null) {
+                            String name = feature.getName();
+                            if (features.contains(name)) {
+                                LOG.info("Feature is already added " + name + " for " + dependency.toBundleUrl() );
+                            } else {
+                                LOG.info("Found a matching feature for bundle " + dependency.toBundleUrl() + ": " + feature.getId());
+                                features.add(name);
+                            }
+                        } else {
+                            String bundleUrlWithType = dependency.toBundleUrlWithType();
+                            String foundBundleUri = findBundleUri(currentBundleLocations, prefix);
+                            if (foundBundleUri != null) {
+                                LOG.info("Bundle already included " + foundBundleUri + " for " + bundleUrlWithType);
+                            } else {
+                                boolean ignore = false;
+                                String bundleWithoutMvnPrefix = getMavenCoords(bundleUrlWithType);
+                                for (String ignoreBundlePrefix : RESOLVER_IGNORE_BUNDLE_PREFIXES) {
+                                    if (bundleWithoutMvnPrefix.startsWith(ignoreBundlePrefix)) {
+                                        ignore = true;
+                                        break;
+                                    }
+                                }
+                                if (ignore) {
+                                    LOG.info("Ignoring bundle: " + bundleUrlWithType);
+                                } else {
+                                    boolean optional = dependency.isOptional();
+                                    LOG.info("Adding " + (optional ? "optional " : "") + " bundle: " + bundleUrlWithType);
+                                    if (optional) {
+                                        optionals.add(bundleUrlWithType);
+                                    } else {
+                                        bundles.add(bundleUrlWithType);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-                if (matching.size() == 1) {
-                    LOG.info("Found a matching feature for bundle " + dependency.toBundleUrl() + ": " + matching.get(0).getId());
-                    features.add(matching.get(0).getName());
-                } else {
-                    LOG.info("Adding optional bundle: " + dependency.toBundleUrlWithType());
-                    optionals.add(dependency.toBundleUrlWithType());
-                }
+                // Modify the profile through the {@link ProfileBuilder}
+                builder.setOptionals(optionals).setFeatures(features);
             }
+            builder.setBundles(bundles);
+        }
 
-            profile.setBundles(bundles);
-            profile.setOptionals(optionals);
-            profile.setFeatures(features);
+        profile = profileService.updateProfile(builder.getProfile());
+
+        Integer minimumInstances = requirements.getMinimumInstances();
+        if (minimumInstances != null) {
+            FabricRequirements fabricRequirements = fabricService.get().getRequirements();
+            ProfileRequirements profileRequirements = fabricRequirements.getOrCreateProfileRequirement(profile.getId());
+            profileRequirements.setMinimumInstances(minimumInstances);
+            fabricService.get().setRequirements(fabricRequirements);
         }
 
         // lets find a hawtio profile and version
@@ -325,10 +408,74 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         return new DeployResults(profile, profileUrl);
     }
 
+    protected  String findBundleUri(Set<String> bundleLocations, String prefix) {
+        for (String bundleLocation : bundleLocations) {
+            if (bundleLocation.startsWith(prefix)) {
+                return bundleLocation;
+            }
+        }
+        return null;
+    }
+
+    protected void addBundlesFromProfile(Set<String> currentBundleUris, Profile overlay) {
+        List<String> bundles = overlay.getBundles();
+        if (bundles != null) {
+            currentBundleUris.addAll(bundles);
+        }
+    }
+
+    protected void addAvailableFeaturesFromProfile(Collection<Feature> allFeatures, FabricService fabric, Profile overlay) throws Exception {
+        for (String repoUriWithExpressions : overlay.getRepositories()) {
+            String repoUri = VersionPropertyPointerResolver.replaceVersions(fabric, overlay.getConfigurations(), repoUriWithExpressions);
+            RepositoryImpl repo = new RepositoryImpl(URI.create(repoUri));
+            repo.load();
+            allFeatures.addAll(Arrays.asList(repo.getFeatures()));
+        }
+    }
+
+    protected Feature findFeatureWithBundleLocationPrefix(Iterable<Feature> allFeatures, String prefix) {
+        // lets try to find the feature ignoring any dependencies to try find the closest match
+        Feature feature = findFeatureWithBundleLocationPrefix(allFeatures, prefix, false);
+        if (feature == null) {
+            feature = findFeatureWithBundleLocationPrefix(allFeatures, prefix, true);
+        }
+        return feature;
+    }
+
+    protected Feature findFeatureWithBundleLocationPrefix(Iterable<Feature> allFeatures, String prefix, boolean includeDependencies) {
+        for (Feature feature : allFeatures) {
+            Feature matchedFeature = featureMatchesBundleLocationPrefix(feature, prefix, feature, includeDependencies);
+            if (matchedFeature != null) {
+                return matchedFeature;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the owningFeature if this feature or any of its dependent features contains a bundle matching the prefix location or null if there is no match
+     */
+    protected Feature featureMatchesBundleLocationPrefix(Feature feature, String prefix, Feature owningFeature, boolean includeDependencies) {
+        for (BundleInfo bi : feature.getBundles()) {
+            if (!bi.isDependency() && bi.getLocation().startsWith(prefix)) {
+                return owningFeature;
+            }
+        }
+        if (includeDependencies) {
+            for (Feature dependency: feature.getDependencies()) {
+                Feature answer = featureMatchesBundleLocationPrefix(dependency, prefix, owningFeature, true);
+                if (answer != null) {
+                    return answer;
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Finds a hawtio URL in the fabric
      */
-    protected String findHawtioUrl(FabricService fabric) {
+    private String findHawtioUrl(FabricService fabric) {
         Container[] containers = null;
         try {
             containers = fabric.getContainers();
@@ -367,79 +514,68 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         this.fabricService.unbind(fabricService);
     }
 
-    public FabricService getFabricService() {
-        return fabricService.get();
-    }
-
     // Implementation methods
     //-------------------------------------------------------------------------
 
-    protected Profile getOrCreateProfile(Version version, ProjectRequirements requirements) {
+    private Profile getOrCreateProfile(Version version, ProjectRequirements requirements) {
         String profileId = getProfileId(requirements);
         if (Strings.isEmpty(profileId)) {
             throw new IllegalArgumentException("No profile ID could be deduced for requirements: " + requirements);
         }
+        Profile profile;
         if (!version.hasProfile(profileId)) {
-            version.createProfile(profileId);
             LOG.info("Creating new profile " + profileId + " version " + version + " for requirements: " + requirements);
+            String versionId = version.getId();
+            ProfileService profileService = fabricService.get().adapt(ProfileService.class);
+            ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
+            profile = profileService.createProfile(builder.getProfile());
         } else {
-            LOG.info("Updating profile " + profileId + " version " + version + " for requirements: " + requirements);
+            profile = version.getRequiredProfile(profileId);
         }
-        Profile profile = version.getProfile(profileId);
-        Objects.notNull(profile, "Profile could not be created");
         return profile;
     }
 
-    protected Version getOrCreateVersion(ProjectRequirements requirements) {
-        FabricService fabric = getFabricService();
+    private Version getOrCreateVersion(ProjectRequirements requirements) {
+        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
         String versionId = getVersionId(requirements);
-        Version version = findVersion(fabric, versionId);
+        Version version = findVersion(fabricService.get(), versionId);
         if (version == null) {
-            String baseVersionId = requirements.getBaseVersion();
-            baseVersionId = getVersionOrDefaultVersion(fabric, baseVersionId);
-            Version baseVersion = findVersion(fabric, baseVersionId);
+            String baseId = requirements.getBaseVersion();
+            baseId = getVersionOrDefaultVersion(fabricService.get(), baseId);
+            Version baseVersion = findVersion(fabricService.get(), baseId);
             if (baseVersion != null) {
-                version = fabric.createVersion(baseVersion, versionId);
+                version = profileService.createVersion(baseVersion.getId(), versionId, null);
             } else {
-                version = fabric.createVersion(versionId);
+                version = VersionBuilder.Factory.create(versionId).getVersion();
+                version = profileService.createVersion(version);
             }
         }
         return version;
     }
 
-    protected Version findVersion(FabricService fabric, String versionId) {
-        Version version = null;
-        try {
-            version = fabric.getVersion(versionId);
-        } catch (Exception e) {
-            LOG.debug("Ignoring error looking up version " + versionId + ". It probably doesn't exist yet: " + e, e);
-        }
-        return version;
+    private Version findVersion(FabricService fabricService, String versionId) {
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        return profileService.getVersion(versionId);
     }
 
 
-    protected String getVersionId(ProjectRequirements requirements) {
-        FabricService fabric = getFabricService();
+    private String getVersionId(ProjectRequirements requirements) {
         String version = requirements.getVersion();
-        return getVersionOrDefaultVersion(fabric, version);
+        return getVersionOrDefaultVersion(fabricService.get(), version);
     }
 
-    private String getVersionOrDefaultVersion(FabricService fabric, String version) {
-        if (Strings.isEmpty(version)) {
-            Version defaultVersion = fabric.getDefaultVersion();
-            if (defaultVersion != null) {
-                version = defaultVersion.getId();
-            }
-            if (Strings.isEmpty(version)) {
-                version = "1.0";
+    private String getVersionOrDefaultVersion(FabricService fabricService, String versionId) {
+        if (Strings.isEmpty(versionId)) {
+            versionId = fabricService.getDefaultVersionId();
+            if (Strings.isEmpty(versionId)) {
+                versionId = "1.0";
             }
         }
-        return version;
+        return versionId;
     }
 
 
-    protected String getProfileId(ProjectRequirements requirements) {
-        FabricService fabric = getFabricService();
+    private String getProfileId(ProjectRequirements requirements) {
         String profileId = requirements.getProfileId();
         if (Strings.isEmpty(profileId)) {
             // lets generate a project based on the group id / artifact id
@@ -458,19 +594,17 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     }
 
 
-    protected ProjectRequirements writeRequirementsJson(ProjectRequirements requirements, Profile profile) throws IOException {
+    private ProjectRequirements writeRequirementsJson(ProjectRequirements requirements, Profile profile, ProfileBuilder builder) throws IOException {
         ObjectMapper mapper = DtoHelper.getMapper();
         byte[] json = mapper.writeValueAsBytes(requirements);
-        String name = DtoHelper.getRequirementsConfigFileName(requirements);
+        String fileName = DtoHelper.getRequirementsConfigFileName(requirements);
 
         // lets read the previous requirements if there are any
-        DataStore dataStore = getFabricService().getDataStore();
-        String version = profile.getVersion();
-        String profileId = profile.getId();
-        byte[] oldData = dataStore.getFileConfiguration(version, profileId, name);
+        ProfileRegistry profileRegistry = fabricService.get().adapt(ProfileRegistry.class);
+        byte[] oldData = profile.getFileConfiguration(fileName);
 
-        LOG.info("Writing file " + name + " to profile " + profile);
-        dataStore.setFileConfiguration(version, profileId, name, json);
+        LOG.info("Writing file " + fileName + " to profile " + profile);
+        builder.addFileConfiguration(fileName, json);
 
         if (oldData == null || oldData.length == 0) {
             return null;

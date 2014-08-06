@@ -21,17 +21,25 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 import java.util.regex.Matcher;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.AbstractRuntimeProperties;
 
+import io.fabric8.deployer.ProjectDeployer;
 import org.apache.commons.io.FileUtils;
 import org.easymock.EasyMock;
 import org.eclipse.jetty.server.Handler;
@@ -51,12 +59,14 @@ import static org.junit.Assert.*;
 public class MavenProxyServletSupportTest {
 
     private RuntimeProperties runtimeProperties;
+    private ProjectDeployer projectDeployer;
     private MavenProxyServletSupport servlet;
 
     @Before
     public void setUp() {
         runtimeProperties = EasyMock.createMock(RuntimeProperties.class);
-        servlet = new MavenDownloadProxyServlet(runtimeProperties, null, null, false, null,null,null,null,0,null, null, null);
+        projectDeployer = EasyMock.createMock(ProjectDeployer.class);
+        servlet = new MavenDownloadProxyServlet(runtimeProperties, null, null, false, null,null,null,null,0,null, null, null, projectDeployer);
     }
 
     @After
@@ -181,7 +191,7 @@ public class MavenProxyServletSupportTest {
         String old = System.getProperty("karaf.data");
         System.setProperty("karaf.data", new File("target").getCanonicalPath());
         try {
-            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(runtimeProperties, System.getProperty("java.io.tmpdir"), null, false, null,null,null,null,0,null, null, null);
+            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(runtimeProperties, System.getProperty("java.io.tmpdir"), null, false, null,null,null,null,0,null, null, null, projectDeployer);
             servlet.start();
         } finally {
             if (old != null) {
@@ -225,7 +235,7 @@ public class MavenProxyServletSupportTest {
     }
 
     private void testDownload(Handler serverHandler) throws Exception {
-        String old = System.getProperty("karaf.data");
+        final String old = System.getProperty("karaf.data");
         System.setProperty("karaf.data", new File("target").getCanonicalPath());
         FileUtils.deleteDirectory(new File("target/tmp"));
 
@@ -237,7 +247,7 @@ public class MavenProxyServletSupportTest {
             int localPort = server.getConnectors()[0].getLocalPort();
             List<String> remoteRepos = Arrays.asList("http://relevant.not/maven2@id=central");
             RuntimeProperties props = new MockRuntimeProperties();
-            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(props, "target/tmp", remoteRepos, false, "always", "warn", "http", "localhost", localPort, "fuse", "fuse", null);
+            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(props, "target/tmp", remoteRepos, false, "always", "warn", "http", "localhost", localPort, "fuse", "fuse", null, projectDeployer);
 
             HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
             EasyMock.expect(request.getPathInfo()).andReturn("org.apache.camel/camel-core/2.13.0/camel-core-2.13.0-sources.jar");
@@ -273,6 +283,193 @@ public class MavenProxyServletSupportTest {
             Assert.assertArrayEquals(new byte[] { 0x42 }, baos.toByteArray());
 
             EasyMock.verify(request, response);
+        } finally {
+            server.stop();
+            if (old != null) {
+                System.setProperty("karaf.data", old);
+            }
+        }
+    }
+
+    @Test
+    public void testJarUploadFullMvnPath() throws Exception {
+        String jarPath = "org.acme/acme-core/1.0/acme-core-1.0.jar";
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        JarOutputStream jas = new JarOutputStream(baos);
+        addEntry(jas, "hello.txt", "Hello!".getBytes());
+        jas.close();
+
+        byte[] contents = baos.toByteArray();
+
+        testUpload(jarPath, contents, false);
+    }
+
+    @Test
+    public void testJarUploadWithMvnPom() throws Exception {
+        String jarPath = "org.acme/acme-core/1.0/acme-core-1.0.jar";
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        JarOutputStream jas = new JarOutputStream(baos);
+        addEntry(jas, "hello.txt", "Hello!".getBytes());
+        addPom(jas, "org.acme", "acme-core", "1.0");
+        jas.close();
+
+        byte[] contents = baos.toByteArray();
+
+        testUpload(jarPath, contents, false);
+    }
+
+    @Test
+    public void testJarUploadNoMvnPath() throws Exception {
+        String jarPath = "acme-core-1.0.jar";
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        JarOutputStream jas = new JarOutputStream(baos);
+        addEntry(jas, "hello.txt", "Hello!".getBytes());
+        jas.close();
+
+        byte[] contents = baos.toByteArray();
+        testUpload(jarPath, contents, true);
+    }
+
+    @Test
+    public void testWarUploadFullMvnPath() throws Exception {
+        String warPath = "org.acme/acme-ui/1.0/acme-ui-1.0.war";
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        JarOutputStream jas = new JarOutputStream(baos);
+        addEntry(jas, "WEB-INF/web.xml", "<web/>".getBytes());
+        jas.close();
+
+        byte[] contents = baos.toByteArray();
+
+        testUpload(warPath, contents, false);
+    }
+
+    @Test
+    public void testWarUploadWithMvnPom() throws Exception {
+        String warPath = "org.acme/acme-ui/1.0/acme-ui-1.0.war";
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        JarOutputStream jas = new JarOutputStream(baos);
+        addEntry(jas, "WEB-INF/web.xml", "<web/>".getBytes());
+        addPom(jas, "org.acme", "acme-ui", "1.0");
+        jas.close();
+
+        byte[] contents = baos.toByteArray();
+
+        testUpload(warPath, contents, false);
+    }
+
+    @Test
+    public void testWarUploadNoMvnPath() throws Exception {
+        String warPath = "acme-ui-1.0.war";
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        JarOutputStream jas = new JarOutputStream(baos);
+        addEntry(jas, "WEB-INF/web.xml", "<web/>".getBytes());
+        jas.close();
+
+        byte[] contents = baos.toByteArray();
+
+        testUpload(warPath, contents, true);
+    }
+
+    private static void addEntry(JarOutputStream jas, String name, byte[] content) throws Exception {
+        JarEntry entry = new JarEntry(name);
+        jas.putNextEntry(entry);
+        if (content != null) {
+            jas.write(content);
+        }
+        jas.closeEntry();
+    }
+
+    private static void addPom(JarOutputStream jas, String groupId, String artifactId, String version) throws Exception {
+        Properties properties = new Properties();
+        properties.setProperty("groupId", groupId);
+        properties.setProperty("artifactId", artifactId);
+        properties.setProperty("version", version);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        properties.store(baos, null);
+        addEntry(jas, String.format("META-INF/maven/%s/%s/%s/pom.properties", groupId, artifactId, version), baos.toByteArray());
+    }
+
+    private Map<String, String> testUpload(String path, final byte[] contents, boolean hasLocationHeader) throws Exception {
+        return testUpload(path, contents, null, hasLocationHeader);
+    }
+
+    private Map<String, String> testUpload(String path, final byte[] contents, String location, boolean hasLocationHeader) throws Exception {
+        return testUpload(path, contents, location, null, null, hasLocationHeader);
+    }
+
+    private Map<String, String> testUpload(String path, final byte[] contents, String location, String profile, String version, boolean hasLocationHeader) throws Exception {
+        final String old = System.getProperty("karaf.data");
+        System.setProperty("karaf.data", new File("target").getCanonicalPath());
+        FileUtils.deleteDirectory(new File("target/tmp"));
+
+        Server server = new Server(0);
+        server.setHandler(new AbstractHandler() {
+            @Override
+            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            }
+        });
+        server.start();
+
+        try {
+            int localPort = server.getConnectors()[0].getLocalPort();
+            List<String> remoteRepos = Arrays.asList("http://relevant.not/maven2@id=central");
+            RuntimeProperties props = new MockRuntimeProperties();
+            MavenUploadProxyServlet servlet = new MavenUploadProxyServlet(props, "target/tmp", remoteRepos, false, "always", "warn", "http", "localhost", localPort, "fuse", "fuse", null, projectDeployer);
+
+            HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+            EasyMock.expect(request.getPathInfo()).andReturn(path);
+            EasyMock.expect(request.getInputStream()).andReturn(new ServletInputStream() {
+                private int i;
+
+                @Override
+                public int read() throws IOException {
+                    if (i >= contents.length) {
+                        return -1;
+                    }
+                    return (contents[i++] & 0xFF);
+                }
+            });
+            EasyMock.expect(request.getHeader("X-Location")).andReturn(location);
+            EasyMock.expect(request.getParameter("profile")).andReturn(profile);
+            EasyMock.expect(request.getParameter("version")).andReturn(version);
+
+            final Map<String, String> headers = new HashMap<>();
+
+            HttpServletResponse rm = EasyMock.createMock(HttpServletResponse.class);
+            HttpServletResponse response = new HttpServletResponseWrapper(rm) {
+                @Override
+                public void addHeader(String name, String value) {
+                    headers.put(name, value);
+                }
+            };
+            response.setStatus(EasyMock.anyInt());
+            EasyMock.expectLastCall().anyTimes();
+            response.setContentLength(EasyMock.anyInt());
+            EasyMock.expectLastCall().anyTimes();
+            response.setContentType((String) EasyMock.anyObject());
+            EasyMock.expectLastCall().anyTimes();
+            response.setDateHeader((String) EasyMock.anyObject(), EasyMock.anyLong());
+            EasyMock.expectLastCall().anyTimes();
+            response.setHeader((String) EasyMock.anyObject(), (String) EasyMock.anyObject());
+            EasyMock.expectLastCall().anyTimes();
+
+            EasyMock.replay(request, rm);
+
+            servlet.start();
+            servlet.doPut(request, response);
+
+            EasyMock.verify(request, rm);
+
+            Assert.assertEquals(hasLocationHeader, headers.containsKey("X-Location"));
+
+            return headers;
         } finally {
             server.stop();
             if (old != null) {

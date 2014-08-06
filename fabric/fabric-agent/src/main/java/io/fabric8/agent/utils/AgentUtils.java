@@ -39,10 +39,12 @@ import io.fabric8.agent.download.FutureListener;
 import io.fabric8.agent.mvn.Parser;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
 import io.fabric8.common.util.MultiException;
 import io.fabric8.common.util.Strings;
 import io.fabric8.service.VersionPropertyPointerResolver;
 import io.fabric8.utils.features.FeatureUtils;
+
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
@@ -71,9 +73,14 @@ public class AgentUtils {
 
     public static Map<String, Parser> getProfileArtifacts(FabricService fabricService, DownloadManager downloadManager, Profile profile, Callback<String> callback) throws Exception {
         List<String> bundles = profile.getBundles();
+        Set<Feature> features = getFeatures(fabricService, downloadManager, profile);
+        return getProfileArtifacts(fabricService, profile, bundles, features, callback);
+    }
+
+    public static Set<Feature> getFeatures(FabricService fabricService, DownloadManager downloadManager, Profile profile) throws Exception {
         Set<Feature> features = new HashSet<Feature>();
         addFeatures(features, fabricService, downloadManager, profile);
-        return getProfileArtifacts(fabricService, profile, bundles, features, callback);
+        return features;
     }
 
 
@@ -131,7 +138,9 @@ public class AgentUtils {
         for (String location : locations) {
             try {
                 if (location.contains("$")) {
-                    location = VersionPropertyPointerResolver.replaceVersions(fabricService, profile.getOverlay().getConfigurations(), location);
+                    ProfileService profileService = fabricService.adapt(ProfileService.class);
+                    Profile overlay = profileService.getOverlayProfile(profile);
+					location = VersionPropertyPointerResolver.replaceVersions(fabricService, overlay.getConfigurations(), location);
                 }
                 if (location.startsWith("mvn:") || location.contains(":mvn:")) {
                     Parser parser = Parser.parsePathWithSchemePrefix(location);
@@ -239,8 +248,7 @@ public class AgentUtils {
      */
     public static Map<String, File> downloadProfileArtifacts(FabricService fabricService, DownloadManager downloadManager, Profile profile) throws Exception {
         List<String> bundles = profile.getBundles();
-        Set<Feature> features = new HashSet<Feature>();
-        addFeatures(features, fabricService, downloadManager, profile);
+        Set<Feature> features = getFeatures(fabricService, downloadManager, profile);
         return downloadBundles(downloadManager, features, bundles, Collections.EMPTY_SET);
     }
 

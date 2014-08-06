@@ -33,9 +33,6 @@
     <properties>
         <fuse.osgi.export>
             io.fabric8.rest;version="${project.version}",
-            org.jolokia.osgi.servlet;uses:="org.osgi.service.http,org.osgi.framework,javax.servlet";version="${jolokia-version}",
-            org.jolokia.restrictor;uses:="javax.management,javax.xml.parsers,org.w3c.dom,org.xml.sax";version="${jolokia-version}",
-            org.jolokia.util;version="${jolokia-version}",
         </fuse.osgi.export>
         <fuse.osgi.import>
             org.osgi.framework;version="[1.0.0,2.0.0)",
@@ -44,7 +41,6 @@
             org.osgi.util.tracker;version="[1.0.0,2.0.0)",
             *
         </fuse.osgi.import>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>

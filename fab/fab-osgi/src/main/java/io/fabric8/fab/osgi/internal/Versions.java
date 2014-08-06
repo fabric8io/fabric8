@@ -15,7 +15,8 @@
  */
 package io.fabric8.fab.osgi.internal;
 
-import aQute.lib.osgi.Analyzer;
+import aQute.bnd.header.Parameters;
+import aQute.bnd.osgi.Analyzer;
 import org.apache.aries.util.VersionRange;
 import org.apache.felix.utils.version.VersionCleaner;
 import org.apache.felix.utils.version.VersionTable;
@@ -90,7 +91,7 @@ public class Versions {
         if (dependency.isBundle()) {
             String exportPackages = dependency.getManifestEntry("Export-Package");
             if (notEmpty(exportPackages)) {
-                Map<String, Map<String, String>> values = new Analyzer().parseHeader(exportPackages);
+                Parameters values = new Analyzer().parseHeader(exportPackages);
                 Map<String, String> map = values.get(packageName);
                 if (map != null) {
                     String version = map.get("version");

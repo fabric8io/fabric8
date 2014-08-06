@@ -17,10 +17,8 @@
  */
 package org.jboss.arquillian.container.fabric8.remote;
 
-import io.fabric8.common.util.Strings;
 import io.fabric8.testkit.FabricAssertions;
 import io.fabric8.testkit.FabricController;
-import io.fabric8.testkit.FabricControllerManager;
 import io.fabric8.testkit.support.CommandLineFabricControllerManager;
 import io.fabric8.testkit.support.FabricControllerManagerSupport;
 import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
@@ -28,17 +26,11 @@ import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.spi.client.protocol.ProtocolDescription;
 import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaData;
-import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
-import org.jboss.arquillian.test.spi.TestClass;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Creates a fabric8 container using a remote process using a distribution of fabric8 and running a shell
