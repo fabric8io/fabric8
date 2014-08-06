@@ -80,19 +80,14 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
         
         LOGGER.info("Performing a pull on remote URL: {}", remoteUrl);
         
-        int retries = 5;
         GitAPIException lastException = null;
-        while (0 < retries--) {
+        for (int i = 0; i < 3; i++) {
             try {
                 git.fetch().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setRemote(remoteRef).call();
                 lastException = null;
-                retries = 0;
+                break;
             } catch (GitAPIException ex) {
                 lastException = ex;
-                try {
-                    Thread.sleep(1000L);
-                } catch (InterruptedException ignored) {
-                }
             }
         }
 
@@ -218,20 +213,15 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
 
         LOGGER.info("Pushing last change to: {}", remoteUrl);
         
-        int retries = 5;
         Iterator<PushResult> resit = null;
         GitAPIException lastException = null;
-        while (0 < retries--) {
+        for (int i = 0; i < 3; i++) {
             try {
                 resit = git.push().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setPushAll().call().iterator();
                 lastException = null;
-                retries = 0;
+                break;
             } catch (GitAPIException ex) {
                 lastException = ex;
-                try {
-                    Thread.sleep(1000L);
-                } catch (InterruptedException ignored) {
-                }
             }
         }
         
@@ -270,7 +260,7 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
                 Ref fetchRef = fetchResult.getAdvertisedRef("refs/heads/" + branch);
                 git.branchRename().setOldName(branch).setNewName(branch + "-tmp").call();
                 git.checkout().setCreateBranch(true).setName(branch).setStartPoint(fetchRef.getObjectId().getName()).call();
-                git.branchDelete().setBranchNames(branch + "-tmp").call();
+                git.branchDelete().setBranchNames(branch + "-tmp").setForce(true).call();
             } catch (GitAPIException ex) {
                 LOGGER.warn("Cannot reset branch {}, because of: {}", branch, ex.toString());
             }

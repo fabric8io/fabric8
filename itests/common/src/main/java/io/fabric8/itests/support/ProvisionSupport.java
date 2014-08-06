@@ -47,7 +47,7 @@ import org.jboss.gravia.runtime.ServiceLocator;
 
 public class ProvisionSupport {
 
-    public static final Long PROVISION_TIMEOUT = 60000L;
+    public static final Long PROVISION_TIMEOUT = TimeUnit.SECONDS.toMillis(120);
     
     private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
 

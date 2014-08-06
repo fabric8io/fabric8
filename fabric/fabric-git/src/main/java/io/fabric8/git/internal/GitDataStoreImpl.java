@@ -131,7 +131,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
     private static final int GIT_COMMIT_SHORT_LENGTH = 7;
     private static final int MAX_COMMITS_WITHOUT_GC = 40;
-    private static final long AQUIRE_LOCK_TIMEOUT = 20 * 1000L;
+    private static final long AQUIRE_LOCK_TIMEOUT = 25 * 1000L;
 
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<>();
@@ -167,7 +167,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Property(name = "configuredUrl", label = "External Git Repository URL", description = "The URL to a fixed external git repository")
     private String configuredUrl;
     @Property(name = "gitTimeout", label = "Timeout", description = "Timeout connecting to remote git server (value in seconds)")
-    private int gitTimeout = 10;
+    private int gitTimeout = 5;
     @Property(name = "importDir", label = "Import Directory", description = "Directory to import additional profiles", value = "fabric")
     private String importDir = "fabric";
 
