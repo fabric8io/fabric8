@@ -35,6 +35,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.ContainerAutoScalerFactory;
 import io.fabric8.api.ContainerProvider;
+import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.Containers;
 import io.fabric8.api.CreateContainerBasicMetadata;
 import io.fabric8.api.CreateContainerBasicOptions;
@@ -155,6 +156,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     private VersionPropertyPointerResolver versionPropertyPointerResolver;
     @Reference
     private ZookeeperPlaceholderResolver zookeeperPlaceholderResolver;
+    @Reference
+    private ContainerRegistration containerRegistration;
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
