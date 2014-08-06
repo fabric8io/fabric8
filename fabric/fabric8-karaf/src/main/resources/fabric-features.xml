@@ -90,6 +90,8 @@ org/apache/karaf/admin/org.apache.karaf.admin.management/2.4.0.redhat-620004/org
 
         <bundle>mvn:org.apache.karaf.service/org.apache.karaf.service.guard/${karaf-version}</bundle>
 
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.scr/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.scr/${karaf-version}</bundle>
 
         <!-- TODO: Either decouple diagonstic common from org.apache.karaf.features or provide a dummy FeatureServiceImpl.
              Till then we need to comment this out.-->
