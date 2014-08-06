@@ -68,7 +68,6 @@
         <module>fabric-groovy</module>
         <module>fabric-groups</module>
         <module>fabric-jaas</module>
-        <module>fabric-jolokia</module>
         <module>fabric-ldap</module>
         <module>fabric-maven-proxy</module>
         <module>fabric-openshift</module>
