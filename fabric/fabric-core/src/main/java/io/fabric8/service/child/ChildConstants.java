@@ -51,4 +51,9 @@ public class ChildConstants {
      * The PID of the context paths; mapping of group/artifact id -> context path mappings
      */
     public static final String WEB_CONTEXT_PATHS_PID = "io.fabric8.web.contextPath";
+
+    /**
+     * The PID of the system properties used for the Java Container
+     */
+    public static final String SYSTEM_PROPERTIES_PID = "io.fabric8.system";
 }
