@@ -49,6 +49,7 @@
   * [Spring framework](spring.md)
 * [FAQ](FAQ.md)
   * [General Questions](faqGeneral.md)
-  * [Configuration Questions](faqConfig.md)
   * [Questions On Using Fabric8](faqUsing.md)
+  * [Questions on OSGi and Fabric8](faqOsgi.md)
+  * [Configuration Questions](faqConfig.md)
   * [Known Issues](faqIssues.md)
