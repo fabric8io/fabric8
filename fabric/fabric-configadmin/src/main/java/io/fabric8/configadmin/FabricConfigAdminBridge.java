@@ -17,7 +17,6 @@ package io.fabric8.configadmin;
 
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
-import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
@@ -68,8 +67,6 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
-    @Reference(referenceInterface = ContainerRegistration.class)
-    private final ValidatingReference<ContainerRegistration> containerRegistration = new ValidatingReference<ContainerRegistration>();
     @Reference(referenceInterface = URLStreamHandlerService.class, target = "(url.handler.protocol=profile)")
     private final ValidatingReference<URLStreamHandlerService> urlHandler = new ValidatingReference<URLStreamHandlerService>();
 
@@ -246,14 +243,6 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.unbind(service);
-    }
-
-    void bindContainerRegistration(ContainerRegistration service) {
-        this.containerRegistration.bind(service);
-    }
-
-    void unbindContainerRegistration(ContainerRegistration service) {
-        this.containerRegistration.unbind(service);
     }
 
     void bindFabricService(FabricService fabricService) {
