@@ -44,7 +44,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 
 /**

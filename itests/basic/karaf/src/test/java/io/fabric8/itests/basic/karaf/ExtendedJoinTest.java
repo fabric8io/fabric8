@@ -100,11 +100,11 @@ public class ExtendedJoinTest {
             AdminService adminService = ServiceLocator.awaitService(AdminService.class);
             String version = System.getProperty("fabric.version");
             System.out.println(CommandSupport.executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands basic.cntD"));
-            System.out.println(CommandSupport.executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands basic.cntF"));
+            System.out.println(CommandSupport.executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands basic.cntE"));
             try {
                 System.out.println(CommandSupport.executeCommand("admin:start basic.cntD"));
-                System.out.println(CommandSupport.executeCommand("admin:start basic.cntF"));
-                ProvisionSupport.instanceStarted(Arrays.asList("basic.cntD", "basic.cntF"), ProvisionSupport.PROVISION_TIMEOUT);
+                System.out.println(CommandSupport.executeCommand("admin:start basic.cntE"));
+                ProvisionSupport.instanceStarted(Arrays.asList("basic.cntD", "basic.cntE"), ProvisionSupport.PROVISION_TIMEOUT);
                 System.out.println(CommandSupport.executeCommand("admin:list"));
                 String joinCommand = "fabric:join -f --zookeeper-password "+ fabricService.getZookeeperPassword() +" " + fabricService.getZookeeperUrl();
 
@@ -115,23 +115,23 @@ public class ExtendedJoinTest {
                 }
                 response = "";
                 for (int i = 0; i < 10 && !response.contains("true"); i++) {
-                    response = CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("basic.cntF").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE);
+                    response = CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("basic.cntE").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE);
                     Thread.sleep(1000);
                 }
 
                 System.err.println(CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("basic.cntD").getSshPort() + " localhost " + joinCommand));
-                System.err.println(CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("basic.cntF").getSshPort() + " localhost " + joinCommand));
-                ProvisionSupport.containersExist(Arrays.asList("basic.cntD", "basic.cntF"), ProvisionSupport.PROVISION_TIMEOUT);
+                System.err.println(CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("basic.cntE").getSshPort() + " localhost " + joinCommand));
+                ProvisionSupport.containersExist(Arrays.asList("basic.cntD", "basic.cntE"), ProvisionSupport.PROVISION_TIMEOUT);
                 Container cntD = fabricService.getContainer("basic.cntD");
-                Container cntF = fabricService.getContainer("basic.cntF");
-                ProvisionSupport.containerStatus(Arrays.asList(cntD, cntF), "success", ProvisionSupport.PROVISION_TIMEOUT);
-                EnsembleSupport.addToEnsemble(fabricService, cntD, cntF);
+                Container cntE = fabricService.getContainer("basic.cntE");
+                ProvisionSupport.containerStatus(Arrays.asList(cntD, cntE), "success", ProvisionSupport.PROVISION_TIMEOUT);
+                EnsembleSupport.addToEnsemble(fabricService, cntD, cntE);
                 System.out.println(CommandSupport.executeCommand("fabric:container-list"));
-                EnsembleSupport.removeFromEnsemble(fabricService, cntD, cntF);
+                EnsembleSupport.removeFromEnsemble(fabricService, cntD, cntE);
                 System.out.println(CommandSupport.executeCommand("fabric:container-list"));
             } finally {
                 System.out.println(CommandSupport.executeCommand("admin:stop basic.cntD"));
-                System.out.println(CommandSupport.executeCommand("admin:stop basic.cntF"));
+                System.out.println(CommandSupport.executeCommand("admin:stop basic.cntE"));
             }
         } finally {
             fabricProxy.close();
