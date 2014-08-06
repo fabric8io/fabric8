@@ -81,14 +81,10 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
         LOGGER.info("Performing a pull on remote URL: {}", remoteUrl);
         
         GitAPIException lastException = null;
-        for (int i = 0; i < 3; i++) {
-            try {
-                git.fetch().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setRemote(remoteRef).call();
-                lastException = null;
-                break;
-            } catch (GitAPIException ex) {
-                lastException = ex;
-            }
+        try {
+            git.fetch().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setRemote(remoteRef).call();
+        } catch (GitAPIException ex) {
+            lastException = ex;
         }
 
         // No meaningful processing after GitAPIException
@@ -215,14 +211,10 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
         
         Iterator<PushResult> resit = null;
         GitAPIException lastException = null;
-        for (int i = 0; i < 3; i++) {
-            try {
-                resit = git.push().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setPushAll().call().iterator();
-                lastException = null;
-                break;
-            } catch (GitAPIException ex) {
-                lastException = ex;
-            }
+        try {
+            resit = git.push().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setPushAll().call().iterator();
+        } catch (GitAPIException ex) {
+            lastException = ex;
         }
         
         // Allow the commit to stay in the repository in case of push failure
