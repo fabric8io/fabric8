@@ -136,9 +136,9 @@ public class ExtendedCreateChildContainerTest {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            Set<Container> containers = ContainerBuilder.child(1).withName("basic.cntB").assertProvisioningResult().build(fabricService);
+            Set<Container> containers = ContainerBuilder.child(1).withName("basic.cntC").assertProvisioningResult().build(fabricService);
             try {
-                Container cntB = containers.iterator().next();
+                Container cntC = containers.iterator().next();
                 System.out.println(
                         CommandSupport.executeCommands(
                                 "jaas:manage --realm karaf --module io.fabric8.jaas.ZookeeperLoginModule",
@@ -148,9 +148,9 @@ public class ExtendedCreateChildContainerTest {
                                 "jaas:update"
                         )
                 );
-                System.out.println(CommandSupport.executeCommand("fabric:container-stop --user admin --password newpassword " + cntB.getId()));
+                System.out.println(CommandSupport.executeCommand("fabric:container-stop --user admin --password newpassword " + cntC.getId()));
                 ProvisionSupport.containersAlive(containers, false, ProvisionSupport.PROVISION_TIMEOUT);
-                containers.remove(cntB);
+                containers.remove(cntC);
             } finally {
                 ContainerBuilder.stop(fabricService, containers);
             }
