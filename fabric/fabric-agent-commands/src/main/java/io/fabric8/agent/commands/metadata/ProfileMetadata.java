@@ -33,6 +33,7 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.JMXUtils;
 import io.fabric8.common.util.Objects;
 import org.apache.felix.metatype.AD;
+import org.apache.felix.metatype.Designate;
 import org.apache.felix.metatype.MetaData;
 import org.apache.felix.metatype.MetaDataReader;
 import org.apache.felix.metatype.OCD;
@@ -191,7 +192,7 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
                             File pidFolder = new File(metaTypeFolder, pid);
                             File xmlFile = new File(pidFolder, "metatype.xml");
                             File propertiesFile = new File(pidFolder, "metatype.properties");
-                            addMetaTypeInformation(handler, xmlFile, propertiesFile);
+                            addMetaTypeInformation(handler, pid, xmlFile, propertiesFile);
                         }
                     }
                 }
@@ -206,7 +207,7 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
             @Override
             public void invoke(MetaData metadata, Properties resources) {
                 Map<String, Object> map = metadata.getDesignates();
-                Map<String,Object> objects = metadata.getObjectClassDefinitions();
+                Map<String, Object> objects = metadata.getObjectClassDefinitions();
                 Set<Map.Entry<String, Object>> entries = map.entrySet();
                 for (Map.Entry<String, Object> entry : entries) {
                     String aPid = entry.getKey();
@@ -230,16 +231,18 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
 
         List<MetaTypeAttributeDTO> attributeList = new ArrayList<>();
 
-        Map<String,Object> attributes = ocd.getAttributeDefinitions();
-        Set<Map.Entry<String, Object>> entries = attributes.entrySet();
-        for (Map.Entry<String, Object> entry : entries) {
-            String name = entry.getKey();
-            Object value = entry.getValue();
-            if (value instanceof AD) {
-                AD ad = (AD) value;
-                MetaTypeAttributeDTO attributeDTO = createMetaTypeAttributeDTO(resources, ocd, name, ad);
-                if (attributeDTO != null) {
-                    attributeList.add(attributeDTO);
+        Map<String, Object> attributes = ocd.getAttributeDefinitions();
+        if (attributes != null) {
+            Set<Map.Entry<String, Object>> entries = attributes.entrySet();
+            for (Map.Entry<String, Object> entry : entries) {
+                String name = entry.getKey();
+                Object value = entry.getValue();
+                if (value instanceof AD) {
+                    AD ad = (AD) value;
+                    MetaTypeAttributeDTO attributeDTO = createMetaTypeAttributeDTO(resources, ocd, name, ad);
+                    if (attributeDTO != null) {
+                        attributeList.add(attributeDTO);
+                    }
                 }
             }
         }
@@ -261,13 +264,21 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
         return answer;
     }
 
-    protected void addMetaTypeInformation(MetadataHandler handler, File xmlFile, File propertiesFile) throws IOException {
+    protected void addMetaTypeInformation(MetadataHandler handler, String pid, File xmlFile, File propertiesFile) throws IOException {
+        MetaData metadata;
         if (!xmlFile.exists()) {
             LOG.info("Warning! " + xmlFile + " does not exist so no OSGi MetaType metadata");
-            return;
+            metadata = new MetaData();
+            Designate designate = new Designate();
+            designate.setPid(pid);
+            metadata.addDesignate(designate);
+            OCD ocd = new OCD();
+            ocd.setId(pid);
+            metadata.addObjectClassDefinition(ocd);
+        } else {
+            MetaDataReader reader = new MetaDataReader();
+            metadata = reader.parse(new FileInputStream(xmlFile));
         }
-        MetaDataReader reader = new MetaDataReader();
-        MetaData metadata = reader.parse(new FileInputStream(xmlFile));
         // lets try get the i18n properties
         Properties properties = new Properties();
         if (propertiesFile.exists() && propertiesFile.isFile()) {
@@ -279,8 +290,8 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
     protected void addMetaTypeInformation(MetadataHandler handler, String uri, File file) throws IOException {
         JarFile jarFile = new JarFile(file);
         Enumeration<JarEntry> entries = jarFile.entries();
-        Map<String,MetaData> metadataMap = new HashMap<>();
-        Map<String,Properties> propertiesMap = new HashMap<>();
+        Map<String, MetaData> metadataMap = new HashMap<>();
+        Map<String, Properties> propertiesMap = new HashMap<>();
         while (entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
             String name = entry.getName();
@@ -320,7 +331,7 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
 
     protected void addMetaData(MetaTypeSummaryDTO summary, MetaData metadata, Properties resources) {
         Map<String, Object> map = metadata.getDesignates();
-        Map<String,Object> objects = metadata.getObjectClassDefinitions();
+        Map<String, Object> objects = metadata.getObjectClassDefinitions();
         Set<Map.Entry<String, Object>> entries = map.entrySet();
         for (Map.Entry<String, Object> entry : entries) {
             String pid = entry.getKey();
