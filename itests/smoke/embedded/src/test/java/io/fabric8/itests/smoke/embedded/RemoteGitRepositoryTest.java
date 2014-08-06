@@ -15,10 +15,10 @@
  */
 package io.fabric8.itests.smoke.embedded;
 
+import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.Constants;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreateEnsembleOptions.Builder;
-import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.GitContext;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
@@ -43,11 +43,9 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.jgit.api.Git;
