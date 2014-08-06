@@ -59,6 +59,7 @@ public class ExtendedJoinTest extends FabricEnsembleTest {
 	 */
 	@Test
 	public void testJoinAndAddToEnsemble() throws Exception {
+        System.err.println(executeCommand("features:install admin"));
         System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
         //System.out.println(executeCommand("shell:info"));
         //System.out.println(executeCommand("fabric:info"));

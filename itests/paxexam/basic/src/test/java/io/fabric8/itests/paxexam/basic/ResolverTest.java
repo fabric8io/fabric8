@@ -18,7 +18,6 @@ package io.fabric8.itests.paxexam.basic;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import io.fabric8.api.Container;
-import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
@@ -56,7 +55,6 @@ public class ResolverTest extends FabricTestSupport {
         try {
             FabricService fabricService = fabricProxy.getService();
             Container current = fabricService.getCurrentContainer();
-            ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
             Assert.assertEquals("localhostname", current.getResolver());
             String sshUrlWithLocalhostResolver = current.getSshUrl();
 
@@ -80,7 +78,6 @@ public class ResolverTest extends FabricTestSupport {
         //System.out.println(executeCommand("fabric:info"));
         //System.out.println(executeCommand("fabric:profile-list"));
 
-        ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
@@ -98,7 +95,6 @@ public class ResolverTest extends FabricTestSupport {
         //System.out.println(executeCommand("fabric:info"));
         //System.out.println(executeCommand("fabric:profile-list"));
 
-        ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
@@ -116,7 +112,6 @@ public class ResolverTest extends FabricTestSupport {
         //System.out.println(executeCommand("fabric:info"));
         //System.out.println(executeCommand("fabric:profile-list"));
 
-        ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(bundleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();

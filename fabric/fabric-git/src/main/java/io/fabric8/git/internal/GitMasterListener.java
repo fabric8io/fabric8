@@ -18,7 +18,6 @@ package io.fabric8.git.internal;
 import java.io.IOException;
 import java.net.URL;
 
-import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
@@ -50,9 +49,6 @@ public final class GitMasterListener extends AbstractComponent implements GroupL
     private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-    //Use this reference to make sure that we listen for master changes only after the container registration is done.
-    @Reference(referenceInterface = ContainerRegistration.class)
-    private final ValidatingReference<ContainerRegistration> containerRegistration = new ValidatingReference<ContainerRegistration>();
 
     private Group<GitNode> group;
 
@@ -121,11 +117,4 @@ public final class GitMasterListener extends AbstractComponent implements GroupL
         this.gitService.unbind(service);
     }
 
-    void bindContainerRegistration(ContainerRegistration service) {
-        this.containerRegistration.bind(service);
-    }
-
-    void unbindContainerRegistration(ContainerRegistration service) {
-        this.containerRegistration.unbind(service);
-    }
 }
