@@ -196,6 +196,11 @@ public interface FabricManagerMBean {
     Map<String,String> getProfileProperties(String versionId, String profileId, String pid);
 
     /**
+     * Returns the overlay (combined) properties for the given PID and profile/version
+     */
+    Map<String, String> getOverlayProfileProperties(String versionId, String profileId, String pid);
+
+    /**
      * Sets the profile properties for the given PID
      */
     boolean setProfileProperties(String versionId, String profileId, String pid, Map<String, String> properties);
