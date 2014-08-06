@@ -1,5 +1,11 @@
 ### Questions On OSGi and Fabric8
 
+#### How can I add my bundle and all its required bundles and features to fabric8?
+
+The fabric8 approach to working with OSGi and fabric8 is to use the  [Fabric8 Maven Plugin](http://fabric8.io/gitbook/mavenPlugin.html) to deploy directly into a [profile](http://fabric8.io/gitbook/profiles.html) or to [create a profile zip](http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven) which can then be [installed](http://fabric8.io/gitbook/continuousDeployment.html#importing-profile-zips).
+
+When using the [Fabric8 Maven Plugin](http://fabric8.io/gitbook/mavenPlugin.html) if you use the **bundle** packaging type in your maven pom.xml then the [OSGi Resolver](http://fabric8.io/gitbook/osgiResolver.html) will be used by default to add any dependent features or bundles to your profile.
+
 #### Should I use features?
 
 If you're using OSGi or [Apache Karaf](http://karaf.apache.org/) as your application server and you've already developed features XML files for grouping bundles together as a logical application; thats all cool and they work great in fabric8.
