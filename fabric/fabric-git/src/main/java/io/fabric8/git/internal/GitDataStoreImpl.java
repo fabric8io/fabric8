@@ -258,9 +258,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 
                 LOGGER.info("Watch counter updated to " + value + ", doing a pull");
                 
-                // TODO(tdi): Why sleep a random amount of time on countHasChanged? 
-                Thread.sleep(1000);
-                
                 LockHandle writeLock = aquireWriteLock();
                 try {
                     doPullInternal(new GitContext(), getCredentialsProvider(), true);

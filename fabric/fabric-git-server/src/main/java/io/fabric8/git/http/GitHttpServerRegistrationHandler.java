@@ -95,6 +95,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     private final AtomicReference<String> gitRemoteUrl = new AtomicReference<>();
     private Group<GitNode> group;
     private Path basePath;
+    private Git git;
 
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
@@ -181,16 +182,16 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         File fabricRoot = fabricRepoPath.toFile();
         if (!fabricRoot.exists()) {
             File localRepo = gitDataStore.get().getGit().getRepository().getDirectory();
-            Git.cloneRepository()
+            git = Git.cloneRepository()
                 .setTimeout(10)
                 .setBare(true)
                 .setNoCheckout(true)
                 .setCloneAllBranches(true)
                 .setDirectory(fabricRoot)
                 .setURI(localRepo.toURI().toString())
-                .call()
-                .getRepository()
-                .close();
+                .call();
+        } else {
+            git = Git.open(fabricRoot);
         }
 
         HttpContext base = httpService.get().createDefaultHttpContext();
@@ -200,11 +201,12 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         initParams.put("base-path", servletBase);
         initParams.put("repository-root", servletBase);
         initParams.put("export-all", "true");
-        httpService.get().registerServlet("/git", new FabricGitServlet(curator.get()), initParams, secure);
+        httpService.get().registerServlet("/git", new FabricGitServlet(git, curator.get()), initParams, secure);
     }
 
     private void unregisterServlet() {
        httpService.get().unregister("/git");
+       git.getRepository().close();
        Files.recursiveDelete(basePath.toFile());
     }
 
