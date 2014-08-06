@@ -16,17 +16,19 @@
 package io.fabric8.itests.support;
 
 import io.fabric8.api.Container;
-import io.fabric8.api.DynamicReferenceException;
-import io.fabric8.api.FabricException;
-import io.fabric8.api.scr.InvalidComponentException;
 
 import java.util.concurrent.Callable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A {@link java.util.concurrent.Callable} that waits for the {@link io.fabric8.api.Container} to provision.
  */
 public class WaitForAliveTask implements Callable<Boolean> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(WaitForAliveTask.class);
+    
     private final Long provisionTimeOut;
     private final Container container;
     private final boolean alive;
@@ -39,20 +41,12 @@ public class WaitForAliveTask implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        boolean isAlive = isAlive(container);
-        for (long t = 0; (isAlive != alive  && t < provisionTimeOut); t += 2000L) {
-            try {
-                System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive());
-                isAlive = isAlive(container);
-                if (isAlive != alive) {
-                    Thread.sleep(2000L);
-                }
-            } catch (DynamicReferenceException e) {
-                return false;
-            } catch (FabricException e) {
-              //Ignore and retry
-            } catch (InvalidComponentException e) {
-                //Ignore and retry.
+        boolean isAlive = false;
+        for (long t = 0; t < provisionTimeOut; t += 2000L) {
+            System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive());
+            isAlive = isAlive(container);
+            if (isAlive != alive) {
+                Thread.sleep(2000L);
             }
         }
         return isAlive == alive;
@@ -61,7 +55,8 @@ public class WaitForAliveTask implements Callable<Boolean> {
     private boolean isAlive(Container c) {
         try {
             return c.isAlive();
-        } catch (Throwable t) {
+        } catch (Throwable th) {
+            LOGGER.warn("Assuming {} not alive, because of: {}", c.getId(), th.toString());
             return false;
         }
     }

@@ -15,22 +15,12 @@
  */
 package io.fabric8.gateway.fabric.detecting;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.jcip.GuardedBy;
-import io.fabric8.api.scr.InvalidComponentException;
 import io.fabric8.common.util.Closeables;
-import io.fabric8.zookeeper.utils.ZooKeeperUtils;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.cache.ChildData;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
-import org.apache.curator.framework.recipes.cache.TreeCache;
 import io.fabric8.common.util.Strings;
-import io.fabric8.gateway.ServiceMap;
 import io.fabric8.gateway.ServiceDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.fabric8.gateway.ServiceMap;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -39,6 +29,18 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.ChildData;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.jboss.gravia.utils.IllegalStateAssertion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Watches a ZooKeeper path for all services inside the path which may take part in the load balancer
@@ -78,8 +80,7 @@ public class GatewayServiceTreeCache {
     }
 
     protected TreeCache getTreeCache() {
-        if (!active.get())
-            throw new InvalidComponentException();
+        IllegalStateAssertion.assertTrue(active.get(), "Gateway service cache not active");
         return treeCache;
     }
 

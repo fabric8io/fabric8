@@ -18,7 +18,7 @@ package io.fabric8.itests.paxexam.support;
 import io.fabric8.api.Container;
 import io.fabric8.api.DynamicReferenceException;
 import io.fabric8.api.FabricException;
-import io.fabric8.api.scr.InvalidComponentException;
+import io.fabric8.api.InvalidComponentException;
 
 import java.util.concurrent.Callable;
 
