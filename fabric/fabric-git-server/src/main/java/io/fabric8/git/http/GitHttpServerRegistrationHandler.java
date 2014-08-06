@@ -87,8 +87,6 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
     @Reference(referenceInterface = HttpService.class)
     private final ValidatingReference<HttpService> httpService = new ValidatingReference<HttpService>();
-    @Reference(referenceInterface = ProfileRegistry.class)
-    private final ValidatingReference<ProfileRegistry> profileRegistry = new ValidatingReference<>();
     @Reference(referenceInterface = RuntimeProperties.class)
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
@@ -181,35 +179,30 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         Path fabricRepoPath = basePath.resolve("fabric");
         String servletBase = basePath.toFile().getAbsolutePath();
 
-        LockHandle readLock = profileRegistry.get().aquireReadLock();
-        try {
-            // Init and clone the local repo.
-            File fabricRoot = fabricRepoPath.toFile();
-            if (!fabricRoot.exists()) {
-                File localRepo = gitService.get().getGit().getRepository().getDirectory();
-                Git.cloneRepository()
-                    .setTimeout(10)
-                    .setBare(true)
-                    .setNoCheckout(true)
-                    .setCloneAllBranches(true)
-                    .setDirectory(fabricRoot)
-                    .setURI(localRepo.toURI().toString())
-                    .call()
-                    .getRepository()
-                    .close();
-            }
-
-            HttpContext base = httpService.get().createDefaultHttpContext();
-            HttpContext secure = new GitSecureHttpContext(base, curator.get(), realm, role);
-
-            Dictionary<String, Object> initParams = new Hashtable<String, Object>();
-            initParams.put("base-path", servletBase);
-            initParams.put("repository-root", servletBase);
-            initParams.put("export-all", "true");
-            httpService.get().registerServlet("/git", new FabricGitServlet(curator.get()), initParams, secure);
-        } finally {
-            readLock.unlock();
+        // Init and clone the local repo.
+        File fabricRoot = fabricRepoPath.toFile();
+        if (!fabricRoot.exists()) {
+            File localRepo = gitService.get().getGit().getRepository().getDirectory();
+            Git.cloneRepository()
+                .setTimeout(10)
+                .setBare(true)
+                .setNoCheckout(true)
+                .setCloneAllBranches(true)
+                .setDirectory(fabricRoot)
+                .setURI(localRepo.toURI().toString())
+                .call()
+                .getRepository()
+                .close();
         }
+
+        HttpContext base = httpService.get().createDefaultHttpContext();
+        HttpContext secure = new GitSecureHttpContext(base, curator.get(), realm, role);
+
+        Dictionary<String, Object> initParams = new Hashtable<String, Object>();
+        initParams.put("base-path", servletBase);
+        initParams.put("repository-root", servletBase);
+        initParams.put("export-all", "true");
+        httpService.get().registerServlet("/git", new FabricGitServlet(curator.get()), initParams, secure);
     }
 
     private void unregisterServlet() {
@@ -280,13 +273,6 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         this.httpService.unbind(service);
     }
 
-    void bindProfileRegistry(ProfileRegistry service) {
-        this.profileRegistry.bind(service);
-    }
-    void unbindProfileRegistry(ProfileRegistry service) {
-        this.profileRegistry.unbind(service);
-    }
-    
     void bindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.bind(service);
     }
