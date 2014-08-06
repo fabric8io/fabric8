@@ -39,7 +39,6 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 
 import io.fabric8.api.Container;
-import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -62,8 +61,6 @@ public final class FabricWebRegistrationHandler extends AbstractComponent implem
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricWebRegistrationHandler.class);
 
-    @Reference(referenceInterface = ContainerRegistration.class)
-    private final ValidatingReference<ContainerRegistration> containerRegistration = new ValidatingReference<>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<>();
     @Reference(referenceInterface = FabricService.class)
@@ -270,13 +267,6 @@ public final class FabricWebRegistrationHandler extends AbstractComponent implem
         }
     }
 
-    void bindContainerRegistration(ContainerRegistration service) {
-        this.containerRegistration.bind(service);
-    }
-    void unbindContainerRegistration(ContainerRegistration service) {
-        this.containerRegistration.unbind(service);
-    }
-    
     void bindCurator(CuratorFramework curator) {
         this.curator.bind(curator);
     }

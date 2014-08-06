@@ -17,7 +17,6 @@ package io.fabric8.itests.paxexam.support;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerProvider;
-import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.FabricException;
@@ -194,7 +193,6 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * Create the containers.
      */
     public Set<ContainerProxy> build() {
-        ServiceLocator.awaitService(getBundleContext(), ContainerRegistration.class);
         return buildInternal(Arrays.<B> asList(getOptionsBuilder()));
     }
 

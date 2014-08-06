@@ -17,7 +17,8 @@ package io.fabric8.itests.paxexam.basic.git;
 
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
-import io.fabric8.api.ContainerRegistration;
+
+import io.fabric8.api.FabricService;
 import io.fabric8.git.GitNode;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
@@ -57,7 +58,7 @@ public class GitUtils {
      * Waits until the master url becomes available & returns it.
      */
     public static String getMasterUrl(BundleContext bundleContext, CuratorFramework curator) throws InterruptedException, URISyntaxException {
-        ServiceLocator.awaitService(bundleContext, ContainerRegistration.class);
+        ServiceLocator.awaitService(bundleContext, FabricService.class);
         Group<GitNode> group = new ZooKeeperGroup<GitNode>(curator, ZkPath.GIT.getPath(), GitNode.class);
         final CountDownLatch latch = new CountDownLatch(1);
 

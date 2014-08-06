@@ -16,7 +16,6 @@
 package io.fabric8.itests.support;
 
 import io.fabric8.api.Container;
-import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.FabricException;
@@ -186,7 +185,6 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * Create the containers.
      */
     public Set<Container> build(FabricService fabricService) {
-        ServiceLocator.awaitService(ContainerRegistration.class);
         return build(fabricService, Arrays.<B> asList(getOptionsBuilder()));
     }
 
