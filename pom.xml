@@ -145,8 +145,7 @@
         <aries-proxy-impl-version>1.0.3</aries-proxy-impl-version>
         <aries-proxy-version>1.0.1</aries-proxy-version>
         <aries-util-version>1.1.0</aries-util-version>
-        <arquillian-core-version>1.1.1.Final</arquillian-core-version>
-        <arquillian-junit-container-version>1.0.0.CR7</arquillian-junit-container-version>
+        <arquillian-version>1.1.5.Final</arquillian-version>
         <arquillian-osgi-version>2.1.0.CR16</arquillian-osgi-version>
         <arquillian-tomcat-version>1.0.0.CR6</arquillian-tomcat-version>
         <arquillian-weld-ee-embedded-version>1.0.0.CR3</arquillian-weld-ee-embedded-version>
@@ -263,7 +262,7 @@
         <logback-version>1.1.2</logback-version>
         <lombok.version>1.14.4</lombok.version>
         <maven-fab-plugin-version>1.32</maven-fab-plugin-version>
-        <maven-version>3.0.4</maven-version>
+        <maven-version>3.1.1</maven-version>
         <maven-dependency-plugin-version>2.8</maven-dependency-plugin-version>
         <mina-version>2.0.7</mina-version>
         <mockserver-version>3.4</mockserver-version>
@@ -306,8 +305,6 @@
         <servicemix-utils-version>1.6.0</servicemix-utils-version>
         <servlet-api-version>2.5</servlet-api-version>
         <servlet30-api-version>3.0.1</servlet30-api-version>
-        <shrinkwrap-resolver-version>2.0.0</shrinkwrap-resolver-version>
-        <shrinkwrap-version>1.1.2</shrinkwrap-version>
         <slf4j-api-version>1.7.5</slf4j-api-version>
         <slf4j-version>1.7.5</slf4j-version>
         <spring-bundle-version>3.2.9.RELEASE_1</spring-bundle-version>
@@ -2981,6 +2978,13 @@
             </dependency>
 
             <dependency>
+                <groupId>org.jboss.arquillian</groupId>
+                <artifactId>arquillian-bom</artifactId>
+                <type>pom</type>
+                <scope>import</scope>
+                <version>${arquillian-version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.jboss.arquillian.container</groupId>
                 <artifactId>arquillian-container-karaf-managed</artifactId>
                 <version>${arquillian-osgi-version}</version>
@@ -2989,16 +2993,6 @@
                 <groupId>org.jboss.arquillian.container</groupId>
                 <artifactId>arquillian-tomcat-managed-7</artifactId>
                 <version>${arquillian-tomcat-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.junit</groupId>
-                <artifactId>arquillian-junit-container</artifactId>
-                <version>${arquillian-core-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.junit</groupId>
-                <artifactId>arquillian-junit-standalone</artifactId>
-                <version>${arquillian-core-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.arquillian.osgi</groupId>
@@ -3085,17 +3079,6 @@
                 <groupId>org.jboss.osgi.metadata</groupId>
                 <artifactId>jbosgi-metadata</artifactId>
                 <version>${osgi-metadata-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap</groupId>
-                <artifactId>shrinkwrap-api</artifactId>
-                <version>${shrinkwrap-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-depchain</artifactId>
-                <version>${shrinkwrap-resolver-version}</version>
-                <type>pom</type>
             </dependency>
 
             <dependency>
