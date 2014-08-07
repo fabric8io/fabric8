@@ -871,6 +871,10 @@ public class DeploymentAgent implements ManagedService {
         if (!exceptions.isEmpty()) {
             throw new MultiException("Error updating agent", exceptions);
         }
+        
+        if (!toRefresh.isEmpty()) {
+            refreshPackages(toRefresh);
+        }
 
         LOGGER.info("Done.");
     }
