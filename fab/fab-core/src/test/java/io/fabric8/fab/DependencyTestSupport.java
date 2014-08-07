@@ -15,19 +15,19 @@
  */
 package io.fabric8.fab;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import io.fabric8.common.util.Filter;
-import io.fabric8.common.util.Filters;
-import org.junit.Assert;
-import org.sonatype.aether.resolution.ArtifactResolutionException;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import io.fabric8.common.util.Filter;
+import io.fabric8.common.util.Filters;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.junit.Assert;
 
 import static io.fabric8.fab.DependencyTree.newBuilder;
 import static org.junit.Assert.assertEquals;
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 public abstract class DependencyTestSupport {
-    protected final transient Log LOG = LogFactory.getLog(getClass());
+    protected final transient Logger LOG = Logger.getLogger(getClass().getName());
 
     protected static SharedClassLoaderRegistry registry = new SharedClassLoaderRegistry();
 
@@ -59,9 +59,9 @@ public abstract class DependencyTestSupport {
         File rootPom = new File(resource.getPath());
 
         DependencyTreeResult node = mavenResolver.collectDependencies(rootPom, false);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("File: " + pomName);
-            LOG.debug(node.getTreeDescription());
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("File: " + pomName);
+            LOG.fine(node.getTreeDescription());
         }
 
         List<DependencyTree.DuplicateDependency> duplicateDependencies = node.getTree().checkForDuplicateDependencies();
@@ -96,8 +96,8 @@ public abstract class DependencyTestSupport {
         Class<?> class1 = assertLoadClass(cl1, name);
         Class<?> class2 = assertLoadClass(cl2, name);
 
-        LOG.debug("Found class " + class1 + " in " + class1.getClassLoader());
-        LOG.debug("Found class " + class2 + " in " + class2.getClassLoader());
+        LOG.fine("Found class " + class1 + " in " + class1.getClassLoader());
+        LOG.fine("Found class " + class2 + " in " + class2.getClassLoader());
 
         ClassLoader foundClassLoader1 = class1.getClassLoader();
         ClassLoader foundClassLoader2 = class2.getClassLoader();
@@ -115,8 +115,8 @@ public abstract class DependencyTestSupport {
         Class<?> class1 = assertLoadClass(cl1, name);
         Class<?> class2 = assertLoadClass(cl2, name);
 
-        LOG.debug("Found class " + class1 + " in " + class1.getClassLoader());
-        LOG.debug("Found class " + class2 + " in " + class2.getClassLoader());
+        LOG.fine("Found class " + class1 + " in " + class1.getClassLoader());
+        LOG.fine("Found class " + class2 + " in " + class2.getClassLoader());
 
         assertNotSame("Should have loaded different classes for: " + name + " in class loaders " + cl1 + " and " + cl2, class1, class2);
         assertTrue("Should have loaded different classes: " + name + " in class loaders " + cl1 + " and " + cl2, !class1.equals(class2));
@@ -150,11 +150,11 @@ public abstract class DependencyTestSupport {
     }
 
     protected Class<?> assertLoadClass(DependencyClassLoader classLoader, String name) throws ClassNotFoundException {
-        LOG.debug("Loading class: " + name);
+        LOG.fine("Loading class: " + name);
         try {
             return classLoader.loadClass(name);
         } catch (ClassNotFoundException e) {
-            LOG.error("Failed to load class: " + name + " in " + classLoader + ". " + e, e);
+            LOG.log(Level.SEVERE, "Failed to load class: " + name + " in " + classLoader + ". " + e, e);
             Assert.fail("Could not load: " + name + " in " + classLoader + ". " + e);
             return null;
         }

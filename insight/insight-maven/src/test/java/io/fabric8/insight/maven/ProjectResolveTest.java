@@ -25,9 +25,9 @@ import java.util.TreeMap;
 import io.fabric8.insight.maven.aether.AetherJarOrPom;
 import io.fabric8.insight.maven.aether.AetherPomResult;
 import io.fabric8.insight.maven.aether.AetherResult;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.graph.DependencyNode;
 import org.junit.Test;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.graph.DependencyNode;
 
 import static org.junit.Assert.assertTrue;
 

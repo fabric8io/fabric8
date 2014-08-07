@@ -66,7 +66,7 @@
         <fuse.osgi.export>
             io.fabric8.fab*;version=${fuse.osgi.version};-noimport:=true,
             org.codehaus.plexus*;-noimport:=true,
-            org.sonatype.aether*;-noimport:=true,
+            org.eclipse.aether*;-noimport:=true,
             aQute.lib.osgi*;-noimport:=true,
         </fuse.osgi.export>
     </properties>
@@ -75,7 +75,6 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>common-util</artifactId>
-            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -118,7 +117,6 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>maven-bundle-plugin</artifactId>
-            <version>${maven-bundle-plugin-version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -129,25 +127,22 @@
         <dependency>
             <groupId>io.fabric8.fab</groupId>
             <artifactId>fab-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-commons</artifactId>
-            <version>${pax.url.version}</version>
         </dependency>
 
         <!-- Embeded dependencies (not transitive) -->
         <dependency>
             <groupId>org.ops4j.base</groupId>
             <artifactId>ops4j-base-net</artifactId>
-            <version>${ops4j-base.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.swissbox</groupId>
             <artifactId>pax-swissbox-optional-jcl</artifactId>
-            <version>${ops4j-pax-swissbox-optional-jcl.version}</version>
             <scope>provided</scope>
         </dependency>
         <!--
@@ -161,34 +156,28 @@
         <dependency>
             <groupId>biz.aQute.bnd</groupId>
             <artifactId>bndlib</artifactId>
-            <version>${bndlib-version}</version>
         </dependency>
 
         <!-- aether stuff -->
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-api</artifactId>
-            <version>${aether-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-spi</artifactId>
-            <version>${aether-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-util</artifactId>
-            <version>${aether-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-impl</artifactId>
-            <version>${aether-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-connector-wagon</artifactId>
-            <version>${aether-version}</version>
             <!-- clashes with guava -->
             <exclusions>
                 <exclusion>
@@ -205,54 +194,44 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-aether-provider</artifactId>
-            <version>${maven-version}</version>
         </dependency>
 
         <!-- expanded transitive dependencies -->
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-model-builder</artifactId>
-            <version>${maven-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-model</artifactId>
-            <version>${maven-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-repository-metadata</artifactId>
-            <version>${maven-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-settings-builder</artifactId>
-            <version>${maven-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-settings</artifactId>
-            <version>${maven-version}</version>
         </dependency>
         <dependency>
             <groupId>org.sonatype.plexus</groupId>
             <artifactId>plexus-sec-dispatcher</artifactId>
-            <version>1.3</version>
         </dependency>
         <dependency>
             <groupId>org.sonatype.plexus</groupId>
             <artifactId>plexus-cipher</artifactId>
-            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-interpolation</artifactId>
-            <version>1.14</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-component-annotations</artifactId>
-            <version>1.5.5</version>
         </dependency>
         <!--
        <dependency>
@@ -265,17 +244,14 @@
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-provider-api</artifactId>
-            <version>${wagon-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-file</artifactId>
-            <version>${wagon-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-http-lightweight</artifactId>
-            <version>${wagon-version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>nekohtml</groupId>
@@ -290,7 +266,6 @@
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
-            <version>1.5.9</version>
         </dependency>
 
         <!-- test dependencies -->
@@ -302,7 +277,6 @@
         <dependency>
             <groupId>org.ops4j.pax.tinybundles</groupId>
             <artifactId>tinybundles</artifactId>
-            <version>${tinybundles-version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
