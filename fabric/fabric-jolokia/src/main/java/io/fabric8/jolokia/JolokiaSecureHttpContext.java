@@ -16,6 +16,8 @@
 package io.fabric8.jolokia;
 
 import io.fabric8.utils.Base64Encoder;
+
+import org.jolokia.config.ConfigKey;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.HttpContext;
@@ -148,6 +150,7 @@ public class JolokiaSecureHttpContext implements HttpContext {
                             // as per the spec, set attributes
                             request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
                             request.setAttribute(HttpContext.REMOTE_USER, username);
+                            request.setAttribute(ConfigKey.JAAS_SUBJECT_REQUEST_ATTRIBUTE, subject);
                             // succeed
                             return true;
                         }
