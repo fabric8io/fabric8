@@ -32,8 +32,7 @@ import java.security.cert.X509Certificate;
 
 /**
  * A BundleActivator that replaces the JVM default SSLContext
- * if the System property javax.net.ssl.trustStore is not set.  You can
- * go back to default JVM behaviour by setting javax.net.ssl.trustAll=false
+ * if the System property javax.net.ssl.trustAll=true.
  *
  * The replaced SSL context will trust all presented SSL certificates
  * including self signed certs.
@@ -49,20 +48,18 @@ public class SSLContextBundleActivator implements BundleActivator {
         System.out.println("SSLContextBundleActivator start");
 
         String trustStore = System.getProperty("javax.net.ssl.trustStore");
-        String trustAll = System.getProperty("javax.net.ssl.trustAll");
+        boolean trustAll = Boolean.getBoolean("javax.net.ssl.trustAll");
 
         boolean enabled = false;
-        if( trustStore==null && ( trustAll==null || "true".equals(trustAll) ) ) {
+        if( trustStore==null && trustAll ) {
             original = SSLContext.getDefault();
             SSLContext ctx = SSLContext.getInstance("TLS");
             ctx.init(createKeyManagers(), trustAllCerts(), new java.security.SecureRandom());
             SSLContext.setDefault(ctx);
-        } else {
-            if( trustStore!=null && "true".equals(trustAll) ) {
-                System.err.println();
-                System.err.println("Invalid system property configuration:  The javax.net.ssl.trustStore and javax.net.ssl.trustAll cannot both be set.  Ignoring the javax.net.ssl.trustAll property");
-                System.err.println();
-            }
+        } else if( trustStore!=null && trustAll ) {
+            System.err.println();
+            System.err.println("Invalid system property configuration:  The javax.net.ssl.trustStore and javax.net.ssl.trustAll cannot both be set.  Ignoring the javax.net.ssl.trustAll property");
+            System.err.println();
         }
     }
 
