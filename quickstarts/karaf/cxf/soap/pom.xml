@@ -146,8 +146,10 @@
                             javax.xml.namespace,
                             org.apache.cxf.helpers,
                             org.osgi.service.blueprint,
-                            io.fabric8.cxf.endpoint
+                            io.fabric8.cxf.endpoint,
+                            org.apache.cxf.transport.http
                         </Import-Package>
+                        <Import-Service>org.apache.cxf.transport.http.DestinationRegistry</Import-Service>
                         <Export-Package>
                             io.fabric8.quickstarts.soap
                         </Export-Package>
