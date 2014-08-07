@@ -20,7 +20,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.1.0.redhat-006</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -283,7 +283,7 @@
             <dependency>
                 <groupId>io.fabric8.runtime</groupId>
                 <artifactId>fabric-runtime-container-karaf-registration</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0.redhat-006</version>
             </dependency>
 
            <!-- need this transitive of org.apache.servicemix.bundles.jasypt
