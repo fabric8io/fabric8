@@ -41,43 +41,46 @@ import io.fabric8.common.util.Filters;
 import io.fabric8.common.util.IOHelpers;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
+import org.eclipse.aether.artifact.ArtifactProperties;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.graph.DefaultDependencyNode;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.util.repository.AuthenticationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.RepositoryEvent;
-import org.sonatype.aether.RepositoryException;
-import org.sonatype.aether.RepositoryListener;
-import org.sonatype.aether.RepositorySystem;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.collection.CollectRequest;
-import org.sonatype.aether.collection.DependencyCollectionContext;
-import org.sonatype.aether.collection.DependencyCollectionException;
-import org.sonatype.aether.collection.DependencyGraphTransformationContext;
-import org.sonatype.aether.collection.DependencyGraphTransformer;
-import org.sonatype.aether.collection.DependencySelector;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.graph.DependencyFilter;
-import org.sonatype.aether.graph.DependencyNode;
-import org.sonatype.aether.repository.ArtifactRepository;
-import org.sonatype.aether.repository.Authentication;
-import org.sonatype.aether.repository.LocalRepository;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.repository.RepositoryPolicy;
-import org.sonatype.aether.resolution.ArtifactDescriptorException;
-import org.sonatype.aether.resolution.ArtifactDescriptorRequest;
-import org.sonatype.aether.resolution.ArtifactDescriptorResult;
-import org.sonatype.aether.resolution.ArtifactRequest;
-import org.sonatype.aether.resolution.ArtifactResolutionException;
-import org.sonatype.aether.resolution.ArtifactResult;
-import org.sonatype.aether.util.artifact.ArtifactProperties;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
-import org.sonatype.aether.util.filter.AndDependencyFilter;
-import org.sonatype.aether.util.graph.DefaultDependencyNode;
-import org.sonatype.aether.util.graph.selector.AndDependencySelector;
-import org.sonatype.aether.util.graph.selector.ExclusionDependencySelector;
-import org.sonatype.aether.util.graph.selector.OptionalDependencySelector;
-import org.sonatype.aether.util.graph.selector.ScopeDependencySelector;
-import org.sonatype.aether.util.version.GenericVersionScheme;
+import org.eclipse.aether.RepositoryEvent;
+import org.eclipse.aether.RepositoryException;
+import org.eclipse.aether.RepositoryListener;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.collection.DependencyCollectionContext;
+import org.eclipse.aether.collection.DependencyCollectionException;
+import org.eclipse.aether.collection.DependencyGraphTransformationContext;
+import org.eclipse.aether.collection.DependencyGraphTransformer;
+import org.eclipse.aether.collection.DependencySelector;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyFilter;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.repository.ArtifactRepository;
+import org.eclipse.aether.repository.Authentication;
+import org.eclipse.aether.repository.LocalRepository;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.repository.RepositoryPolicy;
+import org.eclipse.aether.resolution.ArtifactDescriptorException;
+import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
+import org.eclipse.aether.resolution.ArtifactDescriptorResult;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.util.filter.AndDependencyFilter;
+import org.eclipse.aether.util.graph.selector.AndDependencySelector;
+import org.eclipse.aether.util.graph.selector.ExclusionDependencySelector;
+import org.eclipse.aether.util.graph.selector.OptionalDependencySelector;
+import org.eclipse.aether.util.graph.selector.ScopeDependencySelector;
+import org.eclipse.aether.util.version.GenericVersionScheme;
 
 public class MavenResolverImpl implements MavenResolver {
 
@@ -95,7 +98,7 @@ public class MavenResolverImpl implements MavenResolver {
             "http://repository.springsource.com/maven/bundles/external",
             "http://repository.springsource.com/maven/libraries/release",
             "http://repository.springsource.com/maven/libraries/external",
-            "https://oss.sonatype.org/content/groups/public",
+            "https://oss.eclipse.org/content/groups/public",
             "http://download.java.net/maven/1"};
 
     private String data;
@@ -196,7 +199,7 @@ public class MavenResolverImpl implements MavenResolver {
     }
 
 
-    public List<ArtifactResult> resolveResult(File rootPom, boolean offline) throws ArtifactDescriptorException, DependencyCollectionException, ArtifactResolutionException {
+    public List<ArtifactResult> resolveResult(File rootPom, boolean offline) throws ArtifactDescriptorException, DependencyCollectionException, ArtifactResolutionException, DependencyResolutionException {
         RepositorySystem repo = getRepositorySystem();
         MavenRepositorySystemSession session = createSession(offline, repo);
 
@@ -207,19 +210,18 @@ public class MavenResolverImpl implements MavenResolver {
 
         ArtifactDescriptorResult artifactDescriptorResult = repo.readArtifactDescriptor(session, new ArtifactDescriptorRequest(root, repos, null));
 
-        CollectRequest request = new CollectRequest( artifactDescriptorResult.getDependencies(), null, repos );
+        CollectRequest cr = new CollectRequest( artifactDescriptorResult.getDependencies(), null, repos );
         DependencyFilter filter = new AndDependencyFilter();
-        return repo.resolveDependencies(session, request, filter);
+        DependencyRequest request = new DependencyRequest(cr, filter);
+        return repo.resolveDependencies(session, request).getArtifactResults();
     }
 
     private MavenRepositorySystemSession createSession(boolean offline, RepositorySystem repo) {
         MavenRepositorySystemSession session = new MavenRepositorySystemSession();
         LocalRepository localRepository = new LocalRepository(getLocalRepo());
-        session.setLocalRepositoryManager(repo.newLocalRepositoryManager(localRepository));
+        session.setLocalRepositoryManager(repo.newLocalRepositoryManager(session, localRepository));
 
-        session.setDependencySelector(
-                new AndDependencySelector(new ScopeDependencySelector("test"),
-                        new OptionalDependencySelector(), new ExclusionDependencySelector()));
+        session.setDependencySelector(new AndDependencySelector(new ScopeDependencySelector("test"), new OptionalDependencySelector(), new ExclusionDependencySelector()));
         session.setOffline(offline);
         return session;
     }
@@ -269,7 +271,6 @@ public class MavenResolverImpl implements MavenResolver {
             throw new IOException("Unable to read maven pom " + rootPom, e);
         }
     }
-
 
     protected DependencyTreeResult collectDependenciesFromPom(File rootPom, boolean offline, Model model, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, MalformedURLException {
         Map<String, String> props = Collections.singletonMap(ArtifactProperties.LOCAL_PATH, rootPom.toString());
@@ -385,21 +386,21 @@ public class MavenResolverImpl implements MavenResolver {
 
     protected DependencyNode resolveDepedencies(RepositorySystem repositorySystem, MavenRepositorySystemSession session, List<RemoteRepository> repos, DependencyNode pomNode, Dependency dependency, final Filter<Dependency> shouldExclude) throws FailedToResolveDependency {
         if (!DependencyFilters.matches(dependency, shouldExclude)) {
-            CollectRequest request = new CollectRequest(dependency, repos);
+            CollectRequest cr = new CollectRequest(dependency, repos);
             //request.setRequestContext("runtime");
             try {
-                DependencyNode node = repositorySystem.collectDependencies(session, request).getRoot();
-                repositorySystem.resolveDependencies(session, node, new DependencyFilter() {
-                    @Override
+                DependencyNode node = repositorySystem.collectDependencies(session, cr).getRoot();
+                DependencyFilter filter = new DependencyFilter() {
                     public boolean accept(DependencyNode node, List<DependencyNode> parents) {
-                        boolean answer = !DependencyFilters.matches(node, shouldExclude);
-                        return answer;
+                        return !DependencyFilters.matches(node, shouldExclude);
                     }
-                });
+                };
+                DependencyRequest request = new DependencyRequest(cr, filter);
+                repositorySystem.resolveDependencies(session, request);
                 return node;
             } catch (DependencyCollectionException e) {
                 handleDependencyResolveFailure(pomNode, dependency, e);
-            } catch (ArtifactResolutionException e) {
+            } catch (DependencyResolutionException e) {
                 handleDependencyResolveFailure(pomNode, dependency, e);
             }
         }
@@ -427,7 +428,7 @@ public class MavenResolverImpl implements MavenResolver {
     protected MavenRepositorySystemSession createRepositorSystemSession(boolean offline, RepositorySystem repo) {
         final MavenRepositorySystemSession session = new MavenRepositorySystemSession();
         LocalRepository localRepository = new LocalRepository(getLocalRepo());
-        session.setLocalRepositoryManager(repo.newLocalRepositoryManager(localRepository));
+        session.setLocalRepositoryManager(repo.newLocalRepositoryManager(session, localRepository));
         session.setDependencySelector(
                 new AndDependencySelector(new ScopeDependencySelector("test"),
                         /*
@@ -567,9 +568,9 @@ public class MavenResolverImpl implements MavenResolver {
             String text = repositories[i].trim();
             
             //let's first extract authentication information
-            Authentication authentication = getAuthentication(text);
+            String[] authentication = getAuthenticationPair(text);
             if (authentication != null) {
-                text = text.replaceFirst(String.format("%s:%s@", authentication.getUsername(), authentication.getPassword()), "");
+                text = text.replaceFirst(String.format("%s:%s@", authentication[0], authentication[1]), "");
             }
             
             boolean snapshot = false;
@@ -591,34 +592,45 @@ public class MavenResolverImpl implements MavenResolver {
                 }
                 text = text.substring(0, idx);
             }
-            
-            RemoteRepository repository = new RemoteRepository("repos" + i, "default", text);
+
+            RemoteRepository.Builder builder = new RemoteRepository.Builder("repos" + i, "default", text);
             RepositoryPolicy policy = new RepositoryPolicy(true, RepositoryPolicy.UPDATE_POLICY_DAILY, RepositoryPolicy.CHECKSUM_POLICY_WARN);
-            repository.setPolicy(snapshot, policy);
-            repository.setAuthentication(authentication);
-            repos.add(repository);
+            if (snapshot) {
+                builder.setSnapshotPolicy(policy);
+            } else {
+                builder.setPolicy(policy);
+            }
+            builder.setAuthentication(getAuthentication(authentication));
+            repos.add(builder.build());
         }
         return repos;
     }
 
-    /*
-     * Get the {@link Authentication} instance if the URL contains credentials, otherwise return null
-     */
-    private Authentication getAuthentication(String text) {
-        Authentication authentication = null;
+    private Authentication getAuthentication(String[] parts) {
+        if (parts != null) {
+            AuthenticationBuilder builder = new AuthenticationBuilder();
+            builder.addUsername(parts[0]);
+            builder.addPassword(parts[1]);
+            return builder.build();
+        } else {
+            return null;
+        }
+    }
+
+    private String[] getAuthenticationPair(String text) {
         try {
             URL url = new URL(text);
             String authority = url.getUserInfo();
             if (Strings.notEmpty(authority)) {
                 String[] parts = authority.split(":");
                 if (parts.length == 2) {
-                    authentication = new Authentication(parts[0], parts[1]);
+                    return parts;
                 }
             }
         } catch (MalformedURLException e) {
             LOGGER.warn("{} does not look like a valid repository URL");
         }
-        return authentication;
+        return null;
     }
 
     public PomDetails findPomFile(File jar) throws IOException {

@@ -251,39 +251,39 @@
             org.ops4j.util.property;
             org.osgi.service.resolver;
             org.osgi.service.repository;
-            org.sonatype.aether;
-            org.sonatype.aether.artifact;
-            org.sonatype.aether.collection;
-            org.sonatype.aether.connector.wagon;
-            org.sonatype.aether.deployment;
-            org.sonatype.aether.graph;
-            org.sonatype.aether.impl;
-            org.sonatype.aether.impl.internal;
-            org.sonatype.aether.installation;
-            org.sonatype.aether.metadata;
-            org.sonatype.aether.repository;
-            org.sonatype.aether.resolution;
-            org.sonatype.aether.spi.connector;
-            org.sonatype.aether.spi.io;
-            org.sonatype.aether.spi.localrepo;
-            org.sonatype.aether.spi.locator;
-            org.sonatype.aether.spi.log;
-            org.sonatype.aether.transfer;
-            org.sonatype.aether.util;
-            org.sonatype.aether.util.artifact;
-            org.sonatype.aether.util.concurrency;
-            org.sonatype.aether.util.filter;
-            org.sonatype.aether.util.graph;
-            org.sonatype.aether.util.graph.manager;
-            org.sonatype.aether.util.graph.selector;
-            org.sonatype.aether.util.graph.transformer;
-            org.sonatype.aether.util.graph.traverser;
-            org.sonatype.aether.util.layout;
-            org.sonatype.aether.util.listener;
-            org.sonatype.aether.util.metadata;
-            org.sonatype.aether.util.repository;
-            org.sonatype.aether.util.version;
-            org.sonatype.aether.version;
+            org.eclipse.aether;
+            org.eclipse.aether.artifact;
+            org.eclipse.aether.collection;
+            org.eclipse.aether.connector.wagon;
+            org.eclipse.aether.deployment;
+            org.eclipse.aether.graph;
+            org.eclipse.aether.impl;
+            org.eclipse.aether.impl.internal;
+            org.eclipse.aether.installation;
+            org.eclipse.aether.metadata;
+            org.eclipse.aether.repository;
+            org.eclipse.aether.resolution;
+            org.eclipse.aether.spi.connector;
+            org.eclipse.aether.spi.io;
+            org.eclipse.aether.spi.localrepo;
+            org.eclipse.aether.spi.locator;
+            org.eclipse.aether.spi.log;
+            org.eclipse.aether.transfer;
+            org.eclipse.aether.util;
+            org.eclipse.aether.util.artifact;
+            org.eclipse.aether.util.concurrency;
+            org.eclipse.aether.util.filter;
+            org.eclipse.aether.util.graph;
+            org.eclipse.aether.util.graph.manager;
+            org.eclipse.aether.util.graph.selector;
+            org.eclipse.aether.util.graph.transformer;
+            org.eclipse.aether.util.graph.traverser;
+            org.eclipse.aether.util.layout;
+            org.eclipse.aether.util.listener;
+            org.eclipse.aether.util.metadata;
+            org.eclipse.aether.util.repository;
+            org.eclipse.aether.util.version;
+            org.eclipse.aether.version;
             org.sonatype.plexus.components.cipher;
             org.sonatype.plexus.components.sec.dispatcher;
             -split-package:=merge-first
@@ -377,24 +377,20 @@
         <dependency>
             <groupId>biz.aQute.bnd</groupId>
             <artifactId>bndlib</artifactId>
-            <version>${bndlib-version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.fabric8.fab</groupId>
             <artifactId>fab-osgi</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.fabric8.fab</groupId>
             <artifactId>fab-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>common-util</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>

@@ -20,9 +20,9 @@ import java.util.Collection;
 import java.util.List;
 
 import io.fabric8.common.util.Filter;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.graph.DependencyNode;
-import org.sonatype.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 
 /**
  * Represents a tree of dependencies
@@ -61,7 +61,7 @@ public class DependencyTreeResult {
     }
 
     protected void displayTree(DependencyNode node, String indent, StringBuffer buffer) {
-        buffer.append(indent + node.getDependency()).append("\n");
+        buffer.append(indent).append(node.getDependency()).append("\n");
         String childIndent = indent + "  ";
         for (DependencyNode child : node.getChildren()) {
             displayTree(child, childIndent, buffer);

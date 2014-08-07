@@ -21,7 +21,7 @@ public class AetherTest extends TestSupport {
 
     @Test
     public void resolveCamelCore() throws Exception {
-        aether.resolve("org.apache.camel", "camel-core", "2.12.0");
+        aether.resolve("org.apache.mesos", "mesos", "0.19.1");
     }
 
 }
