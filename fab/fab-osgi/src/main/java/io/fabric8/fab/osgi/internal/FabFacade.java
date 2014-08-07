@@ -23,8 +23,8 @@ import io.fabric8.fab.MavenResolver;
 import io.fabric8.fab.PomDetails;
 import io.fabric8.fab.VersionedDependencyId;
 import io.fabric8.common.util.Filter;
-import org.sonatype.aether.RepositoryException;
-import org.sonatype.aether.graph.Dependency;
+import org.eclipse.aether.RepositoryException;
+import org.eclipse.aether.graph.Dependency;
 
 /**
  * Represents a facade to either a jar being deployed or a bundle already installed

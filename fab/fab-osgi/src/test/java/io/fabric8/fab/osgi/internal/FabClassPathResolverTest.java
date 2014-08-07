@@ -29,8 +29,8 @@ import io.fabric8.fab.osgi.util.FeatureCollector;
 import io.fabric8.fab.osgi.util.Services;
 import io.fabric8.common.util.Filter;
 import org.junit.Test;
-import org.sonatype.aether.RepositoryException;
-import org.sonatype.aether.graph.Dependency;
+import org.eclipse.aether.RepositoryException;
+import org.eclipse.aether.graph.Dependency;
 
 import static io.fabric8.fab.osgi.ServiceConstants.INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES;
 import static io.fabric8.fab.osgi.ServiceConstants.INSTR_FAB_REQUIRE_FEATURE;

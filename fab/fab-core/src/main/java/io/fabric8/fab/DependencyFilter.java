@@ -16,8 +16,8 @@
 package io.fabric8.fab;
 
 import io.fabric8.common.util.Filter;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.graph.Dependency;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.graph.Dependency;
 
 /**
  * Matches a {@link Dependency} using a groupId and artifactId filter

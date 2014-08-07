@@ -40,8 +40,8 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.RepositoryException;
-import org.sonatype.aether.graph.Dependency;
+import org.eclipse.aether.RepositoryException;
+import org.eclipse.aether.graph.Dependency;
 
 import static io.fabric8.fab.ModuleDescriptor.FAB_MODULE_DESCRIPTION;
 import static io.fabric8.fab.ModuleDescriptor.FAB_MODULE_ID;

@@ -15,19 +15,19 @@
  */
 package io.fabric8.fab;
 
-import org.sonatype.aether.RepositoryException;
-import org.sonatype.aether.collection.DependencyGraphTransformationContext;
-import org.sonatype.aether.collection.DependencyGraphTransformer;
-import org.sonatype.aether.collection.UnsolvableVersionConflictException;
-import org.sonatype.aether.graph.DependencyNode;
-import org.sonatype.aether.util.graph.transformer.ConflictIdSorter;
-import org.sonatype.aether.util.graph.transformer.NearestVersionConflictResolver;
-import org.sonatype.aether.util.graph.transformer.TransformationContextKeys;
-import org.sonatype.aether.version.Version;
-import org.sonatype.aether.version.VersionConstraint;
+import org.eclipse.aether.RepositoryException;
+import org.eclipse.aether.collection.DependencyGraphTransformationContext;
+import org.eclipse.aether.collection.DependencyGraphTransformer;
+import org.eclipse.aether.collection.UnsolvableVersionConflictException;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.util.graph.transformer.ConflictIdSorter;
+import org.eclipse.aether.util.graph.transformer.TransformationContextKeys;
+import org.eclipse.aether.version.Version;
+import org.eclipse.aether.version.VersionConstraint;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -42,7 +42,7 @@ import java.util.Map;
  * {@link TransformationContextKeys#SORTED_CONFLICT_IDS} for existing information about conflict ids. In absence of this
  * information, it will automatically invoke the {@link ConflictIdSorter} to calculate it.
  *
- * @see NearestVersionConflictResolver
+ * TODO see - NearestVersionConflictResolver
  */
 public class ReplaceConflictingVersionResolver
         implements DependencyGraphTransformer {
@@ -97,7 +97,7 @@ public class ReplaceConflictingVersionResolver
             group.candidates.put(node, pos);
 
             VersionConstraint versionConstraint = node.getVersionConstraint();
-            if (versionConstraint != null && versionConstraint.getRanges() != null && !versionConstraint.getRanges().isEmpty()) {
+            if (versionConstraint != null && versionConstraint.getRange() != null) { // && !versionConstraint.getRange().isEmpty()) {
                 group.constraints.add(versionConstraint);
             }
 
@@ -130,7 +130,7 @@ public class ReplaceConflictingVersionResolver
                     for (VersionConstraint constraint : group.constraints) {
                         versions.add(constraint.toString());
                     }
-                    throw new UnsolvableVersionConflictException(group.key, versions);
+                    throw new UnsolvableVersionConflictException(Collections.<List<DependencyNode>>emptyList()); // TODO, FIXME
                 }
             }
         }

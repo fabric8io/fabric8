@@ -82,7 +82,6 @@
         <plugins>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven-dependency-plugin-version}</version>
                 <executions>
                     <execution>
                         <id>unpack-wildfly-patch</id>
@@ -157,7 +156,6 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-dependency-plugin</artifactId>
-                        <version>${maven-dependency-plugin-version}</version>
                         <executions>
                             <execution>
                                 <id>unpack-wildfly</id>
