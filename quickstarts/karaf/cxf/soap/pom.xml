@@ -54,7 +54,7 @@
         <!-- fabric8 deploy profile configuration -->
         <fabric8.profile>quickstarts-karaf-cxf-soap</fabric8.profile>
         <fabric8.parentProfiles>feature-cxf</fabric8.parentProfiles>
-        <fabric8.features>fabric-cxf</fabric8.features>
+        <fabric8.features>fabric-cxf cxf-jaxws</fabric8.features>
     </properties>
 
     <licenses>
@@ -141,7 +141,7 @@
                 <configuration>
                     <instructions>
                         <Import-Package>
-                            javax.jws,
+                            javax.jws;version="[0,3)",
                             javax.wsdl,
                             javax.xml.namespace,
                             org.apache.cxf.helpers,
