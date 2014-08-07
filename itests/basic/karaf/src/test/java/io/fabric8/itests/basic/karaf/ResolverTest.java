@@ -15,23 +15,19 @@
  */
 package io.fabric8.itests.basic.karaf;
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import io.fabric8.api.Container;
-import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricService;
 import io.fabric8.itests.support.CommandSupport;
-import io.fabric8.itests.support.ContainerBuilder;
+import io.fabric8.itests.support.EnsembleSupport;
+import io.fabric8.itests.support.ProvisionSupport;
 import io.fabric8.itests.support.ServiceProxy;
-import io.fabric8.zookeeper.ZkPath;
-import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
 import java.io.InputStream;
-import java.util.Set;
+import java.util.Arrays;
 
-import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.karaf.admin.AdminService;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
@@ -46,21 +42,20 @@ import org.jboss.gravia.runtime.ServiceLocator;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.Asset;
-import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 
 @RunWith(Arquillian.class)
-@Ignore("[FABRIC-1133] ResolverTest can only run one method at a time")
 public class ResolverTest {
+
+    private static final String WAIT_FOR_JOIN_SERVICE = "wait-for-service io.fabric8.boot.commands.service.JoinAvailable";
 
     @Deployment
     @StartLevelAware(autostart = true)
     public static Archive<?> deployment() {
-        final ArchiveBuilder archive = new ArchiveBuilder("resolver-test");
+        final ArchiveBuilder archive = new ArchiveBuilder("extended-join-test");
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
         archive.addPackage(CommandSupport.class.getPackage());
         archive.setManifest(new Asset() {
@@ -75,8 +70,7 @@ public class ResolverTest {
                     builder.addImportPackages(RuntimeLocator.class, FabricService.class);
                     builder.addImportPackages(AbstractCommand.class, Action.class);
                     builder.addImportPackage("org.apache.felix.service.command;status=provisional");
-                    builder.addImportPackages(ConfigurationAdmin.class, Logger.class);
-                    builder.addImportPackages(CuratorFramework.class, ZooKeeperUtils.class, ZkPath.class);
+                    builder.addImportPackages(ConfigurationAdmin.class, AdminService.class, Logger.class);
                     return builder.openStream();
                 } else {
                     ManifestBuilder builder = new ManifestBuilder();
@@ -89,9 +83,12 @@ public class ResolverTest {
         return archive.getArchive();
     }
 
-    @Test
-    public void testRootContainerResolver() throws Exception {
-        System.out.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
+	/**
+	 * This is a test for FABRIC-353.
+	 */
+	@Test
+	public void testJoinAndAddToEnsemble() throws Exception {
+        System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
         //System.out.println(executeCommand("shell:info"));
         //System.out.println(executeCommand("fabric:info"));
         //System.out.println(executeCommand("fabric:profile-list"));
@@ -100,141 +97,44 @@ public class ResolverTest {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            Container current = fabricService.getCurrentContainer();
-            ServiceLocator.awaitService(ContainerRegistration.class);
-            Assert.assertEquals("localhostname", current.getResolver());
-            String sshUrlWithLocalhostResolver = current.getSshUrl();
-
-            System.out.println(CommandSupport.executeCommand("fabric:container-resolver-set --container root localip"));
-            Assert.assertEquals("localip", current.getResolver());
-            String sshUrlWithLocalIpResolver = current.getSshUrl();
-            //Check that the SSH URL has been updated.
-            System.out.println("SSH URL with " + sshUrlWithLocalhostResolver + " resolver: localhostname");
-            System.out.println("SSH URL with " + sshUrlWithLocalIpResolver + " resolver: localip");
-            Assert.assertNotSame(sshUrlWithLocalhostResolver, sshUrlWithLocalIpResolver);
-        } finally {
-            fabricProxy.close();
-        }
-    }
-
-    @Test
-    public void testCreateWithGlobalResolver() throws Exception {
-        System.out.println(CommandSupport.executeCommand("fabric:create --force --clean -n -g manualip --manual-ip localhost -b localhost"));
-        //System.out.println(executeCommand("shell:info"));
-        //System.out.println(executeCommand("fabric:info"));
-        //System.out.println(executeCommand("fabric:profile-list"));
-
-        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
-        try {
-            FabricService fabricService = fabricProxy.getService();
-            Container current = fabricService.getCurrentContainer();
-            Assert.assertEquals("manualip", current.getResolver());
-        } finally {
-            fabricProxy.close();
-        }
-    }
-
-    @Test
-    public void testCreateWithGlobalAndLocalResolver() throws Exception {
-        System.out.println(CommandSupport.executeCommand("fabric:create --force --clean -n -g manualip -r localhostname --manual-ip localhost"));
-        //System.out.println(executeCommand("shell:info"));
-        //System.out.println(executeCommand("fabric:info"));
-        //System.out.println(executeCommand("fabric:profile-list"));
-
-        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
-        try {
-            FabricService fabricService = fabricProxy.getService();
-            Container current = fabricService.getCurrentContainer();
-            Assert.assertEquals("localhostname", current.getResolver());
-        } finally {
-            fabricProxy.close();
-        }
-    }
-
-    @Test
-    public void testChildContainerResolver() throws Exception {
-        System.out.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
-        //System.out.println(executeCommand("shell:info"));
-        //System.out.println(executeCommand("fabric:info"));
-        //System.out.println(executeCommand("fabric:profile-list"));
-
-        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
-        try {
-            FabricService fabricService = fabricProxy.getService();
-            CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
-
-            Set<Container> containers = ContainerBuilder.create(1, 1).withName("basic.cntF").withProfiles("default").assertProvisioningResult().build(fabricService);
+            AdminService adminService = ServiceLocator.awaitService(AdminService.class);
+            String version = System.getProperty("fabric.version");
+            System.out.println(CommandSupport.executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands basic.cntD"));
+            System.out.println(CommandSupport.executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands basic.cntE"));
             try {
-                Container cntF = containers.iterator().next();
+                System.out.println(CommandSupport.executeCommand("admin:start basic.cntD"));
+                System.out.println(CommandSupport.executeCommand("admin:start basic.cntE"));
+                ProvisionSupport.instanceStarted(Arrays.asList("basic.cntD", "basic.cntE"), ProvisionSupport.PROVISION_TIMEOUT);
+                System.out.println(CommandSupport.executeCommand("admin:list"));
+                String joinCommand = "fabric:join -f --zookeeper-password "+ fabricService.getZookeeperPassword() +" " + fabricService.getZookeeperUrl();
 
-                Assert.assertEquals("localhostname", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(cntF.getId())));
-                String sshUrlWithLocalhostResolver = cntF.getSshUrl();
+                String response = "";
+                for (int i = 0; i < 10 && !response.contains("true"); i++) {
+                    response = CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("basic.cntD").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE);
+                    Thread.sleep(1000);
+                }
+                response = "";
+                for (int i = 0; i < 10 && !response.contains("true"); i++) {
+                    response = CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("basic.cntE").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE);
+                    Thread.sleep(1000);
+                }
 
-                CommandSupport.executeCommand("fabric:container-resolver-set --container " + cntF.getId() + " localip");
-                Assert.assertEquals("localip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(cntF.getId())));
-                String sshUrlWithLocalIpResolver = cntF.getSshUrl();
-                //Check that the SSH URL has been updated.
-                System.out.println("SSH URL with " + sshUrlWithLocalhostResolver + " resolver: localhostname");
-                System.out.println("SSH URL with " + sshUrlWithLocalIpResolver + " resolver: localip");
-                Assert.assertNotSame(sshUrlWithLocalhostResolver, sshUrlWithLocalIpResolver);
-
-                setData(curator, ZkPath.CONTAINER_PUBLIC_IP.getPath(cntF.getId()), "my.public.ip.address");
-                CommandSupport.executeCommand("fabric:container-resolver-set --container " + cntF.getId() + " publicip");
-                Assert.assertEquals("publicip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(cntF.getId())));
-                String sshUrlWithPublicIpResolver = cntF.getSshUrl();
-                System.out.println("SSH URL with " + sshUrlWithPublicIpResolver + " resolver: publicip");
-                Assert.assertNotNull(sshUrlWithPublicIpResolver);
-                Assert.assertTrue(sshUrlWithPublicIpResolver.startsWith("my.public.ip.address"));
-
-                setData(curator, ZkPath.CONTAINER_MANUAL_IP.getPath(cntF.getId()), "my.manual.ip.address");
-                CommandSupport.executeCommand("fabric:container-resolver-set --container " + cntF.getId() + " manualip");
-                Assert.assertEquals("manualip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(cntF.getId())));
-                String sshUrlWithManualIpResolver = cntF.getSshUrl();
-
-                System.out.println("SSH URL with " + sshUrlWithManualIpResolver + " resolver: manualip");
-                Assert.assertNotNull(sshUrlWithManualIpResolver);
-                Assert.assertTrue(sshUrlWithManualIpResolver.startsWith("my.manual.ip.address"));
+                System.err.println(CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("basic.cntD").getSshPort() + " localhost " + joinCommand));
+                System.err.println(CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("basic.cntE").getSshPort() + " localhost " + joinCommand));
+                ProvisionSupport.containersExist(Arrays.asList("basic.cntD", "basic.cntE"), ProvisionSupport.PROVISION_TIMEOUT);
+                Container cntD = fabricService.getContainer("basic.cntD");
+                Container cntE = fabricService.getContainer("basic.cntE");
+                ProvisionSupport.containerStatus(Arrays.asList(cntD, cntE), "success", ProvisionSupport.PROVISION_TIMEOUT);
+                EnsembleSupport.addToEnsemble(fabricService, cntD, cntE);
+                System.out.println(CommandSupport.executeCommand("fabric:container-list"));
+                EnsembleSupport.removeFromEnsemble(fabricService, cntD, cntE);
+                System.out.println(CommandSupport.executeCommand("fabric:container-list"));
             } finally {
-                ContainerBuilder.destroy(fabricService, containers);
+                System.out.println(CommandSupport.executeCommand("admin:stop basic.cntD"));
+                System.out.println(CommandSupport.executeCommand("admin:stop basic.cntE"));
             }
         } finally {
             fabricProxy.close();
         }
-    }
-
-    @Test
-    public void testResolverInheritanceOnChild() throws Exception {
-        System.out.println(CommandSupport.executeCommand("fabric:create --force --clean -n -g localip -r manualip --manual-ip localhost -b localhost"));
-        //System.out.println(executeCommand("shell:info"));
-        //System.out.println(executeCommand("fabric:info"));
-        //System.out.println(executeCommand("fabric:profile-list"));
-
-        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
-        try {
-            FabricService fabricService = fabricProxy.getService();
-            CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
-
-            Set<Container> containers = ContainerBuilder.create(1, 1).withName("basic.cntG").withProfiles("default").assertProvisioningResult().build(fabricService);
-            try {
-                Container cntG = containers.iterator().next();
-
-                Assert.assertEquals("manualip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(cntG.getId())));
-                Assert.assertEquals("manualip", fabricService.getCurrentContainer().getResolver());
-
-                //We stop the config admin bridge, since the next step is going to hung the container if we do propagate the change to config admin.
-                //new BundleUtils(bundleContext).findAndStopBundle("io.fabric8.fabric-configadmin");
-                //We want to make sure that the child points to the parent, so we change the parent resolvers and assert.
-                System.out.println(CommandSupport.executeCommand("fabric:container-resolver-set --container root localip"));
-                Assert.assertEquals("localip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(cntG.getId())));
-            } finally {
-                ContainerBuilder.destroy(fabricService, containers);
-            }
-        } finally {
-            fabricProxy.close();
-        }
-    }
+	}
 }

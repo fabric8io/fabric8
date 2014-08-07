@@ -88,6 +88,7 @@ public class ExtendedJoinTest {
 	 */
 	@Test
 	public void testJoinAndAddToEnsemble() throws Exception {
+        System.err.println(CommandSupport.executeCommand("features:install admin"));
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
         //System.out.println(executeCommand("shell:info"));
         //System.out.println(executeCommand("fabric:info"));
