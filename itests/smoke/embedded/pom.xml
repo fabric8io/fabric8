@@ -148,7 +148,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven-dependency-plugin-version}</version>
                 <executions>
                     <execution>
                         <phase>process-test-resources</phase>

@@ -24,21 +24,23 @@ import java.util.List;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.repository.internal.MavenRepositorySystemSession;
+import org.codehaus.plexus.ContainerConfiguration;
+import org.codehaus.plexus.DefaultContainerConfiguration;
 import org.codehaus.plexus.DefaultPlexusContainer;
-import org.sonatype.aether.RepositorySystem;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.collection.CollectRequest;
-import org.sonatype.aether.collection.DependencyCollectionException;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.graph.DependencyNode;
-import org.sonatype.aether.repository.LocalRepository;
-import org.sonatype.aether.resolution.ArtifactResolutionException;
-import org.sonatype.aether.resolution.DependencyRequest;
-import org.sonatype.aether.resolution.DependencyResolutionException;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
-import org.sonatype.aether.util.graph.PreorderNodeListGenerator;
+import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.collection.DependencyCollectionException;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.repository.LocalRepository;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator;
 
 public class Aether {
 
@@ -51,17 +53,19 @@ public class Aether {
     public static final List<Repository> UNAUTHORIZED_REPOSITORIES = Arrays.asList(
 //        new Repository("proxy.fusesource.com", "https://repo.fusesource.com/nexus/content/groups/m2-proxy", Authentications.getFuseRepoAuthentication()),
         new Repository("central", "http://repo2.maven.org/maven2/"),
+        new Repository("org.jboss.nexus", "http://repository.jboss.org/nexus/content/groups/public"),
         new Repository("public.fusesource.com", "https://repo.fusesource.com/nexus/content/groups/public"),
         new Repository("snapshots.fusesource.com", "https://repo.fusesource.com/nexus/content/groups/public-snapshots"),
         new Repository("old.public.fusesource.com", "https://repo.fusesource.com/maven2"),
-        new Repository("old.public.fusesource.com", "https://repo.fusesource.com/maven2"),
-        new Repository("public.sonatype.com", "https://oss.sonatype.org/content/groups/public"),
+        //new Repository("public.eclipse.com", "https://oss.eclipse.org/content/groups/public"),
         new Repository("maven1.java.net", "http://download.java.net/maven/1"),
-        //new Repository("maven2.jboss.org", "http://repository.jboss.org/maven2"),
         new Repository("com.springsource.repository.bundles.release", "http://repository.springsource.com/maven/bundles/release"),
         new Repository("com.springsource.repository.bundles.external", "http://repository.springsource.com/maven/bundles/external"),
         new Repository("com.springsource.repository.libraries.release", "http://repository.springsource.com/maven/libraries/release"),
-        new Repository("com.springsource.repository.libraries.external", "http://repository.springsource.com/maven/libraries/external")
+        new Repository("com.springsource.repository.libraries.external", "http://repository.springsource.com/maven/libraries/external"),
+        // new
+        new Repository("mvnrepository", "http://mvnrepository.com/artifact"),
+        new Repository("org.nuxeo", "http://maven.nuxeo.org/nexus/content/groups/public")
     );
 
     private LocalRepository localRepository;
@@ -82,7 +86,9 @@ public class Aether {
 //        this.repositorySystem = locator.getService(RepositorySystem.class);
 
         try {
-            this.repositorySystem = new DefaultPlexusContainer().lookup(RepositorySystem.class);
+            ContainerConfiguration configuration = new DefaultContainerConfiguration();
+            configuration.setAutoWiring(true);
+            this.repositorySystem = new DefaultPlexusContainer(configuration).lookup(RepositorySystem.class);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -126,11 +132,14 @@ public class Aether {
     }
 
     public RepositorySystemSession newSession() {
-        MavenRepositorySystemSession session = new MavenRepositorySystemSession();
-        session.setLocalRepositoryManager(repositorySystem.newLocalRepositoryManager(localRepository));
+        DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
+        session.setLocalRepositoryManager(repositorySystem.newLocalRepositoryManager(session, localRepository));
 
         session.setTransferListener(new ConsoleTransferListener(System.out));
         session.setRepositoryListener(new ConsoleRepositoryListener());
+
+        session.setConfigProperties(System.getProperties());
+        session.setSystemProperties(System.getProperties());
 
         // uncomment to generate dirty trees
         //session.setDependencyGraphTransformer(null);
@@ -209,7 +218,7 @@ public class Aether {
 
     public AetherResult resolve(Model model) throws DependencyCollectionException, DependencyResolutionException, ArtifactResolutionException {
         String extension = "bundle".equals(model.getPackaging()) ? "jar" : model.getPackaging();
-        return this.resolve(model.getGroupId(), model.getArtifactId(), model.getVersion(), extension);
+        return resolve(model.getGroupId(), model.getArtifactId(), model.getVersion(), extension);
     }
 
     /**

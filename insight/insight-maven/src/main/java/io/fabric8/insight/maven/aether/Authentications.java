@@ -20,9 +20,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.eclipse.aether.util.repository.AuthenticationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.repository.Authentication;
+import org.eclipse.aether.repository.Authentication;
 
 public class Authentications {
 
@@ -54,7 +55,7 @@ public class Authentications {
         }
         log.debug("Using user {} to access repo.fusesource.com", username);
 
-        return new Authentication(username, password);
+        return new AuthenticationBuilder().addUsername(username).addPassword(password).build();
     }
 
 }

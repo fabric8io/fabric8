@@ -46,35 +46,42 @@ import io.fabric8.deployer.ProjectDeployer;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DeployResults;
 import io.fabric8.deployer.dto.ProjectRequirements;
+import io.fabric8.fab.MavenRepositorySystemSession;
 import io.fabric8.maven.MavenProxy;
 import io.fabric8.maven.util.MavenUtils;
-import org.apache.maven.repository.internal.DefaultServiceLocator;
-import org.apache.maven.repository.internal.MavenRepositorySystemSession;
+import org.apache.maven.repository.internal.DefaultArtifactDescriptorReader;
+import org.apache.maven.repository.internal.DefaultVersionRangeResolver;
+import org.apache.maven.repository.internal.DefaultVersionResolver;
 import org.apache.maven.wagon.Wagon;
 import org.apache.maven.wagon.providers.file.FileWagon;
 import org.apache.maven.wagon.providers.http.LightweightHttpWagon;
 import org.apache.maven.wagon.providers.http.LightweightHttpWagonAuthenticator;
 import org.apache.maven.wagon.providers.http.LightweightHttpsWagon;
-import org.sonatype.aether.RepositorySystem;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.connector.wagon.WagonProvider;
-import org.sonatype.aether.connector.wagon.WagonRepositoryConnectorFactory;
-import org.sonatype.aether.installation.InstallRequest;
-import org.sonatype.aether.metadata.Metadata;
-import org.sonatype.aether.repository.Authentication;
-import org.sonatype.aether.repository.LocalRepository;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.repository.RepositoryPolicy;
-import org.sonatype.aether.resolution.ArtifactRequest;
-import org.sonatype.aether.resolution.ArtifactResult;
-import org.sonatype.aether.resolution.MetadataRequest;
-import org.sonatype.aether.resolution.MetadataResult;
-import org.sonatype.aether.spi.connector.RepositoryConnectorFactory;
-import org.sonatype.aether.util.DefaultRepositoryCache;
-import org.sonatype.aether.util.DefaultRepositorySystemSession;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
-import org.sonatype.aether.util.metadata.DefaultMetadata;
+import org.eclipse.aether.DefaultRepositoryCache;
+import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.connector.wagon.WagonProvider;
+import org.eclipse.aether.connector.wagon.WagonRepositoryConnectorFactory;
+import org.eclipse.aether.impl.ArtifactDescriptorReader;
+import org.eclipse.aether.impl.DefaultServiceLocator;
+import org.eclipse.aether.impl.VersionRangeResolver;
+import org.eclipse.aether.impl.VersionResolver;
+import org.eclipse.aether.installation.InstallRequest;
+import org.eclipse.aether.metadata.DefaultMetadata;
+import org.eclipse.aether.metadata.Metadata;
+import org.eclipse.aether.repository.Authentication;
+import org.eclipse.aether.repository.LocalRepository;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.repository.RepositoryPolicy;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.resolution.MetadataRequest;
+import org.eclipse.aether.resolution.MetadataResult;
+import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
+import org.eclipse.aether.util.repository.AuthenticationBuilder;
 
 public class MavenProxyServletSupport extends HttpServlet implements MavenProxy {
 
@@ -157,29 +164,33 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
         if (remoteRepositories != null) {
             for (String rep : remoteRepositories) {
-                RemoteRepository remoteRepository = createRemoteRepository(rep);
-                remoteRepository.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
-                remoteRepository.setProxy(session.getProxySelector().getProxy(remoteRepository));
-                repositories.put(remoteRepository.getId(), remoteRepository);
+                RemoteRepository.Builder previous = createRemoteRepository(rep);
+                RemoteRepository remoteRepository = previous.build();
+
+                RemoteRepository.Builder builder = new RemoteRepository.Builder(remoteRepository);
+                builder.setPolicy(new RepositoryPolicy(true, updatePolicy, checksumPolicy));
+                builder.setProxy(session.getProxySelector().getProxy(remoteRepository));
+                repositories.put(remoteRepository.getId(), builder.build());
             }
         }
 
-        RemoteRepository local = new RemoteRepository("local", DEFAULT_REPO_ID, "file://" + localRepository);
-        local.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
-        repositories.put("local", local);
+        RemoteRepository.Builder local = new RemoteRepository.Builder("local", DEFAULT_REPO_ID, "file://" + localRepository);
+        local.setPolicy(new RepositoryPolicy(true, updatePolicy, checksumPolicy));
+        repositories.put("local", local.build());
 
-        RemoteRepository karaf = new RemoteRepository("karaf", DEFAULT_REPO_ID, "file://" + System.getProperty("karaf.home") + File.separator + System.getProperty("karaf.default.repository"));
-        karaf.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
-        repositories.put("karaf", karaf);
+        RemoteRepository.Builder karaf = new RemoteRepository.Builder("karaf", DEFAULT_REPO_ID, "file://" + System.getProperty("karaf.home") + File.separator + System.getProperty("karaf.default.repository"));
+        karaf.setPolicy(new RepositoryPolicy(true, updatePolicy, checksumPolicy));
+        repositories.put("karaf", karaf.build());
 
-        RemoteRepository user = new RemoteRepository("user", DEFAULT_REPO_ID, "file://" + System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
-        user.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
+        RemoteRepository.Builder user = new RemoteRepository.Builder("user", DEFAULT_REPO_ID, "file://" + System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+        user.setPolicy(new RepositoryPolicy(true, updatePolicy, checksumPolicy));
+        repositories.put("user", user.build());
 
-        repositories.put("user", user);
         if (appendSystemRepos) {
             for (RemoteRepository sysRepo : MavenUtils.getRemoteRepositories()) {
-                sysRepo.setProxy(session.getProxySelector().getProxy(sysRepo));
-                repositories.put(sysRepo.getId(), sysRepo);
+                RemoteRepository.Builder builder = new RemoteRepository.Builder(sysRepo);
+                builder.setProxy(session.getProxySelector().getProxy(sysRepo));
+                repositories.put(sysRepo.getId(), builder.build());
             }
         }
     }
@@ -404,7 +415,8 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
     protected RepositorySystemSession newSession(RepositorySystem system, String localRepository) {
 
-        DefaultRepositorySystemSession session = new MavenRepositorySystemSession();
+        MavenRepositorySystemSession original = new MavenRepositorySystemSession();
+        DefaultRepositorySystemSession session = original.getDelegate();
         session.setOffline(false);
         session.setProxySelector(MavenUtils.getProxySelector(proxyProtocol, proxyHost, proxyPort, proxyNonProxyHosts, proxyUsername, proxyPassword));
         session.setMirrorSelector(MavenUtils.getMirrorSelector());
@@ -413,69 +425,96 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         session.setUpdatePolicy(updatePolicy);
         session.setChecksumPolicy(checksumPolicy);
         LocalRepository localRepo = new LocalRepository(localRepository);
-        session.setLocalRepositoryManager(system.newLocalRepositoryManager(localRepo));
+        session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
         return session;
     }
 
     protected RepositorySystem newRepositorySystem() {
         DefaultServiceLocator locator = new DefaultServiceLocator();
+        /*
+        locator.setErrorHandler(new DefaultServiceLocator.ErrorHandler() {
+            public void serviceCreationFailed(Class<?> type, Class<?> impl, Throwable exception) {
+                throw new RuntimeException(exception);
+            }
+        });
+        */
         locator.setServices(WagonProvider.class, new ManualWagonProvider());
         locator.addService(RepositoryConnectorFactory.class, WagonRepositoryConnectorFactory.class);
-        locator.setService(org.sonatype.aether.spi.log.Logger.class, LogAdapter.class);
+        locator.setService(org.eclipse.aether.spi.log.Logger.class, LogAdapter.class);
+        locator.setService(VersionResolver.class, DefaultVersionResolver.class);
+        locator.setService(VersionRangeResolver.class, DefaultVersionRangeResolver.class);
+        locator.setService(ArtifactDescriptorReader.class, DefaultArtifactDescriptorReader.class);
         return locator.getService(RepositorySystem.class);
     }
 
     /**
      * Creates a {@link RemoteRepository} for the specified url.
+     *
      * @param repositoryUrl The repository URL.
      * @return
      */
-    static RemoteRepository createRemoteRepository(String repositoryUrl) {
+    static RemoteRepository.Builder createRemoteRepository(String repositoryUrl) {
         String id;
-        RemoteRepository remoteRepository = null;
+        RemoteRepository.Builder remoteRepository;
         repositoryUrl = repositoryUrl.trim();
-        Authentication authentication = getAuthentication(repositoryUrl);
-        if (authentication != null) {
-            repositoryUrl = repositoryUrl.replaceFirst(String.format("%s:%s@", authentication.getUsername(), authentication.getPassword()), "");
+        String[] parts = getAuthenticationPair(repositoryUrl);
+        if (parts != null) {
+            repositoryUrl = repositoryUrl.replaceFirst(String.format("%s:%s@", parts[0], parts[1]), "");
         }
 
         Matcher idMatcher = REPOSITORY_ID_REGEX.matcher(repositoryUrl);
         if (idMatcher.matches()) {
             id = idMatcher.group(2);
             repositoryUrl = cleanUpRepositorySpec(repositoryUrl);
-            remoteRepository = new RemoteRepository(id + Math.abs(repositoryUrl.hashCode()), DEFAULT_REPO_ID, repositoryUrl);
+            remoteRepository = new RemoteRepository.Builder(id + Math.abs(repositoryUrl.hashCode()), DEFAULT_REPO_ID, repositoryUrl);
         } else {
             id = "rep-" + Math.abs(repositoryUrl.hashCode());
             repositoryUrl = cleanUpRepositorySpec(repositoryUrl);
-            remoteRepository = new RemoteRepository("repo-" + Math.abs(repositoryUrl.hashCode()), DEFAULT_REPO_ID, repositoryUrl);
+            remoteRepository = new RemoteRepository.Builder("repo-" + Math.abs(repositoryUrl.hashCode()), DEFAULT_REPO_ID, repositoryUrl);
         }
         remoteRepository.setId(id);
-        if (authentication != null) {
-            remoteRepository.setAuthentication(authentication);
+        if (parts != null) {
+            remoteRepository.setAuthentication(getAuthentication(parts));
         }
         return remoteRepository;
     }
 
     /**
      * Get the {@link Authentication} instance if the URL contains credentials, otherwise return null.
+     *
      * @param repositoryUrl
-     * @return
+     * @return auth or null
      */
-     static Authentication getAuthentication(String repositoryUrl) {
-        Authentication authentication = null;
+    static Authentication getAuthentication(String repositoryUrl) {
+        String[] parts = getAuthenticationPair(repositoryUrl);
+        return getAuthentication(parts);
+    }
+
+    static Authentication getAuthentication(String[] parts) {
+        if (parts != null) {
+            AuthenticationBuilder builder = new AuthenticationBuilder();
+            builder.addUsername(parts[0]);
+            builder.addPassword(parts[1]);
+            return builder.build();
+        } else {
+            return null;
+        }
+    }
+
+    static String[] getAuthenticationPair(String repositoryUrl) {
         try {
             URL url = new URL(repositoryUrl);
             String authority = url.getUserInfo();
             if (!Strings.isNullOrEmpty(authority)) {
                 String[] parts = authority.split(":");
                 if (parts.length == 2) {
-                    authentication = new Authentication(parts[0], parts[1]);
+                    return parts;
                 }
             }
         } catch (MalformedURLException e) {
             LOGGER.warning("{} does not look like a valid repository URL");
         }
-        return authentication;
+        return null;
     }
 
 
@@ -678,7 +717,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         return projectDeployer;
     }
 
-    public static class LogAdapter implements org.sonatype.aether.spi.log.Logger {
+    public static class LogAdapter implements org.eclipse.aether.spi.log.Logger {
 
         public boolean isDebugEnabled() {
             return LOGGER.isLoggable(Level.FINE);
@@ -708,7 +747,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     public static class ManualWagonProvider implements WagonProvider {
 
         public Wagon lookup(String roleHint)
-                throws Exception {
+            throws Exception {
             if ("file".equals(roleHint)) {
                 return new FileWagon();
             } else if ("http".equals(roleHint)) {
