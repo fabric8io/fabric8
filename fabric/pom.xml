@@ -77,6 +77,7 @@
         <module>fabric-project-deployer</module>
         <module>fabric-rest</module>
         <module>fabric-redirect</module>
+        <module>fabric-ssl</module>
         <module>fabric-utils</module>
         <module>fabric-vertx</module>
         <module>fabric-web</module>
