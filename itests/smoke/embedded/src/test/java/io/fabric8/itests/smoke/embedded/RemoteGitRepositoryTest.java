@@ -152,8 +152,12 @@ public class RemoteGitRepositoryTest {
         gitDataStore = ServiceLocator.getRequiredService(GitDataStore.class);
     }
     
+    /**
+     * Test that profile changes are pushed as part of the write operation.
+     * However, by default all write operations also do a push.  
+     */
     @Test
-    public void createProfileLocal() throws Exception {
+    public void createProfileWithPush() throws Exception {
         
         String versionId = "1.0";
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfA"));
@@ -162,14 +166,20 @@ public class RemoteGitRepositoryTest {
         profileRegistry.createProfile(pbuilder.addAttribute("foo", "aaa").getProfile());
         Profile profile = profileRegistry.getRequiredProfile(versionId, "prfA");
         Assert.assertEquals("aaa", profile.getAttributes().get("foo"));
+
+        Assert.assertTrue(remoteProfileExists(versionId, "prfA"));
         
         profileRegistry.deleteProfile(versionId, "prfA");
-        Assert.assertFalse(profileExists("1.0", "prfA"));
+        Assert.assertFalse(remoteProfileExists("1.0", "prfA"));
     }
 
+    /**
+     * Test that we see the remote changes as when we do a pull as part of the a git operation.
+     * However, read operations like getProfile() don't pull by default.  
+     */
     @Test
-    public void createProfileRemote() throws Exception {
-        
+    public void getProfileWithRemoteAhead() throws Exception {
+
         final String versionId = "1.0";
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfB"));
         
@@ -193,6 +203,10 @@ public class RemoteGitRepositoryTest {
         Assert.assertNull(profile);
     }
 
+    /**
+     * Test that a write operation fails if the commit cannot be pushed.
+     * On failed pushed, the local repo is set to the state of the remote repo 
+     */
     @Test
     public void createProfileFailOnPush() throws Exception {
         
@@ -210,10 +224,16 @@ public class RemoteGitRepositoryTest {
             Assert.assertTrue(ex.getMessage(), ex.getMessage().startsWith("Push rejected"));
         }
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfD"));
+        Assert.assertTrue(profileRegistry.hasProfile(versionId, "prfC"));
         
-        deleteProfileRemote(versionId, "prfC");
+        profileRegistry.deleteProfile(versionId, "prfC");
+        Assert.assertFalse(remoteProfileExists("1.0", "prfC"));
     }
 
+    /** 
+     * Test that the remote repo can diverge in a non-conflicting way
+     * We rebase local canges on to of remote changes in case of non-fast-forward pull
+     */
     @Test
     public void rebaseOnFailedPull() throws Exception {
         
@@ -226,14 +246,14 @@ public class RemoteGitRepositoryTest {
         
         ProfileBuilder pbuilder = ProfileBuilder.Factory.create(versionId, "prfE");
         profileRegistry.createProfile(pbuilder.getProfile());
-        Assert.assertTrue(profileExists("1.0", "prfE"));
+        Assert.assertTrue(remoteProfileExists("1.0", "prfE"));
 
         // Remove the last commit from the remote repository
         git.reset().setMode(ResetType.HARD).setRef(head.getName()).call();
-        Assert.assertFalse(profileExists("1.0", "prfE"));
+        Assert.assertFalse(remoteProfileExists("1.0", "prfE"));
         
         createProfileRemote(versionId, "prfF", null);
-        Assert.assertTrue(profileExists("1.0", "prfF"));
+        Assert.assertTrue(remoteProfileExists("1.0", "prfF"));
         
         GitOperation<Profile> gitop = new GitOperation<Profile>() {
             public Profile call(Git git, GitContext context) throws Exception {
@@ -241,16 +261,20 @@ public class RemoteGitRepositoryTest {
             }
         };
         GitContext context = new GitContext().requirePull();
-        Profile profile = gitDataStore.gitOperation(context, gitop, null);
-        Assert.assertEquals("1.0", profile.getVersion());
-        Assert.assertEquals("prfF", profile.getId());
+        gitDataStore.gitOperation(context, gitop, null);
+        
+        Assert.assertTrue(profileRegistry.hasProfile(versionId, "prfE"));
+        Assert.assertTrue(profileRegistry.hasProfile(versionId, "prfF"));
         
         profileRegistry.deleteProfile(versionId, "prfE");
         profileRegistry.deleteProfile(versionId, "prfF");
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfE"));
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfF"));
     }
-    
+
+    /**
+     * Test that repomote content overrides local content in case of a conflicting pull
+     */
     @Test
     public void rejectOnFailedPull() throws Exception {
         
@@ -267,10 +291,10 @@ public class RemoteGitRepositoryTest {
 
         // Remove the last commit from the remote repository
         git.reset().setMode(ResetType.HARD).setRef(head.getName()).call();
-        Assert.assertFalse(profileExists("1.0", "prfG"));
+        Assert.assertFalse(remoteProfileExists("1.0", "prfG"));
         
         createProfileRemote(versionId, "prfG", Collections.singletonMap("foo", "bbb"));
-        Assert.assertTrue(profileExists("1.0", "prfG"));
+        Assert.assertTrue(remoteProfileExists("1.0", "prfG"));
         
         GitOperation<Profile> gitop = new GitOperation<Profile>() {
             public Profile call(Git git, GitContext context) throws Exception {
@@ -278,16 +302,16 @@ public class RemoteGitRepositoryTest {
             }
         };
         GitContext context = new GitContext().requirePull();
-        profile = gitDataStore.gitOperation(context, gitop, null);
-        Assert.assertEquals("1.0", profile.getVersion());
-        Assert.assertEquals("prfG", profile.getId());
-        Assert.assertEquals("bbb", profile.getAttributes().get("foo"));
+        gitDataStore.gitOperation(context, gitop, null);
+        
+        Profile prfG = profileRegistry.getProfile(versionId, "prfG");
+        Assert.assertEquals("bbb", prfG.getAttributes().get("foo"));
         
         profileRegistry.deleteProfile(versionId, "prfG");
         Assert.assertFalse(profileRegistry.hasProfile(versionId, "prfG"));
     }
     
-    private static boolean profileExists(String versionId, String profileId) throws Exception {
+    private static boolean remoteProfileExists(String versionId, String profileId) throws Exception {
         boolean success = checkoutBranch(versionId);
         return success && new File(remoteRoot, "fabric/profiles/" + profileId + ".profile").exists();
     }
