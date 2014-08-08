@@ -24,7 +24,7 @@ import org.apache.felix.scr.annotations.Property;
  * Represents the configuration for a Docker Provider to specify in the profile which docker image to use
  */
 @Component(name = DockerConstants.DOCKER_PROVIDER_PID,
-        label = "Docker Provider",
+        label = "Docker",
         description = "The configuration of the docker image to use in this profile",
         immediate = true, metatype = true)
 public class DockerProviderConfig {
