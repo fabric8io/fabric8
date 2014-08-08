@@ -31,7 +31,9 @@ public class DependencyTreeTest extends DependencyTestSupport {
 
         // since we overload clogging, we should have 2 dependencies now; one in the root
         // and one in our transitive dependency
-        assertVersions(node, "commons-logging", "commons-logging-api", "1.0.4", "1.0.4");
+        // assertVersions(node, "commons-logging", "commons-logging-api", "1.0.4", "1.0.4");
+
+        assertVersions(node, "commons-logging", "commons-logging-api", "1.0.4");
     }
 
     @Test
