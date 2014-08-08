@@ -254,19 +254,23 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         counter = new SharedCount(curator.get(), ZkPath.GIT_TRIGGER.getPath(), 0);
         counter.addListener(new SharedCountListener() {
             @Override
-            public void countHasChanged(SharedCountReader sharedCountReader, int value) throws Exception {
-                
-                LOGGER.info("Watch counter updated to " + value + ", doing a pull");
-                
-                LockHandle writeLock = aquireWriteLock();
-                try {
-                    doPullInternal(new GitContext(), getCredentialsProvider(), true);
-                } catch (Throwable e) {
-                    LOGGER.debug("Error during pull due " + e.getMessage(), e);
-                    LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
-                } finally {
-                    writeLock.unlock();
-                }
+            public void countHasChanged(final SharedCountReader sharedCountReader, final int value) throws Exception {
+               threadPool.submit(new Runnable() {
+                   @Override
+                   public void run() {
+                       LOGGER.info("Watch counter updated to " + value + ", doing a pull");
+
+                       LockHandle writeLock = aquireWriteLock();
+                       try {
+                           doPullInternal(new GitContext(), getCredentialsProvider(), true);
+                       } catch (Throwable e) {
+                           LOGGER.debug("Error during pull due " + e.getMessage(), e);
+                           LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
+                       } finally {
+                           writeLock.unlock();
+                       }
+                   }
+               });
             }
 
             @Override
