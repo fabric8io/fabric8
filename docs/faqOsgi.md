@@ -24,7 +24,7 @@ The only difference is fabric8 uses the file name **pid.properties** rather than
 
 To add the file you can either:
 
-* in the web console, go to the profile page you want to change, click the **Add** button (top right button bar) and create a new Properties file named **pid.properties** and then edit it to suit.
-* use the [Fabric8 Maven Plugin](http://fabric8.io/gitbook/mavenPlugin.html) to either deploy your profile or [create a profile zip](http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven) and then [import it](http://fabric8.io/gitbook/continuousDeployment.html#importing-profile-zips)
-* perform a [git clone]() and add the file into the profile's folder and git add / git commit / git push back the change;
+* In the web console, go to the profile page you want to change, click the **Add** button (top right button bar) and create a new Properties file named **pid.properties** and then edit it to suit.
+* Use the [Fabric8 Maven Plugin](http://fabric8.io/gitbook/mavenPlugin.html) to either deploy your profile or [create a profile zip](http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven) and then [import it](http://fabric8.io/gitbook/continuousDeployment.html#importing-profile-zips). You just need to create a file **src/main/fabric8/pid.properties** in your maven project.
+* Perform a [git clone]() and add the file into the profile's folder and git add / git commit / git push back the change;
 
