@@ -355,7 +355,7 @@ public class MavenResolverImpl implements MavenResolver {
         }
 
         // now lets transform the dependency tree to remove different versions for the same artifact
-        DependencyGraphTransformationContext tranformContext = new DependencyGraphTransformationContext() {
+        final DependencyGraphTransformationContext tranformContext = new DependencyGraphTransformationContext() {
             Map map = new HashMap();
 
             public RepositorySystemSession getSession() {
@@ -370,7 +370,11 @@ public class MavenResolverImpl implements MavenResolver {
                 return map.put(key, value);
             }
         };
+
         DependencyGraphTransformer transformer = new ReplaceConflictingVersionResolver();
+        pomNode = transformer.transformGraph(pomNode, tranformContext);
+
+        transformer = new DuplicateTransformer();
         pomNode = transformer.transformGraph(pomNode, tranformContext);
 
         DependencyTreeResult result = new DependencyTreeResult(pomNode, this, excludeDependencyFilter);

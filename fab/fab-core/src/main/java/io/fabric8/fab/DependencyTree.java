@@ -48,8 +48,6 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -198,9 +196,9 @@ public class DependencyTree implements Comparable<DependencyTree> {
         String classifier = getClassifier();
         String extension = getExtension();
         return "DependencyTree(" + getGroupId() + ":" + getArtifactId() + ":" + version + ":" +
-                (notEmpty(classifier) ?  ":" + classifier : "") +
-                (notEmpty(extension) ? ":" + extension : "") +
-                children + ")";
+            (notEmpty(classifier) ? ":" + classifier : "") +
+            (notEmpty(extension) ? ":" + extension : "") +
+            children + ")";
     }
 
     @Override
@@ -214,9 +212,9 @@ public class DependencyTree implements Comparable<DependencyTree> {
         if (o instanceof DependencyTree) {
             DependencyTree that = (DependencyTree) o;
             return hashCode() == that.hashCode() &&
-                    equal(dependencyId, that.dependencyId) &&
-                    equal(version, that.version) &&
-                    equal(children, that.children);
+                equal(dependencyId, that.dependencyId) &&
+                equal(version, that.version) &&
+                equal(children, that.children);
         } else {
             return false;
         }
@@ -233,7 +231,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
      * Returns true if the dependency is a valid library (ie. pom files are ignored)
      */
     public boolean isValidLibrary() {
-        return getUrl()!=null && !getUrl().endsWith(".pom");
+        return getUrl() != null && !getUrl().endsWith(".pom");
     }
 
     public DependencyTree getParent() {
