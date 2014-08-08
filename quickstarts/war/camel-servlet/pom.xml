@@ -24,7 +24,7 @@
   <parent>
     <groupId>io.fabric8.quickstarts</groupId>
     <artifactId>fabric8-quickstarts-war-parent</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0.redhat-007</version>
   </parent>
 
   <!--
@@ -33,7 +33,7 @@
   -->
   <groupId>io.fabric8.quickstarts</groupId>
   <artifactId>war-camel-servlet</artifactId>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.1.0.redhat-007</version>
   <packaging>war</packaging>
   <name>Fabric8 :: Quickstarts :: WAR :: Camel Servlet</name>
   <description>Camel route using Servlet deployed as WAR</description>
@@ -54,8 +54,8 @@
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
 
     <!-- the version of the BOM, defining all the dependency versions -->
-    <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
-    <fabric.version>1.1.0-SNAPSHOT</fabric.version>
+    <fabric8.bom.version>1.1.0.redhat-007</fabric8.bom.version>
+    <fabric.version>1.1.0.redhat-007</fabric.version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-war-camel.servlet</fabric8.profile>
