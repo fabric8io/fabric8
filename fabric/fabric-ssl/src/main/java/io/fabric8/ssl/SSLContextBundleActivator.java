@@ -45,8 +45,6 @@ public class SSLContextBundleActivator implements BundleActivator {
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        System.out.println("SSLContextBundleActivator start");
-
         String trustStore = System.getProperty("javax.net.ssl.trustStore");
         boolean trustAll = Boolean.getBoolean("javax.net.ssl.trustAll");
 
