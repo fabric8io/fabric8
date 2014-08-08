@@ -88,6 +88,7 @@ public class ExtendedJoinTest {
 	 */
 	@Test
 	public void testJoinAndAddToEnsemble() throws Exception {
+        System.err.println(CommandSupport.executeCommand("features:install admin"));
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
         //System.out.println(executeCommand("shell:info"));
         //System.out.println(executeCommand("fabric:info"));
@@ -99,8 +100,8 @@ public class ExtendedJoinTest {
             FabricService fabricService = fabricProxy.getService();
             AdminService adminService = ServiceLocator.awaitService(AdminService.class);
             String version = System.getProperty("fabric.version");
-            System.out.println(CommandSupport.executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands basic.cntD"));
-            System.out.println(CommandSupport.executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric-git --feature fabric-agent --feature fabric-boot-commands basic.cntE"));
+            System.out.println(CommandSupport.executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric basic.cntD"));
+            System.out.println(CommandSupport.executeCommand("admin:create --featureURL mvn:io.fabric8/fabric8-karaf/" + version + "/xml/features --feature fabric basic.cntE"));
             try {
                 System.out.println(CommandSupport.executeCommand("admin:start basic.cntD"));
                 System.out.println(CommandSupport.executeCommand("admin:start basic.cntE"));

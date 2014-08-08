@@ -51,6 +51,7 @@ import io.fabric8.zookeeper.ZkPath;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -243,7 +244,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             ensembleProperties.put("initLimit", String.valueOf(options.getZooKeeperServerInitLimit()));
             ensembleProperties.put("syncLimit", String.valueOf(options.getZooKeeperServerSyncLimit()));
             ensembleProperties.put("dataDir", options.getZooKeeperServerDataDir() + File.separator + newClusterId);
-            
+
             // create new ensemble
             String ensembleProfileId = "fabric-ensemble-" + newClusterId;
             IllegalStateAssertion.assertFalse(profileRegistry.get().hasProfile(versionId, ensembleProfileId), "Profile already exists: " + versionId + "/" + ensembleProfileId);
@@ -315,7 +316,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 Profile ensembleProfile = ensembleProfileBuilder.getProfile();
                 LOGGER.info("Creating parent ensemble profile: {}", ensembleProfile);
                 profileRegistry.get().createProfile(ensembleProfile);
-                
+
                 // Create the member profiles
                 for (Profile memberProfile : memberProfiles) {
                     LOGGER.info("Creating member ensemble profile: {}", memberProfile);
@@ -324,7 +325,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             } finally {
                 writeLock.unlock();
             }
-            
+
             index = 1;
             for (String container : containers) {
                 // add this container to the ensemble
@@ -351,8 +352,10 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     if (!dst.getZookeeperClient().blockUntilConnectedOrTimedOut()) {
                         throw new EnsembleModificationFailed("Timed out connecting to new ensemble.", EnsembleModificationFailed.Reason.TIMEOUT);
                     }
-                    LOGGER.info("Copying data from the old ensemble to the new one");
+                    LOGGER.info("Copying data from the old ensemble to the new one...");
                     copy(curator.get(), dst, "/fabric");
+                    LOGGER.info("Copying complete.");
+                    validateRegistry(dst, containers);
                     setData(dst, ZkPath.CONFIG_ENSEMBLES.getPath(), newClusterId);
                     setData(dst, ZkPath.CONFIG_ENSEMBLE.getPath(newClusterId), containerList);
 
@@ -372,7 +375,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     setData(dst, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), PasswordEncoder.encode(options.getZookeeperPassword()));
                     setData(dst, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
                     curator.get().inTransaction()
-                            .setData().forPath(ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(),  PasswordEncoder.encode(options.getZookeeperPassword()).getBytes(Charsets.UTF_8))
+                            .setData().forPath(ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), PasswordEncoder.encode(options.getZookeeperPassword()).getBytes(Charsets.UTF_8))
                             .and()
                             .setData().forPath(ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl.getBytes(Charsets.UTF_8))
                             .and().commit();
@@ -435,7 +438,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             List<String> current = getEnsembleContainers();
             for (String c : containers) {
                 if (current.contains(c)) {
-                    throw new EnsembleModificationFailed("Container " + c + " is already part of the ensemble." , EnsembleModificationFailed.Reason.CONTAINERS_ALREADY_IN_ENSEMBLE);
+                    throw new EnsembleModificationFailed("Container " + c + " is already part of the ensemble.", EnsembleModificationFailed.Reason.CONTAINERS_ALREADY_IN_ENSEMBLE);
                 } else {
                     current.add(c);
                 }
@@ -464,8 +467,8 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
         try {
             List<String> current = getEnsembleContainers();
             for (String c : containers) {
-                if (! current.contains(c)) {
-                    throw new EnsembleModificationFailed("Container " + c + " is not part of the ensemble." , EnsembleModificationFailed.Reason.CONTAINERS_NOT_IN_ENSEMBLE);
+                if (!current.contains(c)) {
+                    throw new EnsembleModificationFailed("Container " + c + " is not part of the ensemble.", EnsembleModificationFailed.Reason.CONTAINERS_NOT_IN_ENSEMBLE);
                 } else {
                     current.remove(c);
                 }
@@ -498,7 +501,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             ports = new ArrayList<Integer>();
             usedPorts.put(ip, ports);
         }
-        for (;;) {
+        for (; ; ) {
             if (!ports.contains(port)) {
                 ports.add(port);
                 return port;
@@ -516,6 +519,15 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
         }
         for (int i = 1; i < parts.length; i++) {
             ports.add(Integer.parseInt(parts[i]));
+        }
+    }
+
+
+    protected void validateRegistry(CuratorFramework curator, Collection<String> containers) throws Exception {
+        IllegalStateAssertion.assertNotNull(curator.checkExists().forPath(ZkPath.CONFIG_ENSEMBLE_URL.getPath()), "Ensemble URL znode.");
+        IllegalStateAssertion.assertNotNull(curator.checkExists().forPath(ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath()), "Ensemble Password znode.");
+        for (String container : containers) {
+            IllegalStateAssertion.assertNotNull(curator.checkExists().forPath(ZkPath.CONFIG_CONTAINER.getPath(container)), "Container " + container + " version znode.");
         }
     }
 

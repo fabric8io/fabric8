@@ -18,7 +18,6 @@ package io.fabric8.itests.basic.karaf;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import io.fabric8.api.Container;
-import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricService;
 import io.fabric8.itests.support.CommandSupport;
 import io.fabric8.itests.support.ContainerBuilder;
@@ -101,7 +100,6 @@ public class ResolverTest {
         try {
             FabricService fabricService = fabricProxy.getService();
             Container current = fabricService.getCurrentContainer();
-            ServiceLocator.awaitService(ContainerRegistration.class);
             Assert.assertEquals("localhostname", current.getResolver());
             String sshUrlWithLocalhostResolver = current.getSshUrl();
 

@@ -335,7 +335,7 @@
         <xerces.version>2.11.0</xerces.version>
         <xjc-version>2.1.10.1</xjc-version>
         <xml.api.version>2.11.0-20110622</xml.api.version>
-        <zookeeper-version>3.4.6</zookeeper-version>
+        <zookeeper-version>3.4.5</zookeeper-version>
     </properties>
 
     <distributionManagement>

@@ -20,6 +20,7 @@ import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.GeoLocationService;
+import io.fabric8.api.PortService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -27,6 +28,7 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Strings;
 import io.fabric8.internal.ContainerImpl;
+import io.fabric8.internal.ImmutableContainerBuilder;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
@@ -69,6 +71,7 @@ import static io.fabric8.zookeeper.ZkPath.CONTAINER_RESOLVER;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.createDefault;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
@@ -91,13 +94,15 @@ public final class WildflyContainerRegistration extends AbstractComponent implem
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-    @Reference(referenceInterface = FabricService.class)
-    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = PortService.class)
+    private final ValidatingReference<PortService> portService = new ValidatingReference<PortService>();
     @Reference(referenceInterface = GeoLocationService.class)
     private final ValidatingReference<GeoLocationService> geoLocationService = new ValidatingReference<GeoLocationService>();
     @Reference(referenceInterface = BootstrapConfiguration.class)
     private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
 
+    private String runtimeIdentity;
+    private String ip;
 
     @Activate
     void activate() {
@@ -112,7 +117,7 @@ public final class WildflyContainerRegistration extends AbstractComponent implem
 
     private void activateInternal() {
         RuntimeProperties sysprops = runtimeProperties.get();
-        String runtimeIdentity = sysprops.getRuntimeIdentity();
+        runtimeIdentity = sysprops.getRuntimeIdentity();
         String version = sysprops.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
         String profiles = sysprops.getProperty("fabric.profiles");
         try {
@@ -143,18 +148,14 @@ public final class WildflyContainerRegistration extends AbstractComponent implem
                     setData(curator.get(), CONTAINER_ADDRESS.getPath(runtimeIdentity, resolver), address);
                 }
             }
+
+            ip =  getSubstitutedData(curator.get(), getContainerPointer(curator.get(), runtimeIdentity));
+            setData(curator.get(), CONTAINER_IP.getPath(runtimeIdentity), ip);
+
             createDefault(curator.get(), CONTAINER_GEOLOCATION.getPath(runtimeIdentity), geoLocationService.get().getGeoLocation());
-            //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
-            //Mostly usable for adding values when creating containers without an existing ensemble.
-            for (String resolver : ZkDefs.VALID_RESOLVERS) {
-                String address = sysprops.getProperty(resolver);
-                if (address != null && !address.isEmpty() && ZooKeeperUtils.exists(curator.get(), CONTAINER_ADDRESS.getPath(runtimeIdentity, resolver)) == null) {
-                    ZooKeeperUtils.setData(curator.get(), CONTAINER_ADDRESS.getPath(runtimeIdentity, resolver), address);
-                }
-            }
 
             //We are creating a dummy container object, since this might be called before the actual container is ready.
-            Container current = getContainer();
+            Container current = new ImmutableContainerBuilder().id(runtimeIdentity).ip(ip).build();
             registerHttp(current);
             registerJmx(current);
 
@@ -284,30 +285,6 @@ public final class WildflyContainerRegistration extends AbstractComponent implem
         return String.format(pointer, container, String.format(resolver, container));
     }
 
-    /**
-     * Gets the current {@link io.fabric8.api.Container}.
-     *
-     * @return The current container if registered or a dummy wrapper of the name and ip.
-     */
-    private Container getContainer() {
-        try {
-            return fabricService.get().getCurrentContainer();
-        } catch (Exception e) {
-            final RuntimeProperties sysprops = runtimeProperties.get();
-            final String runtimeIdentity = sysprops.getRuntimeIdentity();
-            return new ContainerImpl(null, runtimeIdentity, null) {
-                @Override
-                public String getIp() {
-                    try {
-                        return ZooKeeperUtils.getSubstitutedPath(curator.get(), CONTAINER_IP.getPath(runtimeIdentity));
-                    } catch (Exception e) {
-                        throw FabricException.launderThrowable(e);
-                    }
-                }
-            };
-        }
-    }
-
     void bindCurator(CuratorFramework curator) {
         this.curator.bind(curator);
     }
@@ -324,12 +301,12 @@ public final class WildflyContainerRegistration extends AbstractComponent implem
         this.runtimeProperties.unbind(service);
     }
 
-    void bindFabricService(FabricService fabricService) {
-        this.fabricService.bind(fabricService);
+    void bindPortService(PortService service) {
+        this.portService.bind(service);
     }
 
-    void unbindFabricService(FabricService fabricService) {
-        this.fabricService.unbind(fabricService);
+    void unbindPortService(PortService service) {
+        this.portService.unbind(service);
     }
 
     void bindGeoLocationService(GeoLocationService service) {
