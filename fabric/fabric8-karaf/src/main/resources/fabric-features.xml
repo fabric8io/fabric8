@@ -52,6 +52,7 @@
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.config/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.packages/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.scr/${karaf-version}</bundle>
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.api/${aries-blueprint-api-version}</bundle>
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.core/${aries-blueprint-core-version}</bundle>
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.cm/${aries-blueprint-cm-version}</bundle>
@@ -65,6 +66,7 @@
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint.api/${aries-jmx-blueprint-api-version}</bundle>
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint.core/${aries-jmx-blueprint-core-version}</bundle>
         <bundle dependency="true">mvn:org.apache.karaf.management/org.apache.karaf.management.server/${karaf-version}</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.scr/${karaf-version}</bundle>
 
         <bundle>mvn:org.bouncycastle/bcprov-jdk15on/${bouncycastle-version}</bundle>
         <bundle>mvn:org.apache.sshd/sshd-core/${sshd-version}</bundle>
@@ -78,6 +80,8 @@
         <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.management/${karaf-version}</bundle>
 
         <bundle>mvn:org.apache.karaf.service/org.apache.karaf.service.guard/${karaf-version}</bundle>
+
+        <bundle>mvn:org.apache.felix/org.apache.felix.eventadmin/${felix-eventadmin-version}</bundle>
 
 
         <!-- TODO: Either decouple diagonstic common from org.apache.karaf.features or provide a dummy FeatureServiceImpl.
