@@ -2,7 +2,7 @@
 
 #### How can I add my bundle and all its required bundles and features to fabric8?
 
-The fabric8 approach to working with OSGi and fabric8 is to use the  [Fabric8 Maven Plugin](http://fabric8.io/gitbook/mavenPlugin.html) to deploy directly into a [profile](http://fabric8.io/gitbook/profiles.html) or to [create a profile zip](http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven) which can then be [installed](http://fabric8.io/gitbook/continuousDeployment.html#importing-profile-zips).
+The fabric8 approach to working with OSGi and fabric8 is to use the  [Fabric8 Maven Plugin](http://fabric8.io/gitbook/mavenPlugin.html) to deploy directly into a [profile](http://fabric8.io/gitbook/profiles.html) or to [create a profile zip](http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven) which can then be [imported](http://fabric8.io/gitbook/continuousDeployment.html#importing-profile-zips).
 
 When using the [Fabric8 Maven Plugin](http://fabric8.io/gitbook/mavenPlugin.html) if you use the **bundle** packaging type in your maven pom.xml then the [OSGi Resolver](http://fabric8.io/gitbook/osgiResolver.html) will be used by default to add any dependent features or bundles to your profile.
 
@@ -24,6 +24,7 @@ The only difference is fabric8 uses the file name **pid.properties** rather than
 
 To add the file you can either:
 
-* perform a [git clone]() and add the file into the profile's folder and git add / git commit / git push back the change;
 * in the web console, go to the profile page you want to change, click the **Add** button (top right button bar) and create a new Properties file named **pid.properties** and then edit it to suit.
+* use the [Fabric8 Maven Plugin](http://fabric8.io/gitbook/mavenPlugin.html) to either deploy your profile or [create a profile zip](http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven) and then [import it](http://fabric8.io/gitbook/continuousDeployment.html#importing-profile-zips)
+* perform a [git clone]() and add the file into the profile's folder and git add / git commit / git push back the change;
 
