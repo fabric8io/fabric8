@@ -33,34 +33,29 @@ import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Filters;
 import io.fabric8.common.util.IOHelpers;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
-import org.eclipse.aether.artifact.ArtifactProperties;
-import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.graph.DefaultDependencyNode;
-import org.eclipse.aether.resolution.DependencyRequest;
-import org.eclipse.aether.resolution.DependencyResolutionException;
-import org.eclipse.aether.util.repository.AuthenticationBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.aether.RepositoryEvent;
 import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.RepositoryListener;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.ArtifactProperties;
+import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.collection.DependencyCollectionContext;
 import org.eclipse.aether.collection.DependencyCollectionException;
 import org.eclipse.aether.collection.DependencyGraphTransformationContext;
 import org.eclipse.aether.collection.DependencyGraphTransformer;
 import org.eclipse.aether.collection.DependencySelector;
+import org.eclipse.aether.graph.DefaultDependencyNode;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyFilter;
 import org.eclipse.aether.graph.DependencyNode;
@@ -75,12 +70,17 @@ import org.eclipse.aether.resolution.ArtifactDescriptorResult;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.util.filter.AndDependencyFilter;
 import org.eclipse.aether.util.graph.selector.AndDependencySelector;
 import org.eclipse.aether.util.graph.selector.ExclusionDependencySelector;
 import org.eclipse.aether.util.graph.selector.OptionalDependencySelector;
 import org.eclipse.aether.util.graph.selector.ScopeDependencySelector;
+import org.eclipse.aether.util.repository.AuthenticationBuilder;
 import org.eclipse.aether.util.version.GenericVersionScheme;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MavenResolverImpl implements MavenResolver {
 
@@ -329,8 +329,7 @@ public class MavenResolverImpl implements MavenResolver {
                     @Override
                     public boolean selectDependency(Dependency dependency) {
                         try {
-                            boolean answer = DependencyFilters.matches(dependency, shouldExclude);
-                            return !answer;
+                            return !DependencyFilters.matches(dependency, shouldExclude);
                         } catch (Exception e) {
                             failedToMakeDependencyTree(dependency, e);
                             return false;

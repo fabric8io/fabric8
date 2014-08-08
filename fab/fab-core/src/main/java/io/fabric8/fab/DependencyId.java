@@ -37,7 +37,8 @@ public class DependencyId implements Comparable<DependencyId> {
 
 
     public static DependencyId newInstance(DependencyNode node) {
-        return newInstance(node.getDependency());
+        Dependency dependency = node.getDependency();
+        return (dependency != null) ? newInstance(dependency) : newInstance(node.getArtifact());
     }
 
     public static DependencyId newInstance(Dependency dependency) {
