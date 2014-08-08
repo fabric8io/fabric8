@@ -122,7 +122,10 @@ import com.google.common.cache.LoadingCache;
  * configuration versions in a branch per version and directory per profile.
  */
 @ThreadSafe
-@Component(name = Constants.DATASTORE_PID, label = "Fabric8 Caching Git DataStore", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
+@Component(name = Constants.DATASTORE_PID,
+        label = "Fabric8 Git DataStore",
+        description = "Configuration of the git based configuration data store for Fabric8",
+        policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service({ GitDataStore.class, ProfileRegistry.class })
 public final class GitDataStoreImpl extends AbstractComponent implements GitDataStore, ProfileRegistry {
 
