@@ -261,11 +261,15 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
         Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(service, options);
 
+        DockerProviderConfig configOverlayDockerProvider = createDockerProviderConfig(configOverlay, environmentVariables);
+
         String image = JolokiaAgentHelper.substituteVariableExpression(containerConfig.getImage(), environmentVariables, service, curator.getOptional(), true);
+
         if (Strings.isNullOrBlank(image)) {
-            image = JolokiaAgentHelper.substituteVariableExpression(configOverlay.get(DockerConstants.PROPERTIES.IMAGE), environmentVariables, service, curator.getOptional(), true);
+            image = configOverlayDockerProvider.getImage();
             if (Strings.isNullOrBlank(image)) {
-                image = JolokiaAgentHelper.substituteVariableExpression(dockerProviderConfig.get(DockerConstants.PROPERTIES.IMAGE), environmentVariables, service, curator.getOptional(), true);
+                DockerProviderConfig dockerProviderConfigObject = createDockerProviderConfig(dockerProviderConfig, environmentVariables);
+                image = dockerProviderConfigObject.getImage();
             }
             if (Strings.isNullOrBlank(image)) {
                 image = System.getenv(DockerConstants.EnvironmentVariables.FABRIC8_DOCKER_DEFAULT_IMAGE);
@@ -284,7 +288,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
         String[] cmd = containerConfig.getCmd();
         if (cmd == null || cmd.length == 0) {
-            String value = configOverlay.get(DockerConstants.PROPERTIES.CMD);
+            String value = configOverlayDockerProvider.getCmd();
             if (Strings.isNullOrBlank(value)) {
                 cmd = null;
             } else {
@@ -361,15 +365,15 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         environmentVariables.put(EnvironmentVariables.FABRIC8_FABRIC_ENVIRONMENT, DockerConstants.SCHEME);
 
         // now the environment variables are all set lets see if we need to make a custom image
-        String libDir = configOverlay.get(DockerConstants.PROPERTIES.JAVA_LIBRARY_PATH);
-        String homeDir = configOverlay.get(DockerConstants.PROPERTIES.HOME_PATH);
+        String libDir = configOverlayDockerProvider.getJavaLibraryPath();
+        String homeDir = configOverlayDockerProvider.getHomePath();
         if (!Strings.isNullOrBlank(libDir)) {
             if (container != null) {
                 container.setProvisionResult("preparing");
                 container.setAlive(true);
             }
-            String imageRepository = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_REPOSITORY);
-            String entryPoint = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_ENTRY_POINT);
+            String imageRepository = configOverlayDockerProvider.getImageRepository();
+            String entryPoint = configOverlayDockerProvider.getImageEntryPoint();
             List<String> names = new ArrayList<String>(profileIds);
             names.add(versionId);
             String tag = "fabric8-" + Strings.join(names, "-").replace('.', '-');
@@ -421,6 +425,14 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         }
         startDockerContainer(status.getId(), options);
         return metadata;
+    }
+
+    protected DockerProviderConfig createDockerProviderConfig(Map<String, String> dockerProviderConfig, Map<String, String> environmentVariables) throws Exception {
+        FabricService service = fabricService.get();
+        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(dockerProviderConfig, environmentVariables, service, curator.getOptional());
+        DockerProviderConfig dockerProviderConfigObject = new DockerProviderConfig();
+        configurer.configure(dockerProviderConfig, dockerProviderConfigObject);
+        return dockerProviderConfigObject;
     }
 
     protected void publishZooKeeperValues(CreateDockerContainerOptions options, Map<String, String> environmentVariables) {
