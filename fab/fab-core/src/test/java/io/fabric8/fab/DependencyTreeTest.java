@@ -17,9 +17,6 @@ package io.fabric8.fab;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 public class DependencyTreeTest extends DependencyTestSupport {
 
     @Test
@@ -40,7 +37,7 @@ public class DependencyTreeTest extends DependencyTestSupport {
     @Test
     public void testOverrideSpring() throws Exception {
         DependencyTreeResult node = collectDependencies("test-override-spring.pom");
-        assertVersions(node, "commons-logging", "commons-logging", "1.1.1", "1.1.1");
+        assertVersions(node, "commons-logging", "commons-logging", "1.1.1");
         assertVersions(node, "org.springframework", "spring-core", "3.0.5.RELEASE");
     }
 
