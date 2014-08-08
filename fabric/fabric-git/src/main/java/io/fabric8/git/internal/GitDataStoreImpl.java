@@ -97,6 +97,7 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
@@ -254,27 +255,33 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         counter = new SharedCount(curator.get(), ZkPath.GIT_TRIGGER.getPath(), 0);
         counter.addListener(new SharedCountListener() {
             @Override
-            public void countHasChanged(SharedCountReader sharedCountReader, int value) throws Exception {
-                
-                LOGGER.info("Watch counter updated to " + value + ", doing a pull");
-                
-                LockHandle writeLock = aquireWriteLock();
-                try {
-                    doPullInternal(new GitContext(), getCredentialsProvider(), true);
-                } catch (Throwable e) {
-                    LOGGER.debug("Error during pull due " + e.getMessage(), e);
-                    LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
-                } finally {
-                    writeLock.unlock();
-                }
+            public void countHasChanged(final SharedCountReader sharedCountReader, final int value) throws Exception {
+               threadPool.submit(new Runnable() {
+                   @Override
+                   public void run() {
+                       LOGGER.info("Watch counter updated to " + value + ", doing a pull");
+                       doPullInternal();
+                   }
+               });
             }
 
             @Override
             public void stateChanged(CuratorFramework curatorFramework, ConnectionState connectionState) {
-                // ignore
+                switch (connectionState) {
+                    case CONNECTED:
+                    case RECONNECTED:
+                        LOGGER.info("Shared Counter (Re)connected, doing a pull");
+                        doPullInternal();
+                }
             }
         });
         counter.start();
+
+        //It is not safe to assume that we will get notified by the ShareCounter, if the component is not activated
+        // when the SharedCounter gets updated.
+        //Also we cannot rely on the remote url change event, as it will only trigger when there is an actual change.
+        //So we should be awesome and always attempt a pull when we are activating if we don't want to loose stuff.
+        doPullInternal();
     }
 
     private void deactivateInternal() {
@@ -926,6 +933,18 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
         } catch (GitAPIException ex) {
             throw FabricException.launderThrowable(ex);
+        }
+    }
+
+    private void doPullInternal() {
+        LockHandle writeLock = aquireWriteLock();
+        try {
+           doPullInternal(new GitContext(), getCredentialsProvider(), true);
+        } catch (Throwable e) {
+            LOGGER.debug("Error during pull due " + e.getMessage(), e);
+            LOGGER.warn("Error during pull due " + e.getMessage() + ". This exception is ignored.");
+        } finally {
+            writeLock.unlock();
         }
     }
     
