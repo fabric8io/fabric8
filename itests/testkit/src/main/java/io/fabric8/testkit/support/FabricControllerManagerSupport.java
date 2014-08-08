@@ -33,6 +33,9 @@ import static io.fabric8.common.util.Strings.join;
 /**
  */
 public abstract class FabricControllerManagerSupport implements FabricControllerManager {
+    public static final String JAVA_OPTS = "JAVA_OPTS";
+    public static final String DEFAULT_JAVA_OPTS = "-XX:MaxPermSize=350m";
+
     protected File workDirectory;
     private Set<String> profiles = new HashSet<>();
     private String[] allowInheritedEnvironmentVariables = {"JAVA_HOME", "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MAVEN_HOME", "PATH", "USER"};
@@ -84,6 +87,9 @@ public abstract class FabricControllerManagerSupport implements FabricController
             answer.putAll(environmentVariables);
         }
         answer.put(EnvironmentVariables.FABRIC8_PROFILES, join(getProfiles(), ","));
+        if (answer.get(JAVA_OPTS) == null) {
+            answer.put(JAVA_OPTS, DEFAULT_JAVA_OPTS);
+        }
         return answer;
     }
 
