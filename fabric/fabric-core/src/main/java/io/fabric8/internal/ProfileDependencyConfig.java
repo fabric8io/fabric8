@@ -24,7 +24,10 @@ import org.apache.felix.scr.annotations.PropertyOption;
  *
  * @author Ken Finnigan
  */
-@Component(name = "io.fabric8.profile.dependency", label = "Fabric8 Profile Dependency Configuration", immediate = true, metatype = true)
+@Component(name = "io.fabric8.profile.dependency",
+        label = "Fabric8 Profile Dependency",
+        description = "Represents the configuration of a Profile dependency that can be met through either profile wildcards or tags to define it",
+        immediate = true, metatype = true)
 public class ProfileDependencyConfig {
 
     /**
