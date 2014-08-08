@@ -187,16 +187,35 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
             for (String configName : configurationFileNames) {
                 if (configName.endsWith(PROPERTIES_SUFFIX) && configName.indexOf('/') < 0) {
                     String pid = configName.substring(0, configName.length() - PROPERTIES_SUFFIX.length());
-                    if (pid.length() > 0) {
-                        if (pids.add(pid)) {
-                            File pidFolder = new File(metaTypeFolder, pid);
-                            File xmlFile = new File(pidFolder, "metatype.xml");
-                            File propertiesFile = new File(pidFolder, "metatype.properties");
-                            addMetaTypeInformation(handler, pid, xmlFile, propertiesFile);
-                        }
-                    }
+                    addMetaTypeInformation(pids, handler, pid);
+                    String factoryPid = getFactoryPid(pid);
+                    addMetaTypeInformation(pids, handler, factoryPid);
                 }
             }
+        }
+    }
+
+    private void addMetaTypeInformation(Set<String> pids, MetadataHandler handler, String pid) throws IOException {
+        if (pid != null && pid.length() > 0) {
+            if (pids.add(pid)) {
+                File pidFolder = new File(metaTypeFolder, pid);
+                File xmlFile = new File(pidFolder, "metatype.xml");
+                File propertiesFile = new File(pidFolder, "metatype.properties");
+                addMetaTypeInformation(handler, pid, xmlFile, propertiesFile);
+            }
+        }
+    }
+
+    /**
+     * If the pid is an instance of a factoryPid of the form "factoryPid-instanceId" then remove the
+     * instance post fix to return the factoryPid otherwise return null
+     */
+    protected String getFactoryPid(String pid) {
+        int idx = pid.indexOf('-');
+        if (idx > 0) {
+            return pid.substring(0, idx);
+        } else {
+            return null;
         }
     }
 
