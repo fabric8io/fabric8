@@ -41,7 +41,7 @@ import java.util.Set;
  * Represents the configuration of a {@link io.fabric8.process.manager.ProcessManager} based child container
  */
 @Component(name = "io.fabric8.container.process",
-        label = "Fabric8 Child Process Container Configuration",
+        label = "Fabric8 Child Process Container",
         description = "Configures how to download, unpack and run a software distribution as a Child Process Container",
         immediate = true, metatype = true)
 public class ProcessContainerConfig {

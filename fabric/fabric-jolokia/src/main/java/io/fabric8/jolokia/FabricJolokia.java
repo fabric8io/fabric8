@@ -29,7 +29,10 @@ import org.slf4j.LoggerFactory;
 import java.util.Hashtable;
 import java.util.Map;
 
-@Component(name = "io.fabric8.jolokia", label = "Fabric8 Jolokia", policy = ConfigurationPolicy.OPTIONAL, metatype = true, immediate = true)
+@Component(name = "io.fabric8.jolokia",
+        label = "Fabric8 Jolokia",
+        description = "Configuration for the Fabric8 Jolokia Service which exposes JMX securely over HTTP/JSON",
+        policy = ConfigurationPolicy.OPTIONAL, metatype = true, immediate = true)
 public class FabricJolokia extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricJolokia.class);
