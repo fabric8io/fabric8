@@ -44,18 +44,6 @@ public class DockerConstants {
     public static final String DOCKER_PROVIDER_PROFILE_ID = "docker";
 
     /**
-     * Config Admin property keys of the {@link #DOCKER_PROVIDER_PID}
-     */
-    public static class PROPERTIES {
-        public static final String IMAGE = "image";
-        public static final String CMD = "cmd";
-        public static final String JAVA_LIBRARY_PATH = "javaLibraryPath";
-        public static final String HOME_PATH = "homePath";
-        public static final String IMAGE_REPOSITORY = "imageRepository";
-        public static final String IMAGE_ENTRY_POINT = "imageEntryPoint";
-    }
-
-    /**
      * Environment variables
      */
     public static class EnvironmentVariables {
