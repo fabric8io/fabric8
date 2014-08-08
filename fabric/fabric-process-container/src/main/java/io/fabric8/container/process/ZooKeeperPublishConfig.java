@@ -32,7 +32,10 @@ import java.util.Map;
 /**
  * Represents the configuration to publish a value to ZooKeeper
  */
-@Component(name = "io.fabric8.zk.publish", label = "Fabric8 ZooKeeper Publish Rule", immediate = true, metatype = true)
+@Component(name = ZooKeeperPublishConfig.PROCESS_CONTAINER_ZK_PUBLISH_PID,
+        label = "ZooKeeper Publish",
+        description = "Defines how to publish container specific data into the ZooKeeper registry",
+        immediate = true, metatype = true)
 public class ZooKeeperPublishConfig {
     /**
      * The PID for the process container ZooKeeper publish values; for what entries to write into ZK
