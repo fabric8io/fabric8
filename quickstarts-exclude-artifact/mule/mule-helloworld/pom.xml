@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Copyright 2005-2014 Red Hat, Inc.
+
+    Red Hat licenses this file to you under the Apache License, version
+    2.0 (the "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+    implied.  See the License for the specific language governing
+    permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.fabric8.quickstarts</groupId>
+        <artifactId>fabric8-quickstarts-mule-parent</artifactId>
+        <version>1.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>mule-helloworld</artifactId>
+    <name>Fabric8 :: Quickstarts :: Mule :: HelloWorld</name>
+    <packaging>mule</packaging>
+    <description>A simple HTTP handler in Mule</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <mule.version>3.5.1</mule.version>
+        <eclipsePluginVersion>2.8</eclipsePluginVersion>
+        <jdk.version>1.7</jdk.version>
+        <junit.version>4.9</junit.version>
+
+        <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
+        <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
+
+        <!-- the version of the BOM, defining all the dependency versions -->
+        <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
+        <fabric.version>1.1.0-SNAPSHOT</fabric.version>
+
+        <!-- fabric8 deploy profile configuration -->
+        <fabric8.profile>quickstarts-mule-helloworld</fabric8.profile>
+        <fabric8.parentProfiles>containers-mule.ce</fabric8.parentProfiles>
+        <!-- we can define what the context path should be using a fixed name -->
+        <fabric8.webContextPath>camel-servlet</fabric8.webContextPath>
+
+        <!-- fabric8 will using the packing type 'mule' as the extenions spec -->
+        <!-- for the bundle, which is wrong, so the default must be override -->
+        <!-- (see fabric8 plugin config, in this module) -->
+        <fabric8.includeArtifact>false</fabric8.includeArtifact>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.3.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.mule.tools</groupId>
+                                        <artifactId>maven-mule-plugin</artifactId>
+                                        <versionRange>[1.6,)</versionRange>
+                                        <goals>
+                                            <goal>attach-test-resources</goal>
+                                            <goal>filter-resources</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.mule.tools</groupId>
+                <artifactId>maven-mule-plugin</artifactId>
+                <version>1.9</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <copyToAppsDirectory>true</copyToAppsDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
+                    <encoding>ISO-8859-1</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>project</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <version>${eclipsePluginVersion}</version>
+                <configuration>
+                    <!-- by default download all sources when generating project files -->
+                    <downloadSources>true</downloadSources>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.9</version>
+                <executions>
+                    <execution>
+                        <id>add-resource</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>add-resource</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <resources>
+                        <resource>
+                            <directory>src/main/app/</directory>
+                        </resource>
+                        <resource>
+                            <directory>src/main/api/</directory>
+                        </resource>
+                    </resources>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                  <execution>
+                    <goals>
+                      <goal>java</goal>
+                    </goals>
+                  </execution>
+                </executions>
+                <configuration>
+                  <mainClass>org.mule.MuleServer</mainClass>
+                  <arguments>
+                    <argument>-config</argument>
+                    <argument>src/main/app/mule-config.xml</argument>
+                  </arguments>
+                <classpathScope>compile</classpathScope>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <id>zip</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>zip</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includeArtifact>${fabric8.includeArtifact}</includeArtifact>
+                    <!-- override the default bundle spec, with the correct one -->
+                    <bundles>
+                        file:mvn:${project.groupId}/${project.artifactId}/${project.version}/zip
+                    </bundles>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Mule Dependencies -->
+    <dependencies>
+        <dependency>
+            <groupId>org.mule</groupId>
+            <artifactId>mule-core</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Xml configuration -->
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-spring-config</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Mule Transports -->
+        <dependency>
+            <groupId>org.mule.transports</groupId>
+            <artifactId>mule-transport-http</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Mule Modules -->
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-client</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-cxf</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-management</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- for testing -->
+        <dependency>
+            <groupId>org.mule.tests</groupId>
+            <artifactId>mule-tests-functional</artifactId>
+            <version>${mule.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+          <repository>
+            <id>Central</id>
+            <name>Central</name>
+            <url>http://repo1.maven.org/maven2/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>mulesoft-releases</id>
+            <name>MuleSoft Releases Repository</name>
+            <url>http://repository.mulesoft.org/releases/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>mulesoft-snapshots</id>
+            <name>MuleSoft Snapshots Repository</name>
+            <url>http://repository.mulesoft.org/snapshots/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>mulesoft-release</id>
+            <name>mulesoft release repository</name>
+            <layout>default</layout>
+            <url>http://repository.mulesoft.org/releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+</project>
