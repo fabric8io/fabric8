@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="8.3" data-basepath="." data-revision="1407525828365">
+    <div class="book" data-github="fabric8io/fabric8" data-level="8.3" data-basepath="." data-revision="1407612227768">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -841,7 +841,7 @@
                     
                         <h3 id="questions-on-osgi-and-fabric8"><a name="questions-on-osgi-and-fabric8" class="anchor" href="#questions-on-osgi-and-fabric8"><span class="fa fa-link"></span></a>Questions On OSGi and Fabric8</h3>
 <h4 id="how-can-i-add-my-bundle-and-all-its-required-bundles-and-features-to-fabric8-"><a name="how-can-i-add-my-bundle-and-all-its-required-bundles-and-features-to-fabric8-" class="anchor" href="#how-can-i-add-my-bundle-and-all-its-required-bundles-and-features-to-fabric8-"><span class="fa fa-link"></span></a>How can I add my bundle and all its required bundles and features to fabric8?</h4>
-<p>The fabric8 approach to working with OSGi and fabric8 is to use the  <a href="http://fabric8.io/gitbook/mavenPlugin.html" target="_blank">Fabric8 Maven Plugin</a> to deploy directly into a <a href="http://fabric8.io/gitbook/profiles.html" target="_blank">profile</a> or to <a href="http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven" target="_blank">create a profile zip</a> which can then be <a href="http://fabric8.io/gitbook/continuousDeployment.html#importing-profile-zips" target="_blank">installed</a>.</p>
+<p>The fabric8 approach to working with OSGi and fabric8 is to use the  <a href="http://fabric8.io/gitbook/mavenPlugin.html" target="_blank">Fabric8 Maven Plugin</a> to deploy directly into a <a href="http://fabric8.io/gitbook/profiles.html" target="_blank">profile</a> or to <a href="http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven" target="_blank">create a profile zip</a> which can then be <a href="http://fabric8.io/gitbook/continuousDeployment.html#importing-profile-zips" target="_blank">imported</a>.</p>
 <p>When using the <a href="http://fabric8.io/gitbook/mavenPlugin.html" target="_blank">Fabric8 Maven Plugin</a> if you use the <strong>bundle</strong> packaging type in your maven pom.xml then the <a href="http://fabric8.io/gitbook/osgiResolver.html" target="_blank">OSGi Resolver</a> will be used by default to add any dependent features or bundles to your profile.</p>
 <h4 id="should-i-use-features-"><a name="should-i-use-features-" class="anchor" href="#should-i-use-features-"><span class="fa fa-link"></span></a>Should I use features?</h4>
 <p>If you&apos;re using OSGi or <a href="http://karaf.apache.org/" target="_blank">Apache Karaf</a> as your application server and you&apos;ve already developed features XML files for grouping bundles together as a logical application; thats all cool and they work great in fabric8.</p>
@@ -853,8 +853,9 @@
 <p>The only difference is fabric8 uses the file name <strong>pid.properties</strong> rather than <strong>pid.cfg</strong>; so just rename the file and you should be good to go.</p>
 <p>To add the file you can either:</p>
 <ul>
-<li>perform a <a href="">git clone</a> and add the file into the profile&apos;s folder and git add / git commit / git push back the change;</li>
-<li>in the web console, go to the profile page you want to change, click the <strong>Add</strong> button (top right button bar) and create a new Properties file named <strong>pid.properties</strong> and then edit it to suit.</li>
+<li>In the web console, go to the profile page you want to change, click the <strong>Add</strong> button (top right button bar) and create a new Properties file named <strong>pid.properties</strong> and then edit it to suit.</li>
+<li>Use the <a href="http://fabric8.io/gitbook/mavenPlugin.html" target="_blank">Fabric8 Maven Plugin</a> to either deploy your profile or <a href="http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven" target="_blank">create a profile zip</a> and then <a href="http://fabric8.io/gitbook/continuousDeployment.html#importing-profile-zips" target="_blank">import it</a>. You just need to create a file <strong>src/main/fabric8/pid.properties</strong> in your maven project.</li>
+<li>Perform a <a href="http://fabric8.io/gitbook/git.html" target="_blank">git clone</a> and add the file into the profile&apos;s folder and git add / git commit / git push back the change;</li>
 </ul>
 
                     
