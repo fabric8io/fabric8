@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   	   xmlns:management="http://www.mulesoft.org/schema/mule/management"
+       xmlns:spring="http://www.springframework.org/schema/beans" 
+    xsi:schemaLocation="
+       http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+       http://www.springframework.org/schema/beans 
+             http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.mulesoft.org/schema/mule/management 
+             http://www.mulesoft.org/schema/mule/management/3.4/mule-management.xsd">
+
+     <custom-agent name="jolokia-agent" class="org.jolokia.mule.JolokiaMuleAgent">
+	 	<spring:property name="host" value="0.0.0.0"/>
+	     <spring:property name="port" value="@{FABRIC8_JOLOKIA_PROXY_PORT}"/>
+     </custom-agent>
+  
+     <management:jmx-server/>
+
+</mule>

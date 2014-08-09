@@ -9,6 +9,7 @@ The quickstarts are categorized accordingly to the container being used:
 * [karaf](karaf) - many examples for Apache Karaf containers (OSGi)
 * [spring.boot](spring.boot) - examples for using Spring Boot
 * [war](war) - examples as WAR deployment which can run on containers such as Apache Tomcat, Jetty, and Wildfly
+* [mule](zip) - examples for Mule applications that can run on a standalone mule container
 
 Each quickstart has extensive documentation, organized as follows:
 
