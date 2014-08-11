@@ -3639,6 +3639,21 @@
                 </exclusions>
             </dependency>
 
+            <!-- Quickstarts -->
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-ejb_3.1_spec</artifactId>
+                <version>${geronimo-ejb-3-1-spec-version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.weld.se</groupId>
+                <artifactId>weld-se</artifactId>
+                <version>${weld2-version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
