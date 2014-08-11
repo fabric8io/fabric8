@@ -132,7 +132,7 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
                 case CHILD_UPDATED:
                 case INITIALIZED:
                     if (shouldRunCallbacks(event.getData().getPath())) {
-                        LOGGER.info("Event {} detected on {}. Sending notification.", event.getType().name(), event.getData().getPath());
+                        LOGGER.info("Event {} detected on {} with data {}. Sending notification.", event.getType().name(), event.getData().getPath(), new String(event.getData().getData(), "UTF-8"));
                         fireChangeNotifications();
                     }
                     break;

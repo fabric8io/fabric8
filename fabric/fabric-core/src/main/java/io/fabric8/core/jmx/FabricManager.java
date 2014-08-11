@@ -450,6 +450,20 @@ public final class FabricManager implements FabricManagerMBean {
     }
 
     @Override
+    public Map<String, String> getOverlayProfileProperties(String versionId, String profileId, String pid) {
+        Map<String, String> answer = null;
+        Version version = profileService.getVersion(versionId);
+        if (version != null) {
+            Profile profile = version.getRequiredProfile(profileId);
+            if (profile != null) {
+                Profile overlayProfile = profileService.getOverlayProfile(profile);
+                answer = overlayProfile.getConfiguration(pid);
+            }
+        }
+        return answer;
+    }
+
+    @Override
     public boolean setProfileProperties(String versionId, String profileId, String pid, Map<String, String> properties) {
         boolean answer = false;
         Version version = profileService.getVersion(versionId);

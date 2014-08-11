@@ -179,21 +179,24 @@ public final class Profiles {
      * figure out the effective overlay before a container exists.
      */
     public static Map<String, String> getOverlayConfiguration(FabricService fabricService, Iterable<String> profileIds, String versionId, String pid) {
-        ProfileService profileService = fabricService.adapt(ProfileService.class);
         Map<String, String> overlayConfig = new HashMap<String, String>();
-        Version version = null;
-        if (versionId == null) {
-            version = fabricService.getRequiredDefaultVersion();
-        } else {
-            version = profileService.getRequiredVersion(versionId);
-        }
-        if (profileIds != null) {
-            for (String profileId : profileIds) {
-                Profile profile = version.getRequiredProfile(profileId);
-                Profile overlay = profileService.getOverlayProfile(profile);
-                Map<String, String> profileConfig = overlay.getConfiguration(pid);
-                if (profileConfig != null) {
-                    overlayConfig.putAll(profileConfig);
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        // this should only be null in test cases
+        if (profileService != null) {
+            Version version = null;
+            if (versionId == null) {
+                version = fabricService.getRequiredDefaultVersion();
+            } else {
+                version = profileService.getRequiredVersion(versionId);
+            }
+            if (profileIds != null) {
+                for (String profileId : profileIds) {
+                    Profile profile = version.getRequiredProfile(profileId);
+                    Profile overlay = profileService.getOverlayProfile(profile);
+                    Map<String, String> profileConfig = overlay.getConfiguration(pid);
+                    if (profileConfig != null) {
+                        overlayConfig.putAll(profileConfig);
+                    }
                 }
             }
         }

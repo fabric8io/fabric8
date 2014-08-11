@@ -174,8 +174,11 @@
                             com.wordnik.swagger.jaxrs.config, 
                             com.wordnik.swagger.jaxrs.listing,
                             com.wordnik.swagger.annotations,
+                            org.apache.cxf.transport.http,
+                            io.fabric8.cxf,
                             com.fasterxml.jackson.annotation, com.fasterxml.jackson.core, com.fasterxml.jackson.databind, com.fasterxml.jackson.jaxrs.json, javax.ws.rs.ext,*
                         </Import-Package>
+                        <Import-Service>org.apache.cxf.transport.http.DestinationRegistry</Import-Service>
                         <Export-Package>
                             io.fabric8.quickstarts.rest.secure
                         </Export-Package>

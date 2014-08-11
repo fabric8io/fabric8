@@ -1,0 +1,10 @@
+{
+    "launchScript": "bin/mule",
+    "pidFile": "bin/.mule.pid",
+    "restartCommand": "",
+    "statusCommand": "",
+    "killCommand": "",
+    "configureCommand": "",
+    "deployPath": "apps",
+    "sharedLibraryPath": "lib"
+}

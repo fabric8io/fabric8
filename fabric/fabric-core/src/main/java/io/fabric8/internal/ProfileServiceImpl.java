@@ -70,12 +70,14 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     }
 
     private OverlayAudit getOverlayAudit() {
-        RuntimeProperties sysprops = runtimeProperties.get();
-        OverlayAudit audit = sysprops.getRuntimeAttribute(OverlayAudit.class);
-        if (audit == null) {
-            sysprops.putRuntimeAttribute(OverlayAudit.class, audit = new OverlayAudit());
+        synchronized (runtimeProperties) {
+            RuntimeProperties sysprops = runtimeProperties.get();
+            OverlayAudit audit = sysprops.getRuntimeAttribute(OverlayAudit.class);
+            if (audit == null) {
+                sysprops.putRuntimeAttribute(OverlayAudit.class, audit = new OverlayAudit());
+            }
+            return audit;
         }
-        return audit;
     }
 
     @Deactivate
@@ -182,15 +184,15 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
                 // Log the overlay profile difference
                 if (LOGGER.isInfoEnabled()) {
                     OverlayAudit audit = getOverlayAudit();
-                    Profile lastOverlay = audit.overlayProfiles.get(profileId);
-                    String longString = Profiles.getProfileInfo(overlayProfile, true);
-                    String lastString = lastOverlay != null ? Profiles.getProfileInfo(lastOverlay, true) : null;
-                    if (lastOverlay == null) {
-                        LOGGER.info("Overlay" + longString);
-                        audit.overlayProfiles.put(profileId, overlayProfile);
-                    } else if (!longString.equals(lastString)) {
-                        LOGGER.info("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
-                        audit.overlayProfiles.put(profileId, overlayProfile);
+                    synchronized (audit) {
+                        Profile lastOverlay = audit.overlayProfiles.get(profileId);
+                        if (lastOverlay == null) {
+                            LOGGER.info("Overlay" + Profiles.getProfileInfo(overlayProfile, true));
+                            audit.overlayProfiles.put(profileId, overlayProfile);
+                        } else if (!lastOverlay.equals(overlayProfile)) {
+                            LOGGER.info("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
+                            audit.overlayProfiles.put(profileId, overlayProfile);
+                        }
                     }
                 }
             }

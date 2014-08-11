@@ -19,6 +19,8 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import org.apache.felix.scr.annotations.*;
+import org.jolokia.osgi.security.BasicAuthenticationHttpContext;
+import org.jolokia.osgi.security.JaasAuthenticator;
 import org.jolokia.osgi.servlet.JolokiaServlet;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpContext;
@@ -29,7 +31,10 @@ import org.slf4j.LoggerFactory;
 import java.util.Hashtable;
 import java.util.Map;
 
-@Component(name = "io.fabric8.jolokia", label = "Fabric8 Jolokia", policy = ConfigurationPolicy.OPTIONAL, metatype = true, immediate = true)
+@Component(name = "io.fabric8.jolokia",
+        label = "Fabric8 Jolokia",
+        description = "Configuration for the Fabric8 Jolokia Service which exposes JMX securely over HTTP/JSON",
+        policy = ConfigurationPolicy.OPTIONAL, metatype = true, immediate = true)
 public class FabricJolokia extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricJolokia.class);
@@ -54,8 +59,7 @@ public class FabricJolokia extends AbstractComponent {
     @Activate
     void activate(BundleContext bundleContext, Map<String, String> properties) throws Exception {
         configurer.configure(properties, this);
-        context = new JolokiaSecureHttpContext(realm, role);
-        httpService.get().registerServlet(getServletAlias(), new JolokiaServlet(bundleContext), new Hashtable(), context);
+        httpService.get().registerServlet(getServletAlias(), new JolokiaServlet(bundleContext), new Hashtable(), new BasicAuthenticationHttpContext(realm, new JaasAuthenticator(realm)));
         activateComponent();
 
     }

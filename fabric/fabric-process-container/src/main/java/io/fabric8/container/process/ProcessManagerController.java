@@ -55,7 +55,6 @@ import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
-import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,9 +73,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -355,7 +351,9 @@ public class ProcessManagerController implements ChildContainerController {
     protected InstallOptions createJavaInstallOptions(Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, JavaContainerConfig javaConfig, Map<String, String> environmentVariables) throws Exception {
         boolean isJavaContainer = true;
         javaConfig.updateEnvironmentVariables(environmentVariables, isJavaContainer);
-
+        Set<String> profileIds = options.getProfiles();
+        String versionId = options.getVersion();
+        JolokiaAgentHelper.updateSystemPropertiesEnvironmentVariable(environmentVariables, fabricService, versionId, profileIds);
         configureInstallOptionsJolokia(container.getId(), environmentVariables, javaConfig, isJavaContainer);
 
         Map<String, File> jarsFromProfiles = extractJarsFromProfiles(container, options);

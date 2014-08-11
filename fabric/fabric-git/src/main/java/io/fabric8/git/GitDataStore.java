@@ -9,6 +9,8 @@ import org.eclipse.jgit.transport.PushResult;
 
 public interface GitDataStore {
 
+    Git getGit();
+    
     Iterable<PushResult> doPush(Git git, GitContext context) throws Exception;
     
     <T> T gitOperation(GitContext context, GitOperation<T> operation, PersonIdent personIdent);

@@ -34,6 +34,7 @@
 
     <feature name="karaf" version="${karaf-version}" resolver="(obr)">
         <!-- we need 1.2.9-SNAPSHOT as 1.2.8 does not advertise the ConfigurationAdmin service -->
+        <bundle>mvn:io.fabric8/fabric-ssl/${project.version}</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/${felix-configadmin-version}</bundle>
 
         <bundle>mvn:org.ops4j.pax.url/pax-url-aether/${pax.url.version}</bundle>
@@ -51,6 +52,7 @@
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.config/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.packages/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.scr/${karaf-version}</bundle>
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.api/${aries-blueprint-api-version}</bundle>
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.core/${aries-blueprint-core-version}</bundle>
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.cm/${aries-blueprint-cm-version}</bundle>
@@ -64,6 +66,7 @@
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint.api/${aries-jmx-blueprint-api-version}</bundle>
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint.core/${aries-jmx-blueprint-core-version}</bundle>
         <bundle dependency="true">mvn:org.apache.karaf.management/org.apache.karaf.management.server/${karaf-version}</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.scr/${karaf-version}</bundle>
 
         <bundle>mvn:org.bouncycastle/bcprov-jdk15on/${bouncycastle-version}</bundle>
         <bundle>mvn:org.apache.sshd/sshd-core/${sshd-version}</bundle>
@@ -77,6 +80,8 @@
         <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.management/${karaf-version}</bundle>
 
         <bundle>mvn:org.apache.karaf.service/org.apache.karaf.service.guard/${karaf-version}</bundle>
+
+        <bundle>mvn:org.apache.felix/org.apache.felix.eventadmin/${felix-eventadmin-version}</bundle>
 
 
         <!-- TODO: Either decouple diagonstic common from org.apache.karaf.features or provide a dummy FeatureServiceImpl.
@@ -513,7 +518,7 @@
         <bundle dependency='true'>mvn:commons-cli/commons-cli/1.2</bundle>
         <bundle dependency='true'>mvn:commons-codec/commons-codec/1.6</bundle>
         <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
-        <bundle dependency='true'>mvn:corg.apache.commons/commons-jexl/${commons-jexl-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.commons/commons-jexl/${commons-jexl-version}</bundle>
         <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils-version}</bundle>
         <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-digester/${commons-digester-version}</bundle>

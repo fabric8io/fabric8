@@ -74,4 +74,8 @@ public class EnvironmentVariables {
      */
     public static final String FABRIC8_IMPORT_PROFILE_URLS = "FABRIC8_IMPORT_PROFILE_URLS";
 
+    /**
+     * For passing system properties into the Java Container
+     */
+    public static final String FABRIC8_SYSTEM_PROPERTIES = "FABRIC8_SYSTEM_PROPERTIES";
 }

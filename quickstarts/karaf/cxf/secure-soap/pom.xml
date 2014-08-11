@@ -148,8 +148,10 @@
                             org.apache.ws.security.processor,
                             org.apache.cxf.interceptor.security,
                             org.apache.cxf.transport.http,
+                            io.fabric8.cxf,
                             org.apache.cxf, org.apache.cxf.endpoint, org.apache.cxf.frontend, org.apache.cxf.interceptor, org.apache.cxf.jaxws, org.apache.cxf.message, org.apache.cxf.phase
                         </Import-Package>
+                        <Import-Service>org.apache.cxf.transport.http.DestinationRegistry</Import-Service>
                         <Export-Package>io.fabric8.quickstarts.soap.secure</Export-Package>
                     </instructions>
                 </configuration>

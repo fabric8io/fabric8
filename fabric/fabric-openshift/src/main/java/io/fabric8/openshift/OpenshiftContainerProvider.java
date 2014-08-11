@@ -74,13 +74,12 @@ import com.openshift.client.cartridge.StandaloneCartridge;
 import com.openshift.internal.client.GearProfile;
 
 @ThreadSafe
-@Component(name = "io.fabric8.container.provider.openshift",
-        configurationPid = "io.fabric8.openshift",
-        label = "Fabric8 Openshift Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = false)
+@Component(configurationPid = "io.fabric8.openshift",
+        name = "io.fabric8.openshift",
+        label = "Fabric8 Openshift Container Provider",
+        description = "Fabric8 Container Provider which uses the OpenShift REST API to create, start, stop and delete containers",
+        policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service(ContainerProvider.class)
-@Properties(
-        @Property(name = "fabric.container.protocol", value = OpenshiftContainerProvider.SCHEME)
-)
 public final class OpenshiftContainerProvider extends AbstractComponent implements ContainerProvider<CreateOpenshiftContainerOptions, CreateOpenshiftContainerMetadata>, ContainerAutoScalerFactory {
 
     public static final String PROPERTY_AUTOSCALE_SERVER_URL = "autoscale.server.url";
@@ -104,7 +103,10 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     private MBeanServer mbeanServer;
 
 
-    @Property(name="default.cartridge.url", label = "Default Cartridge URL", value = "${default.cartridge.url}")
+    @Property(name="default.cartridge.url",
+            label = "Default Cartridge URL",
+            description = "The ID or URL used to locate the OpenShift cartridge",
+            value = "${default.cartridge.url}")
     private String defaultCartridgeUrl;
 
     private ObjectName objectName;

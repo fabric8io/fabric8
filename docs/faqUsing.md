@@ -35,14 +35,6 @@ Fabric8 has awesome support for Spring 4 with the [Spring Boot Container]((http:
 
 If you've been previously using OSGi or [Apache Karaf](http://karaf.apache.org/) as your application server then Spring 4 poses a challenge as its not currently available as valid OSGi bundles. So to use Spring 4 we recommend you consider moving to the [Java Container]((http://fabric8.io/gitbook/javaContainer.html) in particular the [Spring Boot Container]((http://fabric8.io/gitbook/springBootContainer.html)
 
-#### Should I use features?
-
-If you're using OSGi or [Apache Karaf](http://karaf.apache.org/) as your application server and you've already developed features XML files for grouping bundles together as a logical application; thats all cool and they work great in fabric8.
-
-However there's not really a big need to develop them going forward; as its easier to just create a [profile zip file as part of your maven build](http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven) which can automatically include all your bundles for your project.
-
-In addition the [OSGi Resolver](http://fabric8.io/gitbook/osgiResolver.html) provides a great way to automatically default the correct parent profiles, features and bundles to make it easier to get your OSGi bundles deploying correctly.
-
 #### I cannot start fabric8 on Windows
 
 There is a known issue with Java and Windows when using IP6 capable network. You may see errors such as ``java.net.SocketException: Permission denied: no further information``. To resolve this set the ``KARAF_OPTS`` to the following in the ``bin/setenv.bat`` file.

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.Container;
 import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.Profiles;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.JavaContainers;
@@ -124,6 +125,37 @@ public class JolokiaAgentHelper {
         }
         return null;
     }
+
+    /**
+     * Updates the environment variables to pass along the system properties so they can be used by the Java Container
+     */
+    public static void updateSystemPropertiesEnvironmentVariable(Map<String, String> environmentVariables, FabricService fabricService, String versionId, Set<String> profileIds) {
+        Map<String, String> systemProperties = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.SYSTEM_PROPERTIES_PID);
+        updateSystemPropertiesEnvironmentVariable(environmentVariables, systemProperties);
+    }
+
+    /**
+     * Updates the environment variables to pass along the system properties so they can be used by the Java Container
+     */
+    public static void updateSystemPropertiesEnvironmentVariable(Map<String, String> environmentVariables, Map<String, String> systemProperties) {
+        if (systemProperties != null && systemProperties.size() > 0) {
+            StringBuilder buffer = new StringBuilder();
+            Set<Map.Entry<String, String>> entries = systemProperties.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                String name = entry.getKey();
+                String value = entry.getValue();
+                if (buffer.length() > 0) {
+                    buffer.append(" ");
+                }
+                buffer.append("-D");
+                buffer.append(name);
+                buffer.append("=");
+                buffer.append(value);
+            }
+            environmentVariables.put(EnvironmentVariables.FABRIC8_SYSTEM_PROPERTIES, buffer.toString());
+        }
+    }
+
 
 
     public interface EnvironmentVariableOverride {
