@@ -522,6 +522,10 @@
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/fabric8-start" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/unix/fabric8-start" />
                                    </concat>
+                                   <echo message="Copying bin/setenv in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/setenv" append="no" overwrite="true" eol="unix">
+                                       <fileset file="src/main/append-resources/unix/setenv" />
+                                   </concat>
                                    <echo message="Copying bin/fabric8.bat in windows assembly" />
                                    <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/fabric8.bat" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/win/fabric8.bat" />
@@ -537,6 +541,10 @@
                                    <echo message="Copying bin/standalone.bat in windows assembly" />
                                    <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/standalone.bat" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/win/standalone.bat" />
+                                   </concat>
+                                   <echo message="Copying bin/setenv.bat in windows assembly" />
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/setenv.bat" append="no" overwrite="true" eol="dos">
+                                       <fileset file="src/main/append-resources/win/setenv.bat" />
                                    </concat>
 
                                   <!-- now lets add to the initial import profile metadata -->
