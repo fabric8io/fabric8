@@ -606,6 +606,17 @@
             <!-- Fabric -->
             <dependency>
                 <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-karaf</artifactId>
+                <version>${project.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8.itests.paxexam</groupId>
+                <artifactId>fabric-itests-paxexam-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
                 <artifactId>fabric-utils</artifactId>
                 <version>${project.version}</version>
             </dependency>
