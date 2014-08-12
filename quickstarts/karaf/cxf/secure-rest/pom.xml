@@ -25,12 +25,12 @@
     <parent>
       <groupId>io.fabric8.quickstarts</groupId>
       <artifactId>fabric8-quickstarts-karaf-cxf-parent</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
+      <version>1.1.0.redhat-008</version>
     </parent>
 
     <groupId>io.fabric8.quickstarts</groupId>
     <artifactId>karaf-cxf-secure-rest</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0.redhat-008</version>
     <packaging>bundle</packaging>
     <name>Fabric8 :: Quickstarts :: Karaf :: CXF :: Secure Restful Web Services</name>
     <description>Secure Restful Web Services Example using JAX-RS Basic Authentication with Fabric8</description>
@@ -50,8 +50,8 @@
         <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
 
         <!-- the version of the BOM, defining all the dependency versions -->
-        <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
-        <fabric.version>1.1.0-SNAPSHOT</fabric.version>
+        <fabric8.bom.version>1.1.0.redhat-008</fabric8.bom.version>
+        <fabric.version>1.1.0.redhat-008</fabric.version>
 
         <!-- fabric8 deploy profile configuration -->
         <fabric8.profile>quickstarts-karaf-cxf-secure.rest</fabric8.profile>
