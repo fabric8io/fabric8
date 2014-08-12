@@ -23,6 +23,7 @@ import org.apache.maven.repository.internal.DefaultVersionResolver;
 import org.apache.maven.wagon.Wagon;
 import org.apache.maven.wagon.providers.file.FileWagon;
 import org.apache.maven.wagon.providers.http.LightweightHttpWagon;
+import org.apache.maven.wagon.providers.http.LightweightHttpWagonAuthenticator;
 import org.apache.maven.wagon.providers.http.LightweightHttpsWagon;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.connector.wagon.WagonProvider;
@@ -104,10 +105,14 @@ public class RepositorySystemFactory implements ServiceLocator {
                 return new FileWagon();
             }
             if ("http".equals(roleHint)) {
-                return new LightweightHttpWagon();
+                LightweightHttpWagon wagon = new LightweightHttpWagon();
+                wagon.setAuthenticator(new LightweightHttpWagonAuthenticator());
+                return wagon;
             }
             if ("https".equals(roleHint)) {
-                return new LightweightHttpsWagon();
+                LightweightHttpsWagon wagon = new LightweightHttpsWagon();
+                wagon.setAuthenticator(new LightweightHttpWagonAuthenticator());
+                return wagon;
             }
             return null;
         }
