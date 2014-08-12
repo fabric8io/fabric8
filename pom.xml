@@ -149,6 +149,7 @@
         <arquillian-osgi-version>2.1.0.CR16</arquillian-osgi-version>
         <arquillian-tomcat-version>1.0.0.CR6</arquillian-tomcat-version>
         <arquillian-weld-ee-embedded-version>1.0.0.CR3</arquillian-weld-ee-embedded-version>
+        <aopalliance.bundle.version>1.0_6</aopalliance.bundle.version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
         <asm.version>5.0.3</asm.version>
         <blueprint-web-version>1.0.0</blueprint-web-version>
@@ -220,6 +221,7 @@
         <groovy-version>2.3.6</groovy-version>
         <guava-version>15.0</guava-version>
         <guava.osgi.version.clean>15.0</guava.osgi.version.clean>
+        <guice-version>3.0</guice-version>
         <hadoop-version>1.2.1</hadoop-version>
         <hawtbuf-version>1.11</hawtbuf-version>
         <hawtdispatch-version>1.21</hawtdispatch-version>
@@ -2258,6 +2260,21 @@
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam-container-native</artifactId>
+                <version>${pax-exam-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam-link-assembly</artifactId>
+                <version>${pax-exam-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam-inject</artifactId>
+                <version>${pax-exam-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
                 <artifactId>pax-exam-container-karaf</artifactId>
                 <version>${ops4j-pax-exam-version}</version>
             </dependency>
@@ -2280,6 +2297,11 @@
                 <groupId>org.ops4j.pax.url</groupId>
                 <artifactId>pax-url-wrap</artifactId>
                 <version>${pax.url.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.runner</groupId>
+                <artifactId>pax-runner-no-jcl</artifactId>
+                <version>${pax-runner-version}</version>
             </dependency>
 
             <!-- Spring -->
@@ -2568,6 +2590,11 @@
             <!-- ServiceMix bundles -->
             <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.aopalliance</artifactId>
+                <version>${aopalliance.bundle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.asm</artifactId>
                 <version>${asm.bundle.version}</version>
             </dependency>
@@ -2712,6 +2739,12 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>${guice-version}</version>
             </dependency>
 
             <dependency>
@@ -3601,6 +3634,12 @@
                 <groupId>org.ops4j.pax.swissbox</groupId>
                 <artifactId>pax-swissbox-optional-jcl</artifactId>
                 <version>${ops4j-pax-swissbox-optional-jcl.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ops4j.pax.swissbox</groupId>
+                <artifactId>pax-swissbox-property</artifactId>
+                <version>${ops4j-pax-swissbox-property.version}</version>
             </dependency>
 
             <dependency>

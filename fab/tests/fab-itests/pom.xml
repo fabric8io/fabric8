@@ -45,35 +45,30 @@
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-junit4</artifactId>
-          <version>${pax-exam-version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-container-native</artifactId>
-          <version>${pax-exam-version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-link-assembly</artifactId>
-          <version>${pax-exam-version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-inject</artifactId>
-          <version>${pax-exam-version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.runner</groupId>
           <artifactId>pax-runner-no-jcl</artifactId>
-          <version>${pax-runner-version}</version>
           <scope>test</scope>
       </dependency>
 
@@ -221,17 +216,30 @@
       <dependency>
           <groupId>commons-collections</groupId>
           <artifactId>commons-collections</artifactId>
-          <version>${commons-collections-version}</version>
+      </dependency>
+      <dependency>
+          <groupId>commons-io</groupId>
+          <artifactId>commons-io</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>commons-lang</groupId>
+          <artifactId>commons-lang</artifactId>
       </dependency>
       <dependency>
           <groupId>org.ops4j.pax.swissbox</groupId>
           <artifactId>pax-swissbox-optional-jcl</artifactId>
-          <version>${ops4j-pax-swissbox-optional-jcl.version}</version>
       </dependency>
       <dependency>
           <groupId>org.ops4j.pax.swissbox</groupId>
           <artifactId>pax-swissbox-property</artifactId>
-          <version>${ops4j-pax-swissbox-property.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.servicemix.bundles</groupId>
+          <artifactId>org.apache.servicemix.bundles.aopalliance</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>com.google.inject</groupId>
+          <artifactId>guice</artifactId>
       </dependency>
   </dependencies>
 
