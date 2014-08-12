@@ -254,6 +254,27 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-cxf-plugins</artifactId>
+                <version>${fabric.version}</version>
+                <executions>
+                    <execution>
+                        <id>process-classes</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>java2swagger</goal>
+                        </goals>
+                        <configuration>
+                            <classResourceNames>
+                                <classResourceName>io.fabric8.quickstarts.rest.CustomerService</classResourceName>
+                            </classResourceNames>
+                            <attachSwagger>false</attachSwagger>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <!--
                   this plugin will use the fabric.* properties to configure its behaviour
                   see the Properties section here: http://fabric8.io/gitbook/mavenPlugin.html
