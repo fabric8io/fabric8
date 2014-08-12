@@ -380,11 +380,11 @@
                <plugin>
                    <groupId>org.fusesource.mvnplugins</groupId>
                    <artifactId>maven-bundle-summary-plugin</artifactId>
-                   <version>1.33</version>
+                   <version>1.34</version>
                    <executions>
                        <execution>
                            <id>bundle-summary</id>
-                           <phase>verify</phase>
+                           <phase>process-resources</phase>
                            <goals>
                                <goal>summary</goal>
                            </goals>
@@ -591,7 +591,29 @@
                      </execution>
                  </executions>
              </plugin>
-             <plugin>
+               <plugin>
+                   <groupId>com.google.code.maven-replacer-plugin</groupId>
+                   <artifactId>replacer</artifactId>
+                   <version>1.5.3</version>
+                   <executions>
+                       <execution>
+                           <phase>prepare-package</phase>
+                           <goals>
+                               <goal>replace</goal>
+                           </goals>
+                       </execution>
+                   </executions>
+                   <configuration>
+                       <file>${basedir}/target/bundle-summary.xml</file>
+                       <replacements>
+                           <replacement>
+                               <token>href="bundle-report.xslt"</token>
+                               <value>href="${artifactId}-${version}-bundle-report.xslt"</value>
+                           </replacement>
+                       </replacements>
+                   </configuration>
+               </plugin>
+               <plugin>
                <groupId>io.fabric8</groupId>
                <artifactId>fabric8-maven-plugin</artifactId>
                <version>${project.version}</version>
@@ -643,6 +665,16 @@
                                     <type>xml</type>
                                     <classifier>features</classifier>
                                   </artifact>
+                                <artifact>
+                                    <file>target/bundle-summary.xml</file>
+                                    <type>xml</type>
+                                    <classifier>bundle-summary</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/bundle-report.xslt</file>
+                                    <type>xslt</type>
+                                    <classifier>bundle-report</classifier>
+                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>
