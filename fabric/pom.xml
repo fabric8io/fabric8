@@ -55,6 +55,7 @@
         <module>fabric-core-agent-ssh</module>
         <module>fabric-cxf</module>
         <module>fabric-cxf-registry</module>
+        <module>fabric-cxf-plugins</module>
         <module>fabric-dns</module>
         <module>fabric-docker-api</module>
         <module>fabric-docker-provider</module>
