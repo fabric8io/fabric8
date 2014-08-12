@@ -18,7 +18,6 @@ package io.fabric8.cxf.endpoint;
 import java.util.ArrayList;
 import java.util.List;
 
-import jline.internal.Log;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
