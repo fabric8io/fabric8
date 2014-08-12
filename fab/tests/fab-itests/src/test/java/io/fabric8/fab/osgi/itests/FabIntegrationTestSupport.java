@@ -121,6 +121,12 @@ public abstract class FabIntegrationTestSupport {
             mavenBundle("org.ops4j.pax.swissbox", "pax-swissbox-optional-jcl").versionAsInProject(),
             mavenBundle("org.ops4j.pax.swissbox", "pax-swissbox-property").versionAsInProject(),
 
+            mavenBundle("commons-io", "commons-io").versionAsInProject(),
+            mavenBundle("commons-lang", "commons-lang").versionAsInProject(),
+
+            mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.aopalliance").versionAsInProject(),
+            mavenBundle("com.google.inject", "guice").versionAsInProject(),
+
             mavenBundle("io.fabric8", "common-util").versionAsInProject(),
             mavenBundle("io.fabric8.fab", "fab-osgi").versionAsInProject()
         };

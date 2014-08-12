@@ -16,24 +16,16 @@
 package io.fabric8.fab.osgi.itests;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+
 import javax.inject.Inject;
 
-import io.fabric8.fab.osgi.internal.Bundles;
 import org.apache.karaf.features.FeaturesService;
 import org.junit.Test;
-import org.ops4j.pax.exam.Configuration;
-import org.ops4j.pax.exam.Option;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.OptionUtils.combine;
 
 public class FabSamplesWithCamelFeaturesTest extends FabIntegrationTestSupport {
 
