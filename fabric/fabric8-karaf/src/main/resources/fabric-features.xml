@@ -100,6 +100,9 @@
     <feature name="fab-osgi" version="${project.version}" resolver="(obr)">
         <bundle>mvn:commons-io/commons-io/${commons-io2-version}</bundle>
         <bundle>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-interceptor_1.1_spec/${geronimo-interceptor-api-version}</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jcdi_1.0_spec/${geronimo-cdi-api-version}</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-el_2.2_spec/${geronimo-el-api-version}</bundle>
         <bundle>mvn:org.apache.geronimo.specs/geronimo-atinject_1.0_spec/${geronimo-atinject.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aopalliance/${aopalliance.bundle.version}</bundle>
         <bundle>mvn:com.google.inject/guice/${guice-version}</bundle>
