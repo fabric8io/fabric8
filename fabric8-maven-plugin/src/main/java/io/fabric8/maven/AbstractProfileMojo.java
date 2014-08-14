@@ -185,6 +185,19 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     private boolean includeArtifact;
 
     /**
+     * Type to use for the project artifact bundle reference
+     */
+    @Parameter(property = "fabric8.artifactBundleType")
+    private String artifactBundleType;
+
+
+    /**
+     * Classifier to use for the project artifact bundle reference
+     */
+    @Parameter(property = "fabric8.artifactBundleClassifier")
+    private String artifactBundleClassifier;
+
+    /**
      * Whether or not we should ignoreProject this maven project from goals like fabric8:deploy or fabric8:zip
      */
     @Parameter(property = "fabric8.ignoreProject", defaultValue = "false")
@@ -559,12 +572,38 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         DependencyDTO rootDependency = requirements.getRootDependency();
         if (rootDependency != null) {
             // we need url with type, so when we deploy war files the mvn url is correct
-            String url = rootDependency.toBundleUrlWithType();
-            if (!requirements.getBundles().contains(url)) {
-                requirements.getBundles().add(url);
+            StringBuilder urlBuffer = new StringBuilder(rootDependency.toBundleUrl());
+
+            appendTypeToArtifactBundle(urlBuffer, rootDependency);
+            appendClassifierToArtifactBundle(urlBuffer, rootDependency);
+
+            String urlString = urlBuffer.toString();
+            if (!requirements.getBundles().contains(urlString)) {
+                requirements.getBundles().add(urlString);
             }
         }
     }
+
+    private void appendTypeToArtifactBundle(StringBuilder bundleUrl, DependencyDTO rootDependency) {
+        if (artifactBundleType != null) {
+            bundleUrl.append("/" + artifactBundleType);
+        } else {
+            bundleUrl.append("/" + rootDependency.getType());
+        }
+    }
+
+    private void appendClassifierToArtifactBundle(StringBuilder bundleUrl, DependencyDTO rootDependency) {
+        if (artifactBundleClassifier != null) {
+            bundleUrl.append("/" + artifactBundleClassifier);
+        } else {
+            String mavenClassifier = rootDependency.getClassifier();
+
+            if (mavenClassifier != null) {
+                bundleUrl.append("/" + rootDependency.getClassifier());
+            }
+        }
+    }
+
     protected DependencyDTO loadRootDependency() throws DependencyTreeBuilderException {
         ArtifactFilter artifactFilter = createResolvingArtifactFilter();
         DependencyNode dependencyNode = dependencyTreeBuilder.buildDependencyTree(project, localRepository, artifactFactory, metadataSource, artifactFilter, artifactCollector);

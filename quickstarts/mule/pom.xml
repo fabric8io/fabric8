@@ -20,10 +20,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.fabric8.quickstarts</groupId>
-        <artifactId>fabric8-quickstarts-exclude-artifact-parent</artifactId>
+        <artifactId>fabric8-quickstarts-parent</artifactId>
         <version>1.2.0-SNAPSHOT</version>
     </parent>
-
     <groupId>io.fabric8.quickstarts</groupId>
     <artifactId>fabric8-quickstarts-mule-parent</artifactId>
     <version>1.2.0-SNAPSHOT</version>
@@ -41,6 +40,7 @@
     <properties>
         <maven.compiler.target>1.7</maven.compiler.target>
         <maven.compiler.source>1.7</maven.compiler.source>
+        <fabric8.artifactBundleType>zip</fabric8.artifactBundleType>
     </properties>
     <repositories>
         <repository>
