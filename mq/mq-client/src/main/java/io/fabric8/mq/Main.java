@@ -33,6 +33,7 @@ public class Main {
     String clientId;
     String password;
     String user;
+    String groupID;
     int batchSize;
 
     public static void main(String[] args) throws Exception {
@@ -61,6 +62,8 @@ public class Main {
                     main.destination = shift(arg1);
                 } else if ("--brokerUrl".equals(arg)) {
                     main.brokerUrl = shift(arg1);
+                } else if ("--groupId".equals(arg)) {
+                    main.groupID = shift(arg1);
                 } else if ("--user".equals(arg)) {
                     main.user = shift(arg1);
                 } else if ("--password".equals(arg)) {
@@ -103,6 +106,8 @@ public class Main {
                 producerThread.setSleep(sleep);
                 producerThread.setPersistent(persistent);
                 producerThread.setTransactionBatchSize(batchSize);
+                producerThread.setTTL(ttl);
+                producerThread.setMsgGroupID(groupID);
                 producerThread.run();
                 System.out.println("Produced: " + producerThread.getSentCount());
 
@@ -160,10 +165,12 @@ public class Main {
         System.out.println("           [--sleep       N] - millisecond sleep period between sends or receives; default 0");
         System.out.println("           [--batchSize   N] - use send and receive transaction batches of size N; default 0, no jms transactions");
         System.out.println("           [--ttl         N] - message TTL in milliseconds");
+        System.out.println("           [--groupId  ..  ] - JMS message group identifier");
         System.out.println("           [--clientId   id] - use a durable topic consumer with the supplied id; default null, non durable consumer");
         System.out.println("           [--brokerUrl URL] - connection factory url; default " + ActiveMQConnectionFactory.DEFAULT_BROKER_URL);
         System.out.println("           [--user      .. ] - connection user name");
         System.out.println("           [--password  .. ] - connection password");
+
 
 
 
