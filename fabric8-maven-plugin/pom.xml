@@ -31,7 +31,12 @@
   <packaging>maven-plugin</packaging>
 
   <dependencies>
-
+      <dependency>
+          <groupId>org.apache.maven</groupId>
+          <artifactId>maven-core</artifactId>
+          <!-- maven-plugin-testing-harness only works with this version of maven -->
+          <version>3.0.5</version>
+      </dependency>
       <!--
       <dependency>
           <groupId>biz.aQute.bnd</groupId>
@@ -181,11 +186,24 @@
     </dependency>
 
     <!-- Testing -->
+
+
+
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.maven.plugin-testing</groupId>
+      <artifactId>maven-plugin-testing-harness</artifactId>
+      <!-- We seem to have sonatype - not eclipse - aether -->
+      <!-- on the classpath. So the max version we can use is 2.1 -->
+      <version>2.1</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>

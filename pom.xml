@@ -3478,8 +3478,6 @@
         <module>mq</module>
         <module>patch</module>
         <module>process</module>
-        <!-- exclude until we find a better solution, see #2280
-        <module>quickstarts-exclude-artifact</module-->
         <module>runtime</module>
         <module>security</module>
         <module>tooling</module>
