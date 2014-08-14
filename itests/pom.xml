@@ -99,5 +99,16 @@
                 <module>extra</module>
             </modules>
         </profile>
+        <profile>
+            <id>all</id>
+            <activation>
+                <property>
+                    <name>all</name>
+                </property>
+            </activation>
+            <modules>
+                <module>paxexam</module>
+            </modules>
+        </profile>
     </profiles>
 </project>

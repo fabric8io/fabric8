@@ -15,26 +15,30 @@
  */
 package io.fabric8.fab;
 
+import java.util.List;
+
 import org.apache.maven.repository.internal.DefaultArtifactDescriptorReader;
 import org.apache.maven.repository.internal.DefaultVersionRangeResolver;
 import org.apache.maven.repository.internal.DefaultVersionResolver;
 import org.apache.maven.wagon.Wagon;
 import org.apache.maven.wagon.providers.file.FileWagon;
 import org.apache.maven.wagon.providers.http.LightweightHttpWagon;
+import org.apache.maven.wagon.providers.http.LightweightHttpWagonAuthenticator;
 import org.apache.maven.wagon.providers.http.LightweightHttpsWagon;
-import org.slf4j.LoggerFactory;
-import org.sonatype.aether.RepositorySystem;
-import org.sonatype.aether.connector.wagon.WagonProvider;
-import org.sonatype.aether.connector.wagon.WagonRepositoryConnectorFactory;
-import org.sonatype.aether.impl.ArtifactDescriptorReader;
-import org.sonatype.aether.impl.VersionRangeResolver;
-import org.sonatype.aether.impl.VersionResolver;
-import org.sonatype.aether.impl.internal.DefaultServiceLocator;
-import org.sonatype.aether.impl.internal.Slf4jLogger;
-import org.sonatype.aether.spi.connector.RepositoryConnectorFactory;
-import org.sonatype.aether.spi.log.Logger;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.connector.wagon.WagonProvider;
+import org.eclipse.aether.connector.wagon.WagonRepositoryConnectorFactory;
+import org.eclipse.aether.impl.ArtifactDescriptorReader;
+import org.eclipse.aether.impl.DefaultServiceLocator;
+import org.eclipse.aether.impl.VersionRangeResolver;
+import org.eclipse.aether.impl.VersionResolver;
+import org.eclipse.aether.internal.impl.Slf4jLoggerFactory;
+import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
+import org.eclipse.aether.spi.locator.ServiceLocator;
+import org.eclipse.aether.spi.log.Logger;
 
-public class RepositorySystemFactory extends DefaultServiceLocator {
+public class RepositorySystemFactory implements ServiceLocator {
+    private DefaultServiceLocator delegate;
 
     public static RepositorySystem newRepositorySystem() throws Exception
     {
@@ -42,7 +46,7 @@ public class RepositorySystemFactory extends DefaultServiceLocator {
     }
 
     public RepositorySystemFactory() {
-        super();
+        delegate = new DefaultServiceLocator();
         setService(Logger.class, LogAdapter.class);
         setService(WagonProvider.class, StaticWagonProvider.class);
         setService(VersionResolver.class, DefaultVersionResolver.class);
@@ -51,9 +55,47 @@ public class RepositorySystemFactory extends DefaultServiceLocator {
         setService(ArtifactDescriptorReader.class, DefaultArtifactDescriptorReader.class);
     }
 
-    public static class LogAdapter extends Slf4jLogger {
+    public <T> void setService(Class<T> type, Class<? extends T> impl) {
+        delegate.setService(type, impl);
+    }
+
+    public <T> T getService(Class<T> type) {
+        return delegate.getService(type);
+    }
+
+    public <T> List<T> getServices(Class<T> type) {
+        return delegate.getServices(type);
+    }
+
+    public static class LogAdapter implements Logger {
+        private Logger delegate;
+
         public LogAdapter() {
-            super(LoggerFactory.getLogger("org.apache.karaf.pomegranate.Aether"));
+            delegate = new Slf4jLoggerFactory().getLogger("org.apache.karaf.pomegranate.Aether");
+        }
+
+        public boolean isDebugEnabled() {
+            return delegate.isDebugEnabled();
+        }
+
+        public void debug(String msg) {
+            delegate.debug(msg);
+        }
+
+        public void debug(String msg, Throwable error) {
+            delegate.debug(msg, error);
+        }
+
+        public boolean isWarnEnabled() {
+            return delegate.isWarnEnabled();
+        }
+
+        public void warn(String msg) {
+            delegate.warn(msg);
+        }
+
+        public void warn(String msg, Throwable error) {
+            delegate.warn(msg, error);
         }
     }
 
@@ -63,10 +105,14 @@ public class RepositorySystemFactory extends DefaultServiceLocator {
                 return new FileWagon();
             }
             if ("http".equals(roleHint)) {
-                return new LightweightHttpWagon();
+                LightweightHttpWagon wagon = new LightweightHttpWagon();
+                wagon.setAuthenticator(new LightweightHttpWagonAuthenticator());
+                return wagon;
             }
             if ("https".equals(roleHint)) {
-                return new LightweightHttpsWagon();
+                LightweightHttpsWagon wagon = new LightweightHttpsWagon();
+                wagon.setAuthenticator(new LightweightHttpWagonAuthenticator());
+                return wagon;
             }
             return null;
         }

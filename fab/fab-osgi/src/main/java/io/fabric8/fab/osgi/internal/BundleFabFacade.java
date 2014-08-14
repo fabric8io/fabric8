@@ -30,8 +30,8 @@ import io.fabric8.common.util.Filter;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.RepositoryException;
-import org.sonatype.aether.graph.Dependency;
+import org.eclipse.aether.RepositoryException;
+import org.eclipse.aether.graph.Dependency;
 
 import static io.fabric8.common.util.Strings.notEmpty;
 

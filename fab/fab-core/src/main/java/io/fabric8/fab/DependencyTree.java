@@ -21,7 +21,15 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -36,12 +44,10 @@ import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Manifests;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.graph.DependencyNode;
-import org.sonatype.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -58,7 +64,6 @@ import static io.fabric8.common.util.Strings.notEmpty;
  * in a shared Map of class loaders
  */
 public class DependencyTree implements Comparable<DependencyTree> {
-    private static final transient Logger LOG = LoggerFactory.getLogger(DependencyTree.class);
     private static final TransformerFactory transformerFactory = TransformerFactory.newInstance();
     private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 
@@ -126,7 +131,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
         List<DependencyNode> childrenNodes = node.getChildren();
         List<DependencyTree> children = new ArrayList<DependencyTree>();
         for (DependencyNode childNode : childrenNodes) {
-            if (!DependencyFilters.matches(childNode, excludeDependencyFilter) && !node.getDependency().equals(childNode.getDependency())) {
+            if (!DependencyFilters.matches(childNode, excludeDependencyFilter) && DependencyNodeComparator.INSTANCE.compare(node, childNode) != 0) {
                 DependencyTree child = newInstance(childNode, resolver, excludeDependencyFilter);
                 children.add(child);
             }
@@ -191,9 +196,9 @@ public class DependencyTree implements Comparable<DependencyTree> {
         String classifier = getClassifier();
         String extension = getExtension();
         return "DependencyTree(" + getGroupId() + ":" + getArtifactId() + ":" + version + ":" +
-                (notEmpty(classifier) ?  ":" + classifier : "") +
-                (notEmpty(extension) ? ":" + extension : "") +
-                children + ")";
+            (notEmpty(classifier) ? ":" + classifier : "") +
+            (notEmpty(extension) ? ":" + extension : "") +
+            children + ")";
     }
 
     @Override
@@ -207,9 +212,9 @@ public class DependencyTree implements Comparable<DependencyTree> {
         if (o instanceof DependencyTree) {
             DependencyTree that = (DependencyTree) o;
             return hashCode() == that.hashCode() &&
-                    equal(dependencyId, that.dependencyId) &&
-                    equal(version, that.version) &&
-                    equal(children, that.children);
+                equal(dependencyId, that.dependencyId) &&
+                equal(version, that.version) &&
+                equal(children, that.children);
         } else {
             return false;
         }
@@ -226,7 +231,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
      * Returns true if the dependency is a valid library (ie. pom files are ignored)
      */
     public boolean isValidLibrary() {
-        return getUrl()!=null && !getUrl().endsWith(".pom");
+        return getUrl() != null && !getUrl().endsWith(".pom");
     }
 
     public DependencyTree getParent() {

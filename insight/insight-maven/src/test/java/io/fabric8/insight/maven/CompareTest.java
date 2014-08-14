@@ -23,7 +23,7 @@ public class CompareTest extends TestSupport {
 
     @Test
     public void compare() throws Exception {
-        CompareResult c = aether.compare("org.apache.camel", "camel-core", "2.4.0", "2.5.0");
+        CompareResult c = aether.compare("org.apache.mesos", "mesos", "0.19.1", "0.18.2");
         dump(c.getRoot(), 0);
     }
 

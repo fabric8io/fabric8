@@ -34,13 +34,11 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric8-karaf</artifactId>
-            <version>${project.version}</version>
             <type>zip</type>
         </dependency>
         <dependency>
 			<groupId>io.fabric8.itests.paxexam</groupId>
             <artifactId>fabric-itests-paxexam-common</artifactId>
-            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -198,7 +196,6 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>archetype-builder</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -217,7 +214,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven-dependency-plugin-version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>

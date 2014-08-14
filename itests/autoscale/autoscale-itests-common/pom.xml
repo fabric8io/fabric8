@@ -52,7 +52,6 @@
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
       <artifactId>arquillian-testenricher-cdi</artifactId>
-      <version>${arquillian-core-version}</version>
     </dependency>
 
     <!-- lets depend on the distro to ensure its built first -->

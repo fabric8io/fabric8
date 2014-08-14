@@ -15,6 +15,13 @@
  */
 package io.fabric8.maven.util;
 
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.maven.settings.Profile;
 import org.apache.maven.settings.Repository;
 import org.apache.maven.settings.Server;
@@ -27,20 +34,20 @@ import org.apache.maven.settings.crypto.DefaultSettingsDecrypter;
 import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
+import org.eclipse.aether.repository.Authentication;
+import org.eclipse.aether.repository.AuthenticationSelector;
+import org.eclipse.aether.repository.MirrorSelector;
+import org.eclipse.aether.repository.Proxy;
+import org.eclipse.aether.repository.ProxySelector;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.repository.RepositoryPolicy;
+import org.eclipse.aether.util.repository.AuthenticationBuilder;
+import org.eclipse.aether.util.repository.ConservativeAuthenticationSelector;
+import org.eclipse.aether.util.repository.DefaultAuthenticationSelector;
+import org.eclipse.aether.util.repository.DefaultMirrorSelector;
+import org.eclipse.aether.util.repository.DefaultProxySelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.repository.*;
-import org.sonatype.aether.util.repository.ConservativeAuthenticationSelector;
-import org.sonatype.aether.util.repository.DefaultAuthenticationSelector;
-import org.sonatype.aether.util.repository.DefaultMirrorSelector;
-import org.sonatype.aether.util.repository.DefaultProxySelector;
-
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 
 public class MavenUtils {
 
@@ -124,28 +131,27 @@ public class MavenUtils {
     public static List<RemoteRepository> getRemoteRepositories() {
         List<RemoteRepository> repositories = new LinkedList<RemoteRepository>();
         for (Repository repository : getRepositories()) {
-            RemoteRepository remote = new RemoteRepository();
-            remote.setId(repository.getId());
-            remote.setUrl(repository.getUrl());
-            remote.setContentType("default");
+            RemoteRepository.Builder builder = new RemoteRepository.Builder(repository.getId(), "default", repository.getUrl());
             if (repository.getSnapshots().isEnabled()) {
-                RepositoryPolicy repositoryPolicy = new RepositoryPolicy();
                 if (repository.getSnapshots() != null) {
-                    remote.setPolicy(true, convertMavenRepositoryPolicy(repository.getSnapshots()));
+                    builder.setPolicy(convertMavenRepositoryPolicy(repository.getSnapshots()));
                 }
             }
             if (repository.getReleases() != null) {
-                remote.setPolicy(false, convertMavenRepositoryPolicy(repository.getReleases()));
+                builder.setReleasePolicy(convertMavenRepositoryPolicy(repository.getReleases()));
             }
             Server server = getSettings().getServer(repository.getId());
             if (server != null) {
                 // Need to decode username/password because it may contain encoded characters (http://www.w3schools.com/tags/ref_urlencode.asp)
                 // A common encoding is to provide a username as an email address like user%40domain.org
-                String decodedUsername = decode(server.getUsername());                
-                Authentication authentication = new Authentication(decodedUsername, server.getPassword(), server.getPrivateKey(), server.getPassphrase());
-                remote.setAuthentication(authentication);
+                String decodedUsername = decode(server.getUsername());
+                AuthenticationBuilder authBuilder = new AuthenticationBuilder();
+                authBuilder.addUsername(decodedUsername);
+                authBuilder.addPassword(server.getPassword());
+                authBuilder.addPrivateKey(server.getPrivateKey(), server.getPassphrase());
+                builder.setAuthentication(authBuilder.build());
             }
-            repositories.add(remote);
+            repositories.add(builder.build());
         }
         return repositories;
     }
@@ -160,8 +166,10 @@ public class MavenUtils {
 
         Settings settings = getSettings();
         for (org.apache.maven.settings.Proxy proxy : settings.getProxies()) {
-            Authentication auth = new Authentication(proxy.getUsername(), proxy.getPassword());
-            org.sonatype.aether.repository.Proxy p = new Proxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), auth);
+            AuthenticationBuilder builder = new AuthenticationBuilder();
+            builder.addUsername(proxy.getUsername());
+            builder.addPassword(proxy.getPassword());
+            org.eclipse.aether.repository.Proxy p = new Proxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), builder.build());
             selector.add(p, proxy.getNonProxyHosts());
         }
 
@@ -178,14 +186,18 @@ public class MavenUtils {
         Settings settings = getSettings();
 
         if (protocol != null && !protocol.isEmpty() && host != null && !host.isEmpty() && port > 0) {
-            Authentication auth = new Authentication(username, password);
-            org.sonatype.aether.repository.Proxy p = new Proxy(protocol, host, port, auth);
+            AuthenticationBuilder builder = new AuthenticationBuilder();
+            builder.addUsername(username);
+            builder.addPassword(password);
+            org.eclipse.aether.repository.Proxy p = new Proxy(protocol, host, port, builder.build());
             selector.add(p, nonProxyHosts);
         }
 
         for (org.apache.maven.settings.Proxy proxy : settings.getProxies()) {
-            Authentication auth = new Authentication(proxy.getUsername(), proxy.getPassword());
-            org.sonatype.aether.repository.Proxy p = new Proxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), auth);
+            AuthenticationBuilder builder = new AuthenticationBuilder();
+            builder.addUsername(proxy.getUsername());
+            builder.addPassword(proxy.getPassword());
+            org.eclipse.aether.repository.Proxy p = new Proxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), builder.build());
             selector.add(p, proxy.getNonProxyHosts());
         }
 
@@ -218,9 +230,12 @@ public class MavenUtils {
         for (Server server : settings.getServers()) {
             // Need to decode username/password because it may contain encoded characters (http://www.w3schools.com/tags/ref_urlencode.asp)
             // A common encoding is to provide a username as an email address like user%40domain.org
-            String decodedUsername = decode(server.getUsername());           
-            Authentication auth = new Authentication(decodedUsername, server.getPassword(), server.getPrivateKey(), server.getPassphrase());
-            selector.add(server.getId(), auth);
+            String decodedUsername = decode(server.getUsername());
+            AuthenticationBuilder authBuilder = new AuthenticationBuilder();
+            authBuilder.addUsername(decodedUsername);
+            authBuilder.addPassword(server.getPassword());
+            authBuilder.addPrivateKey(server.getPrivateKey(), server.getPassphrase());
+            selector.add(server.getId(), authBuilder.build());
         }
 
         return new ConservativeAuthenticationSelector(selector);
@@ -273,13 +288,7 @@ public class MavenUtils {
 
 
     private static RepositoryPolicy convertMavenRepositoryPolicy(org.apache.maven.settings.RepositoryPolicy repositoryPolicy) {
-        RepositoryPolicy policy = new RepositoryPolicy();
-        if (repositoryPolicy != null && repositoryPolicy.getChecksumPolicy() != null) {
-            policy.setChecksumPolicy(repositoryPolicy.getChecksumPolicy());
-        }
-        policy.setEnabled(repositoryPolicy.isEnabled());
-        policy.setUpdatePolicy(repositoryPolicy.getUpdatePolicy());
-        return policy;
+        return new RepositoryPolicy(repositoryPolicy.isEnabled(), repositoryPolicy.getUpdatePolicy(), repositoryPolicy.getChecksumPolicy());
     }
 
     /**

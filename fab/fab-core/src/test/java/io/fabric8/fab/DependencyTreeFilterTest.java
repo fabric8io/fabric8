@@ -18,7 +18,7 @@ package io.fabric8.fab;
 import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Filters;
 import org.junit.Test;
-import org.sonatype.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 
 import java.net.MalformedURLException;
 
