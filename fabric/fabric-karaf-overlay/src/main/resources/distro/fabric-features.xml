@@ -81,8 +81,17 @@
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.wrap/${karaf-version}</bundle>
     </feature>
 
-    <feature name="fabric-bundle" version="${project.version}" resolver="(obr)">
+    <feature name="fab-osgi" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:commons-io/commons-io/${commons-io2-version}</bundle>
+        <bundle>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-atinject_1.0_spec/${geronimo-atinject.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aopalliance/${aopalliance.bundle.version}</bundle>
+        <bundle>mvn:com.google.inject/guice/${guice-version}</bundle>
         <bundle>mvn:io.fabric8.fab/fab-osgi/${project.version}</bundle>
+    </feature>
+
+    <feature name="fabric-bundle" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fab-osgi</feature>
         <bundle>mvn:org.ops4j.base/ops4j-base-net/${ops4j-base.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-monitors/${ops4j-base.version}</bundle>
