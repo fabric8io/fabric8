@@ -205,8 +205,11 @@
         <felix.obr.version>1.6.6</felix.obr.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
         <geronimo-annotation.version>1.1.1</geronimo-annotation.version>
+        <geronimo-cdi-api-version>1.0</geronimo-cdi-api-version>
         <geronimo-connector.version>3.1.1</geronimo-connector.version>
         <geronimo-ejb-3-1-spec-version>1.0.2</geronimo-ejb-3-1-spec-version>
+        <geronimo-el-api-version>1.0.4</geronimo-el-api-version>
+        <geronimo-interceptor-api-version>1.0</geronimo-interceptor-api-version>
         <geronimo-j2ee-connector.version>2.0.0</geronimo-j2ee-connector.version>
         <geronimo-j2ee-management.version>1.0.1</geronimo-j2ee-management.version>
         <geronimo-jaxws.version>1.0</geronimo-jaxws.version>
@@ -287,6 +290,7 @@
         <ops4j-pax-web-version>3.0.5</ops4j-pax-web-version>
         <org.apache.servicemix.bundles.jzlib.version>1.1.3_2</org.apache.servicemix.bundles.jzlib.version>
         <org.apache.servicemix.bundles.dnsjava.version>2.1.1_1</org.apache.servicemix.bundles.dnsjava.version>
+        <osgi-cdi-api-version>3.1</osgi-cdi-api-version>
         <osgi-compendium-version>4.3.1</osgi-compendium-version>
         <osgi-enterprise-version>5.0.0</osgi-enterprise-version>
         <osgi-metadata-version>4.0.0.CR1</osgi-metadata-version>
@@ -3738,6 +3742,26 @@
                 <groupId>org.jboss.weld.se</groupId>
                 <artifactId>weld-se</artifactId>
                 <version>${weld2-version}</version>
+            </dependency>
+
+            <!-- CDI -->
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-interceptor_1.1_spec</artifactId>
+                <version>${geronimo-interceptor-api-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jcdi_1.0_spec</artifactId>
+                <version>${geronimo-cdi-api-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-el_2.2_spec</artifactId>
+                <version>${geronimo-el-api-version}</version>
             </dependency>
 
         </dependencies>
