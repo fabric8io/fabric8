@@ -35,6 +35,7 @@ public class ProducerThread extends Thread {
     byte[] payload = null;
     int transactionBatchSize;
     boolean running = false;
+    long msgTTL = 0L;
 
     public ProducerThread(JMSService service, String dest) {
         this.dest = dest;
@@ -46,6 +47,7 @@ public class ProducerThread extends Thread {
         try {
             producer = service.createProducer(dest);
             producer.setDeliveryMode(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
+            producer.setTimeToLive(msgTTL);
             initPayLoad();
             running = true;
             for (sentCount = 0; sentCount < messageCount; sentCount++) {
@@ -130,4 +132,6 @@ public class ProducerThread extends Thread {
     public void setRunning(boolean running) {
         this.running = running;
     }
+
+    public void setTTL(long ttl) { this.msgTTL = ttl;}
 }

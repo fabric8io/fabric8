@@ -29,6 +29,7 @@ public class Main {
     int count = 100;
     int sleep = 0;
     int size = 0;
+    long ttl = 0L;
     String clientId;
     String password;
     String user;
@@ -48,7 +49,9 @@ public class Main {
         while (!arg1.isEmpty()) {
             try {
                 String arg = arg1.removeFirst();
-                if ("--size".equals(arg)) {
+                if ("--ttl".equals(arg)) {
+                    main.ttl = Long.parseLong(shift(arg1));
+                } else if ("--size".equals(arg)) {
                     main.size = Integer.parseInt(shift(arg1));
                 } else if ("--count".equals(arg)) {
                     main.count = Integer.parseInt(shift(arg1));
@@ -156,10 +159,13 @@ public class Main {
         System.out.println("           [--size        N] - size in bytes of a BytesMessage; default 0, a simple TextMessage is used");
         System.out.println("           [--sleep       N] - millisecond sleep period between sends or receives; default 0");
         System.out.println("           [--batchSize   N] - use send and receive transaction batches of size N; default 0, no jms transactions");
+        System.out.println("           [--ttl         N] - message TTL in milliseconds");
         System.out.println("           [--clientId   id] - use a durable topic consumer with the supplied id; default null, non durable consumer");
         System.out.println("           [--brokerUrl URL] - connection factory url; default " + ActiveMQConnectionFactory.DEFAULT_BROKER_URL);
         System.out.println("           [--user      .. ] - connection user name");
         System.out.println("           [--password  .. ] - connection password");
+
+
 
         System.out.println("");
 
