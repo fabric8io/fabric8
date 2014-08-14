@@ -269,6 +269,7 @@
         <lombok.version>1.14.4</lombok.version>
         <maven-fab-plugin-version>1.32</maven-fab-plugin-version>
         <maven-version>3.1.1</maven-version>
+        <maven-shared-version>2.1.1</maven-shared-version>
         <mina-version>2.0.7</mina-version>
         <mockserver-version>3.4</mockserver-version>
         <mongo-java-driver-version>2.12.3</mongo-java-driver-version>
@@ -316,7 +317,7 @@
         <slf4j-api-version>1.7.5</slf4j-api-version>
         <slf4j-version>1.7.5</slf4j-version>
         <sonatype-plexus-sec-version>1.3</sonatype-plexus-sec-version>
-        <sonatype-plexus-cifer-version>1.4</sonatype-plexus-cifer-version>
+        <sonatype-plexus-cifer-version>1.7</sonatype-plexus-cifer-version>
         <spring-bundle-version>3.2.9.RELEASE_1</spring-bundle-version>
         <spring-data-rest-version>2.0.2.RELEASE</spring-data-rest-version>
         <spring-osgi-version>1.2.1</spring-osgi-version>
@@ -1028,6 +1029,11 @@
             <dependency>
                 <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-elasticsearch</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8.insight</groupId>
+                <artifactId>insight-maven</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -3575,6 +3581,36 @@
                     <exclusion>
                         <groupId>nekohtml</groupId>
                         <artifactId>xercesMinimal</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-embedder</artifactId>
+                <version>${maven-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.eclipse.sisu</groupId>
+                        <artifactId>org.eclipse.sisu.plexus</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-utils</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.sonatype.plexus</groupId>
+                        <artifactId>plexus-cipher</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.shared</groupId>
+                <artifactId>maven-invoker</artifactId>
+                <version>${maven-shared-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-utils</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
