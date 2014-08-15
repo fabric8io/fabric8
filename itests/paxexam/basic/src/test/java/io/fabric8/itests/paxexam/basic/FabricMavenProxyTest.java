@@ -106,12 +106,18 @@ public class FabricMavenProxyTest extends FabricTestSupport {
 
     @Configuration
     public Option[] config() {
-        return new Option[] {
-                new DefaultCompositeOption(fabricDistributionConfiguration()),
-                mavenBundle("org.apache.httpcomponents", "httpcore-osgi").versionAsInProject(),
-                mavenBundle("org.apache.httpcomponents", "httpclient-osgi").versionAsInProject(),
-                mavenBundle("io.fabric8", "fabric-maven-proxy").versionAsInProject(),
-                KarafDistributionOption.editConfigurationFilePut("etc/system.properties", "feature.location",
-                        FabricMavenProxyTest.class.getResource("/test-features.xml").getFile()), KarafDistributionOption.debugConfiguration("5005", false) };
+        return new Option[]{
+            new DefaultCompositeOption(fabricDistributionConfiguration()),
+            mavenBundle("org.apache.httpcomponents", "httpcore-osgi").versionAsInProject(),
+            mavenBundle("org.apache.httpcomponents", "httpclient-osgi").versionAsInProject(),
+            mavenBundle("io.fabric8", "fabric-project-deployer").versionAsInProject(),
+            mavenBundle("io.fabric8", "fabric-maven-proxy").versionAsInProject(),
+            KarafDistributionOption.editConfigurationFilePut(
+                "etc/system.properties",
+                "feature.location",
+                FabricMavenProxyTest.class.getResource("/test-features.xml").getFile()
+            ),
+            KarafDistributionOption.debugConfiguration("5005", false)
+        };
     }
 }

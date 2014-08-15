@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-    	<groupId>io.fabric8.itests.paxexam</groupId>
+        <groupId>io.fabric8.itests.paxexam</groupId>
         <artifactId>fabric-itests-paxexam</artifactId>
         <version>1.2.0-SNAPSHOT</version>
     </parent>
@@ -37,7 +37,7 @@
             <type>zip</type>
         </dependency>
         <dependency>
-			<groupId>io.fabric8.itests.paxexam</groupId>
+            <groupId>io.fabric8.itests.paxexam</groupId>
             <artifactId>fabric-itests-paxexam-common</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -97,8 +97,8 @@
 
         <!-- Fabric Dependencies  -->
         <dependency>
-          <groupId>io.fabric8</groupId>
-          <artifactId>fabric-api</artifactId>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-api</artifactId>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
@@ -154,7 +154,7 @@
             <artifactId>fabric-redirect</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>io.fabric8.mq</groupId>
             <artifactId>mq-http-discovery</artifactId>
@@ -184,13 +184,19 @@
             <artifactId>insight-storage</artifactId>
             <scope>test</scope>
         </dependency>
-        
-        <!-- Testing Dependencies -->
+
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-project-deployer</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>fabric-agent</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
+        <!-- Testing Dependencies -->
 
         <!-- required for the ArchetypeTest -->
         <dependency>
