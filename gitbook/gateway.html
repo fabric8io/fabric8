@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="6.1" data-basepath="." data-revision="1408044247824">
+    <div class="book" data-github="fabric8io/fabric8" data-level="6.1" data-basepath="." data-revision="1408130624312">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -896,17 +896,17 @@
 <p>You may wish to segregate, say, servlets, web services or web applications into different URI spaces.</p>
 <p>For example you may want all web services to be within <strong>/api/</strong> and apps to be in <strong>/app/</strong>. To do this just update the URI templates as follows:</p>
 <p>For the web services mapping rule:</p>
-<pre><code>ZooKeeperPath: /fabric/registry/clusters/apis
-URI template: /api{contextPath}/
+<pre><code>zooKeeperPath = /fabric/registry/clusters/apis
+uriTemplate = /api{contextPath}/
 </code></pre><p>For the web apps mapping rule:</p>
-<pre><code>ZooKeeperPath: /fabric/registry/clusters/webapps
-URI template: /app{contextPath}/
+<pre><code>zooKeeperPath = /fabric/registry/clusters/webapps
+uriTemplate = /app{contextPath}/
 </code></pre><p>If you want to split RESTful APIs and SOAP web services into different URI paths then replace the former mapping rule with these two</p>
-<pre><code>ZooKeeperPath: /fabric/registry/clusters/apis/rest
-URI template: /rest{contextPath}/
+<pre><code>zooKeeperPath = /fabric/registry/clusters/apis/rest
+uriTemplate = /rest{contextPath}/
 
-ZooKeeperPath: /fabric/registry/clusters/apis/ws
-URI template: /ws{contextPath}/
+zooKeeperPath = /fabric/registry/clusters/apis/ws
+uriTemplate = /ws{contextPath}/
 </code></pre><h4 id="versioning-explict-uris"><a name="versioning-explict-uris" class="anchor" href="#versioning-explict-uris"><span class="fa fa-link"></span></a>Versioning: Explict URIs</h4>
 <p>You may wish to expose all available versions of each web service and web application at a different URI. e.g. if you change your URI template to:</p>
 <pre><code>/version/{version}{contextPath}/
