@@ -19,8 +19,6 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import org.apache.felix.scr.annotations.*;
-import org.jolokia.osgi.security.BasicAuthenticationHttpContext;
-import org.jolokia.osgi.security.JaasAuthenticator;
 import org.jolokia.osgi.servlet.JolokiaServlet;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpContext;
@@ -59,7 +57,8 @@ public class FabricJolokia extends AbstractComponent {
     @Activate
     void activate(BundleContext bundleContext, Map<String, String> properties) throws Exception {
         configurer.configure(properties, this);
-        httpService.get().registerServlet(getServletAlias(), new JolokiaServlet(bundleContext), new Hashtable(), new BasicAuthenticationHttpContext(realm, new JaasAuthenticator(realm)));
+        context = new JolokiaSecureHttpContext(realm, role);
+        httpService.get().registerServlet(getServletAlias(), new JolokiaServlet(bundleContext), new Hashtable(), context);
         activateComponent();
 
     }
