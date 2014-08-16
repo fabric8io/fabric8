@@ -36,7 +36,7 @@ public class ProducerThread extends Thread {
     int transactionBatchSize;
     boolean running = false;
     long msgTTL = 0L;
-    String msgGroupID="";
+    String msgGroupID=null;
 
     public ProducerThread(JMSService service, String dest) {
         this.dest = dest;
@@ -55,7 +55,7 @@ public class ProducerThread extends Thread {
                 if (!running)
                     break;
                 Message message = createMessage(sentCount);
-                if (!msgGroupID.equals("")) message.setStringProperty("JMSXGroupID", msgGroupID);
+                if ((msgGroupID!=null)&&(!msgGroupID.isEmpty())) message.setStringProperty("JMSXGroupID", msgGroupID);
                 producer.send(message);
                 LOG.info("Sent: " + (message instanceof TextMessage ? ((TextMessage) message).getText() : message.getJMSMessageID()));
 
