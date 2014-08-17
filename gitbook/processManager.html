@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="6.6" data-basepath="." data-revision="1408270501991">
+    <div class="book" data-github="fabric8io/fabric8" data-level="6.6" data-basepath="." data-revision="1408303413367">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -869,9 +869,9 @@
 <h3 id="kinds-of-process-controller"><a name="kinds-of-process-controller" class="anchor" href="#kinds-of-process-controller"><span class="fa fa-link"></span></a>Kinds of process controller</h3>
 <p>Process Manager ships with some default <strong>kinds</strong> of controller which lets you use a more concise command to run some common processes.</p>
 <p>For example to install an <a href="http://tomcat.apache.org/" target="_blank">Apache Tomcat</a> distro with the name mycat, in this case <a href="http://tomee.apache.org/" target="_blank">Apache TomEE</a>:</p>
-<pre><code>process:install -k tomcat mycat mvn:org.apache.openejb/apache-tomee/1.5.0/tar.gz/plus
+<pre><code>process:install -k tomcat mycat mvn:org.apache.openejb/apache-tomee/1.7.0/tar.gz/plus
 </code></pre><p>You can use any URL for a distro of Tomcat you wish in the above command. For example you could refer to a specific HTTP URL for a Tomcat distro...</p>
-<pre><code>process:install -k tomcat mycat http://repo2.maven.org/maven2/org/apache/openejb/apache-tomee/1.5.0/apache-tomee-1.5.0-plus.tar.gz
+<pre><code>process:install -k tomcat mycat http://repo2.maven.org/maven2/org/apache/openejb/apache-tomee/1.7.0/apache-tomee-1.7.0-plus.tar.gz
 </code></pre><p>To run <a href="http://www.eclipse.org/jetty/" target="_blank">Jetty</a>:</p>
 <pre><code>process:install -k jetty myjetty http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/8.1.4.v20120524/jetty-distribution-8.1.4.v20120524.tar.gz
 </code></pre><p>or</p>
