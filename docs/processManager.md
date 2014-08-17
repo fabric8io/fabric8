@@ -52,11 +52,11 @@ Process Manager ships with some default **kinds** of controller which lets you u
 
 For example to install an [Apache Tomcat](http://tomcat.apache.org/) distro with the name mycat, in this case [Apache TomEE](http://tomee.apache.org/):
 
-    process:install -k tomcat mycat mvn:org.apache.openejb/apache-tomee/1.5.0/tar.gz/plus
+    process:install -k tomcat mycat mvn:org.apache.openejb/apache-tomee/1.7.0/tar.gz/plus
 
 You can use any URL for a distro of Tomcat you wish in the above command. For example you could refer to a specific HTTP URL for a Tomcat distro...
 
-    process:install -k tomcat mycat http://repo2.maven.org/maven2/org/apache/openejb/apache-tomee/1.5.0/apache-tomee-1.5.0-plus.tar.gz
+    process:install -k tomcat mycat http://repo2.maven.org/maven2/org/apache/openejb/apache-tomee/1.7.0/apache-tomee-1.7.0-plus.tar.gz
 
 To run [Jetty](http://www.eclipse.org/jetty/):
 
