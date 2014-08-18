@@ -102,20 +102,10 @@ public interface FabricManagerMBean {
 
     void changeCreateOptionsField(String containerId, String field, Object value);
 
-    /**
-     * @return
-     * @Deprecated
-     */
-    @Deprecated
+    // used by hawtio
     String[] containerIds();
 
-    /**
-     * @param versionId
-     * @param profileId
-     * @return
-     * @Deprecated
-     */
-    @Deprecated
+    // used by hawtio
     List<String> containerIdsForProfile(String versionId, String profileId);
 
     List<Map<String, Object>> containersForProfile(String versionId, String profileId);
