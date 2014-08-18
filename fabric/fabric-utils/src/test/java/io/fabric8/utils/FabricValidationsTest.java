@@ -39,6 +39,6 @@ public class FabricValidationsTest {
         assertTrue(isValidName("c-1"));
         assertTrue(isValidName("c_1"));
         assertTrue(isValidName("1container"));
-        assertTrue(isValidName("Container1"));
+        assertTrue(isValidName("container1"));
     }
 }
