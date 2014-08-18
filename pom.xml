@@ -3448,11 +3448,13 @@
         <module>quickstarts-exclude-artifact</module>
         <module>tooling</module>
         <module>fabric</module>
+        <module>runtime</module>
         <module>insight</module>
         <module>mq</module>
         <module>process</module>
-        <module>runtime</module>
         <module>gateway</module>
+
+        <!-- itests should be built last -->
         <module>itests</module>
         <!-- 
         	Modules that are relevant for the default distribution
