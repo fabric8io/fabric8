@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 public final class FabricValidations {
 
-    private static final Pattern ALLOWED_NAMES_PATTERN = Pattern.compile("^[a-z0-9_-]*$");
+    private static final Pattern ALLOWED_NAMES_PATTERN = Pattern.compile("^[a-z0-9]+[a-z0-9_-]*$");
 
     private FabricValidations() {
         //Utility Class
