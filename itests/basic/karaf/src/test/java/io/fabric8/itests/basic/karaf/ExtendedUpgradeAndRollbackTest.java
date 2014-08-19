@@ -104,7 +104,7 @@ public class ExtendedUpgradeAndRollbackTest  {
         try {
             FabricService fabricService = fabricProxy.getService();
             System.out.println(CommandSupport.executeCommand("fabric:version-create --parent 1.0 1.1"));
-            Set<Container> containers = ContainerBuilder.create().withName("basic.camelA").withProfiles("feature-camel").assertProvisioningResult().build(fabricService);
+            Set<Container> containers = ContainerBuilder.create().withName("basic_camel_a").withProfiles("feature-camel").assertProvisioningResult().build(fabricService);
             try {
                 //Make sure that the profile change has been applied before changing the version
                 CountDownLatch latch = WaitForConfigurationChange.on(fabricService);
@@ -158,7 +158,7 @@ public class ExtendedUpgradeAndRollbackTest  {
             FabricService fabricService = fabricProxy.getService();
             System.out.println(CommandSupport.executeCommand("fabric:version-create --parent 1.0 1.1"));
             System.out.println(CommandSupport.executeCommand("fabric:container-upgrade --all 1.1"));
-            Set<Container> containers = ContainerBuilder.create().withName("basic.camelB").withProfiles("feature-camel").assertProvisioningResult().build(fabricService);
+            Set<Container> containers = ContainerBuilder.create().withName("basic_camel_b").withProfiles("feature-camel").assertProvisioningResult().build(fabricService);
             try {
                 System.out.println(CommandSupport.executeCommand("fabric:container-rollback --all 1.0"));
                 ProvisionSupport.provisioningSuccess(containers, ProvisionSupport.PROVISION_TIMEOUT);
