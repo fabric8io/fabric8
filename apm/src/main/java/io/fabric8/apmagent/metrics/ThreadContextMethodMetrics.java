@@ -36,7 +36,6 @@ public class ThreadContextMethodMetrics extends MethodMetrics {
         return thread.getId();
     }
 
-
     public void onEnter() {
         timerContext = timer.time();
         stackRef.get().push(this);

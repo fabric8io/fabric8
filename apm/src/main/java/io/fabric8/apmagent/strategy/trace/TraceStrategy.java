@@ -46,8 +46,7 @@ public class TraceStrategy implements Strategy, ClassFileTransformer {
     private AtomicBoolean cleanUp = new AtomicBoolean();
     private Thread transformThread;
 
-
-    public TraceStrategy(ApmAgentContext context, Instrumentation instrumentation){
+    public TraceStrategy(ApmAgentContext context, Instrumentation instrumentation) {
         this.context = context;
         this.configuration = context.getConfiguration();
         this.instrumentation = instrumentation;
@@ -55,13 +54,13 @@ public class TraceStrategy implements Strategy, ClassFileTransformer {
 
     @Override
     public void initialize() throws Exception {
-        if (initialized.compareAndSet(false,true)){
+        if (initialized.compareAndSet(false, true)) {
             configuration.addChangeListener(this);
         }
     }
 
     @Override
-    public void start() throws Exception{
+    public void start() throws Exception {
         if (initialized.get()) {
             if (started.compareAndSet(false, true)) {
                 instrumentApplication();
@@ -70,15 +69,15 @@ public class TraceStrategy implements Strategy, ClassFileTransformer {
     }
 
     @Override
-    public void stop(){
-        if (started.compareAndSet(true,false)){
+    public void stop() {
+        if (started.compareAndSet(true, false)) {
 
         }
     }
 
     @Override
-    public void shutDown(){
-        if (initialized.compareAndSet(true,false)){
+    public void shutDown() {
+        if (initialized.compareAndSet(true, false)) {
             stop();
             configuration.removeChangeListener(this);
             instrumentation.removeTransformer(this);
@@ -102,7 +101,7 @@ public class TraceStrategy implements Strategy, ClassFileTransformer {
     }
 
     public boolean isAudit(String className, String methodName) {
-        return configuration.isAudit(className,methodName);
+        return configuration.isAudit(className, methodName);
     }
 
     @Override
@@ -191,7 +190,7 @@ public class TraceStrategy implements Strategy, ClassFileTransformer {
         this.configuration = context.getConfiguration();
     }
 
-   private void instrumentApplication() throws FileNotFoundException, UnmodifiableClassException {
+    private void instrumentApplication() throws FileNotFoundException, UnmodifiableClassException {
         if (!instrumentation.isRetransformClassesSupported()) {
             throw new UnmodifiableClassException();
         }
@@ -220,8 +219,6 @@ public class TraceStrategy implements Strategy, ClassFileTransformer {
             startTransformThread();
         }
     }
-
-
 
     private boolean isInstrumentClass(Class c) {
 

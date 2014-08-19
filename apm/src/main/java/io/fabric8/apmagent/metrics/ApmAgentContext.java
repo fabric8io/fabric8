@@ -60,7 +60,6 @@ public class ApmAgentContext {
     private AtomicBoolean doHouseKeeping = new AtomicBoolean();
     private Thread backgroundThread;
 
-
     public ApmAgentContext(ApmAgent agent) {
         this.apmAgent = agent;
         this.configuration = agent.getConfiguration();
@@ -122,18 +121,18 @@ public class ApmAgentContext {
         }
     }
 
-
     public void start() {
         if (initialized.get()) {
             if (started.compareAndSet(false, true)) {
                 backgroundThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        while (started.get()){
+                        while (started.get()) {
                             try {
-                               Thread.sleep(HOUSE_KEEPING_TIME);
-                               doHouseKeeping.set(true);
-                            }catch(Throwable e){}
+                                Thread.sleep(HOUSE_KEEPING_TIME);
+                                doHouseKeeping.set(true);
+                            } catch (Throwable e) {
+                            }
                         }
                     }
                 });
@@ -143,18 +142,18 @@ public class ApmAgentContext {
         }
     }
 
-    void doHouseKeeping(){
+    void doHouseKeeping() {
         //the time is going to be the elapsed time from the latest method call
         //its not going to be terribly accurate - but then it doesn't really need to be
-        if (doHouseKeeping.compareAndSet(true,false)) {
+        if (doHouseKeeping.compareAndSet(true, false)) {
             try {
                 List<ThreadMetrics> threadMetricsList = getThreadMetrics();
-                            for (ThreadMetrics tm : threadMetricsList) {
-                                if (tm.isDead()) {
-                                    tm.destroy();
-                                    threadMetricsMap.remove(tm.getThread());
-                                }
-                            }
+                for (ThreadMetrics tm : threadMetricsList) {
+                    if (tm.isDead()) {
+                        tm.destroy();
+                        threadMetricsMap.remove(tm.getThread());
+                    }
+                }
                 monitoredMethodMetrics.calculateMethodMetrics(getMethodMetrics());
                 for (ThreadMetrics threadMetrics : threadMetricsList) {
                     threadMetrics.calculateMethodMetrics();
@@ -168,7 +167,7 @@ public class ApmAgentContext {
     public void stop() {
         if (initialized.get() && started.compareAndSet(true, false)) {
             for (ObjectName objectName : objectNameMap.values()) {
-               unregisterMBean(objectName);
+                unregisterMBean(objectName);
             }
             objectNameMap.clear();
             methodMetricsMap.clear();
@@ -189,7 +188,6 @@ public class ApmAgentContext {
             mBeanServer = null;
         }
     }
-
 
     public ClassInfo getClassInfo(String className) {
         String key = className.replace('/', '.');
@@ -229,7 +227,7 @@ public class ApmAgentContext {
     public List<ThreadMetrics> getThreadMetrics() {
         List<ThreadMetrics> result = new ArrayList<>(threadMetricsMap.values());
 
-        Collections.sort(result,new Comparator<ThreadMetrics>() {
+        Collections.sort(result, new Comparator<ThreadMetrics>() {
             @Override
             public int compare(ThreadMetrics threadMetrics1, ThreadMetrics threadMetrics2) {
                 return (int) (threadMetrics2.getCpuTime() - threadMetrics1.getCpuTime());
@@ -246,7 +244,7 @@ public class ApmAgentContext {
         return initialized.get();
     }
 
-    public ApmConfiguration getConfiguration(){
+    public ApmConfiguration getConfiguration() {
         return configuration;
     }
 
@@ -310,12 +308,12 @@ public class ApmAgentContext {
         classInfo.resetTransformed();
     }
 
-    public void methodMetricsDepthChanged(){
+    public void methodMetricsDepthChanged() {
         monitoredMethodMetrics.setMonitorSize(configuration.getMethodMetricDepth());
     }
 
-    public void threadMetricsDepthChanged(){
-        for (ThreadMetrics threadMetrics:threadMetricsMap.values()){
+    public void threadMetricsDepthChanged() {
+        for (ThreadMetrics threadMetrics : threadMetricsMap.values()) {
             threadMetrics.setMonitorSize(configuration.getThreadMetricDepth());
         }
 
@@ -347,11 +345,11 @@ public class ApmAgentContext {
         }
     }
 
-    void registerMethodMetricsMBean(int rank,MethodMetricsProxy methodMetrics) {
+    void registerMethodMetricsMBean(int rank, MethodMetricsProxy methodMetrics) {
         try {
             ObjectName objectName = new ObjectName(DEFAULT_DOMAIN + ":" +
-                    "type=MethodMetrics" +
-                    ",rank=" + ObjectName.quote("rank"+rank));
+                                                       "type=MethodMetrics" +
+                                                       ",rank=" + ObjectName.quote("rank" + rank));
             System.err.println("registered " + objectName);
             registerMBean(objectName, methodMetrics);
             objectNameMap.put(methodMetrics, objectName);
@@ -366,7 +364,7 @@ public class ApmAgentContext {
             ObjectName objectName = new ObjectName(DEFAULT_DOMAIN + ":"
                                                        + "type=ThreadContextMetrics"
                                                        + ",threadName=" + ObjectName.quote(threadIdentity)
-                                                       + ",rank="+ObjectName.quote("rank"+rank));
+                                                       + ",rank=" + ObjectName.quote("rank" + rank));
             registerMBean(objectName, threadMetrics);
             objectNameMap.put(threadMetrics, objectName);
         } catch (Throwable e) {

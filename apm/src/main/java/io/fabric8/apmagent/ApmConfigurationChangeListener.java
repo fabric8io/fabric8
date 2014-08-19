@@ -12,7 +12,6 @@
  */
 package io.fabric8.apmagent;
 
-
 public interface ApmConfigurationChangeListener {
     public void configurationChanged();
 }

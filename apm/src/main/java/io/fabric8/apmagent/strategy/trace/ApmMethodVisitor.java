@@ -30,7 +30,7 @@ public class ApmMethodVisitor extends MethodVisitor {
         super.visitCode();
         super.visitLdcInsn(fullMethodName);
         super.visitMethodInsn(INVOKESTATIC, "io/fabric8/apmagent/ApmAgent",
-                "enterMethod", "(Ljava/lang/String;)V", false);
+                                 "enterMethod", "(Ljava/lang/String;)V", false);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ApmMethodVisitor extends MethodVisitor {
         if ((opcode >= IRETURN && opcode <= RETURN) || opcode == ATHROW) {
             super.visitLdcInsn(fullMethodName);
             super.visitMethodInsn(INVOKESTATIC, "io/fabric8/apmagent/ApmAgent",
-                    "exitMethod", "(Ljava/lang/String;)V", false);
+                                     "exitMethod", "(Ljava/lang/String;)V", false);
         }
         super.visitInsn(opcode);
     }

@@ -114,7 +114,6 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
         return Collections.EMPTY_LIST;
     }
 
-
     public boolean isInitialized() {
         return initialized.get();
     }
@@ -134,7 +133,7 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
             PropertyUtils.setProperties(configuration, args);
             configuration.addChangeListener(this);
             apmAgentContext.initialize();
-            this.strategy = new TraceStrategy(apmAgentContext,instrumentation);
+            this.strategy = new TraceStrategy(apmAgentContext, instrumentation);
             this.strategy.initialize();
 
             //add shutdown hook
@@ -165,7 +164,7 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
             apmAgentContext.start();
             try {
                 Strategy s = this.strategy;
-                if (s != null){
+                if (s != null) {
                     s.start();
                 }
             } catch (Throwable e) {
@@ -181,8 +180,8 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
                 if (s != null) {
                     s.stop();
                 }
-            }catch(Throwable e){
-                LOG.error("Failed to stop strategy",e);
+            } catch (Throwable e) {
+                LOG.error("Failed to stop strategy", e);
             }
             apmAgentContext.stop();
         }
@@ -197,7 +196,7 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
             try {
                 //clean up
                 Strategy s = this.strategy;
-                if (s != null){
+                if (s != null) {
                     s.shutDown();
                 }
             } catch (Throwable e) {
@@ -209,10 +208,10 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
     @Override
     public void configurationChanged() {
         if (started.get()) {
-            if (configuration.isMethodMetricDepthChanged()){
+            if (configuration.isMethodMetricDepthChanged()) {
                 apmAgentContext.methodMetricsDepthChanged();
             }
-            if (configuration.isThreadMetricDepthChanged()){
+            if (configuration.isThreadMetricDepthChanged()) {
                 apmAgentContext.threadMetricsDepthChanged();
             }
         }

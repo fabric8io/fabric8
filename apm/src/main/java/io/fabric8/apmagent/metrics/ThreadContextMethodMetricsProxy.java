@@ -25,7 +25,7 @@ public class ThreadContextMethodMetricsProxy extends MethodMetricsProxy implemen
 
     @Override
     public String getThreadName() {
-        Thread t= thread;
+        Thread t = thread;
         return t != null ? t.getName() : " NOT SET";
     }
 

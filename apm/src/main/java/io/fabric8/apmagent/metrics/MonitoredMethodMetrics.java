@@ -31,43 +31,42 @@ public class MonitoredMethodMetrics {
 
     public synchronized void setMonitorSize(int monitorSize) {
         this.monitorSize = monitorSize;
-            //if we've downsized, remove
+        //if we've downsized, remove
 
-            while (proxyList.size() > monitorSize){
-                MethodMetricsProxy methodMetricsProxy = proxyList.get(proxyList.size() - 1);
-                proxyList.remove(proxyList.size() - 1);
-                apmAgentContext.unregisterMethodMetricsMBean(methodMetricsProxy);
-            }
-        int extra = monitorSize- proxyList.size();
+        while (proxyList.size() > monitorSize) {
+            MethodMetricsProxy methodMetricsProxy = proxyList.get(proxyList.size() - 1);
+            proxyList.remove(proxyList.size() - 1);
+            apmAgentContext.unregisterMethodMetricsMBean(methodMetricsProxy);
+        }
+        int extra = monitorSize - proxyList.size();
 
-        if (extra > 0){
-            for (int i =0; i < extra; i++){
+        if (extra > 0) {
+            for (int i = 0; i < extra; i++) {
                 proxyList.add(createProxy(proxyList.size()));
             }
         }
     }
 
-
-    public void calculateMethodMetrics(List<? extends MethodMetrics> methodMetricsList){
-        if (methodMetricsList.size() < proxyList.size()){
+    public void calculateMethodMetrics(List<? extends MethodMetrics> methodMetricsList) {
+        if (methodMetricsList.size() < proxyList.size()) {
             setMonitorSize(methodMetricsList.size());
         }
-        for (int i =0; i < methodMetricsList.size() && i < proxyList.size(); i++){
+        for (int i = 0; i < methodMetricsList.size() && i < proxyList.size(); i++) {
             MethodMetricsProxy methodMetricsProxy = proxyList.get(i);
-            if (methodMetricsProxy != null){
+            if (methodMetricsProxy != null) {
                 methodMetricsProxy.setMethodMetrics(methodMetricsList.get(i));
             }
         }
     }
 
-    protected MethodMetricsProxy createProxy(int rank){
-        MethodMetricsProxy result =  new MethodMetricsProxy();
-        apmAgentContext.registerMethodMetricsMBean(rank,result);
+    protected MethodMetricsProxy createProxy(int rank) {
+        MethodMetricsProxy result = new MethodMetricsProxy();
+        apmAgentContext.registerMethodMetricsMBean(rank, result);
         return result;
     }
 
-    protected void destroy(){
-        for (MethodMetricsProxy methodMetricsProxy:proxyList){
+    protected void destroy() {
+        for (MethodMetricsProxy methodMetricsProxy : proxyList) {
             apmAgentContext.unregisterMethodMetricsMBean(methodMetricsProxy);
         }
         proxyList.clear();

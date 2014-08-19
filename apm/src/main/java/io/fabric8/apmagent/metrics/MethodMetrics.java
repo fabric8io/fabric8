@@ -123,7 +123,6 @@ public class MethodMetrics {
         this.percentage = percentage;
     }
 
-
     public long[] values() {
         return timer.getSnapshot().getValues();
     }
@@ -149,11 +148,11 @@ public class MethodMetrics {
         });
         //calculate the percentage
         int totalLoad = 0;
-        for (MethodMetrics m: list){
+        for (MethodMetrics m : list) {
             totalLoad += m.getLoad();
         }
-        for (MethodMetrics m: list){
-            int percentage = (int) ((m.getLoad() * 100)/totalLoad);
+        for (MethodMetrics m : list) {
+            int percentage = (int) ((m.getLoad() * 100) / totalLoad);
             m.setPercentage(percentage);
         }
         return list;

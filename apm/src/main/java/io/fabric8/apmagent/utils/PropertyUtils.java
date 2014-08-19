@@ -60,10 +60,10 @@ public class PropertyUtils {
                     }
                     if (name.startsWith("get")) {
                         name = name.substring(3, 4).toLowerCase(Locale.ENGLISH)
-                                + name.substring(4);
+                                   + name.substring(4);
                     } else {
                         name = name.substring(2, 3).toLowerCase(Locale.ENGLISH)
-                                + name.substring(3);
+                                   + name.substring(3);
                     }
                     props.put(optionPrefix + name, strValue);
                     rc = true;
@@ -207,7 +207,7 @@ public class PropertyUtils {
             return converter.convert(value);
         } else {
             throw new IllegalArgumentException("Cannot convert from " + value.getClass()
-                    + " to " + to + " with value " + value);
+                                                   + " to " + to + " with value " + value);
         }
     }
 
@@ -232,7 +232,7 @@ public class PropertyUtils {
             return (String) converter.convert(value);
         } else {
             throw new IllegalArgumentException("Cannot convert from " + value.getClass()
-                    + " to " + to + " with value " + value);
+                                                   + " to " + to + " with value " + value);
         }
     }
 
