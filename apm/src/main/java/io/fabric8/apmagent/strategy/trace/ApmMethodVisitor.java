@@ -11,7 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.apmagent;
+package io.fabric8.apmagent.strategy.trace;
 
 import org.objectweb.asm.MethodVisitor;
 

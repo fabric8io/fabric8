@@ -10,26 +10,9 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-
 package io.fabric8.apmagent;
 
-import java.util.List;
 
-public interface ApmAgentMBean {
-
-    void startMetrics();
-
-    void stopMetrics();
-
-    void shutDown();
-
-    /**
-     * @return List of <className>@<methodName>
-     */
-    List<String> getTransformedMethods();
-
-    /**
-     * @return List of all <className>@<methodName>
-     */
-    List<String> getAllMethods();
+public interface ApmConfigurationChangeListener {
+    public void configurationChanged();
 }

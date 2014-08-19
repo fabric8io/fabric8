@@ -12,8 +12,26 @@
  */
 package io.fabric8.apmagent.metrics;
 
-public interface ThreadContextMethodMetricsMBean extends MethodMetricsMBean {
-    String getThreadName();
+public class ThreadContextMethodMetricsProxy extends MethodMetricsProxy implements ThreadContextMethodMetricsProxyMBean {
+    private Thread thread;
 
-    long getThreadId();
+    public Thread getThread() {
+        return thread;
+    }
+
+    public void setThread(Thread thread) {
+        this.thread = thread;
+    }
+
+    @Override
+    public String getThreadName() {
+        Thread t= thread;
+        return t != null ? t.getName() : " NOT SET";
+    }
+
+    @Override
+    public long getThreadId() {
+        Thread t = thread;
+        return t != null ? t.getId() : -1;
+    }
 }

@@ -35,9 +35,14 @@ public class ApmConfiguration implements ApmConfigurationMBean {
     private boolean autoStartMetrics = false;
     private boolean usePlatformMBeanServer = true;
     private boolean verifyClasses = false;
+    private int methodMetricDepth=10;
+    private int threadMetricDepth=5;
+    private boolean filterChanged = false;
+    private boolean methodMetricDepthChanged = false;
+    private boolean threadMetricDepthChanged = false;
     private List<FilterItem> whiteFilterList = new ArrayList<>();
     private List<FilterItem> blackFilterList = new ArrayList<>();
-    private List<ApmConfigurationFilterChangeListener> changeListeners = new CopyOnWriteArrayList<>();
+    private List<ApmConfigurationChangeListener> changeListeners = new CopyOnWriteArrayList<>();
 
     ApmConfiguration() {
         addToBlackList("java");
@@ -79,7 +84,8 @@ public class ApmConfiguration implements ApmConfigurationMBean {
     public void setWhiteList(String whiteList) {
         whiteFilterList = new ArrayList<>();
         initializeList(whiteList, this.whiteFilterList);
-        fireFilterChangeListener();
+        filterChanged=true;
+        fireConfigurationChanged();
     }
 
     @Override
@@ -91,7 +97,8 @@ public class ApmConfiguration implements ApmConfigurationMBean {
     public void setBlackList(String blackList) {
         this.blackFilterList = new ArrayList<>();
         initializeList(blackList, this.blackFilterList);
-        fireFilterChangeListener();
+        filterChanged=true;
+        fireConfigurationChanged();
     }
 
     @Override
@@ -103,7 +110,8 @@ public class ApmConfiguration implements ApmConfigurationMBean {
             filterItem.setMethodName(classAndMethod[1]);
         }
         blackFilterList.add(filterItem);
-        fireFilterChangeListener();
+        filterChanged=true;
+        fireConfigurationChanged();
     }
 
     @Override
@@ -115,7 +123,8 @@ public class ApmConfiguration implements ApmConfigurationMBean {
             filterItem.setMethodName(classAndMethod[1]);
         }
         whiteFilterList.add(filterItem);
-        fireFilterChangeListener();
+        filterChanged=true;
+        fireConfigurationChanged();
     }
 
     @Override
@@ -181,6 +190,41 @@ public class ApmConfiguration implements ApmConfigurationMBean {
     }
 
 
+    public int getThreadMetricDepth() {
+        return threadMetricDepth;
+    }
+
+    public void setThreadMetricDepth(int threadMetricDepth) {
+        this.threadMetricDepth = threadMetricDepth;
+        this.threadMetricDepthChanged=true;
+        fireConfigurationChanged();
+    }
+
+    public int getMethodMetricDepth() {
+        return methodMetricDepth;
+    }
+
+    public void setMethodMetricDepth(int methodMetricDepth) {
+        this.methodMetricDepth = methodMetricDepth;
+        this.methodMetricDepthChanged=true;
+        fireConfigurationChanged();
+    }
+
+
+    public boolean isThreadMetricDepthChanged() {
+        return threadMetricDepthChanged;
+    }
+
+    public boolean isMethodMetricDepthChanged() {
+        return methodMetricDepthChanged;
+    }
+
+    public boolean isFilterChanged() {
+        return filterChanged;
+    }
+
+
+
     public void initalizeFromProperties(Properties properties) {
         for (Map.Entry entry : properties.entrySet()) {
             if (entry.getKey() != null && entry.getValue() != null) {
@@ -235,18 +279,25 @@ public class ApmConfiguration implements ApmConfigurationMBean {
         return false;
     }
 
-    public void addChangeListener(ApmConfigurationFilterChangeListener changeListener) {
+    public void addChangeListener(ApmConfigurationChangeListener changeListener) {
         changeListeners.add(changeListener);
     }
 
-    public void removeChangeListener(ApmConfigurationFilterChangeListener changeListener) {
+    public void removeChangeListener(ApmConfigurationChangeListener changeListener) {
         changeListeners.remove(changeListener);
     }
 
-    private void fireFilterChangeListener() {
-        for (ApmConfigurationFilterChangeListener apmConfigurationFilterChangeListener : this.changeListeners) {
-            apmConfigurationFilterChangeListener.configurationFilterChanged();
+    private void fireConfigurationChanged() {
+        for (ApmConfigurationChangeListener apmConfigurationChangeListener : this.changeListeners) {
+            apmConfigurationChangeListener.configurationChanged();
         }
+        resetChanged();
+    }
+
+    private void resetChanged(){
+        filterChanged = false;
+        methodMetricDepthChanged = false;
+        threadMetricDepthChanged = false;
     }
 
     private void setProperty(String name, Object value) {
