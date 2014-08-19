@@ -3445,7 +3445,9 @@
         <module>fab</module>
         <module>fabric8-maven-plugin</module>
         <module>quickstarts</module>
+        <!-- exclude until we find a better solution, see #2280
         <module>quickstarts-exclude-artifact</module>
+        -->
         <module>tooling</module>
         <module>fabric</module>
         <module>runtime</module>
