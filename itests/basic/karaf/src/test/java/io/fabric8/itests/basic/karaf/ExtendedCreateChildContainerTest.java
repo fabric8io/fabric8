@@ -100,7 +100,7 @@ public class ExtendedCreateChildContainerTest {
             FabricService fabricService = fabricProxy.getService();
             System.out.println(CommandSupport.executeCommand("fabric:version-create"));
 
-            Set<Container> containers = ContainerBuilder.child(1).withName("basic.cntB").assertProvisioningResult().build(fabricService);
+            Set<Container> containers = ContainerBuilder.child(1).withName("basic_cnt_c").assertProvisioningResult().build(fabricService);
             try {
                 CuratorFramework curator = ServiceLocator.awaitService(CuratorFramework.class);
                 for (Container cnt : new HashSet<>(containers)) {
@@ -136,9 +136,9 @@ public class ExtendedCreateChildContainerTest {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            Set<Container> containers = ContainerBuilder.child(1).withName("basic.cntC").assertProvisioningResult().build(fabricService);
+            Set<Container> containers = ContainerBuilder.child(1).withName("basic_cnt_d").assertProvisioningResult().build(fabricService);
             try {
-                Container cntC = containers.iterator().next();
+                Container cntD = containers.iterator().next();
                 System.out.println(
                         CommandSupport.executeCommands(
                                 "jaas:manage --realm karaf --module io.fabric8.jaas.ZookeeperLoginModule",
@@ -148,9 +148,9 @@ public class ExtendedCreateChildContainerTest {
                                 "jaas:update"
                         )
                 );
-                System.out.println(CommandSupport.executeCommand("fabric:container-stop --user admin --password newpassword " + cntC.getId()));
+                System.out.println(CommandSupport.executeCommand("fabric:container-stop --user admin --password newpassword " + cntD.getId()));
                 ProvisionSupport.containersAlive(containers, false, ProvisionSupport.PROVISION_TIMEOUT);
-                containers.remove(cntC);
+                containers.remove(cntD);
             } finally {
                 ContainerBuilder.stop(fabricService, containers);
             }
