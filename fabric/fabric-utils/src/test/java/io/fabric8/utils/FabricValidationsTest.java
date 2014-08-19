@@ -16,6 +16,10 @@
 package io.fabric8.utils;
 
 import org.junit.Test;
+
+import static io.fabric8.utils.FabricValidations.isValidContainerName;
+import static io.fabric8.utils.FabricValidations.isValidProfileName;
+import static io.fabric8.utils.FabricValidations.validateProfileName;
 import static org.junit.Assert.assertTrue;
 import static io.fabric8.utils.FabricValidations.isValidName;
 import static io.fabric8.utils.FabricValidations.validateContainerName;
@@ -32,13 +36,49 @@ public class FabricValidationsTest {
         validateContainerName("_container");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testContainerWithUpperCase() {
+        validateContainerName("MyContainer");
+    }
+
     @Test
-    public void testValidNames() {
-        assertTrue(isValidName("c"));
-        assertTrue(isValidName("c1"));
-        assertTrue(isValidName("c-1"));
-        assertTrue(isValidName("c_1"));
-        assertTrue(isValidName("1container"));
-        assertTrue(isValidName("container1"));
+    public void testValidContainerNames() {
+        assertTrue(isValidContainerName("c"));
+        assertTrue(isValidContainerName("c1"));
+        assertTrue(isValidContainerName("c-1"));
+        assertTrue(isValidContainerName("c_1"));
+        assertTrue(isValidContainerName("1container"));
+        assertTrue(isValidContainerName("container1"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testProfileWithInvalidPrefix() {
+        validateProfileName("--profile");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testProfileWithInvalidPrefix2() {
+        validateProfileName("_profile");
+    }
+
+    @Test
+    public void testValidProfileNames() {
+        assertTrue(isValidProfileName("c"));
+        assertTrue(isValidProfileName("c1"));
+        assertTrue(isValidProfileName("c-1"));
+        assertTrue(isValidProfileName("c_1"));
+        assertTrue(isValidProfileName("1container"));
+        assertTrue(isValidProfileName("container1"));
+
+        assertTrue(isValidProfileName("C"));
+        assertTrue(isValidProfileName("C1"));
+        assertTrue(isValidProfileName("C-1"));
+        assertTrue(isValidProfileName("C_1"));
+        assertTrue(isValidProfileName("1Container"));
+        assertTrue(isValidProfileName("Container1"));
+
+        // we also allow dots
+        assertTrue(isValidProfileName("my.container.name"));
+        assertTrue(isValidProfileName("My.Container123.Name"));
     }
 }

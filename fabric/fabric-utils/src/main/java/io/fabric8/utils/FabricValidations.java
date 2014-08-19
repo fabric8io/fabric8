@@ -21,7 +21,11 @@ import java.util.regex.Pattern;
 
 public final class FabricValidations {
 
-    private static final Pattern ALLOWED_NAMES_PATTERN = Pattern.compile("^[a-z0-9]+[a-z0-9_-]*$");
+    // container name must be lower case only, and without dots
+    private static final Pattern ALLOWED_CONTAINER_NAMES_PATTERN = Pattern.compile("^[a-z0-9]+[a-z0-9_-]*$");
+
+    // we allow using dot in profile names, and also mixed case
+    private static final Pattern ALLOWED_PROFILE_NAMES_PATTERN = Pattern.compile("^[a-zA-Z0-9]+[\\.a-zA-Z0-9_-]*$");
 
     private FabricValidations() {
         //Utility Class
@@ -35,8 +39,8 @@ public final class FabricValidations {
     }
 
     public static void validateProfileName(String profileName) {
-        if (!isValidName(profileName)) {
-            throw new IllegalArgumentException("Profile name '" + profileName + "' is invalid");
+        if (!isValidProfileName(profileName)) {
+            throw new IllegalArgumentException("Profile name '" + profileName + "' is invalid. Profile name must be: letters, numbers, and . _ or - characters");
         }
     }
 
@@ -49,12 +53,24 @@ public final class FabricValidations {
     }
 
     public static void validateContainerName(String containerName) {
-        if (!isValidName(containerName)) {
-            throw new IllegalArgumentException("Container name '" + containerName + "' is invalid");
+        if (!isValidContainerName(containerName)) {
+            throw new IllegalArgumentException("Container name '" + containerName + "' is invalid. Container name must be: lower-case letters, numbers, and _ or - characters");
         }
     }
 
+    /**
+     * @deprecated use {@link #isValidContainerName(String)}
+     */
+    @Deprecated
     public static boolean isValidName(String containerName) {
-       return containerName != null && !containerName.isEmpty() && ALLOWED_NAMES_PATTERN.matcher(containerName).matches();
+        return isValidContainerName(containerName);
+    }
+
+    public static boolean isValidContainerName(String containerName) {
+       return containerName != null && !containerName.isEmpty() && ALLOWED_CONTAINER_NAMES_PATTERN.matcher(containerName).matches();
+    }
+
+    public static boolean isValidProfileName(String name) {
+       return name != null && !name.isEmpty() && ALLOWED_PROFILE_NAMES_PATTERN.matcher(name).matches();
     }
 }
