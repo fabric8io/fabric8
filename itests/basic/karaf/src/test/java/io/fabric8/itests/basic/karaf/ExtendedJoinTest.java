@@ -121,7 +121,7 @@ public class ExtendedJoinTest {
 
                 System.err.println(CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("basic_cnt_f").getSshPort() + " localhost " + joinCommand));
                 System.err.println(CommandSupport.executeCommand("ssh:ssh -l karaf -P karaf -p " + adminService.getInstance("basic_cnt_g").getSshPort() + " localhost " + joinCommand));
-                ProvisionSupport.containersExist(Arrays.asList("basic.cnt_f", "basic.cnt_g"), ProvisionSupport.PROVISION_TIMEOUT);
+                ProvisionSupport.containersExist(Arrays.asList("basic_cnt_f", "basic_cnt_g"), ProvisionSupport.PROVISION_TIMEOUT);
                 Container cntF = fabricService.getContainer("basic_cnt_f");
                 Container cntG = fabricService.getContainer("basic_cnt_g");
                 ProvisionSupport.containerStatus(Arrays.asList(cntF, cntG), "success", ProvisionSupport.PROVISION_TIMEOUT);
