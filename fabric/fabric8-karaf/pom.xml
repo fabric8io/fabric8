@@ -61,12 +61,13 @@
                 <type>zip</type>
             </dependency>
 
+            <!-- disable until we find a better solution, see #2280 
             <dependency>
                 <groupId>io.fabric8.quickstarts</groupId>
                 <artifactId>fabric8-quickstarts-exclude-artifact-parent</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
-            </dependency>
+            </dependency> -->
 
             <!-- Gravia Dependencies -->
             <dependency>
