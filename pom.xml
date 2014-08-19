@@ -27,7 +27,7 @@
 
     <groupId>io.fabric8.bom</groupId>
     <artifactId>fabric8-bom</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0.redhat-011</version>
     <packaging>pom</packaging>
 
     <name>Fabric8</name>
@@ -72,7 +72,7 @@
     <properties>
         <license.dir>${project.parent.basedir}/etc</license.dir>
         <perfectus-build>379</perfectus-build>
-        <perfectus.version>${perfectus-build}</perfectus.version>
+        <perfectus.version>011</perfectus.version>
         <forge-project-id>fabric</forge-project-id>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
@@ -222,7 +222,7 @@
         <hawtdispatch-version>1.21</hawtdispatch-version>
         <hawtio-dockerui-version>1.0.3</hawtio-dockerui-version>
         <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
-        <hawtio-version>1.4.14</hawtio-version>
+        <hawtio-version>1.5-redhat-011</hawtio-version>
         <jackson-version>1.9.2</jackson-version>
         <jackson2-version>2.4.1</jackson2-version>
         <jackson-module-scala-version>2.1.5_2</jackson-module-scala-version>
@@ -256,7 +256,7 @@
         <jsch-smx-version>0.1.49_1</jsch-smx-version>
         <json4s-version>3.2.4_1</json4s-version>
         <junit-version>4.11</junit-version>
-        <karaf-version>2.4.0.redhat-620004</karaf-version>
+        <karaf-version>2.4.0.redhat-620011</karaf-version>
         <libvirt-bundle-version>1.1</libvirt-bundle-version>
         <libvirt-version>0.4.7</libvirt-version>
         <log4j-version>1.2.17</log4j-version>
@@ -3514,7 +3514,7 @@
         <profile>
             <id>hawtio-snapshot</id>
             <properties>
-                <hawtio-version>1.5-SNAPSHOT</hawtio-version>
+                <hawtio-version>1.5-redhat-011</hawtio-version>
             </properties>
         </profile>
         <profile>
