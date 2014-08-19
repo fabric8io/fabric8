@@ -21,6 +21,7 @@ public class TestLoad implements Runnable {
     private final int MAX_ITERATIONS;
     private AtomicBoolean started = new AtomicBoolean();
     private AtomicLong count = new AtomicLong();
+    private AtomicLong count2 = new AtomicLong();
     private String name;
     private Thread thread;
 
@@ -36,6 +37,7 @@ public class TestLoad implements Runnable {
     public void doStart() {
         started.set(true);
         this.thread = new Thread(this, name);
+        this.thread.setDaemon(true);
         this.thread.start();
     }
 
@@ -55,14 +57,31 @@ public class TestLoad implements Runnable {
     }
 
     public void load(TestValues value) {
+        load1(value);
+    }
+
+    public void load1(TestValues value) {
+        sleep(1);
+        load2(value);
+    }
+
+    public void load2(TestValues value) {
         sleep(10);
         count.incrementAndGet();
+    }
+
+    public void doSomethingElse(){
+        sleep(2);
+        count2.incrementAndGet();
     }
 
     public void run() {
         for (int i = 0; i < MAX_ITERATIONS && started.get(); i++) {
             for (TestValues value : TestValues.values()) {
                 load(value);
+                if (i%2==0){
+                    doSomethingElse();
+                }
             }
         }
         System.err.println("TestLoad(" + name + ") stopping");

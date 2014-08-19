@@ -40,11 +40,10 @@ public class TestApp {
 
             // lets see if the agent has started up yet:
             checkEnabledMetrics();
-            final int COUNT = 2;
+            final int COUNT = 20;
             for (int i = 0; i < COUNT; i++) {
                 TestLoad testLoad = new TestLoad("TestLoad:" + i);
                 testLoad.doStart();
-                checkEnabledMetrics();
             }
             TestLoad testLoad = new TestLoad("CreateDeath", 1000);
             testLoad.doStart();

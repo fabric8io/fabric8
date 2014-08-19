@@ -11,8 +11,10 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.apmagent;
+package io.fabric8.apmagent.strategy.trace;
 
+import io.fabric8.apmagent.ApmAgent;
+import io.fabric8.apmagent.ClassInfo;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -23,12 +25,12 @@ import static org.objectweb.asm.Opcodes.ASM5;
 
 public class ApmClassVisitor extends ClassVisitor {
     private static final Logger LOG = LoggerFactory.getLogger(ApmAgent.class);
-    private final ApmAgent apmAgent;
+    private final TraceStrategy traceStrategy;
     private final ClassInfo classInfo;
 
-    public ApmClassVisitor(ApmAgent agent, ClassVisitor cv, ClassInfo classInfo) {
+    public ApmClassVisitor(TraceStrategy traceStrategy, ClassVisitor cv, ClassInfo classInfo) {
         super(ASM5, cv);
-        this.apmAgent = agent;
+        this.traceStrategy = traceStrategy;
         this.classInfo = classInfo;
     }
 
@@ -51,7 +53,7 @@ public class ApmClassVisitor extends ClassVisitor {
             String methodDescription = getDescription(desc);
             classInfo.addMethod(name, methodDescription);
 
-            if (canProfileMethod(name, desc) && apmAgent.getConfiguration().isAudit(classInfo.getClassName(), name)) {
+            if (canProfileMethod(name, desc) && traceStrategy.isAudit(classInfo.getClassName(), name)) {
                 MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 
                 ApmMethodVisitor methodVisitor = new ApmMethodVisitor(mv, classInfo.getClassName(), name + methodDescription);

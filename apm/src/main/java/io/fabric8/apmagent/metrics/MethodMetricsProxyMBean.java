@@ -11,25 +11,46 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.apmagent;
+package io.fabric8.apmagent.metrics;
 
-import java.util.List;
+public interface MethodMetricsProxyMBean {
 
-public interface ApmAgentMBean {
+    String getName();
 
-    void startMetrics();
+    long getCount();
 
-    void stopMetrics();
+    int getPercentage();
 
-    void shutDown();
+    double getLoad();
 
-    /**
-     * @return List of <className>@<methodName>
-     */
-    List<String> getTransformedMethods();
+    double getMeanRate();
 
-    /**
-     * @return List of all <className>@<methodName>
-     */
-    List<String> getAllMethods();
+    double getOneMinuteRate();
+
+    double getFiveMinuteRate();
+
+    double getFifteenMinuteRate();
+
+    double getMin();
+
+    double getMax();
+
+    double getMean();
+
+    double getStdDev();
+
+    double get50thPercentile();
+
+    double get75thPercentile();
+
+    double get95thPercentile();
+
+    double get98thPercentile();
+
+    double get99thPercentile();
+
+    double get999thPercentile();
+
+    long[] values();
+
 }

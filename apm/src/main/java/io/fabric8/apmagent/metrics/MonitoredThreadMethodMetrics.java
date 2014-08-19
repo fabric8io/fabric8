@@ -1,3 +1,4 @@
+package io.fabric8.apmagent.metrics;
 /*
  * Copyright 2005-2014 Red Hat, Inc.
  * Red Hat licenses this file to you under the Apache License, version
@@ -11,42 +12,18 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.apmagent.metrics;
+public class MonitoredThreadMethodMetrics extends MonitoredMethodMetrics {
+    private Thread thread;
+    MonitoredThreadMethodMetrics(Thread thread,ApmAgentContext apmAgentContext) {
+        super(apmAgentContext);
+        this.thread=thread;
+    }
 
-public interface MethodMetricsMBean {
-
-    String getName();
-
-    long getCount();
-
-    double getMeanRate();
-
-    double getOneMinuteRate();
-
-    double getFiveMinuteRate();
-
-    double getFifteenMinuteRate();
-
-    double getMin();
-
-    double getMax();
-
-    double getMean();
-
-    double getStdDev();
-
-    double get50thPercentile();
-
-    double get75thPercentile();
-
-    double get95thPercentile();
-
-    double get98thPercentile();
-
-    double get99thPercentile();
-
-    double get999thPercentile();
-
-    long[] values();
-
+    @Override
+    protected ThreadContextMethodMetricsProxy createProxy(int rank){
+        ThreadContextMethodMetricsProxy result = new ThreadContextMethodMetricsProxy();
+        result.setThread(thread);
+        apmAgentContext.registerMethodMetricsMBean(thread.getName(),thread.getId(),rank,result);
+        return result;
+    }
 }
