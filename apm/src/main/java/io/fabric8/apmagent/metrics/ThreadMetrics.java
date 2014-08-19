@@ -32,7 +32,6 @@ public class ThreadMetrics {
     private final ConcurrentMap<String, ThreadContextMethodMetrics> methods = new ConcurrentHashMap<>();
     private final MonitoredThreadMethodMetrics monitoredThreadMethodMetrics;
 
-
     public ThreadMetrics(ApmAgentContext apmAgentContext, Thread thread) {
         this.methodStackRef = new AtomicReference<>(new ThreadContextMethodMetricsStack());
         this.apmAgentContext = apmAgentContext;
@@ -40,7 +39,7 @@ public class ThreadMetrics {
         this.threadInfo = threadMXBean.getThreadInfo(thread.getId());
         this.thread = thread;
         ApmConfiguration configuration = apmAgentContext.getConfiguration();
-        this.monitoredThreadMethodMetrics = new MonitoredThreadMethodMetrics(thread,apmAgentContext);
+        this.monitoredThreadMethodMetrics = new MonitoredThreadMethodMetrics(thread, apmAgentContext);
         this.monitoredThreadMethodMetrics.setMonitorSize(configuration.getThreadMetricDepth());
     }
 
@@ -68,7 +67,7 @@ public class ThreadMetrics {
         return threadInfo;
     }
 
-    public void setMonitorSize(int monitorSize){
+    public void setMonitorSize(int monitorSize) {
         monitoredThreadMethodMetrics.setMonitorSize(monitorSize);
     }
 
@@ -107,7 +106,7 @@ public class ThreadMetrics {
         return result;
     }
 
-    public void calculateMethodMetrics(){
+    public void calculateMethodMetrics() {
         List<ThreadContextMethodMetrics> list = (List<ThreadContextMethodMetrics>) MethodMetrics.sortedMetrics(this.methods.values());
         monitoredThreadMethodMetrics.calculateMethodMetrics(list);
     }

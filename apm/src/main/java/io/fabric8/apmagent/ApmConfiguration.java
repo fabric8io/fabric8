@@ -35,8 +35,8 @@ public class ApmConfiguration implements ApmConfigurationMBean {
     private boolean autoStartMetrics = false;
     private boolean usePlatformMBeanServer = true;
     private boolean verifyClasses = false;
-    private int methodMetricDepth=10;
-    private int threadMetricDepth=5;
+    private int methodMetricDepth = 10;
+    private int threadMetricDepth = 5;
     private boolean filterChanged = false;
     private boolean methodMetricDepthChanged = false;
     private boolean threadMetricDepthChanged = false;
@@ -84,7 +84,7 @@ public class ApmConfiguration implements ApmConfigurationMBean {
     public void setWhiteList(String whiteList) {
         whiteFilterList = new ArrayList<>();
         initializeList(whiteList, this.whiteFilterList);
-        filterChanged=true;
+        filterChanged = true;
         fireConfigurationChanged();
     }
 
@@ -97,7 +97,7 @@ public class ApmConfiguration implements ApmConfigurationMBean {
     public void setBlackList(String blackList) {
         this.blackFilterList = new ArrayList<>();
         initializeList(blackList, this.blackFilterList);
-        filterChanged=true;
+        filterChanged = true;
         fireConfigurationChanged();
     }
 
@@ -110,7 +110,7 @@ public class ApmConfiguration implements ApmConfigurationMBean {
             filterItem.setMethodName(classAndMethod[1]);
         }
         blackFilterList.add(filterItem);
-        filterChanged=true;
+        filterChanged = true;
         fireConfigurationChanged();
     }
 
@@ -123,7 +123,7 @@ public class ApmConfiguration implements ApmConfigurationMBean {
             filterItem.setMethodName(classAndMethod[1]);
         }
         whiteFilterList.add(filterItem);
-        filterChanged=true;
+        filterChanged = true;
         fireConfigurationChanged();
     }
 
@@ -189,14 +189,13 @@ public class ApmConfiguration implements ApmConfigurationMBean {
         this.verifyClasses = verifyClasses;
     }
 
-
     public int getThreadMetricDepth() {
         return threadMetricDepth;
     }
 
     public void setThreadMetricDepth(int threadMetricDepth) {
         this.threadMetricDepth = threadMetricDepth;
-        this.threadMetricDepthChanged=true;
+        this.threadMetricDepthChanged = true;
         fireConfigurationChanged();
     }
 
@@ -206,10 +205,9 @@ public class ApmConfiguration implements ApmConfigurationMBean {
 
     public void setMethodMetricDepth(int methodMetricDepth) {
         this.methodMetricDepth = methodMetricDepth;
-        this.methodMetricDepthChanged=true;
+        this.methodMetricDepthChanged = true;
         fireConfigurationChanged();
     }
-
 
     public boolean isThreadMetricDepthChanged() {
         return threadMetricDepthChanged;
@@ -222,8 +220,6 @@ public class ApmConfiguration implements ApmConfigurationMBean {
     public boolean isFilterChanged() {
         return filterChanged;
     }
-
-
 
     public void initalizeFromProperties(Properties properties) {
         for (Map.Entry entry : properties.entrySet()) {
@@ -294,7 +290,7 @@ public class ApmConfiguration implements ApmConfigurationMBean {
         resetChanged();
     }
 
-    private void resetChanged(){
+    private void resetChanged() {
         filterChanged = false;
         methodMetricDepthChanged = false;
         threadMetricDepthChanged = false;

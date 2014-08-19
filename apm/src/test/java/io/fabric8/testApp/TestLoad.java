@@ -70,7 +70,7 @@ public class TestLoad implements Runnable {
         count.incrementAndGet();
     }
 
-    public void doSomethingElse(){
+    public void doSomethingElse() {
         sleep(2);
         count2.incrementAndGet();
     }
@@ -79,7 +79,7 @@ public class TestLoad implements Runnable {
         for (int i = 0; i < MAX_ITERATIONS && started.get(); i++) {
             for (TestValues value : TestValues.values()) {
                 load(value);
-                if (i%2==0){
+                if (i % 2 == 0) {
                     doSomethingElse();
                 }
             }

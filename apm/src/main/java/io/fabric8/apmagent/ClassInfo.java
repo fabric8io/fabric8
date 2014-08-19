@@ -78,7 +78,6 @@ public class ClassInfo {
         this.canTransform = canTransform;
     }
 
-
     public void addMethod(String name, String description) {
         MethodDescription methodDescription = new MethodDescription(getClassName(), name, description);
         allMethods.putIfAbsent(methodDescription.getMethodSignature(), methodDescription);

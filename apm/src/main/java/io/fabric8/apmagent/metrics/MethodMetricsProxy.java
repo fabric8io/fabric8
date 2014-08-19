@@ -133,9 +133,8 @@ public class MethodMetricsProxy implements MethodMetricsProxyMBean {
         return mm != null ? mm.getPercentage() : 0;
     }
 
-
     @Override
-    public String toString(){
+    public String toString() {
         MethodMetrics mm = this.methodMetrics;
         return mm != null ? mm.toString() : "EmptyMethodMetricsProxy";
     }

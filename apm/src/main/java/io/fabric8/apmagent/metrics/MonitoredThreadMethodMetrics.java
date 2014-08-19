@@ -14,16 +14,17 @@ package io.fabric8.apmagent.metrics;
 
 public class MonitoredThreadMethodMetrics extends MonitoredMethodMetrics {
     private Thread thread;
-    MonitoredThreadMethodMetrics(Thread thread,ApmAgentContext apmAgentContext) {
+
+    MonitoredThreadMethodMetrics(Thread thread, ApmAgentContext apmAgentContext) {
         super(apmAgentContext);
-        this.thread=thread;
+        this.thread = thread;
     }
 
     @Override
-    protected ThreadContextMethodMetricsProxy createProxy(int rank){
+    protected ThreadContextMethodMetricsProxy createProxy(int rank) {
         ThreadContextMethodMetricsProxy result = new ThreadContextMethodMetricsProxy();
         result.setThread(thread);
-        apmAgentContext.registerMethodMetricsMBean(thread.getName(),thread.getId(),rank,result);
+        apmAgentContext.registerMethodMetricsMBean(thread.getName(), thread.getId(), rank, result);
         return result;
     }
 }
