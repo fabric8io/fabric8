@@ -230,12 +230,6 @@
         <artifactId>maven-resources-plugin</artifactId>
       </plugin>
 
-      <!-- allows the route to be ran via 'mvn camel:run' -->
-      <plugin>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-maven-plugin</artifactId>
-      </plugin>
-
       <!--
         this plugin will use the fabric.* properties to configure its behaviour
         see the Properties section here: http://fabric8.io/gitbook/mavenPlugin.html
