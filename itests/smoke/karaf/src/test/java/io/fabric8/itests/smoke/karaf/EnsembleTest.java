@@ -95,7 +95,7 @@ public class EnsembleTest {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            Set<Container> containers = ContainerBuilder.create(2).withName("smoke.ensA").assertProvisioningResult().build(fabricService);
+            Set<Container> containers = ContainerBuilder.create(2).withName("smoke_ensA").assertProvisioningResult().build(fabricService);
             try {
                 Deque<Container> containerQueue = new LinkedList<Container>(containers);
                 Deque<Container> addedContainers = new LinkedList<Container>();
