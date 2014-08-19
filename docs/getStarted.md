@@ -30,6 +30,7 @@ Unpack the tarball:
 
 Or, [build the project](https://github.com/fabric8io/fabric8/blob/master/readme-build.md) with [maven](http://maven.apache.org/) via:
 
+    MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=512m"
     mvn -DskipTests clean install -Pall
     cd fabric/fabric8-karaf/target
     unzip fabric8-karaf-1.1.0-SNAPSHOT.zip
