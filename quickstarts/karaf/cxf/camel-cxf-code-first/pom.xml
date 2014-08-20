@@ -197,6 +197,11 @@
           <artifactId>maven-bundle-plugin</artifactId>
           <version>${version.maven-bundle-plugin}</version>
           <extensions>true</extensions>
+          <configuration>
+            <instructions>
+              <Export-Package>camelinaction.order</Export-Package>
+            </instructions>
+          </configuration>
       </plugin>
 
       <plugin>
