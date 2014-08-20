@@ -269,6 +269,10 @@
            </dependency>
            <dependency>
                <groupId>io.fabric8.mq</groupId>
+               <artifactId>camel-amq</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>io.fabric8.mq</groupId>
                <artifactId>mq-fabric</artifactId>
            </dependency>
            <dependency>
