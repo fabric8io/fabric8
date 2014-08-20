@@ -768,7 +768,7 @@ public class ContainerImpl implements Container {
 		public ProfileBuilder addOptions(ProfileBuilder builder) {
 	        List<String> missingProfiles = new ArrayList<>();
 			List<String> profileIds = dataStore.getContainerProfiles(cntId);
-			LOGGER.info("Building container overlay for {} with profile: {}", cntId, profileIds);
+			LOGGER.debug("Building container overlay for {} with profile: {}", cntId, profileIds);
             for (String profileId : profileIds) {
                 Profile profile = version.getProfile(profileId);
                 if (profile != null) {
