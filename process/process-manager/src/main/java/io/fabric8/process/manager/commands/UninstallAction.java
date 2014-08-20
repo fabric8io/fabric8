@@ -19,11 +19,15 @@ import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.ProcessManager;
 import io.fabric8.process.manager.commands.support.ProcessControlCommandSupport;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 
 /**
  */
 @Command(name = "unstall", scope = "process", description = "Uninstalls a managed process from this container.")
 public class UninstallAction extends ProcessControlCommandSupport {
+
+    @Option(name="-f", aliases={"--force"}, required = false, description = "Forces uninstalling even if the process is still alive")
+    protected boolean force = false;
 
     protected UninstallAction(ProcessManager processManager) {
         super(processManager);
@@ -31,6 +35,10 @@ public class UninstallAction extends ProcessControlCommandSupport {
 
     @Override
     protected void doControlCommand(Installation installation) throws Exception {
-        getProcessManager().uninstall(installation);
+        if (!force && installation.getActivePid() != null) {
+            System.out.println("The process is alive and cannot be uninstalled. Stop the process before uninstalling, or use the --force option.");
+        } else {
+            getProcessManager().uninstall(installation);
+        }
     }
 }
