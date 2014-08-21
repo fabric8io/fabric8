@@ -26,9 +26,9 @@ import io.fabric8.api.Version;
 
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.jboss.gravia.utils.IllegalArgumentAssertion;
@@ -94,13 +94,17 @@ public class BeanUtils {
 
     public static Map<String, Object> convertProfileToMap(FabricService fabricService, Profile profile, List<String> fields) {
 
-        Map<String, Object> answer = new HashMap<String, Object>();
+        Map<String, Object> answer = new TreeMap<String, Object>();
 
         for (String field : fields) {
 
             if (field.equalsIgnoreCase("configurations") || field.equalsIgnoreCase("fileConfigurations")) {
 
                 answer.put(field, fetchConfigurations(profile));
+
+            } else if (field.equalsIgnoreCase("configurationFileNames")) {
+
+                answer.put(field, fetchConfigurationFileNames(profile));
 
             } else if (field.equalsIgnoreCase("childIds")) {
 
@@ -118,7 +122,8 @@ public class BeanUtils {
 
                 answer.put(field, Ids.getIds(profile.getParents()));
 
-            } else if (field.equalsIgnoreCase("class") || field.equalsIgnoreCase("string") || field.equalsIgnoreCase("abstractProfile")) {
+            } else if (field.equalsIgnoreCase("class") || field.equalsIgnoreCase("string")
+                    || field.equalsIgnoreCase("abstractProfile") || field.equalsIgnoreCase("attributes")) {
 
                 // ignore...
 
@@ -140,7 +145,7 @@ public class BeanUtils {
     }
 
     public static Map<String, Object> convertContainerToMap(FabricService fabricService, Container container, List<String> fields) {
-        Map<String, Object> answer = new HashMap<String, Object>();
+        Map<String, Object> answer = new TreeMap<String, Object>();
 
         for (String field : fields) {
 
@@ -179,7 +184,7 @@ public class BeanUtils {
         IllegalArgumentAssertion.assertNotNull(version, "version");
         IllegalArgumentAssertion.assertNotNull(fields, "fields");
         
-        Map<String, Object> answer = new HashMap<String, Object>();
+        Map<String, Object> answer = new TreeMap<String, Object>();
         for (String field : fields) {
             if (field.equalsIgnoreCase("profiles") || field.equalsIgnoreCase("profileIds")) {
                 answer.put(field, Ids.getIds(version.getProfiles()));
@@ -227,6 +232,12 @@ public class BeanUtils {
     public static List<String> fetchConfigurations(Profile self) {
         List<String> answer = new ArrayList<String>();
         answer.addAll(self.getFileConfigurations().keySet());
+        return answer;
+    }
+
+    public static List<String> fetchConfigurationFileNames(Profile self) {
+        List<String> answer = new ArrayList<String>();
+        answer.addAll(self.getConfigurationFileNames());
         return answer;
     }
 
