@@ -58,9 +58,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import javax.management.MBeanServer;
@@ -239,7 +241,7 @@ public final class FabricManager implements FabricManagerMBean {
 
         CreateContainerMetadata<?> metadatas[] = fabricService.createContainers(build);
 
-        Map<String, String> rc = new HashMap<String, String>();
+        Map<String, String> rc = new LinkedHashMap<String, String>();
 
         for (CreateContainerMetadata<?> metadata : metadatas) {
             if (!metadata.isSuccess()) {
@@ -802,7 +804,6 @@ public final class FabricManager implements FabricManagerMBean {
         rc.put("repositoryDefinitions", repositoryDefs);
 
         return rc;
-
     }
 
     @Override
@@ -873,12 +874,12 @@ public final class FabricManager implements FabricManagerMBean {
     @Override
     public Map<String, Object> getConfigurationFiles(String versionId, List<String> profileIds, String filename) {
         Pattern pattern = Pattern.compile(filename);
-        Map<String, Object> answer = new HashMap<String, Object>();
+        Map<String, Object> answer = new TreeMap<String, Object>();
         Version version = profileService.getVersion(versionId);
         for (String profileId : profileIds) {
             Profile profile = version.getRequiredProfile(profileId);
             if (profile != null) {
-                Map<String, String> files = new HashMap<String, String>();
+                Map<String, String> files = new TreeMap<String, String>();
                 Map<String, byte[]> configs = profile.getFileConfigurations();
 
                 for (Map.Entry<String, byte[]> configEntry : configs.entrySet()) {
@@ -1111,7 +1112,7 @@ public final class FabricManager implements FabricManagerMBean {
     public List<Map<String, Object>> startContainers(List<String> containerIds) {
         List<Map<String, Object>> rc = new ArrayList<Map<String, Object>>();
         for (String containerId : containerIds) {
-            Map<String, Object> status = new HashMap<String, Object>();
+            Map<String, Object> status = new LinkedHashMap<String, Object>();
             status.put("id", containerId);
             try {
                 startContainer(containerId);
@@ -1134,7 +1135,7 @@ public final class FabricManager implements FabricManagerMBean {
     public List<Map<String, Object>> stopContainers(List<String> containerIds) {
         List<Map<String, Object>> rc = new ArrayList<Map<String, Object>>();
         for (String containerId : containerIds) {
-            Map<String, Object> status = new HashMap<String, Object>();
+            Map<String, Object> status = new LinkedHashMap<String, Object>();
             status.put("id", containerId);
             try {
                 stopContainer(containerId);
@@ -1152,7 +1153,7 @@ public final class FabricManager implements FabricManagerMBean {
     public Map<String, String> registeredProviders() {
         Map<String, ContainerProvider> providers = fabricService.getProviders();
 
-        Map<String, String> answer = new HashMap<String, String>();
+        Map<String, String> answer = new TreeMap<String, String>();
 
         for (Map.Entry<String, ContainerProvider> providerEntry : providers.entrySet()) {
             answer.put(providerEntry.getKey(), providerEntry.getValue().getOptionsType().getName());
