@@ -28,7 +28,7 @@
     <parent>
 	    <groupId>io.fabric8.itests</groupId>
 	    <artifactId>fabric-itests-basic</artifactId>
-        <version>1.1.0.redhat-013</version>
+        <version>1.1.0.redhat-015</version>
     </parent>
 
     <artifactId>fabric-itests-basic-karaf</artifactId>

@@ -23,7 +23,7 @@
 
   <groupId>io.fabric8</groupId>
   <artifactId>process-spring-boot-bom</artifactId>
-  <version>1.1.0.redhat-013</version>
+  <version>1.1.0.redhat-015</version>
   <packaging>pom</packaging>
 
   <name>Fabric8 :: Process :: Spring Boot BOM</name>
