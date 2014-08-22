@@ -73,6 +73,9 @@ public class FabDeploymentListener implements ArtifactUrlTransformer {
             } finally {
                 jar.close();
             }
+        } catch (java.io.FileNotFoundException fe) {
+            // bundle could have been deleted manually in the deploy folder
+            logger.debug("Could not find deployed file" + artifact.getAbsolutePath(), fe);
         } catch (Exception e) {
             logger.error("Unable to parse deployed file " + artifact.getAbsolutePath(), e);
         }
