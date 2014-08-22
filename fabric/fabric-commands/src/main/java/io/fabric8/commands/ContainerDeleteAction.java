@@ -19,6 +19,7 @@ import static io.fabric8.utils.FabricValidations.validateContainerName;
 import io.fabric8.api.Container;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.boot.commands.support.FabricCommand;
 
 import java.util.Collection;
@@ -29,11 +30,14 @@ import org.apache.felix.gogo.commands.Option;
 @Command(name = ContainerDelete.FUNCTION_VALUE, scope = ContainerDelete.SCOPE_VALUE, description = ContainerDelete.DESCRIPTION, detailedDescription = "classpath:containerDelete.txt")
 public class ContainerDeleteAction extends AbstractContainerLifecycleAction {
 
+    protected final RuntimeProperties runtimeProperties;
+
     @Option(name = "-r", aliases = {"--recursive"}, multiValued = false, required = false, description = "Recursively stops and deletes all child containers")
     protected boolean recursive = false;
 
-    ContainerDeleteAction(FabricService fabricService) {
+    ContainerDeleteAction(FabricService fabricService, RuntimeProperties runtimeProperties) {
         super(fabricService);
+        this.runtimeProperties = runtimeProperties;
     }
 
     @Override
@@ -43,6 +47,12 @@ public class ContainerDeleteAction extends AbstractContainerLifecycleAction {
             validateContainerName(containerName);
             if (FabricCommand.isPartOfEnsemble(fabricService, containerName) && !force) {
                 System.out.println("Container is part of the ensemble. If you still want to delete it, please use --force option.");
+                return null;
+            }
+
+            String runtimeIdentity = runtimeProperties.getRuntimeIdentity();
+            if (containerName.equals(runtimeIdentity) && !force) {
+                System.out.println("You shouldn't delete current container. If you still want to delete it, please use --force option.");
                 return null;
             }
 
