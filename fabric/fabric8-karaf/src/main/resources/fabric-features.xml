@@ -272,6 +272,7 @@
     </feature>
 
     <feature name="fabric-cxf" version="${project.version}" resolver="(obr)">
+        <feature version="${cxf-version-range}">cxf-jaxws</feature>
         <feature version="${cxf-version-range}">cxf-jaxrs</feature>
         <feature version="${project.version}">swagger</feature>
         <feature>fabric-groups</feature>
