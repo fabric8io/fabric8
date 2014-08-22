@@ -21,9 +21,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import io.fabric8.api.CreateContainerMetadata;
-import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.ProfileRegistry;
+import io.fabric8.common.util.Strings;
 import io.fabric8.openshift.CreateOpenshiftContainerOptions;
 import io.fabric8.openshift.commands.support.ContainerCreateSupport;
 import io.fabric8.utils.FabricValidations;
@@ -37,6 +36,8 @@ import org.apache.felix.gogo.commands.Option;
 public class ContainerCreateOpenshiftAction extends ContainerCreateSupport {
 
     private static final Pattern ALLOWED_NAMES_PATTERN = Pattern.compile("[a-z0-9]+");
+    private static final String OPENSHIFT_USER = "OPENSHIFT_USER";
+    private static final String OPENSHIFT_USER_PASSWORD = "OPENSHIFT_USER_PASSWORD";
 
     @Option(name = "--server-url", required = false, description = "The url to the openshift server.")
     String serverUrl;
@@ -67,6 +68,16 @@ public class ContainerCreateOpenshiftAction extends ContainerCreateSupport {
         preCreateContainer(name);
         FabricValidations.validateProfileNames(profiles);
 
+        if (session != null) {
+            if (Strings.isNullOrBlank(login)) {
+                login = (String) session.get(OPENSHIFT_USER);
+            }
+
+            if (Strings.isNullOrBlank(password)) {
+                password = (String) session.get(OPENSHIFT_USER_PASSWORD);
+            }
+        }
+
         CreateOpenshiftContainerOptions.Builder builder = CreateOpenshiftContainerOptions.builder()
                 .name(name)
                 .serverUrl(serverUrl)
@@ -85,7 +96,13 @@ public class ContainerCreateOpenshiftAction extends ContainerCreateSupport {
 
         if (isEnsembleServer && metadatas != null && metadatas.length > 0 && metadatas[0].isSuccess()) {
             ShellUtils.storeZookeeperPassword(session, metadatas[0].getCreateOptions().getZookeeperPassword());
+            if (session != null) {
+                // store OpenShift credentials too
+                session.put(OPENSHIFT_USER, login);
+                session.put(OPENSHIFT_USER_PASSWORD, password);
+            }
         }
+
         // display containers
         displayContainers(metadatas);
         return null;
