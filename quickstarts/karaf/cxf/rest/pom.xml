@@ -237,7 +237,15 @@
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-java2wadl-plugin</artifactId>
+                <version>3.0.1</version>
                 <executions>
+                    <execution>
+                        <id>parsejavadoc</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>parsejavadoc</goal>
+                        </goals>
+                    </execution>
                     <execution>
                         <id>process-classes</id>
                         <phase>process-classes</phase>
@@ -248,6 +256,7 @@
                             <classResourceNames>
                                 <classResourceName>io.fabric8.quickstarts.rest.CustomerService</classResourceName>
                             </classResourceNames>
+                            <docProvider>org.apache.cxf.maven_plugin.javatowadl.ResourceMapJavaDocProvider</docProvider>
                             <attachWadl>false</attachWadl>
                         </configuration>
                     </execution>
