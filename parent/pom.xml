@@ -21,12 +21,12 @@
     <parent>
         <groupId>io.fabric8.bom</groupId>
         <artifactId>fabric8-bom</artifactId>
-        <version>1.1.0.redhat-013</version>
+        <version>1.1.0.redhat-016</version>
     </parent>
 
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-project</artifactId>
-    <version>1.1.0.redhat-013</version>
+    <version>1.1.0.redhat-016</version>
     <packaging>pom</packaging>
 
     <name>Fabric8 :: Parent</name>

@@ -22,7 +22,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1.0.redhat-013</version>
+        <version>1.1.0.redhat-016</version>
     </parent>
 
     <artifactId>fabric-zookeeper-jgroups</artifactId>

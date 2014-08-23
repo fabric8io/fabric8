@@ -24,12 +24,12 @@
   <parent>
     <groupId>io.fabric8.quickstarts</groupId>
     <artifactId>fabric8-quickstarts-java-parent</artifactId>
-    <version>1.1.0.redhat-013</version>
+    <version>1.1.0.redhat-016</version>
   </parent>
 
   <groupId>io.fabric8.quickstarts</groupId>
   <artifactId>java-camel-spring</artifactId>
-  <version>1.1.0.redhat-013</version>
+  <version>1.1.0.redhat-016</version>
   <packaging>jar</packaging>
 
   <name>Fabric8 :: Quickstarts :: Java :: Camel Spring Java Container</name>
@@ -48,8 +48,8 @@
     <maven.compiler.source>1.7</maven.compiler.source>
 
     <!-- the version of the BOM, defining all the dependency versions -->
-    <fabric8.bom.version>1.1.0.redhat-013</fabric8.bom.version>
-    <fabric.version>1.1.0.redhat-013</fabric.version>
+    <fabric8.bom.version>1.1.0.redhat-016</fabric8.bom.version>
+    <fabric.version>1.1.0.redhat-016</fabric.version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-java-camel.spring</fabric8.profile>

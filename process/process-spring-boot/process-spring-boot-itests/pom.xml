@@ -23,7 +23,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>process-spring-boot-bom</artifactId>
-        <version>1.1.0.redhat-013</version>
+        <version>1.1.0.redhat-016</version>
         <relativePath>../process-spring-boot-bom</relativePath>
     </parent>
     
