@@ -42,8 +42,6 @@
         <fuse.osgi.import>
           io.fabric*,*
         </fuse.osgi.import>
-        <fuse.osgi.services.export>
-        </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
           io.hawt.introspect*
         </fuse.osgi.private.pkg>

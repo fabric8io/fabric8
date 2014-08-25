@@ -32,7 +32,9 @@
     <name>Fabric8 :: MQ :: Fabric</name>
 
     <properties>
-        <fuse.osgi.services.export>javax.jms.ConnectionFactory</fuse.osgi.services.export>
+        <fuse.osgi.capabilities.provide><![CDATA[
+            osgi.service;effective:=active;objectClass=javax.jms.ConnectionFactory
+        ]]></fuse.osgi.capabilities.provide>
         <fuse.osgi.activator>io.fabric8.mq.fabric.Activator</fuse.osgi.activator>
     </properties>
 

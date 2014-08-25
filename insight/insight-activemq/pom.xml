@@ -39,8 +39,6 @@
       <fuse.osgi.private.pkg>
           io.fabric8.insight.activemq.*
       </fuse.osgi.private.pkg>
-      <fuse.osgi.services.export>
-      </fuse.osgi.services.export>
       <fuse.osgi.activator>io.fabric8.insight.activemq.base.Activator</fuse.osgi.activator>
   </properties>
 

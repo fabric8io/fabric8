@@ -39,8 +39,6 @@
         <fuse.osgi.import>
           *
         </fuse.osgi.import>
-        <fuse.osgi.services.export>
-        </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
             io.fabric8.ssl,
         </fuse.osgi.private.pkg>

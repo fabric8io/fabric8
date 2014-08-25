@@ -115,7 +115,6 @@
         <fuse.osgi.symbolic.name>${project.groupId}.${project.artifactId}</fuse.osgi.symbolic.name>
         <fuse.osgi.exclude.dependencies>false</fuse.osgi.exclude.dependencies>
         <fuse.osgi.resource>{maven-resources}</fuse.osgi.resource>
-        <fuse.osgi.services.export/>
         <fuse.osgi.embed.dependency>!*</fuse.osgi.embed.dependency>
         <fuse.osgi.embed.transitive>false</fuse.osgi.embed.transitive>
         <fuse.osgi.require.bundle />
@@ -172,6 +171,8 @@
         <commons-jexl-version>2.1.1</commons-jexl-version>
         <commons-digester-version>1.8_4</commons-digester-version>
         <commons-configuration-version>1.9_1</commons-configuration-version>
+        <commons-jxpath-version>1.3_1</commons-jxpath-version>
+        <xmlresolver-version>1.2_5</xmlresolver-version>
         <curator.version>2.6.0</curator.version>
         <cxf-version>2.7.11</cxf-version>
         <cxf-version-range>[2.7,3.0)</cxf-version-range>
@@ -490,6 +491,17 @@
             <releases>
                 <enabled>false</enabled>
             </releases>
+        </repository>
+        <repository>
+            <id>conjars</id>
+            <name>Conjars Maven Repository</name>
+            <url>http://conjars.org/repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
 

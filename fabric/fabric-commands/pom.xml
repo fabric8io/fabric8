@@ -45,6 +45,9 @@
         <fuse.osgi.symbolic.name>
             ${project.groupId}.${project.artifactId};blueprint.graceperiod:=false
         </fuse.osgi.symbolic.name>
+        <fuse.osgi.capabilities.provide>
+            osgi.service;effective:=active;objectClass:List&lt;String&gt;="io.fabric8.commands.support.BundleLocationCompleter,org.apache.karaf.shell.console.Completer"
+        </fuse.osgi.capabilities.provide>
     </properties>
 
     <dependencies>

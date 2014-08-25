@@ -38,8 +38,6 @@
       <fuse.osgi.private.pkg>
           io.fabric8.insight.camel.*
       </fuse.osgi.private.pkg>
-      <fuse.osgi.services.export>
-      </fuse.osgi.services.export>
       <fuse.osgi.activator>io.fabric8.insight.camel.base.Activator</fuse.osgi.activator>
   </properties>
 

@@ -44,12 +44,9 @@
             org.apache.felix.utils.properties;-split-package:=first,
             org.apache.felix.utils.version;-split-package:=first
         </fuse.osgi.private.pkg>
-        <fuse.osgi.services.export>
-            io.fabric8.api.FabricService,
-            io.fabric8.api.DataStore,
-            io.fabric8.api.ZooKeeperClusterBootstrap,
-            io.fabric8.api.ZooKeeperClusterService
-        </fuse.osgi.services.export>
+        <fuse.osgi.capabilities.provide>
+            osgi.service;effective:=active;objectClass="io.fabric8.api.GeoLocationService"
+        </fuse.osgi.capabilities.provide>
     </properties>
 
     <dependencies>

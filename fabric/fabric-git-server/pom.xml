@@ -39,8 +39,6 @@
         </fuse.osgi.import>
         <fuse.osgi.export>
         </fuse.osgi.export>
-        <fuse.osgi.services.export>
-        </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
             io.fabric8.utils;-split-package:=first,
             org.apache.felix.utils*;-split-package:=first,

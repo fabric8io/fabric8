@@ -72,14 +72,14 @@
         <fuse.osgi.activator>
             io.fabric8.fab.osgi.internal.Activator
         </fuse.osgi.activator>
-        <fuse.osgi.services.import>
-            org.apache.karaf.features.FeaturesService;availability:=optional;multiple:=false,
-            org.osgi.service.cm.ConfigurationAdmin;multiple:=false
-        </fuse.osgi.services.import>
-        <fuse.osgi.services.export>
-            io.fabric8.fab.osgi.FabResolverFactory,
-            org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=fab
-        </fuse.osgi.services.export>
+        <fuse.osgi.capabilities.require><![CDATA[
+            osgi.service;effective:=active;resolution:=optional;filter:="(objectClass=org.apache.karaf.features.FeaturesService)",
+            osgi.service;effective:=active;filter:="(objectClass=org.osgi.service.cm.ConfigurationAdmin)",
+        ]]></fuse.osgi.capabilities.require>
+        <fuse.osgi.capabilities.provide><![CDATA[
+            osgi.service;effective:=active;objectClass=io.fabric8.fab.osgi.FabResolverFactory,
+            osgi.service;effective:=active;objectClass=org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=fab
+        ]]></fuse.osgi.capabilities.provide>
     </properties>
 
     <dependencies>
