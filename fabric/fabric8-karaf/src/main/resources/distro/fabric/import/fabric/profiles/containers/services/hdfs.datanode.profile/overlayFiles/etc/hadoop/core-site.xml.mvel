@@ -19,6 +19,7 @@
 <configuration>
     <property>
         <name>fs.default.name</name>
-        <value>hdfs://localhost:9000</value>
+        <!-- <value>hdfs://localhost:9000</value> -->
+        <value>hdfs://@{namenode_ips}</value>
     </property>
 </configuration>
