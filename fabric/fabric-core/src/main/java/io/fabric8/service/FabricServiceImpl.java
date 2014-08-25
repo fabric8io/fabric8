@@ -489,7 +489,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
 
             for (int i = 1; i <= number; i++) {
                 NameValidator validator = Containers.createNameValidator(containers, ignoreContainerNames);
-                String containerName = Containers.createUniqueContainerName(containers, originalName, validator);
+                final String containerName = Containers.createUniqueContainerName(containers, originalName, validator);
                 ignoreContainerNames.add(containerName);
 
                 optionsMap.put("name", containerName);
@@ -527,6 +527,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                             metadatas.add(metadata);
                         } catch (Throwable t) {
                             CreateContainerBasicMetadata metadata = new CreateContainerBasicMetadata();
+                            metadata.setContainerName(containerName);
                             metadata.setCreateOptions(containerOptions);
                             metadata.setFailure(t);
                             metadatas.add(metadata);

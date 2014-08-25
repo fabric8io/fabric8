@@ -245,7 +245,7 @@ public final class FabricManager implements FabricManagerMBean {
 
         for (CreateContainerMetadata<?> metadata : metadatas) {
             if (!metadata.isSuccess()) {
-                LOG.warn("Failed to create container {}: ", metadata.getContainerName(), metadata.getFailure());
+                LOG.error("Failed to create container {}: ", metadata.getContainerName(), metadata.getFailure());
                 rc.put(metadata.getContainerName(), metadata.getFailure().getMessage());
             }
         }
