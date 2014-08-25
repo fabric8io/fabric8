@@ -38,6 +38,9 @@
             io.fabric8.utils.shell;-split-package:=first,
             org.jclouds.karaf.utils;-split-package:=first
         </fuse.osgi.private.pkg>
+        <fuse.osgi.capabilities.provide>
+            osgi.service;effective:=active;objectClass="io.fabric8.api.ContainerProvider";fabric.container.protocol=ssh
+        </fuse.osgi.capabilities.provide>
     </properties>
 
     <dependencies>

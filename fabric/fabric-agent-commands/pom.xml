@@ -53,7 +53,6 @@
             org.ops4j.util.collections.*;-split-package:=first,
             org.ops4j.util.xml.*;-split-package:=first,
         </fuse.osgi.private.pkg>
-        <fuse.osgi.services.export>io.fabric8.agent.commands.ProfileWatcher</fuse.osgi.services.export>
     </properties>
 
     <dependencies>

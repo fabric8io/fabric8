@@ -261,6 +261,18 @@
                <artifactId>insight-metrics</artifactId>
            </dependency>
            <dependency>
+               <groupId>io.fabric8.insight</groupId>
+               <artifactId>insight-kibana3</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>io.fabric8.insight</groupId>
+               <artifactId>insight-eshead</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>io.fabric8.insight</groupId>
+               <artifactId>insight-camel</artifactId>
+           </dependency>
+           <dependency>
                <groupId>io.fabric8</groupId>
                <artifactId>process-fabric</artifactId>
            </dependency>
@@ -304,6 +316,21 @@
                 <groupId>io.fabric8.runtime</groupId>
                 <artifactId>fabric-runtime-container-karaf-registration</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-hadoop</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-dynamic-jaxb</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>dynamic-jaxb</artifactId>
+                <version>${project.version}</version>
             </dependency>
 
            <!-- need this transitive of org.apache.servicemix.bundles.jasypt
@@ -371,6 +398,21 @@
                 <groupId>io.fabric8</groupId>
                 <artifactId>archetype-commands</artifactId>
             </dependency>
+
+            <!-- dependencies for rhq console -->
+            <dependency>
+                <groupId>org.rhq.metrics</groupId>
+                <artifactId>rest-servlet</artifactId>
+                <version>${rhq-metrics-version}</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>org.rhq.metrics</groupId>
+                <artifactId>metrics-console</artifactId>
+                <version>${rhq-metrics-version}</version>
+                <type>war</type>
+            </dependency>
+
        </dependencies>
 
        <build>
@@ -410,6 +452,30 @@
                            <goals>
                                <goal>resources</goal>
                            </goals>
+                       </execution>
+                   </executions>
+               </plugin>
+               <plugin>
+                   <groupId>io.fabric8</groupId>
+                   <artifactId>fabric8-maven-plugin</artifactId>
+                   <version>${project.version}</version>
+                   <executions>
+                       <execution>
+                           <id>verify</id>
+                           <phase>prepare-package</phase>
+                           <goals>
+                               <goal>verify-features</goal>
+                           </goals>
+                           <configuration>
+                               <descriptors>
+                                   <descriptor>file:${basedir}/target/classes/fabric-features.xml</descriptor>
+                               </descriptors>
+                               <framework>
+                                   <framework>karaf</framework>
+                                   <framework>fabric-core</framework>
+                               </framework>
+                               <additionalMetadata>${basedir}/src/main/verification/metadata.properties</additionalMetadata>
+                           </configuration>
                        </execution>
                    </executions>
                </plugin>
@@ -794,5 +860,40 @@
 			<url>http://build.shibboleth.net/nexus/content/repositories/public/</url>
 		</repository>
     </repositories>
-    
+
+    <profiles>
+        <profile>
+            <id>verify-features</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>fabric8-maven-plugin</artifactId>
+                        <version>${project.version}</version>
+                        <executions>
+                            <execution>
+                                <id>verify-all</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>verify-features</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>file:${basedir}/target/classes/fabric-features.xml</descriptor>
+                                    </descriptors>
+                                    <framework>
+                                        <framework>karaf</framework>
+                                        <framework>fabric-core</framework>
+                                    </framework>
+                                    <additionalMetadata>${basedir}/src/main/verification/metadata.properties</additionalMetadata>
+                                    <verifyTransitive>true</verifyTransitive>
+                                    <fail>never</fail>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

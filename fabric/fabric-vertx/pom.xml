@@ -84,7 +84,7 @@
                             <goal>scr</goal>
                         </goals>
                         <configuration>
-                            <specVersion>1.2</specVersion>
+                            <specVersion>1.1</specVersion>
                             <strictMode>false</strictMode>
                         </configuration>
                     </execution>

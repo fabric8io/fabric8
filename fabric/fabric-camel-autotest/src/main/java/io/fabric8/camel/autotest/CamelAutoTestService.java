@@ -59,7 +59,7 @@ public final class CamelAutoTestService extends AbstractFieldInjectionComponent 
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
 
-    @Reference(referenceInterface = CamelContext.class, cardinality = ReferenceCardinality.MANDATORY_MULTIPLE, bind = "bindCamelContexts", unbind = "unbindCamelContexts")
+    @Reference(referenceInterface = CamelContext.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, bind = "bindCamelContexts", unbind = "unbindCamelContexts")
     private Map<String, CamelContext> camelContexts = new HashMap<String, CamelContext>();
 
     @Property(name = "mockOutputs", boolValue = true,

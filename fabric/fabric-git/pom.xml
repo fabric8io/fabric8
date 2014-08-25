@@ -43,8 +43,6 @@
         <fuse.osgi.import>
           *
         </fuse.osgi.import>
-        <fuse.osgi.services.export>
-        </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
             org.apache.felix.utils.properties;-split-package:=first,
             org.apache.commons.io*;-split-package:=first,

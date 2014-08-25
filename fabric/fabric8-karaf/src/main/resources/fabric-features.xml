@@ -17,7 +17,7 @@
 
 -->
 <features name="fabric-${project.version}"
-          xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
+          xmlns="http://karaf.apache.org/xmlns/features/v1.2.0">
 
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository>
 <!--
@@ -52,7 +52,6 @@
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.config/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.packages/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/${karaf-version}</bundle>
-        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.scr/${karaf-version}</bundle>
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.api/${aries-blueprint-api-version}</bundle>
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.core/${aries-blueprint-core-version}</bundle>
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.cm/${aries-blueprint-cm-version}</bundle>
@@ -66,7 +65,6 @@
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint.api/${aries-jmx-blueprint-api-version}</bundle>
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint.core/${aries-jmx-blueprint-core-version}</bundle>
         <bundle dependency="true">mvn:org.apache.karaf.management/org.apache.karaf.management.server/${karaf-version}</bundle>
-        <bundle start-level="30">mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.scr/${karaf-version}</bundle>
 
         <bundle>mvn:org.bouncycastle/bcprov-jdk15on/${bouncycastle-version}</bundle>
         <bundle>mvn:org.apache.sshd/sshd-core/${sshd-version}</bundle>
@@ -95,6 +93,12 @@
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.blueprint/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.spring/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.wrap/${karaf-version}</bundle>
+
+        <conditional>
+            <condition>scr</condition>
+            <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.scr/${karaf-version}</bundle>
+            <bundle start-level="30">mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.scr/${karaf-version}</bundle>
+        </conditional>
     </feature>
 
     <feature name="fabric-bundle" version="${project.version}" resolver="(obr)">
@@ -394,8 +398,9 @@
     </feature>
 
     <feature name="insight-rhq-metrics-console" version="${project.version}" resolver="(obr)">
-        <bundle>mvn:org.rhq.metrics/rest-servlet/${rhq-metrics-version}/war</bundle>
-        <bundle>mvn:org.rhq.metrics/metrics-console/${rhq-metrics-version}/war</bundle>
+        <feature>war</feature>
+        <bundle>war:mvn:org.rhq.metrics/rest-servlet/${rhq-metrics-version}/war</bundle>
+        <bundle>war:mvn:org.rhq.metrics/metrics-console/${rhq-metrics-version}/war</bundle>
     </feature>
 
     <feature name="insight-elasticsearch" version="${project.version}" resolver="(obr)">
@@ -524,6 +529,8 @@
         <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-digester/${commons-digester-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-configuration/${commons-configuration-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-jxpath/${commons-jxpath-version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${xmlresolver-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-servlet_2.5_spec/1.2</bundle>
         <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jsp_2.1_spec/1.0.1</bundle>

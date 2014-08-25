@@ -50,6 +50,10 @@
     <!--
             <fuse.osgi.activator>io.fabric8.process.manager.Activator</fuse.osgi.activator>
     -->
+      <fuse.osgi.capabilities.provide>
+          osgi.service;effective:=active;objectClass:List&lt;String&gt;="io.fabric8.process.manager.commands.support.ProcessNumberCompleter,org.apache.karaf.shell.console.Completer",
+          osgi.service;effective:=active;objectClass:List&lt;String&gt;="io.fabric8.process.manager.commands.support.MainClassCompleter,org.apache.karaf.shell.console.Completer"
+      </fuse.osgi.capabilities.provide>
   </properties>
 
   <dependencies>

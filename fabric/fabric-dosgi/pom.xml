@@ -41,8 +41,6 @@
         <fuse.osgi.private.pkg>
             io.fabric8.dosgi*,
         </fuse.osgi.private.pkg>
-        <fuse.osgi.services.export>
-        </fuse.osgi.services.export>
         <fuse.osgi.activator>
         </fuse.osgi.activator>
     </properties>

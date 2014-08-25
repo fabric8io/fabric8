@@ -47,12 +47,12 @@
           org.apache.regexp,
           META-INF.*
       </fuse.osgi.private.pkg>
-      <fuse.osgi.services.export>
-          org.elasticsearch.node.Node,
-          io.fabric8.insight.elasticsearch.ElasticRest,
-          io.fabric8.insight.storage.StorageService,
-          io.fabric8.insight.metrics.model.MetricsStorageService
-      </fuse.osgi.services.export>
+      <fuse.osgi.capabilities.provide><![CDATA[
+            osgi.service;effective:=active;objectClass=org.elasticsearch.node.Node,
+            osgi.service;effective:=active;objectClass=io.fabric8.insight.elasticsearch.ElasticRest,
+            osgi.service;effective:=active;objectClass=io.fabric8.insight.storage.StorageService,
+            osgi.service;effective:=active;objectClass=org.elasticsearch.node.Node,
+      ]]></fuse.osgi.capabilities.provide>
   </properties>
 
   <dependencies>

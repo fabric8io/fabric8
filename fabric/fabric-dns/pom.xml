@@ -22,12 +22,13 @@
         <fuse.osgi.import>
             *
         </fuse.osgi.import>
-        <fuse.osgi.services.export>
-        </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
         </fuse.osgi.private.pkg>
         <fuse.osgi.require.bundle>
         </fuse.osgi.require.bundle>
+        <fuse.osgi.capabilities.provide>
+            osgi.service;effective:=active;objectClass="io.fabric8.dns.FabricZoneManager"
+        </fuse.osgi.capabilities.provide>
     </properties>
 
     <dependencies>

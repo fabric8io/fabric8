@@ -50,7 +50,6 @@
             org.apache.felix.utils.manifest;-split-package:=merge-first,
             org.apache.karaf.util.collections;-split-package:=merge-first
         </fuse.osgi.private.pkg>
-        <fuse.osgi.services.export>org.apache.karaf.features.FeaturesService</fuse.osgi.services.export>
     </properties>
 
     <dependencies>

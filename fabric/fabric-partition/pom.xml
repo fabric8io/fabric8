@@ -35,8 +35,6 @@
         <fuse.osgi.export>
             io.fabric8.partition*;version=${fuse.osgi.version};-noimport:=true,
         </fuse.osgi.export>
-        <fuse.osgi.services.export>
-        </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
             io.fabric8.utils;-split-package:=first
         </fuse.osgi.private.pkg>
