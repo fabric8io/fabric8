@@ -1156,8 +1156,17 @@ public final class FabricManager implements FabricManagerMBean {
 
     @Override
     public Map<String, String> registeredProviders() {
-        Map<String, ContainerProvider> providers = fabricService.getValidProviders();
+        Map<String, ContainerProvider> providers = fabricService.getProviders();
+        return toJsonMap(providers);
+    }
 
+    @Override
+    public Map<String, String> registeredValidProviders() {
+        Map<String, ContainerProvider> providers = fabricService.getValidProviders();
+        return toJsonMap(providers);
+    }
+
+    private Map<String, String> toJsonMap(Map<String, ContainerProvider> providers) {
         Map<String, String> answer = new TreeMap<String, String>();
 
         for (Map.Entry<String, ContainerProvider> providerEntry : providers.entrySet()) {

@@ -136,6 +136,12 @@ public interface FabricService {
     Map<String, ContainerProvider> getValidProviders();
 
     /**
+     * Returns a list of all registered {@see ContainerProvider}s
+     * @return
+     */
+    Map<String, ContainerProvider> getProviders();
+
+    /**
      * Returns the current maven proxy repository to use to create new container
      */
     URI getMavenRepoURI();
