@@ -196,6 +196,11 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
     }
 
     @Override
+    public boolean isValidProvider() {
+        return true;
+    }
+
+    @Override
     public Class<CreateSshContainerOptions> getOptionsType() {
         return CreateSshContainerOptions.class;
     }

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -449,6 +450,9 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
             if (provider == null) {
                 throw new FabricException("Unable to find a container provider supporting '" + options.getProviderType() + "'");
             }
+            if (!provider.isValidProvider()) {
+                throw new FabricException("The provider '" + options.getProviderType() + "' is not valid in current environment");
+            }
 
             String originalName = options.getName();
             if (originalName == null || originalName.length() == 0) {
@@ -644,8 +648,19 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         return providers.get(scheme);
     }
 
-    // FIXME public access on the impl
-    public Map<String, ContainerProvider> getProviders() {
+    @Override
+    public Map<String, ContainerProvider> getValidProviders() {
+        assertValid();
+        Map<String, ContainerProvider> validProviders = new HashMap<String, ContainerProvider>();
+        for (ContainerProvider cp : getProviders().values()) {
+            if (cp.isValidProvider()) {
+                validProviders.put(cp.getScheme(), cp);
+            }
+        }
+        return Collections.unmodifiableMap(validProviders);
+    }
+
+    private Map<String, ContainerProvider> getProviders() {
         assertValid();
         return Collections.unmodifiableMap(providers);
     }

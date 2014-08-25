@@ -643,6 +643,11 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     }
 
     @Override
+    public boolean isValidProvider() {
+        return true;
+    }
+
+    @Override
     public Class<CreateDockerContainerOptions> getOptionsType() {
         assertValid();
         return CreateDockerContainerOptions.class;

@@ -286,6 +286,11 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     }
 
     @Override
+    public boolean isValidProvider() {
+        return true;
+    }
+
+    @Override
     public Class<CreateOpenshiftContainerOptions> getOptionsType() {
         assertValid();
         return CreateOpenshiftContainerOptions.class;

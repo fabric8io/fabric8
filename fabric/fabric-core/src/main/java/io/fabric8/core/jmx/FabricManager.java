@@ -208,7 +208,12 @@ public final class FabricManager implements FabricManagerMBean {
 
         CreateContainerBasicOptions.Builder builder = null;
 
-        Class clazz = fabricService.getProviders().get(providerType).getOptionsType();
+        ContainerProvider provider = fabricService.getValidProviders().get(providerType);
+        if (provider == null) {
+            throw new RuntimeException("Can't find valid provider of type: " + providerType);
+        }
+
+        Class clazz = provider.getOptionsType();
         try {
             builder = (CreateContainerBasicOptions.Builder) clazz.getMethod("builder").invoke(null);
         } catch (Exception e) {
@@ -1151,7 +1156,7 @@ public final class FabricManager implements FabricManagerMBean {
 
     @Override
     public Map<String, String> registeredProviders() {
-        Map<String, ContainerProvider> providers = fabricService.getProviders();
+        Map<String, ContainerProvider> providers = fabricService.getValidProviders();
 
         Map<String, String> answer = new TreeMap<String, String>();
 

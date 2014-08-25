@@ -119,11 +119,21 @@ public interface FabricService {
     Version getRequiredDefaultVersion();
 
     /**
-     * Lookup a container provider by name
+     * Lookup a container provider by name. Returns provider which should be checked for
+     * validity ({@link io.fabric8.api.ContainerProvider#isValidProvider()}).
+     *
      * @param scheme the name of the container provider
-     * @return the provider for the given scheme or null if there is none available
+     * @return the provider for the given scheme or null if there is none available. The provider may <b>not</b> be
+     * valid in current environment!
      */
     ContainerProvider getProvider(String scheme);
+
+    /**
+     * Returns a list of {@see ContainerProvider}s valid in current environment
+     *
+     * @return
+     */
+    Map<String, ContainerProvider> getValidProviders();
 
     /**
      * Returns the current maven proxy repository to use to create new container
@@ -256,7 +266,7 @@ public interface FabricService {
     /**
      * Creates a new {@link io.fabric8.api.ContainerAutoScaler} instance
      * using the available container providers to determine the best way to auto-scale;
-     * or null if there are no suitable {@link ContainerPRovider} instances available
+     * or null if there are no suitable {@link ContainerProvider} instances available
      * with the correct configuration to enable this capability.
      * @param requirements
      * @param profileRequirements
