@@ -19,6 +19,14 @@
 <configuration>
     <property>
         <name>fs.default.name</name>
-        <value>hdfs://localhost:9000</value>
+        <!-- <value>hdfs://localhost:9000</value> -->
+        <value>hdfs://@{namenode_ips}</value>
     </property>
+
+<!-- WIP. How do I publish 2 values in zk?
+    <property>
+        <name>dfs.http.address</name>
+        <value>port_from_properties</value>
+    </property>
+-->
 </configuration>
