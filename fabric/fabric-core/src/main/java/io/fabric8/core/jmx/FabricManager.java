@@ -15,34 +15,6 @@
  */
 package io.fabric8.core.jmx;
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
-import io.fabric8.api.AutoScaleStatus;
-import io.fabric8.api.Constants;
-import io.fabric8.api.Container;
-import io.fabric8.api.ContainerProvider;
-import io.fabric8.api.CreateContainerBasicOptions;
-import io.fabric8.api.CreateContainerMetadata;
-import io.fabric8.api.CreateContainerOptions;
-import io.fabric8.api.FabricException;
-import io.fabric8.api.FabricRequirements;
-import io.fabric8.api.Ids;
-import io.fabric8.api.Profile;
-import io.fabric8.api.ProfileBuilder;
-import io.fabric8.api.ProfileRegistry;
-import io.fabric8.api.ProfileService;
-import io.fabric8.api.Profiles;
-import io.fabric8.api.Version;
-import io.fabric8.api.VersionBuilder;
-import io.fabric8.api.VersionSequence;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.jmx.FabricManagerMBean;
-import io.fabric8.api.jmx.FabricStatusDTO;
-import io.fabric8.api.jmx.ServiceStatusDTO;
-import io.fabric8.common.util.ShutdownTracker;
-import io.fabric8.insight.log.support.Strings;
-import io.fabric8.service.FabricServiceImpl;
-
 import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -64,23 +36,48 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
-
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.curator.framework.CuratorFramework;
-import org.jboss.gravia.utils.IllegalArgumentAssertion;
-import org.jboss.gravia.utils.IllegalStateAssertion;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.fabric8.api.AutoScaleStatus;
+import io.fabric8.api.Constants;
+import io.fabric8.api.Container;
+import io.fabric8.api.ContainerProvider;
+import io.fabric8.api.CreateContainerBasicOptions;
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.CreateContainerOptions;
+import io.fabric8.api.DataStore;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.Ids;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileRegistry;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
+import io.fabric8.api.Version;
+import io.fabric8.api.VersionSequence;
+import io.fabric8.api.jmx.FabricManagerMBean;
+import io.fabric8.api.jmx.FabricStatusDTO;
+import io.fabric8.api.jmx.ServiceStatusDTO;
+import io.fabric8.common.util.ShutdownTracker;
+import io.fabric8.insight.log.support.Strings;
+import io.fabric8.service.FabricServiceImpl;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.curator.framework.CuratorFramework;
+import org.jboss.gravia.utils.IllegalStateAssertion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
 /**
  * [TODO] Review FabricManager for profile consistentcy
@@ -194,6 +191,20 @@ public final class FabricManager implements FabricManagerMBean {
     }
 
     @Override
+    public Map<String, Object> fabricServiceStatus() {
+        ServiceStatusDTO dto = getFabricServiceStatus();
+
+        Map<String, Object> answer = new TreeMap<String, Object>();
+        answer.put("clientValid", dto.isClientValid());
+        answer.put("clientConnected", dto.isClientConnected());
+        answer.put("clientConnectionError", dto.getClientConnectionError());
+        answer.put("provisionComplete", dto.isProvisionComplete());
+        answer.put("managed", dto.isManaged());
+
+        return answer;
+    }
+
+    @Override
     public Map<String, String> createContainers(Map<String, Object> options) {
 
         if (LOG.isDebugEnabled()) {
@@ -298,7 +309,6 @@ public final class FabricManager implements FabricManagerMBean {
     @Override
     public String profileWebAppURL(String webAppId, String profileId, String versionId) {
         return fabricService.profileWebAppURL(webAppId, profileId, versionId);
-
     }
 
     @Override
@@ -725,6 +735,24 @@ public final class FabricManager implements FabricManagerMBean {
     }
 
     @Override
+    public String fabricStatusAsJson() {
+        FabricStatusDTO dto = fabricStatus();
+
+        if (dto != null) {
+            try {
+                return getObjectMapper()
+                        .writerWithDefaultPrettyPrinter()
+                        .withType(FabricStatusDTO.class)
+                        .writeValueAsString(dto);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Error writing data as json", e);
+            }
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public String getMavenRepoUploadURI() {
         URI answer = fabricService.getMavenRepoUploadURI();
         return (answer != null) ? answer.toString() : null;
@@ -978,7 +1006,7 @@ public final class FabricManager implements FabricManagerMBean {
      *            the profile ID to change the requirements
      * @param numberOfInstances
      *            the number of instances to increase or decrease
-     * @return true if the requiremetns changed
+     * @return true if the requirements changed
      */
     @Override
     public boolean scaleProfile(String profile, int numberOfInstances) throws IOException {
@@ -991,8 +1019,40 @@ public final class FabricManager implements FabricManagerMBean {
     }
 
     @Override
+    public String requirementsAsJson() {
+        FabricRequirements dto = requirements();
+
+        try {
+            return getObjectMapper()
+                    .writerWithDefaultPrettyPrinter()
+                    .withType(FabricRequirements.class)
+                    .writeValueAsString(dto);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error writing data as json", e);
+        }
+    }
+
+    @Override
     public AutoScaleStatus autoScaleStatus() {
         return fabricService.getAutoScaleStatus();
+    }
+
+    @Override
+    public String autoScaleStatusAsJson() {
+        AutoScaleStatus dto = autoScaleStatus();
+
+        if (dto != null) {
+            try {
+                return getObjectMapper()
+                        .writerWithDefaultPrettyPrinter()
+                        .withType(AutoScaleStatus.class)
+                        .writeValueAsString(dto);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Error writing data as json", e);
+            }
+        } else {
+            return null;
+        }
     }
 
     @Override

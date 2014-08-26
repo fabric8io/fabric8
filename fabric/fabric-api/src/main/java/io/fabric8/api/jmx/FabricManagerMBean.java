@@ -36,6 +36,8 @@ public interface FabricManagerMBean {
 
     ServiceStatusDTO getFabricServiceStatus();
 
+    Map<String, Object> fabricServiceStatus();
+
     Map<String, String> createContainers(Map<String, Object> options);
 
     void importProfiles(String versionId, List<String> profileZipUrls);
@@ -83,8 +85,6 @@ public interface FabricManagerMBean {
     void applyProfilesToContainers(String version, List<String> profiles, List<String> containers);
 
     /**
-     * @param name
-     * @return
      * @Deprecated
      */
     @Deprecated
@@ -115,8 +115,6 @@ public interface FabricManagerMBean {
     void setContainerProperty(String containerId, String property, Object value);
 
     /**
-     * @param versionId
-     * @return
      * @Deprecated
      */
     @Deprecated
@@ -143,6 +141,8 @@ public interface FabricManagerMBean {
     String getDefaultVersion();
 
     FabricStatusDTO fabricStatus();
+
+    String fabricStatusAsJson();
 
     String getMavenRepoUploadURI();
 
@@ -223,10 +223,6 @@ public interface FabricManagerMBean {
 
     /**
      * Sets the profile system properties.
-     *
-     * @param versionId
-     * @param profileId
-     * @param systemProperties
      */
     void setProfileSystemProperties(String versionId, String profileId, Map<String, String> systemProperties);
 
@@ -238,9 +234,14 @@ public interface FabricManagerMBean {
         Map<String, ContainerProvider> providers();
 
     */
+
     FabricRequirements requirements();
 
+    String requirementsAsJson();
+
     AutoScaleStatus autoScaleStatus();
+
+    String autoScaleStatusAsJson();
 
     Map<String, Object> getVersion(String versionId);
 
@@ -270,7 +271,6 @@ public interface FabricManagerMBean {
 
     /**
      * Scales the given profile up or down in the number of instances required
-     *
      *
      * @param profile the profile ID to change the requirements
      * @param numberOfInstances the number of instances to increase or decrease
