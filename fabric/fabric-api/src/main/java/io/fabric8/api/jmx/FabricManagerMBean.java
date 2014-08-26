@@ -142,7 +142,7 @@ public interface FabricManagerMBean {
 
     FabricStatusDTO fabricStatus();
 
-    String fabricStatusAsJson();
+    List<Map<String, Object>> fabricStatusAsList();
 
     String getMavenRepoUploadURI();
 
