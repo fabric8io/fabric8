@@ -39,6 +39,12 @@
             <groupId>io.fabric8.archetypes</groupId>
             <artifactId>java-camel-cdi-archetype</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.fabric8.archetypes</groupId>
