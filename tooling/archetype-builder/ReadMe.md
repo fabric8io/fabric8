@@ -6,7 +6,7 @@ It does this by keeping the [example projects](https://github.com/fabric8io/fabr
 
 The tool automatically copies the example projects source code to [src/main/resources/archetype-resources](https://github.com/fabric8io/fabric8/tree/master/tooling/archetypes/camel-drools-archetype/src/main/resources).
 
-So the directory [src/main/resources/archetype-resource](https://github.com/fabric8io/fabric8/tree/master/tooling/archetypes/camel-drools-archetype/src/main/resources) is included in the [.gitignore](hhttps://github.com/fabric8io/fabric8/blob/master/tooling/archetypes/camel-drools-archetype/src/main/resources/.gitignore) so its never checked in.
+So the directory [src/main/resources/archetype-resource](https://github.com/fabric8io/fabric8/tree/master/tooling/archetypes/camel-drools-archetype/src/main/resources) is included in the [.gitignore](https://github.com/fabric8io/fabric8/blob/master/tooling/archetypes/camel-drools-archetype/src/main/resources/.gitignore) so its never checked in.
 
 To simplify things, the archetype projects have their own hand crafted root pom.xml files; you can also supply a default **archetype-metadata.xml** file in the root directory (which will be copied with the necessary required properties included). This means you can tweak whats included/excluded from the archetype and change the archetype pom.xml if need be; but keep the archetype data in sync with the working example program.
 
