@@ -16,8 +16,9 @@
 package io.fabric8.gateway.fabric.support.vertx;
 
 import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.common.util.Objects;
 import io.fabric8.vertx.FabricVertexFactory;
-import org.apache.aries.util.AriesFrameworkUtil;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -25,18 +26,12 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
-import io.fabric8.common.util.ClassLoaders;
-import io.fabric8.common.util.Objects;
-import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
-import org.vertx.java.core.VertxFactory;
-import org.vertx.java.core.impl.DefaultVertxFactory;
-
-import java.util.concurrent.Callable;
 
 /**
  * The gateway service which
@@ -49,7 +44,7 @@ public class VertxServiceImpl extends AbstractComponent implements VertxService 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
     private CuratorFramework curator;
 
-    @Reference(referenceInterface = FabricVertexFactory.class)
+    @Reference(referenceInterface = FabricVertexFactory.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
     private FabricVertexFactory vertxFactory;
 
     private Vertx vertx;
