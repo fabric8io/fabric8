@@ -87,6 +87,7 @@ public class ContainerCreateOpenshiftAction extends ContainerCreateSupport {
                 .login(login)
                 .password(password)
                 .version(versionId)
+                .number(number)
                 .resolver("publichostname")  // must use publichostname as resolver on OpenShift
                 .ensembleServer(isEnsembleServer)
                 .zookeeperUrl(fabricService.getZookeeperUrl())
@@ -113,6 +114,18 @@ public class ContainerCreateOpenshiftAction extends ContainerCreateSupport {
         // display containers
         displayContainers(metadatas);
         return null;
+    }
+
+    @Override
+    protected void preCreateContainer(String name) {
+        super.preCreateContainer(name);
+        // validate number is not out of bounds
+        if (number < 0 || number > 99) {
+            throw new IllegalArgumentException("The number of containers must be between 1 and 99.");
+        }
+        if (isEnsembleServer && number > 1) {
+            throw new IllegalArgumentException("Can not create a new ZooKeeper ensemble on multiple containers.  Create the containers first and then use the fabric:create command");
+        }
     }
 
     protected void displayContainers(CreateContainerMetadata[] metadatas) {
