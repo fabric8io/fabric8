@@ -61,15 +61,14 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileService;
-import io.fabric8.api.ProfileStatus;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
 import io.fabric8.api.VersionSequence;
 import io.fabric8.api.jmx.FabricManagerMBean;
 import io.fabric8.api.jmx.FabricStatusDTO;
 import io.fabric8.api.jmx.ServiceStatusDTO;
-import io.fabric8.api.scr.support.Strings;
 import io.fabric8.common.util.ShutdownTracker;
+import io.fabric8.insight.log.support.Strings;
 import io.fabric8.service.FabricServiceImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.curator.framework.CuratorFramework;
@@ -736,27 +735,21 @@ public final class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public List<Map<String, Object>> fabricStatusAsList() {
+    public String fabricStatusAsJson() {
         FabricStatusDTO dto = fabricStatus();
 
-        List<Map<String, Object>> answer = new ArrayList<Map<String, Object>>();
-        for (ProfileStatus status : dto.getProfileStatusMap().values()) {
-            Map<String, Object> entry = new LinkedHashMap<String, Object>();
-            entry.put("profile", status.getProfile());
-            entry.put("count", status.getCount());
-            entry.put("health", status.getHealth());
-            entry.put("minimumInstances", status.getMinimumInstances());
-            entry.put("maximumInstances", status.getMaximumInstances());
-
-            String profiles = null;
-            if (status.getDependentProfiles() != null) {
-                profiles = Strings.join(status.getDependentProfiles(), ",");
+        if (dto != null) {
+            try {
+                return getObjectMapper()
+                        .writerWithDefaultPrettyPrinter()
+                        .withType(FabricStatusDTO.class)
+                        .writeValueAsString(dto);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Error writing data as json", e);
             }
-            entry.put("dependentProfiles", profiles);
-            answer.add(entry);
+        } else {
+            return null;
         }
-
-        return answer;
     }
 
     @Override
@@ -1350,7 +1343,7 @@ public final class FabricManager implements FabricManagerMBean {
     public String clusterJson(String clusterPathSegment) throws Exception {
         String prefix = "/fabric/registry/clusters";
         String path;
-        if (Strings.isNullOrBlank(clusterPathSegment)) {
+        if (Strings.isEmpty(clusterPathSegment)) {
             path = prefix;
         } else {
             if (clusterPathSegment.startsWith("/")) {
