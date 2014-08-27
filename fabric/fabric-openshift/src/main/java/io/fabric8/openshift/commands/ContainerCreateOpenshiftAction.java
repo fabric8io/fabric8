@@ -51,6 +51,9 @@ public class ContainerCreateOpenshiftAction extends ContainerCreateSupport {
     @Option(name = "--proxy-uri", description = "The Maven proxy URL to use")
     private URI proxyUri;
 
+    @Option(name = "--gear-size", description = "Gear size controls how much memory and CPU your cartridges can use.")
+    private String gearSize;
+
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
 
@@ -91,6 +94,10 @@ public class ContainerCreateOpenshiftAction extends ContainerCreateSupport {
                 .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
                 .profiles(getProfileNames())
                 .dataStoreProperties(getDataStoreProperties());
+
+        if( gearSize!=null ) {
+            builder.gearProfile(gearSize);
+        }
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(builder.build());
 
