@@ -45,4 +45,8 @@ public interface ApmConfigurationMBean {
 
     void setMethodMetricDepth(int methodMetricDepth);
 
+    String getStrategy();
+
+    void setStrategy(String strategy);
+
 }

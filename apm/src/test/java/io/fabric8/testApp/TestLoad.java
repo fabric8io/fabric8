@@ -61,7 +61,7 @@ public class TestLoad implements Runnable {
     }
 
     public void load1(TestValues value) {
-        sleep(1);
+        sleep(100);
         load2(value);
     }
 
@@ -71,7 +71,7 @@ public class TestLoad implements Runnable {
     }
 
     public void doSomethingElse() {
-        sleep(2);
+        sleep(20);
         count2.incrementAndGet();
     }
 

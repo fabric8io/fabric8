@@ -38,18 +38,20 @@ public class MonitoredMethodMetrics {
             proxyList.remove(proxyList.size() - 1);
             apmAgentContext.unregisterMethodMetricsMBean(methodMetricsProxy);
         }
-        int extra = monitorSize - proxyList.size();
-
-        if (extra > 0) {
-            for (int i = 0; i < extra; i++) {
-                proxyList.add(createProxy(proxyList.size()));
-            }
-        }
     }
 
     public void calculateMethodMetrics(List<? extends MethodMetrics> methodMetricsList) {
         if (methodMetricsList.size() < proxyList.size()) {
             setMonitorSize(methodMetricsList.size());
+        }
+        if (methodMetricsList.size() > proxyList.size() && proxyList.size() < monitorSize) {
+            int extra = monitorSize - proxyList.size();
+
+            if (extra > 0) {
+                for (int i = 0; i < extra; i++) {
+                    proxyList.add(createProxy(proxyList.size()));
+                }
+            }
         }
         for (int i = 0; i < methodMetricsList.size() && i < proxyList.size(); i++) {
             MethodMetricsProxy methodMetricsProxy = proxyList.get(i);

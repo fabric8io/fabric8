@@ -14,8 +14,8 @@ package io.fabric8.apmagent.strategy.trace;
 
 import io.fabric8.apmagent.ApmConfiguration;
 import io.fabric8.apmagent.ClassInfo;
+import io.fabric8.apmagent.Strategy;
 import io.fabric8.apmagent.metrics.ApmAgentContext;
-import io.fabric8.apmagent.strategy.Strategy;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.util.CheckClassAdapter;
@@ -61,10 +61,9 @@ public class TraceStrategy implements Strategy, ClassFileTransformer {
 
     @Override
     public void start() throws Exception {
-        if (initialized.get()) {
-            if (started.compareAndSet(false, true)) {
-                instrumentApplication();
-            }
+        if (started.compareAndSet(false, true)) {
+            initialize();
+            instrumentApplication();
         }
     }
 

@@ -15,7 +15,7 @@ package io.fabric8.apmagent;
 
 import io.fabric8.apmagent.metrics.ApmAgentContext;
 import io.fabric8.apmagent.metrics.ThreadMetrics;
-import io.fabric8.apmagent.strategy.Strategy;
+import io.fabric8.apmagent.strategy.sampling.SamplingStrategy;
 import io.fabric8.apmagent.strategy.trace.TraceStrategy;
 import io.fabric8.apmagent.utils.PropertyUtils;
 import org.jolokia.jvmagent.JvmAgent;
@@ -34,6 +34,7 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
     private AtomicBoolean initialized = new AtomicBoolean();
     private AtomicBoolean started = new AtomicBoolean();
     private final ApmAgentContext apmAgentContext;
+    private Instrumentation instrumentation;
     private Strategy strategy;
 
     // The following is the entry point when loaded dynamically to inject
@@ -83,13 +84,13 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
 
     public static void enterMethod(String methodName) {
         if (INSTANCE.started.get()) {
-            INSTANCE.apmAgentContext.enterMethod(methodName);
+            INSTANCE.apmAgentContext.enterMethod(Thread.currentThread(), methodName, false);
         }
     }
 
     public static void exitMethod(String methodName) {
         if (INSTANCE.started.get()) {
-            INSTANCE.apmAgentContext.exitMethod(methodName);
+            INSTANCE.apmAgentContext.exitMethod(Thread.currentThread(), methodName, false);
         }
     }
 
@@ -130,10 +131,21 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
     public boolean initialize(final Instrumentation instrumentation, String args) throws Exception {
         boolean result;
         if ((result = initialized.compareAndSet(false, true))) {
+            this.instrumentation = instrumentation;
             PropertyUtils.setProperties(configuration, args);
             configuration.addChangeListener(this);
             apmAgentContext.initialize();
-            this.strategy = new TraceStrategy(apmAgentContext, instrumentation);
+            ApmConfiguration.STRATEGY theStrategy = configuration.getStrategyImpl();
+            switch (theStrategy) {
+                case TRACE:
+                    this.strategy = new TraceStrategy(apmAgentContext, instrumentation);
+                    LOG.info("Using Trace strategy");
+                    break;
+                default:
+                    this.strategy = new SamplingStrategy(apmAgentContext);
+                    LOG.info("Using Sampling strategy");
+
+            }
             this.strategy.initialize();
 
             //add shutdown hook
@@ -170,11 +182,13 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
             } catch (Throwable e) {
                 LOG.error("Failed to start strategy ", e);
             }
+        } else {
+            System.err.println("STARTMETRICS ALREADY STARTED");
         }
     }
 
     public void stopMetrics() {
-        if (isInitialized() && started.compareAndSet(true, false)) {
+        if (started.compareAndSet(true, false)) {
             try {
                 Strategy s = this.strategy;
                 if (s != null) {
@@ -191,6 +205,7 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
 
     public void shutDown() {
         if (initialized.compareAndSet(true, false)) {
+            stopMetrics();
             configuration.removeChangeListener(this);
             apmAgentContext.shutDown();
             try {
@@ -213,6 +228,21 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
             }
             if (configuration.isThreadMetricDepthChanged()) {
                 apmAgentContext.threadMetricsDepthChanged();
+            }
+            if (configuration.isStrategyChanged()) {
+                boolean hasStarted = this.started.get();
+                if (initialized.get()) {
+                    shutDown();
+                    try {
+                        //we need to restart
+                        initialize(this.instrumentation, null);
+                        if (hasStarted) {
+                            startMetrics();
+                        }
+                    } catch (Exception e) {
+                        LOG.error("Could not re-initialize");
+                    }
+                }
             }
         }
     }
