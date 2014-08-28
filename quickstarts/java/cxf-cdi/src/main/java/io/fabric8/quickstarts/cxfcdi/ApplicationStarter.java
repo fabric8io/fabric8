@@ -30,7 +30,7 @@ public class ApplicationStarter {
         String port = System.getProperty("server.port");
         if (port == null) {
             // and fallback to use environment variable
-            port = System.getenv("FABRIC8_HTTP_PROXY_PORT");
+            port = System.getenv("FABRIC8_HTTP_PORT");
         }
         if (port == null) {
             // and use port 8585 by default
