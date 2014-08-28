@@ -1,4 +1,4 @@
-# Camel REST with CXF QuickStart
+# REST with CXF QuickStart
 
 This quick start demonstrates how to create a RESTful (JAX-RS) web service using Apache CXF and expose it in a servlet container such as Apache Tomcat.
 
