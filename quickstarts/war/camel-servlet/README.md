@@ -75,10 +75,22 @@ To use the application be sure to have deployed the quickstart in fabric8 as des
 
 ## Undeploy this example
 
+The following information is divded into two sections, whether you are using the command line shell in fabric, or using the web console
+
+### Using the command line shell
+
 To stop and undeploy the example in fabric8:
 
-2. Stop and delete the child container by entering the following command at the console:
+1. Stop and delete the child container by entering the following command at the console:
 
         fabric:container-stop mychild
         fabric:container-delete mychild
+
+### Using the web console
+
+To stop and undeploy the example in fabric8:
+
+1. In the web console, click the *Runtime* button in the navigation bar.
+1. Select the `mychild` container in the *Containers* list, and click the *Stop* button in the top right corner
+
 
