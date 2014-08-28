@@ -59,6 +59,7 @@ public class ApmAgentContext {
     private final MonitoredMethodMetrics monitoredMethodMetrics;
     private AtomicBoolean doHouseKeeping = new AtomicBoolean();
     private Thread backgroundThread;
+    private boolean monitorByDefault = true;
 
     public ApmAgentContext(ApmAgent agent) {
         this.apmAgent = agent;
@@ -67,35 +68,32 @@ public class ApmAgentContext {
         this.monitoredMethodMetrics.setMonitorSize(configuration.getMethodMetricDepth());
     }
 
-    public void enterMethod(String fullMethodName) {
+    public void enterMethod(Thread currentThread, String fullMethodName, boolean alwaysActive) {
         if (isInitialized()) {
-            Thread currentThread = Thread.currentThread();
             ThreadMetrics threadMetrics = threadMetricsMap.get(currentThread);
             if (threadMetrics == null) {
                 threadMetrics = new ThreadMetrics(this, currentThread);
                 threadMetricsMap.put(currentThread, threadMetrics);
             }
-            threadMetrics.enter(fullMethodName);
+            threadMetrics.enter(fullMethodName, alwaysActive);
 
             MethodMetrics methodMetrics = methodMetricsMap.get(fullMethodName);
             if (methodMetrics == null) {
                 methodMetrics = new MethodMetrics(fullMethodName);
+                methodMetrics.setActive(isMonitorByDefault());
                 methodMetricsMap.putIfAbsent(fullMethodName, methodMetrics);
             }
         }
 
     }
 
-    public void exitMethod(String methodName) {
+    public void exitMethod(Thread currentThread, String methodName, boolean alwaysActive) {
         if (isInitialized()) {
-
-            Thread currentThread = Thread.currentThread();
-
             ThreadMetrics threadMetrics = threadMetricsMap.get(currentThread);
 
             long elapsed = -1;
             if (threadMetrics != null) {
-                elapsed = threadMetrics.exit(methodName);
+                elapsed = threadMetrics.exit(methodName, alwaysActive);
             }
 
             if (elapsed >= 0) {
@@ -103,8 +101,8 @@ public class ApmAgentContext {
                 if (methodMetrics != null) {
                     methodMetrics.update(elapsed);
                 }
-                doHouseKeeping();
             }
+            doHouseKeeping();
         }
     }
 
@@ -246,6 +244,27 @@ public class ApmAgentContext {
 
     public ApmConfiguration getConfiguration() {
         return configuration;
+    }
+
+    public boolean isMonitorByDefault() {
+        return monitorByDefault;
+    }
+
+    public void setMonitorByDefault(boolean monitorByDefault) {
+        this.monitorByDefault = monitorByDefault;
+    }
+
+    public void setActive(String fullMethodName, boolean flag) {
+        if (isInitialized()) {
+            for (ThreadMetrics threadMetrics : threadMetricsMap.values()) {
+                threadMetrics.setActive(fullMethodName, flag);
+            }
+
+            MethodMetrics methodMetrics = methodMetricsMap.get(fullMethodName);
+            if (methodMetrics != null) {
+                methodMetrics.setActive(flag);
+            }
+        }
     }
 
     public List<ClassInfo> buildDeltaList() {

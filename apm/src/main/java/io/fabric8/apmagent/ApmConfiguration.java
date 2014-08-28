@@ -27,6 +27,20 @@ import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ApmConfiguration implements ApmConfigurationMBean {
+    public enum STRATEGY {
+        TRACE,
+        SAMPLE,;
+
+        static STRATEGY getStrategy(String name) {
+            for (STRATEGY v : values()) {
+                if (v.name().equals(name.toUpperCase())) {
+                    return v;
+                }
+            }
+            return SAMPLE;
+        }
+    };
+
     final static Logger logger = LoggerFactory.getLogger(ApmConfiguration.class);
     private boolean trace = false;
     private boolean debug = false;
@@ -40,9 +54,12 @@ public class ApmConfiguration implements ApmConfigurationMBean {
     private boolean filterChanged = false;
     private boolean methodMetricDepthChanged = false;
     private boolean threadMetricDepthChanged = false;
+    private boolean strategyChanged = false;
+    private int samplingInterval = 1;
     private List<FilterItem> whiteFilterList = new ArrayList<>();
     private List<FilterItem> blackFilterList = new ArrayList<>();
     private List<ApmConfigurationChangeListener> changeListeners = new CopyOnWriteArrayList<>();
+    private STRATEGY strategy = STRATEGY.TRACE;
 
     ApmConfiguration() {
         addToBlackList("java");
@@ -209,6 +226,10 @@ public class ApmConfiguration implements ApmConfigurationMBean {
         fireConfigurationChanged();
     }
 
+    public boolean isStrategyChanged() {
+        return strategyChanged;
+    }
+
     public boolean isThreadMetricDepthChanged() {
         return threadMetricDepthChanged;
     }
@@ -219,6 +240,31 @@ public class ApmConfiguration implements ApmConfigurationMBean {
 
     public boolean isFilterChanged() {
         return filterChanged;
+    }
+
+    public int getSamplingInterval() {
+        return samplingInterval;
+    }
+
+    public void setSamplingInterval(int samplingInterval) {
+        this.samplingInterval = samplingInterval;
+    }
+
+    public String getStrategy() {
+        return strategy.name();
+    }
+
+    public void setStrategy(String name) {
+        STRATEGY newStrategy = STRATEGY.getStrategy(name);
+        if (!this.strategy.equals(newStrategy)) {
+            this.strategy = STRATEGY.getStrategy(name);
+            this.strategyChanged = true;
+            fireConfigurationChanged();
+        }
+    }
+
+    public STRATEGY getStrategyImpl() {
+        return strategy;
     }
 
     public void initalizeFromProperties(Properties properties) {
@@ -294,6 +340,7 @@ public class ApmConfiguration implements ApmConfigurationMBean {
         filterChanged = false;
         methodMetricDepthChanged = false;
         threadMetricDepthChanged = false;
+        strategyChanged = false;
     }
 
     private void setProperty(String name, Object value) {

@@ -99,9 +99,9 @@
                         </goals>
                         <configuration>
                             <artifactSet>
-                            <excludes>
-                                <exclude>org.osgi:*</exclude>
-                            </excludes>
+                                <excludes>
+                                    <exclude>org.osgi:*</exclude>
+                                </excludes>
                             </artifactSet>
                             <transformers>
                                 <transformer
@@ -134,7 +134,9 @@
                     <classpathScope>test</classpathScope>
                     <executable>java</executable>
                     <arguments>
-                        <argument>-javaagent:${basedir}/target/apmagent-project-1.1.0-SNAPSHOT.jar=startJolokiaAgent=true</argument>
+                        <argument>
+                            -javaagent:${basedir}/target/apmagent-project-1.1.0-SNAPSHOT.jar=startJolokiaAgent=true
+                        </argument>
                         <argument>-classpath</argument>
                         <classpath/>
                         <argument>io.fabric8.testApp.TestApp</argument>

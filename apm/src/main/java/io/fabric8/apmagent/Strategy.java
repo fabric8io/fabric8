@@ -11,9 +11,7 @@
  * permissions and limitations under the License.
  */
 
-package io.fabric8.apmagent.strategy;
-
-import io.fabric8.apmagent.ApmConfigurationChangeListener;
+package io.fabric8.apmagent;
 
 public interface Strategy extends ApmConfigurationChangeListener {
     void initialize() throws Exception;

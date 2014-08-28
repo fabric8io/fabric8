@@ -28,6 +28,7 @@ public class MethodMetrics {
     private final double rateFactor;
     private final double durationFactor;
     private int percentage;
+    private boolean active = true;
 
     /**
      * Constructor.
@@ -44,6 +45,14 @@ public class MethodMetrics {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public long getCount() {
