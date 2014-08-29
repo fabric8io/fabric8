@@ -246,12 +246,12 @@ final class ProfileImpl implements Profile {
                 String text = iter.nextToken();
                 if (text != null) {
                     text = text.trim();
-                    // skip first heading
-                    if (text.startsWith("#") && first) {
+                    // skip first heading or ==
+                    if (skipSummaryLine(text) && first) {
                         first = false;
                         continue;
                     }
-                    while (text.startsWith("#")) {
+                    while (skipSummaryLine(text)) {
                         text = text.substring(1);
                     }
                     text = text.trim();
@@ -262,6 +262,10 @@ final class ProfileImpl implements Profile {
             }
         }
         return null;
+    }
+
+    private static boolean skipSummaryLine(String line) {
+        return line.startsWith("=") || line.startsWith("#");
     }
     
     @Override
