@@ -236,15 +236,21 @@ final class ProfileImpl implements Profile {
             return new String(data);
         }
 
-        // lets return the first line of the ReadMe.md as a default value
+        // lets return the first non heading line of the ReadMe.md as a default value
         data = getFileConfiguration("ReadMe.md");
         if (data != null) {
             String readMe = new String(data).trim();
             StringTokenizer iter = new StringTokenizer(readMe, "\n");
+            boolean first = true;
             while (iter.hasMoreTokens()) {
                 String text = iter.nextToken();
                 if (text != null) {
                     text = text.trim();
+                    // skip first heading
+                    if (text.startsWith("#") && first) {
+                        first = false;
+                        continue;
+                    }
                     while (text.startsWith("#")) {
                         text = text.substring(1);
                     }
