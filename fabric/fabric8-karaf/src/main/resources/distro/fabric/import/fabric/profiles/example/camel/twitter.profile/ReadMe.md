@@ -2,9 +2,18 @@
 
 The example is demonstrating how to poll a constant feed of twitter searches and publish results in real time to a log.
 
-There are one route in this example:
+There are one route in this example, as shown in the diagram below:
 
 * The twitter-demo route polls for new search results from twitter, and outputs a log message with details about the tweet(s).
+
+![Camel Twitter diagram](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/camel-twitter-diagram.png)
+
+This example provides the Camel route source code with the profile. You can edit the source code from within the web console, by selecting the `camel.xml` file in profile directoy listing, which opens the Camel editor, as shown in the figure below.
+
+![Camel Twitter editor](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/camel-twitter-editor.png)
+
+The editor alows you to edit the Camel routes, and have the running containers automatic re-deploy when saving changes.
+
 
 ### How to run this example
 
