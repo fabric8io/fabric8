@@ -1,5 +1,4 @@
-AutoScale
-=========
+# AutoScale
 
 Adding the AutoScale Profile will enable _auto-scaling_.
 
