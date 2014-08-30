@@ -108,16 +108,16 @@
   <!-- TODO these are not ready yet
   Note that the [Apache Tomcat](https://tomcat.apache.org/) and [Apache TomEE](http://tomee.apache.org/) distributions are still experimental; the [Apache Karaf](http://karaf.apache.org/) based distro is currently rock solid and complete ;) -->
   <div class="col-md-4 text-center">
-    <a class="btn btn-large btn-warning" title="Warning!  Expiremental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.1.0.CR5/fabric8-tomcat-1.1.0.CR5.zip">fabric8-tomcat-1.1.0.CR5.zip</a>
-    <p><small><em>This distro is still expiremental</em></small></p>
+    <a class="btn btn-large btn-warning" title="Warning!  Experimental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.1.0.CR5/fabric8-tomcat-1.1.0.CR5.zip">fabric8-tomcat-1.1.0.CR5.zip</a>
+    <p><small><em>This distro is still experimental</em></small></p>
   </div>
   <div class="col-md-4 text-center">
-    <a class="btn btn-large btn-warning" title="Warning!  Expiremental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.1.0.CR5/fabric8-tomee-1.1.0.CR5.zip">fabric8-tomee-1.1.0.CR5.zip</a>
-    <p><small><em>This distro is still expiremental</em></small></p>
+    <a class="btn btn-large btn-warning" title="Warning!  Experimental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.1.0.CR5/fabric8-tomee-1.1.0.CR5.zip">fabric8-tomee-1.1.0.CR5.zip</a>
+    <p><small><em>This distro is still experimental</em></small></p>
   </div>
 </div>
 
-<p>If you've used a previous version you may want to check out the <a href="http://fabric8.io/changes/index.html">Change Log</a></p>
+<p>If you've used a previous version, you may want to check out the <a href="http://fabric8.io/changes/index.html">Change Log</a>.</p>
 
 <h3 id = "Installation">Installation</h3>
 
@@ -127,7 +127,7 @@
 unzip fabric8-karaf-1.1.0.CR5.tar.gz
 cd fabric8-karaf-1.1.0.CR5</code></pre>
 
-<p>Or, <a href="https://github.com/fabric8io/fabric8/blob/master/readme-build.md">build the project</a> with <a href="http://maven.apache.org/">maven</a> via:</p>
+<p>Or, <a href="https://github.com/fabric8io/fabric8/blob/master/readme-build.md">build the project</a> with <a href="http://maven.apache.org/">Maven</a> via:</p>
 
 <pre><code>MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=512m"
 mvn -DskipTests clean install -Pall
@@ -137,7 +137,7 @@ cd fabric8-karaf-1.1.0-SNAPSHOT</code></pre>
 
 <h3 id = "Create_a_fabric">Create a fabric</h3>
 
-<p>By default fabric starts up with a default admin user with username <code>admin</code> and password <code>admin</code>.
+<p>By default, fabric starts up with a default admin user with username <code>admin</code> and password <code>admin</code>.
 This can be changed by editing the <code>etc/users.properties</code> file before starting fabric for the first time.</p>
 
 <p>Now to create a fabric using the karaf distribution type:</p>
@@ -148,7 +148,7 @@ This can be changed by editing the <code>etc/users.properties</code> file before
 
 <pre><code>bin/fabric8 run</code></pre>
 
-<p>Once the container has started up, you have a working Fabric and you can connect to the console</p>
+<p>Once the container has started up, you have a working Fabric and you can connect to the console.</p>
 
 <h3 id = "Use_the_web_console">Use the web console</h3>
 
@@ -167,15 +167,15 @@ This can be changed by editing the <code>etc/users.properties</code> file before
 
 <h4 id = "Web_console_for_Tomcat_or_TomEE_distributions">Web console for Tomcat or TomEE distributions</h4>
 
-<p>If you are using the Tomcat or TomEE distribution then the console is on <a href="http://localhost:8080/hawtio/">port 8080</a>, and the console is deployed under the <code>hawtio</code> context path. The url for the web console is therefore:</p>
+<p>If you are using the Tomcat or TomEE distribution, then the console is on <a href="http://localhost:8080/hawtio/">port 8080</a>, and the console is deployed under the <code>hawtio</code> context path. The URL for the web console is therefore:</p>
 
 <pre><code>http://localhost:8080/hawtio/</code></pre>
 
 <h4 id = "View_a_demo">View a demo</h4>
 
-<p>To help you get started you could watch one of the demos in the  <a class="btn btn-success" href="https://vimeo.com/album/2635012">JBoss Fuse and JBoss A-MQ demo album</a></p>
+<p>To help you get started, you could watch one of the demos in the  <a class="btn btn-success" href="https://vimeo.com/album/2635012">JBoss Fuse and JBoss A-MQ demo album</a></p>
 
-<p>For example try the <a class="btn btn-success" href="https://vimeo.com/80625940">JBoss Fuse 6.1 Demo</a></p>
+<p>For example, try the <a class="btn btn-success" href="https://vimeo.com/80625940">JBoss Fuse 6.1 Demo</a></p>
 
 <h4 id = "Try_QuickStarts">Try QuickStarts</h4>
 
