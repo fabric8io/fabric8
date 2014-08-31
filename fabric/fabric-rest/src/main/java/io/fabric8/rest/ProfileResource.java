@@ -19,6 +19,7 @@ import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.jmx.ProfileDTO;
 
 import java.util.Set;
@@ -64,7 +65,18 @@ public class ProfileResource extends ResourceSupport {
      */
     @Path("overlay")
     public ProfileResource overlay() {
-        throw new UnsupportedOperationException();
+        if (!profile.isOverlay()) {
+            FabricService fabricService = getFabricService();
+            ProfileService profileService = null;
+            if (fabricService != null) {
+                profileService = fabricService.adapt(ProfileService.class);
+            }
+            if (profileService != null) {
+                Profile overlay = profileService.getOverlayProfile(profile);
+                return new ProfileResource(this, overlay);
+            }
+        }
+        return null;
     }
 
     @GET
