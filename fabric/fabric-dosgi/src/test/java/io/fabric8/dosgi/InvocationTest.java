@@ -137,7 +137,7 @@ public class InvocationTest {
     		}
 
     		for(Future<String> f : futures) {
-    			f.get(1, TimeUnit.SECONDS);
+    			f.get(3, TimeUnit.SECONDS);
     		}
 //			future2.get(2, TimeUnit.SECONDS);
     		//assertEquals("Hello Hiram!", future1.get(2, TimeUnit.SECONDS));
