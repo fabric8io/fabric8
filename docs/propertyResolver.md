@@ -20,6 +20,20 @@ ip = ${container:ip}
 bindaddress = ${container:bindaddress}
 ```
 
+### Checksum
+
+When you wish to calculate the checksum of a file or URL:
+```
+mychecksum = ${checksum:profile:\foo.xml}
+```
+
+### Crypt
+
+When you wish to decrypt an encrypted value (such as a password):
+```
+mypassword = ${crypt:ABCDEF}
+```
+
 ### Env
 
 For accessing an environment variable.
@@ -75,6 +89,7 @@ something=${groovy:sys['foo.bar'] ?: 'anotherThing'}
 <td>An instance of the <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric-zookeeper/src/main/java/io/fabric8/zookeeper/utils/ZooKeeperFacade.java#L30">ZooKeeperFacade class</> for making it easy to query and navigate around ZooKeeper and extract values</td>
 </tr>
 </table>
+
 ### Port
 
 When running multiple child containers on a machine, you need to associate ports to JVMs. Fabric8 supports port allocation using a property resolver of the form...
@@ -107,3 +122,11 @@ What happens is the resolver looks up in the current profile the property file c
 
 This means that there's a single place to define all the versions of things; which can be changed on a per profile (or version) basis easily - to avoid littering your profiles with version numbers and making it really easy to do a patch upgrade of versions of things.
 
+### ZooKeeper
+
+This resolver evaluates the ZooKeeper path:
+
+```
+identity=${zk:/fabric/registry/cloud/config/aws-ec2/identity}
+credential=${zk:/fabric/registry/cloud/config/aws-ec2/credential}
+```
