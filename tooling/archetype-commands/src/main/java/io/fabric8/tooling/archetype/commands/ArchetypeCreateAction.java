@@ -15,12 +15,8 @@
  */
 package io.fabric8.tooling.archetype.commands;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -36,7 +32,6 @@ import io.fabric8.tooling.archetype.ArchetypeService;
 import io.fabric8.tooling.archetype.catalog.Archetype;
 import io.fabric8.tooling.archetype.generator.ArchetypeHelper;
 import io.fabric8.utils.shell.ShellUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
@@ -61,15 +56,11 @@ public class ArchetypeCreateAction extends AbstractAction {
         Archetype archetype = archetypeService.getArchetype(archetypeGAV);
         if (archetype != null) {
             System.out.println(String.format("Generating %s:%s in %s", archetype.groupId, archetype.artifactId, target.getCanonicalPath()));
-            InputStream archetypeInputStream = fetchArchetype(archetype);
-            if (archetypeInputStream == null) {
+            File archetypeFile = fetchArchetype(archetype);
+            if (archetypeFile == null || !archetypeFile.exists()) {
                 System.err.println("No archetype found for \"" + archetypeGAV + "\" coordinates");
                 return null;
             }
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            IOUtils.copy(archetypeInputStream, baos);
-            IOUtils.closeQuietly(archetypeInputStream);
-            InputStream stream = new ByteArrayInputStream(baos.toByteArray());
 
             String defaultGroupId = "io.fabric8";
             String defaultArtifactId = archetype.artifactId + "-example";
@@ -87,7 +78,7 @@ public class ArchetypeCreateAction extends AbstractAction {
             String packageName = ShellUtils.readLine(session, String.format("Define value for property 'package' (%s):", defaultPackageName), false);
             packageName = packageName == null || packageName.trim().equals("") ? defaultPackageName : packageName;
 
-            ArchetypeHelper helper = new ArchetypeHelper(stream, target, groupId, artifactId, version);
+            ArchetypeHelper helper = new ArchetypeHelper(archetypeFile, target, groupId, artifactId, version);
             helper.setPackageName(packageName);
 
             Map<String, String> properties = helper.parseProperties();
@@ -101,7 +92,6 @@ public class ArchetypeCreateAction extends AbstractAction {
                 }
             }
             helper.setOverrideProperties(properties);
-            stream.reset();
             helper.execute();
         } else {
             System.err.println("No archetype found for \"" + archetypeGAV + "\" coordinates");
@@ -116,7 +106,7 @@ public class ArchetypeCreateAction extends AbstractAction {
      * @param archetype
      * @return
      */
-    private InputStream fetchArchetype(Archetype archetype) throws IOException {
+    private File fetchArchetype(Archetype archetype) throws IOException {
         MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn");
         config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
         DownloadManager dm = new DownloadManager(config, Executors.newSingleThreadExecutor());
@@ -138,7 +128,7 @@ public class ArchetypeCreateAction extends AbstractAction {
         }
         System.out.println("Downloaded archetype (" + df.getFile() + ")");
 
-        return new FileInputStream(df.getFile());
+        return df.getFile();
     }
 
 }
