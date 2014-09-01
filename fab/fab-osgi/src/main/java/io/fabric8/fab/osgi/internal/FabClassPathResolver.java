@@ -100,11 +100,11 @@ public class FabClassPathResolver implements FabConfiguration {
 
     private Manifest manifest;
 
-    public FabClassPathResolver(FabFacade connection, Properties instructions, Map<String, Object> embeddedResources) {
+    public FabClassPathResolver(ModuleRegistry registry, FabFacade connection, Properties instructions, Map<String, Object> embeddedResources) {
         this.connection = connection;
         this.instructions = instructions;
         this.embeddedResources = embeddedResources;
-        this.moduleRegistry = Activator.registry;
+        this.moduleRegistry = registry;
         this.resolver = connection.getResolver();
     }
 
