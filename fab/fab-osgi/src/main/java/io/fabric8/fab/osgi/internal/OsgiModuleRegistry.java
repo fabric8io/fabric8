@@ -40,7 +40,6 @@ public class OsgiModuleRegistry extends ModuleRegistry {
     String pid;
 
     public OsgiModuleRegistry() {
-        Activator.registry = this;
     }
 
     public File getDirectory() {

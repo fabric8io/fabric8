@@ -16,26 +16,31 @@
 package io.fabric8.fab.osgi.internal;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InterruptedIOException;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
 
+import io.fabric8.fab.osgi.FabResolverFactory;
+import io.fabric8.fab.osgi.FabURLHandler;
 import io.fabric8.fab.osgi.ServiceConstants;
-import org.ops4j.pax.url.commons.handler.HandlerActivator;
+import org.apache.karaf.features.FeaturesService;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.url.URLStreamHandlerService;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * Activator for the fab protocol
  */
-public class Activator extends HandlerActivator<Configuration> {
+public class Activator implements BundleActivator {
     private static Activator instance;
 
     private BundleContext bundleContext;
-    private ConfigAdmin configAdmin;
-    public static OsgiModuleRegistry registry = new OsgiModuleRegistry();
+    private ServiceTracker<ConfigurationAdmin, ConfigurationAdmin> configAdminTracker;
+    private final List<ServiceRegistration> registrations = new ArrayList<ServiceRegistration>();
 
     public static Activator getInstance() {
         return instance;
@@ -50,76 +55,113 @@ public class Activator extends HandlerActivator<Configuration> {
     }
 
     public Activator() {
-        super(ServiceConstants.PROTOCOLS_SUPPORTED, ServiceConstants.PID, new FabConnectionFactory());
         instance = this;
     }
 
     @Override
     public void start(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
-        this.configAdmin = new ConfigAdmin();
-        this.configAdmin.open();
 
-        File data = new File(System.getProperty("karaf.data", "."));
-        registry.setDirectory(new File(data, "fab-module-registry"));
-        registry.setConfigurationAdmin(new ConfigAdmin());
-        registry.setPid("io.fabric8.fab.osgi.registry");
-        registry.load();
+        configAdminTracker = new ServiceTracker<ConfigurationAdmin, ConfigurationAdmin>(
+                bundleContext,
+                ConfigurationAdmin.class,
+                null) {
+            @Override
+            public ConfigurationAdmin addingService(ServiceReference<ConfigurationAdmin> reference) {
+                ConfigurationAdmin ca = super.addingService(reference);
+                bindConfigAdmin(ca);
+                return ca;
+            }
 
-        super.start(bundleContext);
+            @Override
+            public void removedService(ServiceReference<ConfigurationAdmin> reference, ConfigurationAdmin service) {
+                unbindConfigAdmin();
+                super.removedService(reference, service);
+            }
+        };
+        configAdminTracker.open();
     }
 
     @Override
-    public void stop(BundleContext bundleContext) {
-        this.configAdmin.close();
-        super.stop(bundleContext);
+    public void stop(BundleContext bundleContext) throws Exception {
+        configAdminTracker.close();
+    }
+
+    protected void bindConfigAdmin(ConfigurationAdmin configAdmin) {
+        File data = new File(System.getProperty("karaf.data", "."));
+        OsgiModuleRegistry registry = new OsgiModuleRegistry();
+        registry.setDirectory(new File(data, "fab-module-registry"));
+        registry.setConfigurationAdmin(configAdmin);
+        registry.setPid("io.fabric8.fab.osgi.registry");
+        registry.load();
+
+        // Create and register the FabResolverFactory
+        final FabResolverFactoryImpl factory = new FabResolverFactoryImpl();
+        factory.setRegistry(registry);
+        factory.setBundleContext(bundleContext);
+        factory.setConfigurationAdmin(configAdmin);
+        registerFabResolverFactory(factory);
+
+        // track FeaturesService for use by factory
+        ServiceTracker<FeaturesService, FeaturesService> featuresServiceTracker = new ServiceTracker<FeaturesService, FeaturesService>(
+                bundleContext,
+                FeaturesService.class,
+                null) {
+            @Override
+            public FeaturesService addingService(ServiceReference<FeaturesService> reference) {
+                FeaturesService fs = super.addingService(reference);
+                factory.setFeaturesService(fs);
+                return fs;
+            }
+
+            @Override
+            public void removedService(ServiceReference<FeaturesService> reference, FeaturesService service) {
+                factory.setFeaturesService(null);
+                super.removedService(reference, service);
+            }
+        };
+        featuresServiceTracker.open();
+
+        // Create and register the fab: URL handler
+        FabURLHandler handler = new FabURLHandler();
+        handler.setFabResolverFactory(factory);
+        handler.setServiceProvider(factory);
+        registerURLHandler(handler);
+    }
+
+    protected void unbindConfigAdmin() {
+        for (ServiceRegistration registration : registrations) {
+            if (registration != null) {
+                registration.unregister();
+            }
+        }
+        registrations.clear();
+    }
+
+    /*
+     * Register the URL handler
+     */
+    private void registerURLHandler(FabURLHandler handler) {
+        if (bundleContext != null && handler != null) {
+            Hashtable props = new Hashtable();
+            props.put("url.handler.protocol", ServiceConstants.PROTOCOL_FAB);
+            ServiceRegistration registration = bundleContext.registerService(URLStreamHandlerService.class, handler, props);
+            registrations.add(registration);
+        }
+    }
+
+    /*
+     * Register the {@link FabResolverFactory}
+     */
+    private void registerFabResolverFactory(FabResolverFactoryImpl factory) {
+        if (bundleContext != null && factory != null) {
+            ServiceRegistration registration = bundleContext.registerService(FabResolverFactory.class, factory, null);
+            registrations.add(registration);
+        }
     }
 
     public BundleContext getBundleContext() {
         return bundleContext;
     }
 
-    public class ConfigAdmin extends ServiceTracker<ConfigurationAdmin, ConfigurationAdmin> implements ConfigurationAdmin {
-
-        public ConfigAdmin() {
-            super(bundleContext, ConfigurationAdmin.class, null);
-        }
-
-        private ConfigurationAdmin getConfigAdmin() throws IOException {
-            try {
-                ConfigurationAdmin ca = waitForService(5000l);
-                if (ca != null) {
-                    return ca;
-                }
-                throw new IllegalStateException("ConfigurationAdmin not present");
-            } catch (InterruptedException e) {
-                throw (InterruptedIOException) new InterruptedIOException("ConfigurationAdmin not present").initCause(e);
-            }
-        }
-
-        @Override
-        public org.osgi.service.cm.Configuration createFactoryConfiguration(String factoryPid) throws IOException {
-            return getConfigAdmin().createFactoryConfiguration(factoryPid);
-        }
-
-        @Override
-        public org.osgi.service.cm.Configuration createFactoryConfiguration(String factoryPid, String location) throws IOException {
-            return getConfigAdmin().createFactoryConfiguration(factoryPid, location);
-        }
-
-        @Override
-        public org.osgi.service.cm.Configuration getConfiguration(String pid, String location) throws IOException {
-            return getConfigAdmin().getConfiguration(pid, location);
-        }
-
-        @Override
-        public org.osgi.service.cm.Configuration getConfiguration(String pid) throws IOException {
-            return getConfigAdmin().getConfiguration(pid);
-        }
-
-        @Override
-        public org.osgi.service.cm.Configuration[] listConfigurations(String filter) throws IOException, InvalidSyntaxException {
-            return getConfigAdmin().listConfigurations(filter);
-        }
-    }
 }
