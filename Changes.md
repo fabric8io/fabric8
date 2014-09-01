@@ -1,4 +1,5 @@
-### In Progress: 1.2.0.Beta1
+
+### 1.2.0.Beta2
 
 * Upgrade to [Apache Karaf](http://karaf.apache.org/) 2.4.x build so that we get full Role Based Access Control (RBAC) support on all MBeans, OSGi services and CLI commands (hence the upgrade to 1.2.x as the change to RBAC was bigger than a minor fix to 1.1.x)
 * Container names must be lower case only
