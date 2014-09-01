@@ -29,6 +29,7 @@
     * [Gateway](gateway.md)
     * [Auto Scaling](requirements.md)
     * [Rolling Upgrade](rollingUpgrade.md)
+    * [OSGi Resolver](osgiResolver.md)
     * [Offline Repository](offlineRepo.md)
     * [Partition](partition.md)
     * [Process Manager](processManager.md)
