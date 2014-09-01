@@ -504,7 +504,10 @@ public class DeploymentBuilder {
             throw new IllegalArgumentException("Resource " + uri + " does not contain a manifest");
         }
         Attributes attributes = man.getMainAttributes();
+        return overrideAttributes(attributes, metadata);
+    }
 
+    public static Attributes overrideAttributes(Attributes attributes, Map<String, Map<VersionRange, Map<String, String>>> metadata) {
         String bsn = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
         if (bsn != null && bsn.indexOf(';') > 0) {
             bsn = bsn.substring(0, bsn.indexOf(';'));
@@ -517,10 +520,14 @@ public class DeploymentBuilder {
                 if (entry2.getKey().contains(ver)) {
                     for (Map.Entry<String, String> entry3 : entry2.getValue().entrySet()) {
                         String val = attributes.getValue(entry3.getKey());
-                        if (val != null) {
-                            val += "," + entry3.getValue();
+                        if (entry3.getValue().startsWith("=")) {
+                            val = entry3.getValue().substring(1);
                         } else {
-                            val = entry3.getValue();
+                            if (val != null) {
+                                val += "," + entry3.getValue();
+                            } else {
+                                val = entry3.getValue();
+                            }
                         }
                         attributes.putValue(entry3.getKey(), val);
                     }
