@@ -1,10 +1,31 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package io.fabric8.maven;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -25,6 +46,7 @@ import java.util.TreeSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.jar.Attributes;
 import java.util.regex.Pattern;
 
 import io.fabric8.agent.DeploymentAgent;
@@ -36,10 +58,17 @@ import io.fabric8.agent.mvn.MavenSettingsImpl;
 import io.fabric8.agent.repository.HttpMetadataProvider;
 import io.fabric8.agent.repository.MetadataRepository;
 import io.fabric8.agent.resolver.ResourceBuilder;
+import io.fabric8.api.data.BundleInfo;
 import io.fabric8.common.util.MultiException;
 import io.fabric8.fab.osgi.internal.FabResolverFactoryImpl;
+import org.apache.felix.utils.version.VersionRange;
+import org.apache.karaf.deployer.blueprint.BlueprintTransformer;
+import org.apache.karaf.deployer.blueprint.BlueprintURLHandler;
+import org.apache.karaf.features.Conditional;
+import org.apache.karaf.features.ConfigFileInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
+import org.apache.karaf.features.internal.FeatureImpl;
 import org.apache.karaf.features.internal.FeaturesServiceImpl;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -92,10 +121,18 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        try {
+            Field field = URL.class.getDeclaredField("factory");
+            field.setAccessible(true);
+            field.set(null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         URL.setURLStreamHandlerFactory(new CustomBundleURLStreamHandlerFactory());
 
         System.setProperty("karaf.home", "target/karaf");
         System.setProperty("karaf.data", "target/karaf/data");
+
 
         ExecutorService executor = Executors.newFixedThreadPool(8);
 
@@ -125,7 +162,28 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
             manager = new DownloadManager(config, executor);
             repositories = loadRepositories(manager, descriptors);
             for (String repoUri : repositories.keySet()) {
-                allFeatures.put(repoUri, repositories.get(repoUri).getFeatures());
+                Feature[] features = repositories.get(repoUri).getFeatures();
+                // Ack features to inline configuration files urls
+                for (Feature feature : features) {
+                    for (org.apache.karaf.features.BundleInfo bi : feature.getBundles()) {
+                        String loc = bi.getLocation();
+                        String nloc = null;
+                        if (loc.contains("file:")) {
+                            for (ConfigFileInfo cfi : feature.getConfigurationFiles()) {
+                                if (cfi.getFinalname().substring(1)
+                                        .equals(loc.substring(loc.indexOf("file:") + "file:".length()))) {
+                                    nloc = cfi.getLocation();
+                                }
+                            }
+                        }
+                        if (nloc != null) {
+                            Field field = bi.getClass().getDeclaredField("location");
+                            field.setAccessible(true);
+                            field.set(bi, loc.substring(0, loc.indexOf("file:")) + nloc);
+                        }
+                    }
+                }
+                allFeatures.put(repoUri, features);
             }
         } catch (Exception e) {
             throw new MojoExecutionException("Unable to load features descriptors", e);
@@ -211,7 +269,7 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
                 builder.addResourceRepository(new MetadataRepository(new HttpMetadataProvider(uri)));
             }
 
-            Resource systemBundle = getSystemBundleResource();
+            Resource systemBundle = getSystemBundleResource(getMetadata(properties, "metadata#"));
 
             try {
                 Collection<Resource> resources = builder.resolve(systemBundle, resolveOptionalImports);
@@ -241,7 +299,7 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
         return sb.toString();
     }
 
-    private Resource getSystemBundleResource() throws Exception {
+    private Resource getSystemBundleResource(Map<String, Map<VersionRange, Map<String, String>>> metadata) throws Exception {
         Artifact karafDistro = pluginDescriptor.getArtifactMap().get(distribution);
         String dir = distDir;
         if (dir == null) {
@@ -256,20 +314,27 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
             configProps.put("java.specification.version", javase);
         }
         configProps.substitute();
-        Map<String, String> headers = new HashMap<>();
-        headers.put(Constants.BUNDLE_MANIFESTVERSION, "2");
-        headers.put(Constants.BUNDLE_SYMBOLICNAME, "system-bundle");
-        headers.put(Constants.BUNDLE_VERSION, "0.0.0");
+
+        Attributes attributes = new Attributes();
+        attributes.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
+        attributes.putValue(Constants.BUNDLE_SYMBOLICNAME, "system-bundle");
+        attributes.putValue(Constants.BUNDLE_VERSION, "0.0.0");
 
         String exportPackages = configProps.getProperty("org.osgi.framework.system.packages");
         if (configProps.containsKey("org.osgi.framework.system.packages.extra")) {
             exportPackages += "," + configProps.getProperty("org.osgi.framework.system.packages.extra");
         }
-        headers.put(Constants.EXPORT_PACKAGE, exportPackages);
+        attributes.putValue(Constants.EXPORT_PACKAGE, exportPackages);
 
         String systemCaps = configProps.getProperty("org.osgi.framework.system.capabilities");
-        headers.put(Constants.PROVIDE_CAPABILITY, systemCaps);
+        attributes.putValue(Constants.PROVIDE_CAPABILITY, systemCaps);
 
+        attributes = DeploymentBuilder.overrideAttributes(attributes, metadata);
+
+        Map<String, String> headers = new HashMap<String, String>();
+        for (Map.Entry attr : attributes.entrySet()) {
+            headers.put(attr.getKey().toString(), attr.getValue().toString());
+        }
         Resource resource = ResourceBuilder.build("system-bundle", headers);
 
         return resource;
@@ -286,9 +351,10 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
                             @Override
                             public void connect() throws IOException {
                             }
+
                             @Override
                             public InputStream getInputStream() throws IOException {
-                                WrapUrlParser parser = new WrapUrlParser( url.getPath() );
+                                WrapUrlParser parser = new WrapUrlParser(url.getPath());
                                 return org.ops4j.pax.swissbox.bnd.BndUtils.createBundle(
                                         parser.getWrappedJarURL().openStream(),
                                         parser.getWrappingProperties(),
@@ -299,6 +365,31 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
                         };
                     }
                 };
+            } else if (protocol.equals("blueprint")) {
+                return new URLStreamHandler() {
+                    @Override
+                    protected URLConnection openConnection(URL url) throws IOException {
+                        return new URLConnection(url) {
+                            @Override
+                            public void connect() throws IOException {
+                            }
+
+                            @Override
+                            public InputStream getInputStream() throws IOException {
+                                try {
+                                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                                    BlueprintTransformer.transform(new URL(url.getPath()), os);
+                                    os.close();
+                                    return new ByteArrayInputStream(os.toByteArray());
+                                } catch (Exception e) {
+                                    throw (IOException) new IOException("Error opening blueprint xml url").initCause(e);
+                                }
+                            }
+                        };
+                    }
+                };
+            } else if (protocol.equals("war")) {
+                return new org.ops4j.pax.url.war.Handler();
             } else {
                 return null;
             }
