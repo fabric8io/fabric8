@@ -49,19 +49,6 @@
         </license>
     </licenses>
 
-    <distributionManagement>
-      <repository>
-        <id>oss-sonatype-staging</id>
-        <name>Sonatype Staging Repository</name>
-        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-      </repository>
-      <snapshotRepository>
-        <id>oss-sonatype-snapshots</id>
-        <name>OSS Sonatype Nexus Snapshots</name>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      </snapshotRepository>
-    </distributionManagement>
-
     <!-- including A developer as it's required by the maven poms going into central -->
     <developers>
         <developer>
@@ -351,6 +338,21 @@
         <!-- Disable OBR repository update by default -->
         <obrRepository>NONE</obrRepository>
     </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>jboss-releases-repository</id>
+            <name>JBoss Releases Repository</name>
+            <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2</url>
+        </repository>
+        <!--
+              <snapshotRepository>
+                  <id>jboss-snapshots-repository</id>
+                  <name>JBoss Snapshots Repository</name>
+                  <url>https://repository.jboss.org/nexus/content/repositories/snapshots</url>
+              </snapshotRepository>
+        -->
+    </distributionManagement>
 
     <repositories>
         <repository>
