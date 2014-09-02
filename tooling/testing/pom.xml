@@ -22,7 +22,7 @@
     <parent>
         <artifactId>tooling</artifactId>
         <groupId>io.fabric8</groupId>
-        <version>1.1.0.redhat-013</version>
+        <version>1.1.0.redhat-019</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
