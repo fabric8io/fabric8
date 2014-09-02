@@ -13,9 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.gateway.handlers.http;
+package io.fabric8.gateway.api.handlers.http;
 
-import io.fabric8.gateway.CallDetailRecord;
+import io.fabric8.gateway.api.CallDetailRecord;
+import io.fabric8.gateway.api.apimanager.ApiManagerService;
+import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
+import io.fabric8.gateway.api.handlers.http.IMappedServices;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -41,7 +44,7 @@ public interface HttpGateway {
     /**
      * Returns the currently mapped services indexed by URI prefix on this HTTP gateway
      */
-    Map<String, MappedServices> getMappedServices();
+    Map<String, IMappedServices> getMappedServices();
 
     /**
      * Returns true if the mapping index is enabled which by default
@@ -53,6 +56,17 @@ public interface HttpGateway {
      * Returns address the gateway service is listening on.
      */
     public InetSocketAddress getLocalAddress();
+    
+    /**
+     * Set the 3rd Party API Manager to be used with this gateway.
+     * @param apiManager - contains a reference to the 3rd Party API Manager Engine
+     */
+    public void setApiManagerService(ApiManagerService apiManagerService);
+    
+    /**
+     * Returns a handle to the 3d party API Manager to be used with this gateway.
+     */
+    public ApiManagerService getApiManagerService();
     
     /**
      * Adds a CallDetailRecord for reporting purposes

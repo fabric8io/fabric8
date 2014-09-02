@@ -31,7 +31,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.management.MBeanServer;
 
-import io.fabric8.gateway.CallDetailRecord;
+import io.fabric8.gateway.api.CallDetailRecord;
+import io.fabric8.gateway.api.apimanager.ApiManagerService;
+import io.fabric8.gateway.api.handlers.http.HttpGateway;
+import io.fabric8.gateway.api.handlers.http.HttpGatewayHandler;
+import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
+import io.fabric8.gateway.api.handlers.http.HttpServiceResponseHandler;
+import io.fabric8.gateway.api.handlers.http.IMappedServices;
 import io.fabric8.gateway.fabric.detecting.FabricDetectingGatewayService;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -48,13 +54,13 @@ import org.apache.felix.scr.annotations.Service;
 
 import io.fabric8.gateway.fabric.support.vertx.VertxService;
 import io.fabric8.gateway.handlers.detecting.DetectingGatewayWebSocketHandler;
-import io.fabric8.gateway.handlers.http.HttpGateway;
-import io.fabric8.gateway.handlers.http.HttpGatewayHandler;
 import io.fabric8.gateway.handlers.http.HttpGatewayServer;
-import io.fabric8.gateway.handlers.http.HttpMappingRule;
-import io.fabric8.gateway.handlers.http.MappedServices;
 
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
+import org.vertx.java.core.http.HttpClient;
+import org.vertx.java.core.http.HttpClientResponse;
+import org.vertx.java.core.http.HttpServerRequest;
 
 /**
  * An HTTP gateway which listens on a port and applies a number of {@link HttpMappingRuleConfiguration} instances to bind
@@ -74,6 +80,9 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
 
     @Property(name = "enableIndex", boolValue = true, label = "Enable index page", description = "If enabled then performing a HTTP GET on the path '/' will return a JSON representation of the gateway mappings")
     private boolean enableIndex = true;
+    
+    @Property(name = "enableApiMan", boolValue = true, label = "Enable ApiMan", description = "If enabled then requests will flow through APIMan")
+    private boolean enableApiMan = false;
 
     @Property(name = "enableWebSocketGateway", boolValue = true, label = "Enable the Web Socket Gateway", description = "If enabled then Web Socket connections will be handled by protocol detecting gateway")
     private boolean enableWebSocketGateway = true;
@@ -95,8 +104,11 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
     
+    /** Reference to API Manager used **/
+    private ApiManagerService apiManagerService;
+    
     private HttpGatewayServer server;
-    private HttpGatewayHandler handler;
+    private Handler<HttpServerRequest> handler;
     private DetectingGatewayWebSocketHandler websocketHandler = new DetectingGatewayWebSocketHandler();
 
     private Set<HttpMappingRule> mappingRuleConfigurations = new CopyOnWriteArraySet<HttpMappingRule>();
@@ -128,7 +140,7 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
         configurer.configure(configuration, this);
 
         Vertx vertx = getVertx();
-        handler = new HttpGatewayHandler(vertx, this);
+        handler = getApiManagerService().createHttpGatewayHandler(vertx, this);
         websocketHandler.setPathPrefix(websocketGatewayPrefix);
         server = new HttpGatewayServer(vertx, handler, enableWebSocketGateway ? websocketHandler : null, port);
         server.init();
@@ -145,7 +157,7 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
     	fabricHTTPGatewayInfoMBean.setLastCallDate(cdr.getCallDate().toString());
     	fabricHTTPGatewayInfoMBean.registerCall(cdr.getCallTimeNanos());
     	if (cdr.getError()!=null) {
-    		fabricHTTPGatewayInfoMBean.setLastError(cdr.getError());
+    		fabricHTTPGatewayInfoMBean.setLastError(cdr.getCallDate().toString() + " " + cdr.getError());
     	}
     }
 
@@ -162,9 +174,9 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
     }
 
     @Override
-    public Map<String, MappedServices> getMappedServices() {
+    public Map<String, IMappedServices> getMappedServices() {
         assertValid();
-        Map<String, MappedServices> answer = new HashMap<String, MappedServices>();
+        Map<String, IMappedServices> answer = new HashMap<String, IMappedServices>();
         for (HttpMappingRule mappingRuleConfiguration : mappingRuleConfigurations) {
             mappingRuleConfiguration.appendMappedServices(answer);
         }
@@ -261,5 +273,23 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
     private void unregisterHttpGatewayMBeans() {
         fabricHTTPGatewayInfoMBean.unregisterMBeanServer(mbeanServer.get());
     }
+
+    /**
+     * @see HttpGateway#setApiManager(ApiManagerService apiManager)
+     */
+	@Override
+	public void setApiManagerService(ApiManagerService apiManagerService) {
+		this.apiManagerService = apiManagerService;
+	}
+
+	/**
+	 * @see HttpGateway#getApiManager()
+	 */
+	@Override
+	public ApiManagerService getApiManagerService() {
+		return apiManagerService;
+	}
+
+
 
 }

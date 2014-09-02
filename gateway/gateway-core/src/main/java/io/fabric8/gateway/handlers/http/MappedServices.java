@@ -15,9 +15,12 @@
  */
 package io.fabric8.gateway.handlers.http;
 
-import io.fabric8.gateway.ServiceDetails;
+import io.fabric8.gateway.api.ServiceDetails;
+import io.fabric8.gateway.api.handlers.http.IMappedServices;
+import io.fabric8.gateway.api.handlers.http.ProxyMappingDetails;
 import io.fabric8.gateway.handlers.http.policy.ReverseUriPolicy;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
+
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpClientResponse;
 import org.vertx.java.core.http.HttpServerRequest;
@@ -29,7 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Represents the mapped services and the relevant mapping information so that a service implementation can be
  * chosen using a load balancer together with wrapping the client in whatever policies are required.
  */
-public class MappedServices {
+public class MappedServices implements IMappedServices {
     private final ServiceDetails serviceDetails;
     private final LoadBalancer loadBalancer;
     private final boolean reverseHeaders;
@@ -49,52 +52,74 @@ public class MappedServices {
                 '}';
     }
 
-    /**
-     * Chooses a request to use
-     */
-    public String chooseService(HttpServerRequest request) {
+    /* (non-Javadoc)
+	 * @see io.fabric8.gateway.handlers.http.IMappedServices#chooseService(org.vertx.java.core.http.HttpServerRequest)
+	 */
+    @Override
+	public String chooseService(HttpServerRequest request) {
         return loadBalancer.choose(serviceUrls, new HttpClientRequestFacade(request));
     }
 
-    /**
-     * Provides a hook so we can wrap a client response handler in a policy such
-     * as to reverse the URIs {@link io.fabric8.gateway.handlers.http.policy.ReverseUriPolicy} or
-     * add metering, limits, security or contract checks etc.
-     */
-    public Handler<HttpClientResponse> wrapResponseHandlerInPolicies(HttpServerRequest request, Handler<HttpClientResponse> responseHandler, ProxyMappingDetails proxyMappingDetails) {
+    /* (non-Javadoc)
+	 * @see io.fabric8.gateway.handlers.http.IMappedServices#wrapResponseHandlerInPolicies(org.vertx.java.core.http.HttpServerRequest, org.vertx.java.core.Handler, io.fabric8.gateway.handlers.http.ProxyMappingDetails)
+	 */
+    @Override
+	public Handler<HttpClientResponse> wrapResponseHandlerInPolicies(HttpServerRequest request, Handler<HttpClientResponse> responseHandler, ProxyMappingDetails proxyMappingDetails) {
         if (reverseHeaders) {
             responseHandler = new ReverseUriPolicy(this, request, responseHandler, proxyMappingDetails);
         }
         return responseHandler;
     }
 
-    /**
-     * Rewrites the URI response from a request to a URI in the gateway namespace
-     */
-    public String rewriteUrl(String proxiedUrl) {
+    /* (non-Javadoc)
+	 * @see io.fabric8.gateway.handlers.http.IMappedServices#rewriteUrl(java.lang.String)
+	 */
+    @Override
+	public String rewriteUrl(String proxiedUrl) {
         return proxiedUrl;
     }
-    public String getContainer() {
+    /* (non-Javadoc)
+	 * @see io.fabric8.gateway.handlers.http.IMappedServices#getContainer()
+	 */
+    @Override
+	public String getContainer() {
         return serviceDetails.getContainer();
     }
 
-    public String getVersion() {
+    /* (non-Javadoc)
+	 * @see io.fabric8.gateway.handlers.http.IMappedServices#getVersion()
+	 */
+    @Override
+	public String getVersion() {
         return serviceDetails.getVersion();
     }
 
-    public String getId() {
+    /* (non-Javadoc)
+	 * @see io.fabric8.gateway.handlers.http.IMappedServices#getId()
+	 */
+    @Override
+	public String getId() {
         return serviceDetails.getId();
     }
 
-    public boolean isReverseHeaders() {
+    /* (non-Javadoc)
+	 * @see io.fabric8.gateway.handlers.http.IMappedServices#isReverseHeaders()
+	 */
+    @Override
+	public boolean isReverseHeaders() {
         return reverseHeaders;
     }
 
-    public ServiceDetails getServiceDetails() {
+    @Override
+	public ServiceDetails getServiceDetails() {
         return serviceDetails;
     }
 
-    public List<String> getServiceUrls() {
+    /* (non-Javadoc)
+	 * @see io.fabric8.gateway.handlers.http.IMappedServices#getServiceUrls()
+	 */
+    @Override
+	public List<String> getServiceUrls() {
         return serviceUrls;
     }
 }

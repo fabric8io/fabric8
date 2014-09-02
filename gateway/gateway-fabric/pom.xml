@@ -78,6 +78,11 @@
           <artifactId>fabric-api</artifactId>
           <version>${project.version}</version>
         </dependency>
+         <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>gateway-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>

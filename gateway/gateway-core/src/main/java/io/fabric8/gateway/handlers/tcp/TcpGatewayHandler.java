@@ -17,9 +17,10 @@ package io.fabric8.gateway.handlers.tcp;
 
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
-import io.fabric8.gateway.ServiceDetails;
+import io.fabric8.gateway.api.ServiceDetails;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.ServiceMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.AsyncResult;
