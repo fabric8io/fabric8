@@ -44,11 +44,11 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.common.util.Closeables;
 import io.fabric8.common.util.Strings;
+import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
+import io.fabric8.gateway.api.handlers.http.IMappedServices;
 import io.fabric8.gateway.fabric.haproxy.model.BackEndServer;
 import io.fabric8.gateway.fabric.haproxy.model.FrontEnd;
 import io.fabric8.gateway.fabric.haproxy.model.OnValue;
-import io.fabric8.gateway.handlers.http.HttpMappingRule;
-import io.fabric8.gateway.handlers.http.MappedServices;
 import io.fabric8.internal.Objects;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -126,8 +126,6 @@ public class FabricHaproxyGateway extends AbstractComponent {
         outFile.getParentFile().mkdirs();
         PrintWriter writer = new PrintWriter(new FileWriter(outFile));
         try {
-            Map<String, MappedServices> mappedServices = getMappedServices();
-
             CompiledTemplate compiledTemplate = getTemplate();
             Map<String, ?> data = createTemplateData();
 
@@ -225,10 +223,10 @@ public class FabricHaproxyGateway extends AbstractComponent {
     protected Map<String, ?> createTemplateData() {
         Map<String, List<FrontEnd>> answer = new HashMap<String, List<FrontEnd>>();
         List<FrontEnd> frontEnds = new ArrayList<FrontEnd>();
-        Set<Map.Entry<String, MappedServices>> entries = getMappedServices().entrySet();
-        for (Map.Entry<String, MappedServices> entry : entries) {
+        Set<Map.Entry<String, IMappedServices>> entries = getMappedServices().entrySet();
+        for (Map.Entry<String, IMappedServices> entry : entries) {
             String uri = entry.getKey();
-            MappedServices services = entry.getValue();
+            IMappedServices services = entry.getValue();
             String id = "b" + uri.replace('/', '_').replace('-', '_');
             while (id.endsWith("_")) {
                 id = id.substring(0, id.length() - 1);
@@ -314,8 +312,8 @@ public class FabricHaproxyGateway extends AbstractComponent {
         mappingRuleConfigurations.remove(mappingRuleConfiguration);
     }
 
-    public Map<String, MappedServices> getMappedServices() {
-        Map<String, MappedServices> answer = new HashMap<String, MappedServices>();
+    public Map<String, IMappedServices> getMappedServices() {
+        Map<String, IMappedServices> answer = new HashMap<String, IMappedServices>();
         for (HttpMappingRule mappingRuleConfiguration : mappingRuleConfigurations) {
             mappingRuleConfiguration.appendMappedServices(answer);
         }

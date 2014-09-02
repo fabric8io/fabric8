@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.gateway.handlers.http;
+package io.fabric8.gateway.api.handlers.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -29,36 +29,32 @@ import org.vertx.java.core.http.HttpClientResponse;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpServerResponse;
 
-import io.fabric8.gateway.CallDetailRecord;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
  */
-public class HttpGatewayHandler implements Handler<HttpServerRequest> {
-    private static final transient Logger LOG = LoggerFactory.getLogger(HttpGatewayHandler.class);
+public class HttpGatewayClient {
+    private static final transient Logger LOG = LoggerFactory.getLogger(HttpGatewayClient.class);
 
     private final Vertx vertx;
     private final HttpGateway httpGateway;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public HttpGatewayHandler(Vertx vertx, HttpGateway httpGateway) {
+    public HttpGatewayClient(Vertx vertx, HttpGateway httpGateway) {
         this.vertx = vertx;
         this.httpGateway = httpGateway;
     }
 
-    @Override
-    public void handle(final HttpServerRequest request) {
-    	long callStart = System.nanoTime();
+	public void execute(final HttpServerRequest request, final Object apiManagerResponseHandler) {
+    	
         String uri = request.uri();
         String uri2 = null;
         if (!uri.endsWith("/")) {
@@ -75,20 +71,20 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
         String prefix = null;
         String proxyServiceUrl = null;
         String reverseServiceUrl = null;
-        Map<String, MappedServices> mappingRules = httpGateway.getMappedServices();
+        Map<String, IMappedServices> mappingRules = httpGateway.getMappedServices();
         try {
             if (isMappingIndexRequest(request)) {
                 // lets return the JSON of all the results
                 String json = mappingRulesToJson(mappingRules);
-                HttpServerResponse response = request.response();
-                response.headers().set("ContentType", "application/json");
-                response.end(json);
-                response.setStatusCode(200);
+                HttpServerResponse httpServerResponse = request.response();
+                httpServerResponse.headers().set("ContentType", "application/json");
+                httpServerResponse.setStatusCode(200);
+                httpServerResponse.end(json);
             } else {
-                MappedServices mappedServices = null;
+                IMappedServices mappedServices = null;
                 URL clientURL = null;
-                Set<Map.Entry<String, MappedServices>> entries = mappingRules.entrySet();
-                for (Map.Entry<String, MappedServices> entry : entries) {
+                Set<Map.Entry<String, IMappedServices>> entries = mappingRules.entrySet();
+                for (Map.Entry<String, IMappedServices> entry : entries) {
                     String path = entry.getKey();
                     mappedServices = entry.getValue();
 
@@ -133,35 +129,15 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
 
                     LOG.info("Proxying request " + uri + " to service path: " + servicePath + " on service: " + proxyServiceUrl + " reverseServiceUrl: " + reverseServiceUrl);
                     final HttpClient finalClient = client;
-                    Handler<HttpClientResponse> responseHandler = new Handler<HttpClientResponse>() {
-                        public void handle(HttpClientResponse clientResponse) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Proxying response: " + clientResponse.statusCode());
-                            }
-                            request.response().setStatusCode(clientResponse.statusCode());
-                            request.response().headers().set(clientResponse.headers());
-                            request.response().setChunked(true);
-                            clientResponse.dataHandler(new Handler<Buffer>() {
-                                public void handle(Buffer data) {
-                                    if (LOG.isDebugEnabled()) {
-                                        LOG.debug("Proxying response body:" + data);
-                                    }
-                                    request.response().write(data);
-                                }
-                            });
-                            clientResponse.endHandler(new VoidHandler() {
-                                public void handle() {
-                                    request.response().end();
-                                    finalClient.close();
-                                }
-                            });
-                        }
-                    };
+                    
+                    Handler<HttpClientResponse> serviceResponseHandler = httpGateway.getApiManagerService().createServiceResponseHandler(finalClient, request, apiManagerResponseHandler);
+                    
                     if (mappedServices != null) {
                         ProxyMappingDetails proxyMappingDetails = new ProxyMappingDetails(proxyServiceUrl, reverseServiceUrl, servicePath);
-                        responseHandler = mappedServices.wrapResponseHandlerInPolicies(request, responseHandler, proxyMappingDetails);
+                        serviceResponseHandler = mappedServices.wrapResponseHandlerInPolicies(request, serviceResponseHandler, proxyMappingDetails);
                     }
-                    final HttpClientRequest clientRequest = client.request(request.method(), servicePath, responseHandler);
+                    
+                    final HttpClientRequest clientRequest = client.request(request.method(), servicePath, serviceResponseHandler);
                     clientRequest.headers().set(request.headers());
                     clientRequest.setChunked(true);
                     request.dataHandler(new Handler<Buffer>() {
@@ -184,16 +160,14 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                 } else {
                     //  lets return a 404
                     LOG.info("Could not find matching proxy path for " + uri + " from paths: " + mappingRules.keySet());
-                    request.response().setStatusCode(404);
-                    request.response().close();
+                    HttpServerResponse httpServerResponse = request.response();
+                    httpServerResponse.setStatusCode(404);
+                    httpServerResponse.setStatusMessage("Could not find matching proxy path for " + uri + " from paths: " + mappingRules.keySet());
+                    httpServerResponse.end();
                 }
             }
-            CallDetailRecord cdr = new CallDetailRecord(System.nanoTime() - callStart, null);
-            httpGateway.addCallDetailRecord(cdr);
         } catch (Throwable e) {
             LOG.error("Caught: " + e, e);
-            CallDetailRecord cdr = new CallDetailRecord(System.nanoTime() - callStart, new Date() + ":" + e.getMessage());
-            httpGateway.addCallDetailRecord(cdr);
             request.response().setStatusCode(404);
             StringWriter buffer = new StringWriter();
             e.printStackTrace(new PrintWriter(buffer));
@@ -202,13 +176,13 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
         }
     }
 
-    protected String mappingRulesToJson(Map<String, MappedServices> rules) throws IOException {
+    protected String mappingRulesToJson(Map<String, IMappedServices> rules) throws IOException {
         Map<String, Collection<String>> data = new HashMap<String, Collection<String>>();
 
-        Set<Map.Entry<String, MappedServices>> entries = rules.entrySet();
-        for (Map.Entry<String, MappedServices> entry : entries) {
+        Set<Map.Entry<String, IMappedServices>> entries = rules.entrySet();
+        for (Map.Entry<String, IMappedServices> entry : entries) {
             String key = entry.getKey();
-            MappedServices value = entry.getValue();
+            IMappedServices value = entry.getValue();
             Collection<String> serviceUrls = value.getServiceUrls();
             data.put(key, serviceUrls);
         }
@@ -220,7 +194,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
             return false;
         }
         String uri = request.uri();
-        return uri == null || uri.length() == 0 || uri.equals("/");
+        return uri == null || uri.length() == 0 || request.path().equals("/");
     }
 
     protected HttpClient createClient(URL url) throws MalformedURLException {

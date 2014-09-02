@@ -50,7 +50,7 @@ public class FabricHaproxyGatewayTest {
     protected FabricHaproxyGateway gateway = new FabricHaproxyGateway();
     protected HttpMappingRuleBase config;
     private String oldVersion = "1.0";
-    private String newVersion = "1.1";
+   private String newVersion = "1.1";
     private String enabledVersion = null;
     private LoadBalancer loadBalancer = new RoundRobinLoadBalancer();
     private boolean reverseHeaders = true;
