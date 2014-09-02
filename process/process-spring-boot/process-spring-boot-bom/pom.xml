@@ -70,10 +70,15 @@
 
   <distributionManagement>
     <repository>
-      <id>jboss-releases-repository</id>
-      <name>JBoss Releases Repository</name>
-      <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2</url>
+      <id>oss-sonatype-staging</id>
+      <name>Sonatype Staging Repository</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
     </repository>
+    <snapshotRepository>
+      <id>oss-sonatype-snapshots</id>
+      <name>OSS Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <dependencyManagement>
