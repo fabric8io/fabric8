@@ -27,7 +27,6 @@
     <version>1.1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>io.fabric8.quickstarts</groupId>
   <artifactId>java-camel-cdi</artifactId>
   <version>1.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
@@ -36,23 +35,8 @@
   <description>Shows how to use Camel and CDI and Java Container</description>
 
   <properties>
-    <!-- Explicitly declaring the source encoding eliminates the following
-               message: -->
-    <!-- [WARNING] Using platform encoding (UTF-8 actually) to copy filtered
-        resources, i.e. build is platform dependent! -->
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    <version.compiler.plugin>2.3.1</version.compiler.plugin>
-    <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
-
-    <!-- maven-compiler-plugin -->
-    <maven.compiler.target>1.7</maven.compiler.target>
-    <maven.compiler.source>1.7</maven.compiler.source>
-
     <!-- the version of the BOM, defining all the dependency versions -->
-    <fabric8.bom.version>1.1.0-SNAPSHOT</fabric8.bom.version>
     <fabric.version>1.1.0-SNAPSHOT</fabric.version>
-
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-java-camel.cdi</fabric8.profile>
   </properties>
@@ -66,18 +50,6 @@
     </license>
   </licenses>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>io.fabric8.bom</groupId>
-        <artifactId>fabric8-bom</artifactId>
-        <version>${fabric8.bom.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
 
     <dependency>
@@ -89,7 +61,6 @@
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-ejb_3.1_spec</artifactId>
-      <version>${geronimo-ejb-3-1-spec-version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -103,9 +74,7 @@
     <dependency>
       <groupId>org.jboss.weld.se</groupId>
       <artifactId>weld-se</artifactId>
-      <version>${weld2-version}</version>
     </dependency>
-
 
     <!-- logging -->
     <dependency>
@@ -115,22 +84,17 @@
 
     <!-- for testing -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.jboss.arquillian.junit</groupId>
       <artifactId>arquillian-junit-container</artifactId>
-      <version>${arquillian-junit-container-version}</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.jboss.shrinkwrap.resolver</groupId>
       <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
-      <version>2.0.0-alpha-4</version>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
 
   <repositories>
@@ -190,16 +154,6 @@
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>
-      <!-- Compiler plugin enforces Java 1.7 compatibility and activates annotation processors -->
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${version.compiler.plugin}</version>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-        </configuration>
-      </plugin>
-
       <plugin>
           <!--
             this plugin will use the fabric.* properties to configure its behaviour

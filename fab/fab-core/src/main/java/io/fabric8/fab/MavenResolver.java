@@ -19,10 +19,10 @@ import java.io.File;
 import java.io.IOException;
 
 import io.fabric8.common.util.Filter;
-import org.sonatype.aether.RepositoryException;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.RepositoryException;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 
 public interface MavenResolver {
 

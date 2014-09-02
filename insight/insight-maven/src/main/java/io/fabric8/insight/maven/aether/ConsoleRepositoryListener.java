@@ -17,8 +17,8 @@ package io.fabric8.insight.maven.aether;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.AbstractRepositoryListener;
-import org.sonatype.aether.RepositoryEvent;
+import org.eclipse.aether.AbstractRepositoryListener;
+import org.eclipse.aether.RepositoryEvent;
 
 public class ConsoleRepositoryListener extends AbstractRepositoryListener {
 

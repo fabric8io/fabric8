@@ -18,7 +18,7 @@ package io.fabric8.insight.maven.aether;
 import java.io.File;
 import java.util.List;
 
-import org.sonatype.aether.graph.DependencyNode;
+import org.eclipse.aether.graph.DependencyNode;
 
 public class AetherResult implements AetherJarOrPom {
 

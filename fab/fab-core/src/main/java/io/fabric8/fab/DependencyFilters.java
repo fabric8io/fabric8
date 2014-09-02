@@ -17,8 +17,8 @@ package io.fabric8.fab;
 
 import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Filters;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.graph.DependencyNode;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyNode;
 
 import java.util.ArrayList;
 import java.util.List;

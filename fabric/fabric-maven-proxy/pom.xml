@@ -54,13 +54,18 @@
             org.apache.commons.lang*,
             org.jsoup.*,
             org.apache.maven.*;-split-package:=merge-first,
-            org.sonatype.aether*,
+            org.eclipse.aether*,
             org.sonatype.plexus*,
             org.codehaus.plexus*
         </fuse.osgi.private.pkg>
     </properties>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>io.fabric8.fab</groupId>
+			<artifactId>fab-core</artifactId>
+        </dependency>
 
 		<dependency>
 			<groupId>io.fabric8</groupId>
@@ -122,25 +127,25 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-aether-provider</artifactId>
-			<version>${maven-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-settings-builder</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.maven.wagon</groupId>
 			<artifactId>wagon-file</artifactId>
-			<version>${wagon-version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-container-default</artifactId>
-			<version>1.5.5</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.maven.wagon</groupId>
 			<artifactId>wagon-http-lightweight</artifactId>
-			<version>${wagon-version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>nekohtml</groupId>
@@ -160,6 +165,11 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
+
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-connector-wagon</artifactId>
+        </dependency>
 
 		<!-- Test Dependencies -->
 		<dependency>

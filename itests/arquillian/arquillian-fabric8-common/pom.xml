@@ -34,18 +34,6 @@
   <properties>
   </properties>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.jboss.arquillian</groupId>
-        <artifactId>arquillian-bom</artifactId>
-        <version>${arquillian-core-version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
     <dependency>
       <groupId>io.fabric8.itests</groupId>
@@ -63,7 +51,6 @@
     <dependency>
       <groupId>org.jboss.arquillian.test</groupId>
       <artifactId>arquillian-test-impl-base</artifactId>
-      <version>${arquillian-core-version}</version>
     </dependency>
 
     <!-- Testing -->

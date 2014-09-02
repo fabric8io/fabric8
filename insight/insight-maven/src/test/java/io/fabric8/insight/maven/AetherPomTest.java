@@ -22,7 +22,7 @@ public class AetherPomTest extends TestSupport {
 
     @Test
     public void resolveCamelCore() throws Exception {
-        AetherPomResult result = aether.resolvePom("org.apache.camel", "camel-core", "2.12.0");
+        AetherPomResult result = aether.resolvePom("org.apache.mesos", "mesos", "0.19.1");
         System.out.println("got " + result.tree());
     }
 

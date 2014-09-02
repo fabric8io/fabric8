@@ -13,15 +13,19 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.insight.maven;
+package io.fabric8.fab;
 
-import org.junit.Test;
+import java.util.Comparator;
 
-public class AetherTest extends TestSupport {
+import org.eclipse.aether.graph.DependencyNode;
 
-    @Test
-    public void resolveCamelCore() throws Exception {
-        aether.resolve("org.apache.mesos", "mesos", "0.19.1");
+public class DependencyNodeComparator implements Comparator<DependencyNode> {
+    public static Comparator<DependencyNode> INSTANCE = new DependencyNodeComparator();
+
+    @Override
+    public int compare(DependencyNode o1, DependencyNode o2) {
+        DependencyId id1 = DependencyId.newInstance(o1);
+        DependencyId id2 = DependencyId.newInstance(o2);
+        return id1.compareTo(id2);
     }
-
 }

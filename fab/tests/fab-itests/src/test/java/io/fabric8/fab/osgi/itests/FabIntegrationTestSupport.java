@@ -31,7 +31,10 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.url.URLStreamHandlerService;
 import org.osgi.util.tracker.ServiceTracker;
 
-import static org.ops4j.pax.exam.CoreOptions.*;
+import static org.ops4j.pax.exam.CoreOptions.bootDelegationPackage;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
 @RunWith(PaxExam.class)
 public abstract class FabIntegrationTestSupport {
@@ -120,6 +123,16 @@ public abstract class FabIntegrationTestSupport {
             mavenBundle("org.ops4j.base", "ops4j-base-util-property").versionAsInProject(),
             mavenBundle("org.ops4j.pax.swissbox", "pax-swissbox-optional-jcl").versionAsInProject(),
             mavenBundle("org.ops4j.pax.swissbox", "pax-swissbox-property").versionAsInProject(),
+
+            mavenBundle("commons-io", "commons-io").versionAsInProject(),
+            mavenBundle("commons-lang", "commons-lang").versionAsInProject(),
+
+            mavenBundle("org.apache.geronimo.specs", "geronimo-interceptor_1.1_spec").versionAsInProject(),
+            mavenBundle("org.apache.geronimo.specs", "geronimo-jcdi_1.0_spec").versionAsInProject(),
+            mavenBundle("org.apache.geronimo.specs", "geronimo-el_2.2_spec").versionAsInProject(),
+
+            mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.aopalliance").versionAsInProject(),
+            mavenBundle("com.google.inject", "guice").versionAsInProject(),
 
             mavenBundle("io.fabric8", "common-util").versionAsInProject(),
             mavenBundle("io.fabric8.fab", "fab-osgi").versionAsInProject()

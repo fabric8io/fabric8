@@ -94,7 +94,6 @@
         <plugins>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven-dependency-plugin-version}</version>
                 <executions>
                     <execution>
                         <id>unpack-tomcat</id>
