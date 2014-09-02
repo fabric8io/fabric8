@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Constants;
+import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -91,8 +92,10 @@ public class ResolveContextImpl extends ResolveContext {
     }
     @Override
     public boolean isEffective(Requirement requirement) {
-        return resolveOptional ||
-                !Constants.RESOLUTION_OPTIONAL.equals(requirement.getDirectives().get(Constants.RESOLUTION_DIRECTIVE));
+        return resolveOptional
+                || !Constants.RESOLUTION_OPTIONAL.equals(requirement.getDirectives().get(Constants.RESOLUTION_DIRECTIVE))
+                || IdentityNamespace.IDENTITY_NAMESPACE.equals(requirement.getNamespace())
+                        && FeatureNamespace.TYPE_FEATURE.equals(requirement.getAttributes().get(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE));
     }
     @Override
     public Map<Resource, Wiring> getWirings() {
