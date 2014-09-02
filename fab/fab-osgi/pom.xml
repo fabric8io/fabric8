@@ -69,6 +69,17 @@
             org.sonatype.aether*;-noimport:=true,
             aQute.lib.osgi*;-noimport:=true,
         </fuse.osgi.export>
+        <fuse.osgi.activator>
+            io.fabric8.fab.osgi.internal.Activator
+        </fuse.osgi.activator>
+        <fuse.osgi.services.import>
+            org.apache.karaf.features.FeaturesService;availability:=optional;multiple:=false,
+            org.osgi.service.cm.ConfigurationAdmin;multiple:=false
+        </fuse.osgi.services.import>
+        <fuse.osgi.services.export>
+            io.fabric8.fab.osgi.FabResolverFactory,
+            org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=fab
+        </fuse.osgi.services.export>
     </properties>
 
     <dependencies>

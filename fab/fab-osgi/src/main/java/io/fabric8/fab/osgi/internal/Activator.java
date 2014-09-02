@@ -20,12 +20,16 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import io.fabric8.fab.osgi.FabDeploymentListener;
 import io.fabric8.fab.osgi.FabResolverFactory;
 import io.fabric8.fab.osgi.FabURLHandler;
 import io.fabric8.fab.osgi.ServiceConstants;
+import org.apache.felix.fileinstall.ArtifactListener;
+import org.apache.felix.fileinstall.ArtifactUrlTransformer;
 import org.apache.karaf.features.FeaturesService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -94,6 +98,8 @@ public class Activator implements BundleActivator {
         registry.setConfigurationAdmin(configAdmin);
         registry.setPid("io.fabric8.fab.osgi.registry");
         registry.load();
+        registerModuleRegistry(registry);
+
 
         // Create and register the FabResolverFactory
         final FabResolverFactoryImpl factory = new FabResolverFactoryImpl();
@@ -127,6 +133,9 @@ public class Activator implements BundleActivator {
         handler.setFabResolverFactory(factory);
         handler.setServiceProvider(factory);
         registerURLHandler(handler);
+
+        // FileInstall support
+        registerFabDeploymentListener(new FabDeploymentListener());
     }
 
     protected void unbindConfigAdmin() {
@@ -156,6 +165,31 @@ public class Activator implements BundleActivator {
     private void registerFabResolverFactory(FabResolverFactoryImpl factory) {
         if (bundleContext != null && factory != null) {
             ServiceRegistration registration = bundleContext.registerService(FabResolverFactory.class, factory, null);
+            registrations.add(registration);
+        }
+    }
+
+    /*
+     * Register the {@link FabResolverFactory}
+     */
+    private void registerModuleRegistry(OsgiModuleRegistry registry) {
+        if (bundleContext != null && registry != null) {
+            ServiceRegistration registration = bundleContext.registerService(OsgiModuleRegistry.class, registry, null);
+            registrations.add(registration);
+        }
+    }
+
+    /*
+     * Register the {@link FabDeploymentListener}
+     */
+    private void registerFabDeploymentListener(FabDeploymentListener listener) {
+        if (bundleContext != null && listener != null) {
+            Hashtable<String, Object> props = new Hashtable<String, Object>();
+            props.put(Constants.SERVICE_RANKING, 1);
+            ServiceRegistration registration = bundleContext.registerService(
+                    new String[] { ArtifactUrlTransformer.class.getName(), ArtifactListener.class.getName() },
+                    listener,
+                    props);
             registrations.add(registration);
         }
     }
