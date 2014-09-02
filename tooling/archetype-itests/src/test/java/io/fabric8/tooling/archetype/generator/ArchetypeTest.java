@@ -41,7 +41,7 @@ public class ArchetypeTest {
 
     private Aether aether = new Aether();
 
-//    private String groupId = "myGroup";
+    //    private String groupId = "myGroup";
 //    private String artifactId = "myArtifact";
     private String packageName = "org.acme.mystuff";
 
@@ -94,7 +94,7 @@ public class ArchetypeTest {
     public void testGenerateDroolsArchetype() throws Exception {
         String artifactId = "karaf-camel-drools-archetype";
         assertArchetypeCreated(artifactId, "io.fabric8", projectVersion,
-            new File(basedir, "../archetypes/" +artifactId + "/target/" + artifactId + "-" + projectVersion + ".jar"));
+            new File(basedir, "../archetypes/" + artifactId + "/target/" + artifactId + "-" + projectVersion + ".jar"));
     }
 
     protected void assertArchetypeCreated(String artifactId) throws Exception {
@@ -128,7 +128,6 @@ public class ArchetypeTest {
 
         // lets override some properties
         HashMap<String, String> overrideProperties = new HashMap<String, String>();
-        overrideProperties.put("slf4j-version", "1.5.0");
         // for camel-archetype-component
         overrideProperties.put("scheme", "mycomponent");
         helper.setOverrideProperties(overrideProperties);
@@ -156,14 +155,14 @@ public class ArchetypeTest {
     public static void afterAll() throws MavenInvocationException, InterruptedException {
         // now let invoke the projects
         final int[] resultPointer = new int[1];
-        for (final String outDir: outDirs) {
+        for (final String outDir : outDirs) {
             // thread locals are evil (I'm talking to you - org.codehaus.plexus.DefaultPlexusContainer#lookupRealm!)
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     System.out.println("Invoking project in " + outDir);
                     MavenCli maven = new MavenCli();
-                    resultPointer[0] = maven.doMain(new String[] { "package" }, outDir, System.out, System.out);
+                    resultPointer[0] = maven.doMain(new String[]{"package"}, outDir, System.out, System.out);
                     System.out.println("result: " + resultPointer[0]);
                 }
             });
