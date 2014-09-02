@@ -84,21 +84,21 @@ For example you may want all web services to be within **/api/** and apps to be 
 
 For the web services mapping rule:
 
-    ZooKeeperPath: /fabric/registry/clusters/apis
-    URI template: /api{contextPath}/
+    zooKeeperPath = /fabric/registry/clusters/apis
+    uriTemplate = /api{contextPath}/
 
 For the web apps mapping rule:
 
-    ZooKeeperPath: /fabric/registry/clusters/webapps
-    URI template: /app{contextPath}/
+    zooKeeperPath = /fabric/registry/clusters/webapps
+    uriTemplate = /app{contextPath}/
 
 If you want to split RESTful APIs and SOAP web services into different URI paths then replace the former mapping rule with these two
 
-    ZooKeeperPath: /fabric/registry/clusters/apis/rest
-    URI template: /rest{contextPath}/
+    zooKeeperPath = /fabric/registry/clusters/apis/rest
+    uriTemplate = /rest{contextPath}/
 
-    ZooKeeperPath: /fabric/registry/clusters/apis/ws
-    URI template: /ws{contextPath}/
+    zooKeeperPath = /fabric/registry/clusters/apis/ws
+    uriTemplate = /ws{contextPath}/
 
 #### Versioning: Explict URIs
 

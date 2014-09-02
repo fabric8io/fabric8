@@ -72,7 +72,7 @@ APP_CONSOLE_ERR="${APP_BASE}/logs/err.log"
 
 # Add the jars in the lib dir
 CLASSPATH=""
-for file in "$APP_BASE"/lib/*.jar
+for file in "$APP_BASE"/lib/*.{jar,war}
 do
     if [ -z "$CLASSPATH" ]; then
         CLASSPATH="$file"

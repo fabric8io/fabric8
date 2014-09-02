@@ -30,7 +30,7 @@
   <artifactId>tooling-camel-facade</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: Tooling :: Camel Facade</name>
+  <name>Fabric8 :: Tooling :: Camel Facade (deprecated)</name>
   
   <properties>
     <fuse.osgi.import.pkg>
@@ -41,7 +41,7 @@
     <fuse.osgi.export>
         io.fabric8.camel.facade*;version=${project.version};-noimport:=true,
     </fuse.osgi.export>
-    <fuse.osgi.bundle.name>Fuse Camel Facade Plugin</fuse.osgi.bundle.name>
+    <fuse.osgi.bundle.name>Fabric8 Camel Facade Plugin</fuse.osgi.bundle.name>
   </properties>
   
   <dependencies>
@@ -75,76 +75,6 @@
       <artifactId>insight-log</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-test</artifactId>
-      <version>${camel-version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit-version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>${slf4j-version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- use AMQ for testing -->
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-jms</artifactId>
-      <version>${camel-version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-broker</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-client</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-camel</artifactId>
-      <scope>test</scope>
-      <!-- break the cyclic dependency to camel-jms which otherwise would baffle the maven eclipse plugin -->
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.camel</groupId>
-          <artifactId>camel-jms</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-pool</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-kahadb-store</artifactId>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

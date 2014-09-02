@@ -284,6 +284,11 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
     }
 
     @Override
+    public boolean isValidProvider() {
+        return true;
+    }
+
+    @Override
     public Class<CreateJCloudsContainerOptions> getOptionsType() {
         return CreateJCloudsContainerOptions.class;
     }

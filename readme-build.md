@@ -18,6 +18,14 @@ Be sure to check out the [committer instructions](http://174.129.32.31:8080/) on
 Building Fabric8
 ============
 
+First of all, the Fabric8 build process needs, most 
+of the time, more memory than the default allocated
+to the maven process. Therefore, ensure to set the 
+MAVEN_OPTS system property with the following settings
+before starting
+
+    > MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=512m"
+
 Build Fabric8 and run the associated smoke tests
 
     > mvn clean install

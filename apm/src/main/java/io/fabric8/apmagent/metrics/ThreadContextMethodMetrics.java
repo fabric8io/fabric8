@@ -17,7 +17,7 @@ import com.codahale.metrics.Timer;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ThreadContextMethodMetrics extends MethodMetrics implements ThreadContextMethodMetricsMBean {
+public class ThreadContextMethodMetrics extends MethodMetrics {
     private final Thread thread;
     private final AtomicReference<ThreadContextMethodMetricsStack> stackRef;
     private Timer.Context timerContext;
@@ -35,7 +35,6 @@ public class ThreadContextMethodMetrics extends MethodMetrics implements ThreadC
     public long getThreadId() {
         return thread.getId();
     }
-
 
     public void onEnter() {
         timerContext = timer.time();

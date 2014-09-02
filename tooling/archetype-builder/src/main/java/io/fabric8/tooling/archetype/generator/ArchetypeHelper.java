@@ -25,13 +25,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipFile;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -58,7 +60,7 @@ public class ArchetypeHelper {
 
     /* Value properties - initialized in constructor */
 
-    private InputStream archetypeIn;
+    private File archetypeFile;
     private File outputDir;
     private String groupId;
     private String artifactId;
@@ -81,12 +83,12 @@ public class ArchetypeHelper {
 //    protected Pattern sourcePathRegexPattern = Pattern.compile("(src/(main|test)/(java|scala)/)(.*)");
     protected Pattern sourcePathRegexPattern = Pattern.compile("(src/(main|test)/(java)/)(.*)");
 
-    public ArchetypeHelper(InputStream archetypeIn, File outputDir, String groupId, String artifactId) {
-        this(archetypeIn, outputDir, groupId, artifactId, "1.0-SNAPSHOT");
+    public ArchetypeHelper(File archetypeFile, File outputDir, String groupId, String artifactId) {
+        this(archetypeFile, outputDir, groupId, artifactId, "1.0-SNAPSHOT");
     }
 
-    public ArchetypeHelper(InputStream archetypeIn, File outputDir, String groupId, String artifactId, String version) {
-        this.archetypeIn = archetypeIn;
+    public ArchetypeHelper(File archetypeFile, File outputDir, String groupId, String artifactId, String version) {
+        this.archetypeFile = archetypeFile;
         this.outputDir = outputDir;
         this.groupId = groupId;
         this.artifactId = artifactId;
@@ -129,71 +131,64 @@ public class ArchetypeHelper {
             groupId + ", artifactId: " + artifactId + ", version: " + version
             + " in directory: " + outputDir);
 
-        Map<String, String> replaceProperties = new HashMap<String, String>();
+        Map<String, String> replaceProperties = parseProperties();
+        replaceProperties.putAll(overrideProperties);
 
-        ZipInputStream zip = null;
+        info("Using replace properties: " + replaceProperties);
+
+        ZipFile zip = null;
         try {
-            zip = new ZipInputStream(archetypeIn);
-            boolean ok = true;
-            while (ok) {
-                ZipEntry entry = zip.getNextEntry();
-                if (entry == null) {
-                    ok = false;
-                } else {
-                    if (!entry.isDirectory()) {
-                        String fullName = entry.getName();
-                        if (fullName != null && fullName.startsWith(zipEntryPrefix)) {
-                            String name = replaceFileProperties(fullName.substring(zipEntryPrefix.length()), replaceProperties);
-                            debug("Processing resource: " + name);
+            zip = new ZipFile(archetypeFile);
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                final ZipEntry entry = entries.nextElement();
+                if (!entry.isDirectory()) {
+                    String fullName = entry.getName();
+                    if (fullName != null && fullName.startsWith(zipEntryPrefix)) {
+                        String name = replaceFileProperties(fullName.substring(zipEntryPrefix.length()), replaceProperties);
+                        debug("Processing resource: " + name);
 
-                            int idx = name.lastIndexOf('/');
-                            Matcher matcher = sourcePathRegexPattern.matcher(name);
-                            String dirName;
-                            if (packageName.length() > 0 && idx > 0 && matcher.matches()) {
-                                String prefix = matcher.group(1);
-                                dirName = prefix + packageDir + "/" + name.substring(prefix.length());
-                            } else if (packageName.length() > 0 && name.startsWith(webInfResources)) {
-                                dirName = "src/main/webapp/WEB-INF/" + packageDir + "/resources" + name.substring(webInfResources.length());
+                        int idx = name.lastIndexOf('/');
+                        Matcher matcher = sourcePathRegexPattern.matcher(name);
+                        String dirName;
+                        if (packageName.length() > 0 && idx > 0 && matcher.matches()) {
+                            String prefix = matcher.group(1);
+                            dirName = prefix + packageDir + "/" + name.substring(prefix.length());
+                        } else if (packageName.length() > 0 && name.startsWith(webInfResources)) {
+                            dirName = "src/main/webapp/WEB-INF/" + packageDir + "/resources" + name.substring(webInfResources.length());
+                        } else {
+                            dirName = name;
+                        }
+
+                        // lets replace properties...
+                        File file = new File(outputDir, dirName);
+                        file.getParentFile().mkdirs();
+                        FileOutputStream out = null;
+                        try {
+                            out = new FileOutputStream(file);
+                            boolean isBinary = false;
+                            for (String suffix : binarySuffixes) {
+                                if (name.endsWith(suffix)) {
+                                    isBinary = true;
+                                    break;
+                                }
+                            }
+                            if (isBinary) {
+                                // binary file?  don't transform.
+                                copy(zip.getInputStream(entry), out);
                             } else {
-                                dirName = name;
+                                // text file...
+                                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                                copy(zip.getInputStream(entry), bos);
+                                String text = new String(bos.toByteArray(), "UTF-8");
+                                out.write(transformContents(text, replaceProperties).getBytes());
                             }
-
-                            // lets replace properties...
-                            File file = new File(outputDir, dirName);
-                            file.getParentFile().mkdirs();
-                            FileOutputStream out = null;
-                            try {
-                                out = new FileOutputStream(file);
-                                boolean isBinary = false;
-                                for (String suffix : binarySuffixes) {
-                                    if (name.endsWith(suffix)) {
-                                        isBinary = true;
-                                        break;
-                                    }
-                                }
-                                if (isBinary) {
-                                    // binary file?  don't transform.
-                                    copy(zip, out);
-                                } else {
-                                    // text file...
-                                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                                    copy(zip, bos);
-                                    String text = new String(bos.toByteArray(), "UTF-8");
-                                    out.write(transformContents(text, replaceProperties).getBytes());
-                                }
-                            } finally {
-                                if (out != null) {
-                                    out.close();
-                                }
+                        } finally {
+                            if (out != null) {
+                                out.close();
                             }
-                        } else if (fullName != null && fullName.equals("META-INF/maven/archetype-metadata.xml")) {
-                            // we assume that this resource will be first in Archetype's ZIP
-                            // this way we can find out what are the required properties before we will actually use them
-                            parseReplaceProperties(zip, replaceProperties);
-                            replaceProperties.putAll(overrideProperties);
                         }
                     }
-                    zip.closeEntry();
                 }
             }
         } catch (Exception e) {
@@ -203,8 +198,6 @@ public class ArchetypeHelper {
                 zip.close();
             }
         }
-
-        info("Using replace properties: " + replaceProperties);
 
         // now lets replace all the properties in the pom.xml
         if (!replaceProperties.isEmpty()) {
@@ -232,8 +225,8 @@ public class ArchetypeHelper {
 //                srcDirName = "scala";
 //            }
 
-            for (File dir : new File[] { mainDir, testDir }) {
-                for (String name : new String[] { srcDirName + "/" + packageDir, "resources" }) {
+            for (File dir : new File[]{mainDir, testDir}) {
+                for (String name : new String[]{srcDirName + "/" + packageDir, "resources"}) {
                     new File(dir, name).mkdirs();
                 }
             }
@@ -249,23 +242,14 @@ public class ArchetypeHelper {
      * @throws IOException
      */
     public Map<String, String> parseProperties() throws IOException {
-        Map<String, String> replaceProperties = new HashMap<String, String>();
-        ZipInputStream zip = null;
+        final Map<String, String> replaceProperties = new HashMap<String, String>();
+        ZipFile zip = null;
         try {
-            zip = new ZipInputStream(archetypeIn);
-            boolean ok = true;
-            while (ok) {
-                ZipEntry entry = zip.getNextEntry();
-                if (entry == null) {
-                    ok = false;
-                } else {
-                    if (!entry.isDirectory()) {
-                        String fullName = entry.getName();
-                        if (fullName != null && fullName.equals("META-INF/maven/archetype-metadata.xml")) {
-                            parseReplaceProperties(zip, replaceProperties);
-                        }
-                    }
-                    zip.closeEntry();
+            zip = new ZipFile(archetypeFile);
+            ZipEntry entry = zip.getEntry("META-INF/maven/archetype-metadata.xml");
+            if (entry != null) {
+                try (InputStream inputStream = zip.getInputStream(entry)) {
+                    parseReplaceProperties(inputStream, replaceProperties);
                 }
             }
         } catch (Exception e) {
@@ -285,7 +269,7 @@ public class ArchetypeHelper {
      * @param replaceProperties
      * @throws IOException
      */
-    protected void parseReplaceProperties(ZipInputStream zip, Map<String, String> replaceProperties) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
+    protected void parseReplaceProperties(InputStream zip, Map<String, String> replaceProperties) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         copy(zip, bos);
 
@@ -383,17 +367,21 @@ public class ArchetypeHelper {
 
     // from org.fusesource.scalate.util.IOUtil#copy
     private static long copy(InputStream in, OutputStream out) throws IOException {
-        long bytesCopied = 0;
-        byte[] buffer = new byte[16384];
+        try {
+            long bytesCopied = 0;
+            byte[] buffer = new byte[16384];
 
-        int bytes = in.read(buffer);
-        while (bytes >= 0) {
-            out.write(buffer, 0, bytes);
-            bytesCopied += bytes;
-            bytes = in.read(buffer);
+            int bytes = in.read(buffer);
+            while (bytes >= 0) {
+                out.write(buffer, 0, bytes);
+                bytesCopied += bytes;
+                bytes = in.read(buffer);
+            }
+
+            return bytesCopied;
+        } finally {
+            in.close();
         }
-
-        return bytesCopied;
     }
 
 }

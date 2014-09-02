@@ -101,7 +101,7 @@ public class ContainerUpgradeAndRollbackTest {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            Set<Container> containers = ContainerBuilder.create().withName("smoke.camel").withProfiles("feature-camel").assertProvisioningResult().build(fabricService);
+            Set<Container> containers = ContainerBuilder.create().withName("smoke_camel").withProfiles("feature-camel").assertProvisioningResult().build(fabricService);
             try {
                 CommandSupport.executeCommand("fabric:version-create --parent 1.0 1.1");
 

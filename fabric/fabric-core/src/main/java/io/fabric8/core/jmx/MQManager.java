@@ -534,6 +534,9 @@ public class MQManager implements MQManagerMXBean {
 
         ContainerProvider containerProvider = fabricService.getProvider(containerProviderScheme);
         Objects.notNull(containerProvider, "No ContainerProvider available for scheme: " + containerProviderScheme);
+        if (!containerProvider.isValidProvider()) {
+            throw new IllegalArgumentException("ContainerProvider for scheme: " + containerProviderScheme + " is not valid in current environment");
+        }
 
         List<CreateContainerBasicOptions.Builder> containerBuilders = new ArrayList<CreateContainerBasicOptions.Builder>();
         for (String container : createContainers) {

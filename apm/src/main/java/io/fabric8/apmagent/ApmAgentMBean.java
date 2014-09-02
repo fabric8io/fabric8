@@ -13,8 +13,6 @@
 
 package io.fabric8.apmagent;
 
-import io.fabric8.apmagent.metrics.ThreadMetrics;
-
 import java.util.List;
 
 public interface ApmAgentMBean {
@@ -34,6 +32,4 @@ public interface ApmAgentMBean {
      * @return List of all <className>@<methodName>
      */
     List<String> getAllMethods();
-
-    List<ThreadMetrics> getThreadMetrics();
 }

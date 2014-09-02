@@ -16,7 +16,6 @@
 package io.fabric8.tooling.archetype.generator;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -32,7 +31,9 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.junit.AfterClass;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ArchetypeTest {
 
@@ -119,10 +120,10 @@ public class ArchetypeTest {
         File outDir = new File(basedir, "target/" + artifactId + "-output");
 
         System.out.println("Creating Archetype " + groupId + ":" + artifactId + ":" + version);
-        Map<String, String> properties = new ArchetypeHelper(new FileInputStream(archetypejar), outDir, groupId, artifactId, version).parseProperties();
+        Map<String, String> properties = new ArchetypeHelper(archetypejar, outDir, groupId, artifactId, version).parseProperties();
         System.out.println("Has preferred properties: " + properties);
 
-        ArchetypeHelper helper = new ArchetypeHelper(new FileInputStream(archetypejar), outDir, groupId, artifactId, version);
+        ArchetypeHelper helper = new ArchetypeHelper(archetypejar, outDir, groupId, artifactId, version);
         helper.setPackageName(packageName);
 
         // lets override some properties

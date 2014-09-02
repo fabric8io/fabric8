@@ -272,6 +272,7 @@
     </feature>
 
     <feature name="fabric-cxf" version="${project.version}" resolver="(obr)">
+        <feature version="${cxf-version-range}">cxf-jaxws</feature>
         <feature version="${cxf-version-range}">cxf-jaxrs</feature>
         <feature version="${project.version}">swagger</feature>
         <feature>fabric-groups</feature>
@@ -726,8 +727,8 @@
       <bundle>mvn:io.fabric8/gateway-core/${project.version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/${geronimo-jta.version}</bundle>
+      <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+      <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/${geronimo-jta.version}</bundle>
     </feature>
 
     <feature name="gateway-fabric" version="${project.version}" resolver="(obr)">

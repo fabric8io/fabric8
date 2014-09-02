@@ -108,7 +108,7 @@ public class DeploymentAgentTest {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            Set<Container> containers = ContainerBuilder.create().withName("smoke.cntA").withProfiles("test-profile").assertProvisioningResult().build(fabricService);
+            Set<Container> containers = ContainerBuilder.create().withName("smoke_cnt_a").withProfiles("test-profile").assertProvisioningResult().build(fabricService);
             try {
                 //We want to remove all repositories from fabric-agent.
                 for (Container container : containers) {
@@ -144,7 +144,7 @@ public class DeploymentAgentTest {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            Set<Container> containers = ContainerBuilder.create().withName("smoke.cntB").withProfiles("test-profile").assertProvisioningResult().build(fabricService);
+            Set<Container> containers = ContainerBuilder.create().withName("smoke_cnt_b").withProfiles("test-profile").assertProvisioningResult().build(fabricService);
             try {
                 String command = "fabric:container-connect -u admin -p admin " + containers.iterator().next().getId() + " osgi:list -s | grep org.apache.servicemix.bundles.struts";
                 String result = CommandSupport.executeCommand(command);

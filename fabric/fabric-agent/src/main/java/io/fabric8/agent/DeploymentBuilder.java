@@ -198,11 +198,12 @@ public class DeploymentBuilder {
         }
         // Build features resources
         for (Feature feature : featuresToRegister) {
-            Resource resource = FeatureResource.build(feature, featureRange, resources);
+            ResourceImpl resource = FeatureResource.build(feature, featureRange, resources);
             resources.put("feature:" + feature.getName() + "/" + feature.getVersion(), resource);
             for (Conditional cond : feature.getConditional()) {
                 Feature featCond = cond.asFeature(feature.getName(), feature.getVersion());
                 FeatureResource resCond = FeatureResource.build(feature, cond, featureRange, resources);
+                requireFeature(featCond.getName() + "/" + featCond.getVersion(), resource, true);
                 resources.put("feature:" + featCond.getName() + "/" + featCond.getVersion(), resCond);
             }
         }
@@ -250,6 +251,10 @@ public class DeploymentBuilder {
     }
 
     public void requireFeature(String feature, ResourceImpl resource) throws IOException {
+        requireFeature(feature, resource, false);
+    }
+
+    public void requireFeature(String feature, ResourceImpl resource, boolean optional) throws IOException {
         // Find name and version range
         String[] split = feature.split("/");
         String name = split[0].trim();
@@ -257,13 +262,15 @@ public class DeploymentBuilder {
         VersionRange range = version.length() == 0
                         ? VersionRange.ANY_VERSION : new VersionRange(version);
         // Add requirement
+        Map<String, String> dirs = new HashMap<>();
+        dirs.put(REQUIREMENT_RESOLUTION_DIRECTIVE, optional ? RESOLUTION_OPTIONAL : RESOLUTION_MANDATORY);
         Map<String, Object> attrs = new HashMap<String, Object>();
         attrs.put(IdentityNamespace.IDENTITY_NAMESPACE, name);
         attrs.put(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE, FeatureNamespace.TYPE_FEATURE);
         attrs.put(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE, range);
         resource.addRequirement(
                 new RequirementImpl(resource, IdentityNamespace.IDENTITY_NAMESPACE,
-                        Collections.<String, String>emptyMap(), attrs));
+                        dirs, attrs));
     }
 
     public void requireResource(String location) {
@@ -504,7 +511,10 @@ public class DeploymentBuilder {
             throw new IllegalArgumentException("Resource " + uri + " does not contain a manifest");
         }
         Attributes attributes = man.getMainAttributes();
+        return overrideAttributes(attributes, metadata);
+    }
 
+    public static Attributes overrideAttributes(Attributes attributes, Map<String, Map<VersionRange, Map<String, String>>> metadata) {
         String bsn = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
         if (bsn != null && bsn.indexOf(';') > 0) {
             bsn = bsn.substring(0, bsn.indexOf(';'));
@@ -517,10 +527,14 @@ public class DeploymentBuilder {
                 if (entry2.getKey().contains(ver)) {
                     for (Map.Entry<String, String> entry3 : entry2.getValue().entrySet()) {
                         String val = attributes.getValue(entry3.getKey());
-                        if (val != null) {
-                            val += "," + entry3.getValue();
+                        if (entry3.getValue().startsWith("=")) {
+                            val = entry3.getValue().substring(1);
                         } else {
-                            val = entry3.getValue();
+                            if (val != null) {
+                                val += "," + entry3.getValue();
+                            } else {
+                                val = entry3.getValue();
+                            }
                         }
                         attributes.putValue(entry3.getKey(), val);
                     }

@@ -58,7 +58,6 @@
                 <module>insight-kibana3</module>
                 <module>insight-log4j</module>
                 <module>insight-maven</module>
-                <module>insight-itests</module>
             </modules>
         </profile>
     </profiles>

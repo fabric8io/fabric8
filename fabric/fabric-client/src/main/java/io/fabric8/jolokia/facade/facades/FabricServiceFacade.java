@@ -368,6 +368,16 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
+    public Map<String, ContainerProvider> getValidProviders() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Map<String, ContainerProvider> getProviders() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String getZooKeeperUser() {
         throw new UnsupportedOperationException();
     }

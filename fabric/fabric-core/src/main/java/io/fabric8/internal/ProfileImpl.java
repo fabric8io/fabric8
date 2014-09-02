@@ -236,16 +236,22 @@ final class ProfileImpl implements Profile {
             return new String(data);
         }
 
-        // lets return the first line of the ReadMe.md as a default value
+        // lets return the first non heading line of the ReadMe.md as a default value
         data = getFileConfiguration("ReadMe.md");
         if (data != null) {
             String readMe = new String(data).trim();
             StringTokenizer iter = new StringTokenizer(readMe, "\n");
+            boolean first = true;
             while (iter.hasMoreTokens()) {
                 String text = iter.nextToken();
                 if (text != null) {
                     text = text.trim();
-                    while (text.startsWith("#")) {
+                    // skip first heading or ==
+                    if (skipSummaryLine(text) && first) {
+                        first = false;
+                        continue;
+                    }
+                    while (skipSummaryLine(text)) {
                         text = text.substring(1);
                     }
                     text = text.trim();
@@ -256,6 +262,10 @@ final class ProfileImpl implements Profile {
             }
         }
         return null;
+    }
+
+    private static boolean skipSummaryLine(String line) {
+        return line.startsWith("=") || line.startsWith("#");
     }
     
     @Override

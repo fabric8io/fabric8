@@ -36,6 +36,6 @@ Here's some notes to help you get started:
 
 * [fabric8 FAQ](/faq/index.html)
 * [General GitHub documentation](http://help.github.com/)
-* [GitHub create pull request documentation](hhttps://help.github.com/articles/creating-a-pull-request)
+* [GitHub create pull request documentation](https://help.github.com/articles/creating-a-pull-request)
 * [join the fabric8 community](/community/index.html)
 

@@ -1,6 +1,6 @@
 ## Introduction
 
-This example demonstrates three features proposed by Fabric8 project :
+This example demonstrates three features:
 
 * Configuration of a Zookeeper registry on a Karaf instance and deployment of local containers
 * Provisioning of artifacts (repositories, features, bundles, configurations) based on profiles usage
@@ -68,43 +68,40 @@ the Zookeeper registry to find it and get locally a proxy object !
     cd fabric-examples/fabric-camel-dosgi
     mvn clean install
 
-## Running from CLI
+## How to try this example
 
-1) Before you run Karaf you might like to set these environment variables...
+The following information is divded into two sections, whether you are using the command line shell in fabric, or using the web console
 
-    export JAVA_PERM_MEM=64m
-    export JAVA_MAX_PERM_MEM=512m
+### Using the command line shell
 
-2) Download and install a fresh distribution of Fabric8 (http://fabric8.io/)
+You can deploy and run this example at the console command line, as follows:
 
-And run the following command in the console
+1. It is assumed that you have already created a fabric and are logged into a container called `root`.
+1. Create a container and assign it the example-dosgi-camel.provider profile
 
-3) Initialize a local Fabric
+    fabric:container-create-child --profile example-dosgi-camel.provider --parent root dosgi-provider
 
-    fabric:create --clean root
+1. Create a container and assign it the example-dosgi-camel.consumer profile
 
-4) Create a container and assign it the example-dosgi-camel.provider profile
+    fabric:container-create-child --profile example-dosgi-camel.consumer --parent root dosgi-camel
 
-    fabric:container-create --profile example-dosgi-camel.provider --parent root dosgi-provider
+1. Log into the `mychild` container using the `fabric:container-connect` command, as follows:
 
-5) Create a container and assign it the example-dosgi-camel.consumer profile
+        fabric:container-connect mychild
 
-    fabric:container-create --profile example-dosgi-camel.consumer --parent root dosgi-camel
+1. View the container log using the `log:tail` command as follows:
 
-6) Check that the consumer routes and see the route info of consumer
+        log:tail
 
-    shell:watch fabric:container-connect dosgi-camel camel:route-info fabric-client
-
-   The command above will automatically refresh the output every second.
-
-   or Connect to the dosgi-camel container and verify that Camel logs this info
+You should see similar log statements as above:
 
 ```
-   fabric-client | 71 - org.apache.camel.camel-core - 2.13.0 | >>> Response from : Message from distributed service to : Fabric Container
-   fabric-client | 71 - org.apache.camel.camel-core - 2.13.0 | >>> Response from : Message from distributed service to : Fabric Container
-   fabric-client | 71 - org.apache.camel.camel-core - 2.13.0 | >>> Response from : Message from distributed service to : Fabric Container
+   fabric-client | 71 - org.apache.camel.camel-core - 2.13.1 | >>> Response from : Message from distributed service to : Fabric Container
+   fabric-client | 71 - org.apache.camel.camel-core - 2.13.1 | >>> Response from : Message from distributed service to : Fabric Container
+   fabric-client | 71 - org.apache.camel.camel-core - 2.13.1 | >>> Response from : Message from distributed service to : Fabric Container
 ```
 
 ## Running from web console
 
 Install the consumer and provider profile into separate containers. Connect to the consumer and see the log tab to see what happens.
+

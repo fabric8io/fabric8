@@ -61,12 +61,13 @@
                 <type>zip</type>
             </dependency>
 
+            <!-- disable until we find a better solution, see #2280 
             <dependency>
                 <groupId>io.fabric8.quickstarts</groupId>
                 <artifactId>fabric8-quickstarts-exclude-artifact-parent</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
-            </dependency>
+            </dependency> -->
 
             <!-- Gravia Dependencies -->
             <dependency>
@@ -110,6 +111,10 @@
            <dependency>
                <groupId>io.fabric8</groupId>
                <artifactId>fabric-camel</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>io.fabric8</groupId>
+               <artifactId>fabric-camel-autotest</artifactId>
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
@@ -266,6 +271,10 @@
            <dependency>
                <groupId>io.fabric8</groupId>
                <artifactId>io.fabric8.karaf.branding</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>io.fabric8.mq</groupId>
+               <artifactId>camel-amq</artifactId>
            </dependency>
            <dependency>
                <groupId>io.fabric8.mq</groupId>
@@ -429,37 +438,47 @@
                                    <feature>karaf</feature>
                                    <feature>scr</feature>
                                    <feature>war</feature>
-                                   <feature>fabric-autoscale</feature>
-                                   <feature>fabric-agent</feature>
+                                   <feature>camel-amq</feature>
                                    <feature>fabric-agent-commands</feature>
+                                   <feature>fabric-agent</feature>
                                    <feature>fabric-archetype-commands</feature>
+                                   <feature>fabric-autoscale</feature>
                                    <feature>fabric-boot-commands</feature>
+                                   <feature>fabric-bundle</feature>
+                                   <feature>fabric-core</feature>
+                                   <feature>fabric-camel</feature>
+                                   <feature>fabric-camel-autotest</feature>
                                    <feature>fabric-commands</feature>
+                                   <feature>fabric-cxf-registry</feature>
+                                   <feature>fabric-cxf</feature>
                                    <feature>fabric-docker-provider</feature>
-                                   <feature>fabric-zookeeper-commands</feature>
-                                   <feature>fabric-ssh</feature>
-                                   <feature>fabric-git</feature>
+                                   <feature>fabric-dosgi</feature>
                                    <feature>fabric-git-server</feature>
+                                   <feature>fabric-git</feature>
+                                   <feature>fabric-groovy</feature>
+                                   <feature>fabric-hawtio-swagger</feature>
+                                   <feature>fabric-hawtio</feature>
+                                   <feature>fabric-jaas</feature>
                                    <feature>fabric-maven-proxy</feature>
                                    <feature>fabric-openshift</feature>
-                                   <feature>fabric-camel</feature>
-                                   <feature>fabric-dosgi</feature>
-                                   <feature>fabric-bundle</feature>
-                                   <feature>fabric-jaas</feature>
                                    <feature>fabric-process-container</feature>
                                    <feature>fabric-project-deployer</feature>
-                                   <feature>fabric-web</feature>
-                                   <feature>gravia</feature>
-                                   <feature>mq-fabric</feature>
-                                   <feature>insight-elasticsearch</feature>
-                                   <feature>insight-log-storage</feature>
-                                   <feature>process-manager</feature>
-                                   <feature>jolokia</feature>
                                    <feature>fabric-redirect</feature>
-                                   <feature>fabric-hawtio</feature>
-                                   <feature>fabric-hawtio-swagger</feature>
+                                   <feature>fabric-rest</feature>
+                                   <feature>fabric-ssh</feature>
+                                   <feature>fabric-web</feature>
+                                   <feature>fabric-zookeeper-commands</feature>
+                                   <feature>gateway-fabric</feature>
+                                   <feature>gateway-haproxy</feature>
+                                   <feature>gravia</feature>
                                    <feature>hawtio-fabric8-branding</feature>
                                    <feature>hawtio-karaf-terminal</feature>
+                                   <feature>insight-elasticsearch</feature>
+                                   <feature>insight-log-storage</feature>
+                                   <feature>jolokia</feature>
+                                   <feature>mq-fabric-http-discovery</feature>
+                                   <feature>mq-fabric</feature>
+                                   <feature>process-manager</feature>
                                    <feature>swagger</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>

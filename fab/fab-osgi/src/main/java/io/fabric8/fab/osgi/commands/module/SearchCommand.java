@@ -32,7 +32,7 @@ public class SearchCommand extends CommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        OsgiModuleRegistry registry = Activator.registry;
+        OsgiModuleRegistry registry = getModuleRegistry();
         List<ModuleRegistry.Module> modules = registry.getApplicationModules();
 
 

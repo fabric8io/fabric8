@@ -30,7 +30,7 @@
   <artifactId>tooling-servicemix-facade</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: Tooling :: ServiceMix Facade</name>
+  <name>Fabric8 :: Tooling :: ServiceMix Facade (deprecated)</name>
   
   <properties>
     <fuse.osgi.import.pkg>
@@ -40,7 +40,7 @@
     <fuse.osgi.export>
         io.fabric8.servicemix.facade*;version=${project.version};-noimport:=true,
     </fuse.osgi.export>
-    <fuse.osgi.bundle.name>Fuse ServiceMix Facade Plugin</fuse.osgi.bundle.name>
+    <fuse.osgi.bundle.name>Fabric8 ServiceMix Facade Plugin</fuse.osgi.bundle.name>
   </properties>
   
   <dependencies>
@@ -84,19 +84,6 @@
       <groupId>io.fabric8.insight</groupId>
       <artifactId>insight-log</artifactId>
       <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit-version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>${slf4j-version}</version>
-      <scope>test</scope>
     </dependency>
 
   </dependencies>

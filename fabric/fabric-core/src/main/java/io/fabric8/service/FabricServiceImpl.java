@@ -15,20 +15,32 @@
  */
 package io.fabric8.service;
 
-import static io.fabric8.api.Profiles.assertValidProfileId;
-import static io.fabric8.internal.PlaceholderResolverHelpers.getSchemesForProfileConfigurations;
-import static io.fabric8.utils.DataStoreUtils.substituteBundleProperty;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
-import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.google.common.base.Strings;
 import io.fabric8.api.AutoScaleStatus;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
@@ -54,8 +66,8 @@ import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.PortService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
-import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileDependencyException;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
@@ -75,29 +87,6 @@ import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.InterpolationHelper;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -111,9 +100,15 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Strings;
+import static io.fabric8.api.Profiles.assertValidProfileId;
+import static io.fabric8.internal.PlaceholderResolverHelpers.getSchemesForProfileConfigurations;
+import static io.fabric8.utils.DataStoreUtils.substituteBundleProperty;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
+import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
 
 /**
  * FabricService
@@ -455,6 +450,9 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
             if (provider == null) {
                 throw new FabricException("Unable to find a container provider supporting '" + options.getProviderType() + "'");
             }
+            if (!provider.isValidProvider()) {
+                throw new FabricException("The provider '" + options.getProviderType() + "' is not valid in current environment");
+            }
 
             String originalName = options.getName();
             if (originalName == null || originalName.length() == 0) {
@@ -466,7 +464,6 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
             }
 
             validateProfileDependencies(options);
-
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             Map optionsMap = mapper.readValue(mapper.writeValueAsString(options), Map.class);
@@ -486,9 +483,17 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
             final CountDownLatch latch = new CountDownLatch(number);
             Set<String> ignoreContainerNames = new HashSet<>();
             Container[] containers = getContainers();
+
+            // check that there is no container with the given name
+            for (Container container : containers) {
+                if (container.getId().equals(options.getName())) {
+                    throw new IllegalArgumentException("A container with name " + options.getName() + " already exists.");
+                }
+            }
+
             for (int i = 1; i <= number; i++) {
                 NameValidator validator = Containers.createNameValidator(containers, ignoreContainerNames);
-                String containerName = Containers.createUniqueContainerName(containers, originalName, validator);
+                final String containerName = Containers.createUniqueContainerName(containers, originalName, validator);
                 ignoreContainerNames.add(containerName);
 
                 optionsMap.put("name", containerName);
@@ -526,6 +531,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                             metadatas.add(metadata);
                         } catch (Throwable t) {
                             CreateContainerBasicMetadata metadata = new CreateContainerBasicMetadata();
+                            metadata.setContainerName(containerName);
                             metadata.setCreateOptions(containerOptions);
                             metadata.setFailure(t);
                             metadatas.add(metadata);
@@ -642,7 +648,18 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         return providers.get(scheme);
     }
 
-    // FIXME public access on the impl
+    @Override
+    public Map<String, ContainerProvider> getValidProviders() {
+        assertValid();
+        Map<String, ContainerProvider> validProviders = new HashMap<String, ContainerProvider>();
+        for (ContainerProvider cp : getProviders().values()) {
+            if (cp.isValidProvider()) {
+                validProviders.put(cp.getScheme(), cp);
+            }
+        }
+        return Collections.unmodifiableMap(validProviders);
+    }
+
     public Map<String, ContainerProvider> getProviders() {
         assertValid();
         return Collections.unmodifiableMap(providers);

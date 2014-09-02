@@ -37,4 +37,16 @@ public interface ApmConfigurationMBean {
 
     void setAsyncTransformation(boolean asyncTransformation);
 
+    int getThreadMetricDepth();
+
+    void setThreadMetricDepth(int threadMetricDepth);
+
+    int getMethodMetricDepth();
+
+    void setMethodMetricDepth(int methodMetricDepth);
+
+    String getStrategy();
+
+    void setStrategy(String strategy);
+
 }

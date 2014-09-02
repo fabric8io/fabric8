@@ -92,11 +92,11 @@ public class CreateChildContainerTest {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            Set<Container> containers = ContainerBuilder.child(1).withName("smoke.childA").build(fabricService);
+            Set<Container> containers = ContainerBuilder.child(1).withName("smoke_child_a").build(fabricService);
             try {
                 Assert.assertEquals("One container", 1, containers.size());
                 Container child = containers.iterator().next();
-                Assert.assertEquals("smoke.childA", child.getId());
+                Assert.assertEquals("smoke_child_a", child.getId());
                 Assert.assertEquals("root", child.getParent().getId());
             } finally {
                 ContainerBuilder.stop(fabricService, containers);
@@ -115,7 +115,7 @@ public class CreateChildContainerTest {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            Set<Container> containers = ContainerBuilder.child(1).withName("smoke.childB").withProfiles("p1").build(fabricService);
+            Set<Container> containers = ContainerBuilder.child(1).withName("smoke_child_b").withProfiles("p1").build(fabricService);
             ProvisionSupport.provisioningSuccess(containers, ProvisionSupport.PROVISION_TIMEOUT);
             try {
                 Container child = containers.iterator().next();
@@ -143,12 +143,12 @@ public class CreateChildContainerTest {
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
-            Set<Container> containers = ContainerBuilder.child(1).withName("smoke.childC").withProfiles("test").assertProvisioningResult().build(fabricService);
+            Set<Container> containers = ContainerBuilder.child(1).withName("smoke_child_c").withProfiles("test").assertProvisioningResult().build(fabricService);
 
             try {
                 Assert.assertEquals("One container", 1, containers.size());
                 Container child = containers.iterator().next();
-                Assert.assertEquals("smoke.childC", child.getId());
+                Assert.assertEquals("smoke_child_c", child.getId());
                 Assert.assertEquals("root", child.getParent().getId());
                 String logPid = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + child.getId()
                         + " config:proplist --pid org.apache.karaf.log");

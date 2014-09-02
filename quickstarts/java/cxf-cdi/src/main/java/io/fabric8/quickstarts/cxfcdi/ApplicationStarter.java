@@ -23,9 +23,23 @@ import org.jboss.weld.environment.servlet.BeanManagerResourceBindingListener;
 import org.jboss.weld.environment.servlet.Listener;
 
 public class ApplicationStarter {
+
     public static void main( final String[] args ) throws Exception {
-        
-        final Server server = new Server(8585);
+
+        // use system property first
+        String port = System.getProperty("server.port");
+        if (port == null) {
+            // and fallback to use environment variable
+            port = System.getenv("FABRIC8_HTTP_PORT");
+        }
+        if (port == null) {
+            // and use port 8585 by default
+            port = "8585";
+        }
+        Integer num = Integer.parseInt(port);
+
+        System.out.println("Starting REST server on port: " + port);
+        final Server server = new Server(num);
 
         // Register and map the dispatcher servlet
         final ServletHolder servletHolder = new ServletHolder(new CXFCdiServlet());

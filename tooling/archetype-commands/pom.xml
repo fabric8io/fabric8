@@ -39,6 +39,7 @@
             io.fabric8.utils;-split-package:=first,
             io.fabric8.utils.shell;-split-package:=first,
         </fuse.osgi.private.pkg>
+        <fuse.osgi.import.additional>javax.xml.bind</fuse.osgi.import.additional>
         <!--<fuse.osgi.embed.dependency>artifactId=archetype-builder;classifier=archetype-catalog</fuse.osgi.embed.dependency>-->
     </properties>
 

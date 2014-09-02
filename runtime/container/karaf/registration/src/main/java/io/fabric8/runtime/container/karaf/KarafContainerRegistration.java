@@ -17,6 +17,7 @@ package io.fabric8.runtime.container.karaf;
 
 import io.fabric8.api.GeoLocationService;
 import io.fabric8.api.PortService;
+import io.fabric8.common.util.Strings;
 import io.fabric8.internal.ImmutableContainerBuilder;
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
@@ -70,6 +71,8 @@ import static io.fabric8.zookeeper.ZkPath.CONTAINER_IP;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_JMX;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_HOSTNAME;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_PUBLIC_HOSTNAME;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_PUBLIC_IP;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MAX;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MIN;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_RESOLVER;
@@ -158,10 +161,21 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                 deleteSafe(curator.get(), domainsNode);
             }
 
+            boolean openshiftFuseEnv = Strings.notEmpty(System.getenv("OPENSHIFT_FUSE_DIR"));
+            boolean openshiftAmqEnv = Strings.notEmpty(System.getenv("OPENSHIFT_AMQ_DIR"));
+
             ZooKeeperUtils.createDefault(curator.get(), CONTAINER_BINDADDRESS.getPath(runtimeIdentity), bootstrapConfiguration.get().getBindAddress());
             ZooKeeperUtils.createDefault(curator.get(), CONTAINER_RESOLVER.getPath(runtimeIdentity), getContainerResolutionPolicy(curator.get(), runtimeIdentity));
             setData(curator.get(), CONTAINER_LOCAL_HOSTNAME.getPath(runtimeIdentity), HostUtils.getLocalHostName());
             setData(curator.get(), CONTAINER_LOCAL_IP.getPath(runtimeIdentity), HostUtils.getLocalIp());
+            if (openshiftFuseEnv) {
+                //setData(curator.get(), CONTAINER_PUBLIC_HOSTNAME.getPath(karafName), sysprops.getProperty("publichostname"));
+                setData(curator.get(), CONTAINER_PUBLIC_IP.getPath(runtimeIdentity), System.getenv("OPENSHIFT_FUSE_IP"));
+            }
+            if (openshiftAmqEnv) {
+                //setData(curator.get(), CONTAINER_PUBLIC_HOSTNAME.getPath(karafName), sysprops.getProperty("publichostname"));
+                setData(curator.get(), CONTAINER_PUBLIC_IP.getPath(runtimeIdentity), System.getenv("OPENSHIFT_AMQ_IP"));
+            }
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
             for (String resolver : ZkDefs.VALID_RESOLVERS) {

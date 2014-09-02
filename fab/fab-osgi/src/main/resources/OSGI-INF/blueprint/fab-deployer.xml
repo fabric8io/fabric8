@@ -20,45 +20,6 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            default-activation="lazy">
 
-  <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" />
-  <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService" />
-
-  <bean id="fabResolverFactory" class="io.fabric8.fab.osgi.internal.FabResolverFactoryImpl">
-    <property name="bundleContext" ref="blueprintBundleContext" />
-    <property name="configurationAdmin" ref="configurationAdmin" />
-    <property name="featuresService" ref="featuresService" />
-  </bean>
-
-  <!-- export the FAB resolver factory - this allows e.g. Fabric to learn about FAB resolution as well -->
-  <service ref="fabResolverFactory" interface="io.fabric8.fab.osgi.FabResolverFactory" />
-
-  <bean id="fabUrlHandler" class="io.fabric8.fab.osgi.FabURLHandler">
-    <property name="fabResolverFactory" ref="fabResolverFactory" />
-    <property name="serviceProvider" ref="fabResolverFactory" />
-  </bean>
-
-
-  <service ref="fabUrlHandler" interface="org.osgi.service.url.URLStreamHandlerService">
-    <service-properties>
-      <entry key="url.handler.protocol" value="fab"/>
-    </service-properties>
-  </service>
-
-  <bean id="fabDeploymentListener" class="io.fabric8.fab.osgi.FabDeploymentListener"/>
-
-
-
-  <!-- Force a reference to the url handler above from the osgi registry to (try to) make sure
-the url handler is registered inside the framework.  Else we can run into timing issues
-where fileinstall will use the featureDeploymentListener before the url can be actually
-used.  In order to not block the bundle, the blueprint.graceperiod=false flag must be
-set on the SymbolicName osgi header -->
-  <!--
-  <reference id="fabUrlHandlerRef" interface="org.osgi.service.url.URLStreamHandlerService" filter="url.handler.protocol=fab" />
-  -->
-
-  <service ref="fabDeploymentListener" auto-export="interfaces" depends-on="fabDeploymentListener" ranking="1"/>
-
   <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
     <command name="fab/tree">
         <action class="io.fabric8.fab.osgi.commands.fab.TreeCommand"/>

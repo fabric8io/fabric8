@@ -49,6 +49,19 @@
         </license>
     </licenses>
 
+    <distributionManagement>
+      <repository>
+        <id>oss-sonatype-staging</id>
+        <name>Sonatype Staging Repository</name>
+        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+      </repository>
+      <snapshotRepository>
+        <id>oss-sonatype-snapshots</id>
+        <name>OSS Sonatype Nexus Snapshots</name>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      </snapshotRepository>
+    </distributionManagement>
+
     <!-- including A developer as it's required by the maven poms going into central -->
     <developers>
         <developer>
@@ -181,13 +194,14 @@
         <drools-camel-groupId>org.kie</drools-camel-groupId>
         <drools-spring-artifactId>kie-spring</drools-spring-artifactId>
         <drools-spring-groupId>org.kie</drools-spring-groupId>
-        <drools-version>6.1.0.CR2</drools-version>
+        <!-- drools 6.1.0.Final has mvel2 issue -->
+        <drools-version>6.1.0.Final</drools-version>
         <exec-maven-plugin-version>1.2.1</exec-maven-plugin-version>
         <felix-configadmin-version>1.6.0</felix-configadmin-version>
         <felix-eventadmin-version>1.3.2</felix-eventadmin-version>
         <felix-fileinstall-version>3.4.0</felix-fileinstall-version>
         <felix-framework-security-version>2.4.0</felix-framework-security-version>
-        <felix-framework-version>4.4.0</felix-framework-version>
+        <felix-framework-version>4.4.1</felix-framework-version>
         <felix-gogo-version>0.12.1</felix-gogo-version>
         <felix-http-version>2.2.1</felix-http-version>
         <felix-metatype-version>1.0.10</felix-metatype-version>
@@ -195,7 +209,7 @@
         <felix-scr-annotations-version>1.9.8</felix-scr-annotations-version>
         <felix-scr-ds-annotations-version>1.2.4</felix-scr-ds-annotations-version>
         <felix-scr-plugin-version>1.16.0</felix-scr-plugin-version>
-        <felix-scr-version>1.6.2</felix-scr-version>
+        <felix-scr-version>1.8.2</felix-scr-version>
         <felix-utils-version>1.6.0</felix-utils-version>
         <felix.obr.version>1.6.6</felix.obr.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
@@ -220,9 +234,9 @@
         <hadoop-version>1.2.1</hadoop-version>
         <hawtbuf-version>1.11</hawtbuf-version>
         <hawtdispatch-version>1.21</hawtdispatch-version>
-        <hawtio-dockerui-version>1.0.3</hawtio-dockerui-version>
+        <hawtio-dockerui-version>1.0.4</hawtio-dockerui-version>
         <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
-        <hawtio-version>1.4.14</hawtio-version>
+        <hawtio-version>1.4.18</hawtio-version>
         <jackson-version>1.9.2</jackson-version>
         <jackson2-version>2.4.1</jackson2-version>
         <jackson-module-scala-version>2.1.5_2</jackson-module-scala-version>
@@ -268,9 +282,8 @@
         <mina-version>2.0.7</mina-version>
         <mockserver-version>3.4</mockserver-version>
         <mongo-java-driver-version>2.12.3</mongo-java-driver-version>
-        <!-- notice drools is not compatible with mvel 2.2.1: https://issues.jboss.org/browse/DROOLS-566 -->
-        <mvel-version>2.1.9.Final</mvel-version>
-        <netty.version>4.0.21.Final</netty.version>
+        <mvel-version>2.2.1.Final</mvel-version>
+        <netty.version>4.0.23.Final</netty.version>
         <openshift.client.groupId>com.openshift</openshift.client.groupId>
         <openshift.client.version>2.5.0.Final</openshift.client.version>
         <ops4j-base.version>1.4.0</ops4j-base.version>
@@ -314,16 +327,15 @@
         <spring-data-rest-version>2.0.2.RELEASE</spring-data-rest-version>
         <spring-osgi-version>1.2.1</spring-osgi-version>
         <spring-version>3.2.9.RELEASE</spring-version>
-        <sshd-version>0.11.0</sshd-version>
+        <sshd-version>0.12.0</sshd-version>
         <sshj.version>0.8.1</sshj.version>
         <swagger-version>1.3.2_1</swagger-version>
         <swagger-scala-version>2.10.2</swagger-scala-version>
         <tinybundles-version>2.0.0</tinybundles-version>
         <tomcat-version>7.0.54</tomcat-version>
-        <tomee-version>1.6.0.2</tomee-version>
+        <tomee-version>1.7.0</tomee-version>
         <validation-api-version>1.1.0.Final</validation-api-version>
-        <!-- gateway-core has failing test if using vertx 2.1.2 -->
-        <vertx-version>2.1RC1</vertx-version>
+        <vertx-version>2.1.2</vertx-version>
         <wagon-version>2.6</wagon-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <weld-version>1.1.18.Final</weld-version>
@@ -336,22 +348,9 @@
         <xjc-version>2.1.10.1</xjc-version>
         <xml.api.version>2.11.0-20110622</xml.api.version>
         <zookeeper-version>3.4.6</zookeeper-version>
+        <!-- Disable OBR repository update by default -->
+        <obrRepository>NONE</obrRepository>
     </properties>
-
-    <distributionManagement>
-        <repository>
-            <id>jboss-releases-repository</id>
-            <name>JBoss Releases Repository</name>
-            <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2</url>
-        </repository>
-        <!--
-              <snapshotRepository>
-                  <id>jboss-snapshots-repository</id>
-                  <name>JBoss Snapshots Repository</name>
-                  <url>https://repository.jboss.org/nexus/content/repositories/snapshots</url>
-              </snapshotRepository>
-        -->
-    </distributionManagement>
 
     <repositories>
         <repository>
@@ -3445,14 +3444,18 @@
         <module>fab</module>
         <module>fabric8-maven-plugin</module>
         <module>quickstarts</module>
+        <!-- exclude until we find a better solution, see #2280
         <module>quickstarts-exclude-artifact</module>
+        -->
         <module>tooling</module>
         <module>fabric</module>
+        <module>runtime</module>
         <module>insight</module>
         <module>mq</module>
         <module>process</module>
-        <module>runtime</module>
         <module>gateway</module>
+
+        <!-- itests should be built last -->
         <module>itests</module>
         <!-- 
         	Modules that are relevant for the default distribution

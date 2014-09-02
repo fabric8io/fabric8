@@ -1,14 +1,18 @@
-# Cxf CDI QuickStart
+# REST with CXF and CDI QuickStart
 
-This example shows how to work with Cxf in the Java Container using CDI to configure JAXRS endpoint.
+This quick start demonstrates how to create a RESTful (JAX-RS) web service using Apache CXF and expose it using CDI running in a Java standalone container.
 
-## System requirements
+The REST service provides a customer service that supports the following operations
+ 
+- PUT /customerservice/customers/ - to create or update a customer
+- GET /customerservice/customers/{id} - to view a customer with the given id
+- DELETE /customerservice/customers/{id} - to delete a customer with the given id
+- GET /customerservice/orders/{orderId} - to view an order with the given id
+- GET /customerservice/orders/{orderId}/products/{productId} - to view a specific product on an order with the given id
 
-Before building and running this quick start you need:
+When the application is deployed, you can access the REST service using a web browser as shown in the screenshot below:
 
-* Maven 3.0.4 or higher
-* JDK 1.7
-* Fabric8
+![Standalone REST diagram](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/cxfcdi-rest.png)
 
 
 ### Building this example
@@ -34,7 +38,7 @@ And then store this information in the local Maven settings file. You can find m
 
 ## How to run this example
 
-The following information is divded into three sections, whether you are using the command line shell in fabric, or using the web console, or run the example from the source code.
+The following information is divded into two sections, whether you are using the command line shell in fabric, or using the web console
 
 ### Using the command line shell
 
@@ -60,35 +64,31 @@ You can deploy and run this example from the web console, as follows
 1. Click the `New` button in the top right corner
 1. In the Create New Container page, enter `mychild` in the Container Name field, and click the *Create and start container* button
 
-### From the source code
-
-Follow the instructions from the _Building this example_ section, and after you have built the source code run the following command:
-
-1. Run `mvn compile exec:java` to run the example as a standalone CDI based CXF application.
-
-Running outside fabric means that you do not have the fabric web console or fabric server to manage the application. You may want to use `mvn compile exec:java` during development and to quickly try your code changes.
-
 
 ### How to try this example
 
+To use the application be sure to have deployed the quickstart in fabric8 as described above. 
 
 ### Access services using a web browser
 
 You can use any browser to perform a HTTP GET.  This allows you to very easily test a few of the RESTful services we defined:
 
+Notice: As fabric8 assigns a free dynamic port to the Java container, the port number may vary on your system.
+
+Use this URL to display the root of the REST service, which also allows to access the WADL of the service:
+
+    http://localhost:8080/cxfcdi
+
 Use this URL to display the XML representation for customer 123:
 
-    http://localhost:8585/cxfcdi/cxfcdi/customerservice/customers/123
+    http://localhost:8080/cxfcdi/cxfcdi/customerservice/customers/123
 
 You can also access the XML representation for order 223 ...
 
-    http://localhost:8585/cxfcdi/cxfcdi/customerservice/orders/223
-
-... or the XML representation of product 323 in order 223 with
-
-    http://localhost:8585/cxfcdi/cxfcdi/customerservice/orders/223/products/323
+    http://localhost:8080/rest/cxf/customerservice/orders/223
 
 **Note:** if you use Safari, you will only see the text elements but not the XML tags - you can view the entire document with 'View Source'
+
 
 ### To run a command-line utility:
 
@@ -99,25 +99,20 @@ You can use a command-line utility, such as cURL or wget, to perform the HTTP re
     
     * Create a customer
  
-            curl -X POST -T src/test/resources/add_customer.xml -H "Content-Type: text/xml" http://localhost:8585/cxfcdi/cxfcdi/customerservice/customers
+            curl -X POST -T src/test/resources/add_customer.xml -H "Content-Type: text/xml" http://localhost:8080/cxfcdi/cxfcdi/customerservice/customers
   
     * Retrieve the customer instance with id 123
     
-            curl http://localhost:8585/cxfcdi/cxfcdi/customerservice/customers/123
+            curl http://localhost:8080/cxfcdi/cxfcdi/customerservice/customers/123
 
     * Update the customer instance with id 123
   
-            curl -X PUT -T src/test/resources/update_customer.xml -H "Content-Type: text/xml" http://localhost:8585/cxfcdi/cxfcdi/customerservice/customers
+            curl -X PUT -T src/test/resources/update_customer.xml -H "Content-Type: text/xml" http://localhost:8080/cxfcdi/cxfcdi/customerservice/customers
 
     * Delete the customer instance with id 123
   
-             curl -X DELETE http://localhost:8585/cxfcdi/cxfcdi/customerservice/customers/123
+             curl -X DELETE http://localhost:8080/cxfcdi/cxfcdi/customerservice/customers/123
 
-### To run the test:
-
-You can use
-    mvn -Ptest
-  to run the test
 
 ## Undeploy this example
 
@@ -138,3 +133,4 @@ To stop and undeploy the example in fabric8:
 
 1. In the web console, click the *Runtime* button in the navigation bar.
 1. Select the `mychild` container in the *Containers* list, and click the *Stop* button in the top right corner
+

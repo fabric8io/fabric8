@@ -1,3 +1,12 @@
+### In Progress: 1.2.0.Beta1
+
+* Upgrade to [Apache Karaf](http://karaf.apache.org/) 2.4.x build so that we get full Role Based Access Control (RBAC) support on all MBeans, OSGi services and CLI commands (hence the upgrade to 1.2.x as the change to RBAC was bigger than a minor fix to 1.1.x)
+* Container names must be lower case only
+* Improved [Auto Scaling](http://fabric8.io/gitbook/requirements.html) UI for easier configuration of the [Auto Scaling Requirements](http://fabric8.io/gitbook/requirements.html)
+* Improved Configuration tab on the Profile page in the web console so its easier to configure all profiles whether containers are running or not and whether they actually use OSGi or not.
+* New [Arquillian](http://fabric8.io/gitbook/arquillian.html) integration testing framework for easier testing against remote or docker based fabrics
+* Fixes to various things like Java containers, Tomcat and Docker
+* Fixes [these issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A1.2.0.Beta1+is%3Aclosed)
 
 ### 1.1.0.CR5
 

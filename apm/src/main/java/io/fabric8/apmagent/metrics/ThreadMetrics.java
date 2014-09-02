@@ -13,9 +13,12 @@
 
 package io.fabric8.apmagent.metrics;
 
+import io.fabric8.apmagent.ApmConfiguration;
+
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -27,7 +30,7 @@ public class ThreadMetrics {
     private final Thread thread;
     private final ThreadMXBean threadMXBean;
     private final ConcurrentMap<String, ThreadContextMethodMetrics> methods = new ConcurrentHashMap<>();
-
+    private final MonitoredThreadMethodMetrics monitoredThreadMethodMetrics;
 
     public ThreadMetrics(ApmAgentContext apmAgentContext, Thread thread) {
         this.methodStackRef = new AtomicReference<>(new ThreadContextMethodMetricsStack());
@@ -35,6 +38,9 @@ public class ThreadMetrics {
         this.threadMXBean = ManagementFactory.getThreadMXBean();
         this.threadInfo = threadMXBean.getThreadInfo(thread.getId());
         this.thread = thread;
+        ApmConfiguration configuration = apmAgentContext.getConfiguration();
+        this.monitoredThreadMethodMetrics = new MonitoredThreadMethodMetrics(thread, apmAgentContext);
+        this.monitoredThreadMethodMetrics.setMonitorSize(configuration.getThreadMetricDepth());
     }
 
     public String getName() {
@@ -61,22 +67,29 @@ public class ThreadMetrics {
         return threadInfo;
     }
 
-    public void enter(String methodName) {
+    public void setMonitorSize(int monitorSize) {
+        monitoredThreadMethodMetrics.setMonitorSize(monitorSize);
+    }
+
+    public void enter(String methodName, boolean alwaysActive) {
         ThreadContextMethodMetrics threadContextMethodMetrics = methods.get(methodName);
         if (threadContextMethodMetrics == null) {
             threadContextMethodMetrics = new ThreadContextMethodMetrics(thread, this.methodStackRef, methodName);
-            ThreadContextMethodMetrics val = methods.putIfAbsent(methodName, threadContextMethodMetrics);
-            threadContextMethodMetrics = val != null ? val : threadContextMethodMetrics;
-            apmAgentContext.registerThreadContextMethodMetricsMBean(threadContextMethodMetrics);
+            threadContextMethodMetrics.setActive(apmAgentContext.isMonitorByDefault());
+            methods.putIfAbsent(methodName, threadContextMethodMetrics);
         }
-        threadContextMethodMetrics.onEnter();
+        if (alwaysActive || threadContextMethodMetrics.isActive()) {
+            threadContextMethodMetrics.onEnter();
+        }
     }
 
-    public long exit(String methodName) {
+    public long exit(String methodName, boolean alwaysActive) {
         long result = -1;
         ThreadContextMethodMetrics threadContextMethodMetrics = methods.get(methodName);
         if (threadContextMethodMetrics != null) {
-            result = threadContextMethodMetrics.onExit();
+            if (alwaysActive || threadContextMethodMetrics.isActive()) {
+                result = threadContextMethodMetrics.onExit();
+            }
         } else {
             //something weird happended reset the stack
             methodStackRef.set(new ThreadContextMethodMetricsStack());
@@ -90,16 +103,28 @@ public class ThreadMetrics {
     }
 
     public void destroy() {
-        for (String name : methods.keySet()) {
-            remove(name);
-        }
+        monitoredThreadMethodMetrics.destroy();
     }
 
     public ThreadContextMethodMetrics remove(String fullMethodName) {
-        ThreadContextMethodMetrics result = methods.get(fullMethodName);
-        if (result != null) {
-            apmAgentContext.unregisterThreadContextMethodMetricsMBean(result);
-        }
+        ThreadContextMethodMetrics result = methods.remove(fullMethodName);
         return result;
+    }
+
+    public void calculateMethodMetrics() {
+        List<ThreadContextMethodMetrics> list = (List<ThreadContextMethodMetrics>) MethodMetrics.sortedMetrics(this.methods.values());
+        monitoredThreadMethodMetrics.calculateMethodMetrics(list);
+    }
+
+    public void setActive(String methodName, boolean flag) {
+        ThreadContextMethodMetrics threadContextMethodMetrics = methods.get(methodName);
+        if (threadContextMethodMetrics != null) {
+            threadContextMethodMetrics.setActive(flag);
+        }
+    }
+
+    public boolean isActive(String methodName) {
+        ThreadContextMethodMetrics threadContextMethodMetrics = methods.get(methodName);
+        return threadContextMethodMetrics != null ? threadContextMethodMetrics.isActive() : false;
     }
 }

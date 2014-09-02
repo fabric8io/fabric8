@@ -37,6 +37,7 @@ import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.Strings;
 import io.fabric8.internal.ContainerImpl;
 import io.fabric8.service.ContainerTemplate;
 import io.fabric8.utils.AuthenticationUtils;
@@ -134,6 +135,14 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     public Class<CreateChildContainerMetadata> getMetadataType() {
         assertValid();
         return CreateChildContainerMetadata.class;
+    }
+
+    @Override
+    public boolean isValidProvider() {
+        // child provider isn't valid in OpenShift environment
+        boolean openshiftFuseEnv = Strings.notEmpty(System.getenv("OPENSHIFT_FUSE_DIR"));
+        boolean openshiftAmqEnv = Strings.notEmpty(System.getenv("OPENSHIFT_AMQ_DIR"));
+        return !(openshiftFuseEnv || openshiftAmqEnv);
     }
 
     @Override
