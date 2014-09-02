@@ -152,48 +152,8 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Gravia-Identity>${project.artifactId};version=${project.version}</Gravia-Identity>
-                            <Service-Component>
-                                OSGI-INF/io.fabric8.core.jmx.ClusterBootstrapManager.xml,
-                                OSGI-INF/io.fabric8.core.jmx.ClusterServiceManager.xml,
-                                OSGI-INF/io.fabric8.core.jmx.MetaTypeFacade.xml,
-                                OSGI-INF/io.fabric8.core.jmx.MQManager.xml,
-                                OSGI-INF/io.fabric8.git.internal.GitDataStoreImpl.xml,
-                                OSGI-INF/io.fabric8.git.internal.FabricGitServiceImpl.xml,
-                                OSGI-INF/io.fabric8.git.internal.GitMasterListener.xml,
-                                OSGI-INF/io.fabric8.internal.locks.LockServiceImpl.xml,
-                                OSGI-INF/io.fabric8.internal.ZooKeeperClusterBootstrapImpl.xml,
-                                OSGI-INF/io.fabric8.internal.ZooKeeperClusterServiceImpl.xml,
-                                OSGI-INF/io.fabric8.jaas.FabricJaasRealm.xml,
-                                OSGI-INF/io.fabric8.jaas.ZookeeperBackingEngineFactory.xml,
-                                OSGI-INF/io.fabric8.service.ChecksumPlaceholderResolver.xml,
-                                OSGI-INF/io.fabric8.service.ComponentConfigurer.xml,
-                                OSGI-INF/io.fabric8.service.ContainerPlaceholderResolver.xml,
-                                OSGI-INF/io.fabric8.service.EncryptedPropertyResolver.xml,
-                                OSGI-INF/io.fabric8.service.EnvPlaceholderResolver.xml,
-                                OSGI-INF/io.fabric8.service.FabricMBeanRegistrationListener.xml,
-                                OSGI-INF/io.fabric8.service.FabricServiceImpl.xml,
-           	 					OSGI-INF/io.fabric8.service.ZkDataStoreImpl.xml,
-                                OSGI-INF/io.fabric8.service.child.ChildContainerProvider.xml,
-                                OSGI-INF/io.fabric8.runtime.container.wildfly.WildflyContainerRegistration.xml,
-                                OSGI-INF/io.fabric8.runtime.container.wildfly.WildflyContainerRegistration.xml,
-                                OSGI-INF/io.fabric8.service.PortPlaceholderResolver.xml,
-                                OSGI-INF/io.fabric8.service.ProfilePropertyPointerResolver.xml,
-                                OSGI-INF/io.fabric8.service.ProfileUrlHandler.xml,
-                                OSGI-INF/io.fabric8.service.RuntimeServiceImpl.xml,
-                                OSGI-INF/io.fabric8.service.VersionPropertyPointerResolver.xml,
-                                OSGI-INF/io.fabric8.service.ZookeeperPlaceholderResolver.xml,
-                                OSGI-INF/io.fabric8.service.ZookeeperPortService.xml,
-                                OSGI-INF/io.fabric8.zookeeper.bootstrap.BootstrapConfiguration.xml,
-                                OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperServerFactory.xml,
-                                OSGI-INF/io.fabric8.zookeeper.curator.CuratorACLManager.xml,
-                                OSGI-INF/io.fabric8.zookeeper.curator.ManagedCuratorFramework.xml,
-                                OSGI-INF/io.fabric8.zookeeper.internal.ZkUrlHandler.xml,
-                                OSGI-INF/org.jboss.gravia.provision.internal.ProvisionerService.xml,
-                                OSGI-INF/org.jboss.gravia.repository.internal.RepositoryMBeanService.xml,
-                                OSGI-INF/org.jboss.gravia.repository.internal.RepositoryService.xml,
-                                OSGI-INF/org.jboss.gravia.resolver.internal.ResolverService.xml
-                            </Service-Component>
+<Gravia-Identity>${project.artifactId};version=${project.version}</Gravia-Identity>
+<Service-Component>OSGI-INF/io.fabric8.core.jmx.ClusterBootstrapManager.xml,OSGI-INF/io.fabric8.core.jmx.ClusterServiceManager.xml,OSGI-INF/io.fabric8.core.jmx.MetaTypeFacade.xml,OSGI-INF/io.fabric8.core.jmx.MQManager.xml,OSGI-INF/io.fabric8.git.internal.GitDataStoreImpl.xml,OSGI-INF/io.fabric8.git.internal.FabricGitServiceImpl.xml,OSGI-INF/io.fabric8.git.internal.GitMasterListener.xml,OSGI-INF/io.fabric8.internal.locks.LockServiceImpl.xml,OSGI-INF/io.fabric8.internal.ZooKeeperClusterBootstrapImpl.xml,OSGI-INF/io.fabric8.internal.ZooKeeperClusterServiceImpl.xml,OSGI-INF/io.fabric8.jaas.FabricJaasRealm.xml,OSGI-INF/io.fabric8.jaas.ZookeeperBackingEngineFactory.xml,OSGI-INF/io.fabric8.service.ChecksumPlaceholderResolver.xml,OSGI-INF/io.fabric8.service.ComponentConfigurer.xml,OSGI-INF/io.fabric8.service.ContainerPlaceholderResolver.xml,OSGI-INF/io.fabric8.service.EncryptedPropertyResolver.xml,OSGI-INF/io.fabric8.service.EnvPlaceholderResolver.xml,OSGI-INF/io.fabric8.service.FabricMBeanRegistrationListener.xml,OSGI-INF/io.fabric8.service.FabricServiceImpl.xml,OSGI-INF/io.fabric8.service.ZkDataStoreImpl.xml,OSGI-INF/io.fabric8.service.child.ChildContainerProvider.xml,OSGI-INF/io.fabric8.runtime.container.wildfly.WildflyContainerRegistration.xml,OSGI-INF/io.fabric8.runtime.container.wildfly.WildflyContainerRegistration.xml,OSGI-INF/io.fabric8.service.PortPlaceholderResolver.xml,OSGI-INF/io.fabric8.service.ProfilePropertyPointerResolver.xml,OSGI-INF/io.fabric8.service.ProfileUrlHandler.xml,OSGI-INF/io.fabric8.service.RuntimeServiceImpl.xml,OSGI-INF/io.fabric8.service.VersionPropertyPointerResolver.xml,OSGI-INF/io.fabric8.service.ZookeeperPlaceholderResolver.xml,OSGI-INF/io.fabric8.service.ZookeeperPortService.xml,OSGI-INF/io.fabric8.zookeeper.bootstrap.BootstrapConfiguration.xml,OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperServerFactory.xml,OSGI-INF/io.fabric8.zookeeper.curator.CuratorACLManager.xml,OSGI-INF/io.fabric8.zookeeper.curator.ManagedCuratorFramework.xml,OSGI-INF/io.fabric8.zookeeper.internal.ZkUrlHandler.xml,OSGI-INF/org.jboss.gravia.provision.internal.ProvisionerService.xml,OSGI-INF/org.jboss.gravia.repository.internal.RepositoryMBeanService.xml,OSGI-INF/org.jboss.gravia.repository.internal.RepositoryService.xml,OSGI-INF/org.jboss.gravia.resolver.internal.ResolverService.xml</Service-Component>
                         </manifestEntries>
                     </archive>
                 </configuration>
