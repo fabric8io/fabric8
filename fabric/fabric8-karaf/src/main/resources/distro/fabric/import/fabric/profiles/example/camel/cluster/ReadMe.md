@@ -8,7 +8,7 @@ The fabric endpoint provides a way to reuse Fabric's discovery mechanism to expo
 
 This is illustrated in the figure below:
 
-![Fabric Camel endpoint](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/fabric-camel-endpoint.png)
+![Fabric Camel endpoint](https://raw.githubusercontent.com/fabric8io/fabric8/master/docs/images/fabic-camel-endpoint.png)
 
 ## To run this example
 
