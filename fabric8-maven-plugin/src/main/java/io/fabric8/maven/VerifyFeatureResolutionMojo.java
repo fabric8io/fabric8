@@ -355,12 +355,14 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
                             @Override
                             public InputStream getInputStream() throws IOException {
                                 WrapUrlParser parser = new WrapUrlParser(url.getPath());
-                                return org.ops4j.pax.swissbox.bnd.BndUtils.createBundle(
-                                        parser.getWrappedJarURL().openStream(),
-                                        parser.getWrappingProperties(),
-                                        url.toExternalForm(),
-                                        parser.getOverwriteMode()
-                                );
+                                synchronized (CustomBundleURLStreamHandlerFactory.class) {
+                                    return org.ops4j.pax.swissbox.bnd.BndUtils.createBundle(
+                                            parser.getWrappedJarURL().openStream(),
+                                            parser.getWrappingProperties(),
+                                            url.toExternalForm(),
+                                            parser.getOverwriteMode()
+                                    );
+                                }
                             }
                         };
                     }
