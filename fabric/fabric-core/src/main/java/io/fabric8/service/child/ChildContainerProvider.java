@@ -39,6 +39,7 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Strings;
 import io.fabric8.internal.ContainerImpl;
+import io.fabric8.internal.Objects;
 import io.fabric8.service.ContainerTemplate;
 import io.fabric8.utils.AuthenticationUtils;
 import io.fabric8.utils.Ports;
@@ -140,6 +141,14 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     @Override
     public boolean isValidProvider() {
         // child provider isn't valid in OpenShift environment
+        FabricService service = getFabricService();
+        if (service != null) {
+            // lets disable child if in docker or openshift environments
+            String environment = service.getEnvironment();
+            if (Objects.equal(environment, "docker") || Objects.equal(environment, "openshift")) {
+                return false;
+            }
+        }
         boolean openshiftFuseEnv = Strings.notEmpty(System.getenv("OPENSHIFT_FUSE_DIR"));
         boolean openshiftAmqEnv = Strings.notEmpty(System.getenv("OPENSHIFT_AMQ_DIR"));
         return !(openshiftFuseEnv || openshiftAmqEnv);
