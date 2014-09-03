@@ -15,40 +15,6 @@
  */
 package io.fabric8.git.internal;
 
-import io.fabric8.api.Constants;
-import io.fabric8.api.DataStore;
-import io.fabric8.api.DataStoreTemplate;
-import io.fabric8.api.FabricException;
-import io.fabric8.api.GitContext;
-import io.fabric8.api.LockHandle;
-import io.fabric8.api.Profile;
-import io.fabric8.api.ProfileBuilder;
-import io.fabric8.api.ProfileBuilders;
-import io.fabric8.api.ProfileRegistry;
-import io.fabric8.api.Profiles;
-import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.Version;
-import io.fabric8.api.VersionBuilder;
-import io.fabric8.api.VersionSequence;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.Configurer;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.Strings;
-import io.fabric8.common.util.Zips;
-import io.fabric8.git.GitDataStore;
-import io.fabric8.git.GitListener;
-import io.fabric8.git.GitProxyService;
-import io.fabric8.git.GitService;
-import io.fabric8.git.PullPushPolicy;
-import io.fabric8.git.PullPushPolicy.PullPolicyResult;
-import io.fabric8.git.PullPushPolicy.PushPolicyResult;
-import io.fabric8.service.EnvPlaceholderResolver;
-import io.fabric8.utils.DataStoreUtils;
-import io.fabric8.zookeeper.ZkPath;
-import io.fabric8.zookeeper.utils.ZooKeeperUtils;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -83,6 +49,42 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import io.fabric8.api.Constants;
+import io.fabric8.api.DataStore;
+import io.fabric8.api.DataStoreTemplate;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.GitContext;
+import io.fabric8.api.LockHandle;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileBuilders;
+import io.fabric8.api.ProfileRegistry;
+import io.fabric8.api.Profiles;
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.Version;
+import io.fabric8.api.VersionBuilder;
+import io.fabric8.api.VersionSequence;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.Files;
+import io.fabric8.common.util.Strings;
+import io.fabric8.common.util.Zips;
+import io.fabric8.git.GitDataStore;
+import io.fabric8.git.GitListener;
+import io.fabric8.git.GitProxyService;
+import io.fabric8.git.GitService;
+import io.fabric8.git.PullPushPolicy;
+import io.fabric8.git.PullPushPolicy.PullPolicyResult;
+import io.fabric8.git.PullPushPolicy.PushPolicyResult;
+import io.fabric8.service.EnvPlaceholderResolver;
+import io.fabric8.utils.DataStoreUtils;
+import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.shared.SharedCount;
@@ -97,7 +99,6 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
@@ -112,10 +113,6 @@ import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 
 /**
  * A git based implementation of {@link DataStore} which stores the profile
@@ -1448,20 +1445,36 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             File toFile = new File(toDir, name);
 
             if (from.isDirectory()) {
-                if (useToDirAsDestination) {
-                    toFile = toDir;
-                }
-                toFile.mkdirs();
-                File[] files = from.listFiles();
-                if (files != null) {
-                    for (File file : files) {
-                        recursiveCopyAndAdd(git, file, toFile, pattern, false);
+                if (acceptDirectory(from)) {
+                    if (useToDirAsDestination) {
+                        toFile = toDir;
                     }
+                    toFile.mkdirs();
+                    File[] files = from.listFiles();
+                    if (files != null) {
+                        for (File file : files) {
+                            recursiveCopyAndAdd(git, file, toFile, pattern, false);
+                        }
+                    }
+                } else {
+                    LOGGER.debug("Skip importing from directory: {}", from);
                 }
             } else {
                 Files.copy(from, toFile);
             }
             git.add().addFilepattern(fixFilePattern(pattern)).call();
+        }
+
+        private boolean acceptDirectory(File dir) {
+            // we should skip directories which has a .skipimport file
+            String[] files = dir.list();
+            for (String name : files) {
+                if (".skipimport".equals(name)) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         @SuppressWarnings("unchecked")
