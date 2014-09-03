@@ -119,6 +119,10 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
     private synchronized void updateInternal() throws Exception {
         
         Container currentContainer = fabricService.get().getCurrentContainer();
+        if (currentContainer == null) {
+            LOGGER.warn("No current container yet so cannot update!");
+            return;
+        }
         Profile overlayProfile = currentContainer.getOverlayProfile();
         Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), overlayProfile);
         
