@@ -455,6 +455,10 @@
                        </execution>
                    </executions>
                </plugin>
+<!--
+
+  TODO - remove ASAP once this works reliably...
+
                <plugin>
                    <groupId>io.fabric8</groupId>
                    <artifactId>fabric8-maven-plugin</artifactId>
@@ -479,6 +483,7 @@
                        </execution>
                    </executions>
                </plugin>
+-->
                <plugin>
                    <groupId>org.apache.karaf.tooling</groupId>
                    <artifactId>features-maven-plugin</artifactId>
