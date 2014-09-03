@@ -97,10 +97,10 @@
                   <groupId>io.fabric8</groupId>
                   <artifactId>fabric8-karaf</artifactId>
                   <version>${project.version}</version>
-                  <type>zip</type>
+                  <type>tar.gz</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>${basedir}/target/test-classes/docker</outputDirectory>
-                  <destFileName>fabric8.zip</destFileName>
+                  <destFileName>fabric8.tar.gz</destFileName>
                 </artifactItem>
               </artifactItems>
             </configuration>
