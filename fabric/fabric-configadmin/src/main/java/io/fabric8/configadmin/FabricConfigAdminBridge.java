@@ -178,9 +178,16 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
         if (!c.equals(old)) {
             LOGGER.info("Updating configuration {}", config.getPid());
             c.put(FABRIC_ZOOKEEPER_PID, pid);
-            if (config.getBundleLocation() != null) {
-                config.setBundleLocation(null);
-            }
+            // FABRIC-1078. Do *not* set the bundle location to null
+            // causes org.apache.felix.cm.impl.ConfigurationManager.locationChanged() to be fired and:
+            // - one of the listeners (SCR) tries to getConfiguration(pid)
+            // - bundle location is checked to be null
+            // - bundle location is set
+            // - org.apache.felix.cm.impl.ConfigurationBase.storeSilently() is invoked
+            // and all of this *after* the below config.update(), only with *old* values
+//            if (config.getBundleLocation() != null) {
+//                config.setBundleLocation(null);
+//            }
             if ("true".equals(c.get(FABRIC_CONFIG_MERGE)) && old != null) {
                 // CHECK: if we remove FABRIC_CONFIG_MERGE property, profile update
                 // would remove the original properties - only profile-defined will be used
