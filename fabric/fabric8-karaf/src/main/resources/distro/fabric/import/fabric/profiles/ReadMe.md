@@ -1,15 +1,14 @@
-### Getting Started and QuickStarts
+#### Getting Started and QuickStarts
 
 * [beginner quickstarts](/fabric/profiles/quickstarts/karaf/beginner) is recommended for first time users of Fabric to get you started
 * [quickstarts](/fabric/profiles/quickstarts) and [examples](/fabric/profiles/example) to get you started using Fabric
 
-### Products
+#### Products
 
-<!--- * [jboss](/fabric/profiles/jboss) for the profiles for running various [JBoss Products](http://www.jboss.org/products) -->
 * [mq](/fabric/profiles/mq) for working with ActiveMQ
-* **
+<!--- * [jboss](/fabric/profiles/jboss) for the profiles for running various [JBoss Products](http://www.jboss.org/products) -->
 
-### Other Profiles
+#### Other Profiles
 
 * [containers](/fabric/profiles/containers) for various profiles used to run Java artifacts in different kinds of containers using Fabric.
 <!--- * [cloud](/fabric/profiles/cloud) for various profiles for working with [jclouds](http://jclouds.apache.org/) like OpenStack and EC2 -->
@@ -19,7 +18,7 @@
 <!--- * [openshift](/fabric/profiles/openshift) for various profiles which runs on the [OpenShift](https://www.openshift.com/) cloud. -->
 * [system](/fabric/profiles/system) for various system level profiles such as [DNS](/fabric/profiles/system/dns.profile) support.
 
-### Documentation
+#### Documentation
 
 * [documentation](http://fabric8.io/gitbook/index.html) to access the documentation from the Fabric website
 * **
