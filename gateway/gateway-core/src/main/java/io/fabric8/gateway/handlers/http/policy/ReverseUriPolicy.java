@@ -15,8 +15,9 @@
  */
 package io.fabric8.gateway.handlers.http.policy;
 
-import io.fabric8.gateway.handlers.http.MappedServices;
-import io.fabric8.gateway.handlers.http.ProxyMappingDetails;
+import io.fabric8.gateway.api.handlers.http.IMappedServices;
+import io.fabric8.gateway.api.handlers.http.ProxyMappingDetails;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
@@ -36,13 +37,13 @@ import java.util.List;
 public class ReverseUriPolicy implements Handler<HttpClientResponse> {
     private static final transient Logger LOG = LoggerFactory.getLogger(ReverseUriPolicy.class);
 
-    private final MappedServices mappedServices;
+    private final IMappedServices mappedServices;
     private final HttpServerRequest request;
     private final Handler<HttpClientResponse> delegate;
     private final ProxyMappingDetails proxyMappingDetails;
     private final String[] rewriteHeaders = {"Location", "Content-Location", "URI"};
 
-    public ReverseUriPolicy(MappedServices mappedServices, HttpServerRequest request, Handler<HttpClientResponse> delegate, ProxyMappingDetails proxyMappingDetails) {
+    public ReverseUriPolicy(IMappedServices mappedServices, HttpServerRequest request, Handler<HttpClientResponse> delegate, ProxyMappingDetails proxyMappingDetails) {
         this.mappedServices = mappedServices;
         this.request = request;
         this.delegate = delegate;

@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.gateway;
+package io.fabric8.gateway.api;
 
 import java.util.List;
 
