@@ -1,4 +1,4 @@
-FROM fabric8:fabric8
+FROM fabric8/fabric8
 
 USER root
 
