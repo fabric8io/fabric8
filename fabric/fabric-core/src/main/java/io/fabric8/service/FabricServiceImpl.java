@@ -353,7 +353,15 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         assertValid();
         LOGGER.info("Stopping container {}", container.getId());
         ContainerProvider provider = getProvider(container);
-        provider.stop(container);
+        try {
+            provider.stop(container);
+        } catch (RuntimeException ex) {
+            // if its already stopped then ignore the exception
+            boolean stopped = "Instance already stopped".equals(ex.getMessage());
+            if (!stopped) {
+                throw ex;
+            }
+        }
     }
 
     @Override
@@ -386,8 +394,12 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 try {
                     provider.stop(container);
                 } catch (Exception ex) {
-                    providerException = ex;
-                    //Ignore error while stopping and try to destroy.
+                    // Ignore error while stopping and try to destroy.
+                    // and if its already stopped then ignore the exception and do not rethrow later
+                    boolean stopped = "Instance already stopped".equals(ex.getMessage());
+                    if (!stopped) {
+                        providerException = ex;
+                    }
                 }
                 provider.destroy(container);
                 destroyed = true;
