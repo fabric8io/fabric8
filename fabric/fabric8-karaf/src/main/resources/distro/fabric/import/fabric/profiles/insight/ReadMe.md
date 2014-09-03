@@ -13,7 +13,7 @@ This profile should be added to the root container running the Management Consol
 * [camel](/fabric/profiles/insight/camel.profile) the insight-camel profile adds Camel message audit logging to [ElasticSearch](http://www.elasticsearch.org/). If you add this to any profiles you're deploying, you'll be able to query and view all your camel messages; and view reverse-engineered Gantt and sequence diagrams. To try this out try using the [loanbroker camel example profile](/fabric/profiles/example/camel/loanbroker.profile) and [insight-camel profile](/fabric/profiles/insight/camel.profile)
 * [jetty](/fabric/profiles/insight/jetty.profile) the insight-jetty profile adds an HTTP request logs for Jetty in [ElasticSearch](http://www.elasticsearch.org/).
 
- ### Configuration
+### Configuration
 
 Collected data are stored into Elasticsearch indices, one index per day.
 Management of those indices can be tuned in the core profile [configuration](/fabric/profiles/insight/core.profile/io.fabric8.insight.elasticsearch-default.properties).
