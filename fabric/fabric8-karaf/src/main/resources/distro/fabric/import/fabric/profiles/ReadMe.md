@@ -21,4 +21,4 @@
 #### Documentation
 
 * [documentation](http://fabric8.io/gitbook/index.html) to access the documentation from the Fabric website
-* **
+
