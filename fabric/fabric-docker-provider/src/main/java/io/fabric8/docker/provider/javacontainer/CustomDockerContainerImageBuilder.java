@@ -19,7 +19,6 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
-import io.fabric8.common.util.Closeables;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
 import io.fabric8.container.process.JavaContainerConfig;
@@ -36,11 +35,8 @@ import org.codehaus.plexus.archiver.tar.TarArchiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -53,14 +49,12 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Creates a docker image, adding java deployment units from the profile metadata.
+ * Creates a docker image, adding deployment units, overlays and environment vairables from the profile metadata.
  */
-public class JavaDockerContainerImageBuilder {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(JavaDockerContainerImageBuilder.class);
+public class CustomDockerContainerImageBuilder {
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(CustomDockerContainerImageBuilder.class);
 
-    private File tempDirectory;
-
-    public String generateContainerImage(FabricService fabric, Container container, List<Profile> profileList, Docker docker, JavaContainerOptions options, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
+    public String generateContainerImage(FabricService fabric, Container container, List<Profile> profileList, Docker docker, CustomDockerContainerImageOptions options, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
         String libDirAndSeparator = ensureEndsWithFileSeparator(options.getJavaLibraryPath());
         String homeDirAndSeparator = ensureEndsWithFileSeparator(options.getHomePath());
         Map<String, File> artifacts = JavaContainers.getJavaContainerArtifactsFiles(fabric, profileList, downloadExecutor);
@@ -114,7 +108,7 @@ public class JavaDockerContainerImageBuilder {
 
         String restAPI = fabric.getRestAPI();
         if (Strings.isNotBlank(restAPI)) {
-            addContainerOverlays(dockerFile, restAPI, fabric, container, profileList, docker, options, javaConfig, containerOptions, envVars, homeDirAndSeparator, overlaysDir);
+            addContainerOverlays(dockerFile, restAPI, fabric, container, profileList, javaConfig, containerOptions, envVars, homeDirAndSeparator, overlaysDir);
             String[] childFiles = overlaysDir.list();
             if (childFiles != null && childFiles.length > 0) {
                 dockerFile.add(overlaysDirPath, homeDirAndSeparator);
@@ -182,7 +176,7 @@ public class JavaDockerContainerImageBuilder {
         return answer;
     }
 
-    protected void addContainerOverlays(DockerFileBuilder dockerFile, String restAPI, FabricService fabricService, Container container, List<Profile> profiles, Docker docker, JavaContainerOptions options, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables, String homeDirAndSeparator, File overlaysDir) throws Exception {
+    protected void addContainerOverlays(DockerFileBuilder dockerFile, String restAPI, FabricService fabricService, Container container, List<Profile> profiles, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables, String homeDirAndSeparator, File overlaysDir) throws Exception {
         Set<String> profileIds = containerOptions.getProfiles();
         String versionId = containerOptions.getVersion();
         String layout = javaConfig.getOverlayFolder();
@@ -208,7 +202,6 @@ public class JavaDockerContainerImageBuilder {
         }
         Map<String, String> overlayResources = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_OVERLAY_RESOURCES_PID);
         if (overlayResources != null && !overlayResources.isEmpty()) {
-            File baseDir = getTempDirectory();
             Set<Map.Entry<String, String>> entries = overlayResources.entrySet();
             for (Map.Entry<String, String> entry : entries) {
                 String localPath = entry.getKey();
@@ -240,64 +233,4 @@ public class JavaDockerContainerImageBuilder {
         }
     }
 
-    protected File getTempDirectory() throws IOException {
-        if (tempDirectory == null) {
-            tempDirectory = File.createTempFile("fabric8-docker-image", "dir");
-            tempDirectory.delete();
-            tempDirectory.mkdirs();
-            tempDirectory.deleteOnExit();
-        }
-        return tempDirectory;
-    }
-
-    protected String parseCreatedImage(InputStream inputStream, String message) throws Exception {
-        String answer = null;
-        String prefix = "Successfully built";
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        try {
-            while (true) {
-                String line = reader.readLine();
-                if (line == null) break;
-                LOGGER.info("message: " + line);
-                line = line.trim();
-                if (line.length() > 0 && line.startsWith(prefix)) {
-                    answer = line.substring(prefix.length()).trim();
-                }
-            }
-
-        } catch (Exception e) {
-            LOGGER.error("Failed to process stdin for " +
-                    message +
-                    ": " + e, e);
-            throw e;
-        } finally {
-            Closeables.closeQuitely(reader);
-        }
-        return answer;
-    }
-
-    protected String processErrors(InputStream inputStream, String message) throws Exception {
-        StringBuilder builder = new StringBuilder();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        try {
-            while (true) {
-                String line = reader.readLine();
-                if (line == null) break;
-                if (builder.length() > 0) {
-                    builder.append("\n");
-                }
-                builder.append(line);
-                LOGGER.info(line);
-            }
-            return builder.toString();
-
-        } catch (Exception e) {
-            LOGGER.error("Failed to process stderr for " +
-                    message +
-                    ": " + e, e);
-            throw e;
-        } finally {
-            Closeables.closeQuitely(reader);
-        }
-    }
 }

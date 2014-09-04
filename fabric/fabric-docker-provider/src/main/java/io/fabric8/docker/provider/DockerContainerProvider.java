@@ -45,8 +45,8 @@ import io.fabric8.docker.api.Dockers;
 import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
-import io.fabric8.docker.provider.javacontainer.JavaContainerOptions;
-import io.fabric8.docker.provider.javacontainer.JavaDockerContainerImageBuilder;
+import io.fabric8.docker.provider.javacontainer.CustomDockerContainerImageBuilder;
+import io.fabric8.docker.provider.javacontainer.CustomDockerContainerImageOptions;
 import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
@@ -378,10 +378,10 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             names.add(versionId);
             String tag = "fabric8-" + Strings.join(names, "-").replace('.', '-');
 
-            JavaDockerContainerImageBuilder builder = new JavaDockerContainerImageBuilder();
-            JavaContainerOptions javaContainerOptions = new JavaContainerOptions(image, imageRepository, tag, libDir, homeDir, entryPoint);
+            CustomDockerContainerImageBuilder builder = new CustomDockerContainerImageBuilder();
+            CustomDockerContainerImageOptions customDockerContainerImageOptions = new CustomDockerContainerImageOptions(image, imageRepository, tag, libDir, homeDir, entryPoint);
 
-            String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, javaContainerOptions, javaConfig, options, downloadExecutor, environmentVariables);
+            String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, customDockerContainerImageOptions, javaConfig, options, downloadExecutor, environmentVariables);
             containerConfig.setImage(actualImage);
         }
 
