@@ -37,11 +37,13 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
+
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.felix.utils.properties.Properties;
+import org.apache.karaf.jaas.modules.BackingEngine;
 import org.apache.karaf.shell.console.AbstractAction;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -248,11 +250,37 @@ class CreateAction extends AbstractAction {
             String[] credentials = promptForNewUser(newUser, newUserPassword);
             newUser = credentials[0];
             newUserPassword = credentials[1];
-        } else if (newUser == null || newUserPassword == null) {
-            newUser = "" + userProps.keySet().iterator().next();
-            newUserPassword = "" + userProps.get(newUser);
-            if (newUserPassword.contains(ROLE_DELIMITER)) {
-                newUserPassword = newUserPassword.substring(0, newUserPassword.indexOf(ROLE_DELIMITER));
+        } else {
+            if (newUser == null || newUserPassword == null) {
+                newUser = "" + userProps.keySet().iterator().next();
+                newUserPassword = "" + userProps.get(newUser);
+                if (newUserPassword.contains(ROLE_DELIMITER)) {
+                    newUserPassword = newUserPassword.substring(0, newUserPassword.indexOf(ROLE_DELIMITER));
+                }
+            }
+            String passwordWithroles = userProps.get(newUser);
+            if (passwordWithroles != null && passwordWithroles.contains(ROLE_DELIMITER)) {
+                String[] infos = passwordWithroles.split(",");
+                String oldUserRole = newUserRole;
+                for (int i = 1; i < infos.length; i++) {
+                    if (infos[i].trim().startsWith(BackingEngine.GROUP_PREFIX)) {
+                        // it's a group reference
+                        String groupInfo = (String) userProps.get(infos[i].trim());
+                        if (groupInfo != null) {
+                            String[] roles = groupInfo.split(",");
+                            for (int j = 1; j < roles.length; j++) {
+                                if (!roles[j].trim().equals(oldUserRole)) {
+                                    newUserRole = newUserRole + ROLE_DELIMITER + roles[j].trim();
+                                }
+                            }
+                        }
+                    } else {
+                        // it's an user reference
+                        if (!infos[i].trim().equals(oldUserRole)) {
+                            newUserRole = newUserRole + ROLE_DELIMITER + infos[i].trim();
+                        }
+                    }                
+                }
             }
         }
 
