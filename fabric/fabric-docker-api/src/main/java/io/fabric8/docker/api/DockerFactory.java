@@ -19,6 +19,8 @@ import io.fabric8.docker.api.support.ProgressBodyReader;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.jboss.resteasy.plugins.providers.DefaultTextPlain;
+import org.jboss.resteasy.plugins.providers.FileProvider;
+import org.jboss.resteasy.plugins.providers.InputStreamProvider;
 import org.jboss.resteasy.plugins.providers.StringTextStar;
 import org.jboss.resteasy.plugins.providers.jackson.Jackson2JsonpInterceptor;
 import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
@@ -69,6 +71,8 @@ public class DockerFactory {
         providerFactory.register(ProgressBodyReader.class);
         providerFactory.register(StringTextStar.class);
         providerFactory.register(DefaultTextPlain.class);
+        providerFactory.register(FileProvider.class);
+        providerFactory.register(InputStreamProvider.class);
 
         ResteasyClientBuilder builder = new ResteasyClientBuilder();
         builder.providerFactory(providerFactory);
