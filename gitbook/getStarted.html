@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2" data-basepath="." data-revision="1409772276344">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2" data-basepath="." data-revision="1409858797754">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -679,30 +679,36 @@
             
         </li>
     
-        <li class="chapter " data-level="8.3" data-path="faqOsgi.html">
-            
-            <a href="./faqOsgi.html">
-                <i class="fa fa-check"></i> <b>8.3.</b> Questions on OSGi and Fabric8
-            </a>
-            
-            
-        </li>
-    
-        <li class="chapter " data-level="8.4" data-path="faqConfig.html">
+        <li class="chapter " data-level="8.3" data-path="faqConfig.html">
             
             <a href="./faqConfig.html">
-                <i class="fa fa-check"></i> <b>8.4.</b> Configuration Questions
+                <i class="fa fa-check"></i> <b>8.3.</b> Configuration Questions
             </a>
             
             
         </li>
     
-        <li class="chapter " data-level="8.5" data-path="faqIssues.html">
+        <li class="chapter " data-level="8.4" data-path="faqIssues.html">
             
             <a href="./faqIssues.html">
-                <i class="fa fa-check"></i> <b>8.5.</b> Known Issues
+                <i class="fa fa-check"></i> <b>8.4.</b> Known Issues
             </a>
             
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="8.4.1" data-path="faqOsgi.html">
+            
+            <a href="./faqOsgi.html">
+                <i class="fa fa-check"></i> <b>8.4.1.</b> Questions on OSGi and Fabric8
+            </a>
+            
+            
+        </li>
+    
+
+            </ul>
             
         </li>
     
@@ -837,11 +843,11 @@
     
         <a href="./faqUsing.html" title="Questions On Using Fabric8" class="chapter  " data-progress="8.2" style="left: 94.54545454545455%;"></a>
     
-        <a href="./faqOsgi.html" title="Questions on OSGi and Fabric8" class="chapter  " data-progress="8.3" style="left: 96.36363636363636%;"></a>
+        <a href="./faqConfig.html" title="Configuration Questions" class="chapter  " data-progress="8.3" style="left: 96.36363636363636%;"></a>
     
-        <a href="./faqConfig.html" title="Configuration Questions" class="chapter  " data-progress="8.4" style="left: 98.18181818181819%;"></a>
+        <a href="./faqIssues.html" title="Known Issues" class="chapter  " data-progress="8.4" style="left: 98.18181818181819%;"></a>
     
-        <a href="./faqIssues.html" title="Known Issues" class="chapter  " data-progress="8.5" style="left: 100%;"></a>
+        <a href="./faqOsgi.html" title="Questions on OSGi and Fabric8" class="chapter  " data-progress="8.4.1" style="left: 100%;"></a>
     
     </div>
 </div>
@@ -854,16 +860,16 @@
 <h3 id="download"><a name="download" class="anchor" href="#download"><span class="fa fa-link"></span></a>Download</h3>
 <div class="row">
   <div class="col-md-4 text-center">
-    <a class="btn btn-large btn-success" href="http://central.maven.org/maven2/io/fabric8/fabric8-karaf/1.2.0.Beta2/fabric8-karaf-1.2.0.Beta2.zip">fabric8-karaf-1.2.0.Beta2.zip</a>
+    <a class="btn btn-large btn-success" href="https://repo1.maven.org/maven2/io/fabric8/fabric8-karaf/1.2.0.Beta2/fabric8-karaf-1.2.0.Beta2.zip">fabric8-karaf-1.2.0.Beta2.zip</a>
   </div>
   <!-- TODO these are not ready yet
   Note that the [Apache Tomcat](https://tomcat.apache.org/) and [Apache TomEE](http://tomee.apache.org/) distributions are still experimental; the [Apache Karaf](http://karaf.apache.org/) based distro is currently rock solid and complete ;) -->
   <div class="col-md-4 text-center">
-    <a class="btn btn-large btn-warning" title="Warning!  Experimental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.2.0.Beta2/fabric8-tomcat-1.2.0.Beta2.zip">fabric8-tomcat-1.2.0.Beta2.zip</a>
+    <a class="btn btn-large btn-warning" title="Warning!  Experimental!" href="https://repo1.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.2.0.Beta2/fabric8-tomcat-1.2.0.Beta2.zip">fabric8-tomcat-1.2.0.Beta2.zip</a>
     <p><small><em>This distro is still experimental</em></small></p>
   </div>
   <div class="col-md-4 text-center">
-    <a class="btn btn-large btn-warning" title="Warning!  Experimental!" href="http://central.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.2.0.Beta2/fabric8-tomee-1.2.0.Beta2.zip">fabric8-tomee-1.2.0.Beta2.zip</a>
+    <a class="btn btn-large btn-warning" title="Warning!  Experimental!" href="https://repo1.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.2.0.Beta2/fabric8-tomee-1.2.0.Beta2.zip">fabric8-tomee-1.2.0.Beta2.zip</a>
     <p><small><em>This distro is still experimental</em></small></p>
   </div>
 </div>
@@ -872,7 +878,7 @@
 <h3 id="installation"><a name="installation" class="anchor" href="#installation"><span class="fa fa-link"></span></a>Installation</h3>
 <p>Unpack the tarball:</p>
 <pre><code>cd ~/Downloads
-unzip fabric8-karaf-1.2.0.Beta2.tar.gz
+unzip fabric8-karaf-1.2.0.Beta2.zip
 cd fabric8-karaf-1.2.0.Beta2
 </code></pre><p>Or, <a href="https://github.com/fabric8io/fabric8/blob/master/readme-build.md" target="_blank">build the project</a> with <a href="http://maven.apache.org/" target="_blank">Maven</a> via:</p>
 <pre><code>MAVEN_OPTS=&quot;-Xmx1024m -XX:MaxPermSize=512m&quot;
