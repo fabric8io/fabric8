@@ -817,7 +817,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            LOGGER.info("External call to push");
+            LOGGER.debug("External call to push");
             PushPolicyResult pushResult = doPushInternal(context, getCredentialsProvider());
             return pushResult.getPushResults();
         } finally {
@@ -832,7 +832,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            LOGGER.info("External call to execute a git operation: " + gitop);
+            LOGGER.debug("External call to execute a git operation: {}", gitop);
             return executeInternal(context, personIdent, gitop);
         } finally {
             writeLock.unlock();
