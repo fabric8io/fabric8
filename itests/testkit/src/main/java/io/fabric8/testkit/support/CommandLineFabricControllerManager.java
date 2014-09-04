@@ -65,7 +65,7 @@ public class CommandLineFabricControllerManager extends FabricControllerManagerS
         if (workDirectory == null) {
             workDirectory = createTempDirectory();
         }
-        String version = System.getProperty("fabric8-version", "1.1.0-SNAPSHOT");
+        String version = System.getProperty("fabric8-version", "1.2.0-SNAPSHOT");
         String home = System.getProperty("user.home", "~");
         String repo = home + "/.m2/repository";
         File distro = new File(repo, "io/fabric8/fabric8-karaf/" + version + "/fabric8-karaf-" + version + ".tar.gz");

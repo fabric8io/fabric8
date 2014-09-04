@@ -5,7 +5,7 @@ echo ===========================================================================
 echo Building version ${release_version}
 echo ============================================================================
 
-$dev_version=1.1.0-SNAPSHOT
+$dev_version=1.2.0-SNAPSHOT
 rm -rf fabric8
 
 git clone git@github.com:fabric8io/fabric8.git fabric8 && \

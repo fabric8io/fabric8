@@ -264,8 +264,8 @@ microservice related to the *invoicing* business concern.
 
 Then add your microservice jar to that profile:
 
-    > profile-edit --pid=io.fabric8.container.java/jarUrl=mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.1.0-SNAPSHOT invoicing
-    Setting value:mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.1.0-SNAPSHOT key:jarUrl on pid:io.fabric8.container.java and profile:invoicing version:1.0
+    > profile-edit --pid=io.fabric8.container.java/jarUrl=mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.2.0-SNAPSHOT invoicing
+    Setting value:mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.2.0-SNAPSHOT key:jarUrl on pid:io.fabric8.container.java and profile:invoicing version:1.0
 
 In order to find `@Component` and `@Configuration` classes specific to your application, set the `spring.main.sources`
 system property:
@@ -286,7 +286,7 @@ Our `invoice` profile is all set now - we can finally provision our microservice
 The container seems to be started properly, but let's verify this by listing REST services available under
 `http://localhost:8080` address:
 
-    ~/fabric8-karaf-1.1.0-SNAPSHOT [10001]% curl http://localhost:8080/
+    ~/fabric8-karaf-1.2.0-SNAPSHOT [10001]% curl http://localhost:8080/
     {
       "_links" : {
         "invoice" : {

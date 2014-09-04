@@ -14,7 +14,7 @@ if [ -z "$JAVA_HOME" ] ; then
 fi
 
 TOOLSJAR="$JAVA_HOME/lib/tools.jar"
-JAVA_OPTS=-javaagent:$JAR_DIR/apmagent-project-1.1.0-SNAPSHOT.jar=startJolokiaAgent=false
+JAVA_OPTS=-javaagent:$JAR_DIR/apmagent-project-1.2.0-SNAPSHOT.jar=startJolokiaAgent=false
 
 if [ ! -f "$TOOLSJAR" ] ; then
         echo "$JAVA_HOME seems to be no JDK!" >&2
@@ -22,5 +22,5 @@ if [ ! -f "$TOOLSJAR" ] ; then
 fi
 
 
-"$JAVA_HOME"/bin/java $JAVA_OPTS -cp "$JAR_DIR/apmagent-project-1.1.0-SNAPSHOT-tests.jar" io.fabric8.testApp.TestApp
+"$JAVA_HOME"/bin/java $JAVA_OPTS -cp "$JAR_DIR/apmagent-project-1.2.0-SNAPSHOT-tests.jar" io.fabric8.testApp.TestApp
 exit $?

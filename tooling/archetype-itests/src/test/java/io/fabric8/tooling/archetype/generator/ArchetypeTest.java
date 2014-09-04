@@ -47,7 +47,7 @@ public class ArchetypeTest {
 
     // lets get the versions from the pom.xml via a system property
     private String camelVersion = System.getProperty("camel-version", "2.12.0.redhat-610379");
-    private String projectVersion = System.getProperty("project.version", "1.1.0-SNAPSHOT");
+    private String projectVersion = System.getProperty("project.version", "1.2.0-SNAPSHOT");
     private File basedir = new File(System.getProperty("basedir", "."));
 
     private static List<String> outDirs = new ArrayList<String>();

@@ -12,8 +12,8 @@ In order to migrate profiles from your older Fabric8 installations to the brand 
 
 **Step 1**: Install new Fabric8 server.
 
-    unzip fabric8-karaf-1.1.0-SNAPSHOT.zip
-    mv fabric8-karaf-1.1.0-SNAPSHOT /opt/new-fabric8-home
+    unzip fabric8-karaf-1.2.0-SNAPSHOT.zip
+    mv fabric8-karaf-1.2.0-SNAPSHOT /opt/new-fabric8-home
     
 Do not start new Fabric8 server until you reach **step 4** of the migration. Keep in mind however that your old Fabric8
 server can be up and running when you export configuration from it.

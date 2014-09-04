@@ -76,7 +76,7 @@ public class GenerateControllerKinds {
         // lets try find the process tarball
         String groupId = System.getProperty("groupId", "io.fabric8.process");
         String artifactId = "process-launcher";
-        String version = System.getProperty("version", "1.1.0-SNAPSHOT");
+        String version = System.getProperty("version", "1.2.0-SNAPSHOT");
         String classifier = "bin";
         String extension = "tar.gz";
 
