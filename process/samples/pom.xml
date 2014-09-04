@@ -31,6 +31,11 @@
     
     <name>Fabric8 :: Process :: Samples</name>
 
+    <modules>
+        <module>process-sample-camel-spring</module>
+        <module>process-sample-camel-spring-just-xml</module>
+    </modules>
+
     <dependencies>
         <dependency>
             <groupId>io.fabric8</groupId>
@@ -94,17 +99,4 @@
         </pluginManagement>
     </build>
 
-    <modules>
-        <module>process-sample-camel-spring</module>
-    </modules>
-
-    <profiles>
-        <profile>
-            <id>all</id>
-            <modules>
-                <module>process-sample-camel-spring-just-xml</module>
-            </modules>
-        </profile>
-    </profiles>
-    
 </project>

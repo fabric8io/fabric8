@@ -37,15 +37,8 @@
         <module>gateway-fabric-support</module>
         <module>gateway-fabric</module>
         <module>gateway-fabric-haproxy</module>
+        <module>gateway-servlet</module>
+        <module>gateway-servlet-example</module>
   </modules>
 
-    <profiles>
-        <profile>
-            <id>all</id>
-            <modules>
-                <module>gateway-servlet</module>
-                <module>gateway-servlet-example</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>

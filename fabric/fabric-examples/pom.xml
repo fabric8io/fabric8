@@ -26,23 +26,16 @@
 
     <artifactId>fabric-examples</artifactId>
     <packaging>pom</packaging>
-    
-    <name>Fabric8 :: Examples</name>
-    
-    <modules>
-      <module>fabric-activemq-demo</module>
-      <module>fabric-camel-dosgi</module>
-	</modules>
 
-    <profiles>
-        <profile>
-            <id>all</id>
-            <modules>
-              <module>fabric-camel-cxf</module>
-              <module>fabric-camel-demo</module>
-              <module>fabric-cxf-demo</module>
-              <module>fabric-loanbroker-rateservice</module>
-            </modules>
-        </profile>
-    </profiles>
+    <name>Fabric8 :: Examples</name>
+
+    <modules>
+        <module>fabric-activemq-demo</module>
+        <module>fabric-camel-cxf</module>
+        <module>fabric-camel-demo</module>
+        <module>fabric-camel-dosgi</module>
+        <module>fabric-cxf-demo</module>
+        <module>fabric-loanbroker-rateservice</module>
+    </modules>
+
 </project>

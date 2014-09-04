@@ -34,27 +34,27 @@
     <name>Fabric8 :: Tooling</name>
 
     <modules>
+        <module>archetypes</module>
         <module>archetype-builder</module>
         <module>archetype-commands</module>
+        <module>camel-tooling-util</module>
+        <module>examples</module>
         <module>testing</module>
+        <module>tooling-activemq-facade</module>
+        <module>tooling-camel-facade</module>
+        <module>tooling-fabric-all</module>
+        <module>tooling-jclouds-all</module>
+        <module>tooling-servicemix-facade</module>
     </modules>
 
     <profiles>
         <profile>
-            <id>all</id>
-            <modules>
-                <module>examples</module>
-                <module>archetypes</module>
-                <module>camel-tooling-util</module>
-                <module>tooling-activemq-facade</module>
-                <module>tooling-camel-facade</module>
-                <module>tooling-fabric-all</module>
-                <module>tooling-jclouds-all</module>
-                <module>tooling-servicemix-facade</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>ts.all</id>
+            <id>ts.basic</id>
+            <activation>
+                <property>
+                    <name>ts.basic</name>
+                </property>
+            </activation>
             <modules>
                 <module>archetype-itests</module>
             </modules>

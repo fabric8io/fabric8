@@ -2,11 +2,10 @@ Modules
 ===================
 
 By default Fabric8 builds the set of modules required by the karaf distribution and runs the associated integration tests.
-There are three main build targets associated with corresponding maven profiles
+There are two main build targets associated with corresponding maven profiles
 
 * tomcat: Fabric8 on Tomcat 
 * wildfly: Fabric8 on WildFly
-* all: All available modules
 
 Build examples are below
 
@@ -74,10 +73,6 @@ Build Fabric8 and run the smoke and basic integration tests
 Build Fabric8 and run all tests
 
     > mvn clean install -Dts.all
-    
-Build fabric8 with all modules and run all tests
-
-    > mvn clean install -Pall -Dts.all
     
 
 License check

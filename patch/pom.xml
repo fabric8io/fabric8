@@ -16,38 +16,31 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>io.fabric8</groupId>
-    <artifactId>fabric8-project</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
-    <relativePath>../parent</relativePath>
-  </parent>
+    <parent>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-project</artifactId>
+        <version>1.1.0-SNAPSHOT</version>
+        <relativePath>../parent</relativePath>
+    </parent>
 
-  <groupId>io.fabric8.patch</groupId>
-  <artifactId>patch-project</artifactId>
-  <packaging>pom</packaging>
-  
-  <name>Fabric8 :: Patch</name>
+    <groupId>io.fabric8.patch</groupId>
+    <artifactId>patch-project</artifactId>
+    <packaging>pom</packaging>
 
-  <properties>
-    <fuse.osgi.export>io.fabric8.patch.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
-  </properties>
+    <name>Fabric8 :: Patch</name>
 
-  <modules>
-  </modules>
+    <properties>
+        <fuse.osgi.export>io.fabric8.patch.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+    </properties>
 
-    <profiles>
-        <profile>
-            <id>all</id>
-            <modules>
-                <module>patch-client</module>
-                <module>patch-core</module>
-                <module>patch-commands</module>
-                <module>patch-features</module>
-                <module>patch-maven-plugin</module>
-            </modules>
-        </profile>
-    </profiles>
+    <modules>
+        <module>patch-client</module>
+        <module>patch-core</module>
+        <module>patch-commands</module>
+        <module>patch-features</module>
+        <module>patch-maven-plugin</module>
+    </modules>
+
 </project>

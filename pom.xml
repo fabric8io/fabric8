@@ -3452,30 +3452,27 @@
     </dependencyManagement>
 
     <modules>
-        <module>parent</module>
+        <module>apm</module>
         <module>common-util</module>
-        <module>maven-util</module>
         <module>fab</module>
-        <module>fabric8-maven-plugin</module>
+        <!-- hardcoded order - quickstart aggregation does not follow maven module dependency principals -->
         <module>quickstarts</module>
-        <!-- exclude until we find a better solution, see #2280
-        <module>quickstarts-exclude-artifact</module>
-        -->
-        <module>tooling</module>
         <module>fabric</module>
-        <module>runtime</module>
-        <module>insight</module>
-        <module>mq</module>
-        <module>process</module>
+        <module>fabric8-maven-plugin</module>
         <module>gateway</module>
-
+        <module>insight</module>
+        <module>maven-util</module>
+        <module>mq</module>
+        <module>parent</module>
+        <module>patch</module>
+        <module>process</module>
+        <!-- exclude until we find a better solution, see #2280
+        <module>quickstarts-exclude-artifact</module-->
+        <module>runtime</module>
+        <module>security</module>
+        <module>tooling</module>
         <!-- itests should be built last -->
         <module>itests</module>
-        <!-- 
-        	Modules that are relevant for the default distribution
-        	and are verified as part of the smoke tests go here.
-        	Everything else goes into respective profiles!
-         -->
     </modules>
 
     <profiles>
@@ -3483,14 +3480,6 @@
             <id>site</id>
             <modules>
                 <module>website</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>all</id>
-            <modules>
-                <module>apm</module>
-                <module>patch</module>
-                <module>security</module>
             </modules>
         </profile>
         <profile>

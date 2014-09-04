@@ -31,6 +31,7 @@
     <name>Fabric8 :: Integration Tests :: PaxExam (Deprecated)</name>
 
     <modules>
+        <module>common</module>
     </modules>
 
     <dependencies>
@@ -52,7 +53,6 @@
                 </property>
             </activation>
             <modules>
-			    <module>common</module>
 				<module>basic</module>
                 <module>wildfly</module>
             </modules>
@@ -65,14 +65,7 @@
                 </property>
             </activation>
             <modules>
-			    <module>common</module>
 				<module>basic</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>all</id>
-            <modules>
-    			    <module>common</module>
             </modules>
         </profile>
     </profiles>
