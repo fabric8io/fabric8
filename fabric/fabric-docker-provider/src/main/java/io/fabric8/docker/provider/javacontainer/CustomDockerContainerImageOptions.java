@@ -16,8 +16,9 @@
 package io.fabric8.docker.provider.javacontainer;
 
 /**
+ * The various configuration options when creating a custom docker image
  */
-public class JavaContainerOptions {
+public class CustomDockerContainerImageOptions {
     private final String baseImage;
     private final String imageRepository;
     private final String newImageTag;
@@ -25,7 +26,7 @@ public class JavaContainerOptions {
     private final String homePath;
     private final String entryPoint;
 
-    public JavaContainerOptions(String baseImage, String imageRepository, String newImageTag, String javaLibraryPath, String homePath, String entryPoint) {
+    public CustomDockerContainerImageOptions(String baseImage, String imageRepository, String newImageTag, String javaLibraryPath, String homePath, String entryPoint) {
         this.baseImage = baseImage;
         this.imageRepository = imageRepository;
         this.newImageTag = newImageTag;
