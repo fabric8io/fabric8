@@ -353,6 +353,7 @@ public class ServiceImpl implements Service {
     }
 
     Map<String, Result> install(final Collection<Patch> patches, boolean simulate, boolean synchronous) {
+        checkPrerequisites(patches);
         try {
             // Compute individual patch results
             final Map<String, Result> results = new LinkedHashMap<String, Result>();
@@ -685,6 +686,34 @@ public class ServiceImpl implements Service {
             return m.group(1);
         } else {
             return symbolicName;
+        }
+    }
+
+    /**
+     * Check if the requirements for the specified patch have been installed
+     * @param patch the patch to check
+     * @throws PatchException if the requirements for the patch are missing or not yet installed
+     */
+    protected void checkPrerequisites(Patch patch) throws PatchException {
+        for (String requirement : patch.getRequirements()) {
+            Patch required = getPatch(requirement);
+            if (required == null) {
+                throw new PatchException(String.format("Required patch '%s' is missing", requirement));
+            }
+            if (!required.isInstalled()) {
+                throw new PatchException(String.format("Required patch '%s' is not installed", requirement));
+            }
+        }
+    }
+
+    /**
+     * Check if the requirements for all specified patches have been installed
+     * @param patches the set of patches to check
+     * @throws io.fabric8.patch.PatchException if at least one of the patches has missing requirements
+     */
+    protected void checkPrerequisites(Collection<Patch> patches) throws PatchException {
+        for (Patch patch : patches) {
+            checkPrerequisites(patch);
         }
     }
 

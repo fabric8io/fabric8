@@ -29,6 +29,7 @@ public class PatchData {
     private static final String ID = "id";
     private static final String DESCRIPTION = "description";
     private static final String BUNDLES = "bundle";
+    private static final String REQUIREMENTS = "requirement";
     private static final String COUNT = "count";
     private static final String RANGE = "range";
 
@@ -36,12 +37,15 @@ public class PatchData {
     private final String description;
     private final Collection<String> bundles;
     private final Map<String, String> versionRanges;
+    private final Collection<String> requirements;
 
-    public PatchData(String id, String description, Collection<String> bundles, Map<String, String> versionRanges) {
+
+    public PatchData(String id, String description, Collection<String> bundles, Map<String, String> versionRanges, Collection<String> requirements) {
         this.id = id;
         this.description = description;
         this.bundles = bundles;
         this.versionRanges = versionRanges;
+        this.requirements = requirements;
     }
 
     public String getId() {
@@ -58,6 +62,10 @@ public class PatchData {
 
     public Collection<String> getBundles() {
         return bundles;
+    }
+
+    public Collection<String> getRequirements() {
+        return requirements;
     }
 
     public static PatchData load(InputStream is) throws IOException {
@@ -77,7 +85,14 @@ public class PatchData {
                 ranges.put(bundle, props.getProperty(key + "." + RANGE));
             }
         }
-        return new PatchData(id, desc, bundles, ranges);
+        List<String> requirements = new ArrayList<String>();
+        int requirementCount = Integer.parseInt(props.getProperty(REQUIREMENTS + "." + COUNT, "0"));
+        for (int i = 0; i < requirementCount; i++) {
+            String key = REQUIREMENTS + "." + Integer.toString(i);
+            String requirement = props.getProperty(key);
+            requirements.add(requirement);
+        }
+        return new PatchData(id, desc, bundles, ranges, requirements);
     }
 
 }

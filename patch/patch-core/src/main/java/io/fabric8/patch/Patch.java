@@ -26,6 +26,11 @@ public interface Patch {
     Collection<String> getBundles();
 
     /**
+     * Get the collection of required patches. These patches need to be installed before installing this patch.
+     */
+    Collection<String> getRequirements();
+
+    /**
      * Get the version range specified for updating the bundle or <code>null</code> if no version range is specified explicitly.
      */
     String getVersionRange(String bundle);
