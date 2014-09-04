@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 #  Copyright 2005-2014 Red Hat, Inc.
 #
@@ -72,7 +72,15 @@ APP_CONSOLE_ERR="${APP_BASE}/logs/err.log"
 
 # Add the jars in the lib dir
 CLASSPATH=""
-for file in "$APP_BASE"/lib/*.{jar,war}
+for file in "$APP_BASE"/lib/*.jar
+do
+    if [ -z "$CLASSPATH" ]; then
+        CLASSPATH="$file"
+    else
+        CLASSPATH="$CLASSPATH:$file"
+    fi
+done
+for file in "$APP_BASE"/lib/*.war
 do
     if [ -z "$CLASSPATH" ]; then
         CLASSPATH="$file"
