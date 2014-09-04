@@ -309,14 +309,35 @@ public class Containers {
         List<Container> answer = new ArrayList<Container>();
         List<Container> containers = containersForProfile(allContainers, profile);
         for (Container container : containers) {
-            boolean alive = container.isAlive();
-            boolean provisioningPending = container.isProvisioningPending();
-            String provisionResult = container.getProvisionResult();
-            if (alive && !provisioningPending && Container.PROVISION_SUCCESS.equals(provisionResult)) {
+            boolean aliveAndProvisionSuccess = isAliveAndProvisionSuccess(container);
+            if (aliveAndProvisionSuccess) {
                 answer.add(container);
             }
         }
         return answer;
+    }
+
+    /**
+     * Returns true if the current container is a live and provisioned successfully.
+     */
+    public static boolean isCurrentContainerAliveAndProvisionSuccess(FabricService service) {
+        if (service == null) {
+            return false;
+        }
+        return isAliveAndProvisionSuccess(service.getCurrentContainer());
+    }
+
+    /**
+     * Returns true if the container is a live and provisioned successfully.
+     */
+    public static boolean isAliveAndProvisionSuccess(Container container) {
+        if (container == null) {
+            return false;
+        }
+        boolean alive = container.isAlive();
+        boolean provisioningPending = container.isProvisioningPending();
+        String provisionResult = container.getProvisionResult();
+        return alive && !provisioningPending && Container.PROVISION_SUCCESS.equals(provisionResult);
     }
 
     /**
@@ -328,7 +349,8 @@ public class Containers {
             boolean alive = container.isAlive();
             boolean provisioningPending = container.isProvisioningPending();
             String provisionResult = container.getProvisionResult();
-            if (alive && !provisioningPending && Container.PROVISION_SUCCESS.equals(provisionResult)) {
+            boolean aliveAndProvisionSuccess = alive && !provisioningPending && Container.PROVISION_SUCCESS.equals(provisionResult);
+            if (aliveAndProvisionSuccess) {
                 answer.add(container);
             }
         }
