@@ -48,9 +48,22 @@
           -->
           <!-- resteasy version -->
           !javax.ws.rs*,
+
+          <!-- avoid unnecessary stuff from plexus.archiver -->
+          !org.codehaus.classworlds*,
+          !junit.framework*,
+          !org.apache.commons.compress.compressors.bzip2*,
+          !hidden.org.codehaus.plexus*,
+          !org.apache.velocity*,
+
           *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
+          <!-- plexus.archiver for TarArchive -->
+          org.codehaus.plexus.*;-split-package:=first,
+          org.apache.commons.compress.*;-split-package:=first,
+          org.tukaani.*;-split-package:=first,
+
           io.fabric8.utils.features;-split-package:=first,
           io.fabric8.utils;-split-package:=first,
           io.fabric8.utils.shell;-split-package:=first,
@@ -90,6 +103,13 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+          <groupId>org.codehaus.plexus</groupId>
+          <artifactId>plexus-archiver</artifactId>
+          <version>2.4.1</version>
+        </dependency>
+
+
+      <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-project-deployer</artifactId>
             <version>${project.version}</version>

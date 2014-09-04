@@ -38,6 +38,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 @Produces(MediaType.APPLICATION_JSON)
@@ -175,7 +177,6 @@ public interface Docker {
      * @param repo      The repository.
      * @param tag       The tag.
      * @param registry  The registry.
-     *
      * @return a sequence of JSON objects for {@link Progress} which are not separated by a comma
      */
     @POST
@@ -188,8 +189,7 @@ public interface Docker {
      *
      * @param name the name of the image to insert into
      * @param path the path to write the file
-     * @param url the URL of the file to insert
-     *
+     * @param url  the URL of the file to insert
      * @return a sequence of JSON objects for {@link Progress} which are not separated by a comma
      */
     @POST
@@ -257,4 +257,23 @@ public interface Docker {
     @GET
     @Path("/images/search")
     List<ImageSearchResult> imageSearch(@QueryParam("term") String term);
+
+    /**
+     * Build an image from Dockerfile via stdin
+     *
+     * @param repositoryName                    the repository name and optional tag to be applied ot the resulting image
+     * @param quiet                             suppress verbose build output
+     * @param noCache                           do not use the cache when building the image
+     * @param remoteIntermediateContainers      remove intermediate containers after a successful build (default behavior)
+     * @param forceRemoveIntermediateContainers always remove intermediate containers (includes rm)
+     */
+    @POST
+    @Path("/build")
+    Object build(File tarball,
+                       @QueryParam("t") String repositoryName,
+                       @QueryParam("q") Integer quiet,
+                       @QueryParam("nocache") Integer noCache,
+                       @QueryParam("rm") Integer remoteIntermediateContainers,
+                       @QueryParam("forcerm") Integer forceRemoveIntermediateContainers);
+
 }

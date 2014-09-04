@@ -15,7 +15,9 @@
  */
 package io.fabric8.docker.provider.javacontainer;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
+import com.google.common.io.Files;
 import io.fabric8.process.manager.support.mvel.MvelPredicate;
 import io.fabric8.process.manager.support.mvel.MvelTemplateRendering;
 
@@ -62,24 +64,38 @@ public class ApplyConfigurationStep {
             String content = entry.getValue();
             String resourcePath = path.substring(path.indexOf("/"));
             resourcePath = resourcePath.substring(0, resourcePath.lastIndexOf(MvelPredicate.MVEN_EXTENTION));
-            copyToContent(resourcePath);
+            copyToContent(resourcePath, content);
         }
     }
 
     private void applyPlainConfiguration(Map<String, String> configuration, File installDir) throws IOException {
         for (Map.Entry<String, String> entry : configuration.entrySet()) {
             String path = entry.getKey();
+            String content = entry.getValue();
             int slashIndex = path.indexOf("/");
             String resourcePath = slashIndex > 0 ? path.substring(slashIndex): path;
-            copyToContent(resourcePath);
+            copyToContent(resourcePath, content);
         }
     }
 
-    private void copyToContent(String name) throws IOException {
+    private void copyToContent(String name, String content) throws IOException {
         String path = name;
         while (path.startsWith("/")) {
             path = path.substring(1);
         }
-        dockerFile.add(restAPI + path, homeDirAndSeparator + path);
+        File target = new File(baseDir, name);
+        if (!target.exists() && !target.getParentFile().exists() && !target.getParentFile().mkdirs()) {
+            throw new IOException("Directory: " + target.getParentFile().getAbsolutePath() + " can't be created");
+        } else if (target.isDirectory()) {
+            throw new IOException("Can't write to : " + target.getAbsolutePath() + ". It's a directory");
+        } else if (!target.exists() && !target.createNewFile()) {
+            throw new IOException("Failed to create file: " + target.getAbsolutePath() + ".");
+        }
+        Files.write(content.getBytes(Charsets.UTF_8), target);
+        String lowerName = name.toLowerCase();
+        if (lowerName.endsWith(".sh") || lowerName.endsWith(".bat") || lowerName.endsWith(".cmd")) {
+            // lets ensure its executable
+            target.setExecutable(true);
+        }
     }
 }
