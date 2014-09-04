@@ -32,10 +32,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -47,6 +44,7 @@ public class PatchServiceImpl implements PatchService {
     private static final String PATCH_ID = "id";
     private static final String PATCH_DESCRIPTION = "description";
     private static final String PATCH_BUNDLES = "bundle";
+    private static final String PATCH_REQUIREMENTS = "requirement";
     private static final String PATCH_COUNT = "count";
     private static final String PATCH_RANGE = "range";
 
@@ -119,11 +117,13 @@ public class PatchServiceImpl implements PatchService {
             } finally {
                 close(zis);
             }
+            // Check if all required patches are available
+            checkRequirements(version, descriptors);
             // Create patch profile
             List<Profile> profiles = version.getProfiles();
             for (PatchDescriptor descriptor : descriptors) {
                 String profileId = "patch-" + descriptor.getId();
-                Profile profile = null;
+                Profile profile = getPatchProfile(version, descriptor);
                 for (Profile p : profiles) {
                     if (profileId.equals(p.getId())) {
                         profile = p;
@@ -152,15 +152,56 @@ public class PatchServiceImpl implements PatchService {
         }
     }
 
+    /**
+     * Check if all required patches for a patch are available in the specified version
+     * @throws java.lang.RuntimeException if a required patch is missing
+     */
+    protected static void checkRequirements(Version version, PatchDescriptor descriptor) {
+        for (String requirement : descriptor.getRequirements()) {
+            if (getPatchProfile(version, requirement) == null) {
+                throw new RuntimeException(String.format("Unable to install patch '%s' - required patch '%s' is missing in version %s",
+                                                         descriptor.getId(), requirement, version.getId()));
+            }
+        }
+    }
+
+    /**
+     * Check if the requirements for all patches have been applied to the specified version
+     * @throws java.lang.RuntimeException if a required patch is missing
+     */
+    protected static void checkRequirements(Version version, Collection<PatchDescriptor> patches) {
+        for (PatchDescriptor patch : patches) {
+            checkRequirements(version, patch);
+        }
+    }
+
+    /**
+     * Get the patch profile for a specified patch descriptor from a {@link Version}
+     * Returns <code>null</code> if no matching profile was found
+     */
+    protected static Profile getPatchProfile(Version version, PatchDescriptor patch) {
+        return getPatchProfile(version, patch.getId());
+    }
+
+    /**
+     * Get the patch profile for a specified patch id from a {@link Version}
+     * Returns <code>null</code> if no matching profile was found
+     */
+    protected static Profile getPatchProfile(Version version, String patchId) {
+        return version.getProfile("patch-" + patchId);
+    }
+
     static class PatchDescriptor {
 
         final String id;
         final String description;
         final List<String> bundles;
+        final List<String> requirements;
 
         PatchDescriptor(Properties properties) {
             this.id = properties.getProperty(PATCH_ID);
             this.description = properties.getProperty(PATCH_DESCRIPTION);
+            // parse the bundle URLs and optionally, the bundle version ranges
             this.bundles = new ArrayList<String>();
             int count = Integer.parseInt(properties.getProperty(PATCH_BUNDLES + "." + PATCH_COUNT, "0"));
             for (int i = 0; i < count; i++) {
@@ -173,12 +214,20 @@ public class PatchServiceImpl implements PatchService {
 
                 this.bundles.add(url);
             }
+            // parse the requirements
+            this.requirements = new LinkedList<String>();
+            count = Integer.parseInt(properties.getProperty(PATCH_REQUIREMENTS + "." + PATCH_COUNT, "0"));
+            for (int i = 0; i < count; i++) {
+                String requirement = properties.getProperty(PATCH_REQUIREMENTS + "." + Integer.toString(i));
+                this.requirements.add(requirement);
+            }
         }
 
-        PatchDescriptor(String id, String description, List<String> bundles) {
+        PatchDescriptor(String id, String description, List<String> bundles, List<String> requirements) {
             this.id = id;
             this.description = description;
             this.bundles = bundles;
+            this.requirements = requirements;
         }
 
         public String getId() {
@@ -191,6 +240,10 @@ public class PatchServiceImpl implements PatchService {
 
         public List<String> getBundles() {
             return bundles;
+        }
+
+        public List<String> getRequirements() {
+            return requirements;
         }
     }
 
