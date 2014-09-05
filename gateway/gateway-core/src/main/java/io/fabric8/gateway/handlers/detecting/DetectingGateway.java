@@ -17,7 +17,7 @@ package io.fabric8.gateway.handlers.detecting;
 
 import io.fabric8.common.util.ShutdownTracker;
 import io.fabric8.common.util.Strings;
-import io.fabric8.gateway.ServiceDetails;
+import io.fabric8.gateway.api.ServiceDetails;
 import io.fabric8.gateway.ServiceMap;
 import io.fabric8.gateway.SocketWrapper;
 import io.fabric8.gateway.handlers.detecting.protocol.ssl.SslConfig;

@@ -73,7 +73,11 @@ public class DetectingGatewayTest {
     @Before
     public void startVertx() {
         if( vertx == null ) {
-            vertx = VertxFactory.newVertx();
+        	try {
+        		vertx = VertxFactory.newVertx();
+        	} catch (Throwable t) {
+        		t.printStackTrace();
+        	}
         }
     }
     @After

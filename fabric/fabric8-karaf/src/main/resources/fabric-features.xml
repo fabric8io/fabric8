@@ -764,6 +764,10 @@
       <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
       <bundle>mvn:io.fabric8/gateway-model/${project.version}</bundle>
       <bundle>mvn:io.fabric8/gateway-core/${project.version}</bundle>
+      <bundle>mvn:io.fabric8/gateway-api/${project.version}</bundle>
+      <bundle>mvn:io.fabric8/gateway-apiman/${project.version}</bundle>
+      <bundle>wrap:mvn:org.overlord.apiman/apiman-rt-engine-core/${apiman-version}</bundle>
+      <bundle>wrap:mvn:org.overlord.apiman/apiman-rt-engine-beans/${apiman-version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
@@ -774,6 +778,7 @@
         <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-groups</feature>
         <feature version="${project.version}">gateway-core</feature>
+        <bundle>mvn:io.fabric8/gateway-api/${project.version}</bundle>
         <bundle>mvn:io.fabric8/gateway-fabric-support/${project.version}</bundle>
         <bundle>mvn:io.fabric8/gateway-fabric/${project.version}</bundle>
     </feature>
