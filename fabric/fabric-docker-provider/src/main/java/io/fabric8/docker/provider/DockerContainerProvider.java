@@ -362,6 +362,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         if (container != null) {
             container.setManualIp(dockerHost);
         }
+        if (!environmentVariables.containsKey(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS)) {
+            environmentVariables.put(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS, dockerHost);
+        }
         environmentVariables.put(EnvironmentVariables.FABRIC8_GLOBAL_RESOLVER, ZkDefs.MANUAL_IP);
         environmentVariables.put(EnvironmentVariables.FABRIC8_FABRIC_ENVIRONMENT, DockerConstants.SCHEME);
 
@@ -384,7 +387,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             CustomDockerContainerImageOptions customDockerContainerImageOptions = new CustomDockerContainerImageOptions(image, imageRepository, tag, libDir, deployDir, homeDir, entryPoint);
 
             String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, customDockerContainerImageOptions, javaConfig, options, downloadExecutor, environmentVariables);
-            containerConfig.setImage(actualImage);
+            if (actualImage != null) {
+                containerConfig.setImage(actualImage);
+            }
         }
 
         JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables, service, curatorOptional, false);
