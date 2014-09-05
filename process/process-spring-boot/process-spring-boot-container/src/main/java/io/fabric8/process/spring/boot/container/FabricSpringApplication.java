@@ -55,13 +55,9 @@ public class FabricSpringApplication {
 
     public static final String SPRING_MAIN_SOURCES = "spring.main.sources";
 
-    public static final String WEB_PROPERTY_KEY = "io.fabric8.process.spring.boot.container.web";
-
     // DSL state
 
     private ConfigurableApplicationContext parent;
-
-    private Boolean web;
 
     // Context factory method
 
@@ -71,7 +67,6 @@ public class FabricSpringApplication {
         if (parent != null) {
             applicationBuilder.parent(parent);
         }
-        resolveWebEnvironment(applicationBuilder);
         return applicationBuilder.run(args);
     }
 
@@ -81,27 +76,10 @@ public class FabricSpringApplication {
         new FabricSpringApplication().run(args);
     }
 
-    // Logic helpers
-
-    protected void resolveWebEnvironment(SpringApplicationBuilder applicationBuilder) {
-        // Check of the web system property should be performed by the Spring Boot - we should issue PR for this.
-        String webSystemProperty = System.getProperty(WEB_PROPERTY_KEY);
-        if (webSystemProperty != null) {
-            applicationBuilder.web(parseBoolean(webSystemProperty));
-        } else if (web != null) {
-            applicationBuilder.web(web);
-        }
-    }
-
     // DSL setters
 
     public FabricSpringApplication parent(ConfigurableApplicationContext parent) {
         this.parent = parent;
-        return this;
-    }
-
-    public FabricSpringApplication web(boolean web) {
-        this.web = web;
         return this;
     }
 
