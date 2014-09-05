@@ -14,27 +14,12 @@
 #  permissions and limitations under the License.
 #
 
-# list of ports and their names and default values
-# which will be exported as an environment variable
-# FABRIC8_$NAME_PORT
+# enable jolokia
+#JAVA_OPTS =-javaagent:jolokia-agent.jar=host=0.0.0.0,port=${env:FABRIC8_JOLOKIA_PORT},agentId=${env:FABRIC8_RUNTIME_ID}
 
-TXN_RECOVERY = 4712
-TXN_MANAGER = 4713
+# bind addresses
+FABRIC8_LISTEN_MANAGEMENT_ADDRESS = ${env:FABRIC8_LISTEN_ADDRESS}
+FABRIC8_LISTEN_INSECURE_ADDRESS = ${env:FABRIC8_LISTEN_ADDRESS}
 
-# the debugging port
-JPDA = 8000
-SERVER = 8005
+FABRIC8_JOLOKIA_URL = http://${env:FABRIC8_LISTEN_ADDRESS}:${env:FABRIC8_HTTP_PROXY_PORT}/jolokia
 
-HTTP = 8080
-HTTPS = 8443
-
-MANAGEMENT_HTTP = 9990
-MANAGEMENT_HTTPS = 9993
-
-AJP = 8009
-
-#JOLOKIA = 8778
-
-## TODO require?
-RMI = 1099
-RMI_SERVER = 44444
