@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-org.osgi.service.http.port=${env:FABRIC8_HTTP_PORT}
-org.osgi.service.http.connection.port=${env:FABRIC8_HTTP_PROXY_PORT}
-org.ops4j.pax.web.listening.addresses=${zk:${env:FABRIC8_RUNTIME_ID}/bindaddress}
+org.osgi.service.http.port=${env:FABRIC8_HTTP_PORT?:8181}
+org.osgi.service.http.connection.port=${env:FABRIC8_HTTP_PROXY_PORT?:8181}
+org.ops4j.pax.web.listening.addresses=${container:bindaddress}
 javax.servlet.context.tempdir=${runtime.data}/pax-web-jsp
 org.ops4j.pax.web.config.url=profile:jetty.xml
 org.ops4j.pax.web.config.checksum=${checksum:profile\:jetty.xml}
