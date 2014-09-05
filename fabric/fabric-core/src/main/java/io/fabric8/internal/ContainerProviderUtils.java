@@ -161,7 +161,8 @@ public final class ContainerProviderUtils {
             lines.add(ZkDefs.MANUAL_IP + "=" + options.getManualIp());
         }
         appendFile(sb, "etc/system.properties", lines);
-        replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name=" + name);
+        // backslash s , to handle any possible space
+        replaceLineInFile(sb, "etc/system.properties", "karaf.name\\s*=\\s*root", "karaf.name=" + name);
         for (Map.Entry<String, String> entry : options.getDataStoreProperties().entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
