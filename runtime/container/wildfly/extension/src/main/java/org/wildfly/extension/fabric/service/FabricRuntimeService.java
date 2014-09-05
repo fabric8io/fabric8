@@ -15,13 +15,8 @@
  */
 package org.wildfly.extension.fabric.service;
 
-import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.utils.SystemProperties;
-
-import java.io.File;
 import java.util.Properties;
 
-import org.jboss.as.server.ServerEnvironment;
 import org.wildfly.extension.gravia.service.RuntimeService;
 
 /**

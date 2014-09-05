@@ -21,7 +21,7 @@ import io.fabric8.api.ServiceProxy;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.ContainerProxy;
 import io.fabric8.itests.paxexam.support.Provision;
-import io.fabric8.utils.SystemProperties;
+import io.fabric8.api.SystemProperties;
 
 import java.io.BufferedReader;
 import java.io.File;

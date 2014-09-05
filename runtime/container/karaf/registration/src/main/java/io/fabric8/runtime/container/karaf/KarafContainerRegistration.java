@@ -43,7 +43,7 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;
-import io.fabric8.utils.SystemProperties;
+import io.fabric8.api.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
 
 import org.osgi.service.cm.Configuration;
@@ -71,7 +71,6 @@ import static io.fabric8.zookeeper.ZkPath.CONTAINER_IP;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_JMX;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_HOSTNAME;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_PUBLIC_HOSTNAME;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PUBLIC_IP;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MAX;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MIN;

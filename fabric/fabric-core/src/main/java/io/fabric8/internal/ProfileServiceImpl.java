@@ -30,7 +30,7 @@ import io.fabric8.api.Version;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.DataStoreUtils;
-import io.fabric8.utils.SystemProperties;
+import io.fabric8.api.SystemProperties;
 
 import java.io.IOException;
 import java.util.ArrayList;

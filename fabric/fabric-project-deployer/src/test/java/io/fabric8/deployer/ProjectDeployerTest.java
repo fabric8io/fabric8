@@ -36,7 +36,7 @@ import io.fabric8.service.EnvPlaceholderResolver;
 import io.fabric8.service.FabricServiceImpl;
 import io.fabric8.service.ProfilePropertyPointerResolver;
 import io.fabric8.service.VersionPropertyPointerResolver;
-import io.fabric8.utils.SystemProperties;
+import io.fabric8.api.SystemProperties;
 import io.fabric8.zookeeper.spring.ZKServerFactoryBean;
 
 import java.io.ByteArrayInputStream;

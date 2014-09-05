@@ -25,7 +25,7 @@ import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Ports;
-import io.fabric8.utils.SystemProperties;
+import io.fabric8.api.SystemProperties;
 import io.fabric8.utils.shell.ShellUtils;
 
 import java.io.File;

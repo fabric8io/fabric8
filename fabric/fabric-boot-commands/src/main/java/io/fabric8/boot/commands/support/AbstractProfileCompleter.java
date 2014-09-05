@@ -32,7 +32,6 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.utils.SystemProperties;
 
 /**
  * A completer that is aware of the target container.

@@ -20,7 +20,6 @@ import java.util.List;
 import io.fabric8.api.RuntimeProperties;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
-import io.fabric8.utils.SystemProperties;
 
 public class CurrentContainerCompleter implements Completer {
 

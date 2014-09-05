@@ -25,7 +25,6 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.data.Stat;
 
 import io.fabric8.api.RuntimeProperties;
-import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
 
 import java.io.IOException;
