@@ -63,7 +63,7 @@ public class InvoicingMicroServiceTest extends AbstractProcessTest {
         String url = "file://" + fileName;
 
         InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().jvmOptions("-D" + SPRING_MAIN_SOURCES + "=io.fabric8.process.spring.boot.itests.service.invoicing").
-                url(url).environment(springBootProcessEnvironment()).mainClass(FabricSpringApplication.class).build();
+                url(url).build();
         processController = processManagerService.installJar(installOptions, null).getController();
         startProcess(processController);
 
@@ -110,14 +110,6 @@ public class InvoicingMicroServiceTest extends AbstractProcessTest {
         // Then
         assertEquals(1, receivedInvoice.getCorrections().size());
         assertEquals(correction.getNetValue(), receivedInvoice.corrections().get(0).getNetValue());
-    }
-
-    // Test helpers
-
-    protected static Map<String, String> springBootProcessEnvironment() {
-        Map<String, String> environment = new HashMap<String, String>();
-        environment.put(FABRIC8_JAVA_MAIN, FabricSpringApplication.class.getName());
-        return environment;
     }
 
 }
