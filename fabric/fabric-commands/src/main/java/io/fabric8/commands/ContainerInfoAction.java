@@ -21,7 +21,6 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.common.util.Strings;
-import io.fabric8.utils.SystemProperties;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;

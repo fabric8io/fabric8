@@ -16,19 +16,14 @@
 package io.fabric8.zookeeper.bootstrap;
 
 import io.fabric8.api.Constants;
-import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.utils.SystemProperties;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.file.FileSystem;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Map.Entry;
