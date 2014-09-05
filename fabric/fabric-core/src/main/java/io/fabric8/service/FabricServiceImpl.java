@@ -242,6 +242,9 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 Map<String, String> systemProperties = currentContainer.getOverlayProfile().getConfiguration(Constants.SYSTEM_PROPERTIES_PID);
                 answer = systemProperties.get(SystemProperties.FABRIC_ENVIRONMENT);
             }
+
+            // lets store the effective profile for later on
+            System.setProperty(SystemProperties.FABRIC_PROFILE_ENVIRONMENT, answer);
         }
         return answer;
     }

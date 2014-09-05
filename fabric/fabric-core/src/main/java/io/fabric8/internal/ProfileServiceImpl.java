@@ -177,6 +177,10 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
             } else {
                 String profileId = profile.getId();
                 String environment = runtimeProperties.get().getProperty(SystemProperties.FABRIC_ENVIRONMENT);
+                if (environment == null) {
+                    // lets default to the environment from the current active set of profiles (e.g. docker or openshift)
+                    environment = System.getProperty(SystemProperties.FABRIC_PROFILE_ENVIRONMENT);
+                }
                 ProfileBuilder builder = ProfileBuilder.Factory.create(profile.getVersion(), profileId);
                 builder.addOptions(new OverlayOptionsProvider(profile, environment));
                 overlayProfile = builder.getProfile();

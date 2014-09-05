@@ -199,14 +199,7 @@ public final class Profiles {
                 for (String profileId : profileIds) {
                     Profile profile = version.getRequiredProfile(profileId);
                     Profile overlay = profileService.getOverlayProfile(profile);
-                    Map<String, String> profileConfig = null;
-                    if (!Strings.isNullOrBlank(environment)) {
-                        String envPid = pid + "#" + environment;
-                        profileConfig = overlay.getConfiguration(envPid);
-                    }
-                    if (profileConfig == null) {
-                        profileConfig = overlay.getConfiguration(pid);
-                    }
+                    Map<String, String> profileConfig = overlay.getConfiguration(pid);
                     if (profileConfig != null) {
                         overlayConfig.putAll(profileConfig);
                     }

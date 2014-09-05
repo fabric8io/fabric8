@@ -28,6 +28,11 @@ public final class SystemProperties {
     public static final String JAVA_RMI_SERVER_HOSTNAME = "java.rmi.server.hostname";
     public static final String FABRIC_ENVIRONMENT = "fabric.environment";
 
+    /**
+     * The current effective profile from the current set of profiles
+     */
+    public static final String FABRIC_PROFILE_ENVIRONMENT = "fabric.profile.environment";
+
 
     private SystemProperties() {
         //Utility Class
