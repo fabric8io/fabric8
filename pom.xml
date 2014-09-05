@@ -186,6 +186,8 @@
         <drools-spring-groupId>org.kie</drools-spring-groupId>
         <!-- drools 6.1.0.Final has mvel2 issue -->
         <drools-version>6.1.0.Final</drools-version>
+        <elasticsearch-version>1.3.2</elasticsearch-version>
+        <elasticsearch-zookeeper-version>1.3.2-SNAPSHOT</elasticsearch-zookeeper-version>
         <exec-maven-plugin-version>1.2.1</exec-maven-plugin-version>
         <felix-configadmin-version>1.6.0</felix-configadmin-version>
         <felix-eventadmin-version>1.3.2</felix-eventadmin-version>
@@ -3769,10 +3771,10 @@
 
     <modules>
         <module>parent</module>
-        
+
         <!-- hardcoded order - quickstarts violates maven module dependency principals -->
         <module>quickstarts</module>
-        
+
         <module>apm</module>
         <module>common-util</module>
         <module>fab</module>
@@ -3789,10 +3791,27 @@
         <module>runtime</module>
         <module>security</module>
         <module>tooling</module>
-        
+
         <!-- itests should be built last -->
         <module>itests</module>
     </modules>
+
+    <build>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>2.6</version>
+          <configuration>
+            <nonFilteredFileExtensions>
+              <nonFilteredFileExtension>zip</nonFilteredFileExtension>
+              <nonFilteredFileExtension>gz</nonFilteredFileExtension>
+              <nonFilteredFileExtension>jar</nonFilteredFileExtension>
+            </nonFilteredFileExtensions>
+          </configuration>
+        </plugin>
+      </plugins>
+    </build>
 
     <profiles>
         <profile>
