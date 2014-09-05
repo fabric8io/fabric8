@@ -15,6 +15,7 @@
  */
 package io.fabric8.openshift;
 
+import com.openshift.internal.client.httpclient.NotFoundException;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.ContainerAutoScalerFactory;
@@ -275,7 +276,11 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         assertValid();
         IApplication app = getContainerApplication(container, false);
         if (app != null) {
-            app.destroy();
+            try {
+                app.destroy();
+            } catch (NotFoundException e) {
+                LOG.debug("Ignoring '\"{}\" when destroying {}", e.getMessage(), container.getId());
+            }
         }
     }
 
