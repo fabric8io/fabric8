@@ -130,14 +130,20 @@ public class CustomDockerContainerImageBuilder {
         }
 
         String restAPI = fabric.getRestAPI();
+        int overlays = 0;
         if (Strings.isNotBlank(restAPI)) {
-            addContainerOverlays(dockerFile, restAPI, fabric, container, profileList, javaConfig, containerOptions, envVars, homeDirAndSeparator, overlaysDir, tmpDockerfileDir);
+            overlays = addContainerOverlays(dockerFile, restAPI, fabric, container, profileList, javaConfig, containerOptions, envVars, homeDirAndSeparator, overlaysDir, tmpDockerfileDir);
             String[] childFiles = overlaysDir.list();
             if (childFiles != null && childFiles.length > 0) {
                 dockerFile.add(overlaysDirPath, homeDirAndSeparator);
             }
         } else {
             LOGGER.error("Cannot perform container overlays as there is no REST API for fabric8!");
+        }
+
+        if (overlays == 0 && libFileCount == 0 && deployFileCount == 0) {
+            LOGGER.info("Not creating a custom docker container as no files to deploy or overlays");
+            return null;
         }
 
         String[] copiedEnvVars = JavaContainerEnvironmentVariables.ALL_ENV_VARS;
@@ -198,10 +204,11 @@ public class CustomDockerContainerImageBuilder {
         return answer;
     }
 
-    protected void addContainerOverlays(DockerFileBuilder dockerFile, String restAPI, FabricService fabricService, Container container, List<Profile> profiles, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables, String homeDirAndSeparator, File overlaysDir, File tmpDockerfileDir) throws Exception {
+    protected int addContainerOverlays(DockerFileBuilder dockerFile, String restAPI, FabricService fabricService, Container container, List<Profile> profiles, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables, String homeDirAndSeparator, File overlaysDir, File tmpDockerfileDir) throws Exception {
         Set<String> profileIds = containerOptions.getProfiles();
         String versionId = containerOptions.getVersion();
         String layout = javaConfig.getOverlayFolder();
+        int overlays = 0;
         if (layout != null) {
             for (Profile profile : profiles) {
                 Map<String, String> configuration = ProcessUtils.getProcessLayout(fabricService, profile, layout);
@@ -219,6 +226,7 @@ public class CustomDockerContainerImageBuilder {
                     LOGGER.info("Using template variables for MVEL: " + variables);
                     overlaysDir.mkdirs();
                     new ApplyConfigurationStep(dockerFile, profileRestApi, configuration, variables, overlaysDir, homeDirAndSeparator).install();
+                    overlays++;
                 }
             }
         }
@@ -244,11 +252,13 @@ public class CustomDockerContainerImageBuilder {
 
                             // now lets add to the Dockerfile
                             dockerFile.add(localPath, homeDirAndSeparator + localPath);
+                            overlays++;
                         }
                     }
                 }
             }
         }
+        return overlays;
     }
 
 }
