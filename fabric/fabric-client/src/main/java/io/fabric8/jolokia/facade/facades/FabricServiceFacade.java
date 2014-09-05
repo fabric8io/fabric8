@@ -183,7 +183,8 @@ public class FabricServiceFacade implements FabricService {
     @Override
     public Version getDefaultVersion() {
         String id = Helpers.read(getJolokiaClient(), "DefaultVersion");
-        return new VersionFacade(getJolokiaClient(), id);
+        //TODO: find a way to obtain the actual revision
+        return new VersionFacade(getJolokiaClient(), id, "HEAD");
     }
 
     @Override
@@ -192,7 +193,7 @@ public class FabricServiceFacade implements FabricService {
     }
 
     public Version getVersion(String versionKey) {
-        return new VersionFacade(getJolokiaClient(), versionKey);
+        return new VersionFacade(getJolokiaClient(), versionKey, "HEAD");
     }
 
     @Override

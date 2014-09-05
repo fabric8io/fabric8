@@ -34,6 +34,11 @@ public interface Version extends Comparable<Version>, HasId {
     String LOCKED = "locked";
 
     /**
+     * @return Returns the revision of the Version.
+     */
+    public String revision();
+
+    /**
      * Get the version attributes
      */
     Map<String, String> getAttributes();

@@ -35,13 +35,20 @@ public class VersionFacade implements Version, HasId {
 
     J4pClient j4p;
     String id;
+    String revision;
 
-    public VersionFacade(J4pClient j4p, String id) {
+    public VersionFacade(J4pClient j4p, String id, String revision) {
         this.j4p = j4p;
         this.id = id;
+        this.revision = revision;
     }
 
-	@Override
+    @Override
+    public String revision() {
+        return null;
+    }
+
+    @Override
     public Map<String, String> getAttributes() {
         return getFieldValue("attributes");
     }

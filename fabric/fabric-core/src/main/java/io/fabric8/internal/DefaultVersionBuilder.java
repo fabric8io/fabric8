@@ -39,6 +39,7 @@ import org.jboss.gravia.utils.IllegalStateAssertion;
 final class DefaultVersionBuilder extends AbstractAttributableBuilder<VersionBuilder> implements VersionBuilder {
 
 	private String versionId;
+    private String revision;
 	private Map<String, Profile> profiles = new LinkedHashMap<>();
 	
 	DefaultVersionBuilder(String versionId) {
@@ -60,6 +61,12 @@ final class DefaultVersionBuilder extends AbstractAttributableBuilder<VersionBui
 		this.versionId = versionId;
 		return this;
 	}
+
+    @Override
+    public VersionBuilder revision(String revision) {
+        this.revision = revision;
+        return this;
+    }
 
 	@Override
     public Set<String> getProfiles() {
@@ -105,6 +112,6 @@ final class DefaultVersionBuilder extends AbstractAttributableBuilder<VersionBui
 	public Version getVersion() {
 		validate();
 		List<Profile> prflist = new ArrayList<>(profiles.values());
-		return new VersionImpl(versionId, getAttributes(), prflist);
+		return new VersionImpl(versionId, revision, getAttributes(), prflist);
 	}
 }
