@@ -37,6 +37,8 @@ import io.fabric8.common.util.ObjectUtils;
 import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class ContainerProviderUtils {
     public static final String FAILURE_PREFIX = "Command Failed:";
@@ -78,6 +80,8 @@ public final class ContainerProviderUtils {
     private static final String DISTNAME_PATTERN = "fabric8-%s-%s.zip";
     private static final String SYSTEM_DIST = "system/io/fabric8/fabric8-%s/%s";
 
+    protected transient static Logger logger = LoggerFactory.getLogger(ContainerProviderUtils.class);
+
 
     private static final String[] FALLBACK_REPOS = {"https://repo.fusesource.com/nexus/content/groups/public/", "https://repo.fusesource.com/nexus/content/groups/ea/", "https://repo.fusesource.com/nexus/content/repositories/snapshots/"};
 
@@ -98,6 +102,10 @@ public final class ContainerProviderUtils {
 
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
+        if(logger.isTraceEnabled()) {
+            sb.append("set -x ").append("\n");
+            sb.append("export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }' ").append("\n");
+        }
         //Export environmental variables
         if (options.getEnvironmentalVariables() != null && !options.getEnvironmentalVariables().isEmpty()) {
             for (Map.Entry<String, String> entry : options.getEnvironmentalVariables().entrySet()) {
