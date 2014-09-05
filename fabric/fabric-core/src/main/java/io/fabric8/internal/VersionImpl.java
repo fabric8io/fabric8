@@ -37,11 +37,13 @@ import org.jboss.gravia.utils.IllegalStateAssertion;
 final class VersionImpl implements Version {
 
     private final String versionId;
+    private final String revision;
     private final Map<String, String> attributes;
     private final Map<String, Profile> profiles = new LinkedHashMap<>();
 
-    VersionImpl(String versionId, Map<String, String> attributes, List<Profile> prflist) {
+    VersionImpl(String versionId, String revision, Map<String, String> attributes, List<Profile> prflist) {
         this.versionId = versionId;
+        this.revision = revision;
         this.attributes = new HashMap<>(attributes);
         for (Profile prf : prflist) {
             profiles.put(prf.getId(), prf);
@@ -51,6 +53,11 @@ final class VersionImpl implements Version {
     @Override
     public String getId() {
         return versionId;
+    }
+
+    @Override
+    public String revision() {
+        return revision;
     }
 
     @Override

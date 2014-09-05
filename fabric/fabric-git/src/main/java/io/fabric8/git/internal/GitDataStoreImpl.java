@@ -1598,17 +1598,17 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             assertWriteLock();
             GitOperation<Version> gitop = new GitOperation<Version>() {
                 public Version call(Git git, GitContext context) throws Exception {
-                    return loadVersion(git, context, versionId);
+                    String revision = git.getRepository().getRefDatabase().getRef(versionId).getObjectId().getName();
+                    return loadVersion(git, context, versionId, revision);
                 }
             };
             GitContext context = new GitContext();
             return executeInternal(context, null, gitop);
         }
         
-        private Version loadVersion(Git git, GitContext context, String versionId) throws Exception {
-            
+        private Version loadVersion(Git git, GitContext context, String versionId, String revision) throws Exception {
             // Collect the profiles with parent hierarchy unresolved
-            VersionBuilder vbuilder = VersionBuilder.Factory.create(versionId);
+            VersionBuilder vbuilder = VersionBuilder.Factory.create(versionId).revision(revision);
             populateVersionBuilder(git, context, vbuilder, "master", versionId);
             populateVersionBuilder(git, context, vbuilder, versionId, versionId);
             Version auxVersion = vbuilder.getVersion();
