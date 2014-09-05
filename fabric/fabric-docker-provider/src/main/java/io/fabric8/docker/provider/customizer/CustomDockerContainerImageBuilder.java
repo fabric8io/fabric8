@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.docker.provider.javacontainer;
+package io.fabric8.docker.provider.customizer;
 
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
@@ -36,8 +36,11 @@ import org.codehaus.plexus.archiver.tar.TarArchiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -128,7 +131,7 @@ public class CustomDockerContainerImageBuilder {
 
         String restAPI = fabric.getRestAPI();
         if (Strings.isNotBlank(restAPI)) {
-            addContainerOverlays(dockerFile, restAPI, fabric, container, profileList, javaConfig, containerOptions, envVars, homeDirAndSeparator, overlaysDir);
+            addContainerOverlays(dockerFile, restAPI, fabric, container, profileList, javaConfig, containerOptions, envVars, homeDirAndSeparator, overlaysDir, tmpDockerfileDir);
             String[] childFiles = overlaysDir.list();
             if (childFiles != null && childFiles.length > 0) {
                 dockerFile.add(overlaysDirPath, homeDirAndSeparator);
@@ -152,10 +155,9 @@ public class CustomDockerContainerImageBuilder {
 
         dockerFile.writeTo(new File(tmpDockerfileDir, "Dockerfile"));
 
-        // lets create a zip
+        // lets create a tarball so we can post it to docker via REST
         File tmpArchive = File.createTempFile("fabric8-", ".dockerarchive");
         createDockerArchive(tmpArchive, tmpDockerfileDir);
-
 
         String answer = tag;
         Object errors = null;
@@ -196,7 +198,7 @@ public class CustomDockerContainerImageBuilder {
         return answer;
     }
 
-    protected void addContainerOverlays(DockerFileBuilder dockerFile, String restAPI, FabricService fabricService, Container container, List<Profile> profiles, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables, String homeDirAndSeparator, File overlaysDir) throws Exception {
+    protected void addContainerOverlays(DockerFileBuilder dockerFile, String restAPI, FabricService fabricService, Container container, List<Profile> profiles, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables, String homeDirAndSeparator, File overlaysDir, File tmpDockerfileDir) throws Exception {
         Set<String> profileIds = containerOptions.getProfiles();
         String versionId = containerOptions.getVersion();
         String layout = javaConfig.getOverlayFolder();
@@ -234,19 +236,15 @@ public class CustomDockerContainerImageBuilder {
                         LOGGER.warn("Ignoring invalid URL '" + urlText + "' for overlay resource " + localPath + ". " + e, e);
                     }
                     if (url != null) {
-                        // TODO find the URL of the resource in the maven repo and add it like we do with maven dependencies above
-                        LOGGER.warn("TODO - add overlay resources into a docker file for URL: " + url);
-/*
-                        File newFile = new File(baseDir, localPath);
+                        File newFile = new File(tmpDockerfileDir, localPath);
                         newFile.getParentFile().mkdirs();
                         InputStream stream = url.openStream();
                         if (stream != null) {
                             Files.copy(stream, new BufferedOutputStream(new FileOutputStream(newFile)));
 
                             // now lets add to the Dockerfile
-                            dockerFile.add(newFile.getAbsolutePath(), localPath);
+                            dockerFile.add(localPath, homeDirAndSeparator + localPath);
                         }
-*/
                     }
                 }
             }

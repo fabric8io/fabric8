@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.docker.provider.javacontainer;
+package io.fabric8.docker.provider.customizer;
 
 /**
  * The various configuration options when creating a custom docker image
