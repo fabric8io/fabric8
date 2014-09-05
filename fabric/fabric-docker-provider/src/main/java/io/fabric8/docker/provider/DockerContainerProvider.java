@@ -15,6 +15,7 @@
  */
 package io.fabric8.docker.provider;
 
+import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.ContainerAutoScalerFactory;
@@ -47,7 +48,6 @@ import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
 import io.fabric8.docker.provider.javacontainer.CustomDockerContainerImageBuilder;
 import io.fabric8.docker.provider.javacontainer.CustomDockerContainerImageOptions;
-import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
 
@@ -229,7 +229,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                             configOverlay.putAll(dockerConfig);
                         }
                         if (ports == null || ports.size() == 0) {
-                            ports = overlay.getConfiguration(ChildConstants.PORTS_PID);
+                            ports = overlay.getConfiguration(Constants.PORTS_PID);
                         }
                     }
                 }
@@ -251,9 +251,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 version = service.getRequiredDefaultVersion();
             }
             Profile dockerProfile = version.getRequiredProfile("docker");
-            ports = dockerProfile.getConfiguration(ChildConstants.PORTS_PID);
+            ports = dockerProfile.getConfiguration(Constants.PORTS_PID);
             if (ports == null || ports.size() == 0) {
-                LOG.warn("Could not a docker ports configuration for: " + ChildConstants.PORTS_PID);
+                LOG.warn("Could not a docker ports configuration for: " + Constants.PORTS_PID);
                 ports = new HashMap<String, String>();
             }
         }
@@ -313,7 +313,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 try {
                     port = Integer.parseInt(portText);
                 } catch (NumberFormatException e) {
-                    LOG.warn("Ignoring bad port number for " + portName + " value '" + portText + "' in PID: " + ChildConstants.PORTS_PID);
+                    LOG.warn("Ignoring bad port number for " + portName + " value '" + portText + "' in PID: " + Constants.PORTS_PID);
                 }
                 if (port != null) {
                     sortedInternalPorts.put(port, portName);
@@ -328,7 +328,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         String dockerHost = dockerFactory.getDockerHost();
         String jolokiaUrl = null;
 
-        Map<String, String> javaContainerConfig = Profiles.getOverlayConfiguration(service, profileIds, versionId, ChildConstants.JAVA_CONTAINER_PID);
+        Map<String, String> javaContainerConfig = Profiles.getOverlayConfiguration(service, profileIds, versionId, Constants.JAVA_CONTAINER_PID);
         JavaContainerConfig javaConfig = new JavaContainerConfig();
         configurer.configure(javaContainerConfig, javaConfig);
 
@@ -497,7 +497,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 }
                 if (!usedPortByHost.contains(externalPortCounter)) {
                     Container container = getFabricService().getCurrentContainer();
-                    String pid = ChildConstants.PORTS_PID;
+                    String pid = Constants.PORTS_PID;
                     String key = containerId + "-" + portKey;
                     getFabricService().getPortService().registerPort(container, pid, key, externalPortCounter);
                     return externalPortCounter;

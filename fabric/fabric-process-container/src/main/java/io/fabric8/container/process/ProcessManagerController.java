@@ -21,6 +21,7 @@ import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.AgentUtils;
+import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateChildContainerMetadata;
 import io.fabric8.api.CreateChildContainerOptions;
@@ -51,7 +52,6 @@ import io.fabric8.process.manager.support.DownloadResourcesTask;
 import io.fabric8.process.manager.support.InstallDeploymentsTask;
 import io.fabric8.process.manager.support.JarInstaller;
 import io.fabric8.process.manager.support.ProcessUtils;
-import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
@@ -409,7 +409,7 @@ public class ProcessManagerController implements ChildContainerController {
 
     protected JavaContainerConfig createJavaContainerConfig(CreateChildContainerOptions options) throws Exception {
         JavaContainerConfig javaConfig = new JavaContainerConfig();
-        Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_PID);
+        Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), Constants.JAVA_CONTAINER_PID);
         configurer.configure(javaContainerConfig, javaConfig);
         return javaConfig;
     }
@@ -451,7 +451,7 @@ public class ProcessManagerController implements ChildContainerController {
     private ProcessContainerConfig createProcessContainerConfig(CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
-        Map<String, String> configuration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_PID);
+        Map<String, String> configuration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, Constants.PROCESS_CONTAINER_PID);
         JolokiaAgentHelper.substituteEnvironmentVariableExpressions(configuration, environmentVariables, fabricService, curator, true);
         ProcessContainerConfig configObject = new ProcessContainerConfig();
         configurer.configure(configuration, configObject);
@@ -469,7 +469,7 @@ public class ProcessManagerController implements ChildContainerController {
         if (!configObject.isInternalAgent()) {
             Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);
             if (!javaArtifacts.isEmpty()) {
-                Map<String, String> contextPathConfiguration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.WEB_CONTEXT_PATHS_PID);
+                Map<String, String> contextPathConfiguration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, Constants.WEB_CONTEXT_PATHS_PID);
 
                 Map<String, String> locationToContextPathMap = new HashMap<String, String>();
                 // lets map the the locations to context paths
@@ -495,7 +495,7 @@ public class ProcessManagerController implements ChildContainerController {
                     String groupIdAndArtifactId = contextPathEntry.getKey();
                     String contextPath = contextPathEntry.getValue();
                     if (!locationToContextPathMap.containsValue(contextPath)) {
-                        LOG.warn("Properties file " +  ChildConstants.WEB_CONTEXT_PATHS_PID
+                        LOG.warn("Properties file " +  Constants.WEB_CONTEXT_PATHS_PID
                                 + " for profile(s) " + profileIds
                                 + " has unmatched contextPath mapping to " + contextPath
                                 + " for group id and artifact id key " + groupIdAndArtifactId
@@ -517,7 +517,7 @@ public class ProcessManagerController implements ChildContainerController {
         if (layout != null) {
             Map<String, String> configuration = ProcessUtils.getProcessLayout(fabricService, profiles, layout);
             if (configuration != null && !configuration.isEmpty()) {
-                Map variables = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.TEMPLATE_VARIABLES_PID);
+                Map variables = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, Constants.TEMPLATE_VARIABLES_PID);
                 if (variables == null) {
                     variables = new HashMap();
                 } else {
@@ -528,7 +528,7 @@ public class ProcessManagerController implements ChildContainerController {
                 answer = new ApplyConfigurationTask(configuration, variables);
             }
         }
-        Map<String, String> overlayResources = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_OVERLAY_RESOURCES_PID);
+        Map<String, String> overlayResources = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, Constants.PROCESS_CONTAINER_OVERLAY_RESOURCES_PID);
         if (overlayResources != null && !overlayResources.isEmpty()) {
             answer = CompositeTask.combine(answer, new DownloadResourcesTask(overlayResources));
         }
@@ -565,7 +565,7 @@ public class ProcessManagerController implements ChildContainerController {
 
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
-        Map<String, String> ports = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PORTS_PID);
+        Map<String, String> ports = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, Constants.PORTS_PID);
         SortedMap<Integer, String> sortedInternalPorts = new TreeMap<Integer, String>();
 
         for (Map.Entry<String, String> portEntry : ports.entrySet()) {
@@ -576,7 +576,7 @@ public class ProcessManagerController implements ChildContainerController {
                 try {
                     port = Integer.parseInt(portText);
                 } catch (NumberFormatException e) {
-                    LOG.warn("Ignoring bad port number for " + portName + " value '" + portText + "' in PID: " + ChildConstants.PORTS_PID);
+                    LOG.warn("Ignoring bad port number for " + portName + " value '" + portText + "' in PID: " + Constants.PORTS_PID);
                 }
                 if (port != null) {
                     sortedInternalPorts.put(port, portName);

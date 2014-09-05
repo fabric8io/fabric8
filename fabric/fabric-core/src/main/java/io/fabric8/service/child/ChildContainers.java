@@ -15,6 +15,7 @@
  */
 package io.fabric8.service.child;
 
+import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerMetadata;
@@ -62,7 +63,7 @@ public class ChildContainers {
      * Returns true if the given container is a java child container
      */
     public static boolean isJavaContainer(FabricService fabricService, CreateContainerBasicOptions options) {
-        Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_PID);
+        Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), Constants.JAVA_CONTAINER_PID);
         return !javaContainerConfig.isEmpty();
     }
 
@@ -72,7 +73,7 @@ public class ChildContainers {
     public static boolean isProcessContainer(FabricService fabricService, CreateContainerBasicOptions options) {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
-        Map<String, ?> processConfig = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_PID);
+        Map<String, ?> processConfig = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, Constants.PROCESS_CONTAINER_PID);
         return processConfig != null && processConfig.size() > 0;
     }
 

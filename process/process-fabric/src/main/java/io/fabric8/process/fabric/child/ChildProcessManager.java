@@ -15,6 +15,7 @@
  */
 package io.fabric8.process.fabric.child;
 
+import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.OptionsProvider;
@@ -33,7 +34,6 @@ import io.fabric8.process.manager.support.ApplyConfigurationTask;
 import io.fabric8.process.manager.support.CompositeTask;
 import io.fabric8.process.manager.support.InstallDeploymentsTask;
 import io.fabric8.process.manager.support.ProcessUtils;
-import io.fabric8.service.child.ChildConstants;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -92,7 +92,7 @@ public class ChildProcessManager {
         Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, executorService);
         String versionId = Profiles.versionId(fabricService.getCurrentContainer().getVersion());
         List<String> profileIds = Profiles.profileIds(profiles);
-        Map<String, String> contextPathConfiguration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.WEB_CONTEXT_PATHS_PID);
+        Map<String, String> contextPathConfiguration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, Constants.WEB_CONTEXT_PATHS_PID);
         InstallTask applyProfile = new InstallDeploymentsTask(javaArtifacts, contextPathConfiguration);
         InstallTask compositeTask = new CompositeTask(applyConfiguration, applyProfile);
         Installation installation = processManager.install(installOptions, compositeTask);

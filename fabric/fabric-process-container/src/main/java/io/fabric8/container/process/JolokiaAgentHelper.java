@@ -17,6 +17,7 @@ package io.fabric8.container.process;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
@@ -27,7 +28,6 @@ import io.fabric8.deployer.JavaContainers;
 import io.fabric8.groovy.GroovyPlaceholderResolver;
 import io.fabric8.internal.JsonHelper;
 import io.fabric8.service.EnvPlaceholderResolver;
-import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.InterpolationHelper;
@@ -130,7 +130,7 @@ public class JolokiaAgentHelper {
      * Updates the environment variables to pass along the system properties so they can be used by the Java Container
      */
     public static void updateSystemPropertiesEnvironmentVariable(Map<String, String> environmentVariables, FabricService fabricService, String versionId, Set<String> profileIds) {
-        Map<String, String> systemProperties = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.SYSTEM_PROPERTIES_PID);
+        Map<String, String> systemProperties = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, Constants.SYSTEM_PROPERTIES_PID);
         updateSystemPropertiesEnvironmentVariable(environmentVariables, systemProperties);
     }
 
@@ -573,7 +573,7 @@ public class JolokiaAgentHelper {
 
     protected static void updateZookeeperEntry(ZooKeeperMasterCache zkMasterCache, FabricService fabric, Container container, Map<String, String> envVars, String path, Object stateName, Object startTime, Object displayName, List<String> newZkContainerPaths) {
         String matchedZkPath = null;
-        Map<String, String> configuration = container.getOverlayProfile().getConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID);
+        Map<String, String> configuration = container.getOverlayProfile().getConfiguration(Constants.WEB_CONTEXT_PATHS_PID);
         if (configuration != null) {
             for (Map.Entry<String, String> entry : configuration.entrySet()) {
                 if (entry.getValue().equals(path)) {
