@@ -279,7 +279,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
             try {
                 app.destroy();
             } catch (NotFoundOpenShiftException e) {
-                LOG.debug("Ignoring '\"{}\" when destroying {}", e.getMessage(), container.getId());
+                LOG.debug("Ignoring '{} when destroying {} container", e.getMessage(), container.getId());
             }
         }
     }
