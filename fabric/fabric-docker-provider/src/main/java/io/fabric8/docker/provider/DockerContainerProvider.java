@@ -259,7 +259,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         }
         LOG.info("Got port configuration: " + ports);
 
-        Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(service, options);
+        Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(service, options, DockerConstants.SCHEME);
 
         DockerProviderConfig configOverlayDockerProvider = createDockerProviderConfig(configOverlay, environmentVariables);
 

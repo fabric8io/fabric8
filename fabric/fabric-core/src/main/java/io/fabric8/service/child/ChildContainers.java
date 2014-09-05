@@ -82,6 +82,10 @@ public class ChildContainers {
      * what environment variables to use.
      */
     public static Map<String, String> getEnvironmentVariables(FabricService service, CreateContainerBasicOptions options) {
+        return getEnvironmentVariables(service, options, service.getEnvironment());
+    }
+
+    public static Map<String, String> getEnvironmentVariables(FabricService service, CreateContainerBasicOptions options, String environment) {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         String zookeeperUrl = service.getZookeeperUrl();
@@ -100,7 +104,7 @@ public class ChildContainers {
             zookeeperUrl = localIp;
         }
 
-        Map<String, String> envVarsOverlay = Profiles.getOverlayConfiguration(service, profileIds, versionId, EnvironmentVariables.ENVIRONMENT_VARIABLES_PID);
+        Map<String, String> envVarsOverlay = Profiles.getOverlayConfiguration(service, profileIds, versionId, EnvironmentVariables.ENVIRONMENT_VARIABLES_PID, environment);
         String containerName = options.getName();
         envVarsOverlay.put(EnvironmentVariables.KARAF_NAME, containerName);
         envVarsOverlay.put(EnvironmentVariables.RUNTIME_ID, containerName);
