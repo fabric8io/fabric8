@@ -20,6 +20,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
 import io.fabric8.common.util.Files;
+import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 import io.fabric8.container.process.JavaContainerConfig;
 import io.fabric8.container.process.JolokiaAgentHelper;
@@ -56,6 +57,7 @@ public class CustomDockerContainerImageBuilder {
 
     public String generateContainerImage(FabricService fabric, Container container, List<Profile> profileList, Docker docker, CustomDockerContainerImageOptions options, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
         String libDirAndSeparator = ensureEndsWithFileSeparator(options.getJavaLibraryPath());
+        String deployDirAndSeparator = ensureEndsWithFileSeparator(options.getJavaDeployPath());
         String homeDirAndSeparator = ensureEndsWithFileSeparator(options.getHomePath());
         Map<String, File> artifacts = JavaContainers.getJavaContainerArtifactsFiles(fabric, profileList, downloadExecutor);
 
@@ -79,19 +81,37 @@ public class CustomDockerContainerImageBuilder {
         String libDirPath = "lib";
         File uploadLibDir = new File(tmpDockerfileDir, libDirPath);
 
+        String deployDirPath = "deploy";
+        File uploadDeployDir = new File(tmpDockerfileDir, deployDirPath);
+
         String overlaysDirPath = "overlays";
         File overlaysDir = new File(tmpDockerfileDir, overlaysDirPath);
 
         int libFileCount = 0;
+        int deployFileCount = 0;
         Set<Map.Entry<String, File>> entries = artifacts.entrySet();
         for (Map.Entry<String, File> entry : entries) {
             File file = entry.getValue();
-            uploadLibDir.mkdirs();
-            Files.copy(file, new File(uploadLibDir, file.getName()));
-            libFileCount++;
+            String fileName = file.getName();
+            File outputDir;
+            if (fileName.toLowerCase().endsWith(".jar")) {
+                outputDir = uploadLibDir;
+                libFileCount++;
+            }
+            else {
+                outputDir = uploadDeployDir;
+                deployFileCount++;
+            }
+            outputDir.mkdirs();
+            Files.copy(file, new File(outputDir, fileName));
         }
         if (libFileCount > 0) {
             dockerFile.add(libDirPath, libDirAndSeparator);
+        }
+        if (deployFileCount > 0) {
+            if (libFileCount == 0 || !Objects.equal(libDirPath, overlaysDirPath)) {
+                dockerFile.add(deployDirPath, deployDirAndSeparator);
+            }
         }
 
         if (container != null) {
@@ -136,11 +156,11 @@ public class CustomDockerContainerImageBuilder {
         File tmpArchive = File.createTempFile("fabric8-", ".dockerarchive");
         createDockerArchive(tmpArchive, tmpDockerfileDir);
 
-        LOGGER.info("Created archive " + tmpArchive.getCanonicalPath() + " from docker archive folder " + tmpDockerfileDir.getCanonicalPath());
 
         String answer = tag;
         Object errors = null;
         try {
+            LOGGER.info("POSTing archive " + tmpArchive.getCanonicalPath() + " from docker archive folder " + tmpDockerfileDir.getCanonicalPath());
             Object results = docker.build(tmpArchive, tag, 0, 0, 1, 1);
             LOGGER.info("Docker Build Result: " + results);
         } catch (Exception e) {

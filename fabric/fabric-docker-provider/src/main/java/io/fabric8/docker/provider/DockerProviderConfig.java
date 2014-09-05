@@ -37,11 +37,15 @@ public class DockerProviderConfig {
     private String cmd;
 
     @Property(label = "Java Library Path",
-            description = "The path that java libraries should be installed into inside the docker image for Java containers or application servers")
+            description = "The path that shared java libraries should be installed into inside the docker image for Java containers or application servers")
     private String javaLibraryPath;
 
+    @Property(label = "Java Deploy Path",
+            description = "The path that java deployment units (wars, ears etc) should be installed into inside the docker image for Java containers or application servers")
+    private String javaDeployPath;
+
     @Property(label = "Home path",
-            description = "The home directory inside the docker image")
+            description = "The home directory inside the docker image which overlays are applied to")
     private String homePath;
 
     @Property(label = "Image repository",
@@ -74,6 +78,14 @@ public class DockerProviderConfig {
 
     public void setJavaLibraryPath(String javaLibraryPath) {
         this.javaLibraryPath = javaLibraryPath;
+    }
+
+    public String getJavaDeployPath() {
+        return javaDeployPath;
+    }
+
+    public void setJavaDeployPath(String javaDeployPath) {
+        this.javaDeployPath = javaDeployPath;
     }
 
     public String getHomePath() {
