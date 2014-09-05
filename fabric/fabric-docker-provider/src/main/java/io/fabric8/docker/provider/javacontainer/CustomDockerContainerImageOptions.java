@@ -23,14 +23,16 @@ public class CustomDockerContainerImageOptions {
     private final String imageRepository;
     private final String newImageTag;
     private final String javaLibraryPath;
+    private final String javaDeployPath;
     private final String homePath;
     private final String entryPoint;
 
-    public CustomDockerContainerImageOptions(String baseImage, String imageRepository, String newImageTag, String javaLibraryPath, String homePath, String entryPoint) {
+    public CustomDockerContainerImageOptions(String baseImage, String imageRepository, String newImageTag, String javaLibraryPath, String javaDeployPath, String homePath, String entryPoint) {
         this.baseImage = baseImage;
         this.imageRepository = imageRepository;
         this.newImageTag = newImageTag;
         this.javaLibraryPath = javaLibraryPath;
+        this.javaDeployPath = javaDeployPath;
         this.homePath = homePath;
         this.entryPoint = entryPoint;
     }
@@ -51,10 +53,17 @@ public class CustomDockerContainerImageOptions {
     }
 
     /**
-     * Returns the path where java libraries are to be copied
+     * Returns the path where java shared libraries are to be copied
      */
     public String getJavaLibraryPath() {
         return javaLibraryPath;
+    }
+
+    /**
+     * Returns the path where java deployment units (WARs etc) are to be copied
+     */
+    public String getJavaDeployPath() {
+        return javaDeployPath;
     }
 
     /**

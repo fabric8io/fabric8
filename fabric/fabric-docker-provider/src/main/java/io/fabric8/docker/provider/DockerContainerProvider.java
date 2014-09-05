@@ -366,8 +366,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
         // now the environment variables are all set lets see if we need to make a custom image
         String libDir = configOverlayDockerProvider.getJavaLibraryPath();
+        String deployDir = configOverlayDockerProvider.getJavaDeployPath();
         String homeDir = configOverlayDockerProvider.getHomePath();
-        if (!Strings.isNullOrBlank(libDir)) {
+        if (Strings.isNotBlank(libDir) || Strings.isNotBlank(deployDir)) {
             if (container != null) {
                 container.setProvisionResult("preparing");
                 container.setAlive(true);
@@ -379,7 +380,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             String tag = "fabric8-" + Strings.join(names, "-").replace('.', '-');
 
             CustomDockerContainerImageBuilder builder = new CustomDockerContainerImageBuilder();
-            CustomDockerContainerImageOptions customDockerContainerImageOptions = new CustomDockerContainerImageOptions(image, imageRepository, tag, libDir, homeDir, entryPoint);
+            CustomDockerContainerImageOptions customDockerContainerImageOptions = new CustomDockerContainerImageOptions(image, imageRepository, tag, libDir, deployDir, homeDir, entryPoint);
 
             String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, customDockerContainerImageOptions, javaConfig, options, downloadExecutor, environmentVariables);
             containerConfig.setImage(actualImage);
