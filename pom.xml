@@ -3452,20 +3452,22 @@
     </dependencyManagement>
 
     <modules>
+        <module>parent</module>
+        
+        <!-- hardcoded order - these modules violates maven module dependency principals -->
+        <module>process</module>
+        <module>quickstarts</module>
+        
         <module>apm</module>
         <module>common-util</module>
         <module>fab</module>
-        <!-- hardcoded order - quickstart aggregation does not follow maven module dependency principals -->
-        <module>quickstarts</module>
         <module>fabric</module>
         <module>fabric8-maven-plugin</module>
         <module>gateway</module>
         <module>insight</module>
         <module>maven-util</module>
         <module>mq</module>
-        <module>parent</module>
         <module>patch</module>
-        <module>process</module>
         <!-- exclude until we find a better solution, see #2280
         <module>quickstarts-exclude-artifact</module-->
         <module>runtime</module>
