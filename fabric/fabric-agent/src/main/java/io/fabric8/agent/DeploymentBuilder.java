@@ -170,7 +170,7 @@ public class DeploymentBuilder {
         downloader.await();
         // Do override replacement
         for (String override : overrides) {
-            Resource over = resources.get(extractUrl(override));
+            Resource over = resources.remove(extractUrl(override));
             if (over == null) {
                 // Ignore invalid overrides
                 continue;
