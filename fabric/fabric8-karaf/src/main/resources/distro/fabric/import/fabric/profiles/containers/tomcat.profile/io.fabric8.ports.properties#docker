@@ -14,7 +14,17 @@
 #  permissions and limitations under the License.
 #
 
-# enable jolokia
-CATALINA_OPTS =-javaagent:/opt/tomcat/jolokia-agent.jar=host=0.0.0.0,port=${env:FABRIC8_JOLOKIA_PORT},agentId=${env:FABRIC8_RUNTIME_ID}
+# list of ports and their names and default values
+# which will be exported as an environment variable
+# FABRIC8_$NAME_PORT
 
+# the debugging port
+#JPDA = 8000
+#SERVER = 8005
 
+HTTP = 8080
+
+#AJP = 8009
+#REDIRECT = 8443
+
+JOLOKIA = 8778

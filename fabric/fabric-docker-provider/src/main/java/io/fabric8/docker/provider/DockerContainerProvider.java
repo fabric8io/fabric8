@@ -46,8 +46,8 @@ import io.fabric8.docker.api.Dockers;
 import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
-import io.fabric8.docker.provider.javacontainer.CustomDockerContainerImageBuilder;
-import io.fabric8.docker.provider.javacontainer.CustomDockerContainerImageOptions;
+import io.fabric8.docker.provider.customizer.CustomDockerContainerImageBuilder;
+import io.fabric8.docker.provider.customizer.CustomDockerContainerImageOptions;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
 
@@ -216,7 +216,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         List<Profile> profileOverlays = new ArrayList<>();
         Version version = null;
         if (profileIds != null && versionId != null) {
-            ProfileService profileService = fabricService.get().adapt(ProfileService.class);
+            ProfileService profileService = service.adapt(ProfileService.class);
             version = profileService.getVersion(versionId);
             if (version != null) {
                 for (String profileId : profileIds) {
@@ -263,7 +263,8 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
         DockerProviderConfig configOverlayDockerProvider = createDockerProviderConfig(configOverlay, environmentVariables);
 
-        String image = JolokiaAgentHelper.substituteVariableExpression(containerConfig.getImage(), environmentVariables, service, curator.getOptional(), true);
+        CuratorFramework curatorOptional = curator.getOptional();
+        String image = JolokiaAgentHelper.substituteVariableExpression(containerConfig.getImage(), environmentVariables, service, curatorOptional, true);
 
         if (Strings.isNullOrBlank(image)) {
             image = configOverlayDockerProvider.getImage();
@@ -386,6 +387,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             containerConfig.setImage(actualImage);
         }
 
+        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables, service, curatorOptional, false);
 
         List<String> env = containerConfig.getEnv();
         if (env == null) {

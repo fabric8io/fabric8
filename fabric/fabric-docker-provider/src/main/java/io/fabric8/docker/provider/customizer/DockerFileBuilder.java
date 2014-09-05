@@ -1,4 +1,4 @@
-package io.fabric8.docker.provider.javacontainer;
+package io.fabric8.docker.provider.customizer;
 
 import java.io.File;
 import java.io.IOException;
