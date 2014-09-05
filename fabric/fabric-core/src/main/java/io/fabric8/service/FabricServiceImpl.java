@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -83,7 +82,7 @@ import io.fabric8.internal.ProfileDependencyConfig;
 import io.fabric8.internal.ProfileDependencyKind;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.utils.PasswordEncoder;
-import io.fabric8.utils.SystemProperties;
+import io.fabric8.api.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.InterpolationHelper;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
@@ -234,7 +233,17 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public String getEnvironment() {
         assertValid();
-        return runtimeProperties.get().getProperty(SystemProperties.FABRIC_ENVIRONMENT);
+        String answer = runtimeProperties.get().getProperty(SystemProperties.FABRIC_ENVIRONMENT);
+        if (answer == null) {
+            // in case we've not updated the system properties in the JVM based on the profile
+            // e.g. when adding/removing profiles
+            Container currentContainer = getCurrentContainer();
+            if (currentContainer != null) {
+                Map<String, String> systemProperties = currentContainer.getOverlayProfile().getConfiguration(Constants.SYSTEM_PROPERTIES_PID);
+                answer = systemProperties.get(SystemProperties.FABRIC_ENVIRONMENT);
+            }
+        }
+        return answer;
     }
 
     @Override
