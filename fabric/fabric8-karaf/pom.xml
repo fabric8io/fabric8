@@ -315,22 +315,18 @@
             <dependency>
                 <groupId>io.fabric8.runtime</groupId>
                 <artifactId>fabric-runtime-container-karaf-registration</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-hadoop</artifactId>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-dynamic-jaxb</artifactId>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>dynamic-jaxb</artifactId>
-                <version>${project.version}</version>
             </dependency>
 
            <!-- need this transitive of org.apache.servicemix.bundles.jasypt
@@ -380,7 +376,6 @@
            <dependency>
                <groupId>org.apache.aries.proxy</groupId>
                <artifactId>org.apache.aries.proxy</artifactId>
-              <version>${aries-proxy-version}</version>
            </dependency>
            <dependency>
                <groupId>org.apache.aries.proxy</groupId>
@@ -455,6 +450,7 @@
                        </execution>
                    </executions>
                </plugin>
+               <!--  [FABRIC-1148] Feature verification does not work with 'mvn -pl ...'
                <plugin>
                    <groupId>io.fabric8</groupId>
                    <artifactId>fabric8-maven-plugin</artifactId>
@@ -478,7 +474,7 @@
                            </configuration>
                        </execution>
                    </executions>
-               </plugin>
+               </plugin -->
                <plugin>
                    <groupId>org.apache.karaf.tooling</groupId>
                    <artifactId>features-maven-plugin</artifactId>
@@ -769,7 +765,6 @@
                <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-dependency-plugin</artifactId>
-                   <version>${maven-dependency-plugin-version}</version>
                    <executions>
                        <execution>
                            <id>unpack-unix</id>
@@ -862,38 +857,5 @@
     </repositories>
 
     <profiles>
-        <profile>
-            <id>verify-features</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>fabric8-maven-plugin</artifactId>
-                        <version>${project.version}</version>
-                        <executions>
-                            <execution>
-                                <id>verify-all</id>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>verify-features</goal>
-                                </goals>
-                                <configuration>
-                                    <descriptors>
-                                        <descriptor>file:${basedir}/target/classes/fabric-features.xml</descriptor>
-                                    </descriptors>
-                                    <framework>
-                                        <framework>karaf</framework>
-                                        <framework>fabric-core</framework>
-                                    </framework>
-                                    <additionalMetadata>${basedir}/src/main/verification/metadata.properties</additionalMetadata>
-                                    <verifyTransitive>true</verifyTransitive>
-                                    <fail>never</fail>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
 </project>
