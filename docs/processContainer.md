@@ -15,6 +15,7 @@ The Process Container works quite similar to the [Java Containers](javaContainer
 Fabric8 has lots of example profiles using the Process Container in the [containers folder](https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers) such as
 
 * [Cassandra](https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/services/cassandra.profile)
+* [Elasticsearch](https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/services/elasticsearch.profile)
 * [HDFS Name Node](https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/services/hdfs.namenode.profile)
 * [HDFS Data Node](https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/services/hdfs.datanode.profile)
 * [Tomcat](https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/tomcat.profile)
