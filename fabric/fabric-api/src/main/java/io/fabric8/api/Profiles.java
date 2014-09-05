@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import io.fabric8.api.scr.support.Strings;
 import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -179,6 +180,11 @@ public final class Profiles {
      * figure out the effective overlay before a container exists.
      */
     public static Map<String, String> getOverlayConfiguration(FabricService fabricService, Iterable<String> profileIds, String versionId, String pid) {
+        String environment = fabricService.getEnvironment();
+        return getOverlayConfiguration(fabricService, profileIds, versionId, pid, environment);
+    }
+
+    public static Map<String, String> getOverlayConfiguration(FabricService fabricService, Iterable<String> profileIds, String versionId, String pid, String environment) {
         Map<String, String> overlayConfig = new HashMap<String, String>();
         ProfileService profileService = fabricService.adapt(ProfileService.class);
         // this should only be null in test cases
@@ -193,7 +199,14 @@ public final class Profiles {
                 for (String profileId : profileIds) {
                     Profile profile = version.getRequiredProfile(profileId);
                     Profile overlay = profileService.getOverlayProfile(profile);
-                    Map<String, String> profileConfig = overlay.getConfiguration(pid);
+                    Map<String, String> profileConfig = null;
+                    if (!Strings.isNullOrBlank(environment)) {
+                        String envPid = pid + "#" + environment;
+                        profileConfig = overlay.getConfiguration(envPid);
+                    }
+                    if (profileConfig == null) {
+                        profileConfig = overlay.getConfiguration(pid);
+                    }
                     if (profileConfig != null) {
                         overlayConfig.putAll(profileConfig);
                     }
