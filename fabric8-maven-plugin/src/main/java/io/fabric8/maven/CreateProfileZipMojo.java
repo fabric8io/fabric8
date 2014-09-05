@@ -21,24 +21,22 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.api.Constants;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
-import io.fabric8.service.child.ChildConstants;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
@@ -46,7 +44,6 @@ import org.apache.maven.model.PluginExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -338,7 +335,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
             generateFabricAgentProperties(requirements, new File(profileBuildDir, "io.fabric8.agent.properties"));
             // only generate if its a WAR project
             if ("war".equals(project.getPackaging())) {
-                generateFabricContextPathProperties(requirements, new File(profileBuildDir, ChildConstants.WEB_CONTEXT_PATHS_PID + ".properties"));
+                generateFabricContextPathProperties(requirements, new File(profileBuildDir, Constants.WEB_CONTEXT_PATHS_PID + ".properties"));
             }
 
             Zips.createZipFile(getLog(), buildDir, outputFile);

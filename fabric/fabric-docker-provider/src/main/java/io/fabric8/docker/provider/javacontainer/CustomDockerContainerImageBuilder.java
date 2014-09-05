@@ -15,6 +15,7 @@
  */
 package io.fabric8.docker.provider.javacontainer;
 
+import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
@@ -29,7 +30,6 @@ import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.Dockers;
 import io.fabric8.docker.provider.CreateDockerContainerOptions;
 import io.fabric8.process.manager.support.ProcessUtils;
-import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
 import org.apache.curator.framework.CuratorFramework;
 import org.codehaus.plexus.archiver.tar.TarArchiver;
@@ -206,7 +206,7 @@ public class CustomDockerContainerImageBuilder {
                 if (configuration != null && !configuration.isEmpty()) {
                     String profileRestApi = restAPI + "/version/" + profile.getVersion() + "/profile/"
                             + profile.getId() + "/overlay/file/" + layout + (layout.endsWith("/") ? "" : "/");
-                    Map variables = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.TEMPLATE_VARIABLES_PID);
+                    Map variables = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, Constants.TEMPLATE_VARIABLES_PID);
                     if (variables == null) {
                         variables = new HashMap();
                     } else {
@@ -220,7 +220,7 @@ public class CustomDockerContainerImageBuilder {
                 }
             }
         }
-        Map<String, String> overlayResources = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_OVERLAY_RESOURCES_PID);
+        Map<String, String> overlayResources = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, Constants.PROCESS_CONTAINER_OVERLAY_RESOURCES_PID);
         if (overlayResources != null && !overlayResources.isEmpty()) {
             Set<Map.Entry<String, String>> entries = overlayResources.entrySet();
             for (Map.Entry<String, String> entry : entries) {

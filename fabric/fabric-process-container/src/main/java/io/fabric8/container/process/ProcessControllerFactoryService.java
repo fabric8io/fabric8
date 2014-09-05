@@ -17,6 +17,7 @@ package io.fabric8.container.process;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerBasicOptions;
@@ -29,7 +30,6 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Objects;
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.ProcessManager;
-import io.fabric8.service.child.ChildConstants;
 import io.fabric8.service.child.ChildContainerController;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.service.child.ProcessControllerFactory;
@@ -194,7 +194,7 @@ public final class ProcessControllerFactoryService extends AbstractComponent imp
             }
             if (!usedPortByHost.contains(externalPortCounter)) {
                 Container container = getFabricService().getCurrentContainer();
-                String pid = ChildConstants.PORTS_PID;
+                String pid = Constants.PORTS_PID;
                 String key = containerId + "-" + portKey;
                 getFabricService().getPortService().registerPort(container, pid, key, externalPortCounter);
                 return externalPortCounter;

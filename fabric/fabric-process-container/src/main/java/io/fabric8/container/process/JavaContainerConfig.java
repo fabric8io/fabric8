@@ -15,8 +15,8 @@
  */
 package io.fabric8.container.process;
 
+import io.fabric8.api.Constants;
 import io.fabric8.common.util.Strings;
-import io.fabric8.service.child.ChildConstants;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 
@@ -65,7 +65,7 @@ public class JavaContainerConfig {
             environmentVariables.put(FABRIC8_JAVA_MAIN, mainClass);
         } else {
             if (isJavaContainer) {
-                throw new IllegalArgumentException("No mainClass value is specified in the " + ChildConstants.JAVA_CONTAINER_PID + " configuration!");
+                throw new IllegalArgumentException("No mainClass value is specified in the " + Constants.JAVA_CONTAINER_PID + " configuration!");
             } else {
                 environmentVariables.remove(FABRIC8_JAVA_MAIN);
             }

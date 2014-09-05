@@ -18,6 +18,7 @@ package io.fabric8.deployer;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.utils.AgentUtils;
+import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.Containers;
 import io.fabric8.api.FabricRequirements;
@@ -42,7 +43,6 @@ import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.insight.log.support.Strings;
 import io.fabric8.internal.Objects;
 import io.fabric8.service.VersionPropertyPointerResolver;
-import io.fabric8.service.child.ChildConstants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -208,7 +208,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         String webContextPath = requirements.getWebContextPath();
         if (!Strings.isEmpty(webContextPath)) {
             Map<String, String> contextPathConfig = new HashMap<>();
-            Map<String, String> oldValue = profile.getConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID);
+            Map<String, String> oldValue = profile.getConfiguration(Constants.WEB_CONTEXT_PATHS_PID);
             if (oldValue != null) {
                 contextPathConfig.putAll(oldValue);
             }
@@ -216,7 +216,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
             String current = contextPathConfig.get(key);
             if (!Objects.equal(current, webContextPath)) {
                 contextPathConfig.put(key, webContextPath);
-                builder.addConfiguration(ChildConstants.WEB_CONTEXT_PATHS_PID, contextPathConfig);
+                builder.addConfiguration(Constants.WEB_CONTEXT_PATHS_PID, contextPathConfig);
             }
         }
         String description = requirements.getDescription();
