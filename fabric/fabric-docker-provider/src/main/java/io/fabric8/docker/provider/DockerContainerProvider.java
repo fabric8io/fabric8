@@ -384,7 +384,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             String tag = "fabric8-" + Strings.join(names, "-").replace('.', '-');
 
             CustomDockerContainerImageBuilder builder = new CustomDockerContainerImageBuilder();
-            CustomDockerContainerImageOptions customDockerContainerImageOptions = new CustomDockerContainerImageOptions(image, imageRepository, tag, libDir, deployDir, homeDir, entryPoint);
+            CustomDockerContainerImageOptions customDockerContainerImageOptions = new CustomDockerContainerImageOptions(image, imageRepository, tag, libDir, deployDir, homeDir, entryPoint, configOverlayDockerProvider.getOverlayFolder());
 
             String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, customDockerContainerImageOptions, javaConfig, options, downloadExecutor, environmentVariables);
             if (actualImage != null) {

@@ -64,14 +64,6 @@ public class CustomDockerContainerImageBuilder {
         String homeDirAndSeparator = ensureEndsWithFileSeparator(options.getHomePath());
         Map<String, File> artifacts = JavaContainers.getJavaContainerArtifactsFiles(fabric, profileList, downloadExecutor);
 
-        URI mavenRepoURI = fabric.getMavenRepoURI();
-        String repoTextPrefix = mavenRepoURI.toString();
-        int idx = repoTextPrefix.indexOf("://");
-        if (idx > 0) {
-            repoTextPrefix = repoTextPrefix.substring(idx + 3);
-        }
-        repoTextPrefix = "http://" + fabric.getZooKeeperUser() + ":" + fabric.getZookeeperPassword() + "@" + repoTextPrefix;
-
         String baseImage = options.getBaseImage();
         String tag = options.getNewImageTag();
 
@@ -132,7 +124,8 @@ public class CustomDockerContainerImageBuilder {
         String restAPI = fabric.getRestAPI();
         int overlays = 0;
         if (Strings.isNotBlank(restAPI)) {
-            overlays = addContainerOverlays(dockerFile, restAPI, fabric, container, profileList, javaConfig, containerOptions, envVars, homeDirAndSeparator, overlaysDir, tmpDockerfileDir);
+            String profileOverlayFolder = options.getOverlayFolder();
+            overlays = addOverlayFiles(dockerFile, restAPI, fabric, profileList, containerOptions, envVars, homeDirAndSeparator, overlaysDir, tmpDockerfileDir, profileOverlayFolder);
             String[] childFiles = overlaysDir.list();
             if (childFiles != null && childFiles.length > 0) {
                 dockerFile.add(overlaysDirPath, homeDirAndSeparator);
@@ -204,17 +197,16 @@ public class CustomDockerContainerImageBuilder {
         return answer;
     }
 
-    protected int addContainerOverlays(DockerFileBuilder dockerFile, String restAPI, FabricService fabricService, Container container, List<Profile> profiles, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables, String homeDirAndSeparator, File overlaysDir, File tmpDockerfileDir) throws Exception {
+    protected int addOverlayFiles(DockerFileBuilder dockerFile, String restAPI, FabricService fabricService, List<Profile> profiles, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables, String homeDirAndSeparator, File overlaysDir, File tmpDockerfileDir, String profileOverlayFolder) throws Exception {
         Set<String> profileIds = containerOptions.getProfiles();
         String versionId = containerOptions.getVersion();
-        String layout = javaConfig.getOverlayFolder();
         int overlays = 0;
-        if (layout != null) {
+        if (profileOverlayFolder != null) {
             for (Profile profile : profiles) {
-                Map<String, String> configuration = ProcessUtils.getProcessLayout(fabricService, profile, layout);
+                Map<String, String> configuration = ProcessUtils.getProcessLayout(fabricService, profile, profileOverlayFolder);
                 if (configuration != null && !configuration.isEmpty()) {
                     String profileRestApi = restAPI + "/version/" + profile.getVersion() + "/profile/"
-                            + profile.getId() + "/overlay/file/" + layout + (layout.endsWith("/") ? "" : "/");
+                            + profile.getId() + "/overlay/file/" + profileOverlayFolder + (profileOverlayFolder.endsWith("/") ? "" : "/");
                     Map variables = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, Constants.TEMPLATE_VARIABLES_PID);
                     if (variables == null) {
                         variables = new HashMap();

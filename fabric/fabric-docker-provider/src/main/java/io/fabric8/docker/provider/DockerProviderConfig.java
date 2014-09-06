@@ -36,6 +36,10 @@ public class DockerProviderConfig {
             description = "The command to be used to start the docker container which overrides the entry point inside the image")
     private String cmd;
 
+    @Property(label = "Overlay Folder",
+            description = "The folder in the profile used to create overlay files into the generated container image")
+    private String overlayFolder;
+
     @Property(label = "Java Library Path",
             description = "The path that shared java libraries should be installed into inside the docker image for Java containers or application servers")
     private String javaLibraryPath;
@@ -110,5 +114,13 @@ public class DockerProviderConfig {
 
     public void setImageEntryPoint(String imageEntryPoint) {
         this.imageEntryPoint = imageEntryPoint;
+    }
+
+    public String getOverlayFolder() {
+        return overlayFolder;
+    }
+
+    public void setOverlayFolder(String overlayFolder) {
+        this.overlayFolder = overlayFolder;
     }
 }

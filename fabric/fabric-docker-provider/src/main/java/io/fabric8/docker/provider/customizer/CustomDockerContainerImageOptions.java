@@ -26,8 +26,9 @@ public class CustomDockerContainerImageOptions {
     private final String javaDeployPath;
     private final String homePath;
     private final String entryPoint;
+    private final String overlayFolder;
 
-    public CustomDockerContainerImageOptions(String baseImage, String imageRepository, String newImageTag, String javaLibraryPath, String javaDeployPath, String homePath, String entryPoint) {
+    public CustomDockerContainerImageOptions(String baseImage, String imageRepository, String newImageTag, String javaLibraryPath, String javaDeployPath, String homePath, String entryPoint, String overlayFolder) {
         this.baseImage = baseImage;
         this.imageRepository = imageRepository;
         this.newImageTag = newImageTag;
@@ -35,6 +36,7 @@ public class CustomDockerContainerImageOptions {
         this.javaDeployPath = javaDeployPath;
         this.homePath = homePath;
         this.entryPoint = entryPoint;
+        this.overlayFolder = overlayFolder;
     }
 
     public String getBaseImage() {
@@ -78,5 +80,9 @@ public class CustomDockerContainerImageOptions {
      */
     public String getEntryPoint() {
         return entryPoint;
+    }
+
+    public String getOverlayFolder() {
+        return overlayFolder;
     }
 }
