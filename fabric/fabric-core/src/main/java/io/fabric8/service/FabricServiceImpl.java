@@ -244,7 +244,9 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
             }
 
             // lets store the effective profile for later on
-            System.setProperty(SystemProperties.FABRIC_PROFILE_ENVIRONMENT, answer);
+            if (answer != null) {
+                System.setProperty(SystemProperties.FABRIC_PROFILE_ENVIRONMENT, answer);
+            }
         }
         return answer;
     }
