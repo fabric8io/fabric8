@@ -23,12 +23,12 @@
     <parent>
       <groupId>io.fabric8.quickstarts</groupId>
       <artifactId>fabric8-quickstarts-karaf-cxf-parent</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0.Beta3</version>
     </parent>
 
     <groupId>io.fabric8.quickstarts</groupId>
     <artifactId>karaf-cxf-secure-soap</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0.Beta3</version>
     <packaging>bundle</packaging>
     <name>Fabric8 :: Quickstarts :: Karaf :: CXF :: Secure SOAP</name>
     <description>Secure SOAP example using JAXWS with WS-Security</description>
@@ -48,8 +48,8 @@
         <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
 
         <!-- the version of the BOM, defining all the dependency versions -->
-        <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
-        <fabric.version>1.2.0-SNAPSHOT</fabric.version>
+        <fabric8.bom.version>1.2.0.Beta3</fabric8.bom.version>
+        <fabric.version>1.2.0.Beta3</fabric.version>
 
         <!-- fabric8 deploy profile configuration -->
         <fabric8.profile>quickstarts-karaf-cxf-secure.soap</fabric8.profile>
