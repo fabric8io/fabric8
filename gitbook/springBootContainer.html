@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.5" data-basepath="." data-revision="1409945060812">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.5" data-basepath="." data-revision="1410117822456">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -1063,8 +1063,8 @@ runtime registry, <a href="gateway.html">Gateway</a> and many other useful Fabri
 microservice related to the <em>invoicing</em> business concern.</p>
 <pre><code>&gt; profile-create --parents containers-java.spring.boot invoicing
 </code></pre><p>Then add your microservice jar to that profile:</p>
-<pre><code>&gt; profile-edit --pid=io.fabric8.container.java/jarUrl=mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.1.0-SNAPSHOT invoicing
-Setting value:mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.1.0-SNAPSHOT key:jarUrl on pid:io.fabric8.container.java and profile:invoicing version:1.0
+<pre><code>&gt; profile-edit --pid=io.fabric8.container.java/jarUrl=mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.2.0-SNAPSHOT invoicing
+Setting value:mvn:io.fabric8/process-spring-boot-itests-service-invoicing/1.2.0-SNAPSHOT key:jarUrl on pid:io.fabric8.container.java and profile:invoicing version:1.0
 </code></pre><p>In order to find <code>@Component</code> and <code>@Configuration</code> classes specific to your application, set the <code>spring.main.sources</code>
 system property:</p>
 <pre><code>&gt; profile-edit --pid=io.fabric8.container.java/jvmArguments=-Dspring.main.sources=io.fabric8.process.spring.boot.itests.service.invoicing invoicing
@@ -1079,7 +1079,7 @@ The following containers have been created successfully:
     Container: invoicing.
 </code></pre><p>The container seems to be started properly, but let&apos;s verify this by listing REST services available under
 <code>http://localhost:8080</code> address:</p>
-<pre><code>~/fabric8-karaf-1.1.0-SNAPSHOT [10001]% curl http://localhost:8080/
+<pre><code>~/fabric8-karaf-1.2.0-SNAPSHOT [10001]% curl http://localhost:8080/
 {
   &quot;_links&quot; : {
     &quot;invoice&quot; : {
