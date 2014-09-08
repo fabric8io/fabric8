@@ -57,4 +57,8 @@ public interface Constants {
      * The PID of the context paths; mapping of group/artifact id -> context path mappings
      */
     String WEB_CONTEXT_PATHS_PID = "io.fabric8.web.contextPath";
+    /**
+     * The Fabric8 management domain
+     */
+    String MANAGEMENT_DOMAIN = "io.fabric8";
 }
