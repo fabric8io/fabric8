@@ -56,5 +56,17 @@
                 <module>wildfly</module>
             </modules>
         </profile>
+        <profile>
+            <id>ts.all</id>
+            <activation>
+                <property>
+                    <name>ts.all</name>
+                </property>
+            </activation>
+            <modules>
+                <module>tomcat</module>
+                <module>wildfly</module>
+            </modules>
+        </profile>
     </profiles>
 </project>
