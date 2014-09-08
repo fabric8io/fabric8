@@ -39,6 +39,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -92,19 +93,22 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     @Reference
     private FabricService fabricService;
 
+    private final AtomicBoolean isMaster = new AtomicBoolean();
     private final AtomicReference<String> gitRemoteUrl = new AtomicReference<>();
     private Group<GitNode> group;
     private Path basePath;
     private Git git;
 
+    private String realm;
+    private String role;
+    private Path dataPath;
+
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {
-
         RuntimeProperties sysprops = runtimeProperties.get();
-        String realm = getConfiguredRealm(sysprops, configuration);
-        String role = getConfiguredRole(sysprops, configuration);
-        registerServlet(sysprops.getDataPath(), realm, role);
-
+        realm = getConfiguredRealm(sysprops, configuration);
+        role = getConfiguredRole(sysprops, configuration);
+        dataPath = sysprops.getDataPath();
         activateComponent();
 
         group = new ZooKeeperGroup<GitNode>(curator.get(), ZkPath.GIT.getPath(), GitNode.class);
@@ -154,12 +158,19 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     }
 
     private void updateMasterUrl(Group<GitNode> group) {
-        if (group.isMaster()) {
-            LOGGER.debug("Git repo is the master");
-        } else {
-            LOGGER.debug("Git repo is not the master");
-        }
         try {
+            if (group.isMaster()) {
+                LOGGER.debug("Git repo is the master");
+                if (!isMaster.getAndSet(true)) {
+                    registerServlet(dataPath, realm, role);
+                }
+            } else {
+                LOGGER.debug("Git repo is not the master");
+                if (isMaster.getAndSet(false)) {
+                    unregisterServlet();
+                }
+            }
+
             GitNode state = createState();
             group.update(state);
             String url = state.getUrl();
