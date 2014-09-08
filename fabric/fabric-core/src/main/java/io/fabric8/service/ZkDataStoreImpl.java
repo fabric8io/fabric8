@@ -61,6 +61,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
@@ -96,7 +97,8 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
     private final CopyOnWriteArrayList<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
     private final ExecutorService cacheExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService callbacksExecutor = Executors.newSingleThreadExecutor();
-    private TreeCache treeCache;
+    private TreeCache configCache;
+    private TreeCache containerCache;
 
     @Activate
     void activate() throws Exception {
@@ -111,14 +113,23 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
     }
     
     private void activateInternal() throws Exception {
-        treeCache = new TreeCache(curator.get(), ZkPath.CONFIGS.getPath(), true, false, true, cacheExecutor);
-        treeCache.start(TreeCache.StartMode.NORMAL);
-        treeCache.getListenable().addListener(this);
+        configCache = new TreeCache(curator.get(), ZkPath.CONFIGS.getPath(), true, false, true, cacheExecutor);
+        configCache.start(TreeCache.StartMode.NORMAL);
+        configCache.getListenable().addListener(this);
+
+        containerCache = new TreeCache(curator.get(), ZkPath.CONTAINERS.getPath(), true, false, true, cacheExecutor);
+        containerCache.start(TreeCache.StartMode.NORMAL);
+        containerCache.getListenable().addListener(this);
+
     }
 
     private void deactivateInternal() {
-        treeCache.getListenable().removeListener(this);
-        Closeables.closeQuitely(treeCache);
+        configCache.getListenable().removeListener(this);
+        Closeables.closeQuitely(configCache);
+
+        containerCache.getListenable().removeListener(this);
+        Closeables.closeQuitely(containerCache);
+
         callbacksExecutor.shutdownNow();
         cacheExecutor.shutdownNow();
     }
@@ -126,13 +137,15 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
     @Override
     public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
         if (isValid()) {
-            switch (event.getType()) {
+            String path = event.getData().getPath();
+            PathChildrenCacheEvent.Type type = event.getType();
+            switch (type) {
                 case CHILD_ADDED:
                 case CHILD_REMOVED:
                 case CHILD_UPDATED:
                 case INITIALIZED:
-                    if (shouldRunCallbacks(event.getData().getPath())) {
-                        LOGGER.info("Event {} detected on {} with data {}. Sending notification.", event.getType().name(), event.getData().getPath(), new String(event.getData().getData(), "UTF-8"));
+                    if (shouldRunCallbacks(type, path)) {
+                        LOGGER.info("Event {} detected on {} with data {}. Sending notification.", type.name(), path, new String(event.getData().getData(), "UTF-8"));
                         fireChangeNotifications();
                     }
                     break;
@@ -143,10 +156,12 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
     /**
      * Checks if the container should react to a change in the specified path.
      */
-    private boolean shouldRunCallbacks(String path) {
+    private boolean shouldRunCallbacks(PathChildrenCacheEvent.Type type, String path) {
         String runtimeIdentity = runtimeProperties.get().getRuntimeIdentity();
         String currentVersion = getContainerVersion(runtimeIdentity);
-        return path.equals(ZkPath.CONFIG_ENSEMBLES.getPath()) ||
+        return
+            (path.startsWith(ZkPath.CONTAINERS.getPath()) && type.equals(PathChildrenCacheEvent.Type.CHILD_UPDATED)) ||
+            path.equals(ZkPath.CONFIG_ENSEMBLES.getPath()) ||
             path.equals(ZkPath.CONFIG_ENSEMBLE_URL.getPath()) ||
             path.equals(ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath()) ||
             path.equals(ZkPath.CONFIG_CONTAINER.getPath(runtimeIdentity)) ||
@@ -336,7 +351,7 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
     public CreateContainerMetadata getContainerMetadata(String containerId, final ClassLoader classLoader) {
         assertValid();
         try {
-            byte[] encoded = getByteData(treeCache, ZkPath.CONTAINER_METADATA.getPath(containerId));
+            byte[] encoded = getByteData(configCache, ZkPath.CONTAINER_METADATA.getPath(containerId));
             if (encoded == null) {
                 return null;
             }
@@ -374,7 +389,7 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
     public String getContainerVersion(String containerId) {
         assertValid();
         try {
-            return getStringData(treeCache, ZkPath.CONFIG_CONTAINER.getPath(containerId));
+            return getStringData(configCache, ZkPath.CONFIG_CONTAINER.getPath(containerId));
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
         }
@@ -400,9 +415,9 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
         try {
             String str = null;
             if (Strings.isNotBlank(containerId)) {
-                String versionId = getStringData(treeCache, ZkPath.CONFIG_CONTAINER.getPath(containerId));
+                String versionId = getStringData(configCache, ZkPath.CONFIG_CONTAINER.getPath(containerId));
                 if (Strings.isNotBlank(versionId)) {
-                    str = getStringData(treeCache, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId));
+                    str = getStringData(configCache, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId));
                 }
             }
             return str == null || str.isEmpty() ? Collections.<String> emptyList() : Arrays.asList(str.trim().split(" +"));
@@ -606,8 +621,8 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
         assertValid();
         try {
             String version = null;
-            if (treeCache.getCurrentData(ZkPath.CONFIG_DEFAULT_VERSION.getPath()) != null) {
-                version = getStringData(treeCache, ZkPath.CONFIG_DEFAULT_VERSION.getPath());
+            if (configCache.getCurrentData(ZkPath.CONFIG_DEFAULT_VERSION.getPath()) != null) {
+                version = getStringData(configCache, ZkPath.CONFIG_DEFAULT_VERSION.getPath());
             }
             if (version == null || version.isEmpty()) {
                 version = ZkDefs.DEFAULT_VERSION;
@@ -636,7 +651,7 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
         try {
             CuratorFramework curatorFramework = curator.get();
             if (curatorFramework.getZookeeperClient().isConnected() && exists(curatorFramework, JVM_OPTIONS_PATH) != null) {
-                return getStringData(treeCache, JVM_OPTIONS_PATH);
+                return getStringData(configCache, JVM_OPTIONS_PATH);
             } else {
                 return "";
             }
@@ -661,8 +676,8 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
         assertValid();
         try {
             FabricRequirements answer = null;
-            if (treeCache.getCurrentData(REQUIREMENTS_JSON_PATH) != null) {
-                String json = getStringData(treeCache, REQUIREMENTS_JSON_PATH);
+            if (configCache.getCurrentData(REQUIREMENTS_JSON_PATH) != null) {
+                String json = getStringData(configCache, REQUIREMENTS_JSON_PATH);
                 answer = RequirementsJson.fromJSON(json);
             }
             if (answer == null) {
@@ -680,8 +695,8 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
         try {
             AutoScaleStatus answer = null;
             String zkPath = ZkPath.AUTO_SCALE_STATUS.getPath();
-            if (treeCache.getCurrentData(zkPath) != null) {
-                String json = getStringData(treeCache, zkPath);
+            if (configCache.getCurrentData(zkPath) != null) {
+                String json = getStringData(configCache, zkPath);
                 answer = RequirementsJson.autoScaleStatusFromJSON(json);
             }
             if (answer == null) {
