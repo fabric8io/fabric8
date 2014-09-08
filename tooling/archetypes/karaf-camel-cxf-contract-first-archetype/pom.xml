@@ -29,7 +29,7 @@
     <name>Fabric8 :: Archetypes :: Karaf :: CXF :: Camel CXF Contract First</name>
     <packaging>maven-archetype</packaging>
 
-    <description>Creates a new Creates a web service using the WSDL contract first</description>
+    <description>Creates a new web service using the WSDL contract first</description>
 
     <build>
         <extensions>

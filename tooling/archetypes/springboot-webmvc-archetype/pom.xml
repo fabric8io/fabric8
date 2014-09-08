@@ -29,7 +29,7 @@
     <name>Fabric8 :: Archetypes :: Spring-Boot :: WebMVC</name>
     <packaging>maven-archetype</packaging>
 
-    <description>Creates a new Shows how to use Spring Boot with WebMVC in the Java Container</description>
+    <description>Creates a new Spring Boot application using Spring WebMVC</description>
 
     <build>
         <extensions>
