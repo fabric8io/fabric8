@@ -1,0 +1,1 @@
+Profile for using DOSGi with Fabric

@@ -1,0 +1,1 @@
+Profile for using web applications with Fabric
