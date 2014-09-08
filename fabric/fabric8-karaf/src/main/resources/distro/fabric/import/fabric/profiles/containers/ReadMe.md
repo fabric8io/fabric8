@@ -10,6 +10,7 @@ The following containers support the [Java Container](http://fabric8.io/gitbook/
 * [java camel spring](/fabric/profiles/containers/java.camel.spring.profile) for [Apache Camel](http://camel.apache.org/) and [Spring](http://spring.io/) applications
 * [java pojosr](/fabric/profiles/containers/java.pojosr.profile) for deploying OSGi / blueprint applications with PojoSR in a simple flat class loader
 * [java spring boot](/fabric/profiles/containers/java.spring.boot.profile) for using [Spring Boot](http://projects.spring.io/spring-boot/) based [Micro Services](http://fabric8.io/gitbook/microServices.html)
+* [java weld](/fabric/profiles/containers/java.weld.profile) for using a [Weld CDI](http://weld.cdi-spec.org/) container.
 
 In addition the [debug](/fabric/profiles/containers/debug.profile) enables remote debugging on the process in your IDE via JPDA. To find the debug port use URLs tab in the Container page (or the container-info command in the shell).
 
@@ -24,6 +25,14 @@ Most of these containers have limited management done externally from the proces
 * [tomcat.fabric8](/fabric/profiles/containers/tomcat.fabric8.profile) for deploying WARs and shared JARs into [Apache Tomcat](http://tomcat.apache.org/) which include an embedded Fabric8 Agent
 * [tomee](/fabric/profiles/containers/tomee.profile) for deploying WARs and shared JARs into [Apache TomEE](http://tomee.apache.org/)
 * [tomee.fabric8](/fabric/profiles/containers/tomee.fabric8.profile) for deploying WARs and shared JARs into [Apache TomEE](http://tomee.apache.org/) which include an embedded Fabric8 Agent
+* [wildfly](/fabric/profiles/containers/wildfly.profile) for deploying WARs and shared JARs into [Wildfly](http://wildfly.org/)
+
+### Other Containers
+
+* [keycloak](/fabric/profiles/containers/keycloak.profile) using a stand alone [Keycloak](http://keycloak.jboss.org//) authentication server running on [Wildfly](http://wildfly.org/).
+* [karaf](/fabric/profiles/containers/karaf.profile) provisions a stand alone [Karaf](http://karaf.apache.org//) container.
+* [liveoak](/fabric/profiles/containers/liveoak.profile) using a stand alone [LiveOak](http://liveoak.io/) container to run whatever services you wish to deploy.
+* [mule.ce](/fabric/profiles/containers/mule.ce.profile) using a stand alone [Mule Community Edition](http://mulesoft.org/) container to run whatever integration services you wish to deploy.
 
 ### Services
 
@@ -31,3 +40,5 @@ These containers support various application services such as databases etc
 
 * [cassandra](/fabric/profiles/containers/services/cassandra.profile) installs an [Apache Cassandra](http://cassandra.apache.org/) node
 * [cassandra.local](/fabric/profiles/containers/services/cassandra.local.profile) installs a local cluster [Apache Cassandra](http://cassandra.apache.org/) node intended for development
+* [mongodb](/fabric/profiles/containers/services/mongodb.profile) installs an [MongoDB](http://www.mongodb.org/) node on your network.
+
