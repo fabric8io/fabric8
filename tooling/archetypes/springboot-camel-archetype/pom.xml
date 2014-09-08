@@ -29,7 +29,7 @@
     <name>Fabric8 :: Archetypes :: Spring-Boot :: Camel</name>
     <packaging>maven-archetype</packaging>
 
-    <description>Creates a new Shows how to use Camel with Spring Boot in the Java Container</description>
+    <description>Creates a new Spring Boot application with Camel</description>
 
     <build>
         <extensions>

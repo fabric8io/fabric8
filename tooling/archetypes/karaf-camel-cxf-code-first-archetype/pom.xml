@@ -29,7 +29,7 @@
     <name>Fabric8 :: Archetypes :: Karaf :: CXF :: Camel CXF Code First</name>
     <packaging>maven-archetype</packaging>
 
-    <description>Creates a new Creates a web service using Java code first</description>
+    <description>Creates a new web service using Java code first</description>
 
     <build>
         <extensions>

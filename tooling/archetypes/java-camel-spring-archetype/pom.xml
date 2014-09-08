@@ -29,7 +29,7 @@
     <name>Fabric8 :: Archetypes :: Java :: Camel Spring Java Container</name>
     <packaging>maven-archetype</packaging>
 
-    <description>Creates a new Shows how to use Camel and CDI in a WAR</description>
+    <description>Creates a new Camel route using Spring XML in a standalone Java container</description>
 
     <build>
         <extensions>
