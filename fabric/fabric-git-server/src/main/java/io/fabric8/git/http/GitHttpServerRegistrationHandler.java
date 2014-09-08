@@ -64,7 +64,6 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHttpServerRegistrationHandler.class);
 
-    private static final String GIT_PID = "io.fabric8.git";
     private static final String REALM_PROPERTY_NAME = "realm";
     private static final String ROLE_PROPERTY_NAME = "role";
     private static final String DEFAULT_ROLE = "admin";
@@ -175,9 +174,6 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
             group.update(state);
             String url = state.getUrl();
             gitRemoteUrl.set(ZooKeeperUtils.getSubstitutedData(curator.get(), url));
-            if (group.isMaster()) {
-                updateConfigAdmin();
-            }
         } catch (Exception e) {
             // Ignore
         }
@@ -219,26 +215,6 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
        httpService.get().unregister("/git");
        git.getRepository().close();
        Files.recursiveDelete(basePath.toFile());
-    }
-
-    private void updateConfigAdmin() {
-        // lets register the current URL to ConfigAdmin
-        try {
-            Configuration conf = configAdmin.get().getConfiguration(GIT_PID);
-            if (conf == null) {
-                LOGGER.warn("No configuration for pid " + GIT_PID);
-            } else {
-                Dictionary<String, Object> properties = conf.getProperties();
-                if (properties == null) {
-                    properties = new Hashtable<String, Object>();
-                }
-                properties.put("fabric.git.url", gitRemoteUrl.get());
-                conf.update(properties);
-                LOGGER.debug("Setting pid " + GIT_PID + " config admin to: {}", properties);
-            }
-        } catch (Throwable e) {
-            LOGGER.error("Could not load config admin for pid " + GIT_PID + ". Reason: " + e, e);
-        }
     }
 
     private GitNode createState() {
