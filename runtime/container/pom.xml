@@ -38,6 +38,18 @@
 
     <profiles>
         <profile>
+            <id>all</id>
+            <activation>
+                <property>
+                    <name>all</name>
+                </property>
+            </activation>
+            <modules>
+                <module>tomcat</module>
+                <module>wildfly</module>
+            </modules>
+        </profile>
+        <profile>
             <id>tomcat</id>
             <activation>
                 <property>

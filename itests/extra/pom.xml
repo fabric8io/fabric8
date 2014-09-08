@@ -63,22 +63,12 @@
         </profile>
         <profile>
             <id>tomcat</id>
-            <activation>
-                <property>
-                    <name>tomcat</name>
-                </property>
-            </activation>
             <modules>
                 <module>tomcat</module>
             </modules>
         </profile>
         <profile>
             <id>wildfly</id>
-            <activation>
-                <property>
-                    <name>wildfly</name>
-                </property>
-            </activation>
             <modules>
                 <module>wildfly</module>
             </modules>
