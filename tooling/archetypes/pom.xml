@@ -35,15 +35,17 @@
         <module>java-camel-spring-archetype</module>
         <module>java-cxf-cdi-archetype</module>
         <module>karaf-camel-amq-archetype</module>
+        <module>karaf-camel-cbr-archetype</module>
+        <module>karaf-camel-cxf-code-first-archetype</module>
+        <module>karaf-camel-cxf-contract-first-archetype</module>
+<!-- dozer and drools are not yet ready
         <module>karaf-camel-dozer-wiki-archetype</module>
         <module>karaf-camel-drools-archetype</module>
-        <module>karaf-camel-cbr-archetype</module>
+-->
         <module>karaf-camel-eips-archetype</module>
         <module>karaf-camel-errorhandler-archetype</module>
         <module>karaf-camel-log-archetype</module>
         <module>karaf-camel-log-wiki-archetype</module>
-        <module>karaf-camel-cxf-code-first-archetype</module>
-        <module>karaf-camel-cxf-contract-first-archetype</module>
         <module>karaf-camel-webservice-archetype</module>
         <module>karaf-rest-archetype</module>
         <module>karaf-secure-rest-archetype</module>
