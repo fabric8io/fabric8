@@ -53,11 +53,32 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8.archetypes</groupId>
+            <artifactId>java-cxf-cdi-archetype</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8.archetypes</groupId>
             <artifactId>karaf-camel-amq-archetype</artifactId>
             <version>${project.version}</version>
         </dependency>
 <!--
      These are commented out in archtypes build so can't test them
+        <dependency>
+            <groupId>io.fabric8.archetypes</groupId>
+            <artifactId>karaf-camel-cbr-archetype</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8.archetypes</groupId>
+            <artifactId>karaf-camel-cxf-code-first-archetype</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+-->
+        <dependency>
+            <groupId>io.fabric8.archetypes</groupId>
+            <artifactId>karaf-camel-cxf-contract-first-archetype</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.fabric8.archetypes</groupId>
             <artifactId>karaf-camel-dozer-wiki-archetype</artifactId>
@@ -66,12 +87,6 @@
         <dependency>
             <groupId>io.fabric8.archetypes</groupId>
             <artifactId>karaf-camel-drools-archetype</artifactId>
-            <version>${project.version}</version>
-        </dependency>
--->
-        <dependency>
-            <groupId>io.fabric8.archetypes</groupId>
-            <artifactId>karaf-camel-cbr-archetype</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -92,16 +107,6 @@
         <dependency>
             <groupId>io.fabric8.archetypes</groupId>
             <artifactId>karaf-camel-log-wiki-archetype</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8.archetypes</groupId>
-            <artifactId>karaf-camel-cxf-code-first-archetype</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8.archetypes</groupId>
-            <artifactId>karaf-camel-cxf-contract-first-archetype</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -218,6 +223,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
                     <systemPropertyVariables>
                         <basedir>${basedir}</basedir>
                         <project.version>${project.version}</project.version>
