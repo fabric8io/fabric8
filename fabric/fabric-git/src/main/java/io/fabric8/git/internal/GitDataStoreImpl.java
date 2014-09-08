@@ -259,7 +259,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                threadPool.submit(new Runnable() {
                    @Override
                    public void run() {
-                       LOGGER.info("Watch counter updated to " + value + ", doing a pull");
+                       LOGGER.debug("Watch counter updated to " + value + ", doing a pull");
                        doPullInternal();
                    }
                });
@@ -428,7 +428,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            LOGGER.info("Create version: {} => {}", sourceId, targetId);
+            LOGGER.debug("Create version: {} => {}", sourceId, targetId);
             GitOperation<String> gitop = new GitOperation<String>() {
                 public String call(Git git, GitContext context) throws Exception {
                     IllegalStateAssertion.assertNull(checkoutProfileBranch(git, context, targetId, null), "Version already exists: " + targetId);
@@ -453,7 +453,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            LOGGER.info("Create version: {}", version);
+            LOGGER.debug("Create version: {}", version);
             GitOperation<String> gitop = new GitOperation<String>() {
                 public String call(Git git, GitContext context) throws Exception {
                     String versionId = version.getId();
@@ -529,7 +529,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            LOGGER.info("Delete version: " + versionId);
+            LOGGER.debug("Delete version: " + versionId);
             GitOperation<Void> gitop = new GitOperation<Void>() {
                 public Void call(Git git, GitContext context) throws Exception {
                     removeVersionFromCaches(versionId);
@@ -593,7 +593,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 };
                 return executeWrite(gitop);
             } else {
-                LOGGER.info("Skip unchanged profile update for: {}", profile);
+                LOGGER.debug("Skip unchanged profile update for: {}", profile);
                 return lastProfile.getId();
             }
         } finally {
@@ -650,7 +650,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            LOGGER.info("Delete " + ProfileBuilder.Factory.create(versionId, profileId).getProfile());
+            LOGGER.debug("Delete " + ProfileBuilder.Factory.create(versionId, profileId).getProfile());
             GitOperation<Void> gitop = new GitOperation<Void>() {
                 public Void call(Git git, GitContext context) throws Exception {
                     checkoutRequiredProfileBranch(git, context, versionId, profileId);
@@ -682,10 +682,10 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             }
             
             if (lastProfile == null) {
-                LOGGER.info("Create {}", Profiles.getProfileInfo(profile, false));
+                LOGGER.debug("Create {}", Profiles.getProfileInfo(profile, false));
             } else {
-                LOGGER.info("Update {}", profile);
-                LOGGER.info("Update {}", Profiles.getProfileDifference(lastProfile, profile));
+                LOGGER.debug("Update {}", profile);
+                LOGGER.debug("Update {}", Profiles.getProfileDifference(lastProfile, profile));
             }
             
             // Create the profile branch & directory
@@ -817,7 +817,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            LOGGER.info("External call to push");
+            LOGGER.debug("External call to push");
             PushPolicyResult pushResult = doPushInternal(context, getCredentialsProvider());
             return pushResult.getPushResults();
         } finally {
@@ -832,7 +832,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
-            LOGGER.info("External call to execute a git operation: " + gitop);
+            LOGGER.debug("External call to execute a git operation: " + gitop);
             return executeInternal(context, personIdent, gitop);
         } finally {
             writeLock.unlock();
@@ -1035,15 +1035,17 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private void assertReadLock() {
         boolean locked = readWriteLock.getReadHoldCount() > 0 || readWriteLock.isWriteLockedByCurrentThread();
         IllegalStateAssertion.assertTrue(!strictLockAssert || locked, "No read lock obtained");
-        if (!locked) 
+        if (!locked) { 
             LOGGER.warn("No read lock obtained");
+        }
     }
 
     private void assertWriteLock() {
         boolean locked = readWriteLock.isWriteLockedByCurrentThread();
         IllegalStateAssertion.assertTrue(!strictLockAssert || locked, "No write lock obtained");
-        if (!locked) 
+        if (!locked) {
             LOGGER.warn("No write lock obtained");
+        }
     }
 
     private void createOrCheckoutVersion(Git git, String versionId) throws GitAPIException {
