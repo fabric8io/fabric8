@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -34,16 +33,13 @@ import io.fabric8.insight.maven.aether.Aether;
 import io.fabric8.insight.maven.aether.AetherResult;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.cli.MavenCli;
-import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.junit.AfterClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@Ignore("[FABRIC-1096] Fix archetype-builder tests")
 public class ArchetypeTest {
 
     private boolean verbose = true;
@@ -187,7 +183,7 @@ public class ArchetypeTest {
             public void run() {
                 System.out.println("Invoking projects in " + outDir);
                 MavenCli maven = new MavenCli();
-                resultPointer[0] = maven.doMain(new String[] { "package", "-f", "archetypes-test-pom.xml" }, outDir, System.out, System.out);
+                resultPointer[0] = maven.doMain(new String[] { "clean", "package", "-f", "archetypes-test-pom.xml" }, outDir, System.out, System.out);
                 System.out.println("result: " + resultPointer[0]);
             }
         });
