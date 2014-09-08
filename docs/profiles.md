@@ -314,3 +314,14 @@ If for some reason you want to skip importing some folders (profiles) from a .zi
 ##### Disabling quickstarts
 
 This allows easily to disable importing the quickstarts, by either deleting the `io.fabric8.import.profiles.properties` file, or disable the above line,  by prefixing the line with the `#` character, or setting the environment variable `FABRIC8_IMPORT_PROFILE_URLS` to the value `false`. 
+
+#### Documenting profiles
+
+A profile can include documentation by including the following files
+
+1. `readme.md` - a readme file including the main documentation of the profile
+1. `summary.md` - an optional file for a quick summary of the profile.
+1. `icon.svg` or `icon.png` or `icon.jpg` - an optional graphical logo for the profile
+
+The profile can be viewed from the web console which will automatic include the above information if available.
+
