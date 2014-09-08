@@ -1,7 +1,0 @@
-{
-    "launchScript": "../broker/bin/apollo-broker-service",
-    "pidFile": "../broker/data/apollo.pid",
-    "installCommands": [
-        "bin/apollo create ../broker"
-    ]
-}
