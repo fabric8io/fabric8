@@ -31,19 +31,14 @@
     <name>Fabric8 :: Runtime :: Container</name>
 
     <modules>
-        <module>common</module>
         <module>agent</module>
+        <module>common</module>
         <module>karaf</module>
     </modules>
 
     <profiles>
         <profile>
             <id>all</id>
-            <activation>
-                <property>
-                    <name>all</name>
-                </property>
-            </activation>
             <modules>
                 <module>tomcat</module>
                 <module>wildfly</module>
@@ -51,22 +46,12 @@
         </profile>
         <profile>
             <id>tomcat</id>
-            <activation>
-                <property>
-                    <name>tomcat</name>
-                </property>
-            </activation>
             <modules>
                 <module>tomcat</module>
             </modules>
         </profile>
         <profile>
             <id>wildfly</id>
-            <activation>
-                <property>
-                    <name>wildfly</name>
-                </property>
-            </activation>
             <modules>
                 <module>wildfly</module>
             </modules>
