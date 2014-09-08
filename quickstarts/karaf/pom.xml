@@ -68,7 +68,9 @@
     <modules>
         <module>beginner</module>
         <module>camel-amq</module>
+    <!-- skip dozer as its not yet ready 
         <module>camel-dozer-wiki</module>
+    -->
         <module>camel-drools</module>
         <module>cxf</module>
     </modules>
