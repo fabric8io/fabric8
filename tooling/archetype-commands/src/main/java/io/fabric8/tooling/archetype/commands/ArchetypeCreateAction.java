@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.prefs.Preferences;
 
 import io.fabric8.agent.download.DownloadFuture;
 import io.fabric8.agent.download.DownloadManager;
@@ -39,10 +40,13 @@ import org.apache.karaf.shell.console.AbstractAction;
 @Command(name = ArchetypeInfo.FUNCTION_VALUE, scope = ArchetypeCreate.SCOPE_VALUE, description = ArchetypeCreate.DESCRIPTION)
 public class ArchetypeCreateAction extends AbstractAction {
 
+    private static final String DEFAULT_TARGET = "/tmp";
+    private static final String ARCHETYPE_SUFFIX = "-archetype";
+
     @Argument(index = 0, name = "archetype", description = "Archetype coordinates", required = true, multiValued = false)
     private String archetypeGAV;
 
-    @Argument(index = 1, name = "target", description = "Target directory where the project will be generated", required = true, multiValued = false)
+    @Argument(index = 1, name = "target", description = "Target directory where the project will be generated", required = false, multiValued = false)
     private File target;
 
     private final ArchetypeService archetypeService;
@@ -55,7 +59,14 @@ public class ArchetypeCreateAction extends AbstractAction {
     protected Object doExecute() throws Exception {
         Archetype archetype = archetypeService.getArchetype(archetypeGAV);
         if (archetype != null) {
-            System.out.println(String.format("Generating %s:%s in %s", archetype.groupId, archetype.artifactId, target.getCanonicalPath()));
+            Preferences preferences = Preferences.userNodeForPackage(getClass());
+            if (target == null) {
+                target = new File(preferences.get("target", DEFAULT_TARGET));
+            } else {
+                preferences.put("target", target.getCanonicalPath());
+            }
+            File childDir = new File(target, removeArchetypeSuffix(archetype.artifactId));
+            System.out.println(String.format("Generating %s:%s in %s", archetype.groupId, archetype.artifactId, childDir.getCanonicalPath()));
             File archetypeFile = fetchArchetype(archetype);
             if (archetypeFile == null || !archetypeFile.exists()) {
                 System.err.println("No archetype found for \"" + archetypeGAV + "\" coordinates");
@@ -78,7 +89,7 @@ public class ArchetypeCreateAction extends AbstractAction {
             String packageName = ShellUtils.readLine(session, String.format("Define value for property 'package' (%s):", defaultPackageName), false);
             packageName = packageName == null || packageName.trim().equals("") ? defaultPackageName : packageName;
 
-            ArchetypeHelper helper = new ArchetypeHelper(archetypeFile, target, groupId, artifactId, version);
+            ArchetypeHelper helper = new ArchetypeHelper(archetypeFile, childDir, groupId, artifactId, version);
             helper.setPackageName(packageName);
 
             Map<String, String> properties = helper.parseProperties();
@@ -97,6 +108,14 @@ public class ArchetypeCreateAction extends AbstractAction {
             System.err.println("No archetype found for \"" + archetypeGAV + "\" coordinates");
         }
         return null;
+    }
+
+    private String removeArchetypeSuffix(String artifactId) {
+        if (artifactId.endsWith(ARCHETYPE_SUFFIX)) {
+            return artifactId.substring(0, artifactId.length() - ARCHETYPE_SUFFIX.length());
+        } else {
+            return artifactId;
+        }
     }
 
     /**
