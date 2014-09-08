@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="4.2" data-basepath="." data-revision="1410168087666">
+    <div class="book" data-github="fabric8io/fabric8" data-level="4.2" data-basepath="." data-revision="1410204234126">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -1064,8 +1064,18 @@ For such cases Fabric allows you export your profiles in text and also import th
 </code></pre><p>The url above is using the <a href="http://fabric8.io/gitbook/propertyResolver.html#env" target="_blank">environment property resolver</a> to either load urls from the given environment variable, or if not provided, then use the default value which is <code>mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${version:fabric}/zip/profile</code>. Notice how the url uses the <code>?:</code> elvis operator so we can lookup the environment variable, and if not given, then fallback and use the default value. The value <code>${version:fabric}</code> will get replaced with the version of fabric8. </p>
 <p>The environment variable <code>FABRIC8_IMPORT_PROFILE_URLS</code> can be used to define custom profiles to be loaded instead of the quickstarts. Multiple urls can be separated bt comma. For example to load two custom profiles instead of the quickstarts, then the environment can be configured with:</p>
 <pre><code>export FABRIC8_IMPORT_PROFILE_URLS=&quot;mvn:com.foo/myprofiles/1.0,mvn:com.foo/myotherprofiles/1.0&quot;
-</code></pre><h5 id="disabling-quickstarts"><a name="disabling-quickstarts" class="anchor" href="#disabling-quickstarts"><span class="fa fa-link"></span></a>Disabling quickstarts</h5>
+</code></pre><h5 id="skipping-importing-some-folders"><a name="skipping-importing-some-folders" class="anchor" href="#skipping-importing-some-folders"><span class="fa fa-link"></span></a>Skipping importing some folders</h5>
+<p>If for some reason you want to skip importing some folders (profiles) from a .zip file, you can include an empty <code>.skipimport</code> file in the folder to skip. </p>
+<h5 id="disabling-quickstarts"><a name="disabling-quickstarts" class="anchor" href="#disabling-quickstarts"><span class="fa fa-link"></span></a>Disabling quickstarts</h5>
 <p>This allows easily to disable importing the quickstarts, by either deleting the <code>io.fabric8.import.profiles.properties</code> file, or disable the above line,  by prefixing the line with the <code>#</code> character, or setting the environment variable <code>FABRIC8_IMPORT_PROFILE_URLS</code> to the value <code>false</code>. </p>
+<h4 id="documenting-profiles"><a name="documenting-profiles" class="anchor" href="#documenting-profiles"><span class="fa fa-link"></span></a>Documenting profiles</h4>
+<p>A profile can include documentation by including the following files</p>
+<ol>
+<li><code>readme.md</code> - a readme file including the main documentation of the profile</li>
+<li><code>summary.md</code> - an optional file for a quick summary of the profile.</li>
+<li><code>icon.svg</code> or <code>icon.png</code> or <code>icon.jpg</code> - an optional graphical logo for the profile</li>
+</ol>
+<p>The profile can be viewed from the web console which will automatic include the above information if available.</p>
 
                     
                     </section>
