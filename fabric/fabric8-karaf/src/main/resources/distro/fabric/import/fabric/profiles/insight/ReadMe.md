@@ -2,9 +2,9 @@
 
 These profiles help provide additional insight into your running system.
 
-* [console](/fabric/profiles/insight/console.profile) adds the [kibana](http://www.elasticsearch.org/overview/kibana/) and [eshead](http://mobz.github.io/elasticsearch-head/) web application into the Management Console for viewing and searching logs across all your containers.
+* [console](/fabric/profiles/insight/console.profile) adds the [kibana](http://www.elasticsearch.org/overview/kibana/) and [eshead](http://mobz.github.io/elasticsearch-head/) web application into the web console for viewing and searching logs across all your containers.
 
-This profile should be added to the root container running the Management Console. Once you've added it, reload the page and the Insight perspective should appear.
+This profile should be added to the root container running the web console. Once you've added it, reload the page and the Insight perspective should appear.
 
  ### Adding more insight into your containers
 

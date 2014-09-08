@@ -1,0 +1,1 @@
+Insight Metrics base profile

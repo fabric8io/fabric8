@@ -255,6 +255,7 @@ It describe how to modify profiles and explains how to perform single and rollin
 <object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/-2W5NwC2oAo?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/-2W5NwC2oAo?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
 
 #### Importing and exporting profiles
+
 There are cases where you have put quite a lot of effort in creating the profiles that much your needs and you want to store them somewhere.
 A good example is when you move from the development environment to the staging or the production environment. You simply just don't want to go over the process of creating the profiles again.
 For such cases Fabric allows you export your profiles in text and also import them back. So you can safely store them or even import them to a version control system.
@@ -272,7 +273,6 @@ In a similar way the import operation works. Please keep in mind that by default
         fabric:create
 
 to specify an other folder for importing to the registry you can simply use the **--import-dir** option. For example:
-
 
         fabric:create --import-dir /path/to/my/import/location
 
@@ -306,6 +306,10 @@ The url above is using the [environment property resolver](http://fabric8.io/git
 The environment variable `FABRIC8_IMPORT_PROFILE_URLS` can be used to define custom profiles to be loaded instead of the quickstarts. Multiple urls can be separated bt comma. For example to load two custom profiles instead of the quickstarts, then the environment can be configured with:
 
     export FABRIC8_IMPORT_PROFILE_URLS="mvn:com.foo/myprofiles/1.0,mvn:com.foo/myotherprofiles/1.0"
+
+##### Skipping importing some folders
+
+If for some reason you want to skip importing some folders (profiles) from a .zip file, you can include an empty `.skipimport` file in the folder to skip. 
 
 ##### Disabling quickstarts
 
