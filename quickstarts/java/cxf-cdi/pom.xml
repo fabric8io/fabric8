@@ -37,7 +37,7 @@
     <packaging>jar</packaging>
 
     <name>Fabric8 :: Quickstarts :: Java :: CXF JAX-RS with CDI Java Container</name>
-    <description>Shows how to use CXF JAX-RS and CDI and Java Container</description>
+    <description>CXF JAX-RS using CDI running in a standalone Java Container</description>
 
     <properties>
         <!-- 

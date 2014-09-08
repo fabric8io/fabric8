@@ -33,7 +33,7 @@
   <packaging>jar</packaging>
 
   <name>Fabric8 :: Quickstarts :: Java :: Camel with CDI Java Container</name>
-  <description>Shows how to use Camel and CDI and Java Container</description>
+  <description>Camel route using CDI in a standalone Java Container</description>
 
   <properties>
     <!-- Explicitly declaring the source encoding eliminates the following

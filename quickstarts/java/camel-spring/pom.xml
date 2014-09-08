@@ -33,7 +33,7 @@
   <packaging>jar</packaging>
 
   <name>Fabric8 :: Quickstarts :: Java :: Camel Spring Java Container</name>
-  <description>Shows how to use Camel and CDI in a WAR</description>
+  <description>Camel route using Spring XML in a standalone Java container</description>
 
   <properties>
     <!-- Explicitly declaring the source encoding eliminates the following message: -->
