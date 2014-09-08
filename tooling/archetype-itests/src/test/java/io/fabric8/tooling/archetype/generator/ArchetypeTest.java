@@ -29,12 +29,14 @@ import org.apache.commons.io.IOUtils;
 import org.apache.maven.cli.MavenCli;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.junit.AfterClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@Ignore("[FABRIC-1096] Fix archetype-builder tests")
 public class ArchetypeTest {
 
     private boolean verbose = true;
