@@ -52,6 +52,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+
 import io.fabric8.api.Constants;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.DataStoreTemplate;
@@ -85,6 +86,7 @@ import io.fabric8.service.EnvPlaceholderResolver;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
+
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.shared.SharedCount;
@@ -268,10 +270,16 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             @Override
             public void stateChanged(CuratorFramework curatorFramework, ConnectionState connectionState) {
                 switch (connectionState) {
+                    case SUSPENDED:
+                    case READ_ONLY:
+                    case LOST:
+                        // do nothing
+                        break;
                     case CONNECTED:
                     case RECONNECTED:
                         LOGGER.info("Shared Counter (Re)connected, doing a pull");
                         doPullInternal();
+                        break;
                 }
             }
         });
@@ -423,6 +431,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public String createVersion(final String sourceId, final String targetId, final Map<String, String> attributes) {
+        return createVersion(newGitWriteContext(), sourceId, targetId, attributes);
+    }
+
+    @Override
+    public String createVersion(GitContext context, final String sourceId, final String targetId, final Map<String, String> attributes) {
         IllegalStateAssertion.assertNotNull(sourceId, "sourceId");
         IllegalStateAssertion.assertNotNull(targetId, "targetId");
         LockHandle writeLock = aquireWriteLock();
@@ -441,7 +454,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return targetId;
                 }
             };
-            return executeWrite(gitop);
+            return executeInternal(context, null, gitop);
         } finally {
             writeLock.unlock();
         }
@@ -449,6 +462,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public String createVersion(final Version version) {
+        return createVersion(newGitWriteContext(), version);
+    }
+
+    @Override
+    public String createVersion(GitContext context, final Version version) {
         IllegalStateAssertion.assertNotNull(version, "version");
         LockHandle writeLock = aquireWriteLock();
         try {
@@ -468,7 +486,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return versionId;
                 }
             };
-            return executeWrite(gitop);
+            return executeInternal(context, null, gitop);
         } finally {
             writeLock.unlock();
         }
@@ -476,6 +494,11 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     @Override
     public List<String> getVersionIds() {
+        return getVersionIds(newGitReadContext());
+    }
+
+    @Override
+    public List<String> getVersionIds(GitContext context) {
         LockHandle readLock = aquireReadLock();
         try {
             assertValid();
@@ -486,14 +509,19 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return Collections.unmodifiableList(result);
                 }
             };
-            return executeRead(gitop);
+            return executeInternal(context, null, gitop);
         } finally {
             readLock.unlock();
         }
     }
 
     @Override
-    public boolean hasVersion(final String versionId) {
+    public boolean hasVersion(String versionId) {
+        return hasVersion(newGitReadContext(), versionId);
+    }
+
+    @Override
+    public boolean hasVersion(GitContext context, final String versionId) {
         IllegalStateAssertion.assertNotNull(versionId, "versionId");
         LockHandle readLock = aquireReadLock();
         try {
@@ -503,14 +531,14 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return versions.contains(versionId);
                 }
             };
-            return executeRead(gitop);
+            return executeInternal(context, null, gitop);
         } finally {
             readLock.unlock();
         }
     }
 
     @Override
-    public Version getVersion(final String versionId) {
+    public Version getVersion(String versionId) {
         IllegalStateAssertion.assertNotNull(versionId, "versionId");
         return getVersionFromCache(versionId, null);
     }
@@ -524,7 +552,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public void deleteVersion(final String versionId) {
+    public void deleteVersion(String versionId) {
+        deleteVersion(new GitContext(), versionId);
+    }
+
+    @Override
+    public void deleteVersion(GitContext context, final String versionId) {
         IllegalStateAssertion.assertNotNull(versionId, "versionId");
         LockHandle writeLock = aquireWriteLock();
         try {
@@ -537,7 +570,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return null;
                 }
             };
-            GitContext context = new GitContext();
             executeInternal(context, null, gitop);
         } finally {
             writeLock.unlock();
@@ -545,11 +577,14 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public String createProfile(final Profile profile) {
+    public String createProfile(Profile profile) {
+        return createProfile(newGitWriteContext(), profile);
+    }
+
+    @Override
+    public String createProfile(GitContext context, final Profile profile) {
         IllegalStateAssertion.assertNotNull(profile, "profile");
-        
         assertNoParentProfilesWithMasterBranch(profile);
-        
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -563,18 +598,21 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return createOrUpdateProfile(context, null, profile, new HashSet<String>());
                 }
             };
-            return executeWrite(gitop);
+            return executeInternal(context, null, gitop);
         } finally {
             writeLock.unlock();
         }
     }
 
     @Override
-    public String updateProfile(final Profile profile) {
+    public String updateProfile(Profile profile) {
+        return updateProfile(newGitWriteContext(), profile);
+    }
+
+    @Override
+    public String updateProfile(GitContext context, final Profile profile) {
         IllegalStateAssertion.assertNotNull(profile, "profile");
-        
         assertNoParentProfilesWithMasterBranch(profile);
-        
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -591,7 +629,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                         return createOrUpdateProfile(context, lastProfile, profile, new HashSet<String>());
                     }
                 };
-                return executeWrite(gitop);
+                return executeInternal(context, null, gitop);
             } else {
                 LOGGER.info("Skip unchanged profile update for: {}", profile);
                 return lastProfile.getId();
@@ -644,7 +682,12 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     @Override
-    public void deleteProfile(final String versionId, final String profileId) {
+    public void deleteProfile(String versionId, String profileId) {
+        deleteProfile(newGitWriteContext(), versionId, profileId);
+    }
+
+    @Override
+    public void deleteProfile(GitContext context, final String versionId, final String profileId) {
         IllegalStateAssertion.assertNotNull(versionId, "versionId");
         IllegalStateAssertion.assertNotNull(profileId, "profileId");
         LockHandle writeLock = aquireWriteLock();
@@ -660,7 +703,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                     return null;
                 }
             };
-            executeWrite(gitop);
+            executeInternal(context, null, gitop);
         } finally {
             writeLock.unlock();
         }
@@ -840,12 +883,19 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     }
 
     private <T> T executeRead(GitOperation<T> operation) {
-        return executeInternal(new GitContext(), null, operation);
+        return executeInternal(newGitReadContext(), null, operation);
     }
 
     private <T> T executeWrite(GitOperation<T> operation) {
-        GitContext context = new GitContext().requireCommit().requirePush();
-        return executeInternal(context, null, operation);
+        return executeInternal(newGitWriteContext(), null, operation);
+    }
+
+    private GitContext newGitReadContext() {
+        return new GitContext();
+    }
+
+    private GitContext newGitWriteContext() {
+        return new GitContext().requireCommit().requirePush();
     }
 
     private <T> T executeInternal(GitContext context, PersonIdent personIdent, GitOperation<T> operation) {
