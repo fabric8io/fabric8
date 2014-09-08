@@ -131,6 +131,22 @@
       </plugin>
 
       <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${spring-boot-version}</version>
+        <configuration>
+          <mainClass>io.fabric8.process.spring.boot.container.FabricSpringApplication</mainClass>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+        </plugin>
+
+      <plugin>
           <!--
             this plugin will use the fabric.* properties to configure its behaviour
             see the Properties section here: http://fabric8.io/gitbook/mavenPlugin.html
