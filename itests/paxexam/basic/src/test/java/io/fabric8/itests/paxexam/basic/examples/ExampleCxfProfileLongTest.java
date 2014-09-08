@@ -26,7 +26,6 @@ import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -46,8 +45,6 @@ import static org.ops4j.pax.exam.OptionUtils.combine;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
-//@Ignore("[FABRIC-1095] Fix basic ExampleCxfProfileLongTest")
-//CXF Server fails provision cleanly in Karaf (restart the container and it works) due: Caused by: java.io.IOException: Cannot find any registered HttpDestinationFactory from the Bus.")
 public class ExampleCxfProfileLongTest extends FabricTestSupport {
 
     @Before
