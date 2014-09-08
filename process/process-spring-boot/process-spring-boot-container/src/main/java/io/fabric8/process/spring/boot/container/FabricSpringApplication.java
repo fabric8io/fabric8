@@ -57,8 +57,6 @@ public class FabricSpringApplication {
 
     public static final String WEB_PROPERTY_KEY = "io.fabric8.process.spring.boot.container.web";
 
-    public static final String[] NO_ARGUMENTS = new String[0];
-
     // DSL state
 
     private ConfigurableApplicationContext parent;
