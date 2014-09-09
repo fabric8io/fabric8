@@ -35,6 +35,7 @@
             <includes>
                 <include>*:common-util:jar</include>
                 <include>*:fabric-api:jar</include>
+                <include>*:fabric-boot-commands:jar</include>
                 <include>*:fabric-core:jar</include>
                 <include>*:fabric-git:jar</include>
                 <include>*:fabric-groups:jar</include>
@@ -42,12 +43,14 @@
                 <include>*:fabric-utils:jar</include>
                 <include>*:fabric-zookeeper:jar</include>
                 <include>*:fabric-runtime-container-wildfly-extension:jar</include>
+                <include>*:fabric-runtime-container-wildfly-registration:jar</include>
                 <include>*:fabric-runtime-container-wildfly-webapp:war</include>
                 <include>*:jasypt:jar</include>
                 <include>*:org.apache.felix.gogo.runtime:jar</include>
                 <include>*:org.apache.karaf.admin.core:jar</include>
                 <include>*:org.apache.karaf.admin.management:jar</include>
                 <include>*:org.apache.karaf.jaas.boot:jar</include>
+                <include>*:org.apache.karaf.jaas.config:jar</include>
                 <include>*:org.apache.karaf.jaas.modules:jar</include>
                 <include>*:org.apache.karaf.shell.console:jar</include>
                 <include>*:org.apache.karaf.util:jar</include>

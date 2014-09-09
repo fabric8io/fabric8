@@ -25,6 +25,7 @@
 
     <resources>
         <resource-root path="fabric-runtime-container-wildfly-extension-@project.version@.jar"/>
+        <resource-root path="fabric-runtime-container-wildfly-registration-@project.version@.jar"/>
     </resources>
 
     <dependencies>

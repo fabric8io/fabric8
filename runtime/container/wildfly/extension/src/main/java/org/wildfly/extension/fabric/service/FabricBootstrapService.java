@@ -58,6 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wildfly.extension.fabric.FabricConstants;
 import org.wildfly.extension.gravia.GraviaConstants;
+import org.wildfly.extension.gravia.service.GraviaBootstrapService;
 
 /**
  * Service responsible for creating and managing the life-cycle of the gravia subsystem.
@@ -70,7 +71,8 @@ public class FabricBootstrapService extends AbstractService<ZooKeeperClusterBoot
 
     private final InjectedValue<ModuleContext> injectedModuleContext = new InjectedValue<ModuleContext>();
     private final InjectedValue<Runtime> injectedRuntime = new InjectedValue<Runtime>();
-
+    private final GraviaBootstrapService graviaBootstrap = new GraviaBootstrapService();
+    
     private ZooKeeperClusterBootstrap bootstrapService;
     private Module module;
 
@@ -128,6 +130,9 @@ public class FabricBootstrapService extends AbstractService<ZooKeeperClusterBoot
             throw new StartException(ex);
         }
 
+        // Track and install the gravia services
+        graviaBootstrap.installGraviaServices(startContext, runtime);
+        
         // Wait for the {@link ZooKeeperClusterBootstrap} to come up
         try {
             if (!latch.await(5, TimeUnit.SECONDS)) {
@@ -151,6 +156,10 @@ public class FabricBootstrapService extends AbstractService<ZooKeeperClusterBoot
 
     @Override
     public void stop(StopContext context) {
+        
+        // Uninstall the gravia services
+        graviaBootstrap.uninstallGraviaServices();
+        
         // Uninstall the bootstrap module
         if (module != null) {
             module.uninstall();

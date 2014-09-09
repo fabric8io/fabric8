@@ -65,7 +65,11 @@
   	
   	<!-- Copy gravia patch -->
     <copy todir="${wildfly.patch.dir}" overwrite="true">
-        <fileset dir="${output.dir}/gravia-wildfly-patch" />
+        <fileset dir="${output.dir}/gravia-wildfly-patch">
+        	<exclude name="standalone/configuration/gravia/**"/>
+        	<exclude name="standalone/deployments/gravia.war"/>
+        	<exclude name="standalone/standalone-gravia.xml"/>
+        </fileset>
     </copy>
   	
   	<!-- Copy module resources -->
@@ -75,6 +79,7 @@
         	<include name="org.apache.karaf.admin.core-*"/>
         	<include name="org.apache.karaf.admin.management-*"/>
         	<include name="org.apache.karaf.jaas.boot-*"/>
+        	<include name="org.apache.karaf.jaas.config-*"/>
         	<include name="org.apache.karaf.jaas.modules-*"/>
         	<include name="org.apache.karaf.shell.console-*"/>
         	<include name="org.apache.karaf.util-*"/>
@@ -86,6 +91,7 @@
     <copy todir="${wildfly.patch.dir}/modules/io/fabric8/impl/main" overwrite="true">
         <fileset dir="${deploy.artifacts.lib}">
         	<include name="common-util-*"/>
+        	<include name="fabric-boot-commands-*"/>
         	<include name="fabric-core-*"/>
         	<include name="fabric-git-*"/>
         	<include name="fabric-groups-*"/>
@@ -99,6 +105,7 @@
     </copy>
     <copy todir="${wildfly.patch.dir}/modules/org/wildfly/extension/fabric/main" overwrite="true">
         <fileset file="${deploy.artifacts.lib}/fabric-runtime-container-wildfly-extension-${project.version}.jar" />
+        <fileset file="${deploy.artifacts.lib}/fabric-runtime-container-wildfly-registration-${project.version}.jar" />
     </copy>
     <copy file="${deploy.artifacts.lib}/fabric-runtime-container-wildfly-webapp-${project.version}.war" 
     	tofile="${wildfly.patch.dir}/standalone/deployments/fabric.war" overwrite="true"/>
