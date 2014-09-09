@@ -129,7 +129,7 @@ public final class ManagedCuratorFramework extends AbstractComponent implements 
 
         @Override
         public void stateChanged(CuratorFramework client, ConnectionState newState) {
-            if (newState == ConnectionState.CONNECTED) {
+            if (newState == ConnectionState.CONNECTED || newState == ConnectionState.READ_ONLY || newState == ConnectionState.RECONNECTED) {
                 if (registration == null) {
                     registration = bundleContext.registerService(CuratorFramework.class, curator, null);
                 }
@@ -214,6 +214,7 @@ public final class ManagedCuratorFramework extends AbstractComponent implements 
      */
     private synchronized CuratorFramework buildCuratorFramework(CuratorConfig curatorConfig) {
         CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
+                .canBeReadOnly(true)
                 .ensembleProvider(new FixedEnsembleProvider(curatorConfig.getZookeeperUrl()))
                 .connectionTimeoutMs(curatorConfig.getZookeeperConnectionTimeOut())
                 .sessionTimeoutMs(curatorConfig.getZookeeperSessionTimeout())

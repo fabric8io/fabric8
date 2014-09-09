@@ -103,6 +103,7 @@
           runtime.conf=${catalina.home}/conf
           runtime.data=${catalina.home}/work
           zookeeper.sasl.client=false
+          readonlymode.enabled=true
     </echo>
 
   	<!-- Zip the tomcat patch -->
