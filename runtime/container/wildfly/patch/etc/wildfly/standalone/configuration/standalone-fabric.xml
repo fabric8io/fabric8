@@ -55,6 +55,7 @@
         <property name="runtime.data" value="${jboss.home.dir}/standalone/data"/>
         <property name="jboss.bind.address.management" value="0.0.0.0"/>
         <property name="zookeeper.sasl.client" value="false"/>
+        <property name="readonlymode.enabled" value="true"/>
     </system-properties>
 
     <management>

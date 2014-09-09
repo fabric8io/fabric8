@@ -15,6 +15,7 @@
  */
 package io.fabric8.zookeeper.utils;
 
+import io.fabric8.api.FabricException;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.TreeCache;
@@ -473,6 +474,8 @@ public final class ZooKeeperUtils {
                 setData(curator, CONTAINERS_NODE + "/" + container, password);
                 lastTokenGenerationTime = time;
             }
+        } catch (KeeperException.NotReadOnlyException e) {
+            throw new FabricException("ZooKeeper server is partitioned. Currently working in read-only mode!");
         } catch (RuntimeException rte) {
             throw rte;
         } catch (Exception ex) {

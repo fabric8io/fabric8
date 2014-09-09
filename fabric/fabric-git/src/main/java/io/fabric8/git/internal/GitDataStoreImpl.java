@@ -100,6 +100,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.apache.zookeeper.KeeperException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -283,7 +284,14 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
                 }
             }
         });
-        counter.start();
+        try {
+            counter.start();
+        } catch (KeeperException.NotReadOnlyException ex) {
+            //In read only mode the counter is not going to start.
+            //If the connection is reestablished the component will reactivate.
+            //We need to catch this error so that the component gets activated.
+        }
+
 
         //It is not safe to assume that we will get notified by the ShareCounter, if the component is not activated
         // when the SharedCounter gets updated.
