@@ -629,22 +629,26 @@ public class ActiveMQServiceFactory implements ManagedServiceFactory, ServiceTra
             }
 
             // Update the advertised endpoint URIs that clients can use.
-            List<String> services = new LinkedList<String>();
             if (!standalone || replicating) {
-                for (String name : connectors) {
-                    TransportConnector connector = server.getBroker().getConnectorByName(name);
-                    if (connector == null) {
-                        warn("ActiveMQ broker '%s' does not have a connector called '%s'", name, name);
-                    } else {
-                        services.add(connector.getConnectUri().getScheme() + "://${zk:" + System.getProperty("runtime.id") + "/ip}:" + connector.getPublishableConnectURI().getPort());
-                    }
-                }
-                discoveryAgent.setServices(services.toArray(new String[services.size()]));
+                registerConnectors();
             }
 
             if (registerService) {
                 osgiRegister(server.getBroker());
             }
+        }
+
+        private void registerConnectors() throws Exception {
+            List<String> services = new LinkedList<String>();
+            for (String name : connectors) {
+                TransportConnector connector = server.getBroker().getConnectorByName(name);
+                if (connector == null) {
+                    warn("ActiveMQ broker '%s' does not have a connector called '%s'", name, name);
+                } else {
+                    services.add(connector.getConnectUri().getScheme() + "://${zk:" + System.getProperty("runtime.id") + "/ip}:" + connector.getPublishableConnectURI().getPort());
+                }
+            }
+            discoveryAgent.setServices(services.toArray(new String[services.size()]));
         }
 
         public void close() throws Exception {
@@ -755,6 +759,11 @@ public class ActiveMQServiceFactory implements ManagedServiceFactory, ServiceTra
                                                     } else {
                                                         update_pool_state();
                                                         started.set(false);
+                                                    }
+                                                } else {
+                                                    if (discoveryAgent.getServices().isEmpty()) {
+                                                        info("Reconnected to the group", name);
+                                                        registerConnectors();
                                                     }
                                                 }
                                             } else {
