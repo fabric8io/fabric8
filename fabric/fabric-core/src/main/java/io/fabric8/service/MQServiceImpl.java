@@ -34,7 +34,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -71,8 +70,9 @@ public class MQServiceImpl implements MQService {
         }
         
         Profile parentProfile = version.getRequiredProfile(parentProfileName);
-        if (brokerName == null || profileId == null)
+        if (brokerName == null || profileId == null) {
             return parentProfile;
+        }
         
         String pidName = getBrokerPID(brokerName);
         // lets check we have a config value
@@ -84,6 +84,9 @@ public class MQServiceImpl implements MQService {
         boolean create = !version.hasProfile(profileId);
         if (create) {
             builder = ProfileBuilder.Factory.create(versionId, profileId);
+            if (parentProfile != null) {
+                builder.addParent(parentProfile);
+            }
         } else {
             Profile profile = version.getRequiredProfile(profileId);
             builder = ProfileBuilder.Factory.createFrom(profile);
@@ -95,7 +98,7 @@ public class MQServiceImpl implements MQService {
             config = new HashMap<>(parentProfileConfig);
         }
 
-        if( "true".equals(configs.get("ssl")) ) {
+        if (configs != null && "true".equals(configs.get("ssl"))) {
 
             // Only generate the keystore file if it does not exist.
             // [TOOD] Fix direct data access! This should be part of the ProfileBuilder
@@ -150,10 +153,8 @@ public class MQServiceImpl implements MQService {
 
             // [TOOD] Fix direct data access! This should be part of the ProfileBuilder
             byte[] truststore = builder.getFileConfiguration("truststore.jks");
-            if( truststore==null ) {
-
-                try {
-
+            if (truststore == null) {
+               try {
                     String password = configs.get("truststore.password");
                     if( password == null ) {
                         password = configs.get("keystore.password");
@@ -197,11 +198,9 @@ public class MQServiceImpl implements MQService {
                     configs.put("truststore.file", "profile:truststore.jks");
 
                 } catch (IOException e) {
-                    LOG.info("Failed to generate truststore.jks: "+e, e);
+                    LOG.info("Failed to generate truststore.jks due: " + e.getMessage(), e);
                 }
-
             }
-
         }
 
         config.put("broker-name", brokerName);
@@ -251,12 +250,13 @@ public class MQServiceImpl implements MQService {
         new Thread("system command output processor") {
             @Override
             public void run() {
-                StringBuffer buffer = new StringBuffer();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), Charsets.UTF_8));
                 try {
                     while (true) {
                         String line = reader.readLine();
-                        if (line == null) break;
+                        if (line == null) {
+                            break;
+                        }
                         LOG.info(String.format("%s: %s", args[0], line));
                     }
                 } catch (IOException e) {
