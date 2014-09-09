@@ -44,6 +44,8 @@ import java.util.concurrent.Executors;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.features.Feature;
@@ -64,6 +66,9 @@ import com.google.common.cache.LoadingCache;
 @ThreadSafe
 @Component(name = "io.fabric8.features", label = "Fabric8 Features Service", immediate = true, metatype = false)
 @Service(FeaturesService.class)
+@Properties(
+        @Property(name = "service.ranking", intValue = 1)
+)
 public final class FabricFeaturesServiceImpl extends AbstractComponent implements FeaturesService, Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturesService.class);
