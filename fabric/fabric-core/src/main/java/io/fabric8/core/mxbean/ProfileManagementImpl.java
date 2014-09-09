@@ -16,66 +16,66 @@
 package io.fabric8.core.mxbean;
 
 import io.fabric8.api.Profile;
-import io.fabric8.api.ProfileService;
+import io.fabric8.api.ProfileManager;
+import io.fabric8.api.ProfileManagerLocator;
 import io.fabric8.api.Version;
-import io.fabric8.api.mxbean.ProfilesManager;
+import io.fabric8.api.mxbean.ProfileManagement;
 
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.gravia.runtime.ServiceLocator;
-
 /**
  * An MXBean for the {@link}
  */
-public final class ProfilesManagerImpl implements ProfilesManager {
+public final class ProfileManagementImpl implements ProfileManagement {
 
     @Override
     public Version createVersion(Version version) {
-        return getProfileService().createVersion(version);
+        return getProfileManager().createVersion(version);
     }
 
     @Override
     public Version createVersion(String sourceId, String targetId, Map<String, String> attributes) {
-        return getProfileService().createVersion(sourceId, targetId, attributes);
+        return getProfileManager().createVersion(sourceId, targetId, attributes);
     }
 
     @Override
     public List<String> getVersions() {
-        return getProfileService().getVersions();
+        return getProfileManager().getVersions();
     }
 
     @Override
     public Version getVersion(String versionId) {
-        return getProfileService().getVersion(versionId);
+        return getProfileManager().getVersion(versionId);
     }
 
     @Override
     public void deleteVersion(String versionId) {
-        getProfileService().deleteVersion(versionId);
+        getProfileManager().deleteVersion(versionId);
     }
 
     @Override
     public Profile createProfile(Profile profile) {
-        return getProfileService().createProfile(profile);
+        return getProfileManager().createProfile(profile);
     }
 
     @Override
     public Profile getProfile(String versionId, String profileId) {
-        return getProfileService().getProfile(versionId, profileId);
+        return getProfileManager().getProfile(versionId, profileId);
     }
 
     @Override
     public Profile updateProfile(Profile profile) {
-        return getProfileService().updateProfile(profile);
+        return getProfileManager().updateProfile(profile);
     }
 
     @Override
     public void deleteProfile(String versionId, String profileId, boolean force) {
-        getProfileService().deleteProfile(null, versionId, profileId, force);
+        getProfileManager().deleteProfile(versionId, profileId, force);
     }
 
-    private ProfileService getProfileService() {
-        return ServiceLocator.getRequiredService(ProfileService.class);
+    private ProfileManager getProfileManager() {
+        ProfileManager manager = ProfileManagerLocator.getProfileManager();
+        return manager;
     }
 }

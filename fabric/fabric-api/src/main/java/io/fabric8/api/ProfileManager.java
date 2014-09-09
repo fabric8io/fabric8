@@ -13,24 +13,16 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.api.mxbean;
-
-import io.fabric8.api.Constants;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
+package io.fabric8.api;
 
 import java.util.List;
 import java.util.Map;
 
-import javax.management.MXBean;
-import javax.management.ObjectName;
 
-import org.jboss.gravia.utils.ObjectNameFactory;
-
-@MXBean
-public interface ProfilesManager {
-
-    ObjectName OBJECT_NAME = ObjectNameFactory.create(Constants.MANAGEMENT_DOMAIN + ":type=" + ProfilesManager.class.getSimpleName());
+/**
+ * The public profile manager
+ */
+public interface ProfileManager {
 
     Version createVersion(Version version);
     
@@ -38,14 +30,27 @@ public interface ProfilesManager {
     
     List<String> getVersions();
     
+    boolean hasVersion(String versionId);
+    
     Version getVersion(String versionId);
     
+    Version getRequiredVersion(String versionId);
+
+    // [TODO] Add ProfileService.updateVersion(Version version)
+    //Version updateVersion(Version version);
+
     void deleteVersion(String versionId);
     
     Profile createProfile(Profile profile);
     
+    boolean hasProfile(String versionId, String profileId);
+    
     Profile getProfile(String versionId, String profileId);
     
+    Profile getRequiredProfile(String versionId, String profileId);
+    
+    Profile getOverlayProfile(Profile profile);
+
     Profile updateProfile(Profile profile);
     
     void deleteProfile(String versionId, String profileId, boolean force);

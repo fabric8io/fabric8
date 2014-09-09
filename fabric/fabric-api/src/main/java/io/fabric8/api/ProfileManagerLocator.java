@@ -15,18 +15,25 @@
  */
 package io.fabric8.api;
 
-import io.fabric8.api.permit.PermitKey;
+import org.jboss.gravia.runtime.ServiceLocator;
 
 
 /**
- * The internal profile service.
+ * The profile manager locator
+ *
+ * @author thomas.diesler@jboss.com
+ * @since 23-Apr-2014
  */
-public interface ProfileService extends ProfileManager {
+public final class ProfileManagerLocator {
 
     /**
-     * The {@link PermitKey} that protects this service.
+     * Locate the profile manager
      */
-    PermitKey<ProfileService> PERMIT = new PermitKey<ProfileService>(ProfileService.class);
-    
-    void deleteProfile(FabricService fabricService, String versionId, String profileId, boolean force);
+    public static ProfileManager getProfileManager() {
+        return ServiceLocator.getRequiredService(ProfileManager.class);
+    }
+
+    // Hide ctor
+    private ProfileManagerLocator() {
+    }
 }

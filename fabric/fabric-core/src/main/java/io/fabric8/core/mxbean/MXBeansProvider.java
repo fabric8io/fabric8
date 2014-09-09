@@ -15,7 +15,7 @@
  */
 package io.fabric8.core.mxbean;
 
-import io.fabric8.api.mxbean.ProfilesManager;
+import io.fabric8.api.mxbean.ProfileManagement;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 
@@ -55,8 +55,8 @@ public final class MXBeansProvider extends AbstractComponent {
     private void activateInternal() {
         MBeanServer server = mbeanServer.get();
         try {
-            ProfilesManager profileMXBean = new ProfilesManagerImpl();
-            server.registerMBean(new StandardMBean(profileMXBean, ProfilesManager.class, false), ProfilesManager.OBJECT_NAME);
+            ProfileManagement profileMXBean = new ProfileManagementImpl();
+            server.registerMBean(new StandardMBean(profileMXBean, ProfileManagement.class, false), ProfileManagement.OBJECT_NAME);
         } catch (JMException ex) {
             throw new IllegalStateException(ex);
         }
@@ -65,7 +65,7 @@ public final class MXBeansProvider extends AbstractComponent {
     private void deactivateInternal() {
         MBeanServer server = mbeanServer.get();
         try {
-            server.unregisterMBean(ProfilesManager.OBJECT_NAME);
+            server.unregisterMBean(ProfileManagement.OBJECT_NAME);
         } catch (JMException ex) {
             throw new IllegalStateException(ex);
         }
