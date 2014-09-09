@@ -68,7 +68,6 @@
     <modules>
         <module>camel-cxf-code-first</module>
         <module>camel-cxf-contract-first</module>
-        <module>camel-webservice</module>
         <module>rest</module>
         <module>secure-rest</module>
         <module>secure-soap</module>

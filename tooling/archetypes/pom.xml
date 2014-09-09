@@ -46,7 +46,6 @@
         <module>karaf-camel-errorhandler-archetype</module>
         <module>karaf-camel-log-archetype</module>
         <module>karaf-camel-log-wiki-archetype</module>
-        <module>karaf-camel-webservice-archetype</module>
         <module>karaf-rest-archetype</module>
         <module>karaf-secure-rest-archetype</module>
         <module>karaf-secure-soap-archetype</module>

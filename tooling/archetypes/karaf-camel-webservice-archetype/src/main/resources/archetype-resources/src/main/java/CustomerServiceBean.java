@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.example.camel.webservice;
+package ${package};
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

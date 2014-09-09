@@ -103,11 +103,6 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8.archetypes</groupId>
-            <artifactId>karaf-camel-webservice-archetype</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8.archetypes</groupId>
             <artifactId>karaf-rest-archetype</artifactId>
             <version>${project.version}</version>
         </dependency>
