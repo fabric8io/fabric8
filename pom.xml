@@ -370,14 +370,6 @@
     </distributionManagement>
 
     <repositories>
-        <repository>
-            <id>central</id>
-            <name>Central Repository</name>
-            <url>http://repo.maven.apache.org/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
         <!-- Note: m2-snapshot is needed during CI builds -->
         <repository>
             <id>fusesource.m2-snapshot</id>

@@ -209,7 +209,7 @@ plugin.mandatory: zookeeper
 
 # Set both 'bind_host' and 'publish_host':
 #
-network.host: ${FABRIC8_LISTEN_ADDRESS}
+#network.host: ${FABRIC8_LISTEN_ADDRESS}
 
 # Set a custom port for the node to node communication (9300 by default):
 #
