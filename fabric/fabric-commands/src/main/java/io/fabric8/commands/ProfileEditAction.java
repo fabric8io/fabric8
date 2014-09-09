@@ -155,6 +155,8 @@ public class ProfileEditAction extends AbstractAction {
         Profile profile = version.getProfile(profileName);
         if (profile != null) {
             editProfile(profile);
+        } else {
+            System.out.println("Profile " + profileName + " does not exists!");
         }
         
         return null;
