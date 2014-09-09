@@ -450,7 +450,6 @@
                        </execution>
                    </executions>
                </plugin>
-               <!--  [FABRIC-1148] Feature verification does not work with 'mvn -pl ...'
                <plugin>
                    <groupId>io.fabric8</groupId>
                    <artifactId>fabric8-maven-plugin</artifactId>
@@ -474,7 +473,7 @@
                            </configuration>
                        </execution>
                    </executions>
-               </plugin -->
+               </plugin>
                <plugin>
                    <groupId>org.apache.karaf.tooling</groupId>
                    <artifactId>features-maven-plugin</artifactId>
@@ -843,5 +842,38 @@
        </build>
 
     <profiles>
+        <profile>
+            <id>verify-features</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>fabric8-maven-plugin</artifactId>
+                        <version>${project.version}</version>
+                        <executions>
+                            <execution>
+                                <id>verify-all</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>verify-features</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>file:${basedir}/target/classes/fabric-features.xml</descriptor>
+                                    </descriptors>
+                                    <framework>
+                                        <framework>karaf</framework>
+                                        <framework>fabric-core</framework>
+                                    </framework>
+                                    <additionalMetadata>${basedir}/src/main/verification/metadata.properties</additionalMetadata>
+                                    <verifyTransitive>true</verifyTransitive>
+                                    <fail>never</fail>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>
