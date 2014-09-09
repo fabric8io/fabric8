@@ -1,5 +1,6 @@
 package io.fabric8.insight.elasticsearch.impl;
 
+import com.sonian.elasticsearch.zookeeper.discovery.ZooKeeperDiscoveryModule;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.ValidatingReference;
 import org.apache.felix.scr.annotations.*;
@@ -10,39 +11,36 @@ import org.elasticsearch.node.Node;
 
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
-@Component(configurationPid = "io.fabric8.insight.elasticsearch", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 public class ElasticSearchNode implements Node {
 
-    @Property(name = "cluster.name",
-            label = "Cluster name", description = "Elasticsearch cluster name.")
     private String clusterName = "insight";
 
-    @Property(name = "node.data", boolValue = true,
-            label = "Data enabled?", description = "Is this an Elasticsearch data node? For production, you might want to create a separate cluster & set this to false so it acts simply as a client.")
     private boolean dataEnabled = true;
 
-    @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     private org.elasticsearch.node.Node nodeDelegate;
 
-    @Activate
-    public void activate() {
+    public void init() {
         FabricService fs = fabricService.get();
+
+        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+
         Settings settings = ImmutableSettings.settingsBuilder()
-                .put("discover.enabled", true)
-                .put("discovery.type", "com.sonian.elasticsearch.zookeeper.discovery.ZooKeeper")
+                .put("discovery.enabled", true)
+                .put("discovery.type", ZooKeeperDiscoveryModule.class)
                 .put("sonian.elasticsearch.zookeeper.client.host", fs.getZookeeperUrl())
                 .put("sonian.elasticsearch.zookeeper.client.username", fs.getZooKeeperUser())
                 .put("sonian.elasticsearch.zookeeper.client.username", fs.getZookeeperPassword())
                 .put("sonian.elasticsearch.zookeeper.discovery.state_publishing.enabled", true)
                 .build();
 
-        nodeDelegate = nodeBuilder().data(dataEnabled).client(true).clusterName(clusterName).settings(settings).node();
+        nodeDelegate = nodeBuilder().data(dataEnabled).client(!dataEnabled).clusterName(clusterName).settings(settings).node();
+
+        nodeDelegate.start();
     }
 
-    @Deactivate
-    public void deactivate() {
+    public void destroy() {
         if (nodeDelegate != null && !nodeDelegate.isClosed()) {
             nodeDelegate.close();
         }
@@ -78,11 +76,19 @@ public class ElasticSearchNode implements Node {
         return false;
     }
 
-    void bindFabricService(FabricService fabricService) {
+    public void setFabricService(FabricService fabricService) {
         this.fabricService.bind(fabricService);
     }
 
-    void unbindFabricService(FabricService fabricService) {
+    public void unsetFabricService(FabricService fabricService) {
         this.fabricService.unbind(fabricService);
+    }
+
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
+    }
+
+    public void setDataEnabled(boolean dataEnabled) {
+        this.dataEnabled = dataEnabled;
     }
 }
