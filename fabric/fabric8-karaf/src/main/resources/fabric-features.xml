@@ -431,12 +431,8 @@
             #
 
             node.data=true
-            jmx.domain=org.elasticsearch
-            http.enabled=true
-            threadpool.cached.scheduled_size=6
-            #discovery.type=org.elasticsearch.discovery.org.apache.zookeeper.ZooKeeperDiscoveryModule
-            discovery.zen.ping.multicast.enabled=false
-            discovery.zen.ping.unicast.hosts=localhost
+            discovery.type=org.elasticsearch.discovery.org.apache.zookeeper.ZooKeeperDiscoveryModule
+            cluster.name=insight
         </config>
         <feature>insight-log</feature>
         <feature version="${project.version}">insight-metrics</feature>

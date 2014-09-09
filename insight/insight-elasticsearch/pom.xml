@@ -15,106 +15,80 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>io.fabric8.insight</groupId>
-        <artifactId>insight-project</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>io.fabric8.insight</groupId>
+    <artifactId>insight-project</artifactId>
+    <version>1.2.0-SNAPSHOT</version>
+  </parent>
 
   <artifactId>insight-elasticsearch</artifactId>
   <packaging>bundle</packaging>
 
   <name>Fabric8 :: Insight :: Elastic Search</name>
-  
+
   <properties>
-      <fuse.osgi.import.additional>
-          *;resolution:=optional
-      </fuse.osgi.import.additional>
-      <fuse.osgi.export>
-          org.elasticsearch*;-noimport:=true;version=1.2.1;-split-package:=merge-first,
-          io.fabric8.insight.elasticsearch;version=${project.version}
-      </fuse.osgi.export>
-      <fuse.osgi.private.pkg>
-          io.fabric8.insight.elasticsearch.command,
-          io.fabric8.insight.elasticsearch.impl,
-          io.fabric8.insight.elasticsearch.pojo,
-          io.fabric8.insight.elasticsearch.indices,
-          org.apache.lucene*;-split-package:=merge-last,
-          org.tartarus.snowball*,
-          org.apache.regexp,
-          META-INF.*
-      </fuse.osgi.private.pkg>
-      <fuse.osgi.capabilities.provide><![CDATA[
-            osgi.service;effective:=active;objectClass=org.elasticsearch.node.Node,
-            osgi.service;effective:=active;objectClass=io.fabric8.insight.elasticsearch.ElasticRest,
-            osgi.service;effective:=active;objectClass=io.fabric8.insight.storage.StorageService,
-            osgi.service;effective:=active;objectClass=org.elasticsearch.node.Node,
-      ]]></fuse.osgi.capabilities.provide>
+    <fuse.osgi.import.additional>
+      org.elasticsearch*,
+      *;resolution:=optional
+    </fuse.osgi.import.additional>
+    <fuse.osgi.private.pkg>
+      io.fabric8.insight.elasticsearch.impl
+    </fuse.osgi.private.pkg>
+    <fuse.osgi.capabilities.provide>
+      osgi.service;effective:=active;objectClass=io.fabric8.insight.storage.StorageService
+    </fuse.osgi.capabilities.provide>
   </properties>
 
   <dependencies>
-      <dependency>
-          <groupId>io.fabric8</groupId>
-          <artifactId>fabric-groups</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>io.fabric8</groupId>
-          <artifactId>fabric-zookeeper</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>io.fabric8.insight</groupId>
-          <artifactId>insight-storage</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>io.fabric8.insight</groupId>
-          <artifactId>insight-metrics-model</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>io.fabric8.insight</groupId>
-          <artifactId>insight-metrics-mvel</artifactId>
-      </dependency>
-
-      <dependency>
-          <groupId>org.osgi</groupId>
-          <artifactId>org.osgi.core</artifactId>
-          <version>${osgi-version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.osgi</groupId>
-          <artifactId>org.osgi.compendium</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>org.elasticsearch</groupId>
-          <artifactId>elasticsearch</artifactId>
-          <version>1.2.1</version>
-      </dependency>
-
-      <dependency>
-          <groupId>log4j</groupId>
-          <artifactId>log4j</artifactId>
-          <version>1.2.16</version>
-      </dependency>
-
-      <dependency>
-          <groupId>org.jboss.netty</groupId>
-          <artifactId>netty</artifactId>
-          <version>3.2.3.Final</version>
-      </dependency>
-
-      <dependency>
-          <groupId>javax.servlet</groupId>
-          <artifactId>servlet-api</artifactId>
-          <scope>provided</scope>
-      </dependency>
-
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.scr.annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8.insight</groupId>
+      <artifactId>insight-storage</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8.insight</groupId>
+      <artifactId>insight-metrics-mvel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.elasticsearch</groupId>
+      <artifactId>elasticsearch</artifactId>
+      <version>1.3.2</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>elasticsearch-zookeeper</artifactId>
+      <version>1.3.2</version>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
-
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-scr-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>scr</goal>
+            </goals>
+            <configuration>
+              <specVersion>1.2</specVersion>
+              <strictMode>false</strictMode>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
