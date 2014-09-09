@@ -26,11 +26,12 @@ import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.SystemProperties;
 import io.fabric8.api.Version;
-import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.permit.PermitManager;
+import io.fabric8.api.scr.AbstractProtectedComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.DataStoreUtils;
-import io.fabric8.api.SystemProperties;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,29 +45,31 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component(policy = ConfigurationPolicy.IGNORE, immediate = true)
+@References({ @Reference(referenceInterface = PermitManager.class) })
 @Service(ProfileService.class)
-public final class ProfileServiceImpl extends AbstractComponent implements ProfileService {
-    
+public final class ProfileServiceImpl extends AbstractProtectedComponent<ProfileService> implements ProfileService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileServiceImpl.class);
-    
+
     @Reference(referenceInterface = ProfileRegistry.class)
     private final ValidatingReference<ProfileRegistry> profileRegistry = new ValidatingReference<>();
     @Reference(referenceInterface = RuntimeProperties.class)
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<>();
-    
+
     static class OverlayAudit {
         Map<String, Profile> overlayProfiles = new HashMap<String, Profile>();
     }
-    
+
     @Activate
     void activate() throws Exception {
         getOverlayAudit();
-        activateComponent();
+        activateComponent(PERMIT, this);
     }
 
     private OverlayAudit getOverlayAudit() {
@@ -82,9 +85,9 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
 
     @Deactivate
     void deactivate() {
-        deactivateComponent();
+        deactivateComponent(PERMIT);
     }
-    
+
     @Override
     public Version createVersion(Version version) {
         assertValid();
@@ -158,7 +161,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
         assertValid();
         return profileRegistry.get().getRequiredProfile(versionId, profileId);
     }
-    
+
     @Override
     public void deleteVersion(String versionId) {
         assertValid();
@@ -178,13 +181,14 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
                 String profileId = profile.getId();
                 String environment = runtimeProperties.get().getProperty(SystemProperties.FABRIC_ENVIRONMENT);
                 if (environment == null) {
-                    // lets default to the environment from the current active set of profiles (e.g. docker or openshift)
+                    // lets default to the environment from the current active
+                    // set of profiles (e.g. docker or openshift)
                     environment = System.getProperty(SystemProperties.FABRIC_PROFILE_ENVIRONMENT);
                 }
                 ProfileBuilder builder = ProfileBuilder.Factory.create(profile.getVersion(), profileId);
                 builder.addOptions(new OverlayOptionsProvider(profile, environment));
                 overlayProfile = builder.getProfile();
-                
+
                 // Log the overlay profile difference
                 if (LOGGER.isInfoEnabled()) {
                     OverlayAudit audit = getOverlayAudit();
@@ -205,12 +209,17 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     }
 
     @Override
+    public void deleteProfile(String versionId, String profileId, boolean force) {
+        deleteProfile(null, versionId, profileId, force);
+    }
+
+    @Override
     public void deleteProfile(FabricService fabricService, String versionId, String profileId, boolean force) {
         assertValid();
-        
+
         Profile profile = getRequiredProfile(versionId, profileId);
         LOGGER.info("deleteProfile: {}", profile);
-        
+
         // TODO: what about child profiles ?
         Container[] containers = fabricService != null ? fabricService.getAssociatedContainers(versionId, profileId) : new Container[0];
         if (containers.length == 0) {
@@ -251,7 +260,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
             byte[] data;
             Properties props;
         }
-        
+
         OverlayOptionsProvider(Profile self, String environment) {
             this.self = self;
             this.environment = environment;
@@ -287,7 +296,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
                 throw FabricException.launderThrowable(e);
             }
         }
-        
+
         private Map<String, Map<String, String>> getConfigurations() {
             try {
                 Map<String, SupplementControl> aggregate = new HashMap<String, SupplementControl>();
@@ -307,7 +316,7 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
                 throw FabricException.launderThrowable(e);
             }
         }
-        
+
         private List<Profile> getInheritedProfiles() {
             List<Profile> profiles = new ArrayList<>();
             fillParentProfiles(self, profiles);
@@ -384,13 +393,15 @@ public final class ProfileServiceImpl extends AbstractComponent implements Profi
     void bindProfileRegistry(ProfileRegistry service) {
         this.profileRegistry.bind(service);
     }
+
     void unbindProfileRegistry(ProfileRegistry service) {
         this.profileRegistry.unbind(service);
     }
-    
+
     void bindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.bind(service);
     }
+
     void unbindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.unbind(service);
     }

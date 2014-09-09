@@ -17,6 +17,7 @@ package io.fabric8.boot;
 
 import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.ManagedCuratorFrameworkAvailable;
+import io.fabric8.api.ProfileManager;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.git.GitService;
@@ -42,6 +43,8 @@ public final class BootstrapCompleteService extends AbstractComponent implements
     private ConfigurationAdmin configAdmin;
     @Reference
     private GitService gitService;
+    @Reference
+    private ProfileManager profileManager;
     @Reference
     private ManagedCuratorFrameworkAvailable managedCurator;
     @Reference
