@@ -7,7 +7,6 @@ The following quickstarts is provided out of the box:
 
 * [camel.cxf.code.first](camel-cxf-code-first) - demonstrates how to expose a CXF web service from a Camel route using _code first_ approach.
 * [camel.cxf.contract.first](camel-cxf-contract-first) - demonstrates how to expose a CXF web service from a Camel route using _contract first_ approach.
-* [camel.webservice](camel-webservice) - a Camel application that exposes a CXF web service and using a Content Based Router to route and process the incoming request accordingly to the invoked SOAP operation.
 * [rest](rest) - this quickstart demonstrates how to create a RESTful (JAX-RS) web service using CXF and expose it with the OSGi HTTP Service.
 * [secure.rest](secure-rest) - this quickstart demonstrates how to create a secure RESTful (JAX-RS) web service using CXF and expose it with the OSGi HTTP Service.
 * [secure.soap](secure-soap) - this quickstart demonstrates how to create a secure SOAP Web service with Apache CXF and expose it through the OSGi HTTP Service.
