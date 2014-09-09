@@ -25,10 +25,9 @@ import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Ports;
-import io.fabric8.api.SystemProperties;
 import io.fabric8.utils.shell.ShellUtils;
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -37,8 +36,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
-
-import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -47,10 +44,10 @@ import org.apache.karaf.jaas.modules.BackingEngine;
 import org.apache.karaf.shell.console.AbstractAction;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-
-import com.google.common.base.Strings;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+
+import com.google.common.base.Strings;
 
 @Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
 class CreateAction extends AbstractAction {
@@ -158,7 +155,7 @@ class CreateAction extends AbstractAction {
         }
 
         String runtimeIdentity = runtimeProperties.getRuntimeIdentity();
-        CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder()
+        CreateEnsembleOptions.Builder<?> builder = CreateEnsembleOptions.builder()
                 .zooKeeperServerTickTime(zooKeeperTickTime)
                 .zooKeeperServerInitLimit(zooKeeperInitLimit)
                 .zooKeeperServerSyncLimit(zooKeeperSyncLimit)
@@ -243,8 +240,8 @@ class CreateAction extends AbstractAction {
         newUser = newUser != null ? newUser : ShellUtils.retrieveFabricUser(session);
         newUserPassword = newUserPassword != null ? newUserPassword : ShellUtils.retrieveFabricUserPassword(session);
 
-        String karafEtc = runtimeProperties.getProperty(SystemProperties.KARAF_ETC);
-        Properties userProps = new Properties(new File(karafEtc, "users.properties"));
+        Path propsPath = runtimeProperties.getConfPath().resolve("users.properties");
+        Properties userProps = new Properties(propsPath.toFile());
 
         if (userProps.isEmpty()) {
             String[] credentials = promptForNewUser(newUser, newUserPassword);

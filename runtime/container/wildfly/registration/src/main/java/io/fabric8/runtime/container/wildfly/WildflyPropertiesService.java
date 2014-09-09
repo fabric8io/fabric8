@@ -76,10 +76,10 @@ public class WildflyPropertiesService extends AbstractRuntimeProperties {
             System.setProperty(RUNTIME_HOME_DIR, System.getProperty("jboss.home.dir"));
         }
         if (runtime.getProperty(RUNTIME_DATA_DIR) == null) {
-            System.setProperty(RUNTIME_DATA_DIR, runtime.getProperty(RUNTIME_HOME_DIR) + "/standalone/configuration");
+            System.setProperty(RUNTIME_DATA_DIR, runtime.getProperty(RUNTIME_HOME_DIR) + "/standalone/data");
         }
         if (runtime.getProperty(RUNTIME_CONF_DIR) == null) {
-            System.setProperty(RUNTIME_CONF_DIR, runtime.getProperty(RUNTIME_HOME_DIR) + "/standalone/data");
+            System.setProperty(RUNTIME_CONF_DIR, runtime.getProperty(RUNTIME_HOME_DIR) + "/standalone/configuration");
         }
     }
 

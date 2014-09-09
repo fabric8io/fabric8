@@ -28,15 +28,14 @@ import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.felix.service.command.Function;
+import org.jboss.gravia.runtime.Module;
 import org.jboss.gravia.runtime.ModuleContext;
+import org.jboss.gravia.runtime.Runtime;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
 import org.jboss.gravia.runtime.ServiceLocator;
+import org.jboss.gravia.runtime.ServiceRegistration;
 import org.junit.Assert;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,9 +110,11 @@ public final class CommandSupport {
 
         LOGGER.info(cmdstr);
         
-        Bundle bundle = FrameworkUtil.getBundle(CommandSupport.class);
-        BundleContext context = bundle.getBundleContext();
-        ServiceRegistration<CommandSession> reg = context.registerService(CommandSession.class, commandSession, null);
+        // When using the ssh:ssh command, the current ssh client calls KarafAgentFactory which expects the SSH_AUTH_SOCK env variable to be set, 
+        // so work around the problem by registering the CommandSession in OSGi so that this variable is correctly initialised
+        Runtime runtime = RuntimeLocator.getRequiredRuntime();
+        Module module = runtime.getModule(CommandSupport.class.getClassLoader());
+        ServiceRegistration<CommandSession> reg = module.getModuleContext().registerService(CommandSession.class, commandSession, null);
 
         try {
             // Get the command service
@@ -124,6 +125,9 @@ public final class CommandSupport {
             AbstractCommand command = (AbstractCommand) ServiceLocator.awaitService(Function.class, filter);
             commandSession.put(AbstractCommand.class.getName(), command);
 
+            Class<?> actionClass = command.getActionClass();
+            LOGGER.debug("Using action: {} from {}", actionClass, actionClass.getClassLoader());
+            
             boolean keepRunning = true;
             while (!Thread.currentThread().isInterrupted() && keepRunning) {
                 try {

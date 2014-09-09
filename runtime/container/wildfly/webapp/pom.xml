@@ -32,43 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fabric-boot-commands</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.aries.blueprint</groupId>
-                    <artifactId>org.apache.aries.blueprint.core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.karaf.features</groupId>
-                    <artifactId>org.apache.karaf.features.command</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.karaf.features</groupId>
-                    <artifactId>org.apache.karaf.features.console</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.karaf.features</groupId>
-                    <artifactId>org.apache.karaf.features.core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.karaf.shell</groupId>
-                    <artifactId>org.apache.karaf.shell.config</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.karaf.shell</groupId>
-                    <artifactId>org.apache.karaf.shell.console</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.osgi</groupId>
-                    <artifactId>org.osgi.compendium</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
             <artifactId>fabric-git-server</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -107,7 +71,6 @@
         <plugins>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven-dependency-plugin-version}</version>
                 <executions>
                     <execution>
                         <phase>process-resources</phase>
@@ -118,12 +81,6 @@
                             <outputDirectory>${project.build.directory}/components</outputDirectory>
                             <overWrite>true</overWrite>
                             <artifactItems>
-                                <artifactItem>
-                                    <groupId>io.fabric8</groupId>
-                                    <artifactId>fabric-boot-commands</artifactId>
-                                    <version>${project.version}</version>
-                                    <includes>OSGI-INF/**</includes>
-                                </artifactItem>
                                 <artifactItem>
                                     <groupId>io.fabric8</groupId>
                                     <artifactId>fabric-git-server</artifactId>
@@ -142,16 +99,7 @@
                     <archive>
                         <manifestEntries>
                             <Gravia-Identity>${project.artifactId};version=${project.version}</Gravia-Identity>
-                            <Service-Component>
-                                OSGI-INF/io.fabric8.boot.BootstrapCompleteService.xml,
-                                OSGI-INF/io.fabric8.boot.commands.CreateCommand.xml,
-                                OSGI-INF/io.fabric8.boot.commands.JoinCommand.xml,
-                                OSGI-INF/io.fabric8.boot.commands.support.ContainerCompleter.xml,
-                                OSGI-INF/io.fabric8.boot.commands.support.ProfileCompleter.xml,
-                                OSGI-INF/io.fabric8.boot.commands.support.ResolverCompleter.xml,
-                                OSGI-INF/io.fabric8.boot.commands.support.VersionCompleter.xml,
-                                OSGI-INF/io.fabric8.git.http.GitHttpServerRegistrationHandler.xml
-                            </Service-Component>
+                            <Service-Component>OSGI-INF/io.fabric8.git.http.GitHttpServerRegistrationHandler.xml</Service-Component>
                             <Dependencies>org.osgi.core,org.slf4j,org.apache.karaf,org.jboss.gravia,io.fabric8.api,io.fabric8.impl</Dependencies>
                         </manifestEntries>
                     </archive>

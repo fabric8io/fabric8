@@ -101,7 +101,6 @@
         <plugins>
           <plugin>
               <artifactId>maven-clean-plugin</artifactId>
-              <version>2.4.1</version>
               <executions>
                 <execution>
                   <id>auto-clean</id>
@@ -114,7 +113,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven-dependency-plugin-version}</version>
                 <executions>
                     <execution>
                         <id>unpack-karaf</id>
@@ -160,7 +158,7 @@
                     <redirectTestOutputToFile>false</redirectTestOutputToFile>
                     <reportNameSuffix>karaf</reportNameSuffix>
                     <dependenciesToScan>
-                        <dependency>io.fabric8.runtime:fabric-runtime-itests-common</dependency>
+                        <dependency>io.fabric8.itests:fabric-itests-common</dependency>
                     </dependenciesToScan>
                     <systemPropertyVariables>
                         <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>

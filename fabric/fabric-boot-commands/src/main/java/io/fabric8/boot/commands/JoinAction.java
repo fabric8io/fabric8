@@ -18,22 +18,22 @@ package io.fabric8.boot.commands;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import io.fabric8.api.Constants;
 import io.fabric8.api.ContainerOptions;
-import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.FabricConstants;
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.SystemProperties;
 import io.fabric8.api.ZkDefs;
 import io.fabric8.utils.BundleUtils;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Ports;
-import io.fabric8.api.SystemProperties;
 import io.fabric8.utils.shell.ShellUtils;
 import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
@@ -159,14 +159,13 @@ final class JoinAction extends AbstractAction {
                 bootProperties.put("zookeeper.password", encodedPassword);
                 bootProperties.put("zookeeper.url", zookeeperUrl);
                 //Rename the container
-                String karafEtc = runtimeProperties.getProperty(SystemProperties.KARAF_ETC);
-                File file = new File(karafEtc, "system.properties");
-                Properties props = new Properties(file);
-                props.put(SystemProperties.KARAF_NAME, containerName);
+                Path propsPath = runtimeProperties.getConfPath().resolve("system.properties");
+                Properties systemProps = new Properties(propsPath.toFile());
+                systemProps.put(SystemProperties.KARAF_NAME, containerName);
                 //Also pass zookeeper information so that the container can auto-join after the restart.
-                props.put("zookeeper.url", zookeeperUrl);
-                props.put("zookeeper.password", encodedPassword);
-                props.save();
+                systemProps.put("zookeeper.url", zookeeperUrl);
+                systemProps.put("zookeeper.password", encodedPassword);
+                systemProps.save();
 
                 if (!nonManaged) {
                     installBundles();
@@ -250,7 +249,6 @@ final class JoinAction extends AbstractAction {
      * @throws IOException
      */
     private boolean permissionToRenameContainer() throws IOException {
-        StringBuffer sb = new StringBuffer();
         System.err.println("You are about to change the container name. This action will restart the container.");
         System.err.println("The local shell will automatically restart, but ssh connections will be terminated.");
         System.err.println("The container will automatically join: " + zookeeperUrl + " the cluster after it restarts.");

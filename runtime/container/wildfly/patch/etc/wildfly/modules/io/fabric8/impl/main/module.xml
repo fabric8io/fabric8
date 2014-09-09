@@ -25,6 +25,7 @@
 
     <resources>
         <resource-root path="common-util-@project.version@.jar"/>
+        <resource-root path="fabric-boot-commands-@project.version@.jar"/>
         <resource-root path="fabric-core-@project.version@.jar"/>
         <resource-root path="fabric-git-@project.version@.jar"/>
         <resource-root path="fabric-groups-@project.version@.jar"/>
@@ -39,6 +40,8 @@
     <dependencies>
         <module name="javax.api"/>
         <module name="io.fabric8.api"/>
+        <module name="com.fasterxml.jackson.core.jackson-core"/>
+        <module name="com.fasterxml.jackson.core.jackson-databind"/>
         <module name="com.google.guava"/>
         <module name="org.apache.karaf"/>
         <module name="org.apache.log4j"/>

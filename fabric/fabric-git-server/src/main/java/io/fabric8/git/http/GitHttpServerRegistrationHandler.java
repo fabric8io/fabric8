@@ -50,7 +50,6 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
-import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
@@ -180,41 +179,46 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     }
 
     private void registerServlet(Path dataPath, String realm, String role) throws Exception {
+        synchronized (gitRemoteUrl) {
+            basePath = dataPath.resolve(Paths.get("git", "servlet"));
+            Path fabricRepoPath = basePath.resolve("fabric");
+            String servletBase = basePath.toFile().getAbsolutePath();
 
-        basePath = dataPath.resolve(Paths.get("git", "servlet"));
-        Path fabricRepoPath = basePath.resolve("fabric");
-        String servletBase = basePath.toFile().getAbsolutePath();
+            // Init and clone the local repo.
+            File fabricRoot = fabricRepoPath.toFile();
+            if (!fabricRoot.exists()) {
+                File localRepo = gitDataStore.get().getGit().getRepository().getDirectory();
+                git = Git.cloneRepository()
+                    .setTimeout(10)
+                    .setBare(true)
+                    .setNoCheckout(true)
+                    .setCloneAllBranches(true)
+                    .setDirectory(fabricRoot)
+                    .setURI(localRepo.toURI().toString())
+                    .call();
+            } else {
+                git = Git.open(fabricRoot);
+            }
 
-        // Init and clone the local repo.
-        File fabricRoot = fabricRepoPath.toFile();
-        if (!fabricRoot.exists()) {
-            File localRepo = gitDataStore.get().getGit().getRepository().getDirectory();
-            git = Git.cloneRepository()
-                .setTimeout(10)
-                .setBare(true)
-                .setNoCheckout(true)
-                .setCloneAllBranches(true)
-                .setDirectory(fabricRoot)
-                .setURI(localRepo.toURI().toString())
-                .call();
-        } else {
-            git = Git.open(fabricRoot);
+            HttpContext base = httpService.get().createDefaultHttpContext();
+            HttpContext secure = new GitSecureHttpContext(base, curator.get(), realm, role);
+
+            Dictionary<String, Object> initParams = new Hashtable<String, Object>();
+            initParams.put("base-path", servletBase);
+            initParams.put("repository-root", servletBase);
+            initParams.put("export-all", "true");
+            httpService.get().registerServlet("/git", new FabricGitServlet(git, curator.get()), initParams, secure);
         }
-
-        HttpContext base = httpService.get().createDefaultHttpContext();
-        HttpContext secure = new GitSecureHttpContext(base, curator.get(), realm, role);
-
-        Dictionary<String, Object> initParams = new Hashtable<String, Object>();
-        initParams.put("base-path", servletBase);
-        initParams.put("repository-root", servletBase);
-        initParams.put("export-all", "true");
-        httpService.get().registerServlet("/git", new FabricGitServlet(git, curator.get()), initParams, secure);
     }
 
     private void unregisterServlet() {
-       httpService.get().unregister("/git");
-       git.getRepository().close();
-       Files.recursiveDelete(basePath.toFile());
+        synchronized (gitRemoteUrl) {
+            if (basePath != null) {
+                httpService.get().unregister("/git");
+                git.getRepository().close();
+                Files.recursiveDelete(basePath.toFile());
+            }
+        }
     }
 
     private GitNode createState() {

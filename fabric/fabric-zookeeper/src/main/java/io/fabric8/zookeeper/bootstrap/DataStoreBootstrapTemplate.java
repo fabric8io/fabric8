@@ -22,6 +22,8 @@ import io.fabric8.api.LockHandle;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileRegistry;
+import io.fabric8.api.Version;
+import io.fabric8.api.VersionBuilder;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Ports;
@@ -51,9 +53,13 @@ import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataStoreBootstrapTemplate implements DataStoreTemplate {
 
+    static final Logger LOGGER = LoggerFactory.getLogger(DataStoreBootstrapTemplate.class);
+    
     private final String connectionUrl;
     private final CreateEnsembleOptions options;
     private final String name;
@@ -93,7 +99,11 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
 
                 // Import data into the DataStore
                 if (options.isAutoImportEnabled()) {
-                    profileRegistry.importFromFileSystem(importPath.getAbsolutePath());
+                    if (importPath.isDirectory()) {
+                        profileRegistry.importFromFileSystem(importPath.getAbsolutePath());
+                    } else {
+                        LOGGER.warn("Profile import dir does not exist: {}", importPath);
+                    }
                 }
 
                 // set the fabric configuration
@@ -110,10 +120,17 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
                 // Create or update default profile
                 Profile defaultProfile = profileRegistry.getProfile(versionId, "default");
                 if (defaultProfile == null) {
-                    ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, "default");
-                    builder.addConfiguration("io.fabric8.jaas", jaasConfig);
-                    builder.addFileConfiguration("io.fabric8.zookeeper.properties", DataStoreUtils.toBytes(zkProps));
-                    profileRegistry.createProfile(builder.getProfile());
+                    ProfileBuilder prfBuilder = ProfileBuilder.Factory.create(versionId, "default");
+                    prfBuilder.addConfiguration("io.fabric8.jaas", jaasConfig);
+                    prfBuilder.addFileConfiguration("io.fabric8.zookeeper.properties", DataStoreUtils.toBytes(zkProps));
+                    Profile profile = prfBuilder.getProfile();
+                    if (profileRegistry.hasVersion(versionId)) {
+                        profileRegistry.createProfile(profile);
+                    } else {
+                        VersionBuilder verBuilder = VersionBuilder.Factory.create(versionId);
+                        Version version = verBuilder.addProfile(profile).getVersion();
+                        profileRegistry.createVersion(version);
+                    }
                 } else {
                     ProfileBuilder builder = ProfileBuilder.Factory.createFrom(defaultProfile);
                     builder.addConfiguration("io.fabric8.jaas", jaasConfig);
