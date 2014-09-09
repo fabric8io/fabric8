@@ -130,7 +130,7 @@
                     <redirectTestOutputToFile>false</redirectTestOutputToFile>
                     <reportNameSuffix>wildfly</reportNameSuffix>
                     <dependenciesToScan>
-                        <dependency>io.fabric8.runtime:fabric-runtime-itests-common</dependency>
+                        <dependency>io.fabric8.itests:fabric-itests-common</dependency>
                     </dependenciesToScan>
                     <systemPropertyVariables>
                         <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>
@@ -157,7 +157,6 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-dependency-plugin</artifactId>
-                        <version>${maven-dependency-plugin-version}</version>
                         <executions>
                             <execution>
                                 <id>unpack-wildfly</id>
