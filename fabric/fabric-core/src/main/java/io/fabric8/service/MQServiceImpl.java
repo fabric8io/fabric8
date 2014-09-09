@@ -15,10 +15,15 @@
  */
 package io.fabric8.service;
 
-import static io.fabric8.api.MQService.Config.CONFIG_URL;
-import static io.fabric8.api.MQService.Config.CONNECTORS;
-import static io.fabric8.api.MQService.Config.GROUP;
-import static io.fabric8.api.MQService.Config.STANDBY_POOL;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
 import io.fabric8.api.FabricService;
 import io.fabric8.api.MQService;
 import io.fabric8.api.Profile;
@@ -28,21 +33,16 @@ import io.fabric8.api.ProfileService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
 import io.fabric8.common.util.Files;
+import io.fabric8.common.util.IOHelpers;
 import io.fabric8.common.util.Strings;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Closeables;
+import static io.fabric8.api.MQService.Config.CONFIG_URL;
+import static io.fabric8.api.MQService.Config.CONNECTORS;
+import static io.fabric8.api.MQService.Config.GROUP;
+import static io.fabric8.api.MQService.Config.STANDBY_POOL;
 
 public class MQServiceImpl implements MQService {
     private static final transient Logger LOG = LoggerFactory.getLogger(MQServiceImpl.class);
@@ -250,7 +250,7 @@ public class MQServiceImpl implements MQService {
         new Thread("system command output processor") {
             @Override
             public void run() {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), Charsets.UTF_8));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.forName("UTF-8")));
                 try {
                     while (true) {
                         String line = reader.readLine();
@@ -261,7 +261,7 @@ public class MQServiceImpl implements MQService {
                     }
                 } catch (IOException e) {
                 } finally {
-                    Closeables.closeQuietly(reader);
+                    IOHelpers.close(reader);
                 }
             }
         }.start();
