@@ -172,7 +172,6 @@ public class BootstrapConfiguration extends AbstractComponent {
         String decodedZookeeperPassword = null;
 
         Properties userProps = new Properties();
-        // [TODO] abstract access to karaf users.properties
         try {
             userProps.load(new File(confDir , "users.properties"));
         } catch (IOException e) {

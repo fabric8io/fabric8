@@ -71,9 +71,10 @@
   	<!-- Copy gravia patch -->
     <copy todir="${tomcat.patch.dir}" overwrite="true">
         <fileset dir="${output.dir}/gravia-tomcat-patch">
-       		<exclude name="webapps/**"/>
+       		<exclude name="conf/users.properties"/>
        		<exclude name="lib/slf4j*"/>
        		<exclude name="lib/log4j*"/>
+       		<exclude name="webapps/**"/>
         </fileset>
     </copy>
   	

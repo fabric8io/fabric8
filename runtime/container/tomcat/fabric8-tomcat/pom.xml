@@ -32,19 +32,24 @@
   <properties>
       <karaf.base>${tomcat.home}/work/karaf-base</karaf.base>
       <tomcat.home>${project.build.directory}/apache-tomcat-${tomcat-version}</tomcat.home>
-
       <fabric8.tomcat.build>${project.build.directory}/distro-build</fabric8.tomcat.build>
       <fabric8.tomcat.home>${fabric8.tomcat.build}/fabric8-tomcat-${project.version}</fabric8.tomcat.home>
   </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric-runtime-container-tomcat-patch</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <type>zip</type>
+        </dependency>
     </dependencies>
     
     <build>
         <plugins>
           <plugin>
               <artifactId>maven-dependency-plugin</artifactId>
-              <version>${maven-dependency-plugin-version}</version>
               <executions>
                   <execution>
                       <id>unpack-tomcat</id>

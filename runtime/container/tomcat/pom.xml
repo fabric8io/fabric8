@@ -30,13 +30,13 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>patch</module>
-        <module>managed</module>
         <module>console</module>
-        <module>webapp</module>
         <module>fabric8-tomcat</module>
-        <module>fabric8-tomee</module>
+        <module>managed</module>
+        <module>patch</module>
         <module>registration</module>
+        <module>webapp</module>
+        <!--  module>fabric8-tomee</module -->
     </modules>
 
 </project>
