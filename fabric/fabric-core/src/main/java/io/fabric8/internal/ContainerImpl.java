@@ -167,6 +167,11 @@ public class ContainerImpl implements Container {
     }
 
     @Override
+    public void setHttpUrl(String location) {
+        setAttribute(DataStore.ContainerAttribute.HttpUrl, location);
+    }
+
+    @Override
     public boolean isManaged() {
         Map<String, String> agentConfig = getOverlayProfile().getConfiguration(Constants.AGENT_PID);
         if (agentConfig != null) {

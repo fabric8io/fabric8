@@ -312,6 +312,12 @@ public class ProcessManagerController implements ChildContainerController {
         JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, System.getenv(), null, null, true);
         publishZooKeeperValues(options, processConfig, container, environmentVariables);
 
+        if (container != null) {
+            String type = processConfig.getProcessName();
+            if (type != null && !Objects.equal(container.getType(), type)) {
+                container.setType(type);
+            }
+        }
         Installation installation = null;
         try {
             if (ChildContainers.isJavaContainer(fabricService, options)) {
@@ -329,9 +335,6 @@ public class ProcessManagerController implements ChildContainerController {
                 Objects.notNull(parameters, "process parameters");
                 installation = procManager.install(parameters, postInstall);
             }
-            if (container != null) {
-
-            }
         } catch (Exception e) {
             handleException("Creating container " + containerId, e);
         }
@@ -344,6 +347,17 @@ public class ProcessManagerController implements ChildContainerController {
         String jolokiaUrl = JolokiaAgentHelper.findJolokiaUrlFromEnvironmentVariables(environmentVariables, defaultHost);
         if (!Strings.isNullOrBlank(jolokiaUrl)) {
             registerJolokiaUrl(container, jolokiaUrl);
+        }
+        if (container != null) {
+            processConfig = createProcessContainerConfig(options, environmentVariables);
+            String httpUrl = processConfig.getContainerHttpUrl();
+            if (httpUrl != null && !Objects.equal(container.getHttpUrl(), httpUrl)) {
+                container.setHttpUrl(httpUrl);
+            }
+            String type = processConfig.getProcessName();
+            if (type != null && !Objects.equal(container.getType(), type)) {
+                container.setType(type);
+            }
         }
         return installation;
     }
