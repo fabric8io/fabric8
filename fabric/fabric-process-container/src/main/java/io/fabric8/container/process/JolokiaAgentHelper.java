@@ -282,15 +282,18 @@ public class JolokiaAgentHelper {
                 if (idx < 0) {
                     break;
                 }
-                startIdx = idx + envExprPrefix.length();
-                int endIdx = answer.indexOf("}", startIdx);
+                int startEndIdx = idx + envExprPrefix.length();
+                int endIdx = answer.indexOf("}", startEndIdx);
                     if (endIdx < 0) {
                         break;
                     }
-                String expression = answer.substring(startIdx, endIdx);
+                String expression = answer.substring(startEndIdx, endIdx);
                 String value = EnvPlaceholderResolver.resolveExpression(expression, environmentVariables, preserveUnresolved);
                 if (!Objects.equal(expression, value)) {
                     answer = answer.substring(0, idx) + value + answer.substring(endIdx + 1);
+                } else {
+                    // ignore this expression
+                    startIdx++;
                 }
             }
         }

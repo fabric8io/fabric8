@@ -158,6 +158,13 @@ public class InterpolationHelper {
             return unescape(val);
         }
 
+        // TODO if we end up with startDelim bigger, lets just avoid throwing an exception
+        // don't grok why we should end here though? Seems to happen with 2 consecutive expressions
+        // e.g. see  JolokiaAgentHelperSubstituteTest.
+        if (startDelim >= stopDelim) {
+            return unescape(val);
+        }
+
         // At this point, we have found a variable placeholder so
         // we must perform a variable substitution on it.
         // Using the start and stop delimiter indices, extract
