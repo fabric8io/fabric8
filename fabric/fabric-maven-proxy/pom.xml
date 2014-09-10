@@ -54,9 +54,6 @@
             org.apache.commons.lang*,
             org.jsoup.*,
             org.apache.maven.*;-split-package:=merge-first,
-            org.eclipse.aether*,
-            org.sonatype.plexus*,
-            org.codehaus.plexus*
         </fuse.osgi.private.pkg>
     </properties>
 
