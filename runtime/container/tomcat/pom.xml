@@ -31,12 +31,15 @@
 
     <modules>
         <module>console</module>
-        <module>fabric8-tomcat</module>
         <module>managed</module>
         <module>patch</module>
         <module>registration</module>
         <module>webapp</module>
-        <!--  module>fabric8-tomee</module -->
+        <module>fabric8-tomcat</module>
+        
+        <!-- [FABRIC-1152] Restore TomEE container
+        <module>fabric8-tomee</module>
+        -->
     </modules>
 
 </project>
