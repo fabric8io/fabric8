@@ -2301,23 +2301,45 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
+<<<<<<< HEAD
                 <artifactId>spring-orm</artifactId>
                 <version>${spring-version}</version>
+=======
+                <artifactId>spring-aop</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-orm</artifactId>
+                <version>${spring.version}</version>
+>>>>>>> 8916d3470a91d2501c4915c192b5f15d6b27bce9
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jdbc</artifactId>
+<<<<<<< HEAD
                 <version>${spring-version}</version>
+=======
+                <version>${spring.version}</version>
+>>>>>>> 8916d3470a91d2501c4915c192b5f15d6b27bce9
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jms</artifactId>
+<<<<<<< HEAD
                 <version>${spring-version}</version>
+=======
+                <version>${spring.version}</version>
+>>>>>>> 8916d3470a91d2501c4915c192b5f15d6b27bce9
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-tx</artifactId>
+<<<<<<< HEAD
                 <version>${spring-version}</version>
+=======
+                <version>${spring.version}</version>
+>>>>>>> 8916d3470a91d2501c4915c192b5f15d6b27bce9
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
