@@ -15,28 +15,31 @@
  */
 package io.fabric8.tooling.archetype.generator;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import io.fabric8.insight.maven.aether.Aether;
 import io.fabric8.insight.maven.aether.AetherResult;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.cli.MavenCli;
-import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.junit.AfterClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@Ignore("[FABRIC-1096] Fix archetype-builder tests")
 public class ArchetypeTest {
 
     private boolean verbose = true;
@@ -59,7 +62,7 @@ public class ArchetypeTest {
         String[] dirs = new File(basedir, "../archetypes").list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return new File(dir, name).isDirectory() && !name.contains("springboot");
+                return new File(dir, name).isDirectory()/* && !name.contains("springboot")*/;
             }
         });
         for (String dir : dirs) {
@@ -154,24 +157,40 @@ public class ArchetypeTest {
     }
 
     @AfterClass
-    public static void afterAll() throws MavenInvocationException, InterruptedException {
+    public static void afterAll() throws Exception {
         // now let invoke the projects
         final int[] resultPointer = new int[1];
+        StringWriter sw = new StringWriter();
+        Set<String> modules = new HashSet<String>();
         for (final String outDir : outDirs) {
-            // thread locals are evil (I'm talking to you - org.codehaus.plexus.DefaultPlexusContainer#lookupRealm!)
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    System.out.println("Invoking project in " + outDir);
-                    MavenCli maven = new MavenCli();
-                    resultPointer[0] = maven.doMain(new String[]{"package"}, outDir, System.out, System.out);
-                    System.out.println("result: " + resultPointer[0]);
-                }
-            });
-            t.start();
-            t.join();
-            assertEquals("Build of project " + outDir + " failed. Result = " + resultPointer[0], 0, resultPointer[0]);
+            String module = new File(outDir).getName();
+            if (modules.add(module)) {
+                sw.append(String.format("        <module>%s</module>\n", module));
+            }
         }
+        sw.close();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IOUtils.copy(ArchetypeTest.class.getResourceAsStream("/archetypes-test-pom.xml"), baos);
+        String pom = new String(baos.toByteArray()).replace("        <!-- to be replaced -->", sw.toString());
+        FileWriter modulePom = new FileWriter("target/archetypes-test-pom.xml");
+        IOUtils.copy(new StringReader(pom), modulePom);
+        modulePom.close();
+
+        final String outDir = new File("target").getCanonicalPath();
+        // thread locals are evil (I'm talking to you - org.codehaus.plexus.DefaultPlexusContainer#lookupRealm!)
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("Invoking projects in " + outDir);
+                MavenCli maven = new MavenCli();
+                resultPointer[0] = maven.doMain(new String[] { "clean", "package", "-f", "archetypes-test-pom.xml" }, outDir, System.out, System.out);
+                System.out.println("result: " + resultPointer[0]);
+            }
+        });
+        t.start();
+        t.join();
+
+        assertEquals("Build of project " + outDir + " failed. Result = " + resultPointer[0], 0, resultPointer[0]);
     }
 
     protected void assertFileExists(File file) {
