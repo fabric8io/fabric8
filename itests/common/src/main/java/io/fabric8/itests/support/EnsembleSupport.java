@@ -16,6 +16,8 @@
 package io.fabric8.itests.support;
 
 import io.fabric8.api.Container;
+import io.fabric8.api.DynamicReference;
+import io.fabric8.api.DynamicReferenceException;
 import io.fabric8.api.EnsembleModificationFailed;
 import io.fabric8.api.FabricService;
 
@@ -65,9 +67,11 @@ public class EnsembleSupport {
     }
 
     private static boolean isRetriable(Throwable th) {
-        if (th instanceof CommandExecutionException) {
+        if (th instanceof DynamicReferenceException) {
+            return true;
+        } else if (th instanceof CommandExecutionException) {
             return isRetriable(th.getCause());
-        } if (th instanceof EnsembleModificationFailed) {
+        } else  if (th instanceof EnsembleModificationFailed) {
             return ((EnsembleModificationFailed) th).getReason() == EnsembleModificationFailed.Reason.CONTAINERS_NOT_ALIVE;
         } else {
             return false;

@@ -52,6 +52,9 @@ public class EnsembleRemoveAction extends AbstractAction {
     @Option(name = "--zookeeper-data-dir", multiValued = false, description = "The location where ZooKeeper will store the in-memory database snapshots and, unless specified otherwise, the transaction log of updates to the database.")
     private String zooKeeperDataDir;
 
+    @Option(name = "--zookeeper-data-log-dir", multiValued = false, description = "The location where ZooKeeper will store the transaction log of updates to the database.")
+    private String zooKeeperDataLogDir;
+
     @Option(name = "-f", aliases = "--force", multiValued = false, description = "Flag to force the addition without prompt")
     private boolean force = false;
 
@@ -89,6 +92,7 @@ public class EnsembleRemoveAction extends AbstractAction {
                         .zooKeeperServerInitLimit(zooKeeperInitLimit)
                         .zooKeeperServerSyncLimit(zooKeeperSyncLimit)
                         .zooKeeperServerDataDir(zooKeeperDataDir)
+                        .zooKeeperServerDataLogDir(zooKeeperDataLogDir)
                         .migrationTimeout(migrationTimeout);
 
                 if (generateZookeeperPassword) {
@@ -117,12 +121,13 @@ public class EnsembleRemoveAction extends AbstractAction {
         int currentTickTime = Integer.parseInt(currentConfig.get("tickTime"));
         int currentInitLimit = Integer.parseInt(currentConfig.get("initLimit"));
         int currentSyncLimit = Integer.parseInt(currentConfig.get("syncLimit"));
-        String currentDataDir = currentConfig.get("dataDir");
-        currentDataDir = currentDataDir.substring(0, currentDataDir.lastIndexOf("/"));
+        String currentDataBaseDir = currentConfig.get("dataBaseDir");
+        String currentDataBaseLogDir = currentConfig.get("dataLogBaseDir");
         zooKeeperTickTime = zooKeeperTickTime != 0 ? zooKeeperTickTime : currentTickTime;
         zooKeeperInitLimit = zooKeeperInitLimit != 0 ? zooKeeperInitLimit : currentInitLimit;
         zooKeeperSyncLimit = zooKeeperSyncLimit != 0 ? zooKeeperSyncLimit : currentSyncLimit;
-        zooKeeperDataDir = !Strings.isNullOrBlank(zooKeeperDataDir) ? zooKeeperDataDir : currentDataDir;
+        zooKeeperDataDir = !Strings.isNullOrBlank(zooKeeperDataDir) ? zooKeeperDataDir : currentDataBaseDir;
+        zooKeeperDataLogDir = !Strings.isNullOrBlank(zooKeeperDataLogDir) ? zooKeeperDataLogDir : currentDataBaseLogDir;
     }
 
 }

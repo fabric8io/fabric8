@@ -42,7 +42,8 @@ public class CreateEnsembleOptions extends ContainerOptions {
     public static final int DEFAULT_TICKTIME = 2000;
     public static final int DEFAULT_INIT_LIMIT = 10;
     public static final int DEFAULT_SYNC_LIMIT = 5;
-    public static final String DEFAULT_DATA_DIR = "zookeeper";
+    public static final String DEFAULT_DATA_DIR = "${runtime.data}/zookeeper/data";
+    public static final String DEFAULT_DATALOG_DIR = "${runtime.data}/zookeeper/log";
 
     @JsonProperty
     final int zooKeeperServerPort;
@@ -56,6 +57,8 @@ public class CreateEnsembleOptions extends ContainerOptions {
     final int zooKeeperServerSyncLimit;
     @JsonProperty
     final String zooKeeperServerDataDir;
+    @JsonProperty
+    final String zooKeeperServerDataLogDir;
     @JsonProperty
     final String zookeeperPassword;
     @JsonProperty
@@ -82,10 +85,11 @@ public class CreateEnsembleOptions extends ContainerOptions {
         return new Builder();
     }
 
-    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort,  int zooKeeperServerTickTime, int zooKeeperServerInitLimit, int zooKeeperServerSyncLimit, String zooKeeperServerDataDir, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long bootstrapTimeout, long migrationTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users, boolean clean) {
+    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, int zooKeeperServerTickTime, int zooKeeperServerInitLimit, int zooKeeperServerSyncLimit, String zooKeeperServerDataDir, String zooKeeperServerDataLogDir, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long bootstrapTimeout, long migrationTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users, boolean clean) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties);
         this.zooKeeperServerPort = zooKeeperServerPort;
         this.zooKeeperServerConnectionPort = zooKeeperServerConnectionPort;
+        this.zooKeeperServerDataLogDir = zooKeeperServerDataLogDir;
         this.zookeeperPassword = zookeeperPassword;
         this.ensembleStart = ensembleStart;
         this.agentEnabled = agentEnabled;
@@ -124,6 +128,10 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
     public String getZooKeeperServerDataDir() {
         return zooKeeperServerDataDir;
+    }
+
+    public String getZooKeeperServerDataLogDir() {
+        return zooKeeperServerDataLogDir;
     }
 
     public String getZookeeperPassword() {
@@ -192,6 +200,8 @@ public class CreateEnsembleOptions extends ContainerOptions {
         int zooKeeperServerSyncLimit = DEFAULT_SYNC_LIMIT;
         @JsonProperty
         String zooKeeperServerDataDir = DEFAULT_DATA_DIR;
+        @JsonProperty
+        String zooKeeperServerDataLogDir = DEFAULT_DATALOG_DIR;
         @JsonProperty
         String zookeeperPassword = generatePassword();
         @JsonProperty
@@ -274,6 +284,11 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
         public B zooKeeperServerDataDir(String zooKeeperServerDataDir) {
             this.zooKeeperServerDataDir = zooKeeperServerDataDir;
+            return (B) this;
+        }
+
+        public B zooKeeperServerDataLogDir(String zooKeeperServerDataLogDir) {
+            this.zooKeeperServerDataLogDir = zooKeeperServerDataLogDir;
             return (B) this;
         }
 
@@ -446,7 +461,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
         @Override
         public CreateEnsembleOptions build() {
-            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zooKeeperServerTickTime, zooKeeperServerInitLimit, zooKeeperServerSyncLimit, zooKeeperServerDataDir, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, bootstrapTimeout, migrationTimeout, autoImportEnabled, importPath, users, clean);
+            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zooKeeperServerTickTime, zooKeeperServerInitLimit, zooKeeperServerSyncLimit, zooKeeperServerDataDir, zooKeeperServerDataLogDir, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, bootstrapTimeout, migrationTimeout, autoImportEnabled, importPath, users, clean);
         }
     }
 

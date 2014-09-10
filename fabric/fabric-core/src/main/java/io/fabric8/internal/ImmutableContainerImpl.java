@@ -443,4 +443,11 @@ public class ImmutableContainerImpl implements Container {
     public void setProvisionChecksums(Properties checksums) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public String toString() {
+        return "ImmutableContainerImpl[" +
+                "id='" + id + '\'' +
+                ']';
+    }
 }

@@ -19,16 +19,26 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import io.fabric8.common.util.Strings;
+import io.fabric8.zookeeper.jmx.ZooKeeperServerInfo;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -51,47 +61,79 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
 @ThreadSafe
 @Component(name = Constants.ZOOKEEPER_SERVER_PID, label = "Fabric8 ZooKeeper Server Factory", policy = ConfigurationPolicy.REQUIRE, immediate = true, metatype = true)
 @org.apache.felix.scr.annotations.Properties({
         @Property(name = "tickTime", label = "Tick Time", description = "The basic time unit in milliseconds used by ZooKeeper. It is used to do heartbeats and the minimum session timeout will be twice the tickTime"),
-        @Property(name = "dataDir", label = "Data Directory", description = "The location to store the in-memory database snapshots and, unless specified otherwise, the transaction log of updates to the database"),
         @Property(name = "clientPort", label = "Client Port", description = "The port to listen for client connections"),
         @Property(name = "initLimit", label = "Init Limit", description = "The amount of time in ticks (see tickTime), to allow followers to connect and sync to a leader. Increased this value as needed, if the amount of data managed by ZooKeeper is large"),
         @Property(name = "syncLimit", label = "Sync Limit", description = "The amount of time, in ticks (see tickTime), to allow followers to sync with ZooKeeper. If followers fall too far behind a leader, they will be dropped"),
-        @Property(name = "dataLogDir", label = "Data Log Directory", description = "This option will direct the machine to write the transaction log to the dataLogDir rather than the dataDir. This allows a dedicated log device to be used, and helps avoid competition between logging and snaphots")
 }
 )
 public class ZooKeeperServerFactory extends AbstractComponent {
 
     static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperServerFactory.class);
 
+    @Reference
+    private Configurer configurer;
     @Reference(referenceInterface = RuntimeProperties.class)
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = BootstrapConfiguration.class)
     private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
+    @Reference(referenceInterface = MBeanServer.class)
+    private final ValidatingReference<MBeanServer> mBeanServer = new ValidatingReference<>();
+
+
+    @Property(name = "dataLogBaseDir", value="${runtime.data}/zookeeper/log", label = "Data Log Base Directory", description = "This option will direct the machine to write the transaction log to the dataLogDir rather than the dataDir. This allows a dedicated log device to be used, and helps avoid competition between logging and snaphots. This option indicates the base dir (the actual directory will be a child dir with name equal to the ensemble id).")
+    Path dataLogBaseDir;
+
+    @Property(name = "dataBaseDir", value="${runtime.data}/zookeeper/data", label = "Data Base Directory", description = "The location to store the in-memory database snapshots and, unless specified otherwise, the transaction log of updates to the database. This option indicates the base dir (the actual directory will be a child dir with name equal to the ensemble id).")
+    Path dataBaseDir;
+
+    @Property(name = "migrateFrom", label = "Migrate From Ensemble ID", description = "The ID of the ensemble to migrate from. This means that data of the old ensemble will be retained.")
+    String migrateFrom;
+
+    @Property(name = "ensembleId", value="0000", label = "Ensemble ID", description = "The ID of the ensemble. It is used to create the actual dataDir and DataLogDir.")
+    String ensembleId;
+
+    @Property(name = "server.id", intValue=0, label = "Server ID", description = "The ID of the ZooKeeper Server. Value of 0 indicates Standalone server.")
+    int serverId;
 
     private Destroyable destroyable;
     private ServiceRegistration<?> registration;
+    private Map<String, ?> currentConfiguration;
+
+    private ObjectName objectName;
 
     @Activate
     void activate(BundleContext context, Map<String, ?> configuration) throws Exception {
+        objectName = new ObjectName("io.fabric8:type=ZooKeeperServerInfo");
         // A valid configuration must contain a dataDir entry
-        if (configuration.containsKey("dataDir")) {
-            destroyable = activateInternal(context, configuration);
-        }
+        currentConfiguration = configurer.configure(configuration, this);
+        destroyable = activateInternal(context, currentConfiguration);
+        mBeanServer.get().registerMBean(new ZooKeeperServerInfo(ensembleId, serverId ), objectName);
         activateComponent();
     }
 
     @Modified
     void modified(BundleContext context, Map<String, ?> configuration) throws Exception {
-        deactivateInternal();
-        destroyable = activateInternal(context, configuration);
+        Map<String, ?> updatedConfiguration = configurer.configure(configuration, this);
+        if (!updatedConfiguration.equals(currentConfiguration)) {
+            deactivateInternal();
+            currentConfiguration = updatedConfiguration;
+            destroyable = activateInternal(context,currentConfiguration);
+            mBeanServer.get().unregisterMBean(objectName);
+            mBeanServer.get().registerMBean(new ZooKeeperServerInfo(ensembleId, serverId), objectName);
+        }
     }
 
     @Deactivate
     void deactivate() throws Exception {
         deactivateComponent();
+        mBeanServer.get().unregisterMBean(objectName);
         deactivateInternal();
     }
 
@@ -103,19 +145,34 @@ public class ZooKeeperServerFactory extends AbstractComponent {
             props.put(entry.getKey(), entry.getValue());
         }
 
-        // Remove the dependency on the current dir from dataDir
-        String dataDir = props.getProperty("dataDir");
-        if (dataDir != null && !Paths.get(dataDir).isAbsolute()) {
-            dataDir = runtimeProperties.get().getDataPath().resolve(dataDir).toFile().getAbsolutePath();
-            props.setProperty("dataDir", dataDir);
+        Path dataDir = dataBaseDir.resolve(ensembleId);
+        Path dataLogDir = dataLogBaseDir.resolve(ensembleId);
+
+        if (Strings.isNotBlank(migrateFrom)) {
+            Path sourceDataDir = dataBaseDir.resolve(migrateFrom);
+            Path sourceDataLogDir = dataLogBaseDir.resolve(migrateFrom);
+            if (!dataDir.toFile().exists() && !dataLogDir.toFile().exists()) {
+                copy(sourceDataDir, dataDir);
+                copy(sourceDataLogDir, dataLogDir);
+            }
+        } else {
+            if (!dataDir.toFile().exists() && !dataDir.toFile().mkdirs()) {
+                throw new IllegalStateException("Cannot create dataDir at:"+ dataDir.toFile().getAbsolutePath());
+            }
+            if (!dataLogDir.toFile().exists() && !dataLogDir.toFile().mkdirs()) {
+                throw new IllegalStateException("Cannot create dataLogDir at:"+ dataLogDir.toFile().getAbsolutePath());
+            }
         }
+
+        props.setProperty("dataDir", dataDir.toFile().getAbsolutePath());
+        props.setProperty("dataLogDir", dataLogDir.toFile().getAbsolutePath());
+
         props.put("clientPortAddress", bootstrapConfiguration.get().getBindAddress());
 
+        props.remove("server.id");
         // Create myid file
-        String serverId = (String) props.get("server.id");
-        if (serverId != null) {
-            props.remove("server.id");
-            File myId = new File(dataDir, "myid");
+        if (serverId != 0) {
+            File myId = dataDir.resolve("myid").toFile();
             if (myId.exists() && !myId.delete()) {
                 throw new IOException("Failed to delete " + myId);
             }
@@ -226,6 +283,16 @@ public class ZooKeeperServerFactory extends AbstractComponent {
         return serverConfig;
     }
 
+    public static void copy(Path from, Path to) throws IOException {
+        if (!to.toFile().exists() && !to.toFile().mkdirs()) {
+            throw new IOException("Failed to create directory:" + to.toFile().getAbsolutePath());
+        }
+        else if (from.toFile().exists()) {
+            Files.walkFileTree(from, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new CopyDirVisitor(from, to));
+        }
+    }
+
+
     void bindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.bind(service);
     }
@@ -240,6 +307,49 @@ public class ZooKeeperServerFactory extends AbstractComponent {
 
     void unbindBootstrapConfiguration(BootstrapConfiguration service) {
         this.bootstrapConfiguration.unbind(service);
+    }
+
+    void bindMBeanServer(MBeanServer service) {
+        this.mBeanServer.bind(service);
+    }
+
+    void unbindMBeanServer(MBeanServer service) {
+        this.mBeanServer.unbind(service);
+    }
+
+    static class CopyDirVisitor extends SimpleFileVisitor<Path> {
+
+        private Path fromPath;
+        private Path toPath;
+        private StandardCopyOption copyOption;
+
+
+        public CopyDirVisitor(Path fromPath, Path toPath, StandardCopyOption copyOption) {
+            this.fromPath = fromPath;
+            this.toPath = toPath;
+            this.copyOption = copyOption;
+        }
+
+        public CopyDirVisitor(Path fromPath, Path toPath) {
+            this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+
+            Path targetPath = toPath.resolve(fromPath.relativize(dir));
+            if (!Files.exists(targetPath)) {
+                Files.createDirectory(targetPath);
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+
+            Files.copy(file, toPath.resolve(fromPath.relativize(file)), copyOption);
+            return FileVisitResult.CONTINUE;
+        }
     }
 
     interface Destroyable {

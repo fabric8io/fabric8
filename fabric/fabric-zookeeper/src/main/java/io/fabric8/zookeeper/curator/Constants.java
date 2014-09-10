@@ -28,9 +28,9 @@ public class Constants {
     public static final String RETRY_POLICY_INTERVAL_MS = "retryPolicy.retryIntervalMs";
 
     public static final int DEFAULT_CONNECTION_TIMEOUT_MS = 15000;
-    public static final int DEFAULT_SESSION_TIMEOUT_MS = 60000;
+    public static final int DEFAULT_SESSION_TIMEOUT_MS = 30000;
     public static final int MAX_RETRIES_LIMIT = 3;
-    public static final int DEFAULT_RETRY_INTERVAL = 500;;
+    public static final int DEFAULT_RETRY_INTERVAL = 500;
 
 
 

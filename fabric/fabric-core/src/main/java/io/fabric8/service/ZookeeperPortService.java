@@ -22,16 +22,14 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import io.fabric8.api.scr.support.Strings;
-import io.fabric8.internal.Objects;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.locks.InterProcessLock;
-import org.apache.curator.framework.recipes.locks.InterProcessMultiLock;
+import org.apache.curator.framework.recipes.locks.InterProcessMutex;
+import org.apache.curator.framework.recipes.locks.InterProcessReadWriteLock;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -52,25 +50,25 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
-    private InterProcessLock interProcessLock;
+    private InterProcessReadWriteLock readWriteLock;
 
     @Activate
     void activate() {
-        interProcessLock = new InterProcessMultiLock(curator.get(), Arrays.asList(ZkPath.PORTS_LOCK.getPath()));
+        readWriteLock = new InterProcessReadWriteLock(curator.get(), ZkPath.PORTS_LOCK.getPath());
         activateComponent();
     }
 
     @Deactivate
     void deactivate() {
         deactivateComponent();
-        releaseLock();
     }
 
     @Override
     public int registerPort(Container container, String pid, String key, int fromPort, int toPort, Set<Integer> excludes) {
         assertValid();
+        InterProcessMutex lock = readWriteLock.writeLock();
         try {
-            if (interProcessLock.acquire(60, TimeUnit.SECONDS)) {
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
                 int port = lookupPort(container, pid, key);
                 if (port > 0) {
                     return port;
@@ -85,13 +83,13 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
                     }
                 }
             } else {
-                throw new FabricException("Could not acquire port lock");
+                throw new FabricException("Could not acquire port lock due to timeout.");
             }
             throw new FabricException("Could not find port within range [" + fromPort + "," + toPort + "]");
         } catch (Exception ex) {
             throw FabricException.launderThrowable(ex);
         } finally {
-            releaseLock();
+            releaseLock(lock);
         }
     }
 
@@ -103,8 +101,9 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
         String ip = container.getIp();
         assertValidIp(container, ip);
         String ipPortsPath = ZkPath.PORTS_IP.getPath(ip);
+        InterProcessMutex lock = readWriteLock.writeLock();
         try {
-            if (interProcessLock.acquire(60, TimeUnit.SECONDS)) {
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
                 createDefault(curator.get(), containerPortsPath, portAsString);
                 createDefault(curator.get(), ipPortsPath, portAsString);
 
@@ -114,12 +113,12 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
                     setData(curator.get(), ipPortsPath, existingPorts + " " + portAsString);
                 }
             } else {
-                throw new FabricException("Could not acquire port lock");
+                throw new FabricException("Could not acquire port lock due to timeout.");
             }
         } catch (Exception ex) {
             throw FabricException.launderThrowable(ex);
         } finally {
-            releaseLock();
+            releaseLock(lock);
         }
     }
 
@@ -136,8 +135,9 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
         String ip = container.getIp();
         assertValidIp(container, ip);
         String ipPortsPath = ZkPath.PORTS_IP.getPath(ip);
+        InterProcessMutex lock = readWriteLock.writeLock();
         try {
-            if (interProcessLock.acquire(60, TimeUnit.SECONDS)) {
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
                 if (exists(curator.get(), containerPortsPidKeyPath) != null) {
                     int port = lookupPort(container, pid, key);
                     deleteSafe(curator.get(), containerPortsPidKeyPath);
@@ -157,12 +157,12 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
                     setData(curator.get(), ipPortsPath, sb.toString());
                 }
             } else {
-                throw new FabricException("Could not acquire port lock");
+                throw new FabricException("Could not acquire port lock due to timeout.");
             }
         } catch (Exception ex) {
             throw FabricException.launderThrowable(ex);
         } finally {
-            releaseLock();
+            releaseLock(lock);
         }
     }
 
@@ -170,8 +170,9 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
     public void unregisterPort(Container container, String pid) {
         assertValid();
         String containerPortsPidPath = ZkPath.PORTS_CONTAINER_PID.getPath(container.getId(), pid);
+        InterProcessMutex lock = readWriteLock.writeLock();
         try {
-            if (interProcessLock.acquire(60, TimeUnit.SECONDS)) {
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
                 if (exists(curator.get(), containerPortsPidPath) != null) {
                     for (String key : getChildren(curator.get(), containerPortsPidPath)) {
                         unregisterPort(container, pid, key);
@@ -179,12 +180,12 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
                     deleteSafe(curator.get(), containerPortsPidPath);
                 }
             } else {
-                throw new FabricException("Could not acquire port lock");
+                throw new FabricException("Could not acquire port lock due to timeout.");
             }
         } catch (Exception ex) {
             throw FabricException.launderThrowable(ex);
         } finally {
-            releaseLock();
+            releaseLock(lock);
         }
     }
 
@@ -192,8 +193,9 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
     public void unregisterPort(Container container) {
         assertValid();
         String containerPortsPath = ZkPath.PORTS_CONTAINER.getPath(container.getId());
+        InterProcessMutex lock = readWriteLock.writeLock();
         try {
-            if (interProcessLock.acquire(60, TimeUnit.SECONDS)) {
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
                 if (exists(curator.get(), containerPortsPath) != null) {
                     for (String pid : getChildren(curator.get(), containerPortsPath)) {
                         unregisterPort(container, pid);
@@ -201,12 +203,12 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
                     deleteSafe(curator.get(), containerPortsPath);
                 }
             } else {
-                throw new FabricException("Could not acquire port lock");
+                throw new FabricException("Could not acquire port lock due to timeout.");
             }
         } catch (Exception ex) {
             throw FabricException.launderThrowable(ex);
         } finally {
-            releaseLock();
+            releaseLock(lock);
         }
     }
 
@@ -215,12 +217,17 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
         assertValid();
         int port = 0;
         String path = ZkPath.PORTS_CONTAINER_PID_KEY.getPath(container.getId(), pid, key);
+        InterProcessMutex lock = readWriteLock.readLock();
         try {
-            if (exists(curator.get(), path) != null) {
-                port = Integer.parseInt(getStringData(curator.get(), path));
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
+                if (exists(curator.get(), path) != null) {
+                    port = Integer.parseInt(getStringData(curator.get(), path));
+                }
             }
         } catch (Exception ex) {
             throw FabricException.launderThrowable(ex);
+        } finally {
+            releaseLock(lock);
         }
         return port;
     }
@@ -230,8 +237,9 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
         assertValid();
         Set<Integer> ports = new HashSet<Integer>();
         String path = ZkPath.PORTS_CONTAINER.getPath(container.getId());
+        InterProcessMutex lock = readWriteLock.readLock();
         try {
-            if (interProcessLock.acquire(60, TimeUnit.SECONDS)) {
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
                 if (exists(curator.get(), path) != null) {
 
                     for (String pid : getChildren(curator.get(), path)) {
@@ -246,12 +254,12 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
                     }
                 }
             } else {
-                throw new FabricException("Could not acquire port lock");
+                throw new FabricException("Could not acquire port lock due to timeout.");
             }
         } catch (Exception ex) {
             throw FabricException.launderThrowable(ex);
         } finally {
-            releaseLock();
+            releaseLock(lock);
         }
         return ports;
     }
@@ -263,8 +271,9 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
         assertValidIp(container, ip);
         Set<Integer> ports = new HashSet<Integer>();
         String path = ZkPath.PORTS_IP.getPath(ip);
+        InterProcessMutex lock = readWriteLock.readLock();
         try {
-            if (interProcessLock.acquire(60, TimeUnit.SECONDS)) {
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
                 createDefault(curator.get(), path, "");
                 String boundPorts = getStringData(curator.get(), path);
                 if (boundPorts != null && !boundPorts.isEmpty()) {
@@ -277,20 +286,20 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
                     }
                 }
             } else {
-                throw new FabricException("Could not acquire port lock");
+                throw new FabricException("Could not acquire port lock due to timeout.");
             }
         } catch (Exception ex) {
             throw FabricException.launderThrowable(ex);
         } finally {
-            releaseLock();
+            releaseLock(lock);
         }
         return ports;
     }
 
-    private void releaseLock() {
+    private void releaseLock(InterProcessMutex lock) {
         try {
-            if (interProcessLock != null)
-                interProcessLock.release();
+            if (lock != null)
+                lock.release();
         } catch (Exception e) {
             //ignore?
         }

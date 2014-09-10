@@ -23,6 +23,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -77,6 +79,10 @@ public class ConverterHelper {
 
             if (clazz == File.class) {
                 return new File(value.toString());
+            }
+
+            if (clazz == Path.class) {
+                return Paths.get(value.toString());
             }
 
             if (clazz == URI.class) {
