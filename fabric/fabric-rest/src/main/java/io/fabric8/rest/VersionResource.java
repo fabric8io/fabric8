@@ -44,7 +44,7 @@ public class VersionResource extends ResourceSupport {
     private final Version version;
 
     public VersionResource(FabricResource fabricResource, Version version) {
-        super(fabricResource, "/version/" + version.toString() + "/");
+        super(fabricResource, "/version/" + version.getId() + "/");
         this.fabricResource = fabricResource;
         this.version = version;
     }
