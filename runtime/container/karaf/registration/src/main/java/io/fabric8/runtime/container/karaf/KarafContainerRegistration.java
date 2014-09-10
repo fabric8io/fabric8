@@ -178,7 +178,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
             for (String resolver : ZkDefs.VALID_RESOLVERS) {
-                String address = String.valueOf(bootstrapConfiguration.get().getConfiguration().get(resolver));
+                String address = (String) bootstrapConfiguration.get().getConfiguration().get(resolver);
                 if (address != null && !address.isEmpty() && exists(curator.get(), CONTAINER_ADDRESS.getPath(runtimeIdentity, resolver)) == null) {
                     setData(curator.get(), CONTAINER_ADDRESS.getPath(runtimeIdentity, resolver), address);
                 }
