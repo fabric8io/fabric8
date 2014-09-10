@@ -32,7 +32,6 @@ import org.jboss.gravia.runtime.spi.SystemPropertiesProvider;
  */
 public class FabricPropertiesProvider extends AbstractPropertiesProvider {
 
-
     private final PropertiesProvider delegate;
 
     public FabricPropertiesProvider(ServletContext servletContext) {
@@ -49,5 +48,4 @@ public class FabricPropertiesProvider extends AbstractPropertiesProvider {
     public Object getProperty(String key, Object defaultValue) {
         return delegate.getProperty(key, defaultValue);
     }
-
 }

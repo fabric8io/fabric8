@@ -16,6 +16,8 @@
 package org.wildfly.extension.fabric.service;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.jboss.as.server.ServerEnvironment;
@@ -31,13 +33,13 @@ public final class FabricRuntimeService extends RuntimeService {
 
     @Override
     protected Properties initialProperties() {
-        
-        ServerEnvironment serverEnv = getServerEnvironment();
-        File configsDir = new File(serverEnv.getServerConfigurationDir(), "fabric8" + File.separator + "etc");
-
-        // Fabric8 integration properties
         Properties properties = super.initialProperties();
-        properties.setProperty(Constants.RUNTIME_CONFIGURATIONS_DIR, configsDir.getAbsolutePath());
+        
+        // Fabric8 integration properties
+        ServerEnvironment serverEnv = getServerEnvironment();
+        File configurationDir = serverEnv.getServerConfigurationDir();
+        Path configsPath = Paths.get(configurationDir.toURI()).resolve(Paths.get("fabric8", "etc"));
+        properties.setProperty(Constants.RUNTIME_CONFIGURATIONS_DIR, configsPath.toString());
         
         // [TODO] Derive port from wildfly config
         // https://issues.jboss.org/browse/FABRIC-762

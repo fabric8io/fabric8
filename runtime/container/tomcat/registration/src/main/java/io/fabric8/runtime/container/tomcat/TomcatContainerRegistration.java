@@ -15,10 +15,27 @@
  */
 package io.fabric8.runtime.container.tomcat;
 
+import static io.fabric8.zookeeper.ZkPath.CONFIG_CONTAINER;
+import static io.fabric8.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_ADDRESS;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_ALIVE;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_BINDADDRESS;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_DOMAINS;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_GEOLOCATION;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_HTTP;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_IP;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_HOSTNAME;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MAX;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MIN;
+import static io.fabric8.zookeeper.ZkPath.CONTAINER_RESOLVER;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.createDefault;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerRegistration;
-import io.fabric8.api.FabricException;
-import io.fabric8.api.FabricService;
 import io.fabric8.api.GeoLocationService;
 import io.fabric8.api.PortService;
 import io.fabric8.api.RuntimeProperties;
@@ -26,13 +43,25 @@ import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.Strings;
-import io.fabric8.internal.ContainerImpl;
 import io.fabric8.internal.ImmutableContainerBuilder;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
 
 import org.apache.catalina.Server;
 import org.apache.catalina.connector.Connector;
@@ -49,41 +78,6 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import static io.fabric8.zookeeper.ZkPath.CONFIG_CONTAINER;
-import static io.fabric8.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_ADDRESS;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_ALIVE;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_BINDADDRESS;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_DOMAINS;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_GEOLOCATION;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_HTTP;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_IP;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_HOSTNAME;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_MANUAL_IP;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MAX;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MIN;
-import static io.fabric8.zookeeper.ZkPath.CONTAINER_RESOLVER;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.createDefault;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
 @Component(name = "io.fabric8.container.registration.tomcat", label = "Fabric8 Tomcat Container Registration", immediate = true, metatype = false)

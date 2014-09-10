@@ -20,7 +20,4 @@
   <role rolename="tomcat"/>
   <role rolename="manager-script"/>
   <user username="tomcat" password="tomcat" roles="tomcat,manager-script"/>
-  
-  <role rolename="graviaRole"/>
-  <user username="graviaUser" password="graviaPass" roles="graviaRole"/>
 </tomcat-users>

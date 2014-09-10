@@ -37,8 +37,7 @@
     <!-- Properties -->
     <properties>
         <arquillian-core-version>1.0.0.Final</arquillian-core-version>
-        <tomcat.home>${project.build.directory}/apache-tomcat-${tomcat-version}</tomcat.home>
-        <karaf.base>${tomcat.home}/work/karaf-base</karaf.base>
+        <tomcat.home>${project.build.directory}/fabric8-tomcat-${project.version}</tomcat.home>
     </properties>
     
     <dependencies>
@@ -104,53 +103,14 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.apache.tomcat</groupId>
-                                    <artifactId>tomcat</artifactId>
-                                    <version>${tomcat-version}</version>
+                                    <groupId>io.fabric8.runtime</groupId>
+                                    <artifactId>fabric8-tomcat</artifactId>
+                                    <version>${project.version}</version>
                                     <type>zip</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack-tomcat-patch</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>io.fabric8.runtime</groupId>
-                                    <artifactId>fabric-runtime-container-tomcat-patch</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>zip</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${tomcat.home}</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <phase>process-test-resources</phase>
-                        <configuration>
-                            <target>
-                                <copy file="src/test/resources/tomcat-users.xml" todir="${tomcat.home}/conf" overwrite="true" />
-                                <copy file="src/test/resources/jaas.config" todir="${tomcat.home}/conf" overwrite="true" />
-                                <copy file="src/test/resources/users.properties" todir="${tomcat.home}/conf" overwrite="true" />
-                                <chmod dir="${tomcat.home}/bin" perm="ugo+rx" includes="**/*.sh" verbose="true"/>
-                            </target>
                         </configuration>
                     </execution>
                 </executions>

@@ -13,20 +13,13 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.itests;
+package io.fabric8.itests.common;
 
-
-import io.fabric8.api.Container;
-import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.api.CreateEnsembleOptions.Builder;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.itests.support.CommandSupport;
-import io.fabric8.utils.Base64Encoder;
-import io.fabric8.utils.PasswordEncoder;
 
 import java.io.InputStream;
-import java.util.Dictionary;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -44,25 +37,20 @@ import org.jboss.shrinkwrap.api.asset.Asset;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
 
 /**
- * Test basic {@link FabricService} functionality
+ * Test basic {@link ZooKeeperClusterBootstrap} functionality
  *
  * @since 27-Jan-2014
  */
 @RunWith(Arquillian.class)
-public class ContainerStartupTest {
-
-    private static final String SYSTEM_PASSWORD = "systempassword";
+public class BootstrapServiceTest  {
 
     @Deployment
     @StartLevelAware(autostart = true)
     public static Archive<?> deployment() {
-        final ArchiveBuilder archive = new ArchiveBuilder("container-startup-test");
+        final ArchiveBuilder archive = new ArchiveBuilder("bootstrap-service-test");
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
-        archive.addClasses(PasswordEncoder.class, Base64Encoder.class);
         archive.addPackage(CommandSupport.class.getPackage());
         archive.setManifest(new Asset() {
             @Override
@@ -74,7 +62,6 @@ public class ContainerStartupTest {
                     builder.addBundleVersion("1.0.0");
                     builder.addManifestHeader(Constants.GRAVIA_ENABLED, Boolean.TRUE.toString());
                     builder.addImportPackages(RuntimeLocator.class, FabricService.class);
-                    builder.addImportPackages(ConfigurationAdmin.class, Logger.class);
                     return builder.openStream();
                 } else {
                     ManifestBuilder builder = new ManifestBuilder();
@@ -88,22 +75,8 @@ public class ContainerStartupTest {
     }
 
     @Test
-    public void testLocalFabricCluster() throws Exception {
-
-        Builder<?> builder = CreateEnsembleOptions.builder().agentEnabled(false).clean(true).zookeeperPassword(SYSTEM_PASSWORD).waitForProvision(false);
-        CreateEnsembleOptions options = builder.build();
-
+    public void testZooKeeperClusterBootstrapAvailable() throws Exception {
         ZooKeeperClusterBootstrap bootstrap = ServiceLocator.getRequiredService(ZooKeeperClusterBootstrap.class);
-        bootstrap.create(options);
-
-        FabricService fabricService = ServiceLocator.getRequiredService(FabricService.class);
-        Container[] containers = fabricService.getContainers();
-        Assert.assertNotNull("Containers not null", containers);
-
-        //Test that a provided by command line password exists
-        ConfigurationAdmin configurationAdmin = ServiceLocator.getRequiredService(ConfigurationAdmin.class);
-        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(io.fabric8.api.Constants.ZOOKEEPER_CLIENT_PID);
-        Dictionary<String, Object> dictionary = configuration.getProperties();
-        Assert.assertEquals("Expected provided zookeeper password", PasswordEncoder.encode(SYSTEM_PASSWORD), dictionary.get("zookeeper.password"));
+        Assert.assertNotNull("ZooKeeperClusterBootstrap not null", bootstrap);
     }
 }
