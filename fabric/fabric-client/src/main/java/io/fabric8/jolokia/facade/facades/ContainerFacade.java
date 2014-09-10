@@ -119,6 +119,11 @@ public class ContainerFacade implements Container, HasId {
     }
 
     @Override
+    public void setHttpUrl(String location) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String getJolokiaUrl() {
         return getFieldValue("jolokiaUrl");
     }

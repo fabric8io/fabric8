@@ -78,7 +78,10 @@ public class ProcessContainerConfig {
     @Property(name = "internalAgent", label = "Is there an internal fabric8 agent", boolValue = false,
             description = "If there is an internal fabric8 agent this will copy artifacts into the installation; otherwise we can do it externally as we provision containers.")
     private boolean internalAgent;
-
+    @Property(name = "containerHttpUrl", label = "HTTP URL",
+            value = "http://${env:FABRIC8_LISTEN_ADDRESS}:${env:FABRIC8_HTTP_PROXY_PORT}/",
+            description = "The URL for HTTP access to the running container.")
+    private String containerHttpUrl;
 
     public InstallOptions createProcessInstallOptions(FabricService fabricService, Container container, CreateChildContainerMetadata metadata, CreateChildContainerOptions options, Map<String, String> environmentVariables, DownloadStrategy downloadStrategy) throws MalformedURLException {
         byte[] jsonData = null;
@@ -201,5 +204,13 @@ public class ProcessContainerConfig {
 
     public void setPostInstallCmds(String[] postInstallCmds) {
         this.postInstallCmds = postInstallCmds;
+    }
+
+    public String getContainerHttpUrl() {
+        return containerHttpUrl;
+    }
+
+    public void setContainerHttpUrl(String containerHttpUrl) {
+        this.containerHttpUrl = containerHttpUrl;
     }
 }

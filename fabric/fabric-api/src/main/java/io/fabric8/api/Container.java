@@ -62,6 +62,8 @@ public interface Container extends HasId {
      */
     String getDebugPort();
 
+    void setHttpUrl(String location);
+
     boolean isManaged();
 
     String getVersionId();

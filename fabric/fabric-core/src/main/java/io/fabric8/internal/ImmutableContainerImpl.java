@@ -331,6 +331,11 @@ public class ImmutableContainerImpl implements Container {
     }
 
     @Override
+    public void setHttpUrl(String location) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void setResolver(String resolver) {
         throw new UnsupportedOperationException();
     }
