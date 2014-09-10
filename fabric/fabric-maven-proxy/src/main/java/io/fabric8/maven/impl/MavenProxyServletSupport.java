@@ -414,7 +414,6 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     }
 
     protected RepositorySystemSession newSession(RepositorySystem system, String localRepository) {
-
         MavenRepositorySystemSession original = new MavenRepositorySystemSession();
         DefaultRepositorySystemSession session = original.getDelegate();
         session.setOffline(false);
@@ -426,7 +425,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         session.setChecksumPolicy(checksumPolicy);
         LocalRepository localRepo = new LocalRepository(localRepository);
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
-        return session;
+        return original;
     }
 
     protected RepositorySystem newRepositorySystem() {
