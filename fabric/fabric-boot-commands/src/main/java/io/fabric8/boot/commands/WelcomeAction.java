@@ -42,30 +42,32 @@ final class WelcomeAction extends AbstractAction {
     protected Object doExecute() throws Exception {
         String name = runtimeProperties.getRuntimeIdentity();
 
-        System.out.println("Welcome to Fabric.");
+        String appName = runtimeProperties.getProperty("karaf.app.name");
+
+        System.out.println("Welcome to " + appName);
         System.out.println("");
 
         // are we part of fabric?
         if (fabricService != null) {
             Container container = fabricService.getCurrentContainer();
             if (container != null) {
-                boolean alive = container.isAliveAndOK();
-                if (!alive) {
-                    System.out.println("This container \u001B" + container.getId() + "\u001B has a problem connecting to the Fabric. For more details type '\u001B[1mcontainer:info\u001B[0m'");
+                boolean ensemble = container.isEnsembleServer();
+                if (ensemble) {
+                    System.out.println("This container \u001B[1m" + container.getId() + "\u001B[0m is a Fabric ensemble server.");
                 } else {
-                    boolean ensemble = container.isEnsembleServer();
-                    if (ensemble) {
-                        System.out.println("This container \u001B" + container.getId() + "\u001B is a Fabric ensemble server.");
-                    } else {
-                        System.out.println("This container \u001B" + container.getId() + "\u001B is joined to an existing Fabric.");
-                    }
+                    System.out.println("This container \u001B[1m" + container.getId() + "\u001B[0m is joined to an existing Fabric.");
                 }
+            } else {
+                System.out.println("This container \u001B[1m" + name + "\u001B[0m is a standalone container.");
             }
-            System.out.println("Open a browser to " + fabricService.getWebConsoleUrl() + " to access the management console.");
+            String url = fabricService.getWebConsoleUrl();
+            if (url != null) {
+                System.out.println("Web management console available at: " + url);
+            }
             System.out.println("");
         } else {
             // no we are standalone
-            System.out.println("This container " + name + " is a standalone container.");
+            System.out.println("This container \u001B[1m" + name + "\u001B[0m is a standalone container.");
             System.out.println("");
             System.out.println("Create a new Fabric via '\u001B[1mfabric:create\u001B[0m'");
             System.out.println("or join an existing Fabric via '\u001B[1mfabric:join [someUrls]\u001B[0m'");
