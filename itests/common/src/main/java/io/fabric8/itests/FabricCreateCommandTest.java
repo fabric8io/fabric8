@@ -41,6 +41,7 @@ import org.jboss.osgi.metadata.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -52,6 +53,7 @@ import org.slf4j.Logger;
  * @since 03-Feb-2014
  */
 @RunWith(Arquillian.class)
+@Ignore("[FABRIC-1151] Fix common FabricCreateCommandTest")
 public class FabricCreateCommandTest {
 
     private static final String ADMIN_PASSWORD = "admin";
