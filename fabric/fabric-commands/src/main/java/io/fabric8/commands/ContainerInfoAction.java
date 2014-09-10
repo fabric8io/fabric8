@@ -23,6 +23,7 @@ import io.fabric8.api.RuntimeProperties;
 import io.fabric8.common.util.Strings;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
 import static io.fabric8.common.util.Strings.emptyIfNull;
@@ -35,6 +36,9 @@ public class ContainerInfoAction extends AbstractAction {
 
 	@Argument(index = 0, name = "container", description = "The name of the container container.", required = false, multiValued = false)
 	private String containerName;
+
+    @Option(name = "--verbose", aliases = "-v", multiValued = false, required = false, description = "Verbose details", valueToShowInHelp = "false")
+    protected Boolean verbose;
 
     private final FabricService fabricService;
     private final DataStore dataStore;
@@ -62,6 +66,10 @@ public class ContainerInfoAction extends AbstractAction {
 		System.out.println(String.format(FORMAT, "Version:", container.getVersionId()));
 		System.out.println(String.format(FORMAT, "Connected:", container.isAlive()));
         System.out.println(String.format(FORMAT, "Type:", emptyIfNull(container.getType())));
+        System.out.println(String.format(FORMAT, "Root:", container.isRoot()));
+        System.out.println(String.format(FORMAT, "Ensemble Server:", container.isEnsembleServer()));
+        System.out.println(String.format(FORMAT, "Managed:", container.isManaged()));
+
         Long processId = container.getProcessId();
         System.out.println(String.format(FORMAT, "Process ID:", ((processId != null) ? processId.toString() : "")));
         if (Strings.isNotBlank(container.getLocation())) {
@@ -81,16 +89,35 @@ public class ContainerInfoAction extends AbstractAction {
         if (Strings.isNotBlank(debugPort)) {
             System.out.println(String.format(FORMAT, "Debug Port:", debugPort));
         }
-        // we want each profile on a separate line
-        Profile[] profiles = container.getProfiles();
-        for (int i = 0; i < profiles.length; i++) {
-            String id = profiles[i].getId();
-            if (i == 0) {
-                System.out.println(String.format(FORMAT, "Profiles:", id));
-            } else {
-                System.out.println(String.format(FORMAT, "", id));
+
+        if (verbose != null && verbose) {
+            // we want each profile on a separate line
+            Profile[] profiles = container.getProfiles();
+            for (int i = 0; i < profiles.length; i++) {
+                String id = profiles[i].getId();
+                if (i == 0) {
+                    System.out.println(String.format(FORMAT, "Profiles:", id));
+                } else {
+                    System.out.println(String.format(FORMAT, "", id));
+                }
+            }
+
+            Container parent = container.getParent();
+            if (parent != null) {
+                System.out.println(String.format(FORMAT, "Parent:", parent.getId()));
+            }
+            // we want each child on a separate line
+            Container[] children = container.getChildren();
+            for (int i = 0; i < children.length; i++) {
+                String id = children[i].getId();
+                if (i == 0) {
+                    System.out.println(String.format(FORMAT, "Children:", id));
+                } else {
+                    System.out.println(String.format(FORMAT, "", id));
+                }
             }
         }
+
         String blueprintStatus = dataStore.getContainerAttribute(containerName, DataStore.ContainerAttribute.BlueprintStatus, "", false, false);
         String springStatus = dataStore.getContainerAttribute(containerName, DataStore.ContainerAttribute.SpringStatus, "", false, false);
         if (!blueprintStatus.isEmpty()) {
