@@ -21,14 +21,20 @@ wait-for-command = {
 }
 
 if { "true" equals ${ensemble.auto.start} } {
+  // bin/fabric8 mode
   echo "Waiting for Fabric8 ..."; 
   wait-for-service "io.fabric8.api.FabricService";
   wait-for-command fabric wait-for-provisioning;
   wait-for-provisioning; 
   echo "Open a browser to http://localhost:8181 to access the management console."; 
   echo ""; 
-} {
-  echo "Create a new Fabric via '\u001B[1mfabric:create\u001B[0m'"; 
-  echo "or join an existing Fabric via '\u001B[1mfabric:join [someUrls]\u001B[0m'"; 
-  echo "";
+} { 
+  if { "false" equals ${ensemble.auto.start} } { 
+    // bin/standalone mode
+    echo "Create a new Fabric via '\u001B[1mfabric:create\u001B[0m'"; 
+    echo "or join an existing Fabric via '\u001B[1mfabric:join [someUrls]\u001B[0m'"; 
+    echo "";
+  } {
+    // bin/client mode
+  }
 }
