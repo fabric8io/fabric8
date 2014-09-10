@@ -65,6 +65,7 @@
         </fuse.osgi.private.pkg>
         <fuse.osgi.export>
             io.fabric8.fab*;version=${fuse.osgi.version};-noimport:=true,
+            org.sonatype.plexus*;-noimport:=true,
             org.codehaus.plexus*;-noimport:=true,
             org.eclipse.aether*;-noimport:=true,
             aQute.lib.osgi*;-noimport:=true,
