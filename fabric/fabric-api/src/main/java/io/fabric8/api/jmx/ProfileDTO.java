@@ -41,6 +41,7 @@ public class ProfileDTO {
     private List<String> features;
     private List<String> repositories;
     private List<String> overrides;
+    private String containersLink;
     private String overlayLink;
     private String requirementsLink;
     private String fileNameLinks;
@@ -71,8 +72,9 @@ public class ProfileDTO {
         this.configurations = profile.getConfigurationFileNames();
     }
 
-    public ProfileDTO(Profile profile, String overlayLink, String requirementsLink, String fileNameLinks) {
+    public ProfileDTO(Profile profile, String containersLink, String overlayLink, String requirementsLink, String fileNameLinks) {
         this(profile);
+        this.containersLink = containersLink;
         this.overlayLink = overlayLink;
         this.requirementsLink = requirementsLink;
         this.fileNameLinks = fileNameLinks;
@@ -204,6 +206,14 @@ public class ProfileDTO {
 
     public void setOverrides(List<String> overrides) {
         this.overrides = overrides;
+    }
+
+    public String getContainersLink() {
+        return containersLink;
+    }
+
+    public void setContainersLink(String containersLink) {
+        this.containersLink = containersLink;
     }
 
     public String getOverlayLink() {

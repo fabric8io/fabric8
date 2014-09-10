@@ -15,13 +15,19 @@
  */
 package io.fabric8.rest;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.Containers;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.jmx.ProfileDTO;
+import io.fabric8.core.jmx.Links;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.GET;
@@ -57,7 +63,32 @@ public class ProfileResource extends ResourceSupport {
     @GET
     public ProfileDTO details() {
         String overlay = profile.isOverlay() ? null : getLink("overlay");
-        return new ProfileDTO(profile, overlay, getLink("requirements"), getLink("fileNames"));
+        return new ProfileDTO(profile, getLink("containers"), overlay, getLink("requirements"), getLink("fileNames"));
+    }
+
+
+    /**
+     * Returns the list of container ID links for this profile
+     */
+    @GET
+    @Path("containers")
+    public Map<String, String> containers() {
+        FabricService fabricService = getFabricService();
+        if (fabricService != null) {
+            List<Container> containers = Containers.containersForProfile(fabricService.getContainers(), profile.getId(), profile.getVersion());
+            List<String> keys = Containers.containerIds(containers);
+
+            // lets get the link to the fabric
+            ResourceSupport node = this;
+            for (int i = 0; i < 2 && node != null; i++) {
+                node = node.getParent();
+            }
+            String baseURI = node != null ?  node.getBaseUri() : "";
+            return Links.mapIdsToLinks(keys, baseURI + "/container/");
+        } else {
+            noFabricService();
+        }
+        return Collections.emptyMap();
     }
 
     /**

@@ -50,6 +50,17 @@ public class Containers {
         return answer;
     }
 
+    public static List<String> containerIds(Iterable<Container> containers) {
+        List<String> answer = new ArrayList<String>();
+        if (containers != null) {
+            for (Container container : containers) {
+                answer.add(container.getId());
+            }
+        }
+        Collections.sort(answer);
+        return answer;
+    }
+
 
     public static String containerId(Container container) {
         return container != null ? container.getId() : null;
