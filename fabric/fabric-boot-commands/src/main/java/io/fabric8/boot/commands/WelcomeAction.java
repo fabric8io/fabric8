@@ -62,7 +62,7 @@ final class WelcomeAction extends AbstractAction {
             }
             String url = fabricService.getWebConsoleUrl();
             if (url != null) {
-                System.out.println("Web management console available at: " + url);
+                System.out.println("Web management console available at: \u001B[1m" + url + "\u001B[0m");
             }
             System.out.println("");
         } else {
