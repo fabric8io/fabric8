@@ -440,11 +440,11 @@ public class ProfileEditAction extends AbstractAction {
                 String key = configEntries.getKey();
                 String value = configEntries.getValue();
                 if (append) {
-                    System.out.println("Appending value:" + value + " key:" + key + " from config properties and profile:" + profile + " version:" + versionId);
+                    System.out.println("Appending value:" + value + " key:" + key + " from config properties and profile:" + profile.getId() + " version:" + versionId);
                 } else if (delete) {
-                    System.out.println("Deleting key:" + key + " from config properties and profile:" + profile + " version:" + versionId);
+                    System.out.println("Deleting key:" + key + " from config properties and profile:" + profile.getId() + " version:" + versionId);
                 } else if (set) {
-                    System.out.println("Setting value:" + value + " key:" + key + " from config properties and profile:" + profile + " version:" + versionId);
+                    System.out.println("Setting value:" + value + " key:" + key + " from config properties and profile:" + profile.getId() + " version:" + versionId);
                 }
                 updatedDelimitedList(conf, CONFIG_PREFIX + key, value, delimiter, set, delete, append, remove);
             }

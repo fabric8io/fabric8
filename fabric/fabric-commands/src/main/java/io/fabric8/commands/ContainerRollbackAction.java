@@ -80,8 +80,8 @@ public final class ContainerRollbackAction extends AbstractAction {
             // check first that all can rollback
             int num = ContainerUpgradeSupport.canRollback(version, container);
             if (num < 0) {
-                throw new IllegalArgumentException("Container " + container.getId() + " has already lower version " + container.getVersion()
-                        + " than the requested version " + version + " to rollback.");
+                throw new IllegalArgumentException("Container " + container.getId() + " has already lower version " + container.getVersion().getId()
+                        + " than the requested version " + version.getId() + " to rollback.");
             } else if (num == 0) {
                 // same version
                 same.add(container);
@@ -93,7 +93,7 @@ public final class ContainerRollbackAction extends AbstractAction {
 
         // report same version
         for (Container container : same) {
-            System.out.println("Container " + container.getId() + " is already version " + version);
+            System.out.println("Container " + container.getId() + " is already version " + version.getId());
         }
 
         // report and do rollbacks
@@ -101,13 +101,13 @@ public final class ContainerRollbackAction extends AbstractAction {
             Version oldVersion = container.getVersion();
             // rollback version first
             container.setVersion(version);
-            log.debug("Rolled back container {} from {} to {}", new Object[]{container, oldVersion, version});
-            System.out.println("Rolled back container " + container.getId() + " from version " + oldVersion + " to " + version);
+            log.info("Rolled back container {} from {} to {}", new Object[]{container.getId(), oldVersion.getId(), version.getId()});
+            System.out.println("Rolled back container " + container.getId() + " from version " + oldVersion.getId() + " to " + version.getId());
         }
 
 		if (all) {
 			fabricService.setDefaultVersionId(version.getId());
-			System.out.println("Changed default version to " + version);
+			System.out.println("Changed default version to " + version.getId());
 		}
 
         return null;
