@@ -23,17 +23,17 @@ public interface ArchetypeService extends ArchetypeServiceMXBean {
 
     /**
      * Returns list of available {@link io.fabric8.tooling.archetype.catalog.Archetype}s
-     *
-     * @return
      */
     public Collection<Archetype> listArchetypes();
 
     /**
      * Returns {@link io.fabric8.tooling.archetype.catalog.Archetype} by it's <code>groupId:artifactId:version</code>
-     *
-     * @param gav
-     * @return
      */
     public Archetype getArchetype(String gav);
+
+    /**
+     * Returns {@link io.fabric8.tooling.archetype.catalog.Archetype} by it's <code>artifactId</code>
+     */
+    public Archetype getArchetypeByArtifact(String artifactId);
 
 }

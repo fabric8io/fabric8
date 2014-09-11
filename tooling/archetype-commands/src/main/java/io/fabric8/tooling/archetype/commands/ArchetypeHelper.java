@@ -19,7 +19,7 @@ import io.fabric8.tooling.archetype.catalog.Archetype;
 
 public final class ArchetypeHelper {
 
-    public static String toMavenCoordinates(Archetype archetype) {
+    public static String toMavenCoordinate(Archetype archetype) {
         return archetype.groupId + ":" + archetype.artifactId + ":" + archetype.version;
     }
 }

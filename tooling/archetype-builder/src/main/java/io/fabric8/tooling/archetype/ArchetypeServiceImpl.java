@@ -111,6 +111,16 @@ public class ArchetypeServiceImpl extends AbstractComponent implements Archetype
         return this.archetypes.get(gav);
     }
 
+    @Override
+    public Archetype getArchetypeByArtifact(String artifactId) {
+        for (Archetype archetype : archetypes.values()) {
+            if (archetype.artifactId.equals(artifactId)) {
+                return archetype;
+            }
+        }
+        return null;
+    }
+
     void bindMBeanServer(MBeanServer mbeanServer) {
         this.mbeanServer = mbeanServer;
     }

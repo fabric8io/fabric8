@@ -21,16 +21,14 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-import static io.fabric8.tooling.archetype.commands.ArchetypeHelper.toMavenCoordinates;
-
 @Command(name = ArchetypeList.FUNCTION_VALUE, scope = ArchetypeList.SCOPE_VALUE, description = ArchetypeList.DESCRIPTION)
 public class ArchetypeListAction extends AbstractAction {
 
-    static final String FORMAT = "%s";
-    static final String[] HEADERS = {"[group/artifact/version]"};
+    static final String FORMAT = "%-50s %s";
+    static final String[] HEADERS = {"[artifactId]", "[description]"};
 
     static final String VERBOSE_FORMAT = "%-30s %-50s %-20s %s";
-    static final String[] VERBOSE_HEADERS = {"[group]", "[artifact]", "[version]", "[description]"};
+    static final String[] VERBOSE_HEADERS = {"[groupId]", "[artifactId]", "[version]", "[description]"};
 
     @Option(name = "-v", aliases = "--verbose", description = "Flag for verbose output", multiValued = false, required = false)
     private boolean verbose;
@@ -50,16 +48,12 @@ public class ArchetypeListAction extends AbstractAction {
         }
 
         for (Archetype archetype : archetypeService.listArchetypes()) {
-            String group = archetype.groupId;
-            String artifact = archetype.artifactId;
-            String version = archetype.version;
-            String desc = archetype.description;
-
             String nextLine;
             if (verbose) {
-                nextLine = String.format(VERBOSE_FORMAT, group, artifact, version, desc);
+                nextLine = String.format(VERBOSE_FORMAT, archetype.groupId, archetype.artifactId, archetype.version, archetype.description);
             } else {
-                nextLine = String.format(FORMAT, toMavenCoordinates(archetype));
+                // only list artifact id in short format
+                nextLine = String.format(FORMAT, archetype.artifactId, archetype.description);
             }
             System.out.println(nextLine);
         }

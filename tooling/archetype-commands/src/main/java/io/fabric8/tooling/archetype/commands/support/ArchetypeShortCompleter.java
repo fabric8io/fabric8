@@ -13,44 +13,47 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.tooling.archetype.commands;
+package io.fabric8.tooling.archetype.commands.support;
 
-import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import java.util.ArrayList;
+import java.util.List;
+
+import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.tooling.archetype.ArchetypeService;
-import org.apache.felix.gogo.commands.Action;
-import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.apache.felix.service.command.Function;
+import org.apache.karaf.shell.console.Completer;
+import org.apache.karaf.shell.console.completer.StringsCompleter;
+import org.osgi.service.component.ComponentContext;
 
+/**
+ * Completes maven archetype coordinates
+ */
 @Component(immediate = true)
-@Service({ Function.class, AbstractCommand.class })
-@org.apache.felix.scr.annotations.Properties({
-    @Property(name = "osgi.command.scope", value = ArchetypeList.SCOPE_VALUE),
-    @Property(name = "osgi.command.function", value = ArchetypeList.FUNCTION_VALUE)
-})
-public class ArchetypeList extends AbstractCommandComponent {
-
-    public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE = "archetype-list";
-    public static final String DESCRIPTION = "List all available Fabric Maven archetypes";
+@Service({ArchetypeShortCompleter.class, Completer.class})
+public class ArchetypeShortCompleter extends AbstractComponent implements Completer {
 
     @Reference(referenceInterface = ArchetypeService.class, bind = "bindArchetypeService", unbind = "unbindArchetypeService")
     private ArchetypeService archetypeService;
 
+    private List<String> archetypes = new ArrayList<String>();
+
     @Override
-    public Action createNewAction() {
-        assertValid();
-        return new ArchetypeListAction(archetypeService);
+    public int complete(final String buffer, final int cursor, final List candidates) {
+        StringsCompleter delegate = new StringsCompleter(archetypes);
+        return delegate.complete(buffer, cursor, candidates);
     }
 
     @Activate
-    void activate() {
+    void activate(ComponentContext componentContext) {
         activateComponent();
+        for (String[] gav : this.archetypeService.listArchetypeGAVs()) {
+            // we only complete on artifact as group and version is fixed
+            this.archetypes.add(String.format("%s", gav[1]));
+        }
     }
 
     @Deactivate

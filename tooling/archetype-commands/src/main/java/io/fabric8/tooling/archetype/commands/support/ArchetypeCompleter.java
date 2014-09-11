@@ -51,8 +51,7 @@ public class ArchetypeCompleter extends AbstractComponent implements Completer {
     void activate(ComponentContext componentContext) {
         activateComponent();
         for (String[] gav : this.archetypeService.listArchetypeGAVs()) {
-            // we do not need versions as its all same version, so we omit that to make it less noisy to use
-            this.archetypes.add(String.format("%s:%s", gav[0], gav[1]));
+            this.archetypes.add(String.format("%s:%s:%s", gav[0], gav[1], gav[2]));
         }
     }
 
