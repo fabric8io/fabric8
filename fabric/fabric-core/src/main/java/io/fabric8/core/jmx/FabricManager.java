@@ -67,6 +67,7 @@ import io.fabric8.api.VersionSequence;
 import io.fabric8.api.jmx.FabricManagerMBean;
 import io.fabric8.api.jmx.FabricStatusDTO;
 import io.fabric8.api.jmx.ServiceStatusDTO;
+import io.fabric8.common.util.PublicPortMapper;
 import io.fabric8.common.util.ShutdownTracker;
 import io.fabric8.insight.log.support.Strings;
 import io.fabric8.service.FabricServiceImpl;
@@ -707,6 +708,16 @@ public final class FabricManager implements FabricManagerMBean {
     @Override
     public String getCurrentContainerName() {
         return fabricService.getCurrentContainerName();
+    }
+
+    @Override
+    public int getPublicPortOnCurrentContainer(int localPort) {
+        try {
+            return PublicPortMapper.getPublicPort(localPort);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

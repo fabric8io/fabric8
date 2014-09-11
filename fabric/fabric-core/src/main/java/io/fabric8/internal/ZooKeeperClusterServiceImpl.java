@@ -43,6 +43,8 @@ import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.service.ContainerTemplate;
+import io.fabric8.service.JmxTemplateSupport;
 import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Ports;
@@ -60,6 +62,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+
+import javax.management.ObjectName;
+import javax.management.remote.JMXConnector;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -277,10 +282,10 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 // Ensemble member properties
                 Properties memberProperties = new Properties();
                 String memberPropertiesName = "io.fabric8.zookeeper.server-" + newClusterId + ".properties";
-                String port1 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_SERVER_PORT, minimumPort, maximumPort)));
+                String port1 = publicPort(container, Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_SERVER_PORT, minimumPort, maximumPort))));
                 if (containers.size() > 1) {
-                    String port2 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_PEER_PORT, minimumPort, maximumPort)));
-                    String port3 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_ELECTION_PORT, minimumPort, maximumPort)));
+                    String port2 = publicPort(container, Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_PEER_PORT, minimumPort, maximumPort))));
+                    String port3 = publicPort(container, Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_ELECTION_PORT, minimumPort, maximumPort))));
                     ensembleProperties.put("server." + Integer.toString(index), "${zk:" + container + "/ip}:" + port2 + ":" + port3);
                     memberProperties.put("server.id", Integer.toString(index));
                 }
@@ -417,6 +422,19 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
         } catch (Exception e) {
             throw EnsembleModificationFailed.launderThrowable(e);
         }
+    }
+
+    private String publicPort(String containerName, final String port) {
+        FabricService fabric = fabricService.get();
+        Container container = fabric.getContainer(containerName);
+
+        ContainerTemplate containerTemplate = new ContainerTemplate(container, fabric.getZooKeeperUser(), fabric.getZookeeperPassword(), false);
+        return containerTemplate.execute(new JmxTemplateSupport.JmxConnectorCallback<String>() {
+            @Override
+            public String doWithJmxConnector(JMXConnector connector) throws Exception {
+                return connector.getMBeanServerConnection().invoke(new ObjectName("io.fabric8:type=Fabric"), "getPublicPortOnCurrentContainer", new Object[]{new Integer(port)}, new String[]{"int"}).toString();
+            }
+        });
     }
 
     public void addToCluster(List<String> containers) {
