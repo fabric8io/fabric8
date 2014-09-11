@@ -23,7 +23,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -33,7 +32,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,6 +40,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import io.fabric8.common.util.IOHelpers;
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -78,9 +77,6 @@ public class ArchetypeHelper {
     private List<String> binarySuffixes = Arrays.asList(".png", ".ico", ".gif", ".jpg", ".jpeg", ".bmp");
 
     protected String webInfResources = "src/main/webapp/WEB-INF/resources";
-
-    // conscious removal of "scala" source dir
-//    protected Pattern sourcePathRegexPattern = Pattern.compile("(src/(main|test)/(java|scala)/)(.*)");
     protected Pattern sourcePathRegexPattern = Pattern.compile("(src/(main|test)/(java)/)(.*)");
 
     public ArchetypeHelper(File archetypeFile, File outputDir, String groupId, String artifactId) {
@@ -115,8 +111,6 @@ public class ArchetypeHelper {
 
     /**
      * Main method which extracts given Maven Archetype in destination directory
-     *
-     * @return
      */
     public int execute() throws IOException {
         outputDir.mkdirs();
@@ -127,14 +121,12 @@ public class ArchetypeHelper {
 
         String packageDir = packageName.replace('.', '/');
 
-        info("Creating archetype using Maven groupId: " +
-            groupId + ", artifactId: " + artifactId + ", version: " + version
-            + " in directory: " + outputDir);
+        debug("Creating archetype using Maven groupId: " + groupId + ", artifactId: " + artifactId + ", version: " + version + " in directory: " + outputDir);
 
         Map<String, String> replaceProperties = parseProperties();
         replaceProperties.putAll(overrideProperties);
 
-        info("Using replace properties: " + replaceProperties);
+        debug("Using replace properties: " + replaceProperties);
 
         ZipFile zip = null;
         try {
@@ -175,17 +167,17 @@ public class ArchetypeHelper {
                             }
                             if (isBinary) {
                                 // binary file?  don't transform.
-                                copy(zip.getInputStream(entry), out);
+                                IOHelpers.copy(zip.getInputStream(entry), out);
                             } else {
                                 // text file...
                                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                                copy(zip.getInputStream(entry), bos);
+                                IOHelpers.copy(zip.getInputStream(entry), bos);
                                 String text = new String(bos.toByteArray(), "UTF-8");
                                 out.write(transformContents(text, replaceProperties).getBytes());
                             }
                         } finally {
                             if (out != null) {
-                                out.close();
+                                IOHelpers.close(out);
                             }
                         }
                     }
@@ -195,7 +187,7 @@ public class ArchetypeHelper {
             throw new IOException(e.getMessage(), e);
         } finally {
             if (zip != null) {
-                zip.close();
+                IOHelpers.close(zip);
             }
         }
 
@@ -220,10 +212,6 @@ public class ArchetypeHelper {
             File testDir = new File(srcDir, "test");
 
             String srcDirName = "java";
-            // Who needs Scala in 2014?
-//            if (new File(mainDir, "scala").exists() || new File(textDir, "scala").exists()) {
-//                srcDirName = "scala";
-//            }
 
             for (File dir : new File[]{mainDir, testDir}) {
                 for (String name : new String[]{srcDirName + "/" + packageDir, "resources"}) {
@@ -237,9 +225,6 @@ public class ArchetypeHelper {
 
     /**
      * Searches ZIP archive and returns properties found in "META-INF/maven/archetype-metadata.xml" entry
-     *
-     * @return
-     * @throws IOException
      */
     public Map<String, String> parseProperties() throws IOException {
         final Map<String, String> replaceProperties = new HashMap<String, String>();
@@ -264,14 +249,10 @@ public class ArchetypeHelper {
 
     /**
      * Extracts properties declared in "META-INF/maven/archetype-metadata.xml" file
-     *
-     * @param zip
-     * @param replaceProperties
-     * @throws IOException
      */
     protected void parseReplaceProperties(InputStream zip, Map<String, String> replaceProperties) throws IOException, ParserConfigurationException, SAXException, XPathExpressionException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        copy(zip, bos);
+        IOHelpers.copy(zip, bos);
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
@@ -319,9 +300,6 @@ public class ArchetypeHelper {
 
     /**
      * This method should do a full Velocity macro processing...
-     *
-     * @param text
-     * @return
      */
     protected String removeInvalidHeaderCommentsAndProcessVelocityMacros(String text) {
         String answer = "";
@@ -350,10 +328,9 @@ public class ArchetypeHelper {
 
     protected String replaceVariable(String text, String name, String value) {
         if (value.contains("}")) {
-            System.out.println("Ignoring dodgy value '" + value + "'");
+            debug("Ignoring dodgy value '" + value + "'");
             return text;
         } else {
-//            System.out.println("Replacing '" + name + "' with '" + value + "'");
             return text.replaceAll(Pattern.quote("${" + name + "}"), value);
         }
     }
@@ -363,25 +340,6 @@ public class ArchetypeHelper {
         answer = text.replaceAll(Pattern.quote("${" + name + "}"), value);
         answer = answer.replaceAll(Pattern.quote("$" + name), value);
         return answer;
-    }
-
-    // from org.fusesource.scalate.util.IOUtil#copy
-    private static long copy(InputStream in, OutputStream out) throws IOException {
-        try {
-            long bytesCopied = 0;
-            byte[] buffer = new byte[16384];
-
-            int bytes = in.read(buffer);
-            while (bytes >= 0) {
-                out.write(buffer, 0, bytes);
-                bytesCopied += bytes;
-                bytes = in.read(buffer);
-            }
-
-            return bytesCopied;
-        } finally {
-            in.close();
-        }
     }
 
 }

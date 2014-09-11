@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 import io.fabric8.agent.download.DownloadFuture;
@@ -37,17 +36,21 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
+import static io.fabric8.common.util.Strings.isNotBlank;
+
 @Command(name = ArchetypeInfo.FUNCTION_VALUE, scope = ArchetypeCreate.SCOPE_VALUE, description = ArchetypeCreate.DESCRIPTION)
 public class ArchetypeCreateAction extends AbstractAction {
 
     private static final String DEFAULT_TARGET = "/tmp";
-    private static final String ARCHETYPE_SUFFIX = "-archetype";
 
     @Argument(index = 0, name = "archetype", description = "Archetype coordinates", required = true, multiValued = false)
     private String archetypeGAV;
 
-    @Argument(index = 1, name = "target", description = "Target directory where the project will be generated", required = false, multiValued = false)
+    @Argument(index = 1, name = "target", description = "Target directory where the project will be generated in a sub directory", required = false, multiValued = false)
     private File target;
+
+    @Argument(index = 2, name = "directoryName", description = "The sub directory name", required = false, multiValued = false)
+    private String directoryName;
 
     private final ArchetypeService archetypeService;
 
@@ -65,8 +68,6 @@ public class ArchetypeCreateAction extends AbstractAction {
             } else {
                 preferences.put("target", target.getCanonicalPath());
             }
-            File childDir = new File(target, removeArchetypeSuffix(archetype.artifactId));
-            System.out.println(String.format("Generating %s:%s in %s", archetype.groupId, archetype.artifactId, childDir.getCanonicalPath()));
             File archetypeFile = fetchArchetype(archetype);
             if (archetypeFile == null || !archetypeFile.exists()) {
                 System.err.println("No archetype found for \"" + archetypeGAV + "\" coordinates");
@@ -76,18 +77,26 @@ public class ArchetypeCreateAction extends AbstractAction {
             String defaultGroupId = "io.fabric8";
             String defaultArtifactId = archetype.artifactId + "-example";
             String defaultVersion = "1.0-SNAPSHOT";
+
             System.out.println("----- Configure archetype -----");
-            String groupId = ShellUtils.readLine(session, String.format("Define value for property 'groupId' (%s):", defaultGroupId), false);
-            String artifactId = ShellUtils.readLine(session, String.format("Define value for property 'artifactId' (%s):", defaultArtifactId), false);
-            String version = ShellUtils.readLine(session, String.format("Define value for property 'version' (%s):", defaultVersion), false);
-
-            groupId = groupId == null || groupId.trim().equals("") ? defaultGroupId : groupId;
-            artifactId = artifactId == null || artifactId.trim().equals("") ? defaultArtifactId : artifactId;
-            version = version == null || version.trim().equals("") ? defaultVersion : version;
-
+            String groupId = ShellUtils.readLine(session, String.format("Define value for property 'groupId' (%s): ", defaultGroupId), false);
+            String artifactId = ShellUtils.readLine(session, String.format("Define value for property 'artifactId' (%s): ", defaultArtifactId), false);
+            String version = ShellUtils.readLine(session,  String.format("Define value for property 'version' (%s): ", defaultVersion), false);
             String defaultPackageName = (groupId + "." + artifactId).replaceAll("-", ".");
-            String packageName = ShellUtils.readLine(session, String.format("Define value for property 'package' (%s):", defaultPackageName), false);
-            packageName = packageName == null || packageName.trim().equals("") ? defaultPackageName : packageName;
+            String packageName = ShellUtils.readLine(session, String.format("Define value for property 'package' (%s): ", defaultPackageName), false);
+            if (directoryName == null) {
+                // use artifact id as default directory name (maven does this also)
+                String defaultDirectoryName = isNotBlank(artifactId) ? artifactId : defaultArtifactId;
+                directoryName = ShellUtils.readLine(session, String.format("Define value for property 'directoryName' (%s): ", defaultDirectoryName), false);
+            }
+
+            groupId = isNotBlank(groupId) ? defaultGroupId : groupId;
+            artifactId = isNotBlank(artifactId) ? defaultArtifactId : artifactId;
+            version = isNotBlank(version) ? defaultVersion : version;
+            packageName = isNotBlank(packageName) ? defaultPackageName : packageName;
+            directoryName = isNotBlank(directoryName) ? artifactId : directoryName;
+
+            File childDir = new File(target, directoryName);
 
             ArchetypeHelper helper = new ArchetypeHelper(archetypeFile, childDir, groupId, artifactId, version);
             helper.setPackageName(packageName);
@@ -97,25 +106,31 @@ public class ArchetypeCreateAction extends AbstractAction {
             if (!properties.isEmpty()) {
                 System.out.println("----- Configure additional properties -----");
                 for (String key : properties.keySet()) {
-                    String p = ShellUtils.readLine(session, String.format("Define value for property '%s' (%s):", key, properties.get(key)), false);
+                    String p = ShellUtils.readLine(session, String.format("Define value for property '%s' (%s): ", key, properties.get(key)), false);
                     p = p == null || p.trim().equals("") ? properties.get(key) : p;
                     properties.put(key, p);
                 }
             }
             helper.setOverrideProperties(properties);
-            helper.execute();
+
+            String confirm = ShellUtils.readLine(session, "Create project: (Y): ", false);
+            confirm = confirm == null || confirm.trim().equals("") ? "Y" : confirm;
+
+            if ("Y".equalsIgnoreCase(confirm)) {
+                System.out.println("----------------------------------------------------------------------------");
+                System.out.println(String.format("Creating project in directory: %s", childDir.getCanonicalPath()));
+                helper.execute();
+                System.out.println("Project created successfully");
+                System.out.println("");
+            } else {
+                System.out.println("----------------------------------------------------------------------------");
+                System.out.println("Creating project aborted!");
+                System.out.println("");
+            }
         } else {
-            System.err.println("No archetype found for \"" + archetypeGAV + "\" coordinates");
+            System.err.println("No archetype found for: " + archetypeGAV);
         }
         return null;
-    }
-
-    private String removeArchetypeSuffix(String artifactId) {
-        if (artifactId.endsWith(ARCHETYPE_SUFFIX)) {
-            return artifactId.substring(0, artifactId.length() - ARCHETYPE_SUFFIX.length());
-        } else {
-            return artifactId;
-        }
     }
 
     /**
@@ -128,7 +143,7 @@ public class ArchetypeCreateAction extends AbstractAction {
         DownloadManager dm = new DownloadManager(config, Executors.newSingleThreadExecutor());
 
         final CountDownLatch latch = new CountDownLatch(1);
-        DownloadFuture df = dm.download(String.format("mvn:%s/%s/%s", archetype.groupId, archetype.artifactId, archetype.version));
+        final DownloadFuture df = dm.download(String.format("mvn:%s/%s/%s", archetype.groupId, archetype.artifactId, archetype.version));
         df.addListener(new FutureListener<DownloadFuture>() {
             @Override
             public void operationComplete(DownloadFuture future) {
@@ -136,15 +151,31 @@ public class ArchetypeCreateAction extends AbstractAction {
             }
         });
 
+        // wait for download
         try {
-            latch.await(30, TimeUnit.SECONDS);
+            boolean init = false;
+            for (int i = 0; i < 60 && latch.getCount() > 0; i++) {
+                // dont do anything in the first 3 seconds as we likely can download it faster
+                if (i > 3) {
+                    if (!init) {
+                        System.out.print("Downloading archetype in progress: ");
+                        init = true;
+                    }
+                    System.out.print(".");
+                }
+                Thread.sleep(1000);
+            }
         } catch (InterruptedException e) {
-            System.err.println("Failed to download " + archetype);
+            System.err.println("\nFailed to download " + archetype);
             throw new IOException(e.getMessage(), e);
         }
-        System.out.println("Downloaded archetype (" + df.getFile() + ")");
 
-        return df.getFile();
+        if (latch.getCount() == 0) {
+            return df.getFile();
+        } else {
+            System.err.println("\nFailed to download archetype within 60 seconds: " + archetype);
+            throw new IOException("Failed to download archetype within 60 seconds: " + archetype);
+        }
     }
 
 }
