@@ -29,7 +29,7 @@
     <name>Fabric8 :: Archetypes :: Karaf :: Camel Drools</name>
     <packaging>maven-archetype</packaging>
 
-    <description>Creates a new Fabric8 :: Quickstarts :: Karaf :: Camel Drools</description>
+    <description>Creates a new Camel example using Drools</description>
 
     <build>
         <extensions>
