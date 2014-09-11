@@ -36,14 +36,14 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
-import static io.fabric8.common.util.Strings.isNotBlank;
+import static io.fabric8.common.util.Strings.isNullOrBlank;
 
 @Command(name = ArchetypeInfo.FUNCTION_VALUE, scope = ArchetypeCreate.SCOPE_VALUE, description = ArchetypeCreate.DESCRIPTION)
 public class ArchetypeCreateAction extends AbstractAction {
 
     private static final String DEFAULT_TARGET = "/tmp";
 
-    @Argument(index = 0, name = "archetype", description = "Archetype coordinates", required = true, multiValued = false)
+    @Argument(index = 0, name = "archetype", description = "ArchetypeId or coordinate", required = true, multiValued = false)
     private String archetypeGAV;
 
     @Argument(index = 1, name = "target", description = "Target directory where the project will be generated in a sub directory", required = false, multiValued = false)
@@ -60,7 +60,13 @@ public class ArchetypeCreateAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        Archetype archetype = archetypeService.getArchetype(archetypeGAV);
+        // try artifact first
+        Archetype archetype = archetypeService.getArchetypeByArtifact(archetypeGAV);
+        if (archetype == null) {
+            // then by coordinate
+            archetypeService.getArchetype(archetypeGAV);
+        }
+
         if (archetype != null) {
             Preferences preferences = Preferences.userNodeForPackage(getClass());
             if (target == null) {
@@ -86,15 +92,15 @@ public class ArchetypeCreateAction extends AbstractAction {
             String packageName = ShellUtils.readLine(session, String.format("Define value for property 'package' (%s): ", defaultPackageName), false);
             if (directoryName == null) {
                 // use artifact id as default directory name (maven does this also)
-                String defaultDirectoryName = isNotBlank(artifactId) ? artifactId : defaultArtifactId;
+                String defaultDirectoryName = isNullOrBlank(artifactId) ? defaultArtifactId : artifactId;
                 directoryName = ShellUtils.readLine(session, String.format("Define value for property 'directoryName' (%s): ", defaultDirectoryName), false);
             }
 
-            groupId = isNotBlank(groupId) ? defaultGroupId : groupId;
-            artifactId = isNotBlank(artifactId) ? defaultArtifactId : artifactId;
-            version = isNotBlank(version) ? defaultVersion : version;
-            packageName = isNotBlank(packageName) ? defaultPackageName : packageName;
-            directoryName = isNotBlank(directoryName) ? artifactId : directoryName;
+            groupId = isNullOrBlank(groupId) ? defaultGroupId : groupId;
+            artifactId = isNullOrBlank(artifactId) ? defaultArtifactId : artifactId;
+            version = isNullOrBlank(version) ? defaultVersion : version;
+            packageName = isNullOrBlank(packageName) ? defaultPackageName : packageName;
+            directoryName = isNullOrBlank(directoryName) ? artifactId : directoryName;
 
             File childDir = new File(target, directoryName);
 

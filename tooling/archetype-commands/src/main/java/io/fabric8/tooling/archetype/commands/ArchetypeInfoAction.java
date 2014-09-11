@@ -22,14 +22,14 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
 import static io.fabric8.common.util.Strings.emptyIfNull;
-import static io.fabric8.tooling.archetype.commands.ArchetypeHelper.toMavenCoordinates;
+import static io.fabric8.tooling.archetype.commands.ArchetypeHelper.toMavenCoordinate;
 
 @Command(name = ArchetypeInfo.FUNCTION_VALUE, scope = ArchetypeInfo.SCOPE_VALUE, description = ArchetypeInfo.DESCRIPTION)
 public class ArchetypeInfoAction extends AbstractAction {
 
     static final String FORMAT = "%-30s %s";
 
-    @Argument(index = 0, name = "archetype", description = "Archetype coordinates", required = true, multiValued = false)
+    @Argument(index = 0, name = "archetype", description = "ArchetypeId or coordinate", required = true, multiValued = false)
     private String archetypeGAV;
 
     private final ArchetypeService archetypeService;
@@ -40,9 +40,17 @@ public class ArchetypeInfoAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        Archetype archetype = archetypeService.getArchetype(archetypeGAV);
+        // try artifact first
+        Archetype archetype = archetypeService.getArchetypeByArtifact(archetypeGAV);
+        if (archetype == null) {
+            // then by coordinate
+            archetypeService.getArchetype(archetypeGAV);
+        }
         if (archetype != null) {
-            System.out.println(String.format(FORMAT, "Archetype coordinates:", toMavenCoordinates(archetype)));
+            System.out.println(String.format(FORMAT, "GroupId:", archetype.groupId));
+            System.out.println(String.format(FORMAT, "ArtifactId:", archetype.artifactId));
+            System.out.println(String.format(FORMAT, "Version:", archetype.version));
+            System.out.println(String.format(FORMAT, "Coordinate:", toMavenCoordinate(archetype)));
             System.out.println(String.format(FORMAT, "Description:", emptyIfNull(archetype.description)));
             System.out.println(String.format(FORMAT, "Repository:", emptyIfNull(archetype.repository)));
         } else {

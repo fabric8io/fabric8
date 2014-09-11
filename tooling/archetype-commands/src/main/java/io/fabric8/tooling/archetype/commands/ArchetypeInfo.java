@@ -18,7 +18,7 @@ package io.fabric8.tooling.archetype.commands;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
 import io.fabric8.tooling.archetype.ArchetypeService;
-import io.fabric8.tooling.archetype.commands.support.ArchetypeCompleter;
+import io.fabric8.tooling.archetype.commands.support.ArchetypeShortCompleter;
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
@@ -42,9 +42,9 @@ public class ArchetypeInfo extends AbstractCommandComponent {
     public static final String FUNCTION_VALUE = "archetype-info";
     public static final String DESCRIPTION = "Displays information about a Fabric Maven archetype";
 
-    @Reference(referenceInterface = ArchetypeCompleter.class, bind = "bindArchetypeCompleter", unbind = "unbindArchetypeCompleter")
+    @Reference(referenceInterface = ArchetypeShortCompleter.class, bind = "bindArchetypeCompleter", unbind = "unbindArchetypeCompleter")
     @CompleterValues(index = 0)
-    private ArchetypeCompleter archetypeCompleter; // dummy field
+    private ArchetypeShortCompleter archetypeCompleter; // dummy field
 
     @Reference(referenceInterface = ArchetypeService.class)
     private final ValidatingReference<ArchetypeService> archetypeService = new ValidatingReference<ArchetypeService>();
@@ -65,11 +65,11 @@ public class ArchetypeInfo extends AbstractCommandComponent {
         deactivateComponent();
     }
 
-    void bindArchetypeCompleter(ArchetypeCompleter completer) {
+    void bindArchetypeCompleter(ArchetypeShortCompleter completer) {
         bindCompleter(completer);
     }
 
-    void unbindArchetypeCompleter(ArchetypeCompleter completer) {
+    void unbindArchetypeCompleter(ArchetypeShortCompleter completer) {
         unbindCompleter(completer);
     }
 
