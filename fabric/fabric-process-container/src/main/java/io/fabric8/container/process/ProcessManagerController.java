@@ -52,6 +52,7 @@ import io.fabric8.process.manager.support.DownloadResourcesTask;
 import io.fabric8.process.manager.support.InstallDeploymentsTask;
 import io.fabric8.process.manager.support.JarInstaller;
 import io.fabric8.process.manager.support.ProcessUtils;
+import io.fabric8.process.manager.support.RemoveFilesTask;
 import io.fabric8.service.child.ChildContainerController;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
@@ -478,7 +479,11 @@ public class ProcessManagerController implements ChildContainerController {
         String versionId = options.getVersion();
         List<Profile> profiles = Profiles.getProfiles(fabricService, profileIds, versionId);
         String layout = configObject.getOverlayFolder();
+        String[] postUnpackRemoveFiles = configObject.getPostUnpackRemoveFiles();
         InstallTask answer = createCommonPostInstal(options, environmentVariables, layout);
+        if (postUnpackRemoveFiles != null && postUnpackRemoveFiles.length > 0) {
+            answer = CompositeTask.combine(answer, new RemoveFilesTask(postUnpackRemoveFiles));
+        }
 
         if (!configObject.isInternalAgent()) {
             Map<String, File> javaArtifacts = JavaContainers.getJavaContainerArtifactsFiles(fabricService, profiles, downloadExecutor);

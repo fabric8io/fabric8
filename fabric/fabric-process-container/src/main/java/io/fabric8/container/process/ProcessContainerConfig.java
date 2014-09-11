@@ -59,6 +59,10 @@ public class ProcessContainerConfig {
             description = "The commands ran in the unpacked distribution folder after the distro is unzipped/untarred.")
     private String[] postUnpackCmds;
 
+    @Property(name = "postUnpackRemoveFiles", label = "Post unpack remove files", cardinality = Integer.MAX_VALUE,
+            description = "The list of files removed from unpacking the distribution.")
+    private String[] postUnpackRemoveFiles;
+
     @Property(name = "controllerPath", label = "Controller JSON Path", value = "controller.json",
             description = "The name of the JSON file in the Profile which is used to control the distribution; starting and stopping the process.")
     private String controllerPath = "controller.json";
@@ -212,5 +216,13 @@ public class ProcessContainerConfig {
 
     public void setContainerHttpUrl(String containerHttpUrl) {
         this.containerHttpUrl = containerHttpUrl;
+    }
+
+    public String[] getPostUnpackRemoveFiles() {
+        return postUnpackRemoveFiles;
+    }
+
+    public void setPostUnpackRemoveFiles(String[] postUnpackRemoveFiles) {
+        this.postUnpackRemoveFiles = postUnpackRemoveFiles;
     }
 }
