@@ -18,6 +18,7 @@ package io.fabric8.tooling.testing.pax.exam.karaf;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.security.PrivilegedAction;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -121,7 +122,7 @@ public class FabricKarafTestSupport {
      */
     public static String tryCommand(final String command) {
         try {
-            return executeCommands(COMMAND_TIMEOUT, false, command);
+            return executeCommands(COMMAND_TIMEOUT, false, null, command);
         } catch (Throwable t) {
             return "Error executing command:" + t.getMessage();
         }
@@ -132,15 +133,36 @@ public class FabricKarafTestSupport {
      * Commands have a default timeout of 10 seconds.
      */
     public static String executeCommand(final String command) {
-        return executeCommands(COMMAND_TIMEOUT, false, command);
+        return executeCommands(COMMAND_TIMEOUT, false, null, command);
     }
 
     /**
      * Executes a shell command and returns output as a String.
      * Commands have a default timeout of 10 seconds.
+     * @param command The command to execute.
+     * @param roles The roles for the command to execute.
+     */
+    public static String executeCommand(final Set<RolePrincipal> roles, final String command) {
+        return executeCommands(COMMAND_TIMEOUT, false, roles, command);
+    }
+       
+    
+    /**
+     * Executes a shell command and returns output as a String.
+     * Commands have a default timeout of 10 seconds.
      */
     public static String executeCommands(final String... commands) {
-        return executeCommands(COMMAND_TIMEOUT, false, commands);
+        return executeCommands(COMMAND_TIMEOUT, false, null, commands);
+    }
+    
+    /**
+     * Executes a shell command and returns output as a String.
+     * Commands have a default timeout of 10 seconds.
+     * @param commands The command to execute.
+     * @param roles The roles for the command to execute.
+     */
+    public static String executeCommand(final Set<RolePrincipal> roles, final String... commands) {
+        return executeCommands(COMMAND_TIMEOUT, false, roles, commands);
     }
 
     /**
@@ -151,7 +173,7 @@ public class FabricKarafTestSupport {
      * @param silent  Specifies if the command should be displayed in the screen.
      */
     public static String executeCommand(final String command, final long timeout, final boolean silent) {
-        return executeCommands(timeout, silent, command);
+        return executeCommands(timeout, silent, null, command);
     }
 
     /**
@@ -161,7 +183,7 @@ public class FabricKarafTestSupport {
     * @param silent  Specifies if the command should be displayed in the screen.
     * @param commands The command to execute.
     */
-    public static String executeCommands(final long timeout, final boolean silent, final String... commands) {
+    public static String executeCommands(final long timeout, final boolean silent, final Set<RolePrincipal> roles, final String... commands) {
         String response = null;
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         final PrintStream printStream = new PrintStream(byteArrayOutputStream);
@@ -176,6 +198,11 @@ public class FabricKarafTestSupport {
                 subject.getPrincipals().add(new RolePrincipal("admin"));
                 subject.getPrincipals().add(new RolePrincipal("manager"));
                 subject.getPrincipals().add(new RolePrincipal("viewer"));
+                if (roles != null) {
+                    for (RolePrincipal role : roles) {
+                        subject.getPrincipals().add(role);
+                    }
+                }
                 return Subject.doAs(subject, new PrivilegedAction<String>() {
                     @Override
                     public String run() {
