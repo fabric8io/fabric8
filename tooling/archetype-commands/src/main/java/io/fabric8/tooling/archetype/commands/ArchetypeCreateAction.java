@@ -17,6 +17,9 @@ package io.fabric8.tooling.archetype.commands;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -28,12 +31,14 @@ import io.fabric8.agent.download.FutureListener;
 import io.fabric8.agent.mvn.MavenConfigurationImpl;
 import io.fabric8.agent.mvn.MavenSettingsImpl;
 import io.fabric8.agent.mvn.PropertiesPropertyResolver;
+import io.fabric8.common.util.Strings;
 import io.fabric8.tooling.archetype.ArchetypeService;
 import io.fabric8.tooling.archetype.catalog.Archetype;
 import io.fabric8.tooling.archetype.generator.ArchetypeHelper;
 import io.fabric8.utils.shell.ShellUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
 import static io.fabric8.common.util.Strings.isNullOrBlank;
@@ -43,7 +48,7 @@ public class ArchetypeCreateAction extends AbstractAction {
 
     private static final String DEFAULT_TARGET = "/tmp";
 
-    @Argument(index = 0, name = "archetype", description = "ArchetypeId or coordinate", required = true, multiValued = false)
+    @Argument(index = 0, name = "archetype", description = "ArchetypeId or coordinate", required = false, multiValued = false)
     private String archetypeGAV;
 
     @Argument(index = 1, name = "target", description = "Target directory where the project will be generated in a sub directory", required = false, multiValued = false)
@@ -51,6 +56,9 @@ public class ArchetypeCreateAction extends AbstractAction {
 
     @Argument(index = 2, name = "directoryName", description = "The sub directory name", required = false, multiValued = false)
     private String directoryName;
+
+    @Option(name = "-f", aliases = "--filter", description = "Filter list of artifacts to choose among", multiValued = false, required = false)
+    private String filter;
 
     private final ArchetypeService archetypeService;
 
@@ -60,11 +68,57 @@ public class ArchetypeCreateAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
+        Archetype archetype = null;
+
         // try artifact first
-        Archetype archetype = archetypeService.getArchetypeByArtifact(archetypeGAV);
-        if (archetype == null) {
-            // then by coordinate
-            archetypeService.getArchetype(archetypeGAV);
+        if (!isNullOrBlank(archetypeGAV)) {
+            archetype = archetypeService.getArchetypeByArtifact(archetypeGAV);
+            if (archetype == null) {
+                // then by coordinate
+                archetypeService.getArchetype(archetypeGAV);
+            }
+        }
+
+        // no archetype yet so present a list where the user can select
+        while (archetype == null) {
+            List<Archetype> archetypes = archetypeService.listArchetypes(filter, true);
+
+            System.out.println("Choose archetype:");
+            Iterator<Archetype> it = archetypes.iterator();
+            int i = 0;
+            while (it.hasNext()) {
+                Archetype select = it.next();
+                System.out.println(String.format("%-4s: -> %-50s %s", "" + ++i, select.artifactId, select.description));
+            }
+
+            boolean choosing = true;
+            while (choosing) {
+
+                // default select last
+                String choose = ShellUtils.readLine(session, String.format("Choose a number or apply filter (case insensitive): %d: ", i), false);
+                if (Strings.isNullOrBlank(choose)) {
+                    // user pressed enter so we select the last
+                    choose = "" + i;
+                }
+
+                try {
+                    int no = Integer.valueOf(choose);
+
+                    // is the number within range
+                    if (no >= 1 && no <= archetypes.size()) {
+                        archetype = archetypes.get(no - 1);
+                        break;
+                    } else {
+                        System.out.println("Number " + no + " out of range. Please try again!");
+                        continue;
+                    }
+                } catch (NumberFormatException e) {
+                    // no its a filter, so we use this as filter, and show the list again
+                    filter = choose;
+                    choosing = false;
+                    archetype = null;
+                }
+            }
         }
 
         if (archetype != null) {
@@ -79,6 +133,10 @@ public class ArchetypeCreateAction extends AbstractAction {
                 System.err.println("No archetype found for \"" + archetypeGAV + "\" coordinates");
                 return null;
             }
+
+
+            System.out.println("----------------------------------------------------------------------------");
+            System.out.println("Using archetype: " + archetype.artifactId);
 
             String defaultGroupId = "io.fabric8";
             String defaultArtifactId = archetype.artifactId + "-example";

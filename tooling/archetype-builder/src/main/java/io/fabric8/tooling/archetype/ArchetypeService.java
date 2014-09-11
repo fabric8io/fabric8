@@ -16,6 +16,7 @@
 package io.fabric8.tooling.archetype;
 
 import java.util.Collection;
+import java.util.List;
 
 import io.fabric8.tooling.archetype.catalog.Archetype;
 
@@ -25,6 +26,14 @@ public interface ArchetypeService extends ArchetypeServiceMXBean {
      * Returns list of available {@link io.fabric8.tooling.archetype.catalog.Archetype}s
      */
     public Collection<Archetype> listArchetypes();
+
+    /**
+     * Returns list of available {@link io.fabric8.tooling.archetype.catalog.Archetype}s
+     *
+     * @param filter filter text to use in filter
+     * @param artifactIdOnly whether to filter using the artifactId only
+     */
+    public List<Archetype> listArchetypes(String filter, boolean artifactIdOnly);
 
     /**
      * Returns {@link io.fabric8.tooling.archetype.catalog.Archetype} by it's <code>groupId:artifactId:version</code>
