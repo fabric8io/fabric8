@@ -31,7 +31,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "profile-create", scope = "fabric", description = "Create a new profile with the specified name and version", detailedDescription = "classpath:profileCreate.txt")
+@Command(name = ProfileCreate.FUNCTION_VALUE, scope = ProfileCreate.SCOPE_VALUE, description = ProfileCreate.DESCRIPTION, detailedDescription = "classpath:profileCreate.txt")
 public class ProfileCreateAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version. Defaults to the current default version.")

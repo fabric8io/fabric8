@@ -49,7 +49,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 import com.google.common.base.Strings;
 
-@Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
+@Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble)", detailedDescription = "classpath:create.txt")
 class CreateAction extends AbstractAction {
 
     private static final String GIT_REMOTE_URL = "gitRemoteUrl";

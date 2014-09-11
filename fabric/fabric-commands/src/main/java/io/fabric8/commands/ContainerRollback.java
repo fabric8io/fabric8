@@ -49,7 +49,7 @@ import org.apache.karaf.shell.console.completer.NullCompleter;
 public class ContainerRollback extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-rollback";
+    public static final String FUNCTION_VALUE = "container-rollback";
     public static final String DESCRIPTION = "Roll back the specified containers to an older version";
 
     @Reference(referenceInterface = FabricService.class)

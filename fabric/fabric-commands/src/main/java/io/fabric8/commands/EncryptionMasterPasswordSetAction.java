@@ -26,7 +26,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
-@Command(name = "crypt-password-set", scope = "fabric", description = "Sets the master password for encryption.")
+@Command(name = "crypt-password-set", scope = "fabric", description = "Sets the master password for encryption")
 public class EncryptionMasterPasswordSetAction extends AbstractAction {
 
     @Argument(index = 0, name = "password", description = "The master password to set.")

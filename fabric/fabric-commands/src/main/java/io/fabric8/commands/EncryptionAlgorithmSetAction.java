@@ -24,7 +24,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
-@Command(name = "crypt-algorithm-set", scope = "fabric", description = "Sets the encryption algorithm.")
+@Command(name = EncryptionAlgorithmSet.FUNCTION_VALUE, scope = EncryptionAlgorithmSet.SCOPE_VALUE, description = EncryptionAlgorithmSet.DESCRIPTION)
 public class EncryptionAlgorithmSetAction extends AbstractAction {
 
     @Argument(index = 0, name = "algorithm", description = "The algorithm to set for encryption.")

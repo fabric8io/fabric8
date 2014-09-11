@@ -38,7 +38,7 @@ import org.apache.felix.service.command.Function;
 public class EnsembleList extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "ensemble-list";
+    public static final String FUNCTION_VALUE = "ensemble-list";
     public static final String DESCRIPTION = "List the containers in the current fabric ensemble (ZooKeeper ensemble)";
 
     @Reference(referenceInterface = ZooKeeperClusterService.class)

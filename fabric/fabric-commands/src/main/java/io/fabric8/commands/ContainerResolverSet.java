@@ -42,7 +42,7 @@ import org.apache.felix.service.command.Function;
 public class ContainerResolverSet extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-resolver-set";
+    public static final String FUNCTION_VALUE = "container-resolver-set";
     public static final String DESCRIPTION = "Apply the specified resolver policy to the specified container or containers";
 
     @Reference(referenceInterface = FabricService.class)

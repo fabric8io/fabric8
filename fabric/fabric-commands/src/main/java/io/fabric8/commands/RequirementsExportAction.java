@@ -25,7 +25,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 import java.io.File;
 import java.io.FileOutputStream;
 
-@Command(name = RequirementsExport.FUNCTION_VALUE, scope = "fabric", description = RequirementsExport.DESCRIPTION)
+@Command(name = RequirementsExport.FUNCTION_VALUE, scope = RequirementsExport.SCOPE_VALUE, description = RequirementsExport.DESCRIPTION)
 public class RequirementsExportAction extends AbstractAction {
     @Argument(index = 0, required = true, description = "Output file name")
     protected File outputFile;

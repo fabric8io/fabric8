@@ -28,7 +28,7 @@ import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "profile-delete", scope = "fabric", description = "Delete the specified version of the specified profile (where the version defaults to the current default version)")
+@Command(name = ProfileDelete.FUNCTION_VALUE, scope = ProfileDelete.SCOPE_VALUE, description = ProfileDelete.DESCRIPTION)
 public class ProfileDeleteAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version to delete. Defaults to the current default version.")

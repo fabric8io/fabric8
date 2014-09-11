@@ -29,7 +29,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 
 import static io.fabric8.commands.support.CommandUtils.sortProfiles;
 
-@Command(name = "profile-list", scope = "fabric", description = "Lists all profiles that belong to the specified version (where the version defaults to the current default version)")
+@Command(name = ProfileList.FUNCTION_VALUE, scope = ProfileList.SCOPE_VALUE, description = ProfileList.DESCRIPTION)
 public class ProfileListAction extends AbstractAction {
 
     @Option(name = "--version", description = "Specifies the version of the profiles to list. Defaults to the current default version.")

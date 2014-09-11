@@ -41,7 +41,7 @@ import org.apache.felix.service.command.Function;
 public class ContainerList extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-list";
+    public static final String FUNCTION_VALUE = "container-list";
     public static final String DESCRIPTION = "List the containers in the current fabric";
 
     @Reference(referenceInterface = FabricService.class)

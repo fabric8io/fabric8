@@ -42,7 +42,7 @@ public class MQCreate extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "mq-create";
-    public static final String DESCRIPTION = "Create a new broker";
+    public static final String DESCRIPTION = "Create a new ActiveMQ broker";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();

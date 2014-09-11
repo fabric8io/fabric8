@@ -23,7 +23,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "wait-for-provisioning", scope = "fabric", description = "Waits for containers to be provisioned")
+@Command(name = WaitForProvisioning.FUNCTION_VALUE, scope = WaitForProvisioning.SCOPE_VALUE, description = WaitForProvisioning.DESCRIPTION)
 public class WaitForProvisioningAction extends AbstractAction {
     
     @Option(name = "-v", aliases = "--verbose", description = "Flag for verbose output", multiValued = false, required = false)

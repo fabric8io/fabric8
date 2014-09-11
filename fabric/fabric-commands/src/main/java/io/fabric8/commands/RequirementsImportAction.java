@@ -32,7 +32,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 
-@Command(name = RequirementsImport.FUNCTION_VALUE, scope = "fabric", description = RequirementsImport.DESCRIPTION)
+@Command(name = RequirementsImport.FUNCTION_VALUE, scope = RequirementsImport.SCOPE_VALUE, description = RequirementsImport.DESCRIPTION)
 public class RequirementsImportAction extends AbstractAction {
     @Argument(index = 0, required = true, description = "Requirements JSON URL")
     protected String jsonUrl;
@@ -69,7 +69,7 @@ public class RequirementsImportAction extends AbstractAction {
         FabricRequirements requirements = RequirementsJson.readRequirements(is);
         if (requirements != null) {
             getFabricService().setRequirements(requirements);
-
+            System.out.println("Imported the fabric requirements from " + jsonUrl);
         }
         return null;
     }

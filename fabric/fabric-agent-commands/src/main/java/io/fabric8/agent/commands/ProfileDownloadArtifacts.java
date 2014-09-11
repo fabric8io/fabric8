@@ -40,7 +40,7 @@ public class ProfileDownloadArtifacts extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "profile-download-artifacts";
-    public static final String DESCRIPTION = "Downloads all artifacts, of the bundles, features and fabs, from a version or profile to a directory to make an offline maven repository.";
+    public static final String DESCRIPTION = "Downloads all artifacts, of the bundles, features and fabs, from a version or profile to a directory to make an offline maven repository";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();

@@ -24,7 +24,7 @@ import io.fabric8.commands.support.RequirementsListSupport;
 import java.io.PrintStream;
 import java.util.List;
 
-@Command(name = "require-profile-list", scope = "fabric", description = "Lists the requirements for profiles in the fabric", detailedDescription = "classpath:status.txt")
+@Command(name = RequireProfileList.FUNCTION_VALUE, scope = RequireProfileList.SCOPE_VALUE, description = RequireProfileList.DESCRIPTION, detailedDescription = "classpath:status.txt")
 public class RequireProfileListAction extends RequirementsListSupport {
 
     public RequireProfileListAction(FabricService fabricService) {

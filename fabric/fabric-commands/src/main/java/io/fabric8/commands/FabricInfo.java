@@ -39,7 +39,7 @@ import org.apache.felix.service.command.Function;
 public final class FabricInfo extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "info";
+    public static final String FUNCTION_VALUE = "info";
     public static final String DESCRIPTION = "Displays information about the fabric";
 
     @Reference(referenceInterface = FabricService.class)

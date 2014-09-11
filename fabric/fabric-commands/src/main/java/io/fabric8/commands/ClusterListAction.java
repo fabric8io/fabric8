@@ -33,7 +33,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getAllChildren;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
-@Command(name = "cluster-list", scope = "fabric", description = "Lists all cluster groups in the fabric")
+@Command(name = ClusterList.FUNCTION_VALUE, scope = ClusterList.SCOPE_VALUE, description = ClusterList.DESCRIPTION)
 public class ClusterListAction extends AbstractAction {
 
     protected static String CLUSTER_PREFIX = "/fabric/registry/clusters";

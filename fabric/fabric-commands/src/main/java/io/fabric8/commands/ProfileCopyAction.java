@@ -27,7 +27,7 @@ import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "profile-copy", scope = "fabric", description = "Copies the specified version of the source profile (where the version defaults to the current default version)")
+@Command(name = ProfileCopy.FUNCTION_VALUE, scope = ProfileCopy.SCOPE_VALUE, description = ProfileCopy.DESCRIPTION)
 public class ProfileCopyAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version to copy. Defaults to the current default version.")

@@ -39,7 +39,7 @@ public class ProfileExport extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "profile-export";
-    public static final String DESCRIPTION = "Exports all matching profile folders into the given output zip file.";
+    public static final String DESCRIPTION = "Exports all matching profile folders into the given output zip file";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();

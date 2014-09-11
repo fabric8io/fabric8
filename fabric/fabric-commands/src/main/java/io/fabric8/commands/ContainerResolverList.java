@@ -39,7 +39,7 @@ import org.apache.felix.service.command.Function;
 public class ContainerResolverList extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-resolver-list";
+    public static final String FUNCTION_VALUE = "container-resolver-list";
     public static final String DESCRIPTION = "List the resolver policy and the host data for each container in the fabric";
 
     @Reference(referenceInterface = FabricService.class)

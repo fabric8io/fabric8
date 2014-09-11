@@ -37,7 +37,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 
 import com.google.common.base.Charsets;
 
-@Command(name = "profile-display", scope = "fabric", description = "Displays information about the specified version of the specified profile (where the version defaults to the current default version)")
+@Command(name = ProfileDisplay.FUNCTION_VALUE, scope = ProfileDisplay.SCOPE_VALUE, description = ProfileDisplay.DESCRIPTION)
 public class ProfileDisplayAction extends AbstractAction {
 
     @Option(name = "--version", description = "Select a specific profile version. Defaults to the current default version.")

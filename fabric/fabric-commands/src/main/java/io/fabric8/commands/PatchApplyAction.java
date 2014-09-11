@@ -30,7 +30,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "patch-apply", scope = "fabric", description = "Apply the given patch to the default version")
+@Command(name = PatchApply.FUNCTION_VALUE, scope = PatchApply.SCOPE_VALUE, description = PatchApply.DESCRIPTION)
 public class PatchApplyAction extends AbstractAction {
 
     @Option(name="-u", aliases={"--username"}, description="Remote user name", required = false, multiValued = false)
