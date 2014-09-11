@@ -140,7 +140,7 @@ public class ArchetypeBuilder {
                 if (file.isDirectory()) {
                     File projectDir = file;
                     File projectPom = new File(projectDir, "pom.xml");
-                    if (projectPom.exists() && archetypeUtils.isValidProjectPom(projectPom)) {
+                    if (projectPom.exists() && !skipImport(projectDir) && archetypeUtils.isValidProjectPom(projectPom)) {
                         String fileName = file.getName();
                         String archetypeDirName = fileName.replace("example", "archetype");
                         if (fileName.equals(archetypeDirName)) {
@@ -159,6 +159,22 @@ public class ArchetypeBuilder {
                 }
             }
         }
+    }
+
+    /**
+     * We should skip importing some quickstarts and if so, we should also not create an archetype for it
+     */
+    private static boolean skipImport(File dir) {
+        String[] files = dir.list();
+        if (files != null) {
+            for (String name : files) {
+                if (".skipimport".equals(name)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
