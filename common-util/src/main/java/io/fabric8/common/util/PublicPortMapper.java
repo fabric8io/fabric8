@@ -9,7 +9,7 @@ import java.util.Map;
  * port is the public port.  Set the "org.fusesource.PortMapper" system property
  * to a class name that implements that PublicPortMapper.SPI to use a different
  * implementation.
- * For example: -Dorg.fusesource.common.util.PublicPortMapper=org.example.MySPI
+ * For example: -Dio.fabric8.common.util.PublicPortMapper=org.example.MySPI
  */
 abstract public class PublicPortMapper {
 
