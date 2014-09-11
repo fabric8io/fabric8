@@ -68,7 +68,8 @@ public class FabricDTO {
 
     public static ContainerDTO createContainerDTO(Container container, String baseApiLink) {
         ContainerDTO answer = new ContainerDTO();
-        answer.setId(container.getId());
+        String containerId = container.getId();
+        answer.setId(containerId);
         answer.setType(container.getType());
 
         answer.setChildren(Containers.containerIds(container.getChildren()));
@@ -111,6 +112,8 @@ public class FabricDTO {
         answer.setProvisioningComplete(container.isProvisioningComplete());
         answer.setProvisioningPending(container.isProvisioningPending());
         answer.setRoot(container.isRoot());
+
+        answer.setStartLink(baseApiLink + "/container/" + containerId + "/start");
         return answer;
     }
 
