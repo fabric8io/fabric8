@@ -533,8 +533,9 @@ public class ContainerImpl implements Container {
 
     public String getType() {
         String answer = null;
-        if (metadata != null) {
-            answer = metadata.getContainerType();
+        CreateContainerMetadata<?> containerMetadata = getMetadata();
+        if (containerMetadata != null) {
+            answer = containerMetadata.getContainerType();
         }
         if (Strings.isNullOrBlank(answer)) {
             answer = "karaf";
