@@ -61,7 +61,7 @@ public class InsightLogAppender implements PaxAppender {
             StringBuilder writer = new StringBuilder();
             writer.append("{ \"host\" : ");
             quote(name, writer);
-            writer.append(",\n  \"timestamp\" : ");
+            writer.append(",\n  \"@timestamp\" : ");
             quote(formatDate(paxLoggingEvent.getTimeStamp()), writer);
             writer.append(",\n  \"level\" : ");
             quote(paxLoggingEvent.getLevel().toString(), writer);
