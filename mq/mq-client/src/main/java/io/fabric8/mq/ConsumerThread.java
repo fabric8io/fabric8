@@ -42,15 +42,18 @@ public class ConsumerThread extends Thread {
 
     @Override
     public void run() {
-      running = true;
-      MessageConsumer consumer = null;
+        running = true;
+        MessageConsumer consumer = null;
+        String threadName = Thread.currentThread().getName();
+
+        LOG.info(Thread.currentThread().getName() + " Waiting for: " + messageCount + " messages");
 
         try {
             consumer = service.createConsumer(dest);
             while (running && received < messageCount) {
                 Message msg = consumer.receive(receiveTimeOut);
                 if (msg != null) {
-                    LOG.info("Received " + (msg instanceof TextMessage ? ((TextMessage)msg).getText() : msg.getJMSMessageID()));
+                    LOG.info(threadName + " Received " + (msg instanceof TextMessage ? ((TextMessage) msg).getText() : msg.getJMSMessageID()));
                     received++;
                 } else {
                     if (breakOnNull) {
@@ -59,7 +62,7 @@ public class ConsumerThread extends Thread {
                 }
 
                 if (transactionBatchSize > 0 && received > 0 && received % transactionBatchSize == 0) {
-                    LOG.info("Committing transaction: " + transactions++);
+                    LOG.info(threadName + "Committing transaction: " + transactions++);
                     service.getDefaultSession().commit();
                 }
 
@@ -71,6 +74,7 @@ public class ConsumerThread extends Thread {
             e.printStackTrace();
         } finally {
             if (consumer != null) {
+                System.out.println(threadName + " Consumed: " + this.getReceived() + " messages");
                 try {
                     consumer.close();
                 } catch (JMSException e) {
@@ -78,8 +82,8 @@ public class ConsumerThread extends Thread {
                 }
             }
         }
-        
-        LOG.info("Consumer thread finished");
+
+        LOG.info(threadName + " Consumer thread finished");
     }
 
     public int getReceived() {

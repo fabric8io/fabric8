@@ -51,14 +51,16 @@ public class ProducerThread extends Thread {
 
     public void run() {
         MessageProducer producer = null;
+        String threadName = Thread.currentThread().getName();
         try {
+            service.start();
             producer = service.createProducer(dest);
             producer.setDeliveryMode(persistent ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT);
             producer.setTimeToLive(msgTTL);
             initPayLoad();
             running = true;
 
-            LOG.info("\nStarted to calculate elapsed time ...\n");
+            LOG.info(threadName +  " Started to calculate elapsed time ...\n");
             long tStart = System.currentTimeMillis();
 
             for (sentCount = 0; sentCount < messageCount; sentCount++) {
@@ -67,10 +69,10 @@ public class ProducerThread extends Thread {
                 Message message = createMessage(sentCount);
                 if ((msgGroupID!=null)&&(!msgGroupID.isEmpty())) message.setStringProperty("JMSXGroupID", msgGroupID);
                 producer.send(message);
-                LOG.info("Sent: " + (message instanceof TextMessage ? ((TextMessage) message).getText() : message.getJMSMessageID()));
+                LOG.info(threadName + " Sent: " + (message instanceof TextMessage ? ((TextMessage) message).getText() : message.getJMSMessageID()));
 
                 if (transactionBatchSize > 0 && sentCount > 0 && sentCount % transactionBatchSize == 0) {
-                    LOG.info("Committing transaction: " + transactions++);
+                    LOG.info(threadName + " Committing transaction: " + transactions++);
                     service.getDefaultSession().commit();
                 }
 
@@ -79,10 +81,11 @@ public class ProducerThread extends Thread {
                 }
             }
 
+            LOG.info(threadName + " Produced: " + this.getSentCount() + " messages");
             long tEnd = System.currentTimeMillis();
             long elapsed = (tEnd - tStart) / 1000;
-            LOG.info("\nElapsed time in second : " + elapsed + "s\n");
-            LOG.info("\nElapsed time in milli second : " + (tEnd - tStart) + "milli seconds\n");
+            LOG.info(threadName + " Elapsed time in second : " + elapsed + " s");
+            LOG.info(threadName + " Elapsed time in milli second : " + (tEnd - tStart) + " milli seconds");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,12 +93,13 @@ public class ProducerThread extends Thread {
             if (producer != null) {
                 try {
                     producer.close();
+                    service.stop();
                 } catch (JMSException e) {
                     e.printStackTrace();
                 }
             }
         }
-        LOG.info("Producer thread finished");
+        LOG.info(threadName +  " Producer thread finished");
     }
 
     private void initPayLoad() {
@@ -129,7 +133,7 @@ public class ProducerThread extends Thread {
                         message =  service.createTextMessage(i + "::" + dummy10KMessage());
                     }
                 } else {
-                    LOG.info("Type size unknown : " + textMessageSize + ", we will use a text message of 100b");
+                    LOG.info(Thread.currentThread().getName() +  "Type size unknown : " + textMessageSize + ", we will use a text message of 100b");
                     message =  service.createTextMessage(i + "::" + dummy100bMessage());
                 }
             }
