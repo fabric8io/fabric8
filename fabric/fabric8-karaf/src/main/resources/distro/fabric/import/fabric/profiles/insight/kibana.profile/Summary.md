@@ -1,1 +1,0 @@
-Profile for configuring the [kibana](http://www.elasticsearch.org/overview/kibana/) web application into the web console for viewing and searching logs across all your containers.

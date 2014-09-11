@@ -15,7 +15,6 @@
  */
 package io.fabric8.insight.kibana3;
 
-import io.fabric8.insight.elasticsearch.ElasticRest;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -33,7 +32,7 @@ import java.io.InputStream;
  */
 public class ElasticSearchServlet extends HttpServlet {
 
-    private ServiceTracker<ElasticRest, ElasticRest> tracker;
+    /*private ServiceTracker<ElasticRest, ElasticRest> tracker;
 
     @Override
     public void init() throws ServletException {
@@ -56,7 +55,7 @@ public class ElasticSearchServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        String method = req.getMethod();
+        /*String method = req.getMethod();
         String uri = req.getPathInfo();
         String content = loadFully(req.getInputStream(), req.getCharacterEncoding());
         try {
@@ -99,6 +98,6 @@ public class ElasticSearchServlet extends HttpServlet {
         }
 
         return encoding != null ? baos.toString(encoding) : baos.toString();
-    }
+    }*/
 
 }

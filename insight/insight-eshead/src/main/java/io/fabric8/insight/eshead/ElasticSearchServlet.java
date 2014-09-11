@@ -15,7 +15,6 @@
  */
 package io.fabric8.insight.eshead;
 
-import io.fabric8.insight.elasticsearch.ElasticRest;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -33,7 +32,7 @@ import java.io.InputStream;
  */
 public class ElasticSearchServlet extends HttpServlet {
 
-    private ServiceTracker<ElasticRest, ElasticRest> tracker;
+   /* private ServiceTracker<ElasticRest, ElasticRest> tracker;
 
     @Override
     public void init() throws ServletException {
@@ -99,6 +98,6 @@ public class ElasticSearchServlet extends HttpServlet {
         }
 
         return encoding != null ? baos.toString(encoding) : baos.toString();
-    }
+    }*/
 
 }
