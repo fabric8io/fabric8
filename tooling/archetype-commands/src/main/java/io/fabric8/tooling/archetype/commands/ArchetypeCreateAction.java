@@ -121,9 +121,6 @@ public class ArchetypeCreateAction extends AbstractAction {
     /**
      * Fetches archetype from the configured repositories
      * TODO: make this code available to hawt.io/JMX too
-     *
-     * @param archetype
-     * @return
      */
     private File fetchArchetype(Archetype archetype) throws IOException {
         MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn");

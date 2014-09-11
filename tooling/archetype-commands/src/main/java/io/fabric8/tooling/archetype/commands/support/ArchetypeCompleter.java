@@ -32,7 +32,7 @@ import org.apache.karaf.shell.console.completer.StringsCompleter;
 import org.osgi.service.component.ComponentContext;
 
 /**
- * Completes common main class names
+ * Completes maven archetype coordinates
  */
 @Component(immediate = true)
 @Service({ArchetypeCompleter.class, Completer.class})

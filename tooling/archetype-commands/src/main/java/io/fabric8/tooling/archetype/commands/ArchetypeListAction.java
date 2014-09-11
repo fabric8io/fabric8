@@ -20,12 +20,12 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = ListArchetypes.FUNCTION_VALUE, scope = ListArchetypes.SCOPE_VALUE, description = ListArchetypes.DESCRIPTION)
-public class ListArchetypesAction extends AbstractAction {
+@Command(name = ArchetypeList.FUNCTION_VALUE, scope = ArchetypeList.SCOPE_VALUE, description = ArchetypeList.DESCRIPTION)
+public class ArchetypeListAction extends AbstractAction {
 
     private final List<String[]> archetypes;
 
-    public ListArchetypesAction(List<String[]> archetypes) {
+    public ArchetypeListAction(List<String[]> archetypes) {
         this.archetypes = archetypes;
     }
 
