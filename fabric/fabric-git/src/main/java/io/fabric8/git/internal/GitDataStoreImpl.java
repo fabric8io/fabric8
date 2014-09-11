@@ -58,6 +58,7 @@ import io.fabric8.api.DataStore;
 import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.GitContext;
+import io.fabric8.api.LinkedProfile;
 import io.fabric8.api.LockHandle;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
@@ -653,7 +654,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     // on the same branch so we prohibit parent profiles that may get created on another branch. 
     private void assertNoParentProfilesWithMasterBranch(Profile profile) {
         String branch = GitHelpers.getProfileBranch(profile.getVersion(), profile.getId());
-        IllegalArgumentAssertion.assertTrue(!GitHelpers.MASTER_BRANCH.equals(branch) || profile.getParents().isEmpty(), "Parent profiles in master branch not supported");
+        IllegalArgumentAssertion.assertTrue(!GitHelpers.MASTER_BRANCH.equals(branch) || profile.getParentIds().isEmpty(), "Parent profiles in master branch not supported");
     }
 
     @Override
@@ -726,7 +727,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         if (!profiles.contains(profileId)) {
             
             // Process parents first
-            List<Profile> parents = profile.getParents();
+            List<Profile> parents = ((LinkedProfile)profile).getParents();
             for (Profile parent : parents) {
                 Profile lastParent = getProfileFromCache(parent.getVersion(), parent.getId());
                 createOrUpdateProfile(context, lastParent, parent, profiles);
@@ -1668,7 +1669,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         
         private Version loadVersion(Git git, GitContext context, String versionId, String revision) throws Exception {
             // Collect the profiles with parent hierarchy unresolved
-            VersionBuilder vbuilder = VersionBuilder.Factory.create(versionId).revision(revision);
+            VersionBuilder vbuilder = VersionBuilder.Factory.create(versionId).setRevision(revision);
             populateVersionBuilder(git, context, vbuilder, "master", versionId);
             populateVersionBuilder(git, context, vbuilder, versionId, versionId);
             Version auxVersion = vbuilder.getVersion();

@@ -182,7 +182,7 @@ public class Containers {
     protected static void recursiveAddProfiles(Set<Profile> set, List<Profile> profiles) {
         for (Profile profile : profiles) {
             set.add(profile);
-            List<Profile> parents = profile.getParents();
+            List<Profile> parents = ((LinkedProfile)profile).getParents();
             recursiveAddProfiles(set, parents);
         }
     }
@@ -258,7 +258,7 @@ public class Containers {
      */
     public static List<String> getParentProfileIds(Profile profile) {
         List<String> answer = new ArrayList<>();
-        List<Profile> parents = profile.getParents();
+        List<Profile> parents = ((LinkedProfile)profile).getParents();
         for (Profile parent : parents) {
             answer.add(parent.getId());
         }

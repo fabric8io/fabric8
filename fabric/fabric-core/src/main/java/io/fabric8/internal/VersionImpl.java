@@ -39,14 +39,14 @@ final class VersionImpl implements Version {
     private final String versionId;
     private final String revision;
     private final Map<String, String> attributes;
-    private final Map<String, Profile> profiles = new LinkedHashMap<>();
+    private final Map<String, Profile> profileMapping = new LinkedHashMap<>();
 
-    VersionImpl(String versionId, String revision, Map<String, String> attributes, List<Profile> prflist) {
+    VersionImpl(String versionId, String revision, Map<String, String> attributes, List<Profile> profiles) {
         this.versionId = versionId;
         this.revision = revision;
         this.attributes = new HashMap<>(attributes);
-        for (Profile prf : prflist) {
-            profiles.put(prf.getId(), prf);
+        for (Profile profile : profiles) {
+            profileMapping.put(profile.getId(), profile);
         }
     }
 
@@ -56,7 +56,7 @@ final class VersionImpl implements Version {
     }
 
     @Override
-    public String revision() {
+    public String getRevision() {
         return revision;
     }
 
@@ -67,31 +67,31 @@ final class VersionImpl implements Version {
 
     @Override
     public List<String> getProfileIds() {
-        List<String> result = new ArrayList<>(profiles.keySet());
+        List<String> result = new ArrayList<>(profileMapping.keySet());
         return Collections.unmodifiableList(result);
     }
 
     @Override
     public List<Profile> getProfiles() {
-        List<Profile> prflist = new ArrayList<>(profiles.values());
+        List<Profile> prflist = new ArrayList<>(profileMapping.values());
         return Collections.unmodifiableList(prflist);
     }
 
     @Override
     public Profile getProfile(String profileId) {
-        return profiles.get(profileId);
+        return profileMapping.get(profileId);
     }
 
     @Override
     public Profile getRequiredProfile(String profileId) {
-        Profile profile = profiles.get(profileId);
+        Profile profile = profileMapping.get(profileId);
         IllegalStateAssertion.assertNotNull(profile, "Profile '" + profileId + "' does not exist in version: " + versionId);
         return profile;
     }
 
     @Override
     public boolean hasProfile(String profileId) {
-        return profiles.get(profileId) != null;
+        return profileMapping.get(profileId) != null;
     }
 
     @Override

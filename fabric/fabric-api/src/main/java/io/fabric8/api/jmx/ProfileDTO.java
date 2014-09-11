@@ -53,7 +53,7 @@ public class ProfileDTO {
         this.id = profile.getId();
         this.version = profile.getVersion();
         this.profileHash = profile.getProfileHash();
-        this.parents = Profiles.profileIds(profile.getParents());
+        this.parents = profile.getParentIds();
 
         this.overlay = profile.isOverlay();
         this.abstractProfile = profile.isAbstract();
@@ -67,8 +67,6 @@ public class ProfileDTO {
         this.fabs = profile.getFabs();
         this.overrides = profile.getOverrides();
 
-    	String versionId = profile.getVersion();
-    	String profileId = profile.getId();
         this.configurations = profile.getConfigurationFileNames();
     }
 
