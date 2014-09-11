@@ -218,7 +218,7 @@ public class ArchetypeCreateAction extends AbstractAction {
         // wait for download
         try {
             boolean init = false;
-            for (int i = 0; i < 60 && latch.getCount() > 0; i++) {
+            for (int i = 0; i < 2 * 60 && latch.getCount() > 0; i++) {
                 // dont do anything in the first 3 seconds as we likely can download it faster
                 if (i > 3) {
                     if (!init) {
@@ -227,7 +227,8 @@ public class ArchetypeCreateAction extends AbstractAction {
                     }
                     System.out.print(".");
                 }
-                Thread.sleep(1000);
+                // only sleep 0.5 sec so we can react faster
+                Thread.sleep(500);
             }
         } catch (InterruptedException e) {
             System.err.println("\nFailed to download " + archetype);
