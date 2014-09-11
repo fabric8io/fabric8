@@ -16,6 +16,7 @@
 package io.fabric8.rest;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileService;
 import io.fabric8.common.util.Strings;
 import io.fabric8.core.jmx.Links;
 
@@ -130,5 +131,14 @@ public abstract class ResourceSupport {
      */
     protected void noFabricService() {
         LOG.warn("No FabricService available!");
+    }
+
+    protected ProfileService getProfileService() {
+        FabricService fabricService = getFabricService();
+        ProfileService profileService = null;
+        if (fabricService != null) {
+            profileService = fabricService.adapt(ProfileService.class);
+        }
+        return profileService;
     }
 }
