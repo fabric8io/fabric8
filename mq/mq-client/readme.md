@@ -18,6 +18,7 @@ where
               [--sleep       N] - millisecond sleep period between sends or receives; default 0
               [--batchSize   N] - use send and receive transaction batches of size N; default 0, no jms transactions
               [--ttl         N] - message TTL in milliseconds
+              [--parallelThreads N] - number of threads to run in parallel; default 1
               [--groupId  ..  ] - JMS message group identifier
               [--clientId   id] - use a durable topic consumer with the supplied id; default null, non durable consumer
               [--brokerUrl URL] - connection factory url; default " + ActiveMQConnectionFactory.DEFAULT_BROKER_URL);
