@@ -227,6 +227,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
             long t1;
             do {
                 Thread.sleep(5000);
+                domain.refresh();
                 application = domain.getApplicationByName(containerName);
                 if (application != null) {
                     break;
@@ -252,7 +253,9 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         }
 
         String gitUrl = application.getGitUrl();
-        CreateOpenshiftContainerMetadata metadata = new CreateOpenshiftContainerMetadata(domain.getId(), application.getUUID(), application.getCreationLog(), gitUrl);
+        // in case of OpenShiftTimeoutException, application resource doesn't contain getCreationLog().
+        // actually this method throws NPE
+        CreateOpenshiftContainerMetadata metadata = new CreateOpenshiftContainerMetadata(domain.getId(), application.getUUID(), application.getMessages() == null ? "" : application.getCreationLog(), gitUrl);
         metadata.setContainerName(containerName);
         metadata.setCreateOptions(options);
         return metadata;
