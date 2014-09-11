@@ -15,10 +15,8 @@
  */
 package io.fabric8.tooling.archetype.commands.support;
 
-import java.io.IOException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.JAXBException;
 
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.tooling.archetype.ArchetypeService;
@@ -41,7 +39,7 @@ public class ArchetypeCompleter extends AbstractComponent implements Completer {
     @Reference(referenceInterface = ArchetypeService.class, bind = "bindArchetypeService", unbind = "unbindArchetypeService")
     private ArchetypeService archetypeService;
 
-    private List<String> archetypes = new LinkedList<String>();
+    private List<String> archetypes = new ArrayList<String>();
 
     @Override
     public int complete(final String buffer, final int cursor, final List candidates) {
@@ -50,17 +48,17 @@ public class ArchetypeCompleter extends AbstractComponent implements Completer {
     }
 
     @Activate
-    void activate(ComponentContext componentContext) throws IOException, JAXBException {
+    void activate(ComponentContext componentContext) {
         activateComponent();
         for (String[] gav : this.archetypeService.listArchetypeGAVs()) {
-            this.archetypes.add(String.format("%s:%s:%s", gav[0], gav[1], gav[2]));
+            // we do not need versions as its all same version, so we omit that to make it less noisy to use
+            this.archetypes.add(String.format("%s:%s", gav[0], gav[1]));
         }
     }
 
     @Deactivate
     void deactivate() {
         deactivateComponent();
-        this.archetypes = new LinkedList<String>();
     }
 
     public void bindArchetypeService(ArchetypeService archetypeService) {
