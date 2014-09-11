@@ -57,6 +57,7 @@ public class ContainerDTO {
     private List<String> jmxDomains;
     private List<String> provisionList;
     private Long processId;
+    private String startLink;
 
     public ContainerDTO() {
     }
@@ -350,5 +351,13 @@ public class ContainerDTO {
 
     public void setProcessId(Long processId) {
         this.processId = processId;
+    }
+
+    public String getStartLink() {
+        return startLink;
+    }
+
+    public void setStartLink(String startLink) {
+        this.startLink = startLink;
     }
 }

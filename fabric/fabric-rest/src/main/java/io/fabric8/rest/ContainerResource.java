@@ -16,18 +16,24 @@
 package io.fabric8.rest;
 
 import io.fabric8.api.Container;
+import io.fabric8.api.Containers;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.jmx.ContainerDTO;
+import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,11 +53,17 @@ public class ContainerResource extends ResourceSupport {
         this.container = container;
     }
 
+    /**
+     * Returns the container details
+     */
     @GET
     public ContainerDTO details() {
         return FabricDTO.createContainerDTO(container, getParentBaseUri());
     }
 
+    /**
+     * Returns links to the profiles implemented by this container
+     */
     @GET
     @Path("profiles")
     public Map<String, String> profiles() {
@@ -62,6 +74,9 @@ public class ContainerResource extends ResourceSupport {
         return Collections.EMPTY_MAP;
     }
 
+    /**
+     * Returns the profile for the given id on this container
+     */
     @Path("profile/{profileId}")
     public ProfileResource version(@PathParam("profileId") String profileId) {
         if (Strings.isNotBlank(profileId) && container != null) {
@@ -71,5 +86,58 @@ public class ContainerResource extends ResourceSupport {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns the current status
+     */
+    @GET
+    @Path("start")
+    public Response getStatus() {
+        if (Containers.isAliveAndProvisionSuccess(container)) {
+            return Response.status(Response.Status.OK).entity("Started").build();
+        } else {
+            boolean provisioningPending = container.isProvisioningPending();
+            String answer = "Stopped";
+            if (container.isAlive()) {
+                answer = container.getProvisionResult();
+                if (Container.PROVISION_SUCCESS.equals(answer) && provisioningPending) {
+                    answer = "provisioning";
+                }
+            }
+            return Response.status(Response.Status.NOT_FOUND).entity(answer).build();
+        }
+    }
+
+    /**
+     * Start the container
+     */
+    @POST
+    @Path("start")
+    public void start() {
+        FabricService fabricService = getFabricService();
+        Objects.notNull(fabricService, "fabricService");
+        fabricService.startContainer(container);
+    }
+
+    /**
+     * Stops the container
+     */
+    @DELETE
+    @Path("start")
+    public void stop() {
+        FabricService fabricService = getFabricService();
+        Objects.notNull(fabricService, "fabricService");
+        fabricService.stopContainer(container);
+    }
+
+    /**
+     * Deletes this container
+     */
+    @DELETE
+    public void delete() {
+        FabricService fabricService = getFabricService();
+        Objects.notNull(fabricService, "fabricService");
+        fabricService.destroyContainer(container);
     }
 }
