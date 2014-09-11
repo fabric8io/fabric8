@@ -16,7 +16,7 @@
 exit = { logout }
 
 wait-for-command = {
-  wait-for-service -t 60000 "(&(objectClass=org.apache.felix.service.command.Function)(osgi.command.scope=$1)(osgi.command.function=$2))";
+  wait-for-service "(&(objectClass=org.apache.felix.service.command.Function)(osgi.command.scope=$1)(osgi.command.function=$2))";
   sleep -s 1;
 }
 
