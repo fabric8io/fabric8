@@ -42,7 +42,7 @@ public class ArchetypeCreate extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "archetype-create";
-    public static final String DESCRIPTION = "Creates a new project from a Maven Archetype";
+    public static final String DESCRIPTION = "Creates a new project from a Fabric Maven Archetype";
 
     @Reference(referenceInterface = ArchetypeCompleter.class, bind = "bindArchetypeCompleter", unbind = "unbindArchetypeCompleter")
     @CompleterValues(index = 0)

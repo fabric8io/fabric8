@@ -38,7 +38,7 @@ public class ArchetypeList extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "archetype-list";
-    public static final String DESCRIPTION = "List all available Maven archetypes";
+    public static final String DESCRIPTION = "List all available Fabric Maven archetypes";
 
 //    @Reference(referenceInterface = ArchetypeCompleter.class, bind = "bindArchetypeCompleter", unbind = "unbindArchetypeCompleter")
 //    private ArchetypeCompleter archetypeCompleter; // dummy field
@@ -49,7 +49,7 @@ public class ArchetypeList extends AbstractCommandComponent {
     @Override
     public Action createNewAction() {
         assertValid();
-        return new ArchetypeListAction(archetypeService.listArchetypeGAVs());
+        return new ArchetypeListAction(archetypeService);
     }
 
     @Activate

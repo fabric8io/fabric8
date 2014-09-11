@@ -18,9 +18,9 @@ package io.fabric8.tooling.archetype;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.management.MBeanServer;
@@ -59,7 +59,8 @@ public class ArchetypeServiceImpl extends AbstractComponent implements Archetype
         }
     }
 
-    private Map<String, Archetype> archetypes = new HashMap<String, Archetype>();
+    // we want the archetypes sorted
+    private Map<String, Archetype> archetypes = new TreeMap<>();
 
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
