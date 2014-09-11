@@ -30,6 +30,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.common.util.JMXUtils;
+import io.fabric8.common.util.Strings;
 import io.fabric8.tooling.archetype.catalog.Archetype;
 import io.fabric8.tooling.archetype.catalog.Archetypes;
 import org.apache.felix.scr.annotations.Activate;
@@ -104,6 +105,31 @@ public class ArchetypeServiceImpl extends AbstractComponent implements Archetype
     public Collection<Archetype> listArchetypes() {
         assertValid();
         return this.archetypes.values();
+    }
+
+    @Override
+    public List<Archetype> listArchetypes(String filter, boolean artifactIdOnly) {
+        List<Archetype> answer = new ArrayList<Archetype>();
+
+        if (Strings.isNullOrBlank(filter)) {
+            answer.addAll(listArchetypes());
+            return answer;
+        }
+
+        filter = filter.toLowerCase();
+
+        for (Archetype archetype : archetypes.values()) {
+            if (artifactIdOnly && archetype.artifactId.toLowerCase().contains(filter)) {
+                answer.add(archetype);
+            } else {
+                if (archetype.groupId.toLowerCase().contains(filter)
+                    || archetype.artifactId.toLowerCase().contains(filter)
+                    || archetype.version.toLowerCase().contains(filter)) {
+                    answer.add(archetype);
+                }
+            }
+        }
+        return answer;
     }
 
     @Override
