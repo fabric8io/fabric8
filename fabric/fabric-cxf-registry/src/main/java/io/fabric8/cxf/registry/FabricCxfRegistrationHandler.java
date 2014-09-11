@@ -408,7 +408,7 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
         if (name.startsWith("\"") && name.endsWith("\"")) {
             name = name.substring(1, name.length() - 1);
         }
-        String version = container.getVersion().toString();
+        String version = container.getVersion().getId();
         String endpointPath = address;
         if (isFullAddress(address)) {
             // lets remove the prefix "http://localhost:8181/cxf/"

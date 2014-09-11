@@ -1736,7 +1736,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             if (resolved == null) {
                 String versionId = auxVersion.getId();
                 Profile auxProfile = auxVersion.getProfile(profileId);
-                IllegalStateAssertion.assertNotNull(auxProfile, "Cannot obtain profile '" + profileId + "' from: " + auxVersion);
+                IllegalStateAssertion.assertNotNull(auxProfile, "Cannot obtain profile '" + profileId + "' from version: " + auxVersion.getId());
                 String pspec = auxProfile.getAttributes().get(Profile.PARENTS);
                 List<String> parents = pspec != null ? Arrays.asList(pspec.split(" ")) : Collections.<String>emptyList();
                 for (String parentId : parents) {
