@@ -864,16 +864,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric-kubernetes-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric-kubernetes-provider</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>io.fabric8.fab</groupId>
                 <artifactId>fab-osgi</artifactId>
                 <version>${project.version}</version>
