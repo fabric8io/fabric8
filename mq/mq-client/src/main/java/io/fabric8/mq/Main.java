@@ -18,6 +18,7 @@ package io.fabric8.mq;
 import java.util.Arrays;
 import java.util.LinkedList;
 import javax.jms.JMSException;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 public class Main {
@@ -30,6 +31,7 @@ public class Main {
     int sleep = 0;
     int size = 0;
     long ttl = 0L;
+    String textSize;
     String clientId;
     String password;
     String user;
@@ -54,6 +56,8 @@ public class Main {
                     main.ttl = Long.parseLong(shift(arg1));
                 } else if ("--size".equals(arg)) {
                     main.size = Integer.parseInt(shift(arg1));
+                } else if ("--textSize".equals(arg)) {
+                    main.textSize = shift(arg1);
                 } else if ("--count".equals(arg)) {
                     main.count = Integer.parseInt(shift(arg1));
                 } else if ("--sleep".equals(arg)) {
@@ -94,6 +98,7 @@ public class Main {
 
         ActiveMQService activeMQService = new ActiveMQService(user, password, brokerUrl);
         activeMQService.setTransacted(batchSize > 0);
+
         try {
 
             if ("producer".equals(action)) {
@@ -103,6 +108,7 @@ public class Main {
                 ProducerThread producerThread = new ProducerThread(activeMQService, destination);
                 producerThread.setMessageCount(count);
                 producerThread.setMessageSize(size);
+                producerThread.setTextMessageSize(textSize);
                 producerThread.setSleep(sleep);
                 producerThread.setPersistent(persistent);
                 producerThread.setTransactionBatchSize(batchSize);
@@ -162,6 +168,7 @@ public class Main {
         System.out.println("           [--persistent  true|false] - use persistent or non persistent messages; default true");
         System.out.println("           [--count       N] - number of messages to send or receive; default 100");
         System.out.println("           [--size        N] - size in bytes of a BytesMessage; default 0, a simple TextMessage is used");
+        System.out.println("           [--textSize    N] - size in bytes of a TextMessage (supported values : 100b, 1K, 10K); default 100b, a Lorem ipsum dummy TextMessage is used");
         System.out.println("           [--sleep       N] - millisecond sleep period between sends or receives; default 0");
         System.out.println("           [--batchSize   N] - use send and receive transaction batches of size N; default 0, no jms transactions");
         System.out.println("           [--ttl         N] - message TTL in milliseconds");
@@ -170,9 +177,6 @@ public class Main {
         System.out.println("           [--brokerUrl URL] - connection factory url; default " + ActiveMQConnectionFactory.DEFAULT_BROKER_URL);
         System.out.println("           [--user      .. ] - connection user name");
         System.out.println("           [--password  .. ] - connection password");
-
-
-
 
         System.out.println("");
 
