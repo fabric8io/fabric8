@@ -54,7 +54,7 @@ public class VersionDeleteAction extends AbstractAction {
                 sb.append(container.getId());
             }
         }
-        IllegalStateAssertion.assertTrue(sb.length() == 0, "Version " + versionId + " is still in used by the following containers: " + sb);
+        IllegalStateAssertion.assertTrue(sb.length() == 0, "Version " + versionId + " is still in used by the following containers: " + sb.toString());
         
         profileService.deleteVersion(versionId);
         return null;

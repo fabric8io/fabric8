@@ -67,12 +67,12 @@ public class WaitForProvisioningAction extends AbstractAction {
     }
 
 	private boolean isFabricProvisioned(Container[] fabric) {
-		if (fabric == null){
-			return false;
+        if (fabric == null) {
+            return false;
 		}
-		
-		for(Container container : fabric){
-			if (container == null || !container.isAlive() || !Container.PROVISION_SUCCESS.equals(container.getProvisionStatus())) {
+
+        for (Container container : fabric) {
+            if (container == null || !container.isAlive() || !Container.PROVISION_SUCCESS.equals(container.getProvisionStatus())) {
 				if (container != null) {
                     if (verbose) {
                         System.out.println(String.format("Waiting: Container %s is %s", container.getId(), container.getProvisionStatus()));

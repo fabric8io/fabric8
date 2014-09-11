@@ -40,7 +40,7 @@ public final class ContainerUpgradeSupport {
                 list.add(newProfile);
             } else {
                 // we expect a profile with the new version to exist
-                throw new IllegalArgumentException("Profile " + old.getId() + " with version " + targetVersion + " does not exists");
+                throw new IllegalArgumentException("Profile " + old.getId() + " with version " + targetVersion.getId() + " does not exists");
             }
         }
 

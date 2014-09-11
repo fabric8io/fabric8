@@ -81,7 +81,7 @@ public final class ContainerUpgradeAction extends AbstractAction {
             int num = ContainerUpgradeSupport.canUpgrade(version, container);
             if (num < 0) {
                 throw new IllegalArgumentException("Container " + container.getId() + " already has a higher version " + container.getVersion()
-                        + " than the requested version " + version + ".");
+                        + " than the requested version " + version.getId() + ".");
             } else if (num == 0) {
                 // same version
                 same.add(container);
@@ -93,7 +93,7 @@ public final class ContainerUpgradeAction extends AbstractAction {
 
         // report same version
         for (Container container : same) {
-            System.out.println("Container " + container.getId() + " is already at version " + version);
+            System.out.println("Container " + container.getId() + " is already at version " + version.getId());
         }
 
         // report and do upgrades
@@ -102,13 +102,13 @@ public final class ContainerUpgradeAction extends AbstractAction {
             // upgrade version first
             container.setVersion(version);
             // get the profile for version 1.1
-            log.info("Upgraded container {} from {} to {}", new Object[]{container, oldVersion, version});
-            System.out.println("Upgraded container " + container.getId() + " from version " + oldVersion + " to " + version);
+            log.info("Upgraded container {} from {} to {}", new Object[]{container.getId(), oldVersion.getId(), version.getId()});
+            System.out.println("Upgraded container " + container.getId() + " from version " + oldVersion.getId() + " to " + version.getId());
         }
 
         if (all) {
             fabricService.setDefaultVersionId(version.getId());
-            System.out.println("Changed default version to " + version);
+            System.out.println("Changed default version to " + version.getId());
         }
 
         return null;
