@@ -13,12 +13,15 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.insight.elasticsearch.impl;
+package io.fabric8.insight.elasticsearch;
+
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 
 public interface ElasticsearchMBean {
 
-    String[] getRestUrls(String clusterName);
+    NodesInfoResponse getNodeInfo(String clusterName);
 
-    String getClusterHealth(String clusterName);
+    ClusterHealthResponse getClusterHealth(String clusterName);
 
 }

@@ -20,9 +20,7 @@ import io.fabric8.insight.metrics.model.MetricsStorageService;
 import io.fabric8.insight.metrics.model.QueryResult;
 import io.fabric8.insight.metrics.mvel.MetricsStorageServiceImpl;
 import io.fabric8.insight.storage.StorageService;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.*;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -58,13 +56,15 @@ public class ElasticsearchStorageImpl implements StorageService, MetricsStorageS
 
     private MetricsStorageService metricsStorage = new MetricsStorageServiceImpl(this);
 
-    public void init() {
+    @Activate
+    public void activate() {
         running = true;
         thread = new Thread(this, "ElasticStorage");
         thread.start();
     }
 
-    public void destroy() {
+    @Deactivate
+    public void deactivate() {
         running = false;
         if (thread != null) {
             thread.interrupt();

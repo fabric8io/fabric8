@@ -13,11 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.insight.elasticsearch.impl;
+package io.fabric8.insight.elasticsearch;
 
 import io.fabric8.common.util.JMXUtils;
 import org.apache.felix.scr.annotations.*;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.client.ClusterAdminClient;
 import org.elasticsearch.node.Node;
@@ -50,25 +51,26 @@ public class Elasticsearch implements ElasticsearchMBean {
     }
 
     @Override
-    public String[] getRestUrls(String clusterName) {
+    public NodesInfoResponse getNodeInfo(String clusterName) {
         Set<Node> nodeSet = nodesClusterMap.get(clusterName);
         if (nodeSet != null) {
             for (Node node : nodeSet) {
                 ClusterAdminClient client = node.client().admin().cluster();
-                ClusterHealthResponse response = client.prepareHealth().execute().actionGet();
+                NodesInfoResponse response = client.prepareNodesInfo().all().execute().actionGet();
+                return response;
             }
         }
         return null;
     }
 
     @Override
-    public String getClusterHealth(String clusterName) {
+    public ClusterHealthResponse getClusterHealth(String clusterName) {
         Set<Node> nodeSet = nodesClusterMap.get(clusterName);
         if (nodeSet != null) {
             for (Node node : nodeSet) {
                 ClusterAdminClient client = node.client().admin().cluster();
                 ClusterHealthResponse response = client.prepareHealth().execute().actionGet();
-                return response.toString();
+                return response;
             }
         }
         return null;
