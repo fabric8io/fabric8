@@ -16,11 +16,17 @@
 package io.fabric8.kubernetes.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.jboss.resteasy.plugins.providers.DefaultTextPlain;
+import org.jboss.resteasy.plugins.providers.FileProvider;
+import org.jboss.resteasy.plugins.providers.InputStreamProvider;
+import org.jboss.resteasy.plugins.providers.StringTextStar;
+import org.jboss.resteasy.plugins.providers.jackson.Jackson2JsonpInterceptor;
+import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.ws.rs.client.Client;
 
 /**
  * A simple helper class for creating instances of Kubernetes
@@ -57,7 +63,6 @@ public class KubernetesFactory {
     }
 
     public Kubernetes createKubernetes() {
-/*
         ResteasyProviderFactory providerFactory = ResteasyProviderFactory.getInstance();
         providerFactory.register(ResteasyJackson2Provider.class);
         providerFactory.register(Jackson2JsonpInterceptor.class);
@@ -71,11 +76,13 @@ public class KubernetesFactory {
         builder.connectionPoolSize(Integer.parseInt(System.getProperty("docker.connection.pool", "3")));
         Client client = builder.build();
         ResteasyWebTarget target = (ResteasyWebTarget) client.target(address);
+        return target.proxy(Kubernetes.class);
 
-*/
+/*
         List<Object> providers = new ArrayList<Object>();
         providers.add(new JacksonJaxbJsonProvider());
         return JAXRSClientFactory.create(address, Kubernetes.class, providers);
+*/
     }
 
     public String getKubernetesMaster() {
