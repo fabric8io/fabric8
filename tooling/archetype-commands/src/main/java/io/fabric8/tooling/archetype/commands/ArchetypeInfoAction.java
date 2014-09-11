@@ -21,8 +21,13 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
+import static io.fabric8.common.util.Strings.emptyIfNull;
+import static io.fabric8.tooling.archetype.commands.ArchetypeHelper.toMavenCoordinates;
+
 @Command(name = ArchetypeInfo.FUNCTION_VALUE, scope = ArchetypeInfo.SCOPE_VALUE, description = ArchetypeInfo.DESCRIPTION)
 public class ArchetypeInfoAction extends AbstractAction {
+
+    static final String FORMAT = "%-30s %s";
 
     @Argument(index = 0, name = "archetype", description = "Archetype coordinates", required = true, multiValued = false)
     private String archetypeGAV;
@@ -37,13 +42,13 @@ public class ArchetypeInfoAction extends AbstractAction {
     protected Object doExecute() throws Exception {
         Archetype archetype = archetypeService.getArchetype(archetypeGAV);
         if (archetype != null) {
-            System.out.println(String.format("Archetype coordinates: %s:%s:%s", archetype.groupId, archetype.artifactId, archetype.version));
-            System.out.println();
-            System.out.println(String.format("Description: %s", archetype.description));
-            System.out.println(String.format("Repository: %s", archetype.repository));
+            System.out.println(String.format(FORMAT, "Archetype coordinates:", toMavenCoordinates(archetype)));
+            System.out.println(String.format(FORMAT, "Description:", emptyIfNull(archetype.description)));
+            System.out.println(String.format(FORMAT, "Repository:", emptyIfNull(archetype.repository)));
         } else {
-            System.err.println("No archetype found for \"" + archetypeGAV + "\" coordinates");
+            System.err.println("No archetype found for: " + archetypeGAV);
         }
+
         return null;
     }
 

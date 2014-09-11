@@ -40,7 +40,7 @@ public class ArchetypeInfo extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "archetype-info";
-    public static final String DESCRIPTION = "Displays information about a Maven archetype";
+    public static final String DESCRIPTION = "Displays information about a Fabric Maven archetype";
 
     @Reference(referenceInterface = ArchetypeCompleter.class, bind = "bindArchetypeCompleter", unbind = "unbindArchetypeCompleter")
     @CompleterValues(index = 0)
