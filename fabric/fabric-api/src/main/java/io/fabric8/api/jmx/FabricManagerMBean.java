@@ -132,6 +132,8 @@ public interface FabricManagerMBean {
 
     String getCurrentContainerName();
 
+    int getPublicPortOnCurrentContainer(int localPort);
+
     String getDefaultJvmOptions();
 
     String getDefaultRepo();

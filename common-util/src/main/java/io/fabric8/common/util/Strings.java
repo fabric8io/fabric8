@@ -188,6 +188,14 @@ public class Strings {
         return !isNullOrBlank(text);
     }
 
+    public static String stripSuffix(String value, String suffix) {
+        if (!value.endsWith(suffix)) {
+            return value;
+        } else {
+            return value.substring(0, value.length() - suffix.length());
+        }
+    }
+
     public static List<String> parseDelimitedString(String value, String delim) {
         return parseDelimitedString(value, delim, true);
     }
