@@ -17,6 +17,7 @@ package io.fabric8.cxf.registry;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -44,6 +45,7 @@ import io.fabric8.api.Version;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.PublicPortMapper;
 import io.fabric8.common.util.Strings;
 import io.fabric8.internal.JsonHelper;
 import io.fabric8.zookeeper.ZkPath;
@@ -244,7 +246,7 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
             String url;
             String id = container.getId();
             if (isFullAddress(address)) {
-                url = address;
+                url = toPublicAddress(id, address);
             } else {
                 String cxfBus = getCxfServletPath(oName);
                 url = "${zk:" + id + "/http}" + cxfBus + address;
@@ -289,6 +291,22 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
             ZooKeeperUtils.setData(curator.get(), path, json, CreateMode.EPHEMERAL);
         } catch (Exception e) {
             LOGGER.error("Failed to register API endpoint for {}.", actualEndpointUrl, e);
+        }
+    }
+
+    private String toPublicAddress(String container, String address) {
+        try {
+            URI uri = new URI(address);
+            int port = PublicPortMapper.getPublicPort(uri.getPort());
+            String hostname = "${zk:" + container + "/ip}";
+            String path = uri.getPath();
+            while (path.startsWith("/")) {
+                path = path.substring(1);
+            }
+            return uri.getScheme() + "://" + hostname + ":" + port + "/" + path;
+        } catch (URISyntaxException e) {
+            LOGGER.warn("Could not map URL to a public address: " + address);
+            return address;
         }
     }
 

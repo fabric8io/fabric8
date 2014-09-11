@@ -52,6 +52,10 @@
         <property name="hello" value="Hello"/>
     </bean>
 
+    <!--
+    TODO: We should use address in the form of http://$[bind.address]:$[app1.port]/server/server1, but currently only fuseenterprise
+    has appX.port system properties defined
+    -->
 
     <!-- publish the service with the address of fail, cxf client will get the simulated IOException -->
     <jaxws:server id="service1" serviceClass="io.fabric8.demo.cxf.Hello" address="http://localhost:9000/server/server1">
