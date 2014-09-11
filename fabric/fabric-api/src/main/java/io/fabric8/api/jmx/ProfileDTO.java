@@ -15,7 +15,10 @@
  */
 package io.fabric8.api.jmx;
 
+import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
 
 import java.util.List;
@@ -86,6 +89,50 @@ public class ProfileDTO {
                 "id='" + id + '\'' +
                 ", version='" + version + '\'' +
                 '}';
+    }
+
+    /**
+     * Uses the profile DTO as input to the builder
+     */
+    public void populateBuilder(FabricService fabricService, ProfileService profileService, ProfileBuilder builder) {
+        System.out.println("Parents are: " + parents);
+        if (parents != null && parents.size() > 0 && version != null) {
+            List<Profile> parentProfiles = Profiles.getProfiles(fabricService, parents, version);
+            builder.setParents(parentProfiles);
+            System.out.println("Found parents: " + parentProfiles);
+        }
+        builder.setOverlay(overlay);
+
+        // TODO builder doesn't expose it
+        //builder.setAbstractProfile(abstractProfile);
+
+        builder.setLocked(locked);
+
+        // TODO builder doesn't expose it
+        //builder.setHidden(hidden);
+
+        if (attributes != null) {
+            builder.setAttributes(attributes);
+        }
+
+        // have to post configuration files individually after creation
+        // builder.setConfigurations(configurations);
+
+        if (bundles != null) {
+            builder.setBundles(bundles);
+        }
+        if (fabs != null) {
+            builder.setBundles(fabs);
+        }
+        if (features != null) {
+            builder.setBundles(features);
+        }
+        if (repositories != null) {
+            builder.setBundles(repositories);
+        }
+        if (overrides != null) {
+            builder.setBundles(overrides);
+        }
     }
 
     public String getId() {
@@ -239,4 +286,5 @@ public class ProfileDTO {
     public void setFileNameLinks(String fileNameLinks) {
         this.fileNameLinks = fileNameLinks;
     }
+
 }

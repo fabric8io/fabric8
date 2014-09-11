@@ -24,12 +24,14 @@ import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.jmx.ProfileDTO;
+import io.fabric8.common.util.Objects;
 import io.fabric8.core.jmx.Links;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -66,6 +68,15 @@ public class ProfileResource extends ResourceSupport {
         return new ProfileDTO(profile, getLink("containers"), overlay, getLink("requirements"), getLink("fileNames"));
     }
 
+    @DELETE
+    public void deleteProfile() {
+        FabricService fabricService = getFabricService();
+        Objects.notNull(fabricService, "fabricService");
+        ProfileService profileService = getProfileService();
+        Objects.notNull(profileService, "profileService");
+        profileService.deleteProfile(fabricService, profile.getVersion(), profile.getId(), true);
+    }
+
 
     /**
      * Returns the list of container ID links for this profile
@@ -97,11 +108,7 @@ public class ProfileResource extends ResourceSupport {
     @Path("overlay")
     public ProfileResource overlay() {
         if (!profile.isOverlay()) {
-            FabricService fabricService = getFabricService();
-            ProfileService profileService = null;
-            if (fabricService != null) {
-                profileService = fabricService.adapt(ProfileService.class);
-            }
+            ProfileService profileService = getProfileService();
             if (profileService != null) {
                 Profile overlay = profileService.getOverlayProfile(profile);
                 return new ProfileResource(this, overlay);
@@ -190,4 +197,5 @@ public class ProfileResource extends ResourceSupport {
         }
         return "text/plain";
     }
+
 }
