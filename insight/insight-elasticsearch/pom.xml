@@ -33,11 +33,12 @@
   <properties>
     <fuse.osgi.import.additional>
       config,
-      com.sonian.elasticsearch.zookeeper.discovery,
       *;resolution:=optional
     </fuse.osgi.import.additional>
     <fuse.osgi.capabilities.provide>
-      osgi.service;effective:=active;objectClass=io.fabric8.insight.storage.StorageService
+      osgi.service;effective:=active;objectClass=io.fabric8.insight.storage.StorageService,
+      osgi.service;effective:=active;cluster.name=elasticsearch;node.data=true;objectClass=org.elasticsearch.node.Node
+      osgi.service;effective:=active;cluster.name=insight;node.data=true;objectClass=org.elasticsearch.node.Node
     </fuse.osgi.capabilities.provide>
   </properties>
 
@@ -59,10 +60,27 @@
       <artifactId>insight-metrics-mvel</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>elasticsearch-zookeeper</artifactId>
-      <version>${elasticsearch-zookeeper-version}</version>
+      <groupId>org.elasticsearch</groupId>
+      <artifactId>elasticsearch</artifactId>
+      <version>${elasticsearch-version}</version>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-scr-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>generate-scr-descriptor</id>
+            <goals>
+              <goal>scr</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

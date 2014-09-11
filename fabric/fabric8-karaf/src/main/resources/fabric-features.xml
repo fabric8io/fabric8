@@ -412,7 +412,7 @@
     </feature>
 
     <feature name="insight-elasticsearch" version="${project.version}" resolver="(obr)">
-        <config name="io.fabric8.insight.elasticsearch-default">
+        <config name="io.fabric8.elasticsearch-insight">
             #
             # Copyright (C) Red Hat, Inc.
             # http://redhat.com
@@ -429,10 +429,7 @@
             # See the License for the specific language governing permissions and
             # limitations under the License.
             #
-
-            node.data=true
-            discovery.type=org.elasticsearch.discovery.org.apache.zookeeper.ZooKeeperDiscoveryModule
-            cluster.name=insight
+          cluster.name=insight
         </config>
         <feature>insight-log</feature>
         <feature version="${project.version}">insight-metrics</feature>
@@ -440,6 +437,7 @@
         <feature>fabric-groups</feature>
         <bundle dependency="true">mvn:com.google.guava/guava/${guava-version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-storage/${project.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.elasticsearch/${elasticsearch-smx4-bundle.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-elasticsearch/${project.version}</bundle>
     </feature>
 

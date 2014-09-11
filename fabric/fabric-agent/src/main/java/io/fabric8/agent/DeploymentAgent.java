@@ -132,6 +132,7 @@ public class DeploymentAgent implements ManagedService {
     private static final String KARAF_HOME = System.getProperty("karaf.home");
     private static final String KARAF_BASE = System.getProperty("karaf.base");
     private static final String KARAF_DATA = System.getProperty("karaf.data");
+    private static final String KARAF_ETC = System.getProperty("karaf.etc");
     private static final String SYSTEM_PATH = KARAF_HOME + File.separator + "system";
     private static final String LIB_PATH = KARAF_BASE + File.separator + "lib";
     private static final String LIB_EXT_PATH = LIB_PATH + File.separator + "ext";
@@ -156,12 +157,14 @@ public class DeploymentAgent implements ManagedService {
     private final Properties libChecksums;
     private final Properties endorsedChecksums;
     private final Properties extensionChecksums;
+    private final Properties etcChecksums;
 
     private final Properties managedLibs;
     private final Properties managedEndorsedLibs;
     private final Properties managedExtensionLibs;
     private final Properties managedSysProps;
     private final Properties managedConfigProps;
+    private final Properties managedEtcs;
     private volatile String provisioningStatus;
     private volatile Throwable provisioningError;
     private volatile Collection<Resource> provisionList;
@@ -173,11 +176,13 @@ public class DeploymentAgent implements ManagedService {
         this.libChecksums = new Properties(bundleContext.getDataFile("lib-checksums.properties"));
         this.endorsedChecksums = new Properties(bundleContext.getDataFile("endorsed-checksums.properties"));
         this.extensionChecksums = new Properties(bundleContext.getDataFile("extension-checksums.properties"));
+        this.etcChecksums = new Properties(bundleContext.getDataFile("etc-checksums.properties"));
         this.managedSysProps = new Properties(bundleContext.getDataFile("system.properties"));
         this.managedConfigProps = new Properties(bundleContext.getDataFile("config.properties"));
         this.managedLibs  = new Properties(bundleContext.getDataFile("libs.properties"));
         this.managedEndorsedLibs  = new Properties(bundleContext.getDataFile("endorsed.properties"));
         this.managedExtensionLibs  = new Properties(bundleContext.getDataFile("extension.properties"));
+        this.managedEtcs = new Properties(bundleContext.getDataFile("etc.properties"));
         this.downloadExecutor = createDownloadExecutor();
 
         MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn");
@@ -242,6 +247,7 @@ public class DeploymentAgent implements ManagedService {
         loadLibChecksums(LIB_PATH, libChecksums);
         loadLibChecksums(LIB_ENDORSED_PATH, endorsedChecksums);
         loadLibChecksums(LIB_EXT_PATH, extensionChecksums);
+        loadLibChecksums(KARAF_ETC, etcChecksums);
     }
 
     public void stop() throws InterruptedException {
@@ -429,6 +435,7 @@ public class DeploymentAgent implements ManagedService {
         Set<String> extensionLibsToRemove = new HashSet<String>(managedExtensionLibs.keySet());
         Set<String> sysPropsToRemove = new HashSet<String>(managedSysProps.keySet());
         Set<String> configPropsToRemove = new HashSet<String>(managedConfigProps.keySet());
+        Set<String> etcsToRemove = new HashSet<String>(managedEtcs.keySet());
         Properties configProps = new Properties(new File(KARAF_BASE + File.separator + "etc" + File.separator + "config.properties"));
         Properties systemProps = new Properties(new File(KARAF_BASE + File.separator + "etc" + File.separator + "system.properties"));
         for (String key : properties.keySet()) {
@@ -486,6 +493,16 @@ public class DeploymentAgent implements ManagedService {
                     Files.copy(libFile, new File(LIB_EXT_PATH, libName));
                     restart = true;
                 }
+            } else if (key.startsWith("etc.")) {
+                String value = properties.get(key);
+                File etcFile = manager.download(value).await().getFile();
+                String etcName = etcFile.getName();
+                Long checksum = ChecksumUtils.checksum(new FileInputStream(etcFile));
+                managedEtcs.put(etcName, "true");
+                etcsToRemove.remove(etcName);
+                if (!Long.toString(checksum).equals(etcChecksums.getProperty(etcName))) {
+                    Files.copy(etcFile, new File(KARAF_ETC, etcName));
+                }
             }
         }
         //Remove unused libs, system & config properties
@@ -526,15 +543,24 @@ public class DeploymentAgent implements ManagedService {
             restart = true;
         }
 
+        for (String etc : etcsToRemove) {
+            File etcFile = new File(KARAF_ETC, etc);
+            etcFile.delete();
+            etcChecksums.remove(etc);
+            managedEtcs.remove(etc);
+        }
+
         libChecksums.save();
         endorsedChecksums.save();
         extensionChecksums.save();
+        etcChecksums.save();
 
         managedLibs.save();
         managedEndorsedLibs.save();
         managedExtensionLibs.save();
         managedConfigProps.save();
         managedSysProps.save();
+        managedEtcs.save();
 
         if (restart) {
             updateStatus("restarting", null);

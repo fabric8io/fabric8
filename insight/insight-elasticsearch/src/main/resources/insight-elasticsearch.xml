@@ -25,7 +25,7 @@
 
   <cm:managed-service-factory id="esNodeFactory" factory-pid="io.fabric8.insight.elasticsearch" interface="org.elasticsearch.node.Node"
                               ext:system-properties="fallback">
-    <cm:managed-component class="io.fabric8.insight.elasticsearch.impl.ElasticSearchNode" init-method="init" destroy-method="destroy">
+    <cm:managed-component class="io.fabric8.insight.elasticsearch.impl.ElasticsearchNode" init-method="init" destroy-method="uninit">
       <property name="fabricService" ref="fabricService" />
       <property name="clusterName" value="insight" />
       <property name="dataEnabled" value="true" />
