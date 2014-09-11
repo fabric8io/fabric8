@@ -22,6 +22,7 @@ import io.fabric8.insight.metrics.mvel.MetricsStorageServiceImpl;
 import io.fabric8.insight.storage.StorageService;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -36,19 +37,25 @@ import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-@Component(immediate = true)
-public class ElasticStorageImpl implements StorageService, MetricsStorageService, Runnable {
+@Component(immediate = true, name = "io.fabric8.insight.elasticsearch")
+@Service({StorageService.class, MetricsStorageService.class})
+public class ElasticsearchStorageImpl implements StorageService, MetricsStorageService, Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticStorageImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchStorageImpl.class);
 
     private static final SimpleDateFormat indexFormat = new SimpleDateFormat("yyyy.MM.dd");
 
-    @Reference(referenceInterface = org.elasticsearch.node.Node.class)
-    private final ValidatingReference<Node> node = new ValidatingReference<Node>();;
+    @Reference(name = "node", referenceInterface = org.elasticsearch.node.Node.class, target = "(cluster.name=insight)")
+    private final ValidatingReference<Node> node = new ValidatingReference<Node>();
+
     private int max = 1000;
+
     private Thread thread;
+
     private volatile boolean running;
+
     private BlockingQueue<ActionRequest> queue = new LinkedBlockingQueue<ActionRequest>();
+
     private MetricsStorageService metricsStorage = new MetricsStorageServiceImpl(this);
 
     public void init() {
