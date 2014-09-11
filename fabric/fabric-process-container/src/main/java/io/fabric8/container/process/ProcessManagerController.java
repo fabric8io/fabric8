@@ -315,7 +315,7 @@ public class ProcessManagerController implements ChildContainerController {
 
         if (container != null) {
             String type = processConfig.getProcessName();
-            if (type != null && !Objects.equal(container.getType(), type)) {
+            if (type != null) {
                 container.setType(type);
             }
         }
@@ -356,7 +356,7 @@ public class ProcessManagerController implements ChildContainerController {
                 container.setHttpUrl(httpUrl);
             }
             String type = processConfig.getProcessName();
-            if (type != null && !Objects.equal(container.getType(), type)) {
+            if (type != null) {
                 container.setType(type);
             }
         }
