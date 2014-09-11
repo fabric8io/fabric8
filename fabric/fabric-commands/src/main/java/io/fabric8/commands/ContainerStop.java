@@ -40,7 +40,7 @@ import org.apache.felix.service.command.Function;
 public class ContainerStop extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-stop";
+    public static final String FUNCTION_VALUE = "container-stop";
     public static final String DESCRIPTION = "Shut down an existing container";
 
     @Reference(referenceInterface = FabricService.class)

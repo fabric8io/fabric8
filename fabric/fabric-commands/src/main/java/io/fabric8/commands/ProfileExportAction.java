@@ -27,7 +27,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "profile-export", scope = "fabric", description = ProfileExport.DESCRIPTION)
+@Command(name = ProfileExport.FUNCTION_VALUE, scope = ProfileExport.SCOPE_VALUE, description = ProfileExport.DESCRIPTION)
 public class ProfileExportAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version to export profiles from. Defaults to the current version if none specified.")

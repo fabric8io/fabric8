@@ -36,8 +36,8 @@ import org.apache.felix.service.command.Function;
 public class EncryptionAlgorithmSet extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "crypt-algorithm-set";
-    public static final String DESCRIPTION = "Sets the encryption algorithm.";
+    public static final String FUNCTION_VALUE = "crypt-algorithm-set";
+    public static final String DESCRIPTION = "Sets the encryption algorithm";
 
     @Activate
     void activate() {

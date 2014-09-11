@@ -40,7 +40,7 @@ import org.osgi.framework.BundleContext;
 public class EnsembleRemove extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "ensemble-remove";
+    public static final String FUNCTION_VALUE = "ensemble-remove";
     public static final String DESCRIPTION = "Re-create the current ensemble, excluding the specified containers from the ensemble";
 
     @Reference(referenceInterface = ZooKeeperClusterService.class)

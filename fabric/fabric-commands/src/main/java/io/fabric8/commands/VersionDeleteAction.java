@@ -27,7 +27,7 @@ import io.fabric8.api.ProfileService;
 import org.apache.karaf.shell.console.AbstractAction;
 import org.jboss.gravia.utils.IllegalStateAssertion;
 
-@Command(name = "version-delete", scope = "fabric", description = "Delete the specified version, together with all of its associated profile data")
+@Command(name = VersionDelete.FUNCTION_VALUE, scope = VersionDelete.SCOPE_VALUE, description = VersionDelete.DESCRIPTION)
 public class VersionDeleteAction extends AbstractAction {
 
     @Argument(index = 0, name = "version", description = "The version to delete", required = true, multiValued = false)

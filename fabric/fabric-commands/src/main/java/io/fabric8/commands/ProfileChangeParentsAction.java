@@ -30,7 +30,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "profile-change-parents", scope = "fabric", description = "Replace the profile's parents with the specified list of parents (where the parents are specified as a space-separated list)")
+@Command(name = ProfileChangeParents.FUNCTION_VALUE, scope = ProfileChangeParents.SCOPE_VALUE, description = ProfileChangeParents.DESCRIPTION)
 public class ProfileChangeParentsAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version. Defaults to the current default version.")

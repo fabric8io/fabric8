@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-@Command(name = "profile-edit", scope = "fabric", description = "Edits the specified version of the specified profile (where the version defaults to the current default version)", detailedDescription = "classpath:profileEdit.txt")
+@Command(name = ProfileEdit.FUNCTION_VALUE, scope = ProfileEdit.SCOPE_VALUE, description = ProfileEdit.DESCRIPTION, detailedDescription = "classpath:profileEdit.txt")
 public class ProfileEditAction extends AbstractAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileEditAction.class);

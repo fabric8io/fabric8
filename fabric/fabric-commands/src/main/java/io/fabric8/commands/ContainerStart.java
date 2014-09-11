@@ -40,7 +40,7 @@ import org.apache.felix.service.command.Function;
 public class ContainerStart extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-start";
+    public static final String FUNCTION_VALUE = "container-start";
     public static final String DESCRIPTION = "Start the specified container";
 
     @Reference(referenceInterface = FabricService.class)

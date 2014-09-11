@@ -40,7 +40,7 @@ import org.apache.felix.service.command.Function;
 public class ContainerDelete extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-delete";
+    public static final String FUNCTION_VALUE = "container-delete";
     public static final String DESCRIPTION = "Stops and deletes an existing container";
 
     @Reference(referenceInterface = FabricService.class)

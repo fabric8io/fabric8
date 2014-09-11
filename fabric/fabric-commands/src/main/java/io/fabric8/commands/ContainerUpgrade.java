@@ -49,7 +49,7 @@ import org.apache.karaf.shell.console.completer.NullCompleter;
 public class ContainerUpgrade extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-upgrade";
+    public static final String FUNCTION_VALUE = "container-upgrade";
     public static final String DESCRIPTION = "Upgrade containers to a new version";
 
     @Reference(referenceInterface = FabricService.class)

@@ -28,7 +28,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 
 import java.util.List;
 
-@Command(name = "profile-import", scope = "fabric", description = ProfileImport.DESCRIPTION)
+@Command(name = ProfileImport.FUNCTION_VALUE, scope = ProfileImport.SCOPE_VALUE, description = ProfileImport.DESCRIPTION)
 public class ProfileImportAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version to import the profiles into. Defaults to the current default version if none specified.")

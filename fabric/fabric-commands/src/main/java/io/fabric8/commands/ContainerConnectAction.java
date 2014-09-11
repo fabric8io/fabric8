@@ -42,7 +42,7 @@ import io.fabric8.utils.shell.ShellUtils;
 
 import static io.fabric8.utils.FabricValidations.validateContainerName;
 
-@Command(name = "container-connect", scope = "fabric", description = "Connect to a remote container")
+@Command(name = ContainerConnect.FUNCTION_VALUE, scope = ContainerConnect.SCOPE_VALUE, description = ContainerConnect.DESCRIPTION)
 public class ContainerConnectAction extends AbstractAction {
 
     @Option(name = "-u", aliases = {"--username"}, description = "Remote user name", required = false, multiValued = false)

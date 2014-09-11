@@ -36,8 +36,8 @@ import org.apache.felix.service.command.Function;
 public class Encrypt extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "encrypt-message";
-    public static final String DESCRIPTION = "Encrypts a value using the configured algorithm and master password.";
+    public static final String FUNCTION_VALUE = "encrypt-message";
+    public static final String DESCRIPTION = "Encrypts a value using the configured algorithm and master password";
 
     @Activate
     void activate() {

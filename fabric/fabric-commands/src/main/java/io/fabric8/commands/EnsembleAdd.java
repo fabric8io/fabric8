@@ -40,7 +40,7 @@ import org.osgi.framework.BundleContext;
 public class EnsembleAdd extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "ensemble-add";
+    public static final String FUNCTION_VALUE = "ensemble-add";
     public static final String DESCRIPTION = "Extend the current fabric ensemble by converting the specified containers into ensemble servers";
 
     @Reference(referenceInterface = ZooKeeperClusterService.class)

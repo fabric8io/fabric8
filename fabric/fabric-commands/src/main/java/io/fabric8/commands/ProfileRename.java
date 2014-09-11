@@ -40,7 +40,7 @@ public class ProfileRename extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "profile-rename";
-    public static final String DESCRIPTION = "Rename the specified version of the source profile (where the version defaults to the current default version)";
+    public static final String DESCRIPTION = "Rename the specified version of the source profile";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();

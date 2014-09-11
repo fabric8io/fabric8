@@ -32,7 +32,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 import org.jboss.gravia.utils.IllegalStateAssertion;
 
-@Command(name = "version-create", scope = "fabric", description = "Create a new version, copying all of the profiles from the current latest version into the new version")
+@Command(name = VersionCreate.FUNCTION_VALUE, scope = VersionCreate.SCOPE_VALUE, description = VersionCreate.DESCRIPTION)
 public class VersionCreateAction extends AbstractAction {
 
     @Option(name = "--parent", description = "The parent version. By default, use the latest version as the parent.")

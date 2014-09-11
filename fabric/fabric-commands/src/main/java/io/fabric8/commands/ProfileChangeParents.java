@@ -40,7 +40,7 @@ public class ProfileChangeParents extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "profile-change-parents";
-    public static final String DESCRIPTION = "Replace the profile's parents with the specified list of parents (where the parents are specified as a space-separated list)";
+    public static final String DESCRIPTION = "Replace the profile's parents with the specified list of parents";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();

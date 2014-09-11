@@ -41,7 +41,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@Command(name = "mq-create", scope = "fabric", description = "Create a new broker")
+@Command(name = MQCreate.FUNCTION_VALUE, scope = MQCreate.SCOPE_VALUE, description = MQCreate.DESCRIPTION)
 public class MQCreateAction extends AbstractAction {
 
     @Argument(index = 0, required = true, description = "Broker name")

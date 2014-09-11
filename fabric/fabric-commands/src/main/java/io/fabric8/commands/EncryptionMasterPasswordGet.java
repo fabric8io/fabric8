@@ -36,8 +36,8 @@ import org.apache.felix.service.command.Function;
 public class EncryptionMasterPasswordGet extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "crypt-password-get";
-    public static final String DESCRIPTION = "Displays the master password for encryption.";
+    public static final String FUNCTION_VALUE = "crypt-password-get";
+    public static final String DESCRIPTION = "Displays the master password for encryption";
 
     @Activate
     void activate() {

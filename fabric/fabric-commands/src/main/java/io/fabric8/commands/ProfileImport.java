@@ -40,7 +40,7 @@ public class ProfileImport extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "profile-import";
-    public static final String DESCRIPTION = "Downloads the given profile zip(s) and installs them into either the current version or a newly created version.";
+    public static final String DESCRIPTION = "Downloads the given profile zip(s) and installs them into either the current version or a newly created version";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();

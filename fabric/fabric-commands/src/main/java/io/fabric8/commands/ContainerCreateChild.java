@@ -43,7 +43,7 @@ import org.apache.felix.service.command.Function;
 public class ContainerCreateChild extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-create-child";
+    public static final String FUNCTION_VALUE = "container-create-child";
     public static final String DESCRIPTION = "Creates one or more child containers";
 
     @Reference(referenceInterface = FabricService.class)

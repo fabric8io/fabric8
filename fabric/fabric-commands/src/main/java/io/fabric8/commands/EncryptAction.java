@@ -28,7 +28,7 @@ import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
 
-@Command(name = "encrypt-message", scope = "fabric", description = "Encrypts a value using the configured algorithm and master password.")
+@Command(name = Encrypt.FUNCTION_VALUE, scope = Encrypt.SCOPE_VALUE, description = Encrypt.DESCRIPTION)
 public class EncryptAction extends AbstractAction {
 
     private static final String FORMAT = "Encrypting message %s\n Using algorithm %s and password %s\n Result: %s";

@@ -27,7 +27,7 @@ import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "profile-rename", scope = "fabric", description = "Rename the specified version of the source profile (where the version defaults to the current default version)")
+@Command(name = ProfileRename.FUNCTION_VALUE, scope = ProfileRename.SCOPE_VALUE, description = ProfileRename.DESCRIPTION)
 public class ProfileRenameAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version to rename. Defaults to the current default version.")
