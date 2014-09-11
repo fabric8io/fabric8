@@ -188,6 +188,14 @@
                <groupId>io.fabric8</groupId>
                <artifactId>fabric-jolokia</artifactId>
            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-kubernetes-api</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-kubernetes-provider</artifactId>
+            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
                <artifactId>fabric-ldap</artifactId>
@@ -513,6 +521,7 @@
                                    <feature>fabric-cxf-registry</feature>
                                    <feature>fabric-cxf</feature>
                                    <feature>fabric-docker-provider</feature>
+                                   <feature>fabric-kubernetes-provider</feature>
                                    <feature>fabric-dosgi</feature>
                                    <feature>fabric-git-server</feature>
                                    <feature>fabric-git</feature>

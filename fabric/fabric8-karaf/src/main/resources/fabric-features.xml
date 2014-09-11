@@ -686,6 +686,34 @@
         <bundle>mvn:io.hawt.dockerui/hawtio-dockerui/${hawtio-dockerui-version}/war</bundle>
     </feature>
 
+
+    <feature name="fabric-kubernetes-api" version="${project.version}" resolver="(obr)">
+      <!--
+              CXF 3 version of JAXRS 2.0 client for fabric-docker-api
+              <feature version="[3.0,4.0)">cxf-specs</feature>
+              <feature version="[3.0,4.0)">cxf-jaxrs</feature>
+              <bundle>mvn:javax.ws.rs/javax.ws.rs-api/2.0</bundle>
+      -->
+      <feature>http</feature>
+      <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
+      <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+      <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+      <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+      <bundle dependency='true'>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2-version}</bundle>
+      <bundle dependency='true'>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson2-version}</bundle>
+      <bundle dependency='true'>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson2-version}</bundle>
+      <bundle>mvn:javax.validation/validation-api/${validation-api-version}</bundle>
+      <bundle>mvn:org.apache.geronimo.specs/geronimo-annotation_1.1_spec/1.0.1</bundle>
+      <bundle>mvn:io.fabric8/fabric-kubernetes-api/${project.version}</bundle>
+    </feature>
+
+    <feature name="fabric-kubernetes-provider" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-kubernetes-api</feature>
+        <feature version="${project.version}">fabric-docker-provider</feature>
+        <bundle>mvn:io.fabric8/fabric-kubernetes-provider/${project.version}</bundle>
+    </feature>
+
+
     <feature name="fabric-process-container" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-project-deployer</feature>

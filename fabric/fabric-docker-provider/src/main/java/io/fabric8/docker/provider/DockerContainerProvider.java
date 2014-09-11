@@ -93,7 +93,7 @@ import org.slf4j.LoggerFactory;
 @Properties(
         @Property(name = "fabric.container.protocol", value = DockerConstants.SCHEME)
 )
-public final class DockerContainerProvider extends AbstractComponent implements ContainerProvider<CreateDockerContainerOptions, CreateDockerContainerMetadata>, ContainerAutoScalerFactory {
+public class DockerContainerProvider extends AbstractComponent implements ContainerProvider<CreateDockerContainerOptions, CreateDockerContainerMetadata>, ContainerAutoScalerFactory {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(DockerContainerProvider.class);
 
