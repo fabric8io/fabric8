@@ -47,9 +47,6 @@ public class ArchetypeCreate extends AbstractCommandComponent {
     @CompleterValues(index = 0)
     private ArchetypeShortCompleter archetypeCompleter; // dummy field
 
-    @CompleterValues(index = 1)
-    private FileCompleter targetFileCompleter; // dummy field
-
     @Reference(referenceInterface = ArchetypeService.class)
     private final ValidatingReference<ArchetypeService> archetypeService = new ValidatingReference<ArchetypeService>();
 
@@ -61,8 +58,8 @@ public class ArchetypeCreate extends AbstractCommandComponent {
 
     @Activate
     void activate() {
+        bindOptionalCompleter("-d", new FileCompleter(null));
         activateComponent();
-        bindCompleter(new FileCompleter(null));
     }
 
     @Deactivate
