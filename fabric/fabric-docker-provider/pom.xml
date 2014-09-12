@@ -55,6 +55,7 @@
           !org.apache.commons.compress.compressors.bzip2*,
           !hidden.org.codehaus.plexus*,
           !org.apache.velocity*,
+          !org.apache.xbean*,
 
           *
         </fuse.osgi.import>

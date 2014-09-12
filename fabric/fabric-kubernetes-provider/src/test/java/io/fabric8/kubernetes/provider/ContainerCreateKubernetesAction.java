@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.kubernetes.provider.commands;
+package io.fabric8.kubernetes.provider;
 
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricService;
@@ -23,14 +23,13 @@ import io.fabric8.docker.provider.CreateDockerContainerOptions;
 import io.fabric8.utils.FabricValidations;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.shell.ShellUtils;
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.List;
-
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
 
 @Command(name = ContainerCreateKubernetes.FUNCTION_VALUE, scope = "fabric",
         description = ContainerCreateKubernetes.DESCRIPTION)
@@ -48,7 +47,7 @@ public class ContainerCreateKubernetesAction extends AbstractContainerCreateActi
     private URI proxyUri;
 
     @Option(name = "--new-user", multiValued = false, description = "The username of a new user. The option refers to karaf user (ssh, http, jmx).")
-    private String newUser="admin";
+    private String newUser = "admin";
     @Option(name = "--new-user-password", multiValued = false, description = "The password of the new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUserPassword;
     @Option(name = "--new-user-role", multiValued = false, description = "The role of the new user. The option refers to karaf user (ssh, http, jmx).")
@@ -58,8 +57,8 @@ public class ContainerCreateKubernetesAction extends AbstractContainerCreateActi
 
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
-	@Argument(index = 1, required = false, description = "The number of containers that should be created")
-	protected int number = 0;
+    @Argument(index = 1, required = false, description = "The number of containers that should be created")
+    protected int number = 0;
 
     ContainerCreateKubernetesAction(FabricService fabricService, ZooKeeperClusterService clusterService) {
         super(fabricService, clusterService);
@@ -75,25 +74,25 @@ public class ContainerCreateKubernetesAction extends AbstractContainerCreateActi
             newUserPassword = zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword();
         }
 
-        CreateDockerContainerOptions.Builder builder = CreateDockerContainerOptions.builder()
-        .name(name)
-        .ensembleServer(isEnsembleServer)
-        .resolver(resolver)
-        .bindAddress(bindAddress)
-        .manualIp(manualIp)
-        .number(number)
-        .preferredAddress(InetAddress.getByName(host).getHostAddress())
-        .adminAccess(adminAccess)
-        .minimumPort(minimumPort)
-        .maximumPort(maximumPort)
-        .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
-        .zookeeperUrl(fabricService.getZookeeperUrl())
-        .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
-        .jvmOpts(jvmOpts != null ? jvmOpts : fabricService.getDefaultJvmOptions())
-        .withUser(newUser, newUserPassword , newUserRole)
-        .version(version)
-        .profiles(getProfileNames())
-        .dataStoreProperties(getDataStoreProperties());
+        CreateKubernetesContainerOptions.Builder builder = CreateKubernetesContainerOptions.builder()
+                .name(name)
+                .ensembleServer(isEnsembleServer)
+                .resolver(resolver)
+                .bindAddress(bindAddress)
+                .manualIp(manualIp)
+                .number(number)
+                .preferredAddress(InetAddress.getByName(host).getHostAddress())
+                .adminAccess(adminAccess)
+                .minimumPort(minimumPort)
+                .maximumPort(maximumPort)
+                .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
+                .zookeeperUrl(fabricService.getZookeeperUrl())
+                .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
+                .jvmOpts(jvmOpts != null ? jvmOpts : fabricService.getDefaultJvmOptions())
+                .withUser(newUser, newUserPassword, newUserRole)
+                .version(version)
+                .profiles(getProfileNames())
+                .dataStoreProperties(getDataStoreProperties());
 
 
         CreateContainerMetadata<?>[] metadatas = fabricService.createContainers(builder.build());

@@ -145,7 +145,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         if (service != null) {
             // lets disable child if in docker or openshift environments
             String environment = service.getEnvironment();
-            if (Objects.equal(environment, "docker") || Objects.equal(environment, "openshift")) {
+            if (Objects.equal(environment, "docker") || Objects.equal(environment, "openshift") || Objects.equal(environment, "kubernetes")) {
                 return false;
             }
         }
