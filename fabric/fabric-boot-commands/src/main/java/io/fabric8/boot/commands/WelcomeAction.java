@@ -53,9 +53,9 @@ final class WelcomeAction extends AbstractAction {
             if (container != null) {
                 boolean ensemble = container.isEnsembleServer();
                 if (ensemble) {
-                    System.out.println("This container \u001B[1m" + container.getId() + "\u001B[0m is a Fabric ensemble server.");
+                    System.out.println("This container \u001B[1m" + container.getId() + "\u001B[0m is a Fabric ensemble server.");
                 } else {
-                    System.out.println("This container \u001B[1m" + container.getId() + "\u001B[0m is joined to an existing Fabric.");
+                    System.out.println("This container \u001B[1m" + container.getId() + "\u001B[0m is joined to an existing Fabric.");
                 }
             } else {
                 System.out.println("This container \u001B[1m" + name + "\u001B[0m is a standalone container.");
