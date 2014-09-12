@@ -47,8 +47,8 @@ public class ArchetypeCreateAction extends AbstractAction {
     @Argument(index = 0, name = "archetype", description = "Archetype id, or coordinate, or filter", required = false, multiValued = false)
     private String archetypeOrFilter;
 
-    @Argument(index = 1, name = "directoryName", description = "The sub directory name", required = false, multiValued = false)
-    private String directoryName;
+    @Argument(index = 1, name = "directory", description = "To use a specific directory as base for where the project is created (Will by default use the current workspace location)", required = false, multiValued = false)
+    private String directory;
 
     private final ArchetypeService archetypeService;
 
@@ -58,17 +58,34 @@ public class ArchetypeCreateAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        // must have a workspace location configured
-        Preferences preferences = Preferences.userNodeForPackage(getClass());
-        String current = preferences.get(ArchetypeWorkspace.PREFERENCE_WORKSPACE, null);
-        if (current == null) {
-            System.out.println("No workspace location has been set.");
-            System.out.println("Use the archetype-workspace command to set a workspace first.");
-            System.out.println("");
-            return null;
+        // if no directory then use workspace
+        if (directory == null) {
+            // must have a workspace location configured
+            Preferences preferences = Preferences.userNodeForPackage(getClass());
+            String location = preferences.get(ArchetypeWorkspace.PREFERENCE_WORKSPACE, null);
+            if (location == null) {
+                System.out.println("No workspace location has been set.");
+                System.out.println("Use the archetype-workspace command to set a workspace first.");
+                System.out.println("");
+                return null;
+            } else {
+                System.out.println("Using current workspace: " + location);
+                directory = location;
+            }
+        } else {
+            System.out.println("Using directory as workspace: " + directory);
         }
 
-        File target = new File(current);
+        File target = new File(directory);
+
+        // make sure the directory exists, auto-creating if missing
+        if (!target.exists()) {
+            target.mkdirs();
+        }
+        if (!target.exists() || !target.isDirectory()) {
+            System.err.println("Workspace does not exists or is not a directory: " + directory);
+            return null;
+        }
 
         Archetype archetype = null;
 
@@ -144,19 +161,17 @@ public class ArchetypeCreateAction extends AbstractAction {
         String version = ShellUtils.readLine(session,  String.format("Define value for property 'version' (%s): ", defaultVersion), false);
         String defaultPackageName = (groupId + "." + artifactId).replaceAll("-", ".");
         String packageName = ShellUtils.readLine(session, String.format("Define value for property 'package' (%s): ", defaultPackageName), false);
-        if (directoryName == null) {
-            // use artifact id as default directory name (maven does this also)
-            String defaultDirectoryName = isNullOrBlank(artifactId) ? defaultArtifactId : artifactId;
-            directoryName = ShellUtils.readLine(session, String.format("Define value for property 'directoryName' (%s): ", defaultDirectoryName), false);
-        }
+        // use artifact id as default directory name (maven does this also)
+        String defaultDirectoryName = isNullOrBlank(artifactId) ? defaultArtifactId : artifactId;
+        directory = ShellUtils.readLine(session, String.format("Define value for property 'directoryName' (%s): ", defaultDirectoryName), false);
 
         groupId = isNullOrBlank(groupId) ? defaultGroupId : groupId;
         artifactId = isNullOrBlank(artifactId) ? defaultArtifactId : artifactId;
         version = isNullOrBlank(version) ? defaultVersion : version;
         packageName = isNullOrBlank(packageName) ? defaultPackageName : packageName;
-        directoryName = isNullOrBlank(directoryName) ? artifactId : directoryName;
+        directory = isNullOrBlank(directory) ? artifactId : directory;
 
-        File childDir = new File(target, directoryName);
+        File childDir = new File(target, directory);
 
         ArchetypeHelper helper = new ArchetypeHelper(archetypeFile, childDir, groupId, artifactId, version);
         helper.setPackageName(packageName);
