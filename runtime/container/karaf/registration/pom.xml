@@ -22,7 +22,7 @@
     <parent>
         <artifactId>fabric-runtime-container-karaf</artifactId>
         <groupId>io.fabric8.runtime</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.2.0.Beta4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

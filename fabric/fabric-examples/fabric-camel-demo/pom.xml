@@ -22,7 +22,7 @@
   <parent>
     <groupId>io.fabric8</groupId>
     <artifactId>fabric-examples</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0.Beta4</version>
   </parent>
 
   <groupId>io.fabric8.examples</groupId>
@@ -32,7 +32,7 @@
   <name>Fabric8 :: Examples :: Camel and ActiveMQ Demo</name>
 
   <properties>
-    <fabric.version>1.2.0-SNAPSHOT</fabric.version>
+    <fabric.version>1.2.0.Beta4</fabric.version>
 
     <fuse.osgi.export>io.fabric8.demo*;-noimport:=true</fuse.osgi.export>
     <fuse.osgi.split.pkg/>
