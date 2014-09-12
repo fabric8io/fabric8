@@ -37,6 +37,7 @@ import io.fabric8.tooling.archetype.generator.ArchetypeHelper;
 import io.fabric8.utils.shell.ShellUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
 import static io.fabric8.common.util.Strings.isNullOrBlank;
@@ -47,7 +48,7 @@ public class ArchetypeCreateAction extends AbstractAction {
     @Argument(index = 0, name = "archetype", description = "Archetype id, or coordinate, or filter", required = false, multiValued = false)
     private String archetypeOrFilter;
 
-    @Argument(index = 1, name = "directory", description = "To use a specific directory as base for where the project is created (Will by default use the current workspace location)", required = false, multiValued = false)
+    @Option(name = "-d", aliases = "--directory", description = "To use a specific directory as base for where the project is created (uses by default the current workspace location)", required = false, multiValued = false)
     private String directory;
 
     private final ArchetypeService archetypeService;
