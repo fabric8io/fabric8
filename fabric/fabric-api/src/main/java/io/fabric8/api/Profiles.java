@@ -29,6 +29,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import io.fabric8.api.scr.support.Strings;
+
 import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -424,7 +425,7 @@ public final class Profiles {
     
     private static void appendParentProfiles(StringBuilder builder, Profile profile, HashSet<String> profiles) {
         if (!profiles.contains(profile.getId())) {
-            for (Profile parent : profile.getParents()) {
+            for (Profile parent : ((LinkedProfile)profile).getParents()) {
                 appendParentProfiles(builder, parent, profiles);
                 builder.append("\n\nParent of " + profile.getId() + " - " + getProfileInfo(parent, false));
             }

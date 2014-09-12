@@ -28,6 +28,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.LinkedProfile;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileService;
@@ -215,7 +216,7 @@ public class ContainerImplTest {
         replay(fabricService);
         replay(dataStore);
 
-        Profile overlay = container.getOverlayProfile();
+        LinkedProfile overlay = (LinkedProfile) container.getOverlayProfile();
         List<Profile> parents = overlay.getParents();
         assertEquals(2, parents.size());
 

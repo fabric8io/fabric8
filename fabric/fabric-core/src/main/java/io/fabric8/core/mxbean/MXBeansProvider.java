@@ -56,7 +56,7 @@ public final class MXBeansProvider extends AbstractComponent {
         MBeanServer server = mbeanServer.get();
         try {
             ProfileManagement profileMXBean = new ProfileManagementImpl();
-            server.registerMBean(new StandardMBean(profileMXBean, ProfileManagement.class, false), ProfileManagement.OBJECT_NAME);
+            server.registerMBean(new StandardMBean(profileMXBean, ProfileManagement.class, true), ProfileManagement.OBJECT_NAME);
         } catch (JMException ex) {
             throw new IllegalStateException(ex);
         }

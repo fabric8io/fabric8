@@ -16,6 +16,7 @@
 package io.fabric8.service;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.LinkedProfile;
 import io.fabric8.api.PatchService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
@@ -136,7 +137,7 @@ public class PatchServiceImpl implements PatchService {
                     builder.setOverrides(descriptor.getBundles());
                     profile = profileService.createProfile(builder.getProfile());
                     Profile defaultProfile = version.getRequiredProfile("default");
-                    List<Profile> parents = defaultProfile.getParents();
+                    List<Profile> parents = ((LinkedProfile)defaultProfile).getParents();
                     if (!parents.contains(profile)) {
                         parents.add(profile);
                         builder = ProfileBuilder.Factory.createFrom(defaultProfile);

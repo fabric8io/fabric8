@@ -44,7 +44,7 @@ public class VersionFacade implements Version, HasId {
     }
 
     @Override
-    public String revision() {
+    public String getRevision() {
         return null;
     }
 

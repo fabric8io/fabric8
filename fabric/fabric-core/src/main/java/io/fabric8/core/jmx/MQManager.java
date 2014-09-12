@@ -292,9 +292,9 @@ public class MQManager implements MQManagerMXBean {
                 dto.setBrokerName(brokerName);
                 String version = profile.getVersion();
                 dto.setVersion(version);
-                List<Profile> parents = profile.getParents();
+                List<String> parents = profile.getParentIds();
                 if (parents.size() > 0) {
-                    dto.setParentProfile(parents.get(0).getId());
+                    dto.setParentProfile(parents.get(0));
                 }
                 if (configuration != null) {
                     dto.setData(configuration.get(DATA));

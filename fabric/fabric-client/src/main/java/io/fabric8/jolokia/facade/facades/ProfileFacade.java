@@ -81,7 +81,6 @@ public class ProfileFacade implements Profile, HasId {
         return profiles != null ? profiles : Collections.<String>emptyList();
     }
 
-    @Override
     public List<Profile> getParents() {
         List<Profile> answer = new ArrayList<>();
         for (Object profile : getParentIds()) {

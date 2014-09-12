@@ -18,6 +18,7 @@ package io.fabric8.internal;
 import io.fabric8.api.AbstractBuilder;
 import io.fabric8.api.AttributableBuilder;
 import io.fabric8.api.Constants;
+import io.fabric8.api.LinkedProfile;
 import io.fabric8.api.OptionsProvider;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
@@ -63,7 +64,7 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 	DefaultProfileBuilder(Profile profile) {
 		versionId = profile.getVersion();
 		profileId = profile.getId();
-		addParents(profile.getParents());
+		addParents(((LinkedProfile)profile).getParents());
 		setFileConfigurations(profile.getFileConfigurations());
 		lastModified = null;
 	}

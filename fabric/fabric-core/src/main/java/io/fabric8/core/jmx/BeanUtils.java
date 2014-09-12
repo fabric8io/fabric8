@@ -19,6 +19,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Ids;
+import io.fabric8.api.LinkedProfile;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
@@ -41,7 +42,7 @@ public class BeanUtils {
         // Utils class
     }
 
-    public static List<String> getFields(Class clazz) {
+    public static List<String> getFields(Class<?> clazz) {
         List<String> answer = new ArrayList<String>();
 
         try {
@@ -120,7 +121,7 @@ public class BeanUtils {
 
             } else if (field.equalsIgnoreCase("parentIds") || field.equalsIgnoreCase("parents")) {
 
-                answer.put(field, Ids.getIds(profile.getParents()));
+                answer.put(field, profile.getParentIds());
 
             } else if (field.equalsIgnoreCase("class") || field.equalsIgnoreCase("string")
                     || field.equalsIgnoreCase("abstractProfile") || field.equalsIgnoreCase("attributes")) {
@@ -203,7 +204,8 @@ public class BeanUtils {
         List<String> ids = new ArrayList<String>();
         ProfileService profileService = fabricService.adapt(ProfileService.class);
         for (Profile p : profileService.getRequiredVersion(self.getVersion()).getProfiles()) {
-            for (Profile parent : p.getParents()) {
+            LinkedProfile linkedProfile = (LinkedProfile) p;
+            for (Profile parent : linkedProfile.getParents()) {
                 if (parent.getId().equals(self.getId())) {
                     ids.add(p.getId());
                     break;

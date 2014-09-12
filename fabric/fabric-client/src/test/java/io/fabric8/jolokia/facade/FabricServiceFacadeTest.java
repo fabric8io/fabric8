@@ -228,9 +228,9 @@ public class FabricServiceFacadeTest {
 
         Version v = service.getDefaultVersion();
         Assume.assumeNotNull(v);
-        Profile prof = v.getRequiredProfile("hawtio");
-        Assume.assumeNotNull(prof);
-        List<Profile> parents = prof.getParents();
+        Profile profile = v.getRequiredProfile("hawtio");
+        Assume.assumeNotNull(profile);
+        List<Profile> parents = ((LinkedProfile)profile).getParents();
         for (Profile p : parents) {
             System.out.println(p.getId() + " - " + p.getVersion());
         }

@@ -17,10 +17,12 @@ package io.fabric8.internal;
 
 import io.fabric8.api.Constants;
 import io.fabric8.api.FabricException;
+import io.fabric8.api.LinkedProfile;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
-import io.fabric8.utils.DataStoreUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,13 +30,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 
 /**
  * This immutable profile implementation.
  */
-final class ProfileImpl implements Profile {
+final class ProfileImpl implements LinkedProfile {
 
     private final String versionId;
     private final String profileId;
@@ -64,7 +67,7 @@ final class ProfileImpl implements Profile {
             fileConfigurations.put(fileKey, bytes);
             if (fileKey.endsWith(Profile.PROPERTIES_SUFFIX)) {
                 String pid = fileKey.substring(0, fileKey.indexOf(Profile.PROPERTIES_SUFFIX));
-                configurations.put(pid, Collections.unmodifiableMap(DataStoreUtils.toMap(bytes)));
+                configurations.put(pid, Collections.unmodifiableMap(toMap(bytes)));
             }
         }
         
@@ -145,6 +148,7 @@ final class ProfileImpl implements Profile {
         return Collections.unmodifiableList(new ArrayList<>(parents.keySet()));
     }
 
+    @Override
     public List<Profile> getParents() {
         return Collections.unmodifiableList(new ArrayList<>(parents.values()));
     }
@@ -285,6 +289,22 @@ final class ProfileImpl implements Profile {
         return answer;
     }
     
+    private Map<String, String> toMap(byte[] source) {
+        Properties props = new Properties();
+        if (source != null) {
+            try {
+                props.load(new ByteArrayInputStream(source));
+            } catch (IOException ex) {
+                throw new IllegalArgumentException("Cannot load properties", ex);
+            }
+        }
+        Map<String, String> result = new HashMap<String, String>();
+        for (Map.Entry<Object, Object> entry : props.entrySet()) {
+            result.put((String) entry.getKey(), (String) entry.getValue());
+        }
+        return Collections.unmodifiableMap(result);
+    }
+
     @Override
     public int hashCode() {
         int result = profileId.hashCode();
@@ -326,7 +346,7 @@ final class ProfileImpl implements Profile {
         return "Profile[ver=" + versionId + ",id=" + profileId + ",atts=" + getAttributes() + "]";
     }
 
-    enum ConfigListType {
+    public enum ConfigListType {
         BUNDLES("bundle"), 
         ENDORSED("endorsed"), 
         EXTENSION("extension"), 

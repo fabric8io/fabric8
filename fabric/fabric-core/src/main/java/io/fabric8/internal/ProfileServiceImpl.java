@@ -19,6 +19,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.LinkedProfile;
 import io.fabric8.api.OptionsProvider;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
@@ -325,7 +326,7 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
 
         private void fillParentProfiles(Profile profile, List<Profile> profiles) {
             if (!profiles.contains(profile)) {
-                for (Profile p : profile.getParents()) {
+                for (Profile p : ((LinkedProfile)profile).getParents()) {
                     fillParentProfiles(p, profiles);
                 }
                 profiles.add(profile);
@@ -383,7 +384,7 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
         private String getLastModified() {
             StringBuilder sb = new StringBuilder();
             sb.append(self.getProfileHash());
-            for (Profile parent : self.getParents()) {
+            for (Profile parent : ((LinkedProfile)self).getParents()) {
                 sb.append("-").append(parent.getProfileHash());
             }
             return sb.toString();

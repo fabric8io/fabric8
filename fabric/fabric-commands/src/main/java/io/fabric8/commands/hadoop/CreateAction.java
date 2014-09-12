@@ -20,6 +20,7 @@ import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.LinkedProfile;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileService;
@@ -252,7 +253,7 @@ public class CreateAction extends AbstractAction {
         if (child.getId().equals(parent.getId())) {
             return true;
         }
-        for (Profile p : child.getParents()) {
+        for (Profile p : ((LinkedProfile)child).getParents()) {
             if (isAncestor(parent, p)) {
                 return true;
             }
