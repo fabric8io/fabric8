@@ -460,13 +460,6 @@ public class ArchetypeBuilder {
 
     /**
      * Creates new element as child of <code>parent</code> and sets its text content
-     *
-     * @param doc
-     * @param parent
-     * @param name
-     * @param content
-     * @param beforeNames
-     * @return
      */
     protected Element replaceOrAddElementText(Document doc, Element parent, String name, String content, List<String> beforeNames) {
         Element element = replaceOrAddElement(doc, parent, name, beforeNames);
@@ -476,12 +469,6 @@ public class ArchetypeBuilder {
 
     /**
      * Returns new or existing Element from <code>parent</code>
-     *
-     * @param doc
-     * @param parent
-     * @param name
-     * @param beforeNames
-     * @return
      */
     private Element replaceOrAddElement(Document doc, Element parent, String name, List<String> beforeNames) {
         NodeList children = parent.getChildNodes();
@@ -548,12 +535,7 @@ public class ArchetypeBuilder {
     }
 
     /**
-     * Checks wheter the file contains specific line. Partial matches do not count.
-     *
-     * @param file
-     * @param matches
-     * @return
-     * @throws IOException
+     * Checks whether the file contains specific line. Partial matches do not count.
      */
     private boolean fileIncludesLine(File file, String matches) throws IOException {
         for (String line: FileUtils.readLines(file)) {
@@ -567,10 +549,6 @@ public class ArchetypeBuilder {
 
     /**
      * Copies all java/groovy/kotlin/scala code recursively. <code>replaceFn</code> is used to modify the content of files.
-     *
-     * @param rootPackage
-     * @param outDir
-     * @param replaceFn
      */
     private void copyCodeFiles(File rootPackage, File outDir, Replacement replaceFn) throws IOException {
         if (rootPackage.isFile()) {
@@ -589,11 +567,6 @@ public class ArchetypeBuilder {
     /**
      * Copies single file from <code>src</code> to <code>dest</code>.
      * If the file is source file, variable references will be escaped, so they'll survive Velocity template merging.
-     *
-     * @param src
-     * @param dest
-     * @param replaceFn
-     * @throws IOException
      */
     private void copyFile(File src, File dest, Replacement replaceFn) throws IOException {
         if (replaceFn != null && isSourceFile(src)) {
@@ -618,11 +591,6 @@ public class ArchetypeBuilder {
 
     /**
      * Copies all other source files which are not excluded
-     *
-     * @param projectDir
-     * @param srcDir
-     * @param outDir
-     * @param replaceFn
      */
     private void copyOtherFiles(File projectDir, File srcDir, File outDir, Replacement replaceFn) throws IOException {
         if (archetypeUtils.isValidFileToCopy(projectDir, srcDir)) {
@@ -656,9 +624,6 @@ public class ArchetypeBuilder {
 
     /**
      * Returns true if this file is a valid source file name
-     *
-     * @param file
-     * @return
      */
     private boolean isSourceFile(File file) {
         String name = FilenameUtils.getExtension(file.getName()).toLowerCase();
@@ -667,12 +632,9 @@ public class ArchetypeBuilder {
 
     /**
      * Returns true if this is a valid archetype property name, so excluding basedir and maven "project." names
-     *
-     * @param name
-     * @return
      */
     protected boolean isValidRequiredPropertyName(String name) {
-        return !name.equals("basedir") && !name.startsWith("project.") && !name.startsWith("pom.");
+        return !name.equals("basedir") && !name.startsWith("project.") && !name.startsWith("pom.") && !name.equals("package");
     }
 
     protected Node findChild(Element parent, String n) {
