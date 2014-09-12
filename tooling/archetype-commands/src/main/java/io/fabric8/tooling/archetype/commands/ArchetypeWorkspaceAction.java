@@ -23,7 +23,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = ArchetypeList.FUNCTION_VALUE, scope = ArchetypeList.SCOPE_VALUE, description = ArchetypeList.DESCRIPTION)
+@Command(name = ArchetypeWorkspace.FUNCTION_VALUE, scope = ArchetypeWorkspace.SCOPE_VALUE, description = ArchetypeWorkspace.DESCRIPTION)
 public class ArchetypeWorkspaceAction extends AbstractAction {
 
     @Argument(index = 0, name = "workspace", description = "To switch the workspace location (directory)", required = false, multiValued = false)

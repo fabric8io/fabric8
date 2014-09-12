@@ -42,7 +42,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 
 import static io.fabric8.common.util.Strings.isNullOrBlank;
 
-@Command(name = ArchetypeInfo.FUNCTION_VALUE, scope = ArchetypeCreate.SCOPE_VALUE, description = ArchetypeCreate.DESCRIPTION)
+@Command(name = ArchetypeInfo.FUNCTION_VALUE, scope = ArchetypeCreate.SCOPE_VALUE, description = ArchetypeCreate.DESCRIPTION, detailedDescription = "classpath:archetypeCreate.txt")
 public class ArchetypeCreateAction extends AbstractAction {
 
     @Argument(index = 0, name = "archetype", description = "Archetype id, or coordinate, or filter", required = false, multiValued = false)
