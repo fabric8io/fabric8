@@ -1654,7 +1654,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
         
         private Version loadVersion(Git git, GitContext context, String versionId, String revision) throws Exception {
-            VersionBuilder vbuilder = VersionBuilder.Factory.create(versionId).revision(revision);
+            VersionBuilder vbuilder = VersionBuilder.Factory.create(versionId).setRevision(revision);
             vbuilder.setAttributes(getVersionAttributes(git, context, versionId));
             populateVersionBuilder(git, context, vbuilder, "master", versionId);
             populateVersionBuilder(git, context, vbuilder, versionId, versionId);
