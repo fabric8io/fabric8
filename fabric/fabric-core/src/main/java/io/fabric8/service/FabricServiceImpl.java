@@ -538,6 +538,9 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 new Thread("Creating container " + containerName) {
                     public void run() {
                         try {
+                            if (getContainer(containerName) != null) {
+                                throw new IllegalArgumentException("A container with name " + containerName + " already exists.");
+                            }
                             dataStore.get().createContainerConfig(containerOptions);
                             CreateContainerMetadata metadata = provider.create(containerOptions, containerListener);
                             if (metadata.isSuccess()) {
