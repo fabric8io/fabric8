@@ -64,7 +64,7 @@ final class DefaultVersionBuilder extends AbstractAttributableBuilder<VersionBui
 	}
 
     @Override
-    public VersionBuilder revision(String revision) {
+    public VersionBuilder setRevision(String revision) {
         this.revision = revision;
         return this;
     }
