@@ -17,7 +17,6 @@ package io.fabric8.tooling.archetype.commands;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +37,6 @@ import io.fabric8.tooling.archetype.generator.ArchetypeHelper;
 import io.fabric8.utils.shell.ShellUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
 import static io.fabric8.common.util.Strings.isNullOrBlank;
@@ -48,17 +46,14 @@ public class ArchetypeCreateAction extends AbstractAction {
 
     private static final String DEFAULT_TARGET = "/tmp";
 
-    @Argument(index = 0, name = "archetype", description = "ArchetypeId or coordinate", required = false, multiValued = false)
-    private String archetypeGAV;
+    @Argument(index = 0, name = "archetype", description = "Archetype id, or coordinate, or filter", required = false, multiValued = false)
+    private String archetypeOrFilter;
 
     @Argument(index = 1, name = "target", description = "Target directory where the project will be generated in a sub directory", required = false, multiValued = false)
     private File target;
 
     @Argument(index = 2, name = "directoryName", description = "The sub directory name", required = false, multiValued = false)
     private String directoryName;
-
-    @Option(name = "-f", aliases = "--filter", description = "Filter list of artifacts to choose among", multiValued = false, required = false)
-    private String filter;
 
     private final ArchetypeService archetypeService;
 
@@ -71,24 +66,24 @@ public class ArchetypeCreateAction extends AbstractAction {
         Archetype archetype = null;
 
         // try artifact first
-        if (!isNullOrBlank(archetypeGAV)) {
-            archetype = archetypeService.getArchetypeByArtifact(archetypeGAV);
+        if (!isNullOrBlank(archetypeOrFilter)) {
+            archetype = archetypeService.getArchetypeByArtifact(archetypeOrFilter);
             if (archetype == null) {
                 // then by coordinate
-                archetypeService.getArchetype(archetypeGAV);
+                archetype = archetypeService.getArchetype(archetypeOrFilter);
             }
         }
 
         // no archetype yet so present a list where the user can select
         while (archetype == null) {
-            List<Archetype> archetypes = archetypeService.listArchetypes(filter, true);
+            List<Archetype> archetypes = archetypeService.listArchetypes(archetypeOrFilter, true);
 
             System.out.println("Choose archetype:");
             Iterator<Archetype> it = archetypes.iterator();
             int i = 0;
             while (it.hasNext()) {
                 Archetype select = it.next();
-                System.out.println(String.format("%-4s: -> %-50s %s", "" + ++i, select.artifactId, select.description));
+                System.out.println(String.format("%4d: -> %-50s %s", ++i, select.artifactId, select.description));
             }
 
             boolean choosing = true;
@@ -114,85 +109,104 @@ public class ArchetypeCreateAction extends AbstractAction {
                     }
                 } catch (NumberFormatException e) {
                     // no its a filter, so we use this as filter, and show the list again
-                    filter = choose;
+                    archetypeOrFilter = choose;
                     choosing = false;
                     archetype = null;
                 }
             }
         }
 
-        if (archetype != null) {
-            Preferences preferences = Preferences.userNodeForPackage(getClass());
-            if (target == null) {
-                target = new File(preferences.get("target", DEFAULT_TARGET));
-            } else {
-                preferences.put("target", target.getCanonicalPath());
+        // okay we have selected an archetype now
+
+        Preferences preferences = Preferences.userNodeForPackage(getClass());
+        if (target == null) {
+            target = new File(preferences.get("target", DEFAULT_TARGET));
+        } else {
+            preferences.put("target", target.getCanonicalPath());
+        }
+        File archetypeFile = fetchArchetype(archetype);
+        if (archetypeFile == null || !archetypeFile.exists()) {
+            System.err.println("No archetype found for \"" + archetypeOrFilter + "\" coordinates");
+            return null;
+        }
+
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("Using archetype: " + archetype.artifactId);
+
+        String defaultGroupId = "io.fabric8";
+        String defaultArtifactId = archetype.artifactId + "-example";
+        String defaultVersion = "1.0-SNAPSHOT";
+
+        System.out.println("----- Configure archetype -----");
+        String groupId = ShellUtils.readLine(session, String.format("Define value for property 'groupId' (%s): ", defaultGroupId), false);
+        String artifactId = ShellUtils.readLine(session, String.format("Define value for property 'artifactId' (%s): ", defaultArtifactId), false);
+        String version = ShellUtils.readLine(session,  String.format("Define value for property 'version' (%s): ", defaultVersion), false);
+        String defaultPackageName = (groupId + "." + artifactId).replaceAll("-", ".");
+        String packageName = ShellUtils.readLine(session, String.format("Define value for property 'package' (%s): ", defaultPackageName), false);
+        if (directoryName == null) {
+            // use artifact id as default directory name (maven does this also)
+            String defaultDirectoryName = isNullOrBlank(artifactId) ? defaultArtifactId : artifactId;
+            directoryName = ShellUtils.readLine(session, String.format("Define value for property 'directoryName' (%s): ", defaultDirectoryName), false);
+        }
+
+        groupId = isNullOrBlank(groupId) ? defaultGroupId : groupId;
+        artifactId = isNullOrBlank(artifactId) ? defaultArtifactId : artifactId;
+        version = isNullOrBlank(version) ? defaultVersion : version;
+        packageName = isNullOrBlank(packageName) ? defaultPackageName : packageName;
+        directoryName = isNullOrBlank(directoryName) ? artifactId : directoryName;
+
+        File childDir = new File(target, directoryName);
+
+        ArchetypeHelper helper = new ArchetypeHelper(archetypeFile, childDir, groupId, artifactId, version);
+        helper.setPackageName(packageName);
+
+        Map<String, String> properties = helper.parseProperties();
+
+        // show additional properties and ask to use them as-is
+        if (!properties.isEmpty()) {
+            System.out.println("----- Additional properties -----");
+            for (String key : properties.keySet()) {
+                System.out.println(String.format("Using property '%s' (%s): ", key, properties.get(key)));
             }
-            File archetypeFile = fetchArchetype(archetype);
-            if (archetypeFile == null || !archetypeFile.exists()) {
-                System.err.println("No archetype found for \"" + archetypeGAV + "\" coordinates");
-                return null;
-            }
+        }
 
+        boolean choosing = true;
+        while (choosing) {
 
-            System.out.println("----------------------------------------------------------------------------");
-            System.out.println("Using archetype: " + archetype.artifactId);
-
-            String defaultGroupId = "io.fabric8";
-            String defaultArtifactId = archetype.artifactId + "-example";
-            String defaultVersion = "1.0-SNAPSHOT";
-
-            System.out.println("----- Configure archetype -----");
-            String groupId = ShellUtils.readLine(session, String.format("Define value for property 'groupId' (%s): ", defaultGroupId), false);
-            String artifactId = ShellUtils.readLine(session, String.format("Define value for property 'artifactId' (%s): ", defaultArtifactId), false);
-            String version = ShellUtils.readLine(session,  String.format("Define value for property 'version' (%s): ", defaultVersion), false);
-            String defaultPackageName = (groupId + "." + artifactId).replaceAll("-", ".");
-            String packageName = ShellUtils.readLine(session, String.format("Define value for property 'package' (%s): ", defaultPackageName), false);
-            if (directoryName == null) {
-                // use artifact id as default directory name (maven does this also)
-                String defaultDirectoryName = isNullOrBlank(artifactId) ? defaultArtifactId : artifactId;
-                directoryName = ShellUtils.readLine(session, String.format("Define value for property 'directoryName' (%s): ", defaultDirectoryName), false);
-            }
-
-            groupId = isNullOrBlank(groupId) ? defaultGroupId : groupId;
-            artifactId = isNullOrBlank(artifactId) ? defaultArtifactId : artifactId;
-            version = isNullOrBlank(version) ? defaultVersion : version;
-            packageName = isNullOrBlank(packageName) ? defaultPackageName : packageName;
-            directoryName = isNullOrBlank(directoryName) ? artifactId : directoryName;
-
-            File childDir = new File(target, directoryName);
-
-            ArchetypeHelper helper = new ArchetypeHelper(archetypeFile, childDir, groupId, artifactId, version);
-            helper.setPackageName(packageName);
-
-            Map<String, String> properties = helper.parseProperties();
-            // ask for replacement properties suggesting the defaults
-            if (!properties.isEmpty()) {
-                System.out.println("----- Configure additional properties -----");
-                for (String key : properties.keySet()) {
-                    String p = ShellUtils.readLine(session, String.format("Define value for property '%s' (%s): ", key, properties.get(key)), false);
-                    p = p == null || p.trim().equals("") ? properties.get(key) : p;
-                    properties.put(key, p);
-                }
-            }
-            helper.setOverrideProperties(properties);
-
-            String confirm = ShellUtils.readLine(session, "Create project: (Y): ", false);
+            String confirm = ShellUtils.readLine(session, "Confirm additional properties configuration: (Y): ", false);
             confirm = confirm == null || confirm.trim().equals("") ? "Y" : confirm;
 
-            if ("Y".equalsIgnoreCase(confirm)) {
-                System.out.println("----------------------------------------------------------------------------");
-                System.out.println(String.format("Creating project in directory: %s", childDir.getCanonicalPath()));
-                helper.execute();
-                System.out.println("Project created successfully");
-                System.out.println("");
+            if (!"Y".equalsIgnoreCase(confirm)) {
+                // ask for replacement properties suggesting the defaults
+                if (!properties.isEmpty()) {
+                    System.out.println("----- Configure additional properties -----");
+                    for (String key : properties.keySet()) {
+                        String p = ShellUtils.readLine(session, String.format("Define value for property '%s' (%s): ", key, properties.get(key)), false);
+                        p = p == null || p.trim().equals("") ? properties.get(key) : p;
+                        properties.put(key, p);
+                    }
+                }
             } else {
-                System.out.println("----------------------------------------------------------------------------");
-                System.out.println("Creating project aborted!");
-                System.out.println("");
+                choosing = false;
             }
+        }
+
+        // set override properties
+        helper.setOverrideProperties(properties);
+
+        String confirm = ShellUtils.readLine(session, "Create project: (Y): ", false);
+        confirm = confirm == null || confirm.trim().equals("") ? "Y" : confirm;
+
+        if ("Y".equalsIgnoreCase(confirm)) {
+            System.out.println("----------------------------------------------------------------------------");
+            System.out.println(String.format("Creating project in directory: %s", childDir.getCanonicalPath()));
+            helper.execute();
+            System.out.println("Project created successfully");
+            System.out.println("");
         } else {
-            System.err.println("No archetype found for: " + archetypeGAV);
+            System.out.println("----------------------------------------------------------------------------");
+            System.out.println("Creating project aborted!");
+            System.out.println("");
         }
         return null;
     }
