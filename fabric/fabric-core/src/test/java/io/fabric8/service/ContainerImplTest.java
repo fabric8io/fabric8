@@ -216,7 +216,7 @@ public class ContainerImplTest {
         replay(dataStore);
 
         Profile overlay = container.getOverlayProfile();
-        List<Profile> parents = overlay.getParents();
+        List<String> parents = overlay.getParentIds();
         assertEquals(2, parents.size());
 
         verify(fabricService);

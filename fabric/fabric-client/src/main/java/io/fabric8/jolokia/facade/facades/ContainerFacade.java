@@ -162,6 +162,11 @@ public class ContainerFacade implements Container, HasId {
     }
 
     @Override
+    public List<String> getProfileIds() {
+        return getFieldValue("profileIds");
+    }
+
+    @Override
     public Profile[] getProfiles() {
         List<String> profileIds = getFieldValue("profileIds");
         if (profileIds == null || profileIds.size() == 0) {

@@ -435,7 +435,7 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
 
         @Override
 		public ProfileBuilder addOptions(ProfileBuilder builder) {
-			return builder.addParents(version.getProfiles());
+			return builder.addParents(version.getProfileIds());
 		}
     }
 }

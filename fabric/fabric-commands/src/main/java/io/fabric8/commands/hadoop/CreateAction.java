@@ -137,7 +137,7 @@ public class CreateAction extends AbstractAction {
 
         String versionId = version.getId();
         ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, "hadoop-" + name);
-        builder.addParent(hadoop);
+        builder.addParent(hadoop.getId());
         configs = new HashMap<String, Map<String, String>>();
         configs.put("io.fabric8.hadoop", new HashMap<String, String>());
         configs.get("io.fabric8.hadoop").put("fs.default.name", "hdfs://${zk:" + nameNode + "/ip}:9000");
@@ -145,42 +145,42 @@ public class CreateAction extends AbstractAction {
         Profile cluster = profileService.createProfile(builder.setConfigurations(configs).getProfile());
 
         builder = ProfileBuilder.Factory.create(versionId, "hadoop-" + name + "-namenode");
-        builder.addParent(cluster);
+        builder.addParent(cluster.getId());
         configs = new HashMap<String, Map<String, String>>();
         configs.put("io.fabric8.hadoop", new HashMap<String, String>());
         configs.get("io.fabric8.hadoop").put("nameNode", "true");
         Profile nameNodeProfile = profileService.createProfile(builder.setConfigurations(configs).getProfile());
 
         builder = ProfileBuilder.Factory.create(versionId, "hadoop-" + name + "-secondary-namenode");
-        builder.addParent(cluster);
+        builder.addParent(cluster.getId());
         configs = new HashMap<String, Map<String, String>>();
         configs.put("io.fabric8.hadoop", new HashMap<String, String>());
         configs.get("io.fabric8.hadoop").put("secondaryNameNode", "true");
         Profile secondaryNameNodeProfile = profileService.createProfile(builder.setConfigurations(configs).getProfile());
 
         builder = ProfileBuilder.Factory.create(versionId, "hadoop-" + name + "-datanode");
-        builder.addParent(cluster);
+        builder.addParent(cluster.getId());
         configs = new HashMap<String, Map<String, String>>();
         configs.put("io.fabric8.hadoop", new HashMap<String, String>());
         configs.get("io.fabric8.hadoop").put("dataNode", "true");
         Profile dataNodeProfile = profileService.createProfile(builder.setConfigurations(configs).getProfile());
 
         builder = ProfileBuilder.Factory.create(versionId, "hadoop-" + name + "-job-tracker");
-        builder.addParent(cluster);
+        builder.addParent(cluster.getId());
         configs = new HashMap<String, Map<String, String>>();
         configs.put("io.fabric8.hadoop", new HashMap<String, String>());
         configs.get("io.fabric8.hadoop").put("jobTracker", "true");
         Profile jobTrackerProfile = profileService.createProfile(builder.setConfigurations(configs).getProfile());
 
         builder = ProfileBuilder.Factory.create(versionId, "hadoop-" + name + "-task-tracker");
-        builder.addParent(cluster);
+        builder.addParent(cluster.getId());
         configs = new HashMap<String, Map<String, String>>();
         configs.put("io.fabric8.hadoop", new HashMap<String, String>());
         configs.get("io.fabric8.hadoop").put("taskTracker", "true");
         Profile taskTrackerProfile = profileService.createProfile(builder.setConfigurations(configs).getProfile());
 
         builder = ProfileBuilder.Factory.create(versionId, "insight-hdfs-" + name);
-        builder.addParent(version.getRequiredProfile("insight-hdfs"));
+        builder.addParent(version.getRequiredProfile("insight-hdfs").getId());
         configs = new HashMap<String, Map<String, String>>();
         configs.put("io.fabric8.insight.elasticsearch-default", new HashMap<String, String>());
         configs.get("io.fabric8.insight.elasticsearch-default").put("gateway.hdfs.uri", "hdfs://${zk:" + nameNode + "/ip}:9000");
@@ -237,9 +237,11 @@ public class CreateAction extends AbstractAction {
     }
 
     private void addProfile(Container container, Profile profile) {
+        Version version = profileService.getRequiredVersion(profile.getVersion());
         List<Profile> profiles = new ArrayList<Profile>();
-        for (Profile p : container.getProfiles()) {
-            if (!isAncestor(p, profile)) {
+        for (String prfId : container.getProfileIds()) {
+            Profile p = version.getRequiredProfile(prfId);
+            if (!isAncestor(version, prfId, profile)) {
                 profiles.add(p);
             }
         }
@@ -248,12 +250,13 @@ public class CreateAction extends AbstractAction {
 
     }
 
-    private boolean isAncestor(Profile parent, Profile child) {
-        if (child.getId().equals(parent.getId())) {
+    private boolean isAncestor(Version version, String parentId, Profile child) {
+        if (child.getId().equals(parentId)) {
             return true;
         }
-        for (Profile p : child.getParents()) {
-            if (isAncestor(parent, p)) {
+        for (String auxId : child.getParentIds()) {
+            Profile p = version.getRequiredProfile(auxId);
+            if (isAncestor(version, parentId, p)) {
                 return true;
             }
         }

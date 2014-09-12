@@ -82,15 +82,6 @@ public class ProfileFacade implements Profile, HasId {
     }
 
     @Override
-    public List<Profile> getParents() {
-        List<Profile> answer = new ArrayList<>();
-        for (Object profile : getParentIds()) {
-            answer.add(new ProfileFacade(j4p, versionId, (String)profile));
-        }
-        return Collections.unmodifiableList(answer);
-    }
-
-    @Override
     public List<String> getLibraries() {
         return getFieldValue("libraries");
     }
@@ -289,7 +280,7 @@ public class ProfileFacade implements Profile, HasId {
 
     @Override
     public String getIconURL() {
-        return Profiles.getProfileIconURL(getParents());
+        return getFieldValue("iconURL");
     }
     
     @Override
