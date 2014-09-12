@@ -1,4 +1,12 @@
 
+### 1.2.0.Beta4
+
+* Improves startup experience so its a bit more clear when fabric8 has completed provisioning.
+* Improvements to the REST API so you can easily view containers for a profile, start/stop/delete containers or POST new profiles to a version or DELETE profiles
+* Fixes [these 60 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A1.2.0.Beta4)
+
+Note that until we move to CXF 3.x the REST API is at http://localhost:8181/cxf/fabric8 and not its usual http://localhost:8181/api/fabric8 - you can always use the **fabric:info** CLI command to find it.
+
 ### 1.2.0.Beta3
 
 * Fixes running fabric8 inside docker and creating containers from within docker
