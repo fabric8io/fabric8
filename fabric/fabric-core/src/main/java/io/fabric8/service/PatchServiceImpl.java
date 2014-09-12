@@ -32,7 +32,11 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -136,11 +140,11 @@ public class PatchServiceImpl implements PatchService {
                     builder.setOverrides(descriptor.getBundles());
                     profile = profileService.createProfile(builder.getProfile());
                     Profile defaultProfile = version.getRequiredProfile("default");
-                    List<Profile> parents = defaultProfile.getParents();
-                    if (!parents.contains(profile)) {
-                        parents.add(profile);
+                    List<String> parentIds = defaultProfile.getParentIds();
+                    if (!parentIds.contains(profile.getId())) {
+                        parentIds.add(profile.getId());
                         builder = ProfileBuilder.Factory.createFrom(defaultProfile);
-                        builder.setParents(parents);
+                        builder.setParents(parentIds);
                         profileService.updateProfile(builder.getProfile());
                     }
                 } else {

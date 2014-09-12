@@ -230,9 +230,9 @@ public class FabricServiceFacadeTest {
         Assume.assumeNotNull(v);
         Profile prof = v.getRequiredProfile("hawtio");
         Assume.assumeNotNull(prof);
-        List<Profile> parents = prof.getParents();
-        for (Profile p : parents) {
-            System.out.println(p.getId() + " - " + p.getVersion());
+        List<String> parentIds = prof.getParentIds();
+        for (String prfId : parentIds) {
+            System.out.println(prfId + " - " + prof.getVersion());
         }
     }
 
