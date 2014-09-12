@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.kubernetes.provider.commands;
+package io.fabric8.kubernetes.provider;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterService;
@@ -34,7 +34,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.service.command.Function;
 
 @Component(immediate = true)
-@Service({ Function.class, AbstractCommand.class })
+@Service({Function.class, AbstractCommand.class})
 @org.apache.felix.scr.annotations.Properties({
         @Property(name = "osgi.command.scope", value = ContainerCreateKubernetes.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = ContainerCreateKubernetes.FUNCTION_VALUE)
@@ -42,7 +42,7 @@ import org.apache.felix.service.command.Function;
 public class ContainerCreateKubernetes extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-create-kubernetes";
+    public static final String FUNCTION_VALUE = "container-create-kubernetes";
     public static final String DESCRIPTION = "Creates one or more kubernetes containers";
 
     @Reference(referenceInterface = FabricService.class)

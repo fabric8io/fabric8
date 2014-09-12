@@ -28,7 +28,7 @@ import io.fabric8.container.process.JolokiaAgentHelper;
 import io.fabric8.deployer.JavaContainers;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.Dockers;
-import io.fabric8.docker.provider.CreateDockerContainerOptions;
+import io.fabric8.docker.provider.DockerCreateOptions;
 import io.fabric8.process.manager.support.ProcessUtils;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
 import org.apache.curator.framework.CuratorFramework;
@@ -42,7 +42,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +57,7 @@ import java.util.concurrent.ExecutorService;
 public class CustomDockerContainerImageBuilder {
     private static final transient Logger LOGGER = LoggerFactory.getLogger(CustomDockerContainerImageBuilder.class);
 
-    public String generateContainerImage(FabricService fabric, Container container, List<Profile> profileList, Docker docker, CustomDockerContainerImageOptions options, JavaContainerConfig javaConfig, CreateDockerContainerOptions containerOptions, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
+    public String generateContainerImage(FabricService fabric, Container container, List<Profile> profileList, Docker docker, CustomDockerContainerImageOptions options, JavaContainerConfig javaConfig, DockerCreateOptions containerOptions, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
         String libDirAndSeparator = ensureEndsWithFileSeparator(options.getJavaLibraryPath());
         String deployDirAndSeparator = ensureEndsWithFileSeparator(options.getJavaDeployPath());
         String homeDirAndSeparator = ensureEndsWithFileSeparator(options.getHomePath());
@@ -197,7 +196,7 @@ public class CustomDockerContainerImageBuilder {
         return answer;
     }
 
-    protected int addOverlayFiles(DockerFileBuilder dockerFile, String restAPI, FabricService fabricService, List<Profile> profiles, CreateDockerContainerOptions containerOptions, Map<String, String> environmentVariables, String homeDirAndSeparator, File overlaysDir, File tmpDockerfileDir, String profileOverlayFolder) throws Exception {
+    protected int addOverlayFiles(DockerFileBuilder dockerFile, String restAPI, FabricService fabricService, List<Profile> profiles, DockerCreateOptions containerOptions, Map<String, String> environmentVariables, String homeDirAndSeparator, File overlaysDir, File tmpDockerfileDir, String profileOverlayFolder) throws Exception {
         Set<String> profileIds = containerOptions.getProfiles();
         String versionId = containerOptions.getVersion();
         int overlays = 0;

@@ -53,7 +53,7 @@ public class ChildContainers {
     /**
      * Returns true if the given container is a java or process child container
      */
-    public static boolean isJavaOrProcessContainer(FabricService fabric, CreateContainerBasicOptions options) {
+    public static boolean isJavaOrProcessContainer(FabricService fabric, CreateContainerOptions options) {
         boolean isJavaContainer = isJavaContainer(fabric, options);
         boolean isProcessContainer = isProcessContainer(fabric, options);
         return isProcessContainer || isJavaContainer;
@@ -62,7 +62,7 @@ public class ChildContainers {
     /**
      * Returns true if the given container is a java child container
      */
-    public static boolean isJavaContainer(FabricService fabricService, CreateContainerBasicOptions options) {
+    public static boolean isJavaContainer(FabricService fabricService, CreateContainerOptions options) {
         Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), Constants.JAVA_CONTAINER_PID);
         return !javaContainerConfig.isEmpty();
     }
@@ -70,7 +70,7 @@ public class ChildContainers {
     /**
      * Returns true if the given container is a process child container
      */
-    public static boolean isProcessContainer(FabricService fabricService, CreateContainerBasicOptions options) {
+    public static boolean isProcessContainer(FabricService fabricService, CreateContainerOptions options) {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         Map<String, ?> processConfig = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, Constants.PROCESS_CONTAINER_PID);
@@ -81,11 +81,11 @@ public class ChildContainers {
      * Creates the environment variables for the given container options using the profiles specified in the options to figure out
      * what environment variables to use.
      */
-    public static Map<String, String> getEnvironmentVariables(FabricService service, CreateContainerBasicOptions options) {
+    public static Map<String, String> getEnvironmentVariables(FabricService service, CreateContainerOptions options) {
         return getEnvironmentVariables(service, options, service.getEnvironment());
     }
 
-    public static Map<String, String> getEnvironmentVariables(FabricService service, CreateContainerBasicOptions options, String environment) {
+    public static Map<String, String> getEnvironmentVariables(FabricService service, CreateContainerOptions options, String environment) {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         String zookeeperUrl = service.getZookeeperUrl();

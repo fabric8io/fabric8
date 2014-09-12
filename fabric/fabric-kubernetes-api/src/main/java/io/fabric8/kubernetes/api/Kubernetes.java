@@ -87,7 +87,7 @@ public interface Kubernetes {
     @POST
     @Path("pods")
     @Consumes("application/json")
-    void postPods(PodSchema entity) throws Exception;
+    void createPod(PodSchema entity) throws Exception;
 
     /**
      * Get a specific pod

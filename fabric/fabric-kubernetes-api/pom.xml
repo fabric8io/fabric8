@@ -30,7 +30,7 @@
   <artifactId>fabric-kubernetes-api</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: Tooling :: Kubernetes Client API</name>
+  <name>Fabric8 :: Kubernetes Client API</name>
 
   <properties>
     <fuse.osgi.export>
@@ -59,9 +59,12 @@
       org.apache.http.*,
       org.apache.commons.*,
       com.fasterxml.jackson.jaxrs.*,
+      javax.validation*,
+      javax.annotation*,
     </fuse.osgi.private.pkg>
 
-    <kube.work.dir>${basedir}</kube.work.dir>
+    <clone-kube>true</clone-kube>
+    <kube.work.dir>${basedir}/target</kube.work.dir>
     <kube.dir>${kube.work.dir}/kubernetes</kube.dir>
     <resteasy-version>3.0.8.Final</resteasy-version>
     <cxf-version>3.0.1</cxf-version>
@@ -108,11 +111,13 @@
       <version>${cxf-version}</version>
     </dependency>
 -->
+<!--
     <dependency>
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
       <version>2.0</version>
     </dependency>
+-->
      <dependency>
        <groupId>org.jboss.resteasy</groupId>
        <artifactId>jaxrs-api</artifactId>
@@ -132,23 +137,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-scm-plugin</artifactId>
-        <version>1.9.1</version>
-        <configuration>
-          <checkoutDirectory>${kube.dir}</checkoutDirectory>
-          <connectionUrl>scm:git:git@github.com:fabric8io/kubernetes.git</connectionUrl>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>checkout</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
 
 <!--
       <plugin>
@@ -174,6 +162,23 @@
         </executions>
       </plugin>
 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-scm-plugin</artifactId>
+        <version>1.9.1</version>
+        <configuration>
+          <checkoutDirectory>${kube.dir}</checkoutDirectory>
+          <connectionUrl>scm:git:git@github.com:fabric8io/kubernetes.git</connectionUrl>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>checkout</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 
       <plugin>
         <groupId>org.jsonschema2pojo</groupId>
@@ -183,6 +188,7 @@
           <sourceDirectory>${kube.dir}/api/doc</sourceDirectory>
           <targetPackage>io.fabric8.kubernetes.api.model</targetPackage>
           <includeJsr303Annotations>true</includeJsr303Annotations>
+          <outputDirectory>${basedir}/target/generated-sources</outputDirectory>
         </configuration>
         <executions>
           <execution>
@@ -194,7 +200,6 @@
         </executions>
       </plugin>
 
-<!--
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
@@ -220,7 +225,6 @@
           <generatedSourcesDirectory>${basedir}/target/generated-sources</generatedSourcesDirectory>
         </configuration>
       </plugin>
--->
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -252,6 +256,20 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>clone-kubernetes</id>
+      <activation>
+        <property>
+          <name>clone-kube</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+        </plugins>
+      </build>
+    </profile>
+
     <profile>
       <id>raml-to-jaxrs</id>
       <build>
