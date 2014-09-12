@@ -33,8 +33,8 @@ public class ApplicationCreateAction extends OpenshiftCommandSupport {
     @Option(name = "--domain", required = false, description = "Create applications on that domain.")
     String domainId;
 
-    @Option(name = "--gear-size", description = "Gear size controls how much memory and CPU your cartridges can use.")
-    private String gearSize = "small";
+    @Option(name = "--gear-profile", description = "Gear profile controls how much memory and CPU your cartridges can use.")
+    private String gearProfile = "small";
 
     @Argument(index = 0, name = "application", required = true, description = "The target application.")
     String applicationName;
@@ -51,7 +51,7 @@ public class ApplicationCreateAction extends OpenshiftCommandSupport {
             domain = user.createDomain(domainId);
         }
 
-        IApplication application = domain.createApplication(applicationName, new StandaloneCartridge(cartridge), null, new GearProfile(gearSize));
+        IApplication application = domain.createApplication(applicationName, new StandaloneCartridge(cartridge), null, new GearProfile(gearProfile));
         System.out.println(application.getCreationLog());
         return null;
     }
