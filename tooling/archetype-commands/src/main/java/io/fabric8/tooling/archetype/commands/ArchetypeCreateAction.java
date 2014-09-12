@@ -44,15 +44,10 @@ import static io.fabric8.common.util.Strings.isNullOrBlank;
 @Command(name = ArchetypeInfo.FUNCTION_VALUE, scope = ArchetypeCreate.SCOPE_VALUE, description = ArchetypeCreate.DESCRIPTION)
 public class ArchetypeCreateAction extends AbstractAction {
 
-    private static final String DEFAULT_TARGET = "/tmp";
-
     @Argument(index = 0, name = "archetype", description = "Archetype id, or coordinate, or filter", required = false, multiValued = false)
     private String archetypeOrFilter;
 
-    @Argument(index = 1, name = "target", description = "Target directory where the project will be generated in a sub directory", required = false, multiValued = false)
-    private File target;
-
-    @Argument(index = 2, name = "directoryName", description = "The sub directory name", required = false, multiValued = false)
+    @Argument(index = 1, name = "directoryName", description = "The sub directory name", required = false, multiValued = false)
     private String directoryName;
 
     private final ArchetypeService archetypeService;
@@ -63,6 +58,18 @@ public class ArchetypeCreateAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
+        // must have a workspace location configured
+        Preferences preferences = Preferences.userNodeForPackage(getClass());
+        String current = preferences.get(ArchetypeWorkspace.PREFERENCE_WORKSPACE, null);
+        if (current == null) {
+            System.out.println("No workspace location has been set.");
+            System.out.println("Use the archetype-workspace command to set a workspace first.");
+            System.out.println("");
+            return null;
+        }
+
+        File target = new File(current);
+
         Archetype archetype = null;
 
         // try artifact first
@@ -118,12 +125,6 @@ public class ArchetypeCreateAction extends AbstractAction {
 
         // okay we have selected an archetype now
 
-        Preferences preferences = Preferences.userNodeForPackage(getClass());
-        if (target == null) {
-            target = new File(preferences.get("target", DEFAULT_TARGET));
-        } else {
-            preferences.put("target", target.getCanonicalPath());
-        }
         File archetypeFile = fetchArchetype(archetype);
         if (archetypeFile == null || !archetypeFile.exists()) {
             System.err.println("No archetype found for \"" + archetypeOrFilter + "\" coordinates");
@@ -168,31 +169,31 @@ public class ArchetypeCreateAction extends AbstractAction {
             for (String key : properties.keySet()) {
                 System.out.println(String.format("Using property '%s' (%s): ", key, properties.get(key)));
             }
-        }
 
-        boolean choosing = true;
-        while (choosing) {
+            boolean choosing = true;
+            while (choosing) {
 
-            String confirm = ShellUtils.readLine(session, "Confirm additional properties configuration: (Y): ", false);
-            confirm = confirm == null || confirm.trim().equals("") ? "Y" : confirm;
+                String confirm = ShellUtils.readLine(session, "Confirm additional properties configuration: (Y): ", false);
+                confirm = confirm == null || confirm.trim().equals("") ? "Y" : confirm;
 
-            if (!"Y".equalsIgnoreCase(confirm)) {
-                // ask for replacement properties suggesting the defaults
-                if (!properties.isEmpty()) {
-                    System.out.println("----- Configure additional properties -----");
-                    for (String key : properties.keySet()) {
-                        String p = ShellUtils.readLine(session, String.format("Define value for property '%s' (%s): ", key, properties.get(key)), false);
-                        p = p == null || p.trim().equals("") ? properties.get(key) : p;
-                        properties.put(key, p);
+                if (!"Y".equalsIgnoreCase(confirm)) {
+                    // ask for replacement properties suggesting the defaults
+                    if (!properties.isEmpty()) {
+                        System.out.println("----- Configure additional properties -----");
+                        for (String key : properties.keySet()) {
+                            String p = ShellUtils.readLine(session, String.format("Define value for property '%s' (%s): ", key, properties.get(key)), false);
+                            p = p == null || p.trim().equals("") ? properties.get(key) : p;
+                            properties.put(key, p);
+                        }
                     }
+                } else {
+                    choosing = false;
                 }
-            } else {
-                choosing = false;
             }
-        }
 
-        // set override properties
-        helper.setOverrideProperties(properties);
+            // set override properties
+            helper.setOverrideProperties(properties);
+        }
 
         String confirm = ShellUtils.readLine(session, "Create project: (Y): ", false);
         confirm = confirm == null || confirm.trim().equals("") ? "Y" : confirm;
