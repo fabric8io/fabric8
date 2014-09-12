@@ -160,15 +160,17 @@ public class ArchetypeCreateAction extends AbstractAction {
         String groupId = ShellUtils.readLine(session, String.format("Define value for property 'groupId' (%s): ", defaultGroupId), false);
         String artifactId = ShellUtils.readLine(session, String.format("Define value for property 'artifactId' (%s): ", defaultArtifactId), false);
         String version = ShellUtils.readLine(session,  String.format("Define value for property 'version' (%s): ", defaultVersion), false);
+
+        groupId = isNullOrBlank(groupId) ? defaultGroupId : groupId;
+        artifactId = isNullOrBlank(artifactId) ? defaultArtifactId : artifactId;
+        version = isNullOrBlank(version) ? defaultVersion : version;
+
         String defaultPackageName = (groupId + "." + artifactId).replaceAll("-", ".");
         String packageName = ShellUtils.readLine(session, String.format("Define value for property 'package' (%s): ", defaultPackageName), false);
         // use artifact id as default directory name (maven does this also)
         String defaultDirectoryName = isNullOrBlank(artifactId) ? defaultArtifactId : artifactId;
         directory = ShellUtils.readLine(session, String.format("Define value for property 'directoryName' (%s): ", defaultDirectoryName), false);
 
-        groupId = isNullOrBlank(groupId) ? defaultGroupId : groupId;
-        artifactId = isNullOrBlank(artifactId) ? defaultArtifactId : artifactId;
-        version = isNullOrBlank(version) ? defaultVersion : version;
         packageName = isNullOrBlank(packageName) ? defaultPackageName : packageName;
         directory = isNullOrBlank(directory) ? artifactId : directory;
 
@@ -180,28 +182,48 @@ public class ArchetypeCreateAction extends AbstractAction {
         Map<String, String> properties = helper.parseProperties();
 
         // show additional properties and ask to use them as-is
+        boolean mustChoose = false;
         if (!properties.isEmpty()) {
-            System.out.println("----- Additional properties -----");
-            for (String key : properties.keySet()) {
-                System.out.println(String.format("Using property '%s' (%s): ", key, properties.get(key)));
+
+            // check if we must choose if there is a value that has a ${ } token so we dont have a default value
+            for (String value : properties.values()) {
+                if (value != null && value.contains("$")) {
+                    mustChoose = true;
+                    break;
+                }
+            }
+
+            if (!mustChoose) {
+                System.out.println("----- Additional properties -----");
+                for (String key : properties.keySet()) {
+                    System.out.println(String.format("Using property '%s' (%s): ", key, properties.get(key)));
+                }
             }
 
             boolean choosing = true;
-            while (choosing) {
+            while (mustChoose || choosing) {
 
-                String confirm = ShellUtils.readLine(session, "Confirm additional properties configuration: (Y): ", false);
-                confirm = confirm == null || confirm.trim().equals("") ? "Y" : confirm;
+                String confirm = null;
+                if (!mustChoose) {
+                    confirm = ShellUtils.readLine(session, "Confirm additional properties configuration: (Y): ", false);
+                    confirm = isNullOrBlank(confirm) ? "Y" : confirm;
+                }
 
-                if (!"Y".equalsIgnoreCase(confirm)) {
+                if (mustChoose || !"Y".equalsIgnoreCase(confirm)) {
                     // ask for replacement properties suggesting the defaults
                     if (!properties.isEmpty()) {
                         System.out.println("----- Configure additional properties -----");
                         for (String key : properties.keySet()) {
-                            String p = ShellUtils.readLine(session, String.format("Define value for property '%s' (%s): ", key, properties.get(key)), false);
+                            String value = properties.get(key);
+                            if (value != null && value.contains("$")) {
+                                value = "";
+                            }
+                            String p = ShellUtils.readLine(session, String.format("Define value for property '%s' (%s): ", key, value), false);
                             p = p == null || p.trim().equals("") ? properties.get(key) : p;
                             properties.put(key, p);
                         }
                     }
+                    mustChoose = false;
                 } else {
                     choosing = false;
                 }
