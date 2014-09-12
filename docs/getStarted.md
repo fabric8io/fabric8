@@ -4,16 +4,16 @@
 
 <div class="row">
   <div class="col-md-4 text-center">
-    <a class="btn btn-large btn-success" href="https://repo1.maven.org/maven2/io/fabric8/fabric8-karaf/1.2.0.Beta3/fabric8-karaf-1.2.0.Beta3.zip">fabric8-karaf-1.2.0.Beta3.zip</a>
+    <a class="btn btn-large btn-success" href="https://repo1.maven.org/maven2/io/fabric8/fabric8-karaf/1.2.0.Beta4/fabric8-karaf-1.2.0.Beta4.zip">fabric8-karaf-1.2.0.Beta4.zip</a>
   </div>
   <!-- TODO these are not ready yet
   Note that the [Apache Tomcat](https://tomcat.apache.org/) and [Apache TomEE](http://tomee.apache.org/) distributions are still experimental; the [Apache Karaf](http://karaf.apache.org/) based distro is currently rock solid and complete ;) -->
   <div class="col-md-4 text-center">
-    <a class="btn btn-large btn-warning" title="Warning!  Experimental!" href="https://repo1.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.2.0.Beta3/fabric8-tomcat-1.2.0.Beta3.zip">fabric8-tomcat-1.2.0.Beta3.zip</a>
+    <a class="btn btn-large btn-warning" title="Warning!  Experimental!" href="https://repo1.maven.org/maven2/io/fabric8/runtime/fabric8-tomcat/1.2.0.Beta4/fabric8-tomcat-1.2.0.Beta4.zip">fabric8-tomcat-1.2.0.Beta4.zip</a>
     <p><small><em>This distro is still experimental</em></small></p>
   </div>
   <div class="col-md-4 text-center">
-    <a class="btn btn-large btn-warning" title="Warning!  Experimental!" href="https://repo1.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.2.0.Beta3/fabric8-tomee-1.2.0.Beta3.zip">fabric8-tomee-1.2.0.Beta3.zip</a>
+    <a class="btn btn-large btn-warning" title="Warning!  Experimental!" href="https://repo1.maven.org/maven2/io/fabric8/runtime/fabric8-tomee/1.2.0.Beta4/fabric8-tomee-1.2.0.Beta4.zip">fabric8-tomee-1.2.0.Beta4.zip</a>
     <p><small><em>This distro is still experimental</em></small></p>
   </div>
 </div>
@@ -25,8 +25,8 @@ If you've used a previous version, you may want to check out the [Change Log](ht
 Unpack the tarball:
 
     cd ~/Downloads
-    unzip fabric8-karaf-1.2.0.Beta3.zip
-    cd fabric8-karaf-1.2.0.Beta3
+    unzip fabric8-karaf-1.2.0.Beta4.zip
+    cd fabric8-karaf-1.2.0.Beta4
 
 Or, [build the project](https://github.com/fabric8io/fabric8/blob/master/readme-build.md) with [Maven](http://maven.apache.org/) via:
 
