@@ -15,44 +15,6 @@
  */
 package io.fabric8.git.internal;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.Proxy;
-import java.net.ProxySelector;
-import java.net.SocketAddress;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-
 import io.fabric8.api.Constants;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.DataStoreTemplate;
@@ -87,6 +49,39 @@ import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.shared.SharedCount;
@@ -116,6 +111,10 @@ import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 /**
  * A git based implementation of {@link DataStore} which stores the profile
@@ -592,7 +591,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public String createProfile(GitContext context, final Profile profile) {
         IllegalStateAssertion.assertNotNull(profile, "profile");
-        assertNoParentProfilesWithMasterBranch(profile);
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -620,7 +618,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     @Override
     public String updateProfile(GitContext context, final Profile profile) {
         IllegalStateAssertion.assertNotNull(profile, "profile");
-        assertNoParentProfilesWithMasterBranch(profile);
         LockHandle writeLock = aquireWriteLock();
         try {
             assertValid();
@@ -645,15 +642,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         } finally {
             writeLock.unlock();
         }
-    }
-
-    // The profile builder already verifies that all profiles in the hierarchy belong to
-    // the same version. However, there is an implicit redirection to the master branch
-    // for profiles with name fabric-ensemble-*. An atomic create/update can only happen 
-    // on the same branch so we prohibit parent profiles that may get created on another branch. 
-    private void assertNoParentProfilesWithMasterBranch(Profile profile) {
-        String branch = GitHelpers.getProfileBranch(profile.getVersion(), profile.getId());
-        IllegalArgumentAssertion.assertTrue(!GitHelpers.MASTER_BRANCH.equals(branch) || profile.getParents().isEmpty(), "Parent profiles in master branch not supported");
     }
 
     @Override
@@ -726,14 +714,13 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         if (!profiles.contains(profileId)) {
             
             // Process parents first
-            List<Profile> parents = profile.getParents();
-            for (Profile parent : parents) {
-                Profile lastParent = getProfileFromCache(parent.getVersion(), parent.getId());
-                createOrUpdateProfile(context, lastParent, parent, profiles);
+            for (String parentId : profile.getParentIds()) {
+                Profile parent = getProfileFromCache(profile.getVersion(), parentId);
+                IllegalStateAssertion.assertNotNull(parent, "Parent profile does not exist: " + parentId);
             }
             
             if (lastProfile == null) {
-                LOGGER.debug("Create {}", Profiles.getProfileInfo(profile, false));
+                LOGGER.debug("Create {}", Profiles.getProfileInfo(profile));
             } else {
                 LOGGER.debug("Update {}", profile);
                 LOGGER.debug("Update {}", Profiles.getProfileDifference(lastProfile, profile));
@@ -1667,21 +1654,10 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         }
         
         private Version loadVersion(Git git, GitContext context, String versionId, String revision) throws Exception {
-            // Collect the profiles with parent hierarchy unresolved
             VersionBuilder vbuilder = VersionBuilder.Factory.create(versionId).revision(revision);
+            vbuilder.setAttributes(getVersionAttributes(git, context, versionId));
             populateVersionBuilder(git, context, vbuilder, "master", versionId);
             populateVersionBuilder(git, context, vbuilder, versionId, versionId);
-            Version auxVersion = vbuilder.getVersion();
-            
-            // Use a new version builder for resolved profiles
-            vbuilder = VersionBuilder.Factory.create(versionId);
-            vbuilder.setAttributes(getVersionAttributes(git, context, versionId));
-            
-            // Resolve the profile hierarchies
-            for (Profile profile : auxVersion.getProfiles()) {
-                resolveVersionProfiles(vbuilder, auxVersion, profile.getId(), new HashMap<String, Profile>());
-            }
-            
             return vbuilder.getVersion();
         }
 
@@ -1729,31 +1705,6 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             ProfileBuilder profileBuilder = ProfileBuilder.Factory.create(versionId, profileId);
             profileBuilder.setFileConfigurations(fileConfigurations).setLastModified(lastModified);
             versionBuilder.addProfile(profileBuilder.getProfile());
-        }
-
-        private void resolveVersionProfiles(VersionBuilder versionBuilder, Version auxVersion, String profileId, Map<String, Profile> profiles) {
-            Profile resolved = profiles.get(profileId);
-            if (resolved == null) {
-                String versionId = auxVersion.getId();
-                Profile auxProfile = auxVersion.getProfile(profileId);
-                IllegalStateAssertion.assertNotNull(auxProfile, "Cannot obtain profile '" + profileId + "' from: " + auxVersion);
-                String pspec = auxProfile.getAttributes().get(Profile.PARENTS);
-                List<String> parents = pspec != null ? Arrays.asList(pspec.split(" ")) : Collections.<String>emptyList();
-                for (String parentId : parents) {
-                    resolveVersionProfiles(versionBuilder, auxVersion, parentId, profiles);
-                }
-                ProfileBuilder profileBuilder = ProfileBuilder.Factory.create(versionId, profileId);
-                profileBuilder.setFileConfigurations(auxProfile.getFileConfigurations());
-                profileBuilder.setConfigurations(auxProfile.getConfigurations());
-                profileBuilder.setLastModified(auxProfile.getProfileHash());
-                for (String parentId : parents) {
-                    Profile parent = profiles.get(parentId);
-                    profileBuilder.addParent(parent);
-                }
-                Profile profile = profileBuilder.getProfile();
-                versionBuilder.addProfile(profile);
-                profiles.put(profileId, profile);
-            }
         }
 
         private Map<String, byte[]> doGetFileConfigurations(Git git, String profileId) throws IOException {

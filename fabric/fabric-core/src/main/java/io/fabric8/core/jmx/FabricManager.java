@@ -292,8 +292,7 @@ public final class FabricManager implements FabricManagerMBean {
 
     @Override
     public Map<String, Object> createProfile(String versionId, String profileId, List<String> parents) {
-        ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
-        builder.addParents(Arrays.asList(stringsToProfiles(versionId, parents)));
+        ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId).addParents(parents);
         Profile profile = profileService.createProfile(builder.getProfile());
         return getProfile(versionId, profile.getId());
     }
@@ -301,8 +300,7 @@ public final class FabricManager implements FabricManagerMBean {
     @Override
     public Map<String, Object> changeProfileParents(String versionId, String profileId, List<String> parents) {
         Profile profile = profileService.getRequiredProfile(versionId, profileId);
-        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
-        builder.setParents(Arrays.asList(stringsToProfiles(versionId, parents)));
+        ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile).setParents(parents);
         profile = profileService.updateProfile(builder.getProfile());
         return getProfile(versionId, profile.getId());
     }

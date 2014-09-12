@@ -19,11 +19,9 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileService;
-import io.fabric8.api.Version;
 import io.fabric8.boot.commands.support.FabricCommand;
 import io.fabric8.utils.FabricValidations;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
@@ -65,7 +63,9 @@ public class ProfileCreateAction extends AbstractAction {
         // we can only use existing parent profiles
         Profile[] parents = FabricCommand.getExistingProfiles(fabricService, versionId, this.parents);
         ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
-        builder.setParents(Arrays.asList(parents));
+        for (Profile parent : parents) {
+            builder.addParent(parent.getId());
+        }
 		profileService.createProfile(builder.getProfile());
         return null;
     }

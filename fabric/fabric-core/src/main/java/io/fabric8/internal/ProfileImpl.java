@@ -18,13 +18,11 @@ package io.fabric8.internal;
 import io.fabric8.api.Constants;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.Profile;
-import io.fabric8.api.Profiles;
 import io.fabric8.utils.DataStoreUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -39,23 +37,21 @@ final class ProfileImpl implements Profile {
     private final String versionId;
     private final String profileId;
     private final Map<String, String> attributes = new HashMap<>();
-    private final Map<String, Profile> parents = new LinkedHashMap<>();
+    private final List<String> parents = new ArrayList<>();
     private final Map<String, byte[]> fileConfigurations = new HashMap<>();
     private final Map<String, Map<String, String>> configurations = new HashMap<>();
     private final boolean isOverlay;
     private final String lastModified;
 
     // Only the {@link ProfileBuilder} should construct this
-    ProfileImpl(String versionId, String profileId, List<Profile> parents, Map<String, byte[]> fileConfigs, String lastModified, boolean isOverlay) {
+    ProfileImpl(String versionId, String profileId, List<String> parents, Map<String, byte[]> fileConfigs, String lastModified, boolean isOverlay) {
         this.profileId = profileId;
         this.versionId = versionId;
         this.lastModified = lastModified;
         this.isOverlay = isOverlay;
 
         // Parents
-        for (Profile parent : parents) {
-            this.parents.put(parent.getId(), parent);
-        }
+        this.parents.addAll(parents);
         
         // File configurations and derived configurations
         for (Entry<String, byte[]> entry : fileConfigs.entrySet()) {
@@ -142,11 +138,7 @@ final class ProfileImpl implements Profile {
 
     @Override
     public List<String> getParentIds() {
-        return Collections.unmodifiableList(new ArrayList<>(parents.keySet()));
-    }
-
-    public List<Profile> getParents() {
-        return Collections.unmodifiableList(new ArrayList<>(parents.values()));
+        return Collections.unmodifiableList(parents);
     }
 
     @Override
@@ -218,15 +210,17 @@ final class ProfileImpl implements Profile {
 
     @Override
     public String getIconURL() {
+        String result = null;
         Set<String> fileNames = getConfigurationFileNames();
         for (String fileName : fileNames) {
             if (fileName.startsWith("icon.")) {
                 String id = getId();
                 String version = getVersion();
-                return "/version/" + version + "/profile/" + id + "/file/" + fileName;
+                result = "/version/" + version + "/profile/" + id + "/file/" + fileName;
+                break;
             }
         }
-        return Profiles.getProfileIconURL(getParents());
+        return result;
     }
 
     @Override
