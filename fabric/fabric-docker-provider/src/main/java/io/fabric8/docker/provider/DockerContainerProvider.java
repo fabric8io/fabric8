@@ -36,6 +36,7 @@ import io.fabric8.docker.api.Dockers;
 import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
+import io.fabric8.internal.Objects;
 import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -383,6 +384,15 @@ public class DockerContainerProvider extends DockerContainerProviderSupport impl
 
     @Override
     public boolean isValidProvider() {
+        // docker provider isn't valid in openshift/kubernetes environment
+        FabricService service = getFabricService();
+        if (service != null) {
+            // lets disable child if in docker or openshift environments
+            String environment = service.getEnvironment();
+            if (Objects.equal(environment, "openshift") || Objects.equal(environment, "kubernetes")) {
+                return false;
+            }
+        }
         return true;
     }
 
