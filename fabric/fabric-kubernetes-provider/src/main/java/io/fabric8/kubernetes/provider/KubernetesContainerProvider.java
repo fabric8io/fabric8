@@ -105,13 +105,11 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
     private long jolokiaKeepAlivePollTime = 10000;
 
     @Property(name = "kubernetesMaster",
-            value = "${env:KUBERNETES_MASTER}",
             label = "Kubernetes Master",
             description = "The URL to connect to the Kubernetes Master.")
     private String kubernetesMaster;
 
     @Property(name = "dockerHost",
-            value = "${env:DOCKER_HOST}",
             label = "Docker Host",
             description = "The URL to connect to Docker.")
     private String dockerHost;
