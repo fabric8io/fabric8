@@ -190,6 +190,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         String containerType = parameters.getContainerType();
         String jolokiaUrl = parameters.getJolokiaUrl();
         String name = options.getName();
+        String image = parameters.getContainerConfig().getImage();
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         FabricService service = getFabricService();
@@ -217,8 +218,11 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
 
         ManifestContainer manifestContainer = new ManifestContainer();
         manifestContainer.setName(name);
-        manifestContainer.setImage(options.getImage());
-        manifestContainer.setCommand(options.getCmd());
+        manifestContainer.setImage(image);
+        List<String> cmd = options.getCmd();
+        if (cmd != null && !cmd.isEmpty()) {
+            manifestContainer.setCommand(cmd);
+        }
         manifestContainer.setWorkingDir(options.getWorkingDir());
         manifestContainer.setEnv(KubernetesHelper.createEnv(environmentVariables));
 
@@ -231,7 +235,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         manifest.setContainers(containers);
 
         try {
-            LOG.info("About to create pod on " + kubernetesFactory.getAddress() + " with " + pod);
+            LOG.info("About to create pod with image " + image + " on " + kubernetesFactory.getAddress() + " with " + pod);
             kubernetes.createPod(pod);
 
         } catch (Exception e) {
@@ -258,11 +262,15 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
 
     public static CreateKubernetesContainerMetadata createKubernetesContainerMetadata(ContainerConfig containerConfig, DockerCreateOptions options, ContainerCreateStatus status, String containerType) {
         List<String> warnings = new ArrayList<String>();
-        String[] warningArray = status.getWarnings();
-        if (warningArray != null) {
-            Collections.addAll(warnings, warningArray);
+        String statusId = "unknown";
+        if (status != null) {
+            statusId = status.getId();
+            String[] warningArray = status.getWarnings();
+            if (warningArray != null) {
+                Collections.addAll(warnings, warningArray);
+            }
         }
-        CreateKubernetesContainerMetadata metadata = new CreateKubernetesContainerMetadata(status.getId(), warnings);
+        CreateKubernetesContainerMetadata metadata = new CreateKubernetesContainerMetadata(statusId, warnings);
         String containerId = options.getName();
         metadata.setContainerName(containerId);
         metadata.setContainerType(containerType);
