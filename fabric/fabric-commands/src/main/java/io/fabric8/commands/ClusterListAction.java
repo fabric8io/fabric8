@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.FabricService;
 import org.apache.curator.framework.CuratorFramework;
@@ -86,7 +87,13 @@ public class ClusterListAction extends AbstractAction {
                     }
 
                     ObjectMapper mapper = new ObjectMapper();
-                    Map<String, Object> map = mapper.readValue(data, HashMap.class);
+                    Map<String, Object> map = null;
+                    try {
+                        map = mapper.readValue(data, HashMap.class);
+                    } catch (JsonParseException e){
+                        log.error("Error parsing JSON string: {}", text);
+                        throw e;
+                    }
 
                     ClusterNode node = null;
 
