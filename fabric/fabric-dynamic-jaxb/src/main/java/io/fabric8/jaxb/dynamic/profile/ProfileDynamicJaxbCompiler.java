@@ -221,8 +221,7 @@ public class ProfileDynamicJaxbCompiler extends AbstractComponent implements Dyn
         FabricService fabric = getFabricService();
         Container container = fabric.getCurrentContainer();
         String versionId = container.getVersion().getId();
-        List<Profile> profiles = Containers.overlayProfiles(container);
-        List<String> profileIds = Profiles.profileIds(profiles);
+        List<String> profileIds = Containers.overlayProfiles(container);
         Collection<String> names = listFiles(versionId, profileIds, schemaPath);
         for (String name : names) {
             if (name.endsWith(".xsd")) {

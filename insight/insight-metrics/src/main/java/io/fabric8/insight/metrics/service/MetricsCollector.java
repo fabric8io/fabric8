@@ -18,6 +18,7 @@ package io.fabric8.insight.metrics.service;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.fabric8.insight.metrics.model.MBeanAttrs;
 import io.fabric8.insight.metrics.model.MBeanOpers;
 import io.fabric8.insight.metrics.model.MetricsJSON;
@@ -26,6 +27,8 @@ import io.fabric8.insight.metrics.service.support.JmxUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Version;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.NodeState;
@@ -34,6 +37,7 @@ import io.fabric8.insight.metrics.model.QueryResult;
 import io.fabric8.insight.metrics.model.Request;
 import io.fabric8.insight.metrics.model.Server;
 import io.fabric8.insight.metrics.model.MetricsStorageService;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -43,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
@@ -351,8 +356,10 @@ public class MetricsCollector implements MetricsCollectorMBean {
                 LOG.warn("Unable to load queries from profile " + profile.getId(), t);
             }
         }
-        for (Profile p : profile.getParents()) {
-            loadProfile(p, queries);
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        Version version = profileService.getVersion(profile.getVersion());
+        for (String parentId : profile.getParentIds()) {
+            loadProfile(version.getRequiredProfile(parentId), queries);
         }
     }
 

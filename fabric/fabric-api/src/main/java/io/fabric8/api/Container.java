@@ -75,6 +75,7 @@ public interface Container extends HasId {
     Long getProcessId();
 
     Profile[] getProfiles();
+    List<String> getProfileIds();
     void setProfiles(Profile[] profiles);
     void addProfiles(Profile... profiles);
     void removeProfiles(String... profileIds);

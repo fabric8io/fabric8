@@ -224,6 +224,13 @@ public class ContainerImpl implements Container {
         return Long.valueOf(pid);
     }
 
+    
+    @Override
+    public List<String> getProfileIds() {
+        return dataStore.getContainerProfiles(id);
+    }
+
+    @Override
     public Profile[] getProfiles() {
         Version version = getVersion();
         List<String> profileIds = dataStore.getContainerProfiles(id);
@@ -776,9 +783,8 @@ public class ContainerImpl implements Container {
 			List<String> profileIds = dataStore.getContainerProfiles(cntId);
 			LOGGER.debug("Building container overlay for {} with profile: {}", cntId, profileIds);
             for (String profileId : profileIds) {
-                Profile profile = version.getProfile(profileId);
-                if (profile != null) {
-                    builder.addParent(profile);
+                if (version.hasProfile(profileId)) {
+                    builder.addParent(profileId);
                 } else {
                     missingProfiles.add(profileId);
                 }

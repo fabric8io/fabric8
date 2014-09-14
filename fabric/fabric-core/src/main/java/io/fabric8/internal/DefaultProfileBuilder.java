@@ -25,10 +25,12 @@ import io.fabric8.internal.ProfileImpl.ConfigListType;
 import io.fabric8.utils.DataStoreUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,7 +52,6 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 
     private String versionId;
 	private String profileId;
-	private Map<String, Profile> parentMapping = new LinkedHashMap<>();
 	private Map<String, byte[]> fileMapping = new HashMap<>();
 	private String lastModified;
 	private boolean isOverlay;
@@ -63,7 +64,6 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 	DefaultProfileBuilder(Profile profile) {
 		versionId = profile.getVersion();
 		profileId = profile.getId();
-		addParents(profile.getParents());
 		setFileConfigurations(profile.getFileConfigurations());
 		lastModified = null;
 	}
@@ -86,63 +86,59 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 	}
 
 	@Override
-	public ProfileBuilder addParent(Profile profile) {
-	    parentMapping.put(profile.getId(), profile);
-	    updateParentsAttribute();
-	    return this;
-	}
-
-	@Override
-	public ProfileBuilder addParents(List<Profile> profiles) {
-		return addParentsInternal(profiles, false);
-	}
-
-	@Override
     public List<String> getParents() {
-        return Collections.unmodifiableList(new ArrayList<>(parentMapping.keySet()));
+        Map<String, String> config = getConfigurationInternal(Constants.AGENT_PID);
+        String pspec = config.get(PARENTS_ATTRIBUTE_KEY);
+        String[] parentIds = pspec != null ? pspec.split(" ") : new String[0];
+        return Arrays.asList(parentIds);
     }
 
     @Override
-    public Profile getParent(String profileId) {
-        return parentMapping.get(profileId);
-    }
+	public ProfileBuilder addParent(String parentId) {
+        return addParentsInternal(Collections.singletonList(parentId), false);
+	}
+
+	@Override
+	public ProfileBuilder addParents(List<String> parentIds) {
+		return addParentsInternal(parentIds, false);
+	}
 
     @Override
-    public ProfileBuilder setParents(List<Profile> profiles) {
-        return addParentsInternal(profiles, true);
+    public ProfileBuilder setParents(List<String> parentIds) {
+        return addParentsInternal(parentIds, true);
     }
 
-    private ProfileBuilder addParentsInternal(List<Profile> profiles, boolean clear) {
+    private ProfileBuilder addParentsInternal(List<String> parentIds, boolean clear) {
+        Set<String> currentIds = new LinkedHashSet<String>(getParents());
         if (clear) {
-            parentMapping.clear();
+            currentIds.clear();
         }
-        for (Profile profile : profiles) {
-            parentMapping.put(profile.getId(), profile);
-        }
-        updateParentsAttribute();
+        currentIds.addAll(parentIds);
+        updateParentsAttribute(currentIds);
         return this;
     }
     
     @Override
 	public ProfileBuilder removeParent(String profileId) {
-		parentMapping.remove(profileId);
-		updateParentsAttribute();
+        Set<String> currentIds = new LinkedHashSet<String>(getParents());
+        currentIds.remove(profileId);
+        updateParentsAttribute(currentIds);
 		return this;
 	}
 
-    private void updateParentsAttribute() {
+    private void updateParentsAttribute(Collection<String> parentIds) {
         Map<String, String> config = getConfigurationInternal(Constants.AGENT_PID);
         config.remove(PARENTS_ATTRIBUTE_KEY);
-        if (parentMapping.size() > 0) {
-            config.put(PARENTS_ATTRIBUTE_KEY, parentsAttributeValue());
+        if (parentIds.size() > 0) {
+            config.put(PARENTS_ATTRIBUTE_KEY, parentsAttributeValue(parentIds));
         }
         addConfiguration(Constants.AGENT_PID, config);
     }
 
-    private String parentsAttributeValue() {
+    private String parentsAttributeValue(Collection<String> parentIds) {
         String pspec = "";
-        if (parentMapping.size() > 0) {
-            for (String parentId : parentMapping.keySet()) {
+        if (parentIds.size() > 0) {
+            for (String parentId : parentIds) {
                 pspec += " " + parentId;
             }
             pspec = pspec.substring(1);
@@ -336,16 +332,11 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 		super.validate();
 		IllegalStateAssertion.assertNotNull(profileId, "Profile must have an identity");
 		IllegalStateAssertion.assertNotNull(versionId, "Version must be specified");
-        for (Profile parent : parentMapping.values()) {
-            String parentVersion = parent.getVersion();
-            IllegalStateAssertion.assertEquals(versionId, parentVersion, "Profile version not '" + versionId + "' for: " + parent);
-        }
 	}
 
 	@Override
 	public Profile getProfile() {
 		validate();
-		List<Profile> parents = new ArrayList<>(parentMapping.values());
-		return new ProfileImpl(versionId, profileId, parents, fileMapping, lastModified, isOverlay);
+		return new ProfileImpl(versionId, profileId, getParents(), fileMapping, lastModified, isOverlay);
 	}
 }

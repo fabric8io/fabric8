@@ -37,6 +37,7 @@ import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.api.RebaseCommand.Operation;
 import org.eclipse.jgit.api.RebaseResult;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -80,10 +81,10 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
         
         LOGGER.info("Performing a pull on remote URL: {}", remoteUrl);
         
-        GitAPIException lastException = null;
+        Exception lastException = null;
         try {
             git.fetch().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setRemote(remoteRef).call();
-        } catch (GitAPIException ex) {
+        } catch (GitAPIException | JGitInternalException ex) {
             lastException = ex;
         }
 
