@@ -36,7 +36,7 @@ public interface Version extends Comparable<Version>, HasId {
     /**
      * @return Returns the revision of the Version.
      */
-    public String revision();
+    public String getRevision();
 
     /**
      * Get the version attributes

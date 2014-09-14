@@ -185,8 +185,9 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
                     // set of profiles (e.g. docker or openshift)
                     environment = System.getProperty(SystemProperties.FABRIC_PROFILE_ENVIRONMENT);
                 }
+                Version version = getRequiredVersion(profile.getVersion());
                 ProfileBuilder builder = ProfileBuilder.Factory.create(profile.getVersion(), profileId);
-                builder.addOptions(new OverlayOptionsProvider(profile, environment));
+                builder.addOptions(new OverlayOptionsProvider(version, profile, environment));
                 overlayProfile = builder.getProfile();
 
                 // Log the overlay profile difference
@@ -195,7 +196,7 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
                     synchronized (audit) {
                         Profile lastOverlay = audit.overlayProfiles.get(profileId);
                         if (lastOverlay == null) {
-                            LOGGER.info("Overlay" + Profiles.getProfileInfo(overlayProfile, true));
+                            LOGGER.info("Overlay" + Profiles.getProfileInfo(overlayProfile));
                             audit.overlayProfiles.put(profileId, overlayProfile);
                         } else if (!lastOverlay.equals(overlayProfile)) {
                             LOGGER.info("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
@@ -253,6 +254,7 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
 
     static class OverlayOptionsProvider implements OptionsProvider<ProfileBuilder> {
 
+        private final Version version;
         private final Profile self;
         private final String environment;
 
@@ -261,7 +263,8 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
             Properties props;
         }
 
-        OverlayOptionsProvider(Profile self, String environment) {
+        OverlayOptionsProvider(Version version, Profile self, String environment) {
+            this.version = version;
             this.self = self;
             this.environment = environment;
         }
@@ -325,8 +328,9 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
 
         private void fillParentProfiles(Profile profile, List<Profile> profiles) {
             if (!profiles.contains(profile)) {
-                for (Profile p : profile.getParents()) {
-                    fillParentProfiles(p, profiles);
+                for (String parentId : profile.getParentIds()) {
+                    Profile parent = version.getRequiredProfile(parentId);
+                    fillParentProfiles(parent, profiles);
                 }
                 profiles.add(profile);
             }
@@ -383,7 +387,8 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
         private String getLastModified() {
             StringBuilder sb = new StringBuilder();
             sb.append(self.getProfileHash());
-            for (Profile parent : self.getParents()) {
+            for (String parentId : self.getParentIds()) {
+                Profile parent = version.getRequiredProfile(parentId);
                 sb.append("-").append(parent.getProfileHash());
             }
             return sb.toString();

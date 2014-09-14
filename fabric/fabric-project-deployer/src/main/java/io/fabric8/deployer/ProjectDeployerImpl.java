@@ -15,12 +15,12 @@
  */
 package io.fabric8.deployer;
 
+import static io.fabric8.agent.download.ProfileDownloader.getMavenCoords;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
-import io.fabric8.api.Containers;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
@@ -85,8 +85,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static io.fabric8.agent.download.ProfileDownloader.getMavenCoords;
 
 /**
  * Allows projects to be deployed into a profile using Jolokia / REST or build plugins such as a maven plugin
@@ -182,7 +180,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
      * Removes any old parents / features / repos and adds any new parents / features / repos to the profile
      */
     private void updateProfileConfiguration(Version version, Profile profile, ProjectRequirements requirements, ProjectRequirements oldRequirements, ProfileBuilder builder) {
-        List<String> parentProfiles = Containers.getParentProfileIds(profile);
+        List<String> parentProfiles = profile.getParentIds();
         List<String> bundles = Lists.mutableList(profile.getBundles());
         List<String> features = Lists.mutableList(profile.getFeatures());
         List<String> repositories = Lists.mutableList(profile.getRepositories());
@@ -233,14 +231,10 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
      * Sets the list of parent profile IDs
      */
     private void setParentProfileIds(ProfileBuilder builder, Version version, Profile profile, List<String> parentProfileIds) {
-        List<Profile> list = new ArrayList<>();
+        List<String> list = new ArrayList<>();
         for (String parentProfileId : parentProfileIds) {
-            Profile parentProfile = null;
             if (version.hasProfile(parentProfileId)) {
-                parentProfile = version.getRequiredProfile(parentProfileId);
-            }
-            if (parentProfile != null) {
-                list.add(parentProfile);
+                list.add(parentProfileId);
             } else {
                 LOG.warn("Could not find parent profile: " + parentProfileId + " in version " + version.getId());
             }

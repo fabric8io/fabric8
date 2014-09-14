@@ -16,12 +16,7 @@
 package io.fabric8.api;
 
 import io.fabric8.api.jmx.ContainerDTO;
-import io.fabric8.api.scr.support.Strings;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.stream.events.Characters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,10 +30,8 @@ import java.util.Set;
 /**
  * A helper class for working with containers
  */
-public class Containers {
-    private static final transient Logger LOG = LoggerFactory.getLogger(Containers.class);
-
-
+public final class Containers {
+    
     public static List<String> containerIds(Container[] containers) {
         List<String> answer = new ArrayList<String>();
         if (containers != null) {
@@ -95,7 +88,7 @@ public class Containers {
      * Creates a name validator that excludes any container names that already exist
      */
     public static  NameValidator createNameValidator(Container[] containers) {
-        return createNameValidator(containers, Collections.EMPTY_SET);
+        return createNameValidator(containers, Collections.<String>emptySet());
     }
 
     /**
@@ -172,18 +165,20 @@ public class Containers {
      * that is the list of all profiles and descendant profiles in order in which their values
      * are to be applied.
      */
-    public static List<Profile> overlayProfiles(Container container) {
-        Set<Profile> set = new LinkedHashSet<Profile>();
-        List<Profile> profiles = Arrays.asList(container.getProfiles());
-        recursiveAddProfiles(set, profiles);
-        return new ArrayList<Profile>(set);
+    public static List<String> overlayProfiles(Container container) {
+        Version version = container.getVersion();
+        Set<String> result = new LinkedHashSet<String>();
+        List<String> profiles = container.getProfileIds();
+        recursiveAddProfiles(version, result, profiles);
+        return Collections.unmodifiableList(new ArrayList<String>(result));
     }
 
-    protected static void recursiveAddProfiles(Set<Profile> set, List<Profile> profiles) {
-        for (Profile profile : profiles) {
-            set.add(profile);
-            List<Profile> parents = profile.getParents();
-            recursiveAddProfiles(set, parents);
+    private static void recursiveAddProfiles(Version version, Set<String> result, List<String> profiles) {
+        for (String profileId : profiles) {
+            result.add(profileId);
+            Profile profile = version.getRequiredProfile(profileId);
+            List<String> parents = profile.getParentIds();
+            recursiveAddProfiles(version, result, parents);
         }
     }
 
@@ -251,18 +246,6 @@ public class Containers {
             }
         }
         return builder.toString();
-    }
-
-    /**
-     * Returns a list of parent profile Ids for the given profile
-     */
-    public static List<String> getParentProfileIds(Profile profile) {
-        List<String> answer = new ArrayList<>();
-        List<Profile> parents = profile.getParents();
-        for (Profile parent : parents) {
-            answer.add(parent.getId());
-        }
-        return answer;
     }
 
     /**

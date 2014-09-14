@@ -222,7 +222,7 @@ public class ProjectDeployerTest {
         // now we should have a profile created
         Profile profile = assertProfileInFabric(expectedProfileId, versionId);
         assertBundleCount(profile, 1);
-        assertEquals("parent ids", parentProfileIds, Containers.getParentProfileIds(profile));
+        assertEquals("parent ids", parentProfileIds, profile.getParentIds());
         assertFeatures(profile, features);
 
         String requirementsFileName = "dependencies/" + groupId + "/" + artifactId + "-requirements.json";
@@ -252,7 +252,7 @@ public class ProjectDeployerTest {
 
         profile = assertProfileInFabric(expectedProfileId, versionId);
         assertBundleCount(profile, 1);
-        assertEquals("parent ids", parentProfileIds, Containers.getParentProfileIds(profile));
+        assertEquals("parent ids", parentProfileIds, profile.getParentIds());
         assertFeatures(profile, features);
 
         //assertProfileMetadata();

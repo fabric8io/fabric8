@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import io.fabric8.api.scr.support.Strings;
 import org.jboss.gravia.utils.IllegalArgumentAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -290,18 +289,6 @@ public final class Profiles {
     }
 
     /**
-     * Returns the icon URL of the given list of profiles relative to the REST API URL or null if it could not be determined
-     */
-    public static String getProfileIconURL(List<Profile> profiles) {
-        String answer = null;
-        for (Profile parent : profiles) {
-            answer = parent.getIconURL();
-            if (answer != null) break;
-        }
-        return answer;
-    }
-
-    /**
      * Returns the first summary markdown text of the profiles
      */
     public static String getSummaryMarkdown(Profile[] profiles) {
@@ -394,7 +381,7 @@ public final class Profiles {
     /**
      * Get a long profile info string
      */
-    public static String getProfileInfo(Profile profile, boolean parents) {
+    public static String getProfileInfo(Profile profile) {
         IllegalArgumentAssertion.assertNotNull(profile, "profile");
         StringBuilder builder = new StringBuilder("Profile[ver=" + profile.getVersion() + ",id=" + profile.getId() + "]");
         builder.append("\nAttributes");
@@ -416,20 +403,7 @@ public final class Profiles {
                 builder.append("\n  " + fileKey);
             }
         }
-        if (parents) {
-            appendParentProfiles(builder, profile, new HashSet<String>());
-        }
         return builder.toString();
-    }
-    
-    private static void appendParentProfiles(StringBuilder builder, Profile profile, HashSet<String> profiles) {
-        if (!profiles.contains(profile.getId())) {
-            for (Profile parent : profile.getParents()) {
-                appendParentProfiles(builder, parent, profiles);
-                builder.append("\n\nParent of " + profile.getId() + " - " + getProfileInfo(parent, false));
-            }
-            profiles.add(profile.getId());
-        }
     }
     
     /**

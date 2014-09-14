@@ -36,15 +36,13 @@ public interface ProfileBuilder extends AttributableBuilder<ProfileBuilder> {
 
     List<String> getParents();
     
-    Profile getParent(String profileId);
-    
-    ProfileBuilder addParent(Profile profile);
+    ProfileBuilder addParent(String parentId);
 
-    ProfileBuilder addParents(List<Profile> profiles);
+    ProfileBuilder addParents(List<String> parentIds);
 
-    ProfileBuilder setParents(List<Profile> profiles);
+    ProfileBuilder setParents(List<String> parentIds);
     
-    ProfileBuilder removeParent(String profileId);
+    ProfileBuilder removeParent(String parentId);
 
     Set<String> getConfigurationKeys();
     

@@ -22,7 +22,10 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -47,7 +50,7 @@ public class ImmutableContainerImpl implements Container {
     private final String versionId;
     private final Version version;
     private final Long processId;
-    private final Profile[] profiles;
+    private final Map<String, Profile> profiles = new LinkedHashMap<String, Profile>();
     private final String location;
     private final String geoLocation;
     private final String resolver;
@@ -91,7 +94,6 @@ public class ImmutableContainerImpl implements Container {
         this.versionId = versionId;
         this.version = version;
         this.processId = processId;
-        this.profiles = profiles;
         this.location = location;
         this.geoLocation = geoLocation;
         this.resolver = resolver;
@@ -114,6 +116,12 @@ public class ImmutableContainerImpl implements Container {
         this.provisionStatus = provisionStatus;
         this.provisionStatusMap = provisionStatusMap != null ? Collections.unmodifiableMap(provisionStatusMap) : Collections.<String, String>emptyMap();
         this.metadata = metadata;
+        
+        if (profiles != null) {
+            for (Profile prf : profiles) {
+                this.profiles.put(prf.getId(), prf);
+            }
+        }
     }
 
     public String getId() {
@@ -188,8 +196,14 @@ public class ImmutableContainerImpl implements Container {
         return processId;
     }
 
+    @Override
+    public List<String> getProfileIds() {
+        return Collections.unmodifiableList(new ArrayList<String>(profiles.keySet()));
+    }
+
     public Profile[] getProfiles() {
-        return profiles;
+        Collection<Profile> values = profiles.values();
+        return values.toArray(new Profile[values.size()]);
     }
 
     public String getLocation() {

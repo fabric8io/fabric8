@@ -24,7 +24,7 @@ public interface VersionBuilder extends AttributableBuilder<VersionBuilder> {
 
 	VersionBuilder identity(String versionId);
 
-    VersionBuilder revision(String revision);
+    VersionBuilder setRevision(String revision);
 	
 	VersionBuilder addProfile(Profile profile);
 

@@ -85,7 +85,7 @@ public class MQServiceImpl implements MQService {
         if (create) {
             builder = ProfileBuilder.Factory.create(versionId, profileId);
             if (parentProfile != null) {
-                builder.addParent(parentProfile);
+                builder.addParent(parentProfile.getId());
             }
         } else {
             Profile profile = version.getRequiredProfile(profileId);
@@ -302,7 +302,7 @@ public class MQServiceImpl implements MQService {
 
         // set the parent if its specified
         if (parentProfile != null) {
-            builder.addParent(parentProfile);
+            builder.addParent(parentProfile.getId());
         }
 
         Map<String, String> config = builder.getConfiguration(MQ_CONNECTION_FACTORY_PID);

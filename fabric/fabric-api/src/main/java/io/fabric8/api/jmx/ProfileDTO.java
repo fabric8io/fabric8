@@ -56,7 +56,7 @@ public class ProfileDTO {
         this.id = profile.getId();
         this.version = profile.getVersion();
         this.profileHash = profile.getProfileHash();
-        this.parents = Profiles.profileIds(profile.getParents());
+        this.parents = profile.getParentIds();
 
         this.overlay = profile.isOverlay();
         this.abstractProfile = profile.isAbstract();
@@ -98,8 +98,10 @@ public class ProfileDTO {
         System.out.println("Parents are: " + parents);
         if (parents != null && parents.size() > 0 && version != null) {
             List<Profile> parentProfiles = Profiles.getProfiles(fabricService, parents, version);
-            builder.setParents(parentProfiles);
             System.out.println("Found parents: " + parentProfiles);
+            for (Profile parent : parentProfiles) {
+                builder.addParent(parent.getId());
+            }
         }
         builder.setOverlay(overlay);
 

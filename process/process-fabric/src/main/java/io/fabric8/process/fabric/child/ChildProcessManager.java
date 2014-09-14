@@ -167,7 +167,7 @@ public class ChildProcessManager {
 			return builder;
 		}
 
-	    private List<Profile> getParents() {
+	    private List<String> getParents() {
 	        List<String> parents = requirements.getProfiles();
 	        List<Profile> profiles = new LinkedList<Profile>();
 	        if (includeContainerProfile) {
@@ -177,7 +177,11 @@ public class ChildProcessManager {
 	            Profile p = container.getVersion().getRequiredProfile(parent);
 	            profiles.add(p);
 	        }
-	        return profiles;
+	        List<String> result = new ArrayList<>();
+	        for (Profile p : profiles) {
+	            result.add(p.getId());
+	        }
+	        return result;
 	    }
 	}
 }
