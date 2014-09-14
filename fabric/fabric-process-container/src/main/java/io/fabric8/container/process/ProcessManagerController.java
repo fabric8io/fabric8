@@ -116,7 +116,7 @@ public class ProcessManagerController implements ChildContainerController {
         try {
             container = fabricService.getContainer(containerId);
         } catch (Exception e) {
-            LOG.debug("Could nto find container: " + containerId);
+            LOG.debug("Could not find container: " + containerId);
         }
         if (container != null) {
             container.setProvisionResult("downloading");
