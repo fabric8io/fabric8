@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.jboss.gravia.utils.IllegalStateAssertion;
 
@@ -40,7 +41,7 @@ final class DefaultVersionBuilder extends AbstractAttributableBuilder<VersionBui
 
 	private String versionId;
     private String revision;
-	private Map<String, Profile> profiles = new LinkedHashMap<>();
+	private Map<String, Profile> profiles = new TreeMap<>();
 	
 	DefaultVersionBuilder(String versionId) {
 		this.versionId = versionId;
@@ -63,7 +64,7 @@ final class DefaultVersionBuilder extends AbstractAttributableBuilder<VersionBui
 	}
 
     @Override
-    public VersionBuilder revision(String revision) {
+    public VersionBuilder setRevision(String revision) {
         this.revision = revision;
         return this;
     }

@@ -60,7 +60,9 @@ public class ProfileChangeParentsAction extends AbstractAction {
         // we can only change parents to existing profiles
         Profile[] parents = FabricCommand.getExistingProfiles(fabricService, version, parentIds);
         ProfileBuilder builder = ProfileBuilder.Factory.createFrom(profile);
-        builder.setParents(Arrays.asList(parents));
+        for (Profile parent : parents) {
+            builder.addParent(parent.getId());
+        }
         profileService.updateProfile(builder.getProfile());
         return null;
     }

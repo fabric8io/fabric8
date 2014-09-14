@@ -16,8 +16,6 @@
 package io.fabric8.api.mxbean;
 
 import io.fabric8.api.Constants;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
 
 import java.util.List;
 import java.util.Map;
@@ -32,21 +30,21 @@ public interface ProfileManagement {
 
     ObjectName OBJECT_NAME = ObjectNameFactory.create(Constants.MANAGEMENT_DOMAIN + ":type=" + ProfileManagement.class.getSimpleName());
 
-    Version createVersion(Version version);
+    VersionState createVersion(VersionState version);
     
-    Version createVersion(String sourceId, String targetId, Map<String, String> attributes);
+    VersionState createVersion(String sourceId, String targetId, Map<String, String> attributes);
     
     List<String> getVersions();
     
-    Version getVersion(String versionId);
+    VersionState getVersion(String versionId);
     
     void deleteVersion(String versionId);
     
-    Profile createProfile(Profile profile);
+    ProfileState createProfile(ProfileState profile);
     
-    Profile getProfile(String versionId, String profileId);
+    ProfileState getProfile(String versionId, String profileId);
     
-    Profile updateProfile(Profile profile);
+    ProfileState updateProfile(ProfileState profile);
     
     void deleteProfile(String versionId, String profileId, boolean force);
 }

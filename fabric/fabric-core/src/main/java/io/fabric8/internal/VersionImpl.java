@@ -56,7 +56,7 @@ final class VersionImpl implements Version {
     }
 
     @Override
-    public String revision() {
+    public String getRevision() {
         return revision;
     }
 

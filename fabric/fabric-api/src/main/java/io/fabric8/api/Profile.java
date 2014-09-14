@@ -15,8 +15,6 @@
  */
 package io.fabric8.api;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,9 +76,6 @@ public interface Profile extends Comparable<Profile>, HasId {
 
     List<String> getParentIds();
 
-    @JsonIgnore
-    List<Profile> getParents();
-    
     List<String> getLibraries();
     List<String> getEndorsedLibraries();
     List<String> getExtensionLibraries();

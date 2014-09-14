@@ -20,6 +20,8 @@ import io.fabric8.api.ProfileManager;
 import io.fabric8.api.ProfileManagerLocator;
 import io.fabric8.api.Version;
 import io.fabric8.api.mxbean.ProfileManagement;
+import io.fabric8.api.mxbean.ProfileState;
+import io.fabric8.api.mxbean.VersionState;
 
 import java.util.List;
 import java.util.Map;
@@ -30,13 +32,15 @@ import java.util.Map;
 public final class ProfileManagementImpl implements ProfileManagement {
 
     @Override
-    public Version createVersion(Version version) {
-        return getProfileManager().createVersion(version);
+    public VersionState createVersion(VersionState versionState) {
+        Version version = getProfileManager().createVersion(versionState);
+        return new VersionState(version);
     }
 
     @Override
-    public Version createVersion(String sourceId, String targetId, Map<String, String> attributes) {
-        return getProfileManager().createVersion(sourceId, targetId, attributes);
+    public VersionState createVersion(String sourceId, String targetId, Map<String, String> attributes) {
+        Version version = getProfileManager().createVersion(sourceId, targetId, attributes);
+        return new VersionState(version);
     }
 
     @Override
@@ -45,8 +49,9 @@ public final class ProfileManagementImpl implements ProfileManagement {
     }
 
     @Override
-    public Version getVersion(String versionId) {
-        return getProfileManager().getVersion(versionId);
+    public VersionState getVersion(String versionId) {
+        Version version = getProfileManager().getVersion(versionId);
+        return version != null ? new VersionState(version) : null;
     }
 
     @Override
@@ -55,18 +60,21 @@ public final class ProfileManagementImpl implements ProfileManagement {
     }
 
     @Override
-    public Profile createProfile(Profile profile) {
-        return getProfileManager().createProfile(profile);
+    public ProfileState createProfile(ProfileState profileState) {
+        Profile profile = getProfileManager().createProfile(profileState);
+        return new ProfileState(profile);
     }
 
     @Override
-    public Profile getProfile(String versionId, String profileId) {
-        return getProfileManager().getProfile(versionId, profileId);
+    public ProfileState getProfile(String versionId, String profileId) {
+        Profile profile = getProfileManager().getProfile(versionId, profileId);
+        return profile != null ? new ProfileState(profile) : null;
     }
 
     @Override
-    public Profile updateProfile(Profile profile) {
-        return getProfileManager().updateProfile(profile);
+    public ProfileState updateProfile(ProfileState profileState) {
+        Profile profile = getProfileManager().updateProfile(profileState);
+        return new ProfileState(profile);
     }
 
     @Override
@@ -75,7 +83,6 @@ public final class ProfileManagementImpl implements ProfileManagement {
     }
 
     private ProfileManager getProfileManager() {
-        ProfileManager manager = ProfileManagerLocator.getProfileManager();
-        return manager;
+        return ProfileManagerLocator.getProfileManager();
     }
 }
