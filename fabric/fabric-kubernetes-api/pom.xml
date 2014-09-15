@@ -64,8 +64,7 @@
     </fuse.osgi.private.pkg>
 
     <clone-kube>true</clone-kube>
-    <kube.work.dir>${basedir}/target</kube.work.dir>
-    <kube.dir>${kube.work.dir}/kubernetes</kube.dir>
+    <kube.dir>${basedir}/src/main/kubernetes</kube.dir>
     <resteasy-version>3.0.8.Final</resteasy-version>
     <cxf-version>3.0.1</cxf-version>
   </properties>
@@ -137,49 +136,6 @@
 
   <build>
     <plugins>
-
-<!--
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <configuration>
-              <target>
-                <echo>cloning kubernetes project</echo>
-                <exec executable="git" failonerror="true" dir="${kube.work.dir}">
-                  <arg value="clone"/>
-                  <arg value="https://github.com/fabric8io/kubernetes.git"/>
-                </exec>
-                <echo>git clone completed</echo>
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
--->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-scm-plugin</artifactId>
-        <version>1.9.1</version>
-        <configuration>
-          <checkoutDirectory>${kube.dir}</checkoutDirectory>
-          <connectionUrl>scm:git:https://github.com/fabric8io/kubernetes.git</connectionUrl>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>checkout</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
       <plugin>
         <groupId>org.jsonschema2pojo</groupId>
         <artifactId>jsonschema2pojo-maven-plugin</artifactId>
@@ -257,15 +213,53 @@
 
   <profiles>
     <profile>
-      <id>clone-kubernetes</id>
-      <activation>
-        <property>
-          <name>clone-kube</name>
-          <value>true</value>
-        </property>
-      </activation>
+      <id>update-kube</id>
       <build>
         <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-scm-plugin</artifactId>
+            <version>1.9.1</version>
+            <configuration>
+              <checkoutDirectory>${basedir}/target/kubernetes-checkout</checkoutDirectory>
+              <connectionUrl>scm:git:https://github.com/fabric8io/kubernetes.git</connectionUrl>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>initialize</phase>
+                <goals>
+                  <goal>checkout</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.7</version>
+            <executions>
+              <execution>
+                <phase>initialize</phase>
+                <configuration>
+                  <target>
+                    <echo>copying kubernetes API code into project</echo>
+                    <mkdir dir="${kube.dir}/api"/>
+                    <copy todir="${kube.dir}/api">
+                      <fileset dir="target/kubernetes-checkout/api"/>
+                    </copy>
+                    <exec executable="git" failonerror="true" dir="${basedir}">
+                      <arg value="add"/>
+                      <arg value="${kube.dir}/api"/>
+                    </exec>
+                    <echo>Updated the kubernetes API to ${kube.dir}/api</echo>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
       </build>
     </profile>
