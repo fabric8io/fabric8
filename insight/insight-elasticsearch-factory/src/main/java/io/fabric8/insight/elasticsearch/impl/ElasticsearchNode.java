@@ -44,6 +44,8 @@ public class ElasticsearchNode implements Node {
             stringProps.put(entry.getKey(), entry.getValue().toString());
         }
 
+        Thread.currentThread().setContextClassLoader(Settings.class.getClassLoader());
+
         ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder();
 
         String configFilePath = stringProps.get("config");
