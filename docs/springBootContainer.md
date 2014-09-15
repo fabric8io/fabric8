@@ -1,8 +1,10 @@
 ## Spring Boot container
 
-Fabric comes with a set of features simplifying the effort of running and managing Spring Boot JVM processes. Fabric
-Boot utilities and starters are especially useful if you plan to run your system in a microservices-manner backed by
-the Spring Boot micro-containers and Fabric-related middleware (Camel, ActiveMQ, CXF and so forth).
+Fabric8 comes with a set of features simplifying the effort of running and managing Spring Boot applications. Fabric8
+Spring Boot utilities and starters are especially useful if you plan to run your system in a microservices-manner backed by
+the Spring Boot micro-containers and Fabric-related middleware (Camel, ActiveMQ, CXF and so forth). In general, whenever
+you have to deploy, manage and monitor multiple Spring Boot applications, the Spring Boot Fabric8 container is a way to
+go.
 
 ### Spring Boot Quickstarts
 
@@ -14,30 +16,49 @@ For example to create and run the basic Spring Boot REST module follow these ste
 
 **Step 1:** Create the new Maven project from the Quickstart.
 
-    $ mvn archetype:generate -Dfilter=io.fabric8.archetypes:springboot-webmvc-archetype 
+In order to generate new Spring Boot REST application, execute the following command:
+
+    $ mvn archetype:generate \
+      -DinteractiveMode=false \
+      -DarchetypeGroupId=io.fabric8.archetypes -DarchetypeArtifactId=springboot-webmvc-archetype \
+      -DgroupId=com.myapp -DartifactId=my-spring-boot-rest-module -Dversion=1.0-SNAPSHOT 
 
 After executing the command above, you should see a similar output:
 
     [INFO] Scanning for projects...
-    ...
+    [INFO]                                                                         
+    [INFO] ------------------------------------------------------------------------
+    [INFO] Building Maven Stub Project (No POM) 1
+    [INFO] ------------------------------------------------------------------------
+    [INFO] 
     [INFO] >>> maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom >>>
-    [INFO] Generating project in Interactive mode
-    Choose archetype:
-    1: remote -> io.fabric8.archetypes:springboot-webmvc-archetype (Creates a new Shows how to use Spring Boot with WebMVC in the Java Container)
-    Choose a number or apply filter (format: [groupId:]artifactId, case sensitive contains): : 1
-    Define value for property 'groupId': : com.myapp    
-    Define value for property 'artifactId': : my-spring-boot-rest-module
-    Define value for property 'version':  1.0-SNAPSHOT: : 
-    Define value for property 'package':  com.myapp: : 
-    ...
-    [INFO] project created from Archetype in dir: /home/hekonsek/tmp/my-spring-boot-rest-module
+    [INFO] 
+    [INFO] <<< maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom <<<
+    [INFO] 
+    [INFO] --- maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom ---
+    [INFO] Generating project in Batch mode
+    [INFO] Archetype [io.fabric8.archetypes:springboot-webmvc-archetype:1.2.0.Beta4] found in catalog remote
+    [INFO] ----------------------------------------------------------------------------
+    [INFO] Using following parameters for creating project from Archetype: springboot-webmvc-archetype:1.2.0.Beta4
+    [INFO] ----------------------------------------------------------------------------
+    [INFO] Parameter: groupId, Value: com.myapp
+    [INFO] Parameter: artifactId, Value: my-spring-boot-rest-module
+    [INFO] Parameter: version, Value: 1.0-SNAPSHOT
+    [INFO] Parameter: package, Value: com.myapp
+    [INFO] Parameter: packageInPathFormat, Value: com/myapp
+    [INFO] Parameter: package, Value: com.myapp
+    [INFO] Parameter: version, Value: 1.0-SNAPSHOT
+    [INFO] Parameter: groupId, Value: com.myapp
+    [INFO] Parameter: artifactId, Value: my-spring-boot-rest-module
+    [INFO] project created from Archetype in dir: /tmp/xxx/fdfdf/my-spring-boot-rest-module
     [INFO] ------------------------------------------------------------------------
     [INFO] BUILD SUCCESS
     [INFO] ------------------------------------------------------------------------
 
+
 **Step 2:** Test and install your new module.
 
-In the previous step we created new maven project with artifactId `my-spring-boot-rest-module`. Let's step into a 
+In the previous step we created the new maven project with the artifactId `my-spring-boot-rest-module`. Let's step into a 
 directory of our new module and build it, using the following commands:
 
     $ cd my-spring-boot-rest-module 
