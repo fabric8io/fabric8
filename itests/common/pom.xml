@@ -44,16 +44,25 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fabric-boot-commands</artifactId>
+            <artifactId>fabric-utils</artifactId>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fabric-git</artifactId>
+            <artifactId>fabric-jolokia-client</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fabric8.runtime</groupId>
             <artifactId>fabric-runtime-container-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.admin</groupId>
+            <artifactId>org.apache.karaf.admin.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.console</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.osgi.metadata</groupId>
@@ -73,6 +82,16 @@
         </dependency>
         
         <!-- Provided Dependencies -->
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-boot-commands</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-git</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
