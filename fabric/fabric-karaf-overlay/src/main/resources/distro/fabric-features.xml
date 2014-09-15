@@ -239,7 +239,9 @@
         </config>
         <feature>fabric-zookeeper</feature>
         <feature>fabric-groups</feature>
-        <bundle>mvn:io.fabric8.insight/insight-elasticsearch/${project.version}</bundle>
+        <!--<bundle>mvn:io.fabric8.insight/insight-elasticsearch-module/${project.version}</bundle>-->
+        <bundle>mvn:io.fabric8.insight/insight-elasticsearch-factory/${project.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.elasticsearch/${elasticsearch-smx4-bundle.version}</bundle>
     </feature>
 
     <feature name="insight-log" version="${project.version}" resolver="(obr)">

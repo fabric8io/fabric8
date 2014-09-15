@@ -127,7 +127,7 @@ public class InsightRequestLog extends AbstractLifeCycle implements RequestLog, 
 
             String output = "{ " +
                     "\"host\": \"" + host + "\", " +
-                    "\"timestamp\": \"" + InsightUtils.formatDate(request.getTimeStamp()) + "\", " +
+                    "\"@timestamp\": \"" + InsightUtils.formatDate(request.getTimeStamp()) + "\", " +
                     "\"remote\": \"" + request.getRemoteAddr() + "\", " +
                     "\"user\": \"" + (request.getAuthentication() instanceof Authentication.User ? ((Authentication.User)request.getAuthentication()).getUserIdentity().getUserPrincipal().getName() : "") + "\", " +
                     "\"method\": \"" + request.getMethod() + "\", " +

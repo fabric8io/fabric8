@@ -25,19 +25,18 @@
     <version>1.2.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>insight-elasticsearch</artifactId>
+  <artifactId>insight-elasticsearch-factory</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: Insight :: Elastic Search</name>
+  <name>Fabric8 :: Insight :: Elastic Search Factory</name>
 
   <properties>
     <fuse.osgi.import.additional>
-      config,
       *;resolution:=optional
     </fuse.osgi.import.additional>
     <fuse.osgi.capabilities.provide>
       osgi.service;effective:=active;objectClass=io.fabric8.insight.storage.StorageService,
-      osgi.service;effective:=active;cluster.name=elasticsearch;node.data=true;objectClass=org.elasticsearch.node.Node
+      osgi.service;effective:=active;cluster.name=elasticsearch;node.data=true;objectClass=org.elasticsearch.node.Node,
       osgi.service;effective:=active;cluster.name=insight;node.data=true;objectClass=org.elasticsearch.node.Node
     </fuse.osgi.capabilities.provide>
   </properties>
