@@ -40,7 +40,7 @@ import static java.lang.Boolean.parseBoolean;
  * integration, as it implements our opinionated view of the proper Fabric+Boot wiring.
  * </p>
  * <p>
- *      In order to specify packages that should be scanned for additional {@code @Component} and {@code @Configuration} classes, use
+ * In order to specify packages that should be scanned for additional {@code @Component} and {@code @Configuration} classes, use
  * standard Spring Boot {@code spring.main.sources} system property. For example if your project {@code @Configuration} classes are located in
  * the {@code com.example.project} package, you can use the following command to install your jar as a managed process:
  *
