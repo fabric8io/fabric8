@@ -3458,6 +3458,16 @@
                 <artifactId>jgroups</artifactId>
                 <version>${jgroups-version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.jolokia</groupId>
+                <artifactId>jolokia-client-java</artifactId>
+                <version>${jolokia-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jolokia</groupId>
+                <artifactId>jolokia-core</artifactId>
+                <version>${jolokia-version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
