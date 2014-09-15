@@ -173,7 +173,7 @@
 #
 #plugin.mandatory: mapper-attachments,lang-groovy
 
-plugin.mandatory: insight-indices-management
+plugin.mandatory: fabric8-insight, zookeeper
 
 
 ################################### Memory ####################################
@@ -320,12 +320,19 @@ plugin.mandatory: insight-indices-management
 #
 # 1. Disable multicast discovery (enabled by default):
 #
-#discovery.zen.ping.multicast.enabled: false
+discovery:
+    type: com.sonian.elasticsearch.zookeeper.discovery.ZooKeeperDiscoveryModule
+sonian.elasticsearch.zookeeper:
+    settings.enabled: true
+    client.host: localhost:2181
+    discovery.state_publishing.enabled: true
+
+discovery.zen.ping.multicast.enabled: false
 #
 # 2. Configure an initial list of master nodes in the cluster
 #    to perform discovery when new nodes (master or data) are started:
 #
-#discovery.zen.ping.unicast.hosts: ["host1", "host2:port"]
+discovery.zen.ping.unicast.hosts: ["localhost"]
 
 # EC2 discovery allows to use AWS EC2 API in order to perform discovery.
 #

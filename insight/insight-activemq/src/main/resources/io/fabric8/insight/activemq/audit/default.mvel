@@ -1,6 +1,6 @@
 {
   "host": "${host}",
-  "timestamp": @{toJson(timestamp)},
+  "@timestamp": @{toJson(timestamp)},
   "event": "${event}",
   "message": {
     "id": "${message.messageId}",

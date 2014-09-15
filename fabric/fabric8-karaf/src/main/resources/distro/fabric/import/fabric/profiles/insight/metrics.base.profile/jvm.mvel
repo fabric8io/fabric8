@@ -1,6 +1,6 @@
 {
   "host": "${result.server.name}",
-  "timestamp": @{toJson(result.timestamp)}@if{result.results['memory'] != null},
+  "@timestamp": @{toJson(result.timestamp)}@if{result.results['memory'] != null},
   "mem": {
      "heap_used": @{result.results['memory'].results[0].attrs['HeapMemoryUsage']['used']},
      "heap_committed": @{result.results['memory'].results[0].attrs['HeapMemoryUsage']['committed']},
