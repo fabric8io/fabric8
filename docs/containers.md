@@ -9,6 +9,7 @@ Fabric8 supports the following kinds of container:
 * [Java Container](http://fabric8.io/gitbook/javaContainer.html)
 * [Process Container](http://fabric8.io/gitbook/processContainer.html)
 * [Spring Boot Container](http://fabric8.io/gitbook/springBootContainer.html)
+* [Kubernetes](http://fabric8.io/gitbook/kubernetes.html)
 * [Docker](http://fabric8.io/gitbook/docker.html)
 * [SSH Containers](http://fabric8.io/gitbook/sshContainers.html)
 * [OpenShift](http://fabric8.io/gitbook/openshift.html)

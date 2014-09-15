@@ -15,6 +15,7 @@
  */
 package io.fabric8.kubernetes.provider.commands;
 
+import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Objects;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.model.CurrentState;
@@ -23,7 +24,9 @@ import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.ManifestSchema;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.provider.KubernetesHelpers;
 import io.fabric8.kubernetes.provider.KubernetesService;
+import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
@@ -31,7 +34,6 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Command(name = PodList.FUNCTION_VALUE, scope = "fabric",
         description = PodList.DESCRIPTION)
@@ -39,6 +41,9 @@ public class PodListAction extends AbstractAction {
 
     static final String FORMAT = "%-20s %-20s %-20s %-89s %s";
     static final String[] HEADERS = {"[id]", "[image(s)]", "[host]", "[labels]", "[status]"};
+
+    @Argument(index = 0, name = "filter", description = "The label filter", required = false)
+    String filterText = null;
 
     private final KubernetesService kubernetesService;
 
@@ -62,49 +67,38 @@ public class PodListAction extends AbstractAction {
         if (items == null) {
             items = Collections.EMPTY_LIST;
         }
+        Filter<PodSchema> filter = KubernetesHelpers.createFilter(filterText);
         for (PodSchema item : items) {
-            String id = item.getId();
-            CurrentState currentState = item.getCurrentState();
-            String status = "";
-            String host = "";
-            if (currentState != null) {
-                status = currentState.getStatus();
-                host = currentState.getHost();
-            }
-            Map<String, String> labelMap = item.getLabels();
-            String labels = toLabelsString(labelMap);
-            DesiredState desiredState = item.getDesiredState();
-            if (desiredState != null) {
-                ManifestSchema manifest = desiredState.getManifest();
-                if (manifest != null) {
-                    List<ManifestContainer> containers = manifest.getContainers();
-                    for (ManifestContainer container : containers) {
-                        String image = container.getImage();
-                        String firstLine = String.format(FORMAT, id, image, host, labels, status);
-                        out.println(firstLine);
+            if (filter.matches(item)) {
+                String id = item.getId();
+                CurrentState currentState = item.getCurrentState();
+                String status = "";
+                String host = "";
+                if (currentState != null) {
+                    status = currentState.getStatus();
+                    host = currentState.getHost();
+                }
+                Map<String, String> labelMap = item.getLabels();
+                String labels = KubernetesHelpers.toLabelsString(labelMap);
+                DesiredState desiredState = item.getDesiredState();
+                if (desiredState != null) {
+                    ManifestSchema manifest = desiredState.getManifest();
+                    if (manifest != null) {
+                        List<ManifestContainer> containers = manifest.getContainers();
+                        for (ManifestContainer container : containers) {
+                            String image = container.getImage();
+                            String firstLine = String.format(FORMAT, id, image, host, labels, status);
+                            out.println(firstLine);
 
-                        id = "";
-                        host = "";
-                        status = "";
-                        labels = "";
+                            id = "";
+                            host = "";
+                            status = "";
+                            labels = "";
+                        }
                     }
                 }
             }
         }
-    }
-
-    protected static String toLabelsString(Map<String, String> labelMap) {
-        StringBuilder buffer = new StringBuilder();
-        Set<Map.Entry<String, String>> entries = labelMap.entrySet();
-        for (Map.Entry<String, String> entry : entries) {
-            if (buffer.length() > 0) {
-                buffer.append(",");
-            }
-            buffer.append(entry.getKey());
-            buffer.append("=");
-            buffer.append(entry.getValue());
-        }
-        return buffer.toString();
     }
 
 }

@@ -15,9 +15,6 @@
  */
 package io.fabric8.kubernetes.provider.commands;
 
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
 import io.fabric8.boot.commands.support.AbstractCompleterComponent;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.model.PodListSchema;
@@ -36,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 @Component(immediate = true)
-@Service({ PodCompleter.class, Completer.class })
+@Service({PodCompleter.class, Completer.class})
 public final class PodCompleter extends AbstractCompleterComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(PodCompleter.class);
 

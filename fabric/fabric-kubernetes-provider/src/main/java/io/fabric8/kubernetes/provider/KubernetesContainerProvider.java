@@ -32,7 +32,6 @@ import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
-import io.fabric8.container.process.JolokiaAgentHelper;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.DockerApiConnectionException;
 import io.fabric8.docker.api.Dockers;
@@ -42,13 +41,11 @@ import io.fabric8.docker.provider.DockerConstants;
 import io.fabric8.docker.provider.DockerContainerProviderSupport;
 import io.fabric8.docker.provider.DockerCreateOptions;
 import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.DesiredState;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.ManifestSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -71,9 +68,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static io.fabric8.kubernetes.provider.KubernetesConstants.LABELS;
 
@@ -102,22 +96,13 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
     @Reference(referenceInterface = KubernetesService.class, bind = "bindKubernetesService", unbind = "unbindKubernetesService")
     private final ValidatingReference<KubernetesService> kubernetesService = new ValidatingReference<KubernetesService>();
 
-    @Property(name = "jolokiaKeepAlivePollTime", longValue = 10000,
-            label = "The Jolokia Keep Alive Timer Poll Period", description = "The number of milliseconds after which the jolokia agents for any docker containers which expose jolokia will be polled to check for the container status and discover any container resources.")
-    private long jolokiaKeepAlivePollTime = 10000;
-
     @Property(name = "dockerHost",
             label = "Docker Host",
             description = "The URL to connect to Docker.")
     private String dockerHost;
 
-    private ZooKeeperMasterCache zkMasterCache;
-
     private int externalPortCounter;
     private final Object portLock = new Object();
-
-    private Timer keepAliveTimer;
-    private Map<String, CreateKubernetesContainerMetadata> jolokiaKeepAliveContainers = new ConcurrentHashMap<String, CreateKubernetesContainerMetadata>();
 
 
     @Activate
@@ -133,9 +118,6 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
 
     @Deactivate
     public void deactivate() throws MBeanRegistrationException, InstanceNotFoundException {
-        if (zkMasterCache != null) {
-            zkMasterCache = null;
-        }
         deactivateComponent();
     }
 
@@ -156,18 +138,6 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
             Thread.currentThread().setContextClassLoader(tccl);
         }
     }
-
-    public CreateKubernetesContainerOptions.Builder newBuilder() {
-        return CreateKubernetesContainerOptions.builder();
-    }
-
-
-    @Override
-    public CreateKubernetesContainerMetadata create(CreateKubernetesContainerOptions options, CreationStateListener listener) throws Exception {
-        DockerCreateContainerParameters parameters = new DockerCreateContainerParameters(options).invoke();
-        return doCreateDockerContainer(options, parameters);
-    }
-
     public Kubernetes getKubernetes() {
         return KubernetesService.getKubernetes(kubernetesService.getOptional());
     }
@@ -176,8 +146,55 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         return KubernetesService.getKubernetesAddress(kubernetesService.getOptional());
     }
 
+    public CreateKubernetesContainerOptions.Builder newBuilder() {
+        return CreateKubernetesContainerOptions.builder();
+    }
 
-    protected CreateKubernetesContainerMetadata doCreateDockerContainer(CreateKubernetesContainerOptions options, DockerCreateContainerParameters parameters) throws Exception {
+    @Override
+    public CreateKubernetesContainerMetadata create(CreateKubernetesContainerOptions options, CreationStateListener listener) throws Exception {
+        DockerCreateContainerParameters parameters = new DockerCreateContainerParameters(options).invoke();
+        doCreateDockerContainer(options, parameters);
+
+        ContainerConfig containerConfig = parameters.getContainerConfig();
+        Map<String, String> environmentVariables = parameters.getEnvironmentVariables();
+        String containerType = parameters.getContainerType();
+
+        ContainerCreateStatus status = null;
+        CreateKubernetesContainerMetadata metadata = null;
+
+        // TODO set the IP from the health check
+        // options = options.updateManualIp(dockerHost);
+
+        metadata = createKubernetesContainerMetadata(containerConfig, options, status, containerType);
+        publishZooKeeperValues(options, environmentVariables);
+
+/*
+        TODO - lets set the IP from the health check
+        if (jolokiaUrl != null) {
+            metadata.setJolokiaUrl(jolokiaUrl);
+        }
+*/
+        return metadata;
+
+    }
+
+    @Override
+    public void start(Container container) {
+        assertValid();
+        CreateKubernetesContainerMetadata containerMetadata = getContainerMetadata(container);
+        CreateKubernetesContainerOptions options = containerMetadata.getCreateOptions();
+
+        try {
+            DockerCreateContainerParameters parameters = new DockerCreateContainerParameters(options).invoke();
+            doCreateDockerContainer(options, parameters);
+        } catch (Exception e) {
+            String message = "Could not start pod: " + e + Dockers.dockerErrorMessage(e);
+            LOG.warn(message, e);
+            throw new RuntimeException(message, e);
+        }
+    }
+
+    protected void doCreateDockerContainer(CreateKubernetesContainerOptions options, DockerCreateContainerParameters parameters) throws Exception {
         Kubernetes kubernetes = getKubernetes();
         Objects.notNull(kubernetes, "kubernetes");
         ContainerConfig containerConfig = parameters.getContainerConfig();
@@ -191,7 +208,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         FabricService service = getFabricService();
 
         PodSchema pod = new PodSchema();
-        pod.setId(name);
+        pod.setId(KubernetesHelpers.containerNameToPodId(name));
 
         Map<String, String> labels = new HashMap<>();
         labels.put(LABELS.FABRIC8, "true");
@@ -223,7 +240,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
 
         // TODO
         //manifestContainer.setVolumeMounts();
-        //manifestContainer.setPorts();
+        //manifestContainer.setPorts(ports);
 
         List<ManifestContainer> containers = new ArrayList<>();
         containers.add(manifestContainer);
@@ -238,22 +255,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                     + ": " + e + Dockers.dockerErrorMessage(e), e);
             throw e;
         }
-        ContainerCreateStatus status = null;
-        CreateKubernetesContainerMetadata metadata = null;
-
-        // TODO how to set the manual IP???
-        // options = options.updateManualIp(dockerHost);
-
-        metadata = createKubernetesContainerMetadata(containerConfig, options, status, containerType);
-        publishZooKeeperValues(options, environmentVariables);
-
-        if (jolokiaUrl != null) {
-            metadata.setJolokiaUrl(jolokiaUrl);
-            startJolokiaKeepAlive(metadata);
-        }
-        return metadata;
     }
-
 
 
     public static CreateKubernetesContainerMetadata createKubernetesContainerMetadata(ContainerConfig containerConfig, DockerCreateOptions options, ContainerCreateStatus status, String containerType) {
@@ -274,16 +276,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         metadata.setCreateOptions(options);
         return metadata;
     }
-    
-    @Override
-    public void start(Container container) {
-        assertValid();
-        CreateKubernetesContainerMetadata containerMetadata = getContainerMetadata(container);
-        CreateKubernetesContainerOptions options = containerMetadata.getCreateOptions();
 
-        String id = getPodId(container);
-        startPod(id, options);
-    }
 
     @Override
     protected int createExternalPort(String containerId, String portKey, Set<Integer> usedPortByHost, DockerCreateOptions options) {
@@ -308,13 +301,6 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         }
     }
 
-    protected void startPod(String id, CreateKubernetesContainerOptions options) {
-        if (!Strings.isNullOrBlank(id)) {
-            // TODO
-            todo();
-        }
-    }
-
     @Override
     protected Set<Integer> findUsedPortByHostAndDocker() {
         try {
@@ -331,15 +317,22 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         assertValid();
         String id = getPodId(container);
         if (!Strings.isNullOrBlank(id)) {
-            LOG.info("stopping pod " + id);
-            CreateKubernetesContainerMetadata metadata = getContainerMetadata(container);
-            if (metadata != null) {
-                stopJolokiaKeepAlive(metadata);
+            try {
+                deletePod(id);
+            } catch (Exception e) {
+                String message = "Could not remove pod: it probably no longer exists " + e + Dockers.dockerErrorMessage(e);
+                LOG.warn(message, e);
+                throw new RuntimeException(message, e);
             }
-
-            todo();
             container.setProvisionResult(Container.PROVISION_STOPPED);
         }
+    }
+
+    protected void deletePod(String id) throws Exception {
+        LOG.info("stopping pod " + id);
+        Kubernetes kubernetes = getKubernetes();
+        Objects.notNull(kubernetes, "kubernetes");
+        kubernetes.deletePod(id);
     }
 
     @Override
@@ -347,50 +340,12 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         assertValid();
         String id = getPodId(container);
         if (!Strings.isNullOrBlank(id)) {
-            LOG.info("destroying pod " + id);
             try {
-                todo();
+                deletePod(id);
             } catch (Exception e) {
                 LOG.info("Could not remove pod: it probably no longer exists " + e + Dockers.dockerErrorMessage(e), e);
             }
         }
-    }
-
-    protected void todo() {
-        // TODO
-        throw new UnsupportedOperationException("Not implemented yet!");
-    }
-
-
-    protected synchronized void startJolokiaKeepAlive(CreateKubernetesContainerMetadata metadata) {
-        LOG.info("Starting Jolokia Keep Alive for " + metadata.getId());
-        jolokiaKeepAliveContainers.put(metadata.getId(), metadata);
-        if (keepAliveTimer == null) {
-            keepAliveTimer = new Timer("fabric8-docker-container-keepalive");
-
-            TimerTask timerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    List<CreateKubernetesContainerMetadata> list = new ArrayList<>(jolokiaKeepAliveContainers.values());
-                    for (CreateKubernetesContainerMetadata containerMetadata : list) {
-                        try {
-                            String jolokiaUrl = containerMetadata.getJolokiaUrl();
-                            String containerName = containerMetadata.getContainerName();
-                            JolokiaAgentHelper.jolokiaKeepAliveCheck(zkMasterCache, getFabricService(), jolokiaUrl, containerName);
-
-                        } catch (Exception e) {
-                            LOG.warn("Jolokia keep alive check failed for container " + containerMetadata.getId() + ". " + e, e);
-                        }
-                    }
-                }
-            };
-            keepAliveTimer.schedule(timerTask, jolokiaKeepAlivePollTime, jolokiaKeepAlivePollTime);
-        }
-    }
-
-    protected void stopJolokiaKeepAlive(CreateKubernetesContainerMetadata metadata) {
-        LOG.info("Stopping Jolokia Keep Alive for " + metadata.getId());
-        jolokiaKeepAliveContainers.remove(metadata.getId());
     }
 
     @Override
@@ -441,7 +396,6 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
     public ContainerAutoScaler createAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
         return new KubernetesAutoScaler(this);
     }
-
 
 
     protected FabricService getFabricService() {

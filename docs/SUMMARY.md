@@ -22,6 +22,7 @@
     * [Process Container](processContainer.md)
     * [Spring Boot Container](springBootContainer.md)
     * [Docker](docker.md)
+    * [Kubernetes](kubernetes.md)
     * [SSH Containers](sshContainers.md)
     * [OpenShift](openshift.md)
     * [Cloud Containers](cloudContainers.md)

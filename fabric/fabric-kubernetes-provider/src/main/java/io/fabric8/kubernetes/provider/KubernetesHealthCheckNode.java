@@ -20,7 +20,7 @@ import io.fabric8.groups.NodeState;
 public class KubernetesHealthCheckNode extends NodeState {
 
     @Override
-	public String toString() {
-		return "KubernetesHealthCheckNode()";
-	}
+    public String toString() {
+        return "KubernetesHealthCheckNode()";
+    }
 }

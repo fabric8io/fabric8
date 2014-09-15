@@ -61,4 +61,8 @@ public interface Constants {
      * The Fabric8 management domain
      */
     String MANAGEMENT_DOMAIN = "io.fabric8";
+
+    public static class Ports {
+        public static final String JOLOKIA = "JOLOKIA";
+    }
 }

@@ -97,7 +97,7 @@ public interface Kubernetes {
      */
     @GET
     @Path("pods/{podId}")
-    PodSchema getPodsByPodId(@PathParam("podId") @NotNull String podId) throws Exception;
+    PodSchema getPodById(@PathParam("podId") @NotNull String podId) throws Exception;
 
     /**
      * Update a pod
@@ -152,6 +152,6 @@ public interface Kubernetes {
      */
     @DELETE
     @Path("pods/{podId}")
-    void deletePodsByPodId(@PathParam("podId") @NotNull String podId) throws Exception;
+    void deletePod(@PathParam("podId") @NotNull String podId) throws Exception;
 
 }

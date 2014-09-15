@@ -449,6 +449,10 @@ public class JolokiaAgentHelper {
         } catch (Exception e) {
             // ignore
         }
+        jolokiaKeepAliveCheck(zkMasterCache, fabric, jolokiaUrl, container);
+    }
+
+    public static void jolokiaKeepAliveCheck(ZooKeeperMasterCache zkMasterCache, FabricService fabric, String jolokiaUrl, Container container) {
         if (container != null) {
             if (!Objects.equal(jolokiaUrl, container.getJolokiaUrl())) {
                 container.setJolokiaUrl(jolokiaUrl);

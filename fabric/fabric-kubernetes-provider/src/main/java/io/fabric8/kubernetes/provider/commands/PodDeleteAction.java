@@ -50,6 +50,6 @@ public class PodDeleteAction extends AbstractAction {
     }
 
     protected void deletePod(Kubernetes kubernetes, String pod) throws Exception {
-        kubernetes.deletePodsByPodId(pod);
+        kubernetes.deletePod(pod);
     }
 }

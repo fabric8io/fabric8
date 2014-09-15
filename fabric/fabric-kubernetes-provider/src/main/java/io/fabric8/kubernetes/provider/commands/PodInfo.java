@@ -31,17 +31,21 @@ import org.apache.felix.service.command.Function;
 @Component(immediate = true)
 @Service({Function.class, AbstractCommand.class})
 @org.apache.felix.scr.annotations.Properties({
-        @Property(name = "osgi.command.scope", value = PodList.SCOPE_VALUE),
-        @Property(name = "osgi.command.function", value = PodList.FUNCTION_VALUE)
+        @Property(name = "osgi.command.scope", value = PodInfo.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = PodInfo.FUNCTION_VALUE)
 })
-public class PodList extends AbstractCommandComponent {
+public class PodInfo extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE = "pod-list";
-    public static final String DESCRIPTION = "Lists the available pods in kubernetes";
+    public static final String FUNCTION_VALUE = "pod-info";
+    public static final String DESCRIPTION = "Displays detail information about a pod in kubernetes";
 
     @Reference(referenceInterface = KubernetesService.class, bind = "bindKubernetesService", unbind = "unbindKubernetesService")
     private final ValidatingReference<KubernetesService> kubernetesService = new ValidatingReference<KubernetesService>();
+
+    // Completers
+    @Reference(referenceInterface = PodCompleter.class, bind = "bindPodCompleter", unbind = "unbindPodCompleter")
+    private PodCompleter podCompleter; // dummy field
 
     @Activate
     void activate() {
@@ -56,7 +60,7 @@ public class PodList extends AbstractCommandComponent {
     @Override
     public Action createNewAction() {
         assertValid();
-        return new PodListAction(kubernetesService.get());
+        return new PodInfoAction(kubernetesService.get());
     }
 
     void bindKubernetesService(KubernetesService kubernetesService) {
@@ -65,5 +69,13 @@ public class PodList extends AbstractCommandComponent {
 
     void unbindKubernetesService(KubernetesService kubernetesService) {
         this.kubernetesService.unbind(kubernetesService);
+    }
+
+    void bindPodCompleter(PodCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindPodCompleter(PodCompleter completer) {
+        unbindCompleter(completer);
     }
 }
