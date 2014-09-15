@@ -19,6 +19,7 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.common.util.Strings;
+import io.fabric8.docker.provider.DockerFacade;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import org.apache.felix.scr.annotations.Activate;
@@ -34,6 +35,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import java.util.Map;
 
 /**
@@ -45,7 +48,7 @@ import java.util.Map;
         description = "Provides a Kubernetes client",
         policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service(KubernetesService.class)
-public class KubernetesService extends AbstractComponent {
+public class KubernetesService extends AbstractComponent implements KubernetesServiceMXBean {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesService.class);
 
@@ -64,6 +67,8 @@ public class KubernetesService extends AbstractComponent {
 
     @Reference(bind = "bindConfigurer", unbind = "unbindConfigurer")
     private Configurer configurer;
+    @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
+    private MBeanServer mbeanServer;
 
     @Property(name = "kubernetesMaster",
             label = "Kubernetes Master",
@@ -72,11 +77,21 @@ public class KubernetesService extends AbstractComponent {
 
     private KubernetesFactory kubernetesFactory;
     private Kubernetes kubernetes;
+    private ObjectName objectName;
 
     @Activate
     public void activate(Map<String, ?> configuration) throws Exception {
         updateConfiguration(configuration);
         activateComponent();
+        if (mbeanServer != null) {
+            objectName = new ObjectName("io.fabric8:type=Kubernetes");
+            KubernetesServiceMXBean mbean = this;
+            if (!mbeanServer.isRegistered(objectName)) {
+                mbeanServer.registerMBean(mbean, objectName);
+            }
+        } else {
+            LOG.warn("No MBeanServer!");
+        }
     }
 
     @Modified
@@ -87,6 +102,11 @@ public class KubernetesService extends AbstractComponent {
     @Deactivate
     public void deactivate() throws MBeanRegistrationException, InstanceNotFoundException {
         deactivateComponent();
+        if (mbeanServer != null) {
+            if (mbeanServer.isRegistered(objectName)) {
+                mbeanServer.unregisterMBean(objectName);
+            }
+        }
     }
 
     private void updateConfiguration(Map<String, ?> configuration) throws Exception {
@@ -116,6 +136,11 @@ public class KubernetesService extends AbstractComponent {
         return kubernetesFactory;
     }
 
+    @Override
+    public String getKubernetesAddress() {
+        return kubernetesFactory.getAddress();
+    }
+
     public Configurer getConfigurer() {
         return configurer;
     }
@@ -130,5 +155,13 @@ public class KubernetesService extends AbstractComponent {
 
     void unbindConfigurer(Configurer configurer) {
         this.setConfigurer(null);
+    }
+
+    void bindMBeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer = mbeanServer;
+    }
+
+    void unbindMBeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer = null;
     }
 }
