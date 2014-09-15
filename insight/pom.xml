@@ -53,7 +53,7 @@
     <module>insight-rhq-metrics</module>
     <module>insight-storage</module>
     <module>insight-elasticsearch-factory</module>
-    <module>insight-elasticsearch-module</module>
+    <module>insight-elasticsearch-plugin</module>
   </modules>
 
 </project>

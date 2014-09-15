@@ -1,6 +1,6 @@
 {
   "host": "${host}",
-  "timestamp": @{toJson(timestamp)},
+  "@timestamp": @{toJson(timestamp)},
   "event": "${event}",
   "exchange": {
     "id": "${exchange.exchangeId}",

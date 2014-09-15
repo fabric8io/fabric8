@@ -25,14 +25,13 @@
     <version>1.2.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>insight-elasticsearch-module</artifactId>
+  <artifactId>insight-elasticsearch-plugin</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: Insight :: Elastic Search Module</name>
+  <name>Fabric8 :: Insight :: Elastic Search Plugin</name>
 
   <properties>
     <fuse.osgi.import.additional>
-      !org.elasticsearch*,
       *;resolution:=optional
     </fuse.osgi.import.additional>
     <fuse.osgi.fragment.host>org.apache.servicemix.bundles.elasticsearch;bundle-version="[1.3.2,1.4)"</fuse.osgi.fragment.host>
@@ -43,6 +42,14 @@
       <groupId>org.elasticsearch</groupId>
       <artifactId>elasticsearch</artifactId>
       <version>${elasticsearch-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric-zookeeper</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric-groups</artifactId>
     </dependency>
   </dependencies>
 

@@ -1,4 +1,4 @@
-package io.fabric8.insight.elasticsearch.indices;
+package io.fabric8.insight.elasticsearch.plugin;
 
 import org.elasticsearch.common.inject.AbstractModule;
 

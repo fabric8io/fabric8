@@ -1,5 +1,6 @@
 package io.fabric8.insight.elasticsearch.impl;
 
+import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.Configurer;
 import org.apache.felix.scr.annotations.*;
 import org.elasticsearch.client.Client;
@@ -8,6 +9,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
@@ -16,7 +18,7 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 @Service(org.elasticsearch.node.Node.class)
 public class ElasticsearchNode implements Node {
 
-    @Property(name = "cluster.name", value="elasticsearch", label = "Cluster Name", description = "The name of the cluster this node should be a part of")
+    @Property(name = "cluster.name", value = "elasticsearch", label = "Cluster Name", description = "The name of the cluster this node should be a part of")
     private String clusterName;
 
     @Property(name = "node.data", boolValue = true, label = "Data Node?", description = "Is this a data node?")
@@ -25,24 +27,33 @@ public class ElasticsearchNode implements Node {
     @Property(name = "config", label = "Config File", description = "The URL to load the config file from (optional)")
     private String config;
 
+    @Property(name = "rootNode", label = "Root Node", description = "The root node in ZooKeeper(optional)")
+    private String rootNode;
+
     @Reference
     private Configurer configurer;
 
     private org.elasticsearch.node.Node nodeDelegate;
 
     @Activate
-    protected void activate(final Map<String, ?> props) throws Exception {
+    protected void activate(final Map<String, Object> props) throws Exception {
         configurer.configure(props, this);
 
-        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+        Map<String,String> stringProps = new HashMap<String,String>();
+        for (Map.Entry<String, Object> entry : props.entrySet()) {
+            stringProps.put(entry.getKey(), entry.getValue().toString());
+        }
 
         ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder();
 
-        if (config != null) {
+        String configFilePath = stringProps.get("config");
+        if (configFilePath != null) {
             settings.loadFromUrl(new URL(config));
         }
 
-        nodeDelegate = nodeBuilder().data(nodeData).client(!nodeData).clusterName(clusterName).settings(settings).node();
+        settings.put(stringProps).classLoader(Settings.class.getClassLoader());
+
+        nodeDelegate = nodeBuilder().settings(settings).node();
     }
 
     @Deactivate

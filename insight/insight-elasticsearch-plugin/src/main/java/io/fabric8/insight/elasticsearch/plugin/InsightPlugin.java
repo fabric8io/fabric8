@@ -1,4 +1,4 @@
-package io.fabric8.insight.elasticsearch.indices;
+package io.fabric8.insight.elasticsearch.plugin;
 
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.inject.Module;
@@ -7,17 +7,17 @@ import org.elasticsearch.plugins.AbstractPlugin;
 
 import java.util.Collection;
 
-public class IndicesManagementPlugin extends AbstractPlugin {
+public class InsightPlugin extends AbstractPlugin {
 
     private final Settings settings;
 
-    public IndicesManagementPlugin(Settings settings) {
+    public InsightPlugin(Settings settings) {
         this.settings = settings;
     }
 
     @Override
     public String name() {
-        return "insight-indices-management";
+        return "fabric8-insight";
     }
 
     @Override
