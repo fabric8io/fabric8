@@ -19,6 +19,7 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.DataStore;
+import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.jcip.GuardedBy;
@@ -39,6 +40,7 @@ import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.ManifestSchema;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.service.child.ChildContainers;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
 import org.apache.curator.framework.CuratorFramework;
@@ -55,6 +57,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
@@ -97,13 +100,17 @@ public final class KubernetesHeathChecker extends AbstractComponent implements G
 
     @Activate
     void activate() {
-        CuratorFramework curator = this.curator.get();
+        CuratorFramework curator = getCuratorFramework();
         enableMasterZkCache(curator);
         group = new ZooKeeperGroup<KubernetesHealthCheckNode>(curator, ZkPath.KUBERNETES_HEALTH_CLUSTER.getPath(), KubernetesHealthCheckNode.class);
         group.add(this);
         group.update(createState());
         group.start();
         activateComponent();
+    }
+
+    public CuratorFramework getCuratorFramework() {
+        return this.curator.get();
     }
 
 
@@ -127,7 +134,7 @@ public final class KubernetesHeathChecker extends AbstractComponent implements G
                     KubernetesHealthCheckNode state = createState();
                     try {
                         if (group.isMaster()) {
-                            enableMasterZkCache(curator.get());
+                            enableMasterZkCache(getCuratorFramework());
                             LOGGER.info("KubernetesHeathChecker is the master");
                             group.update(state);
                             dataStore.trackConfiguration(runnable);
@@ -146,7 +153,7 @@ public final class KubernetesHeathChecker extends AbstractComponent implements G
                 } else {
                     LOGGER.info("Not valid with master: " + group.isMaster()
                             + " fabric: " + fabricService.get()
-                            + " curator: " + curator.get());
+                            + " curator: " + getCuratorFramework());
                 }
                 break;
             case DISCONNECTED:
@@ -261,27 +268,17 @@ public final class KubernetesHeathChecker extends AbstractComponent implements G
     }
 
     protected void keepAliveCheck(FabricService service, String status, Container container, CurrentState currentState) {
-        Profile overlayProfile = container.getOverlayProfile();
-        String jolokiaPort = null;
-        if (overlayProfile != null) {
-            Map<String, String> configuration = overlayProfile.getConfiguration(Constants.PORTS_PID);
-            jolokiaPort = configuration.get(Constants.Ports.JOLOKIA);
-        }
         String host = currentState.getHost();
-        String hostIP = currentState.getHostIP();
-        String hostOrIp = host;
-        if (Strings.isNullOrBlank(hostOrIp)) {
-            hostOrIp = hostIP;
-        }
+        String podIP = currentState.getPodIP();
         if (!Strings.isNullOrBlank(host) && !Objects.equal(host, container.getPublicHostname())) {
             container.setPublicHostname(host);
         }
-        if (!Strings.isNullOrBlank(hostIP) && !Objects.equal(hostIP, container.getPublicIp())) {
-            container.setPublicIp(hostIP);
+        if (!Strings.isNullOrBlank(podIP) && !Objects.equal(podIP, container.getPublicIp())) {
+            container.setPublicIp(podIP);
         }
 
-        if (!Strings.isNullOrBlank(jolokiaPort) && !Strings.isNullOrBlank(hostOrIp)) {
-            String jolokiaUrl = "http://" + hostOrIp + ":" + jolokiaPort;
+        String jolokiaUrl = getJolokiaURL(container, currentState,service);
+        if (jolokiaUrl != null) {
             JolokiaAgentHelper.jolokiaKeepAliveCheck(zkMasterCache, service, jolokiaUrl, container);
             return;
         }
@@ -294,6 +291,53 @@ public final class KubernetesHeathChecker extends AbstractComponent implements G
         if (container.getProvisionException() != null) {
             container.setProvisionException(null);
         }
+    }
+
+    protected String getJolokiaURL(Container container, CurrentState currentState, FabricService service) {
+        Profile overlayProfile = container.getOverlayProfile();
+        String jolokiaPort = null;
+        Map<String, String> ports = null;
+        if (overlayProfile != null) {
+            ports = overlayProfile.getConfiguration(Constants.PORTS_PID);
+            jolokiaPort = ports.get(Constants.Ports.JOLOKIA);
+        }
+        String host = currentState.getHost();
+        String podIP = currentState.getPodIP();
+        String hostOrIp = podIP;
+        if (Strings.isNullOrBlank(hostOrIp)) {
+            hostOrIp = host;
+        }
+
+        if (jolokiaPort == null) {
+            // lets see if there's an environment variable
+            CreateContainerMetadata<?> metadata = container.getMetadata();
+            if (metadata != null) {
+                Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(service, metadata.getCreateOptions());
+                if (!environmentVariables.containsKey(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS)) {
+                    environmentVariables.put(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS, hostOrIp);
+                }
+                // lets add default ports
+                if (ports != null) {
+                    Set<Map.Entry<String, String>> entries = ports.entrySet();
+                    for (Map.Entry<String, String> entry : entries) {
+                        String key = entry.getKey();
+                        String value = entry.getValue();
+                        String envVar = "FABRIC8_" + key + "_PROXY_PORT";
+                        if (!environmentVariables.containsKey(envVar)) {
+                            environmentVariables.put(envVar, value);
+                        }
+                    }
+                }
+                JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables, service, getCuratorFramework(), true);
+                return JolokiaAgentHelper.findJolokiaUrlFromEnvironmentVariables(environmentVariables, hostOrIp);
+            }
+        }
+
+        String jolokiaUrl = null;
+        if (!Strings.isNullOrBlank(jolokiaPort) && !Strings.isNullOrBlank(hostOrIp)) {
+            jolokiaUrl = "http://" + hostOrIp + ":" + jolokiaPort;
+        }
+        return jolokiaUrl;
     }
 
     protected Map<String, Container> createPodIdToContainerMap(Container[] containers) {

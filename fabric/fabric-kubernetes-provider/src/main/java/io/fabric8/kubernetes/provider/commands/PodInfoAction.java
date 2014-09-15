@@ -77,7 +77,7 @@ public class PodInfoAction extends AbstractAction {
         CurrentState currentState = podInfo.getCurrentState();
         if (currentState != null) {
             printValue("Host", currentState.getHost());
-            printValue("IP", currentState.getHostIP());
+            printValue("IP", currentState.getPodIP());
             printValue("Status", currentState.getStatus());
             PodContainerManifest manifest = currentState.getManifest();
         }
