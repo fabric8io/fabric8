@@ -83,7 +83,7 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
 
     public void initialize(Bus bus) {
         try {
-            FabricServerListener lister = new FabricServerListener(getGroup(), addressResolver);
+            FabricServerListener lister = new FabricServerListener(getGroup(), addressResolver, getCurator());
             // register the server listener itself
             ServerLifeCycleManager serverMgr = bus.getExtension(ServerLifeCycleManager.class);
             if (serverMgr != null) {
