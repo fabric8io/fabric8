@@ -68,6 +68,9 @@ public class Client {
     public static void main(String args[]) throws Exception {
         Client client = new Client();
 
+        // 1 sec should be enough to fetch the load balance info from ZooKeeper
+        Thread.sleep(1000);
+
         System.out.println("Calling the web service 10 times with 5 second delay ...");
         for (int i = 0; i< 10; i++) {
             System.out.println("Calling the sayHello #" + i + " with result: "  + client.getProxy().sayHello());
