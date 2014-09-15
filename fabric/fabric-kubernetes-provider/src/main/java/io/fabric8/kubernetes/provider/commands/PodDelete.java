@@ -43,6 +43,10 @@ public class PodDelete extends AbstractCommandComponent {
     @Reference(referenceInterface = KubernetesService.class, bind = "bindKubernetesService", unbind = "unbindKubernetesService")
     private final ValidatingReference<KubernetesService> kubernetesService = new ValidatingReference<KubernetesService>();
 
+    // Completers
+    @Reference(referenceInterface = PodCompleter.class, bind = "bindPodCompleter", unbind = "unbindPodCompleter")
+    private PodCompleter podCompleter; // dummy field
+
     @Activate
     void activate() {
         activateComponent();
@@ -65,5 +69,13 @@ public class PodDelete extends AbstractCommandComponent {
 
     void unbindKubernetesService(KubernetesService kubernetesService) {
         this.kubernetesService.unbind(kubernetesService);
+    }
+
+    void bindPodCompleter(PodCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindPodCompleter(PodCompleter completer) {
+        unbindCompleter(completer);
     }
 }
