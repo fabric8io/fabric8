@@ -168,7 +168,7 @@
         <version>1.9.1</version>
         <configuration>
           <checkoutDirectory>${kube.dir}</checkoutDirectory>
-          <connectionUrl>scm:git:git@github.com:fabric8io/kubernetes.git</connectionUrl>
+          <connectionUrl>scm:git:https://github.com/fabric8io/kubernetes.git</connectionUrl>
         </configuration>
         <executions>
           <execution>
