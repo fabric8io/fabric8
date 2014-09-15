@@ -160,20 +160,16 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                 deleteSafe(curator.get(), domainsNode);
             }
 
-            boolean openshiftFuseEnv = Strings.notEmpty(System.getenv("OPENSHIFT_FUSE_DIR"));
-            boolean openshiftAmqEnv = Strings.notEmpty(System.getenv("OPENSHIFT_AMQ_DIR"));
+            boolean openshiftEnv = Strings.notEmpty(System.getenv("OPENSHIFT_FUSE_DIR"));
 
             ZooKeeperUtils.createDefault(curator.get(), CONTAINER_BINDADDRESS.getPath(runtimeIdentity), bootstrapConfiguration.get().getBindAddress());
             ZooKeeperUtils.createDefault(curator.get(), CONTAINER_RESOLVER.getPath(runtimeIdentity), getContainerResolutionPolicy(curator.get(), runtimeIdentity));
             setData(curator.get(), CONTAINER_LOCAL_HOSTNAME.getPath(runtimeIdentity), HostUtils.getLocalHostName());
-            setData(curator.get(), CONTAINER_LOCAL_IP.getPath(runtimeIdentity), HostUtils.getLocalIp());
-            if (openshiftFuseEnv) {
-                //setData(curator.get(), CONTAINER_PUBLIC_HOSTNAME.getPath(karafName), sysprops.getProperty("publichostname"));
-                setData(curator.get(), CONTAINER_PUBLIC_IP.getPath(runtimeIdentity), System.getenv("OPENSHIFT_FUSE_IP"));
-            }
-            if (openshiftAmqEnv) {
-                //setData(curator.get(), CONTAINER_PUBLIC_HOSTNAME.getPath(karafName), sysprops.getProperty("publichostname"));
-                setData(curator.get(), CONTAINER_PUBLIC_IP.getPath(runtimeIdentity), System.getenv("OPENSHIFT_AMQ_IP"));
+            if (openshiftEnv) {
+                setData(curator.get(), CONTAINER_LOCAL_IP.getPath(runtimeIdentity), System.getenv("OPENSHIFT_FUSE_IP"));
+                setData(curator.get(), CONTAINER_PUBLIC_IP.getPath(runtimeIdentity), HostUtils.getLocalIp());
+            } else {
+                setData(curator.get(), CONTAINER_LOCAL_IP.getPath(runtimeIdentity), HostUtils.getLocalIp());
             }
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
