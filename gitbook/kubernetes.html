@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Features | Fabric8 Documentation</title>
+        <title>Kubernetes | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./gateway.html" />
+        <link rel="next" href="./sshContainers.html" />
         
         
-        <link rel="prev" href="./cloudContainers.html" />
+        <link rel="prev" href="./docker.html" />
         
 
-        <meta property="og:title" content="Features | Fabric8 Documentation">
+        <meta property="og:title" content="Kubernetes | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="6" data-basepath="." data-revision="1410809048220">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.7" data-basepath="." data-revision="1410809048220">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -742,7 +742,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 50%;min-width: 48.214285714285715%;"></div>
+        <div class="inner" style="width: 44.642857142857146%;min-width: 42.857142857142854%;"></div>
     </div>
     <div class="chapters">
     
@@ -798,11 +798,11 @@
     
         <a href="./kubernetes.html" title="Kubernetes" class="chapter done " data-progress="5.7" style="left: 44.642857142857146%;"></a>
     
-        <a href="./sshContainers.html" title="SSH Containers" class="chapter done " data-progress="5.8" style="left: 46.42857142857143%;"></a>
+        <a href="./sshContainers.html" title="SSH Containers" class="chapter  " data-progress="5.8" style="left: 46.42857142857143%;"></a>
     
-        <a href="./openshift.html" title="OpenShift" class="chapter done " data-progress="5.9" style="left: 48.214285714285715%;"></a>
+        <a href="./openshift.html" title="OpenShift" class="chapter  " data-progress="5.9" style="left: 48.214285714285715%;"></a>
     
-        <a href="./features.html" title="Features" class="chapter done new-chapter" data-progress="6" style="left: 50%;"></a>
+        <a href="./features.html" title="Features" class="chapter  new-chapter" data-progress="6" style="left: 50%;"></a>
     
         <a href="./gateway.html" title="Gateway" class="chapter  " data-progress="6.1" style="left: 51.785714285714285%;"></a>
     
@@ -865,15 +865,36 @@
 
                 <div class="page-inner">
                 
+                    <section class="normal" id="section-gitbook_34">
+                    
+                        <h2 id="kubernetes-containers"><a name="kubernetes-containers" class="anchor" href="#kubernetes-containers"><span class="fa fa-link"></span></a>Kubernetes Containers</h2>
+<p>The Kuberetes container provider uses the <a href="http://kubernetes.io/" target="_blank">Kuberetes API</a> for creating and deleting containers.</p>
+<p>It can be enabled by adding the <strong>kubernetes</strong> profile or specifying the <strong>FABRIC8_PROFILES</strong> environment variable before you create a fabric:</p>
+<pre><code>export FABRIC8_PROFILES=kubernetes
+</code></pre><h3 id="prerequisits"><a name="prerequisits" class="anchor" href="#prerequisits"><span class="fa fa-link"></span></a>Prerequisits</h3>
+<p>You need to specify the following environment variables; in particular you must specify the <strong>KUBERNETES_MASTER</strong> URL for connecting to the kubernetes REST API</p>
+<pre><code>export KUBERNETES_MASTER=http://127.0.0.1:8080/
+export FABRIC8_PROFILES=kubernetes
+</code></pre><h3 id="working-with-kubernetes"><a name="working-with-kubernetes" class="anchor" href="#working-with-kubernetes"><span class="fa fa-link"></span></a>Working with kubernetes</h3>
+<p>If you are already familiar with fabric8 then using fabric8 and kubernetes appears like the <a href="http://fabric8.io/gitbook/docker.html" target="_blank">docker support</a>; the main differences are</p>
+<ul>
+<li>kubernetes uses multiple hosts to provision containers</li>
+<li>each container (in fabric8 terminology) maps to a <em>pod</em> in kubernetes terminology which consists of usually 1 docker container.</li>
+<li>each pod in kubernetes gets its own IP address</li>
+</ul>
+
+                    
+                    </section>
+                
                 </div>
             </div>
         </div>
 
         
-        <a href="./cloudContainers.html" class="navigation navigation-prev " aria-label="Previous page: Cloud Containers"><i class="fa fa-angle-left"></i></a>
+        <a href="./docker.html" class="navigation navigation-prev " aria-label="Previous page: Docker"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./gateway.html" class="navigation navigation-next " aria-label="Next page: Gateway"><i class="fa fa-angle-right"></i></a>
+        <a href="./sshContainers.html" class="navigation navigation-next " aria-label="Next page: SSH Containers"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
