@@ -376,11 +376,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
     }
 
     protected String getPodId(Container container) {
-        CreateKubernetesContainerMetadata containerMetadata = getContainerMetadata(container);
-        if (containerMetadata != null) {
-            return containerMetadata.getId();
-        }
-        return container.getId();
+        return KubernetesHelpers.containerNameToPodId(container.getId());
     }
 
     protected static CreateKubernetesContainerMetadata getContainerMetadata(Container container) {
