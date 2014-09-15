@@ -173,6 +173,8 @@
 #
 #plugin.mandatory: mapper-attachments,lang-groovy
 
+plugin.mandatory: insight-indices-management
+
 
 ################################### Memory ####################################
 

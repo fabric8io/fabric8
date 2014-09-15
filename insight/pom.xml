@@ -15,43 +15,45 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-project</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
-        <relativePath>../parent</relativePath>
-    </parent>
+  <parent>
+    <groupId>io.fabric8</groupId>
+    <artifactId>fabric8-project</artifactId>
+    <version>1.2.0-SNAPSHOT</version>
+    <relativePath>../parent</relativePath>
+  </parent>
 
-    <groupId>io.fabric8.insight</groupId>
-    <artifactId>insight-project</artifactId>
-    <packaging>pom</packaging>
+  <groupId>io.fabric8.insight</groupId>
+  <artifactId>insight-project</artifactId>
+  <packaging>pom</packaging>
 
-    <name>Fabric8 :: Insight</name>
+  <name>Fabric8 :: Insight</name>
 
-    <properties>
-        <fuse.osgi.export>io.fabric8.insight.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
-    </properties>
+  <properties>
+    <fuse.osgi.export>io.fabric8.insight.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+  </properties>
 
-    <modules>
-        <module>insight-activemq</module>
-        <module>insight-camel</module>
-        <module>insight-elasticsearch</module>
-        <module>insight-kibana3</module>
-        <module>insight-eshead</module>
-        <module>insight-jetty</module>
-        <module>insight-log-core</module>
-        <module>insight-log</module>
-        <module>insight-log-storage</module>
-        <module>insight-log4j</module>
-        <module>insight-maven</module>
-        <module>insight-metrics</module>
-        <module>insight-metrics-model</module>
-        <module>insight-metrics-mvel</module>
-        <module>insight-rhq-metrics</module>
-        <module>insight-storage</module>
-    </modules>
+  <modules>
+    <module>insight-activemq</module>
+    <module>insight-camel</module>
+    <module>insight-kibana3</module>
+    <module>insight-eshead</module>
+    <module>insight-jetty</module>
+    <module>insight-log-core</module>
+    <module>insight-log</module>
+    <module>insight-log-storage</module>
+    <module>insight-log4j</module>
+    <module>insight-maven</module>
+    <module>insight-metrics</module>
+    <module>insight-metrics-model</module>
+    <module>insight-metrics-mvel</module>
+    <module>insight-rhq-metrics</module>
+    <module>insight-storage</module>
+    <module>insight-elasticsearch-factory</module>
+    <module>insight-elasticsearch-module</module>
+  </modules>
 
 </project>

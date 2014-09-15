@@ -44,7 +44,7 @@
                <scope>provided</scope>
                <type>zip</type>
            </dependency>
-           
+
            <!-- we want to include quickstarts -->
             <dependency>
                 <groupId>io.fabric8.quickstarts</groupId>
@@ -61,7 +61,7 @@
                 <type>zip</type>
             </dependency>
 
-            <!-- disable until we find a better solution, see #2280 
+            <!-- disable until we find a better solution, see #2280
             <dependency>
                 <groupId>io.fabric8.quickstarts</groupId>
                 <artifactId>fabric8-quickstarts-exclude-artifact-parent</artifactId>
@@ -573,7 +573,7 @@
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/startup.properties" append="true" eol="unix">
                                        <fileset file="target/classes/etc/startup.properties"/>
                                    </concat>
-                                   
+
                                    <echo message="Updating etc/config.properties in unix assembly" />
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/config.properties" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/common/etc/config.properties" />
@@ -583,7 +583,7 @@
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/custom.properties" append="true" eol="unix">
                                         <fileset file="src/main/append-resources/common/etc/custom.properties" />
                                    </concat>
-                                   
+
                                    <echo message="Updating etc/org.ops4j.pax.logging.cfg in unix assembly" />
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/common/etc/org.ops4j.pax.logging.cfg" />
