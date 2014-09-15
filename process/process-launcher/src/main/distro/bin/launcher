@@ -17,7 +17,7 @@
 ### Helper functions
 
 jvmArgs() {
-  if [ -z "$FABRIC8_JVM_ARGS" ]; then
+  if [ "x${FABRIC8_JVM_ARGS}" = "x" ]; then
     cat ${APP_BASE}/etc/jvm.config
   else
     echo "$FABRIC8_JVM_ARGS"
@@ -106,7 +106,7 @@ MAIN_CLASS="$FABRIC8_JAVA_MAIN"
 JAVA_AGENT="$FABRIC8_JAVA_AGENT"
 SYSTEM_PROPERTIES="$FABRIC8_SYSTEM_PROPERTIES"
 STOP_TIMEOUT="$FABRIC8_PROCESS_STOP_TIMEOUT"
-if [ -z "${STOP_TIMEOUT}" ] ; then
+if [ "x${STOP_TIMEOUT}" = "x" ] ; then
   STOP_TIMEOUT="30"
 fi
 
