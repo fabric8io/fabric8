@@ -15,6 +15,8 @@
  */
 package io.fabric8.kubernetes.provider;
 
+import io.fabric8.api.Container;
+import io.fabric8.api.Containers;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.jcip.GuardedBy;
@@ -43,7 +45,9 @@ import org.apache.felix.scr.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
@@ -182,21 +186,33 @@ public final class KubernetesHeathChecker extends AbstractComponent implements G
     private void healthCheck() {
         FabricService service = fabricService.get();
         Kubernetes kubernetes = getKubernetes();
+        if (kubernetes != null && service != null) {
+            Map<String,Container> containerMap = createPodIdToContainerMap(service.getContainers());
 
-        PodListSchema pods = kubernetes.getPods();
-        List<PodSchema> items = pods.getItems();
-        for (PodSchema item : items) {
-            DesiredState desiredState = item.getDesiredState();
-            if (desiredState != null) {
-                ManifestSchema manifest = desiredState.getManifest();
-                if (manifest != null) {
-                    List<ManifestContainer> containers = manifest.getContainers();
-                    for (ManifestContainer container : containers) {
-                        System.out.println("Container " + container.getImage() + " " + container.getCommand() + " ports: " + container.getPorts());
+            PodListSchema pods = kubernetes.getPods();
+            List<PodSchema> items = pods.getItems();
+            for (PodSchema item : items) {
+                DesiredState desiredState = item.getDesiredState();
+                if (desiredState != null) {
+                    ManifestSchema manifest = desiredState.getManifest();
+                    if (manifest != null) {
+                        List<ManifestContainer> containers = manifest.getContainers();
+                        for (ManifestContainer container : containers) {
+                        }
                     }
                 }
             }
         }
+    }
+
+    protected Map<String,Container> createPodIdToContainerMap(Container[] containers) {
+        Map<String, Container> answer = new HashMap<>();
+        if (containers != null) {
+            for (Container container : containers) {
+                String id = container.getId();
+            }
+        }
+        return answer;
     }
 
     public Kubernetes getKubernetes() {
