@@ -70,8 +70,8 @@ import static io.fabric8.kubernetes.provider.KubernetesHelpers.containerNameToPo
 @ThreadSafe
 @Component(name = "io.fabric8.kubernetes.heath", label = "Fabric8 Kubernetes Health Checker", immediate = true,
         policy = ConfigurationPolicy.OPTIONAL, metatype = true)
-public final class KubernetesHeathChecker extends AbstractComponent implements GroupListener<KubernetesHealthCheckNode> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KubernetesHeathChecker.class);
+public final class KubernetesHealthChecker extends AbstractComponent implements GroupListener<KubernetesHealthCheckNode> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(KubernetesHealthChecker.class);
 
     @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
