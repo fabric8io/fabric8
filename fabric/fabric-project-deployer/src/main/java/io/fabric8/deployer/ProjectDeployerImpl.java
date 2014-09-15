@@ -180,7 +180,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
      * Removes any old parents / features / repos and adds any new parents / features / repos to the profile
      */
     private void updateProfileConfiguration(Version version, Profile profile, ProjectRequirements requirements, ProjectRequirements oldRequirements, ProfileBuilder builder) {
-        List<String> parentProfiles = profile.getParentIds();
+        List<String> parentProfiles = Lists.mutableList(profile.getParentIds());
         List<String> bundles = Lists.mutableList(profile.getBundles());
         List<String> features = Lists.mutableList(profile.getFeatures());
         List<String> repositories = Lists.mutableList(profile.getRepositories());
