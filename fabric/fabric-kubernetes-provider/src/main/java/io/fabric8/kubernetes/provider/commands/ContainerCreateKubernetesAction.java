@@ -13,13 +13,13 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.kubernetes.provider;
+package io.fabric8.kubernetes.provider.commands;
 
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.boot.commands.support.AbstractContainerCreateAction;
-import io.fabric8.docker.provider.CreateDockerContainerOptions;
+import io.fabric8.kubernetes.provider.CreateKubernetesContainerOptions;
 import io.fabric8.utils.FabricValidations;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.shell.ShellUtils;

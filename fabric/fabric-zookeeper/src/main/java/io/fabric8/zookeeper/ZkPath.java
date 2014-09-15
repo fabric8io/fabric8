@@ -67,6 +67,7 @@ public enum ZkPath {
 	GIT                            ("/fabric/registry/clusters/git"),
 	AUTO_SCALE_STATUS              ("/fabric/registry/autoscale/status"),
 	AUTO_SCALE_CLUSTER             ("/fabric/registry/clusters/autoscale"),
+	KUBERNETES_HEALTH_CLUSTER      ("/fabric/registry/clusters/kubernetes/health"),
 	OPENSHIFT                      ("/fabric/registry/clusters/openshift"),
     WEBAPPS_CLUSTERS               ("/fabric/registry/clusters/webapps"),
     WEBAPPS_CLUSTER                ("/fabric/registry/clusters/webapps/{group}"),

@@ -99,23 +99,17 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(bind = "bindConfigurer", unbind = "unbindConfigurer")
     private Configurer configurer;
+    @Reference(referenceInterface = KubernetesService.class, bind = "bindKubernetesService", unbind = "unbindKubernetesService")
+    private final ValidatingReference<KubernetesService> kubernetesService = new ValidatingReference<KubernetesService>();
 
     @Property(name = "jolokiaKeepAlivePollTime", longValue = 10000,
             label = "The Jolokia Keep Alive Timer Poll Period", description = "The number of milliseconds after which the jolokia agents for any docker containers which expose jolokia will be polled to check for the container status and discover any container resources.")
     private long jolokiaKeepAlivePollTime = 10000;
 
-    @Property(name = "kubernetesMaster",
-            label = "Kubernetes Master",
-            description = "The URL to connect to the Kubernetes Master.")
-    private String kubernetesMaster;
-
     @Property(name = "dockerHost",
             label = "Docker Host",
             description = "The URL to connect to Docker.")
     private String dockerHost;
-
-    private KubernetesFactory kubernetesFactory;
-    private Kubernetes kubernetes;
 
     private ZooKeeperMasterCache zkMasterCache;
 
@@ -152,17 +146,9 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
             if (Strings.isNotBlank(dockerHost)) {
                 dockerFactory.setAddress(dockerHost);
             }
-            kubernetesFactory = new KubernetesFactory();
-            if (Strings.isNotBlank(kubernetesMaster)) {
-                kubernetesFactory.setAddress(kubernetesMaster);
-            }
             // Resteasy uses the TCCL to load the API
             Thread.currentThread().setContextClassLoader(Docker.class.getClassLoader());
             this.docker = dockerFactory.createDocker();
-
-            // Resteasy uses the TCCL to load the API
-            Thread.currentThread().setContextClassLoader(Kubernetes.class.getClassLoader());
-            this.kubernetes = kubernetesFactory.createKubernetes();
         } catch (Throwable e) {
             LOG.error("Failed to update configuration " + configuration + ". " + e, e);
             throw e;
@@ -182,8 +168,17 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         return doCreateDockerContainer(options, parameters);
     }
 
+    public Kubernetes getKubernetes() {
+        return KubernetesService.getKubernetes(kubernetesService.getOptional());
+    }
+
+    private String getKubernetesAddress() {
+        return KubernetesService.getKubernetesAddress(kubernetesService.getOptional());
+    }
+
 
     protected CreateKubernetesContainerMetadata doCreateDockerContainer(CreateKubernetesContainerOptions options, DockerCreateContainerParameters parameters) throws Exception {
+        Kubernetes kubernetes = getKubernetes();
         Objects.notNull(kubernetes, "kubernetes");
         ContainerConfig containerConfig = parameters.getContainerConfig();
         Map<String, String> environmentVariables = parameters.getEnvironmentVariables();
@@ -235,7 +230,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         manifest.setContainers(containers);
 
         try {
-            LOG.info("About to create pod with image " + image + " on " + kubernetesFactory.getAddress() + " with " + pod);
+            LOG.info("About to create pod with image " + image + " on " + getKubernetesAddress() + " with " + pod);
             kubernetes.createPod(pod);
 
         } catch (Exception e) {
@@ -258,6 +253,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         }
         return metadata;
     }
+
 
 
     public static CreateKubernetesContainerMetadata createKubernetesContainerMetadata(ContainerConfig containerConfig, DockerCreateOptions options, ContainerCreateStatus status, String containerType) {
@@ -480,6 +476,14 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
 
     void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
+    }
+
+    void bindKubernetesService(KubernetesService kubernetesService) {
+        this.kubernetesService.bind(kubernetesService);
+    }
+
+    void unbindKubernetesService(KubernetesService kubernetesService) {
+        this.kubernetesService.unbind(kubernetesService);
     }
 
     void bindConfigurer(Configurer configurer) {
