@@ -355,7 +355,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
                 ContainerPlaceholderResolver containerResolver = containerPlaceholderResolver.getOptional();
                 String jolokiaUrl = environmentVariables.get(EnvironmentVariables.FABRIC8_JOLOKIA_URL);
                 if (jolokiaUrl != null && containerResolver != null) {
-                    jolokiaUrl = containerResolver.resolveContainerExpressions((String) jolokiaUrl, (FabricService) service, (Container) container, (Container) containerResolver);
+                    jolokiaUrl = containerResolver.resolveContainerExpressions(jolokiaUrl, service, container);
                     environmentVariables.put(EnvironmentVariables.FABRIC8_JOLOKIA_URL, jolokiaUrl);
                 }
                 return JolokiaAgentHelper.findJolokiaUrlFromEnvironmentVariables(environmentVariables, hostOrIp);
