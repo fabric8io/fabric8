@@ -22,6 +22,7 @@ import io.fabric8.api.ContainerAutoScalerFactory;
 import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreationStateListener;
+import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ProfileRequirements;
@@ -46,6 +47,7 @@ import io.fabric8.kubernetes.api.model.DesiredState;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.ManifestSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.Port;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -162,18 +164,8 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         ContainerCreateStatus status = null;
         CreateKubernetesContainerMetadata metadata = null;
 
-        // TODO set the IP from the health check
-        // options = options.updateManualIp(dockerHost);
-
         metadata = createKubernetesContainerMetadata(containerConfig, options, status, containerType);
         publishZooKeeperValues(options, environmentVariables);
-
-/*
-        TODO - lets set the IP from the health check
-        if (jolokiaUrl != null) {
-            metadata.setJolokiaUrl(jolokiaUrl);
-        }
-*/
         return metadata;
 
     }
@@ -199,6 +191,10 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         Objects.notNull(kubernetes, "kubernetes");
         ContainerConfig containerConfig = parameters.getContainerConfig();
         Map<String, String> environmentVariables = parameters.getEnvironmentVariables();
+        environmentVariables.put(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS, "0.0.0.0");
+        //environmentVariables.put(EnvironmentVariables.FABRIC8_FABRIC_ENVIRONMENT, "kubernetes");
+        environmentVariables.remove(EnvironmentVariables.FABRIC8_GLOBAL_RESOLVER);
+        environmentVariables.remove(EnvironmentVariables.FABRIC8_MANUALIP);
         String containerType = parameters.getContainerType();
         String jolokiaUrl = parameters.getJolokiaUrl();
         String name = options.getName();
@@ -240,7 +236,47 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
 
         // TODO
         //manifestContainer.setVolumeMounts();
-        //manifestContainer.setPorts(ports);
+
+        Map<String, String> portConfigurations = Profiles.getOverlayConfiguration(service, profileIds, versionId, Constants.PORTS_PID, "kubernetes");
+        if (portConfigurations != null && portConfigurations.size() > 0) {
+            List<Port> ports = new ArrayList<>();
+            Set<Map.Entry<String, String>> entries = portConfigurations.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                String portName = entry.getKey();
+                String defaultPortValue = entry.getValue();
+                if (Strings.isNotBlank(defaultPortValue)) {
+                    Integer portNumber = null;
+                    try {
+                        portNumber = Integer.parseInt(defaultPortValue);
+                    } catch (NumberFormatException e) {
+                        LOG.warn("Could not parse '"  + defaultPortValue
+                                + "' as integer for port " + portName
+                                + " for profiles " + profileIds + " " + versionId + ". " + e, e);
+                    }
+                    String hostPortText = environmentVariables.get("FABRIC8_" + portName + "_PROXY_PORT");
+                    Integer hostPort = null;
+                    if (hostPortText != null) {
+                        try {
+                            hostPort = Integer.parseInt(hostPortText);
+                        } catch (NumberFormatException e) {
+                            LOG.warn("Could not parse '"  + hostPortText
+                                    + "' as integer for port " + portName
+                                    + " for profiles " + profileIds + " " + versionId + ". " + e, e);
+                        }
+                    }
+                    if (portNumber != null && hostPort != null) {
+                        Port port = new Port();
+                        //port.setName(portName);
+                        //port.setProtocol(portName.toLowerCase());
+                        //port.setProtocol("tcp");
+                        port.setContainerPort(portNumber);
+                        port.setHostPort(hostPort);
+                        ports.add(port);
+                    }
+                }
+            }
+            manifestContainer.setPorts(ports);
+        }
 
         List<ManifestContainer> containers = new ArrayList<>();
         containers.add(manifestContainer);
