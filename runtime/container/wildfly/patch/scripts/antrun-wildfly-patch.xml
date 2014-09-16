@@ -67,8 +67,8 @@
     <copy todir="${wildfly.patch.dir}" overwrite="true">
         <fileset dir="${output.dir}/gravia-wildfly-patch">
         	<exclude name="standalone/configuration/gravia/**"/>
+        	<exclude name="standalone/configuration/standalone-gravia.xml"/>
         	<exclude name="standalone/deployments/gravia.war"/>
-        	<exclude name="standalone/standalone-gravia.xml"/>
         </fileset>
     </copy>
   	
@@ -96,6 +96,7 @@
         	<include name="fabric-git-*"/>
         	<include name="fabric-groups-*"/>
         	<include name="fabric-jaas-*"/>
+        	<include name="fabric-jolokia-*"/>
         	<include name="fabric-utils-*"/>
         	<include name="fabric-zookeeper-*"/>
         	<include name="org.apache.servicemix.bundles.jsch-*"/>

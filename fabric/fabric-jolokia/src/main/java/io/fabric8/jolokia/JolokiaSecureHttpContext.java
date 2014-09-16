@@ -17,6 +17,26 @@ package io.fabric8.jolokia;
 
 import io.fabric8.utils.Base64Encoder;
 
+import java.io.IOException;
+import java.net.URL;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.AccountException;
+import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.jolokia.config.ConfigKey;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
@@ -24,20 +44,7 @@ import org.osgi.service.http.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.Subject;
-import javax.security.auth.callback.*;
-import javax.security.auth.login.AccountException;
-import javax.security.auth.login.FailedLoginException;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.security.Principal;
-
-public class JolokiaSecureHttpContext implements HttpContext {
+final class JolokiaSecureHttpContext implements HttpContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JolokiaSecureHttpContext.class);
 
@@ -48,10 +55,7 @@ public class JolokiaSecureHttpContext implements HttpContext {
     private final String realm;
     private final String role;
 
-    /**
-     * Constructor
-     */
-    public JolokiaSecureHttpContext(String realm, String role) {
+    JolokiaSecureHttpContext(String realm, String role) {
         this.realm = realm;
         this.role = role;
 
@@ -67,12 +71,13 @@ public class JolokiaSecureHttpContext implements HttpContext {
         return null;
     }
 
+    @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) {
         return authenticate(request, response);
     }
 
 
-    public Subject doAuthenticate(final String username, final String password) {
+    private Subject doAuthenticate(final String username, final String password) {
         try {
             Subject subject = new Subject();
             LoginContext loginContext = new LoginContext(realm, subject, new CallbackHandler() {
@@ -90,17 +95,18 @@ public class JolokiaSecureHttpContext implements HttpContext {
             });
             loginContext.login();
             if (role != null && role.length() > 0) {
-                String clazz = "org.apache.karaf.jaas.boot.principal.RolePrincipal";
+                List<String> acceptedClasses = Arrays.asList("org.apache.karaf.jaas.boot.principal.RolePrincipal", "org.jboss.security.SimplePrincipal");
                 String name = role;
-                int idx = role.indexOf(':');
+                int idx = name.indexOf(':');
                 if (idx > 0) {
-                    clazz = role.substring(0, idx);
-                    name = role.substring(idx + 1);
+                    acceptedClasses = new ArrayList<>(acceptedClasses);
+                    acceptedClasses.add(name.substring(0, idx));
+                    name = name.substring(idx + 1);
                 }
                 boolean found = false;
                 for (Principal p : subject.getPrincipals()) {
-                    if (p.getClass().getName().equals(clazz)
-                            && p.getName().equals(name)) {
+                    String className = p.getClass().getName();
+                    if (acceptedClasses.contains(className) && p.getName().equals(name)) {
                         found = true;
                         break;
                     }
@@ -115,9 +121,6 @@ public class JolokiaSecureHttpContext implements HttpContext {
             return null;
         } catch (LoginException e) {
             LOGGER.debug("Login failed", e);
-            return null;
-        } catch (GeneralSecurityException e) {
-            LOGGER.error("General Security Exception", e);
             return null;
         }
     }

@@ -30,6 +30,7 @@
         <resource-root path="fabric-git-@project.version@.jar"/>
         <resource-root path="fabric-groups-@project.version@.jar"/>
         <resource-root path="fabric-jaas-@project.version@.jar"/>
+        <resource-root path="fabric-jolokia-@project.version@.jar"/>
         <resource-root path="fabric-utils-@project.version@.jar"/>
         <resource-root path="fabric-zookeeper-@project.version@.jar"/>
         <resource-root path="jasypt-@jasypt.version@.jar"/>
@@ -39,6 +40,9 @@
 
     <dependencies>
         <module name="javax.api"/>
+        <module name="javax.servlet.api"/>
+        <module name="org.osgi.core"/>
+        <module name="org.osgi.enterprise"/>
         <module name="io.fabric8.api"/>
         <module name="com.fasterxml.jackson.core.jackson-core"/>
         <module name="com.fasterxml.jackson.core.jackson-databind"/>
@@ -47,8 +51,6 @@
         <module name="org.apache.log4j"/>
         <module name="org.codehaus.jackson.jackson-mapper-asl"/>
         <module name="org.jboss.gravia"/>
-        <module name="org.osgi.enterprise"/>
-        <module name="org.osgi.core"/>
         <module name="org.slf4j"/>
     </dependencies>
 
