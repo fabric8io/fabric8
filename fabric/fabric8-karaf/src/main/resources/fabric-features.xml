@@ -439,7 +439,7 @@
         <bundle>mvn:io.fabric8.insight/insight-storage/${project.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.elasticsearch/${elasticsearch-smx4-bundle.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-elasticsearch-plugin/${project.version}</bundle>
-        <bundle>mvn:io.fabric8/elasticsearch-zookeeper/${elasticsearch-zookeeper-version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-elasticsearch-discovery/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-elasticsearch-factory/${project.version}</bundle>
     </feature>
 
