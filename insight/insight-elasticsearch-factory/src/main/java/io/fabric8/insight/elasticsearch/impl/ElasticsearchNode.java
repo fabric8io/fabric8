@@ -1,6 +1,5 @@
 package io.fabric8.insight.elasticsearch.impl;
 
-import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.Configurer;
 import org.apache.felix.scr.annotations.*;
 import org.elasticsearch.client.Client;

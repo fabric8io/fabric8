@@ -108,7 +108,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         this.discoveryNodeService = discoveryNodeService;
         this.publishClusterState = new PublishClusterStateAction(settings, transportService, this, this, discoverySettings);
         this.context = FrameworkUtil.getBundle(getClass()).getBundleContext();
-        this.tracker = new ServiceTracker<CuratorFramework, CuratorFramework>(context, CuratorFramework.class.getName(), this);
+        this.tracker = new ServiceTracker<>(context, CuratorFramework.class.getName(), this);
     }
 
     @Override
@@ -254,7 +254,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         if (singleton.isMaster()) {
             if (logger.isDebugEnabled()) {
                 String master = singleton.master() != null ? singleton.master().node.name() : null;
-                List<String> slaves = new ArrayList<String>();
+                List<String> slaves = new ArrayList<>();
                 for (ESNode s : singleton.slaves()) {
                     slaves.add(s.node.name());
                 }
@@ -461,7 +461,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     static class NodeSerializer extends JsonSerializer<ESNode> {
 
         @Override
-        public void serialize(ESNode value, com.fasterxml.jackson.core.JsonGenerator jgen, SerializerProvider provider) throws IOException, com.fasterxml.jackson.core.JsonProcessingException {
+        public void serialize(ESNode value, com.fasterxml.jackson.core.JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
             jgen.writeStringField("id", value.getId());
             jgen.writeStringField("agent", System.getProperty("runtime.id"));
@@ -488,7 +488,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     static class NodeDeserializer extends JsonDeserializer<ESNode> {
 
         @Override
-        public ESNode deserialize(com.fasterxml.jackson.core.JsonParser jp, DeserializationContext ctxt) throws IOException, com.fasterxml.jackson.core.JsonProcessingException {
+        public ESNode deserialize(com.fasterxml.jackson.core.JsonParser jp, DeserializationContext ctxt) throws IOException {
             try {
                 Map map = jp.readValueAs(Map.class);
                 String id = map.get("id").toString();
