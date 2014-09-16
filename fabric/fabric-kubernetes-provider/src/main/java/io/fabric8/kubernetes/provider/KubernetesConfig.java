@@ -17,26 +17,26 @@
  */
 package io.fabric8.kubernetes.provider;
 
+import io.fabric8.docker.provider.DockerConstants;
+import org.apache.felix.scr.annotations.Component;
+
+import java.util.List;
+
 /**
+ * Represents the configuration of a kubernetes profile for running controllers, pods or services.
  */
-public class KubernetesConstants {
-    public static final String SCHEME = "kubernetes";
+@Component(name = KubernetesConstants.KUBERNETES_PID,
+        label = "Kubernetes",
+        description = "The configuration for running kubernetes controllers, pods or services",
+        immediate = true, metatype = true)
+public class KubernetesConfig {
+    private List<String> definitions;
 
-    /**
-     * The PID used to store configuration for kubernetes profiles
-     */
-    public static final String KUBERNETES_PID = "io.fabric8.kubernetes";
+    public List<String> getDefinitions() {
+        return definitions;
+    }
 
-    /**
-     * The PID used to store the labels which should be applied to the Pod on kubernetes
-     */
-    public static final String LABELS_PID = "io.fabric8.kubernetes.labels";
-
-
-    public static class LABELS {
-        public static final String FABRIC8 = "fabric8";
-        public static final String CONTAINER = "container";
-        public static final String PROFILE = "profile";
-        public static final String VERSION = "version";
+    public void setDefinitions(List<String> definitions) {
+        this.definitions = definitions;
     }
 }

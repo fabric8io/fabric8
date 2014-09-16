@@ -17,8 +17,10 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.model.ControllerSchema;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.ServiceSchema;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -49,109 +51,268 @@ public interface Kubernetes {
     /**
      * Create a new pod. currentState is ignored if present.
      *
-     * @param entity
-     *      e.g. {
-     *       "kind": "Pod",
-     *       "apiVersion": "v1beta1",
-     *       "id": "php",
-     *       "desiredState": {
-     *         "manifest": {
-     *           "version": "v1beta1",
-     *           "id": "php",
-     *           "containers": [{
-     *             "name": "nginx",
-     *             "image": "dockerfile/nginx",
-     *             "ports": [{
+     * @param entity e.g. {
+     *               "kind": "Pod",
+     *               "apiVersion": "v1beta1",
+     *               "id": "php",
+     *               "desiredState": {
+     *               "manifest": {
+     *               "version": "v1beta1",
+     *               "id": "php",
+     *               "containers": [{
+     *               "name": "nginx",
+     *               "image": "dockerfile/nginx",
+     *               "ports": [{
      *               "containerPort": 80,
      *               "hostPort": 8080
-     *             }],
-     *             "livenessProbe": {
+     *               }],
+     *               "livenessProbe": {
      *               "enabled": true,
      *               "type": "http",
      *               "initialDelaySeconds": 30,
      *               "httpGet": {
-     *                 "path": "/index.html",
-     *                 "port": "8080"
+     *               "path": "/index.html",
+     *               "port": "8080"
      *               }
-     *             }
-     *           }]
-     *         }
-     *       },
-     *       "labels": {
-     *         "name": "foo"
-     *       }
-     *     }
-     *
-     *
+     *               }
+     *               }]
+     *               }
+     *               },
+     *               "labels": {
+     *               "name": "foo"
+     *               }
+     *               }
      */
     @POST
     @Path("pods")
     @Consumes("application/json")
-    void createPod(PodSchema entity) throws Exception;
+    String createPod(PodSchema entity) throws Exception;
 
     /**
      * Get a specific pod
      *
      * @param podId
-     *
      */
     @GET
     @Path("pods/{podId}")
-    PodSchema getPodById(@PathParam("podId") @NotNull String podId) throws Exception;
+    PodSchema getPod(@PathParam("podId") @NotNull String podId) throws Exception;
 
     /**
      * Update a pod
      *
-     * @param entity
-     *      e.g. {
-     *       "kind": "Pod",
-     *       "apiVersion": "v1beta1",
-     *       "id": "php",
-     *       "desiredState": {
-     *         "manifest": {
-     *           "version": "v1beta1",
-     *           "id": "php",
-     *           "containers": [{
-     *             "name": "nginx",
-     *             "image": "dockerfile/nginx",
-     *             "ports": [{
+     * @param entity e.g. {
+     *               "kind": "Pod",
+     *               "apiVersion": "v1beta1",
+     *               "id": "php",
+     *               "desiredState": {
+     *               "manifest": {
+     *               "version": "v1beta1",
+     *               "id": "php",
+     *               "containers": [{
+     *               "name": "nginx",
+     *               "image": "dockerfile/nginx",
+     *               "ports": [{
      *               "containerPort": 80,
      *               "hostPort": 8080
-     *             }],
-     *             "livenessProbe": {
+     *               }],
+     *               "livenessProbe": {
      *               "enabled": true,
      *               "type": "http",
      *               "initialDelaySeconds": 30,
      *               "httpGet": {
-     *                 "path": "/index.html",
-     *                 "port": "8080"
+     *               "path": "/index.html",
+     *               "port": "8080"
      *               }
-     *             }
-     *           }]
-     *         }
-     *       },
-     *       "labels": {
-     *         "name": "foo"
-     *       }
-     *     }
-     *
-     *
+     *               }
+     *               }]
+     *               }
+     *               },
+     *               "labels": {
+     *               "name": "foo"
+     *               }
+     *               }
      * @param podId
-     *
      */
     @PUT
     @Path("pods/{podId}")
     @Consumes("application/json")
-    void putPodsByPodId( @PathParam("podId") @NotNull String podId, PodSchema entity) throws Exception;
+    String updatePod(@PathParam("podId") @NotNull String podId, PodSchema entity) throws Exception;
 
     /**
      * Delete a specific pod
      *
      * @param podId
-     *
      */
     @DELETE
     @Path("pods/{podId}")
-    void deletePod(@PathParam("podId") @NotNull String podId) throws Exception;
+    String deletePod(@PathParam("podId") @NotNull String podId) throws Exception;
 
+
+    /**
+     * List all services on this cluster
+     */
+    @Path("services")
+    @GET
+    @Produces("application/json")
+    // TODO
+    Object getServices() throws Exception;
+
+    /**
+     * Create a new service
+     *
+     * @param entity e.g. {
+     *               "kind": "Service",
+     *               "apiVersion": "v1beta1",
+     *               "id": "example",
+     *               "port": 8000,
+     *               "labels": {
+     *               "name": "nginx"
+     *               },
+     *               "selector": {
+     *               "name": "nginx"
+     *               }
+     *               }
+     */
+    @Path("services")
+    @POST
+    @Consumes("application/json")
+    String createService(ServiceSchema entity) throws Exception;
+
+    /**
+     * Get a specific service
+     *
+     * @param serviceId
+     */
+    @GET
+    @Path("services/{serviceId}")
+    @Produces("application/json")
+    ServiceSchema getService(@PathParam("serviceId") @NotNull String serviceId) throws Exception;
+
+    /**
+     * Update a service
+     *
+     * @param serviceId
+     * @param entity    e.g. {
+     *                  "kind": "Service",
+     *                  "apiVersion": "v1beta1",
+     *                  "id": "example",
+     *                  "port": 8000,
+     *                  "labels": {
+     *                  "name": "nginx"
+     *                  },
+     *                  "selector": {
+     *                  "name": "nginx"
+     *                  }
+     *                  }
+     */
+    @PUT
+    @Path("services/{serviceId}")
+    @Consumes("application/json")
+    String updateService(@PathParam("serviceId") @NotNull String serviceId, ServiceSchema entity) throws Exception;
+
+    /**
+     * Delete a specific service
+     *
+     * @param serviceId
+     */
+    @DELETE
+    @Path("{serviceId}")
+    @Produces("application/json")
+    String deleteService(@PathParam("serviceId") @NotNull String serviceId) throws Exception;
+
+
+    /**
+     * List all replicationControllers on this cluster
+     */
+    @Path("replicationControllers")
+    @GET
+    @Produces("application/json")
+    // TODO
+    Object getReplicationControllers() throws Exception;
+
+    /**
+     * Create a new controller. currentState is ignored if present.
+     *
+     * @param entity e.g.   {
+     *               "id": "nginxController",
+     *               "apiVersion": "v1beta1",
+     *               "kind": "ReplicationController",
+     *               "desiredState": {
+     *               "replicas": 2,
+     *               "replicaSelector": {"name": "nginx"},
+     *               "podTemplate": {
+     *               "desiredState": {
+     *               "manifest": {
+     *               "version": "v1beta1",
+     *               "id": "nginxController",
+     *               "containers": [{
+     *               "name": "nginx",
+     *               "image": "dockerfile/nginx",
+     *               "ports": [{"containerPort": 80, "hostPort": 8080}]
+     *               }]
+     *               }
+     *               },
+     *               "labels": {"name": "nginx"}
+     *               }},
+     *               "labels": {"name": "nginx"}
+     *               }
+     */
+    @Path("replicationControllers")
+    @POST
+    @Consumes("application/json")
+    String createReplicationController(ControllerSchema entity) throws Exception;
+
+    /**
+     * Get a specific controller
+     *
+     * @param controllerId
+     */
+    @GET
+    @Path("{controllerId}")
+    @Produces("application/json")
+    // TODO
+    Object getReplicationController(@PathParam("controllerId") @NotNull String controllerId) throws Exception;
+
+    /**
+     * Update a controller
+     *
+     * @param controllerId
+     * @param entity       e.g.   {
+     *                     "id": "nginxController",
+     *                     "apiVersion": "v1beta1",
+     *                     "kind": "ReplicationController",
+     *                     "desiredState": {
+     *                     "replicas": 2,
+     *                     "replicaSelector": {"name": "nginx"},
+     *                     "podTemplate": {
+     *                     "desiredState": {
+     *                     "manifest": {
+     *                     "version": "v1beta1",
+     *                     "id": "nginxController",
+     *                     "containers": [{
+     *                     "name": "nginx",
+     *                     "image": "dockerfile/nginx",
+     *                     "ports": [{"containerPort": 80, "hostPort": 8080}]
+     *                     }]
+     *                     }
+     *                     },
+     *                     "labels": {"name": "nginx"}
+     *                     }},
+     *                     "labels": {"name": "nginx"}
+     *                     }
+     */
+    @PUT
+    @Path("{controllerId}")
+    @Consumes("application/json")
+    String updateReplicationController(@PathParam("controllerId") @NotNull String controllerId, ControllerSchema entity) throws Exception;
+
+    /**
+     * Delete a specific controller
+     *
+     * @param controllerId
+     */
+    @DELETE
+    @Path("{controllerId}")
+    @Produces("application/json")
+    String deleteReplicationController(@PathParam("controllerId") @NotNull String controllerId) throws Exception;
 }
