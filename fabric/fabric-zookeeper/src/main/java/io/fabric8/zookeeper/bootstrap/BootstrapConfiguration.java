@@ -209,6 +209,7 @@ public class BootstrapConfiguration extends AbstractComponent {
             createZooKeeeperServerConfig(options);
             createZooKeeeperClientConfig(connectionUrl, options);
 
+            // On restart, the configuration should be available in configadmin
             markCreated(bundleContext);
         }
     }

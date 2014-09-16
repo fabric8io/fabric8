@@ -48,6 +48,7 @@
     </extensions>
 
     <system-properties>
+        <property name="ensemble.auto.start" value="true"/>
         <property name="environment.prefix" value="FABRIC8_"/>
         <property name="jboss.bind.address.management" value="0.0.0.0"/>
         <property name="readonlymode.enabled" value="true"/>
@@ -137,6 +138,9 @@
             </logger>
             <logger category="org.apache.tomcat.util.modeler">
                 <level name="WARN"/>
+            </logger>
+            <logger category="org.apache.zookeeper">
+                <level name="INFO"/>
             </logger>
             <logger category="org.jboss.as.config">
                 <level name="DEBUG"/>

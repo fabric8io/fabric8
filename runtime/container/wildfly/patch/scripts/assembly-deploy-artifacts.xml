@@ -40,6 +40,7 @@
                 <include>*:fabric-git:jar</include>
                 <include>*:fabric-groups:jar</include>
                 <include>*:fabric-jaas:jar</include>
+                <include>*:fabric-jolokia:jar</include>
                 <include>*:fabric-utils:jar</include>
                 <include>*:fabric-zookeeper:jar</include>
                 <include>*:fabric-runtime-container-wildfly-extension:jar</include>

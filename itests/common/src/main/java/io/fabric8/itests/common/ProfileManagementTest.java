@@ -18,7 +18,9 @@ package io.fabric8.itests.common;
 import io.fabric8.api.mxbean.ProfileManagement;
 import io.fabric8.jolokia.client.JolokiaMXBeanProxy;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -37,20 +39,26 @@ import org.junit.runner.RunWith;
 public class ProfileManagementTest {
 
     static final String[] credentials = new String[] { "admin", "admin" };
-    static final String serviceURL = "http://localhost:8181/jolokia";
+    static final Map<String, String> endpointMapping = new HashMap<>();
+    static {
+        endpointMapping.put("karaf", "http://localhost:8181/jolokia");
+        endpointMapping.put("tomcat", "http://localhost:8080/fabric/jolokia");
+        endpointMapping.put("wildfly", "http://localhost:8080/fabric/jolokia");
+    }
     
     static ProfileManagement proxy;
     
     @BeforeClass
     public static void beforeClass() {
+        String serviceURL = endpointMapping.get(System.getProperty("target.container"));
         proxy = JolokiaMXBeanProxy.getMXBeanProxy(serviceURL, credentials[0], credentials[1], ProfileManagement.OBJECT_NAME, ProfileManagement.class);
     }
     
     @Test
     public void testGetVersions() throws Exception {
         List<String> versions = proxy.getVersions();
-        Assert.assertEquals(2, versions.size());
-        Assert.assertEquals("master", versions.get(0));
-        Assert.assertEquals("1.0", versions.get(1));
+        versions.remove("master");
+        Assert.assertEquals(1, versions.size());
+        Assert.assertEquals("1.0", versions.get(0));
     }
 }
