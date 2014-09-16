@@ -54,6 +54,7 @@
     <module>insight-storage</module>
     <module>insight-elasticsearch-factory</module>
     <module>insight-elasticsearch-plugin</module>
+    <module>insight-elasticsearch-discovery</module>
   </modules>
 
 </project>

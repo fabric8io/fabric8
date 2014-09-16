@@ -173,7 +173,7 @@
 #
 #plugin.mandatory: mapper-attachments,lang-groovy
 
-plugin.mandatory: fabric8-insight, zookeeper
+plugin.mandatory: fabric8-insight, fabric8-discovery
 
 
 ################################### Memory ####################################
@@ -320,12 +320,7 @@ plugin.mandatory: fabric8-insight, zookeeper
 #
 # 1. Disable multicast discovery (enabled by default):
 #
-discovery:
-    type: com.sonian.elasticsearch.zookeeper.discovery.ZooKeeperDiscoveryModule
-sonian.elasticsearch.zookeeper:
-    settings.enabled: true
-    client.host: localhost:2181
-    discovery.state_publishing.enabled: true
+discovery.type: io.fabric8.insight.elasticsearch.discovery.FabricDiscoveryModule
 
 discovery.zen.ping.multicast.enabled: false
 #
