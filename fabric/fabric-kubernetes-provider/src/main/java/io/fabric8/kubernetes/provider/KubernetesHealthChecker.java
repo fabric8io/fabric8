@@ -36,8 +36,10 @@ import io.fabric8.groups.internal.ZooKeeperGroup;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.model.CurrentState;
 import io.fabric8.kubernetes.api.model.DesiredState;
+import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.ManifestSchema;
+import io.fabric8.kubernetes.api.model.PodContainerManifest;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.service.child.ChildContainers;
@@ -234,7 +236,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
                                 container.setAlive(true);
                             }
                             if (status != null && status.toLowerCase().startsWith("running")) {
-                                keepAliveCheck(service, status, container, currentState);
+                                keepAliveCheck(service, status, container, currentState, item);
 
                             } else {
                                 if (container.isAlive()) {
@@ -267,7 +269,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
         }
     }
 
-    protected void keepAliveCheck(FabricService service, String status, Container container, CurrentState currentState) {
+    protected void keepAliveCheck(FabricService service, String status, Container container, CurrentState currentState, PodSchema item) {
         String host = currentState.getHost();
         String podIP = currentState.getPodIP();
         if (!Strings.isNullOrBlank(host) && !Objects.equal(host, container.getPublicHostname())) {
@@ -277,7 +279,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
             container.setPublicIp(podIP);
         }
 
-        String jolokiaUrl = getJolokiaURL(container, currentState,service);
+        String jolokiaUrl = getJolokiaURL(container, currentState, service, item);
         if (jolokiaUrl != null) {
             JolokiaAgentHelper.jolokiaKeepAliveCheck(zkMasterCache, service, jolokiaUrl, container);
             return;
@@ -293,7 +295,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
         }
     }
 
-    protected String getJolokiaURL(Container container, CurrentState currentState, FabricService service) {
+    protected String getJolokiaURL(Container container, CurrentState currentState, FabricService service, PodSchema item) {
         Profile overlayProfile = container.getOverlayProfile();
         String jolokiaPort = null;
         Map<String, String> ports = null;
@@ -315,6 +317,24 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
                 Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(service, metadata.getCreateOptions());
                 if (!environmentVariables.containsKey(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS)) {
                     environmentVariables.put(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS, hostOrIp);
+                }
+                // lets override env vars from the pod
+                if (item != null) {
+                    DesiredState desiredState = item.getDesiredState();
+                    if (desiredState != null) {
+                        ManifestSchema manifest = desiredState.getManifest();
+                        if (manifest != null) {
+                            List<ManifestContainer> containers = manifest.getContainers();
+                            if (containers != null && containers.size() > 0) {
+                                ManifestContainer container1 = containers.get(0);
+                                List<Env> envList = container1.getEnv();
+                                for (Env env : envList) {
+                                    environmentVariables.put(env.getName(), env.getValue());
+                                    environmentVariables.put(env.getName(), env.getValue());
+                                }
+                            }
+                        }
+                    }
                 }
                 // lets add default ports
                 if (ports != null) {
