@@ -58,9 +58,9 @@
 
   <reference id="mbs" interface="javax.management.MBeanServer"/>
 
-  <reference id="fabricService" interface="io.fabric8.api.FabricService"/>
+  <reference id="fabricService" interface="io.fabric8.api.FabricService" availability="optional"/>
 
-  <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" />
+  <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" availability="optional"/>
 
   <bean id="fabricResourceBean" class="io.fabric8.rest.FabricResource">
     <property name="fabricService" ref="fabricService"/>
