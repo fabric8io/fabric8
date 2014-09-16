@@ -39,9 +39,9 @@ import io.fabric8.kubernetes.api.model.DesiredState;
 import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.ManifestSchema;
-import io.fabric8.kubernetes.api.model.PodContainerManifest;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.service.ContainerPlaceholderResolver;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
@@ -81,6 +81,8 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = KubernetesService.class, bind = "bindKubernetesService", unbind = "unbindKubernetesService")
     private final ValidatingReference<KubernetesService> kubernetesService = new ValidatingReference<KubernetesService>();
+    @Reference(referenceInterface = ContainerPlaceholderResolver.class, bind = "bindContainerPlaceholderResolver", unbind = "unbindContainerPlaceholderResolver")
+    private final ValidatingReference<ContainerPlaceholderResolver> containerPlaceholderResolver = new ValidatingReference<ContainerPlaceholderResolver>();
 
     @Property(name = "pollTime", longValue = 10000,
             label = "Poll period",
@@ -348,7 +350,14 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
                         }
                     }
                 }
+                environmentVariables.put(EnvironmentVariables.FABRIC8_JOLOKIA_URL, "http://${container:publichostname}:${env:FABRIC8_HTTP_PROXY_PORT}/jolokia");
                 JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables, service, getCuratorFramework(), true);
+                ContainerPlaceholderResolver containerResolver = containerPlaceholderResolver.getOptional();
+                String jolokiaUrl = environmentVariables.get(EnvironmentVariables.FABRIC8_JOLOKIA_URL);
+                if (jolokiaUrl != null && containerResolver != null) {
+                    jolokiaUrl = containerResolver.resolveContainerExpressions((String) jolokiaUrl, (FabricService) service, (Container) container, (Container) containerResolver);
+                    environmentVariables.put(EnvironmentVariables.FABRIC8_JOLOKIA_URL, jolokiaUrl);
+                }
                 return JolokiaAgentHelper.findJolokiaUrlFromEnvironmentVariables(environmentVariables, hostOrIp);
             }
         }
@@ -403,6 +412,14 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
 
     void unbindKubernetesService(KubernetesService kubernetesService) {
         this.kubernetesService.unbind(kubernetesService);
+    }
+
+    void bindContainerPlaceholderResolver(ContainerPlaceholderResolver containerPlaceholderResolver) {
+        this.containerPlaceholderResolver.bind(containerPlaceholderResolver);
+    }
+
+    void unbindContainerPlaceholderResolver(ContainerPlaceholderResolver containerPlaceholderResolver) {
+        this.containerPlaceholderResolver.unbind(containerPlaceholderResolver);
     }
 
 }
