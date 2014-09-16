@@ -58,7 +58,7 @@ public class PodInfoAction extends AbstractAction {
         Objects.notNull(kubernetes, "kubernetes");
         Objects.notNull(pod, "pod");
 
-        PodSchema podInfo = kubernetes.getPodById(pod);
+        PodSchema podInfo = kubernetes.getPod(pod);
         if (podInfo == null) {
             System.out.println("No pod for id: " + pod);
         } else {

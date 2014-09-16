@@ -15,6 +15,9 @@
  */
 package io.fabric8.kubernetes.provider;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
@@ -25,12 +28,14 @@ import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 import io.fabric8.docker.api.Docker;
@@ -42,12 +47,15 @@ import io.fabric8.docker.provider.DockerConstants;
 import io.fabric8.docker.provider.DockerContainerProviderSupport;
 import io.fabric8.docker.provider.DockerCreateOptions;
 import io.fabric8.kubernetes.api.Kubernetes;
+import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.ControllerSchema;
 import io.fabric8.kubernetes.api.model.DesiredState;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.ManifestSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.Port;
+import io.fabric8.kubernetes.api.model.ServiceSchema;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -63,6 +71,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -106,6 +119,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
     private int externalPortCounter;
     private final Object portLock = new Object();
 
+    private ObjectMapper objectMapper = KubernetesFactory.createObjectMapper();
 
     @Activate
     public void activate(Map<String, ?> configuration) throws Exception {
@@ -140,6 +154,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
             Thread.currentThread().setContextClassLoader(tccl);
         }
     }
+
     public Kubernetes getKubernetes() {
         return KubernetesService.getKubernetes(kubernetesService.getOptional());
     }
@@ -154,6 +169,25 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
 
     @Override
     public CreateKubernetesContainerMetadata create(CreateKubernetesContainerOptions options, CreationStateListener listener) throws Exception {
+        Set<String> profileIds = options.getProfiles();
+        String versionId = options.getVersion();
+
+        Map<String, String> configuration = null;
+        FabricService service = getFabricService();
+        if (service != null) {
+            configuration = Profiles.getOverlayConfiguration(service, profileIds, versionId,
+                    KubernetesConstants.KUBERNETES_PID, "kubernetes");
+        }
+        if (configuration != null) {
+            KubernetesConfig config = new KubernetesConfig();
+            configurer.configure(configuration, config);
+            List<String> definitions = config.getDefinitions();
+            if (definitions != null && definitions.size() > 0) {
+                return doCreateKubernetesPodsControllersServices(service, options, config);
+            }
+        }
+
+
         DockerCreateContainerParameters parameters = new DockerCreateContainerParameters(options).invoke();
         doCreateDockerContainer(options, parameters);
 
@@ -164,8 +198,99 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         ContainerCreateStatus status = null;
         CreateKubernetesContainerMetadata metadata = null;
 
-        metadata = createKubernetesContainerMetadata(containerConfig, options, status, containerType);
+        metadata = createKubernetesContainerMetadata(options, status, containerType);
         publishZooKeeperValues(options, environmentVariables);
+        return metadata;
+
+    }
+
+    /**
+     * Creates all the controllers, pods and services from the profile metadata
+     */
+    protected CreateKubernetesContainerMetadata doCreateKubernetesPodsControllersServices(FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config) {
+        List<String> definitions = config.getDefinitions();
+        String containerId = "TODO";
+        byte[] json = null;
+        Kubernetes kubernetes = getKubernetes();
+        Objects.notNull(kubernetes, "kubernetes");
+        for (String definition : definitions) {
+            definition = definition.trim();
+            if (!definition.contains(":")) {
+                // lets assume its a file in the profile
+                Set<String> profileIds = options.getProfiles();
+                String versionId = options.getVersion();
+                List<Profile> profiles = Profiles.getProfiles(service, profileIds, versionId);
+                json = Profiles.getFileConfiguration(profiles, definition);
+            }
+            if (json == null) {
+                URL url = null;
+                try {
+                    url = new URL(definition);
+                } catch (MalformedURLException e) {
+                    LOG.warn("Could not parse kube definition URL " + definition + ". " + e, e);
+                }
+                if (url != null) {
+                    try {
+                        InputStream in = url.openStream();
+                        if (in != null) {
+                            json = Files.readBytes(in);
+                        }
+                    } catch (IOException e) {
+                        LOG.warn("Failed to load URL " + url + ". " + e, e);
+                    }
+                }
+            }
+            if (json != null) {
+                Object dto = null;
+                try {
+                    ObjectReader reader = objectMapper.reader();
+                    JsonNode tree = null;
+                    if (json != null) {
+                        tree = reader.readTree(new ByteArrayInputStream(json));
+                        if (tree != null) {
+                            JsonNode kindNode = tree.get("kind");
+                            if (kindNode != null) {
+                                String kind = kindNode.asText();
+                                if (Objects.equal("Pod", kind)) {
+                                    PodSchema podSchema = objectMapper.reader(PodSchema.class).readValue(json);
+                                    LOG.info("Creating a pod from " + definition);
+                                    try {
+                                        kubernetes.createPod(podSchema);
+                                    } catch (Exception e) {
+                                        LOG.error("Failed to create pod from " + definition + ". " + e + ". " + podSchema, e);
+                                    }
+                                } else if (Objects.equal("Controller", kind)) {
+                                    ControllerSchema controllerSchema = objectMapper.reader(ControllerSchema.class).readValue(json);
+                                    LOG.info("Creating a controller from " + definition);
+                                    try {
+                                        kubernetes.createReplicationController(controllerSchema);
+                                    } catch (Exception e) {
+                                        LOG.error("Failed to create controller from " + definition + ". " + e + ". " + controllerSchema, e);
+                                    }
+                                } else if (Objects.equal("Service", kind)) {
+                                    ServiceSchema serviceSchema = objectMapper.reader(ServiceSchema.class).readValue(json);
+                                    LOG.info("Creating a service from " + definition);
+                                    try {
+                                        kubernetes.createService(serviceSchema);
+                                    } catch (Exception e) {
+                                        LOG.error("Failed to create controller from " + definition + ". " + e + ". " + serviceSchema, e);
+                                    }
+                                } else {
+                                    LOG.warn("Unknown JSON from " + definition + ". JSON: " + tree);
+                                }
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    LOG.warn("Failed to parse JSON definition: " + definition + ". " + e, e);
+                }
+            }
+        }
+        String status = "TODO";
+        List<String> warnings = new ArrayList<>();
+        CreateKubernetesContainerMetadata metadata = createKubernetesContainerMetadata(containerId, "kubelet", status, warnings);
+        // TODO
+        // publishZooKeeperValues(options, environmentVariables);
         return metadata;
 
     }
@@ -249,7 +374,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                     try {
                         portNumber = Integer.parseInt(defaultPortValue);
                     } catch (NumberFormatException e) {
-                        LOG.warn("Could not parse '"  + defaultPortValue
+                        LOG.warn("Could not parse '" + defaultPortValue
                                 + "' as integer for port " + portName
                                 + " for profiles " + profileIds + " " + versionId + ". " + e, e);
                     }
@@ -259,7 +384,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                         try {
                             hostPort = Integer.parseInt(hostPortText);
                         } catch (NumberFormatException e) {
-                            LOG.warn("Could not parse '"  + hostPortText
+                            LOG.warn("Could not parse '" + hostPortText
                                     + "' as integer for port " + portName
                                     + " for profiles " + profileIds + " " + versionId + ". " + e, e);
                         }
@@ -294,7 +419,8 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
     }
 
 
-    public static CreateKubernetesContainerMetadata createKubernetesContainerMetadata(ContainerConfig containerConfig, DockerCreateOptions options, ContainerCreateStatus status, String containerType) {
+    public static CreateKubernetesContainerMetadata createKubernetesContainerMetadata(DockerCreateOptions options, ContainerCreateStatus status, String containerType) {
+        String containerId = options.getName();
         List<String> warnings = new ArrayList<String>();
         String statusId = "unknown";
         if (status != null) {
@@ -304,12 +430,16 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                 Collections.addAll(warnings, warningArray);
             }
         }
+        CreateKubernetesContainerMetadata metadata = createKubernetesContainerMetadata(containerId, containerType, statusId, warnings);
+        metadata.setCreateOptions(options);
+        return metadata;
+    }
+
+    public static CreateKubernetesContainerMetadata createKubernetesContainerMetadata(String containerId, String containerType, String statusId, List<String> warnings) {
         CreateKubernetesContainerMetadata metadata = new CreateKubernetesContainerMetadata(statusId, warnings);
-        String containerId = options.getName();
         metadata.setContainerName(containerId);
         metadata.setContainerType(containerType);
         metadata.setOverridenResolver(ZkDefs.MANUAL_IP);
-        metadata.setCreateOptions(options);
         return metadata;
     }
 
