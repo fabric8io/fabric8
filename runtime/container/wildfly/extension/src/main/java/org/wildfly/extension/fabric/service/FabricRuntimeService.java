@@ -45,6 +45,9 @@ public final class FabricRuntimeService extends RuntimeService {
         // https://issues.jboss.org/browse/FABRIC-762
         properties.setProperty("org.osgi.service.http.port", "8080");
         
+        // [TODO] remove in gravia
+        properties.remove(Constants.RUNTIME_STORAGE_CLEAN);
+        
         return properties;
     }
 }

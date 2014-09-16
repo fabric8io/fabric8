@@ -42,7 +42,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
     public static final int DEFAULT_TICKTIME = 2000;
     public static final int DEFAULT_INIT_LIMIT = 10;
     public static final int DEFAULT_SYNC_LIMIT = 5;
-    public static final String DEFAULT_DATA_DIR = "data/zookeeper";
+    public static final String DEFAULT_DATA_DIR = "zookeeper";
 
     @JsonProperty
     final int zooKeeperServerPort;
