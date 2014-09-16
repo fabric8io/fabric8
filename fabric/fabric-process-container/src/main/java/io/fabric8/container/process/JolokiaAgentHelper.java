@@ -29,6 +29,7 @@ import io.fabric8.groovy.GroovyPlaceholderResolver;
 import io.fabric8.internal.JsonHelper;
 import io.fabric8.service.EnvPlaceholderResolver;
 import io.fabric8.service.child.JavaContainerEnvironmentVariables;
+import io.fabric8.utils.Base64Encoder;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.InterpolationHelper;
 import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
@@ -38,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -157,7 +159,6 @@ public class JolokiaAgentHelper {
     }
 
 
-
     public interface EnvironmentVariableOverride {
         public String getKey();
 
@@ -255,7 +256,7 @@ public class JolokiaAgentHelper {
 
     /**
      * Replaces any ${env:NAME} expressions in the given map from the given environment variables.
-     *
+     * <p/>
      * If preserveUnresolved is set to true, eventual tokens that are not found in the replacements map are kept; when the flag is set to false,
      * not matching tokens are replaced by an empty String.
      */
@@ -284,9 +285,9 @@ public class JolokiaAgentHelper {
                 }
                 int startEndIdx = idx + envExprPrefix.length();
                 int endIdx = answer.indexOf("}", startEndIdx);
-                    if (endIdx < 0) {
-                        break;
-                    }
+                if (endIdx < 0) {
+                    break;
+                }
                 String expression = answer.substring(startEndIdx, endIdx);
                 String value = EnvPlaceholderResolver.resolveExpression(expression, environmentVariables, preserveUnresolved);
                 if (!Objects.equal(expression, value)) {
@@ -335,8 +336,7 @@ public class JolokiaAgentHelper {
             // replace Groovy / ZooKeeper expressions
             if (preserveUnresolved) {
                 answer = InterpolationHelper.substVarsPreserveUnresolved(answer, "dummy", null, Collections.EMPTY_MAP, substitutionCallback);
-            }
-            else {
+            } else {
                 answer = InterpolationHelper.substVars(answer, "dummy", null, Collections.EMPTY_MAP, substitutionCallback);
             }
         }
@@ -347,7 +347,7 @@ public class JolokiaAgentHelper {
      * Replaces any ${env:NAME} expressions in the given map from the given environment variables
      */
     public static void substituteEnvironmentVariableExpressions(Map<String, String> map, Map<String, String> environmentVariables, FabricService fabricService, final CuratorFramework curator) {
-        substituteEnvironmentVariableExpressions( map,environmentVariables,  fabricService, curator, false);
+        substituteEnvironmentVariableExpressions(map, environmentVariables, fabricService, curator, false);
     }
 
     /**
@@ -480,10 +480,6 @@ public class JolokiaAgentHelper {
         String user = fabric.getZooKeeperUser();
         String password = fabric.getZookeeperPassword();
         String url = jolokiaUrl;
-        int idx = jolokiaUrl.indexOf("://");
-        if (idx > 0) {
-            url = "http://" + user + ":" + password + "@" + jolokiaUrl.substring(idx + 3);
-        }
         if (!url.endsWith("/")) {
             url += "/";
         }
@@ -492,7 +488,12 @@ public class JolokiaAgentHelper {
         boolean valid = false;
         try {
             URL theUrl = new URL(listUrl);
-            JsonNode jsonNode = jolokiaMapper.readTree(theUrl);
+            URLConnection urlConnection = theUrl.openConnection();
+            String authString = user + ":" + password;
+            String authStringEnc = Base64Encoder.encode(authString);
+            urlConnection.setRequestProperty("Authorization", "Basic " + authStringEnc);
+            InputStream is = urlConnection.getInputStream();
+            JsonNode jsonNode = jolokiaMapper.readTree(is);
             if (jsonNode != null) {
                 JsonNode value = jsonNode.get("value");
                 if (value != null) {
