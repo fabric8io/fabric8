@@ -6,7 +6,7 @@ It can be enabled by adding the **kubernetes** profile or specifying the **FABRI
 
     export FABRIC8_PROFILES=kubernetes
 
-### Prerequisits
+### Prerequisites
 
 You need to specify the following environment variables; in particular you must specify the **KUBERNETES_MASTER** URL for connecting to the kubernetes REST API
 
