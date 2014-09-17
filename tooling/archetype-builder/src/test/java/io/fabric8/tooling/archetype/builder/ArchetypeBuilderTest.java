@@ -108,10 +108,6 @@ public class ArchetypeBuilderTest {
         File nested = new File("/tmp/x/y");
         assertThat(archetypeUtils.relativePath(base, nested), equalTo("y"));
 
-//        base = new File("/tmp/x");
-//        nested = new File("/bin/y");
-//        assertThat(archetypeUtils.relativePath(base, nested), equalTo("/bin/y"));
-
         base = new File("/tmp/x");
         nested = new File("/tmp/x");
         assertThat(archetypeUtils.relativePath(base, nested), equalTo(""));
