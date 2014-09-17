@@ -259,7 +259,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                                     } catch (Exception e) {
                                         LOG.error("Failed to create pod from " + definition + ". " + e + ". " + podSchema, e);
                                     }
-                                } else if (Objects.equal("Controller", kind)) {
+                                } else if (Objects.equal("ReplicationController", kind)) {
                                     ReplicationControllerSchema replicationControllerSchema = objectMapper.reader(ReplicationControllerSchema.class).readValue(json);
                                     LOG.info("Creating a controller from " + definition);
                                     try {
