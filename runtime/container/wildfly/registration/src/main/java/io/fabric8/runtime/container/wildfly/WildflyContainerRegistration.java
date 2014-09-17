@@ -75,7 +75,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
-@Component(name = "io.fabric8.container.registration.widlfly", label = "Fabric8 Wildfly Container Registration", immediate = true, metatype = false)
+@Component(name = "io.fabric8.container.registration.wildfly", label = "Fabric8 Wildfly Container Registration", immediate = true, metatype = false)
 @Service({ContainerRegistration.class, ConnectionStateListener.class})
 public final class WildflyContainerRegistration extends AbstractComponent implements ContainerRegistration, ConnectionStateListener {
 

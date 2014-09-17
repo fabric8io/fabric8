@@ -45,7 +45,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.jboss.gravia.runtime.Runtime;
 
 @ThreadSafe
-@Component(label = "Widlfly Runtime Properties Service", immediate = true, metatype = false)
+@Component(label = "WildFly Runtime Properties Service", immediate = true, metatype = false)
 @Service(RuntimeProperties.class)
 public class WildflyPropertiesService extends AbstractRuntimeProperties {
 
