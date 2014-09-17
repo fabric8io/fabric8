@@ -226,7 +226,7 @@
             org.codehaus.plexus.util.io;
             org.codehaus.plexus.util.reflection;
             org.codehaus.plexus.util.xml;
-            org.codehaus.plexus.util.xml.pull;           
+            org.codehaus.plexus.util.xml.pull;
             io.fabric8.agent;
             io.fabric8.agent.repository;
             io.fabric8.agent.resolver;
@@ -300,11 +300,11 @@
           <artifactId>fabric-api</artifactId>
         </dependency>
 
-        <dependency>
+        <!--dependency>
            <groupId>org.apache.felix</groupId>
            <artifactId>org.apache.felix.resolver</artifactId>
             <scope>provided</scope>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>io.fabric8</groupId>

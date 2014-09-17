@@ -389,11 +389,11 @@
         <bundle>mvn:io.fabric8.insight/insight-storage/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-metrics-model/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-metrics-mvel/${project.version}</bundle>
-        <bundle>mvn:io.fabric8.insight/insight-metrics/${project.version}</bundle>
     </feature>
 
-    <feature name="insight-metrics-elasticsearch" version="${project.version}" resolver="(obr)">
+    <feature name="insight-elasticsearch-metrics" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">insight-elasticsearch</feature>
+        <bundle>mvn:io.fabric8.insight/insight-metrics/${project.version}</bundle>
     </feature>
 
     <feature name="insight-rhq-metrics" version="${project.version}" resolver="(obr)">
@@ -402,6 +402,7 @@
         <feature version="${project.version}">fabric-groovy</feature>
         <feature version="${project.version}">insight-metrics</feature>
         <feature>http</feature>
+        <bundle>mvn:io.fabric8.insight/insight-metrics/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-rhq-metrics/${project.version}</bundle>
     </feature>
 
@@ -441,18 +442,6 @@
         <bundle>mvn:io.fabric8.insight/insight-elasticsearch-plugin/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-elasticsearch-discovery/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-elasticsearch-factory/${project.version}</bundle>
-    </feature>
-
-    <feature name="insight-kibana" version="${project.version}" resolver="(obr)">
-        <feature>war</feature>
-        <feature>insight-elasticsearch</feature>
-        <bundle>mvn:io.fabric8.insight/insight-kibana3/${project.version}</bundle>
-    </feature>
-
-    <feature name="insight-eshead" version="${project.version}" resolver="(obr)">
-        <feature>war</feature>
-        <feature>insight-elasticsearch</feature>
-        <bundle>mvn:io.fabric8.insight/insight-eshead/${project.version}</bundle>
     </feature>
 
     <feature name="insight-log-storage" version="${project.version}" resolver="(obr)">

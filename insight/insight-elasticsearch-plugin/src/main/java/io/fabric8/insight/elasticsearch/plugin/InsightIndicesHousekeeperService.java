@@ -119,11 +119,11 @@ public class InsightIndicesHousekeeperService extends AbstractLifecycleComponent
                                 Integer.parseInt(matcher.group(3)));
 
                         int daysOld = Days.daysBetween(date, now).getDays();
-                        if (daysOld > 0 && daysOld > daysOpened) {
+                        if (daysOld > 0 && daysOpened > 0 && daysOld > daysOpened) {
                             if (daysOld > daysOpened && daysOld <= daysClosed) {
                                 logger.debug("Adding index to close: Index {} is {} day(s) old", index, daysOld);
                                 toClose.add(index);
-                            } else if (daysOld > daysClosed && daysOld > daysStored) {
+                            } else if (daysClosed >= 0 && daysOld > daysClosed && daysOld > daysStored) {
                                 logger.debug("Adding index to delete: Index {} is {} day(s) old", index, daysOld);
                                 toDelete.add(index);
                             }

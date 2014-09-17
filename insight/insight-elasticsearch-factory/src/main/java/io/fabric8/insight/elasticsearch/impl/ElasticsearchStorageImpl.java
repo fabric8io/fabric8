@@ -44,7 +44,7 @@ public class ElasticsearchStorageImpl implements StorageService, MetricsStorageS
     private static final SimpleDateFormat indexFormat = new SimpleDateFormat("yyyy.MM.dd");
 
     @Reference(name = "node", referenceInterface = org.elasticsearch.node.Node.class, target = "(cluster.name=insight)")
-    private final ValidatingReference<Node> node = new ValidatingReference<Node>();
+    private final ValidatingReference<Node> node = new ValidatingReference<>();
 
     private int max = 1000;
 
@@ -116,11 +116,11 @@ public class ElasticsearchStorageImpl implements StorageService, MetricsStorageS
         }
     }
 
-    void bindNode(Node node) {
+    private void bindNode(Node node) {
         this.node.bind(node);
     }
 
-    void unbindNode(Node node) {
+    private void unbindNode(Node node) {
         this.node.unbind(node);
     }
 

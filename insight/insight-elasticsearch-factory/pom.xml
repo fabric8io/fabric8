@@ -36,16 +36,13 @@
     </fuse.osgi.import.additional>
     <fuse.osgi.capabilities.provide>
       osgi.service;effective:=active;objectClass=io.fabric8.insight.storage.StorageService,
-      osgi.service;effective:=active;cluster.name=elasticsearch;node.data=true;objectClass=org.elasticsearch.node.Node,
-      osgi.service;effective:=active;cluster.name=insight;node.data=true;objectClass=org.elasticsearch.node.Node
+      osgi.service;effective:=active;objectClass=io.fabric8.insight.metrics.model.MetricsStorageService,
+      osgi.service;effective:=active;cluster.name=elasticsearch;objectClass=org.elasticsearch.node.Node,
+      osgi.service;effective:=active;cluster.name=insight;objectClass=org.elasticsearch.node.Node
     </fuse.osgi.capabilities.provide>
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.scr.annotations</artifactId>
-    </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-api</artifactId>
@@ -64,22 +61,5 @@
       <version>${elasticsearch-version}</version>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-scr-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>generate-scr-descriptor</id>
-            <goals>
-              <goal>scr</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>
