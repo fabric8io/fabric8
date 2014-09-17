@@ -33,6 +33,7 @@ public class Main {
                 basedir = ".";
             }
 
+            File bomFile = new File(basedir, "../../pom.xml");
             File karafProfilesDir = new File(basedir, "../../fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/").getCanonicalFile();
 
             File catalogFile = new File(basedir, "target/classes/archetype-catalog.xml").getCanonicalFile();
@@ -43,8 +44,9 @@ public class Main {
             File quickStartSpringBootSrcDir = new File(basedir, "../../quickstarts/spring-boot").getCanonicalFile();
             File quickStartWarSrcDir = new File(basedir, "../../quickstarts/war").getCanonicalFile();
             File outputDir = args.length > 0 ? new File(args[0]) : new File(basedir, "../archetypes");
-            ArchetypeBuilder builder = new ArchetypeBuilder(catalogFile);
 
+            ArchetypeBuilder builder = new ArchetypeBuilder(catalogFile);
+            builder.setBomFile(bomFile);
             builder.configure();
 
             List<String> dirs = new ArrayList<>();

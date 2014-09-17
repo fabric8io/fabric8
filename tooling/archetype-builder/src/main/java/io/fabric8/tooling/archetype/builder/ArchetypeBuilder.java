@@ -26,6 +26,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -81,8 +82,10 @@ public class ArchetypeBuilder {
 
     private ArchetypeUtils archetypeUtils = new ArchetypeUtils();
 
+    private File bomFile;
     private File catalogXmlFile;
     private PrintWriter printWriter;
+    private final Map<String, String> versionProperties = new HashMap<>();
 
     private int indentSize = 2;
     private String indent = "  ";
@@ -97,6 +100,10 @@ public class ArchetypeBuilder {
         for (int c = 0; c < this.indentSize; c++) {
             indent += " ";
         }
+    }
+
+    public void setBomFile(File bomFile) {
+        this.bomFile = bomFile;
     }
 
     /**
@@ -114,6 +121,31 @@ public class ArchetypeBuilder {
             indent + indent + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
             indent + indent + "xsi:schemaLocation=\"http://maven.apache.org/plugins/maven-archetype-plugin/archetype-catalog/1.0.0 http://maven.apache.org/xsd/archetype-catalog-1.0.0.xsd\">\n" +
             indent + "<archetypes>");
+
+        if (bomFile != null && bomFile.exists()) {
+            // read all properties of the bom, so we have default values for ${ } placeholders
+            String text = FileUtils.readFileToString(bomFile);
+            Document doc = archetypeUtils.parseXml(new InputSource(new StringReader(text)));
+            Element root = doc.getDocumentElement();
+
+            // lets load all the properties defined in the <properties> element in the bom pom.
+            NodeList propertyElements = root.getElementsByTagName("properties");
+            if (propertyElements.getLength() > 0)  {
+                Element propertyElement = (Element) propertyElements.item(0);
+                NodeList children = propertyElement.getChildNodes();
+                for (int cn = 0; cn < children.getLength(); cn++) {
+                    Node e = children.item(cn);
+                    if (e instanceof Element) {
+                        versionProperties.put(e.getNodeName(), e.getTextContent());
+                    }
+                }
+            }
+            if (LOG.isDebugEnabled()) {
+                for (Map.Entry<String, String> entry : versionProperties.entrySet()) {
+                    LOG.debug("bom property: {}={}", entry.getKey(), entry.getValue());
+                }
+            }
+        }
     }
 
     /**
@@ -373,7 +405,9 @@ public class ArchetypeBuilder {
                         if (idx > 0) {
                             String name = cText.substring(offset, idx);
                             if (!pomPropertyNames.contains(name) && isValidRequiredPropertyName(name)) {
-                                propertyNameSet.put(name, null);
+                                // use default value if we have one
+                                String value = versionProperties.get(name);
+                                propertyNameSet.put(name, value);
                             }
                         }
                     }
