@@ -409,7 +409,8 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
 
         try {
             LOG.info("About to create pod with image " + image + " on " + getKubernetesAddress() + " with " + pod);
-            kubernetes.createPod(pod);
+            Object answer = kubernetes.createPod(pod);
+            LOG.info("Go answer: " + answer);
 
         } catch (Exception e) {
             LOG.info("Failed to create pod " + name + " from config " + pod
