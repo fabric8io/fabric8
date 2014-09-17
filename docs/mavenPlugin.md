@@ -334,6 +334,16 @@ If you really want to you can specify the properties (without the **fabric8.** p
 <td>If set to false then the maven artifact of the project is ignored; its not uploaded and not added/updated in the profile. Defaults to true.</td>
 </tr>
 <tr>
+<td>artifactBundleType</td>
+<td>Overrides the type (file extension) of the project artifact bundle to include in the profile (see includeArtifact).
+Normally the type is set to the project POM's packaging value.</td>
+</tr>
+<tr>
+<td>artifactBundleClassifier</td>
+<td>Overrides the classifier of the project artifact bundle to include in the profile (see includeArtifact).
+Normally the classifier is empty.</td>
+</tr>
+<tr>
 <td>profileConfigDir</td>
 <td>The folder in your maven project containing configuration files which should be deployed into the profile along with the artifact configuration. This defaults to <b>src/main/fabric8</b>. Create that directory and add any configuration files or documentation you wish to add to your profile.</td>
 </tr>

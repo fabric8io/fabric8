@@ -71,6 +71,7 @@
         <module>karaf</module>
         <module>spring-boot</module>
         <module>war</module>
+        <module>mule</module>
     </modules>
 
   <build>
