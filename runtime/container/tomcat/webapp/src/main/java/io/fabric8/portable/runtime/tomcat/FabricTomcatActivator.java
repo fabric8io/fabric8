@@ -40,6 +40,8 @@ import org.jboss.gravia.runtime.ServiceEvent;
 import org.jboss.gravia.runtime.ServiceListener;
 import org.jboss.gravia.runtime.ServiceRegistration;
 import org.jboss.gravia.runtime.spi.PropertiesProvider;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 
 /**
  * Activates the {@link Runtime} as part of the web app lifecycle.
@@ -93,6 +95,11 @@ public class FabricTomcatActivator implements ServletContextListener {
         } catch (ModuleException ex) {
             throw new IllegalStateException(ex);
         }
+
+        // HttpService integration
+        Module sysmodule = runtime.getModuleContext().getModule();
+        BundleContext bundleContext = sysmodule.adapt(Bundle.class).getBundleContext();
+        servletContext.setAttribute(BundleContext.class.getName(), bundleContext);
     }
 
     @Override
@@ -121,7 +128,6 @@ public class FabricTomcatActivator implements ServletContextListener {
     */
 
     static class BoostrapLatch extends CountDownLatch {
-
         BoostrapLatch(int count) {
             super(count);
         }

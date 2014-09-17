@@ -20,9 +20,6 @@ import io.fabric8.utils.Base64Encoder;
 import java.io.IOException;
 import java.net.URL;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -95,18 +92,14 @@ final class JolokiaSecureHttpContext implements HttpContext {
             });
             loginContext.login();
             if (role != null && role.length() > 0) {
-                List<String> acceptedClasses = Arrays.asList("org.apache.karaf.jaas.boot.principal.RolePrincipal", "org.jboss.security.SimplePrincipal");
-                String name = role;
-                int idx = name.indexOf(':');
+                String roleName = role;
+                int idx = roleName.indexOf(':');
                 if (idx > 0) {
-                    acceptedClasses = new ArrayList<>(acceptedClasses);
-                    acceptedClasses.add(name.substring(0, idx));
-                    name = name.substring(idx + 1);
+                    roleName = roleName.substring(idx + 1);
                 }
                 boolean found = false;
                 for (Principal p : subject.getPrincipals()) {
-                    String className = p.getClass().getName();
-                    if (acceptedClasses.contains(className) && p.getName().equals(name)) {
+                    if (p.getName().equals(roleName)) {
                         found = true;
                         break;
                     }

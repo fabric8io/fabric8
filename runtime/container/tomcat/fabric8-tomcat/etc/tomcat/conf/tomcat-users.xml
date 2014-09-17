@@ -17,7 +17,9 @@
 
 -->
 <tomcat-users>
+  <role rolename="admin"/>
   <role rolename="tomcat"/>
   <role rolename="manager-script"/>
+  <user username="admin" password="admin" roles="admin"/>
   <user username="tomcat" password="tomcat" roles="tomcat,manager-script"/>
 </tomcat-users>

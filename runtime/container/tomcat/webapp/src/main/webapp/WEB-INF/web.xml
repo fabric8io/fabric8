@@ -26,7 +26,6 @@
     <listener>
         <listener-class>io.fabric8.portable.runtime.tomcat.FabricBootstrapCompleteListener</listener-class>
     </listener>
-
     <listener>
         <listener-class>org.apache.felix.http.proxy.ProxyListener</listener-class>
     </listener>

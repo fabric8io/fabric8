@@ -30,7 +30,6 @@ public class FabricBootstrapCompleteListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent event) {
-
         ServletContext servletContext = event.getServletContext();
         FabricTomcatActivator.BoostrapLatch latch = (FabricTomcatActivator.BoostrapLatch) servletContext.getAttribute(FabricTomcatActivator.BoostrapLatch.class.getName());
         try {
