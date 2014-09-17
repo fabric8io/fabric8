@@ -18,50 +18,32 @@ package io.fabric8.insight.metrics.service;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.fabric8.insight.metrics.model.MBeanAttrs;
-import io.fabric8.insight.metrics.model.MBeanOpers;
-import io.fabric8.insight.metrics.model.MetricsJSON;
-import io.fabric8.insight.metrics.model.Query;
-import io.fabric8.insight.metrics.service.support.JmxUtils;
-import io.fabric8.api.Container;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.ProfileService;
-import io.fabric8.api.Version;
+import io.fabric8.api.*;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.JMXUtils;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.NodeState;
 import io.fabric8.groups.internal.TrackingZooKeeperGroup;
-import io.fabric8.insight.metrics.model.QueryResult;
-import io.fabric8.insight.metrics.model.Request;
-import io.fabric8.insight.metrics.model.Server;
-import io.fabric8.insight.metrics.model.MetricsStorageService;
-
+import io.fabric8.insight.metrics.model.*;
+import io.fabric8.insight.metrics.service.support.JmxUtils;
+import io.fabric8.service.LocalJMXConnector;
+import org.apache.felix.scr.annotations.*;
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
+import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
-
+import javax.security.auth.Subject;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 import static io.fabric8.common.util.IOHelpers.loadFully;
 import static io.fabric8.insight.metrics.model.MetricsJSON.parseJson;
@@ -69,6 +51,8 @@ import static io.fabric8.insight.metrics.model.MetricsJSON.parseJson;
 /**
  * Collects all the charting metrics defined against its profiles
  */
+@Component(immediate = true, metatype = false)
+@Service({MetricsCollectorMBean.class})
 public class MetricsCollector implements MetricsCollectorMBean {
 
     public static final String GRAPH_JSON = "io.fabric8.insight.metrics.json";
@@ -94,18 +78,22 @@ public class MetricsCollector implements MetricsCollectorMBean {
 
     private ObjectName objectName;
 
-    private BundleContext bundleContext;
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     private FabricService fabricService;
 
     private ScheduledThreadPoolExecutor executor;
     private Map<Query, QueryState> queries = new ConcurrentHashMap<Query, QueryState>();
 
-    private ServiceTracker<MBeanServer, MBeanServer> mbeanServer;
-    private ServiceTracker<MetricsStorageService, MetricsStorageService> storage;
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private MBeanServer mbeanServer;
+
+    @Reference(name = "storage", referenceInterface = MetricsStorageService.class)
+    private final ValidatingReference<MetricsStorageService> storage = new ValidatingReference<>() ;
 
     private int defaultDelay = 60;
     private int threadPoolSize = 5;
-    private String type;
+    private String type = "sta";
+    private BundleContext bundleContext;
 
     static class QueryState {
         ScheduledFuture<?> future;
@@ -129,6 +117,53 @@ public class MetricsCollector implements MetricsCollectorMBean {
         }
     }
 
+    @Activate
+    private void activate(BundleContext bundleContext) throws Exception {
+        this.bundleContext = bundleContext;
+        this.executor = new ScheduledThreadPoolExecutor(threadPoolSize);
+        this.executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+        this.executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
+
+        this.executor.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                process();
+            }
+        }, 1, defaultDelay, TimeUnit.SECONDS);
+
+        JMXUtils.registerMBean(this, mbeanServer, new ObjectName("io.fabric8.insight:type=MetricsCollector"));
+    }
+
+    @Deactivate
+    private void deactivate() throws Exception {
+
+        JMXUtils.unregisterMBean(mbeanServer, new ObjectName("io.fabric8.insight:type=MetricsCollector"));
+
+        executor.shutdown();
+        try {
+            executor.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            // Ignore
+        }
+        executor.shutdownNow();
+        try {
+            executor.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            // Ignore
+        }
+        for (QueryState q : queries.values()) {
+            q.close();
+        }
+    }
+
+    private void bindStorage(MetricsStorageService storage) {
+        this.storage.bind(storage);
+    }
+
+    private void unbindStorage(MetricsStorageService storage) {
+        this.storage.unbind(storage);
+    }
+
     static class QueryNodeState extends NodeState {
         @JsonProperty
         String[] services;
@@ -143,14 +178,6 @@ public class MetricsCollector implements MetricsCollectorMBean {
 
     }
 
-    public void setObjectName(ObjectName objectName) {
-        this.objectName = objectName;
-    }
-
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-    }
-
     public void setDefaultDelay(int defaultDelay) {
         this.defaultDelay = defaultDelay;
     }
@@ -163,10 +190,6 @@ public class MetricsCollector implements MetricsCollectorMBean {
         this.type = type;
     }
 
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
-    }
-
     @Override
     public String getMetrics() {
         Map<String, Object> meta = new HashMap<String, Object>();
@@ -176,74 +199,9 @@ public class MetricsCollector implements MetricsCollectorMBean {
         return MetricsJSON.toJson(meta);
     }
 
-    public void start() throws IOException {
-        this.executor = new ScheduledThreadPoolExecutor(threadPoolSize);
-        this.executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
-        this.executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
-
-        this.mbeanServer = new ServiceTracker<MBeanServer, MBeanServer>(bundleContext, MBeanServer.class, new ServiceTrackerCustomizer<MBeanServer, MBeanServer>() {
-            @Override
-            public MBeanServer addingService(ServiceReference<MBeanServer> reference) {
-                MBeanServer service = bundleContext.getService(reference);
-                try {
-                    service.registerMBean(MetricsCollector.this, objectName);
-                } catch (Exception e) {
-                    LOG.info("Unable to register metrics collector mbean", e);
-                }
-                return service;
-            }
-
-            @Override
-            public void modifiedService(ServiceReference<MBeanServer> reference, MBeanServer service) {
-            }
-
-            @Override
-            public void removedService(ServiceReference<MBeanServer> reference, MBeanServer service) {
-                try {
-                    service.unregisterMBean(objectName);
-                } catch (Exception e) {
-                    LOG.info("Unable to unregister metrics collector mbean", e);
-                }
-                bundleContext.ungetService(reference);
-            }
-        });
-        this.storage = new ServiceTracker<MetricsStorageService, MetricsStorageService>(bundleContext, MetricsStorageService.class, null);
-
-        this.mbeanServer.open();
-        this.storage.open();
-
-        this.executor.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                process();
-            }
-        }, 1, defaultDelay, TimeUnit.SECONDS);
-    }
-
-    public void stop() throws Exception {
-        this.executor.shutdown();
-        try {
-            this.executor.awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            // Ignore
-        }
-        this.executor.shutdownNow();
-        try {
-            this.executor.awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            // Ignore
-        }
-        this.mbeanServer.close();
-        this.storage.close();
-        for (QueryState q : queries.values()) {
-            q.close();
-        }
-    }
-
-
     public void process() {
         try {
-            Container container = fabricService.getCurrentContainer();
+            Container container = MetricsCollector.this.fabricService.getCurrentContainer();
             if (container != null) {
                 Set<Query> newQueries = new HashSet<Query>();
                 Profile[] profiles = container.getProfiles();
@@ -271,7 +229,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
                     // Clustered stats ?
 
                     if (q.getLock() != null) {
-                        state.lock = new TrackingZooKeeperGroup<QueryNodeState>(bundleContext, getGroupPath(q), QueryNodeState.class);
+                        state.lock = new TrackingZooKeeperGroup<>(bundleContext, getGroupPath(q), QueryNodeState.class);
                         state.lock.add(new GroupListener<QueryNodeState>() {
                             @Override
                             public void groupEvent(Group<QueryNodeState> group, GroupEvent event) {
@@ -289,7 +247,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
 
                     long delay = q.getPeriod() > 0 ? q.getPeriod() : defaultDelay;
                     state.future = this.executor.scheduleAtFixedRate(
-                            new Task(state),
+                            new Task(state, storage),
                             Math.round(Math.random() * 1000) + 1,
                             delay * 1000,
                             TimeUnit.MILLISECONDS);
@@ -356,7 +314,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
                 LOG.warn("Unable to load queries from profile " + profile.getId(), t);
             }
         }
-        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        ProfileService profileService = MetricsCollector.this.fabricService.adapt(ProfileService.class);
         Version version = profileService.getVersion(profile.getVersion());
         for (String parentId : profile.getParentIds()) {
             loadProfile(version.getRequiredProfile(parentId), queries);
@@ -367,24 +325,29 @@ public class MetricsCollector implements MetricsCollectorMBean {
 
         private final QueryState query;
 
-        public Task(QueryState query) {
+        public Task(QueryState query, ValidatingReference<MetricsStorageService> storage) {
             this.query = query;
         }
 
         @Override
         public void run() {
             try {
-                MBeanServer mbs = mbeanServer.getService();
-                MetricsStorageService svc = storage.getService();
+                MetricsStorageService svc = storage.get();
                 // Abort if required services aren't available
-                if (mbs == null || svc == null) {
+                if (mbeanServer == null || svc == null) {
                     return;
                 }
                 // If there's a lock, check we are the master
                 if (query.lock != null && !query.lock.isMaster()) {
                     return;
                 }
-                QueryResult qrs = JmxUtils.execute(query.server, query.query, mbs);
+
+                LocalJMXConnector jmxConnector = new LocalJMXConnector(mbeanServer);
+                Subject subject = new Subject();
+                subject.getPrincipals().add(new RolePrincipal("viewer"));
+                MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection(subject);
+
+                QueryResult qrs = JmxUtils.execute(query.server, query.query, mBeanServerConnection);
                 boolean forceSend = query.query.getMinPeriod() == query.query.getPeriod() ||
                         qrs.getTimestamp().getTime() - query.lastSent >= TimeUnit.SECONDS.toMillis(query.query.getMinPeriod());
                 if (!forceSend && query.lastResult != null) {
@@ -402,7 +365,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
                 query.lastSent = qrs.getTimestamp().getTime();
                 renderAndSend(svc, qrs);
             } catch (Throwable e) {
-                LOG.debug("Error sending metrics", e);
+                LOG.error("Error sending metrics", e);
             }
         }
 

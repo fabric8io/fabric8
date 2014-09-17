@@ -1,5 +1,6 @@
 package io.fabric8.insight.elasticsearch.impl;
 
+import io.fabric8.api.PortService;
 import io.fabric8.api.scr.Configurer;
 import org.apache.felix.scr.annotations.*;
 import org.elasticsearch.client.Client;
@@ -13,31 +14,16 @@ import java.util.Map;
 
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
-@Component(name = "io.fabric8.elasticsearch", policy = ConfigurationPolicy.REQUIRE, configurationFactory = true, metatype = true)
+@Component(name = "io.fabric8.elasticsearch", policy = ConfigurationPolicy.REQUIRE, configurationFactory = true, metatype = false)
 @Service(org.elasticsearch.node.Node.class)
 public class ElasticsearchNode implements Node {
-
-    @Property(name = "cluster.name", value = "elasticsearch", label = "Cluster Name", description = "The name of the cluster this node should be a part of")
-    private String clusterName;
-
-    @Property(name = "node.data", boolValue = true, label = "Data Node?", description = "Is this a data node?")
-    private boolean nodeData;
-
-    @Property(name = "config", label = "Config File", description = "The URL to load the config file from (optional)")
-    private String config;
-
-    @Property(name = "rootNode", label = "Root Node", description = "The root node in ZooKeeper(optional)")
-    private String rootNode;
-
     @Reference
-    private Configurer configurer;
+    private PortService portService;
 
     private org.elasticsearch.node.Node nodeDelegate;
 
     @Activate
     protected void activate(final Map<String, Object> props) throws Exception {
-        configurer.configure(props, this);
-
         Map<String,String> stringProps = new HashMap<String,String>();
         for (Map.Entry<String, Object> entry : props.entrySet()) {
             stringProps.put(entry.getKey(), entry.getValue().toString());
@@ -49,7 +35,7 @@ public class ElasticsearchNode implements Node {
 
         String configFilePath = stringProps.get("config");
         if (configFilePath != null) {
-            settings.loadFromUrl(new URL(config));
+            settings.loadFromUrl(new URL(configFilePath));
         }
 
         settings.put(stringProps).classLoader(Settings.class.getClassLoader());

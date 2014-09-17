@@ -15,34 +15,17 @@
  */
 package io.fabric8.insight.metrics.service.support;
 
-import io.fabric8.insight.metrics.model.MBeanAttrs;
-import io.fabric8.insight.metrics.model.MBeanOpers;
-import io.fabric8.insight.metrics.model.MBeanAttrResult;
-import io.fabric8.insight.metrics.model.MBeanAttrsResult;
-import io.fabric8.insight.metrics.model.MBeanOperResult;
-import io.fabric8.insight.metrics.model.MBeanOpersResult;
+import io.fabric8.insight.metrics.model.*;
 import io.fabric8.insight.metrics.model.Query;
-import io.fabric8.insight.metrics.model.QueryResult;
-import io.fabric8.insight.metrics.model.Request;
-import io.fabric8.insight.metrics.model.Result;
-import io.fabric8.insight.metrics.model.Server;
 
-import javax.management.Attribute;
-import javax.management.AttributeList;
-import javax.management.JMException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
+import javax.management.*;
 import javax.management.openmbean.CompositeDataSupport;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 public class JmxUtils {
 
-    public static QueryResult execute(Server server, Query query, MBeanServer mbs) throws JMException {
+    public static QueryResult execute(Server server, Query query, MBeanServerConnection mbs) throws JMException, IOException {
         // Iterate through queries
         Map<String, Result<?>> queryResults = new HashMap<String, Result<?>>();
         for (Request request : query.getRequests()) {
@@ -51,7 +34,7 @@ public class JmxUtils {
         return new QueryResult(server, query, new Date(), queryResults);
     }
 
-    private static Result execute(Server server, Request request, MBeanServer mbs) throws JMException {
+    private static Result execute(Server server, Request request, MBeanServerConnection mbs) throws JMException, IOException {
         if (request instanceof MBeanAttrs) {
             return execute(server, ((MBeanAttrs) request), mbs);
         } else if (request instanceof MBeanOpers) {
@@ -61,7 +44,7 @@ public class JmxUtils {
         }
     }
 
-    public static MBeanOpersResult execute(Server server, MBeanOpers request, MBeanServer mbs) throws JMException {
+    public static MBeanOpersResult execute(Server server, MBeanOpers request, MBeanServerConnection mbs) throws JMException, IOException {
         List<MBeanOperResult> results = new ArrayList<MBeanOperResult>();
         // Get all mbeans
         Set<ObjectName> mbeans = mbs.queryNames(new ObjectName(request.getObj()), null);
@@ -76,7 +59,7 @@ public class JmxUtils {
         return new MBeanOpersResult(request, results);
     }
 
-    public static MBeanAttrsResult execute(Server server, MBeanAttrs request, MBeanServer mbs) throws JMException {
+    public static MBeanAttrsResult execute(Server server, MBeanAttrs request, MBeanServerConnection mbs) throws JMException, IOException {
         List<MBeanAttrResult> results = new ArrayList<MBeanAttrResult>();
         // Get all mbeans
         Set<ObjectName> mbeans = mbs.queryNames(new ObjectName(request.getObj()), null);

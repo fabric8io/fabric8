@@ -53,6 +53,6 @@ public class MetricsTest {
 
         Map map = new ObjectMapper().readValue(output, Map.class);
         assertEquals("local", map.get("host"));
-        assertNotNull(map.get("timestamp"));
+        assertNotNull(map.get("@timestamp"));
     }
 }
