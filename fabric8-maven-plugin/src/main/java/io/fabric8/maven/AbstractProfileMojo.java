@@ -582,7 +582,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             String scope = artifact.getScope();
             answer.setScope(scope);
             answer.setType(artifact.getType());
-            // there is a bug if we try to resolve the current projects artiffact for a "jar" packaging
+            // there is a bug if we try to resolve the current projects artifact for a "jar" packaging
             // before we've installed it then this operation will force the jar not be installed
             // so lets ignore this for the maven project's artifact
             if (artifact.getClassifier() == null && "jar".equals(artifact.getType())) {
