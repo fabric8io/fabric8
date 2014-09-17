@@ -20,13 +20,11 @@ import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 
 /**
  * Copies the OSGi MetaType metadata files from the projects dependencies to the give folder
