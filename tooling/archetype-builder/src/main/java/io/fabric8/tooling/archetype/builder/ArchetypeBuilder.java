@@ -376,7 +376,7 @@ public class ArchetypeBuilder {
             }
 
             // lets load all the properties defined in the <properties> element in the pom.
-            Set<String> pomPropertyNames = new LinkedHashSet<String>();
+            Map<String, String> pomProperties = new LinkedHashMap<>();
 
             NodeList propertyElements = root.getElementsByTagName("properties");
             if (propertyElements.getLength() > 0)  {
@@ -385,11 +385,15 @@ public class ArchetypeBuilder {
                 for (int cn = 0; cn < children.getLength(); cn++) {
                     Node e = children.item(cn);
                     if (e instanceof Element) {
-                        pomPropertyNames.add(e.getNodeName());
+                        pomProperties.put(e.getNodeName(), e.getTextContent());
                     }
                 }
             }
-            LOG.debug("Found <properties> in the pom: {}", pomPropertyNames);
+            if (LOG.isDebugEnabled()) {
+                for (Map.Entry<String, String> entry : pomProperties.entrySet()) {
+                    LOG.debug("pom property: {}={}", entry.getKey(), entry.getValue());
+                }
+            }
 
             // lets find all the property names
             NodeList children = root.getElementsByTagName("*");
@@ -404,9 +408,12 @@ public class ArchetypeBuilder {
                         int idx = cText.indexOf("}", offset + 1);
                         if (idx > 0) {
                             String name = cText.substring(offset, idx);
-                            if (!pomPropertyNames.contains(name) && isValidRequiredPropertyName(name)) {
-                                // use default value if we have one
-                                String value = versionProperties.get(name);
+                            if (!pomProperties.containsKey(name) && isValidRequiredPropertyName(name)) {
+                                // use default value if we have one, but favor value from this pom over the bom pom
+                                String value = pomProperties.get(name);
+                                if (value == null) {
+                                    value = versionProperties.get(name);
+                                }
                                 propertyNameSet.put(name, value);
                             }
                         }
