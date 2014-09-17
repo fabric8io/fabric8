@@ -42,18 +42,18 @@ import org.apache.karaf.shell.console.AbstractAction;
 
 import static io.fabric8.common.util.Strings.isNullOrBlank;
 
-@Command(name = ArchetypeInfo.FUNCTION_VALUE, scope = ArchetypeCreate.SCOPE_VALUE, description = ArchetypeCreate.DESCRIPTION, detailedDescription = "classpath:archetypeCreate.txt")
-public class ArchetypeCreateAction extends AbstractAction {
+@Command(name = ArchetypeGenerate.FUNCTION_VALUE, scope = ArchetypeGenerate.SCOPE_VALUE, description = ArchetypeGenerate.DESCRIPTION, detailedDescription = "classpath:archetypeGenerate.txt")
+public class ArchetypeGenerateAction extends AbstractAction {
 
     @Argument(index = 0, name = "archetype", description = "Archetype id, or coordinate, or filter", required = false, multiValued = false)
     private String archetypeOrFilter;
 
-    @Option(name = "-d", aliases = "--directory", description = "To use a specific directory as base for where the project is created (uses by default the current workspace location)", required = false, multiValued = false)
+    @Option(name = "-d", aliases = "--directory", description = "To use a specific directory as base for where the project is created (by default the current workspace location is used)", required = false, multiValued = false)
     private String directory;
 
     private final ArchetypeService archetypeService;
 
-    public ArchetypeCreateAction(ArchetypeService archetypeService) {
+    public ArchetypeGenerateAction(ArchetypeService archetypeService) {
         this.archetypeService = archetypeService;
     }
 
