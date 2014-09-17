@@ -181,6 +181,16 @@ public class ArchetypeGenerateAction extends AbstractAction {
 
         Map<String, String> properties = helper.parseProperties();
 
+        // if we have fabric8.profile as a property then lets configured it now, as its mandatory
+        // and use artifactId as its default suggested value
+        String profile = null;
+        if (properties.containsKey("fabric8.profile")) {
+            profile = properties.remove("fabric8.profile");
+            String defaultProfile = isNullOrBlank(profile) ? artifactId : profile;
+            String p = ShellUtils.readLine(session, String.format("Define value for property 'fabric8.profile' (%s): ", defaultProfile), false);
+            profile = isNullOrBlank(p) ? defaultProfile : p;
+        }
+
         // show additional properties and ask to use them as-is
         boolean mustChoose = false;
         if (!properties.isEmpty()) {
@@ -191,13 +201,6 @@ public class ArchetypeGenerateAction extends AbstractAction {
                     mustChoose = true;
                     break;
                 }
-            }
-
-            // if we have fabric.profile as property, then use artifactId as its default suggested value
-            String profile = properties.get("fabric8.profile");
-            if (isNullOrBlank(profile)) {
-                properties.put("fabric8.profile", artifactId);
-                mustChoose = true;
             }
 
             if (!mustChoose) {
@@ -236,7 +239,14 @@ public class ArchetypeGenerateAction extends AbstractAction {
                     choosing = false;
                 }
             }
+        }
 
+        // remover to include the profile back into properties
+        if (profile != null) {
+            properties.put("fabric8.profile", profile);
+        }
+
+        if (!properties.isEmpty()) {
             // set override properties
             helper.setOverrideProperties(properties);
         }
