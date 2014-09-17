@@ -27,11 +27,12 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import io.fabric8.tooling.archetype.ArchetypeUtils;
@@ -330,7 +331,7 @@ public class ArchetypeBuilder {
             originalDescription = originalName;
         }
 
-        Set<String> propertyNameSet = new TreeSet<String>();
+        Map<String, String> propertyNameSet = new LinkedHashMap<>();
 
         if (root != null) {
             // remove the parent element and the following text Node
@@ -372,18 +373,25 @@ public class ArchetypeBuilder {
                         if (idx > 0) {
                             String name = cText.substring(offset, idx);
                             if (!pomPropertyNames.contains(name) && isValidRequiredPropertyName(name)) {
-                                propertyNameSet.add(name);
+                                propertyNameSet.put(name, null);
                             }
                         }
                     }
                 }
             }
 
+            String profile = replaceNodeValue(doc, root, "fabric8.profile", "${profile}");
+            if (profile != null) {
+                // we do not want a default name for the profile as the end user should be able to set that value
+                propertyNameSet.put("fabric8.profile", null);
+            }
+
             // now lets replace the contents of some elements (adding new elements if they are not present)
-            List<String> beforeNames = Arrays.asList("artifactId", "version", "packaging", "name", "properties");
+            List<String> beforeNames = Arrays.asList("artifactId", "version", "packaging", "name", "properties", "fabric8.profile");
             replaceOrAddElementText(doc, root, "version", "${version}", beforeNames);
             replaceOrAddElementText(doc, root, "artifactId", "${artifactId}", beforeNames);
             replaceOrAddElementText(doc, root, "groupId", "${groupId}", beforeNames);
+            replaceOrAddElementText(doc, root, "fabric8.profile", "${fabric8.profile}", beforeNames);
         }
         archetypePom.getParentFile().mkdirs();
 
@@ -403,15 +411,17 @@ public class ArchetypeBuilder {
         Element requiredProperties = replaceOrAddElement(archDoc, archRoot, "requiredProperties", Arrays.asList("fileSets"));
 
         // lets add the various properties in
-        for (String propertyName: propertyNameSet) {
+        for (Map.Entry<String, String> entry : propertyNameSet.entrySet()) {
             requiredProperties.appendChild(archDoc.createTextNode("\n" + indent + indent));
             Element requiredProperty = archDoc.createElement("requiredProperty");
             requiredProperties.appendChild(requiredProperty);
-            requiredProperty.setAttribute("key", propertyName);
-            requiredProperty.appendChild(archDoc.createTextNode("\n" + indent + indent + indent));
-            Element defaultValue = archDoc.createElement("defaultValue");
-            requiredProperty.appendChild(defaultValue);
-            defaultValue.appendChild(archDoc.createTextNode("${" + propertyName + "}"));
+            requiredProperty.setAttribute("key", entry.getKey());
+            if (entry.getValue() != null) {
+                requiredProperty.appendChild(archDoc.createTextNode("\n" + indent + indent + indent));
+                Element defaultValue = archDoc.createElement("defaultValue");
+                requiredProperty.appendChild(defaultValue);
+                defaultValue.appendChild(archDoc.createTextNode(entry.getValue()));
+            }
             requiredProperty.appendChild(archDoc.createTextNode("\n" + indent + indent));
         }
         requiredProperties.appendChild(archDoc.createTextNode("\n" + indent));
@@ -456,6 +466,25 @@ public class ArchetypeBuilder {
 
             archetypeUtils.writeXmlDocument(pomDocument, archetypeProjectPom);
         }
+    }
+
+    private String replaceNodeValue(Document doc, Element parent, String name, String newValue) {
+        NodeList children = parent.getChildNodes();
+        for (int cn = 0; cn < children.getLength(); cn++) {
+            Node child = children.item(cn);
+            if (child instanceof Element && child.getNodeName().equals(name)) {
+                Element e = (Element) children.item(cn);
+                String answer = e.getTextContent();
+                e.setTextContent(newValue);
+                return answer;
+            } else if (child instanceof Element && child.hasChildNodes()) {
+                String answer = replaceNodeValue(doc, (Element) child, name, newValue);
+                if (answer != null) {
+                    return answer;
+                }
+            }
+        }
+        return null;
     }
 
     /**
