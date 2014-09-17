@@ -19,6 +19,8 @@ import io.fabric8.boot.commands.support.AbstractCompleterComponent;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.provider.KubernetesService;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -33,9 +35,9 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 @Component(immediate = true)
-@Service({PodCompleter.class, Completer.class})
-public final class PodCompleter extends AbstractCompleterComponent {
-    private static final transient Logger LOG = LoggerFactory.getLogger(PodCompleter.class);
+@Service({ReplicationControllerCompleter.class, Completer.class})
+public final class ReplicationControllerCompleter extends AbstractCompleterComponent {
+    private static final transient Logger LOG = LoggerFactory.getLogger(ReplicationControllerCompleter.class);
 
     @Reference
     protected KubernetesService kubernetesService;
@@ -52,7 +54,7 @@ public final class PodCompleter extends AbstractCompleterComponent {
 
     @Override
     public String getParameter() {
-        return "--pod";
+        return "--replicationController";
     }
 
     @Override
@@ -61,11 +63,11 @@ public final class PodCompleter extends AbstractCompleterComponent {
         try {
             Kubernetes kubernetes = kubernetesService.getKubernetes();
             if (kubernetes != null) {
-                PodListSchema pods = kubernetes.getPods();
-                if (pods != null) {
-                    List<PodSchema> items = pods.getItems();
+                ReplicationControllerListSchema list = kubernetes.getReplicationControllers();
+                if (list != null) {
+                    List<ReplicationControllerSchema> items = list.getItems();
                     if (items != null) {
-                        for (PodSchema item : items) {
+                        for (ReplicationControllerSchema item : items) {
                             String id = item.getId();
                             delegate.getStrings().add(id);
                         }
