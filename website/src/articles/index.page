@@ -1,10 +1,12 @@
 ---
-title: whats hawt on the internet?
+title: fabric8 articles and videos
 --- pipeline:ssp,markdown
   <div class="container">
     <div class="row">
       <div class="col-md-12">
+
 ${unescape(loadText(new FileInputStream("../docs/articles.md")))}
+
       </div>
     </div>
   </div>
