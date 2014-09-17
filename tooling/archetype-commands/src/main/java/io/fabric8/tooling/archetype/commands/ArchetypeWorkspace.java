@@ -38,7 +38,7 @@ public class ArchetypeWorkspace extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "archetype-workspace";
-    public static final String DESCRIPTION = "To switch the workspace location (directory used by the archetype-create command)";
+    public static final String DESCRIPTION = "To switch the workspace location (the default directory used by the archetype-generate command)";
     public static final String PREFERENCE_WORKSPACE = "workspace";
 
     @Reference(referenceInterface = ArchetypeService.class, bind = "bindArchetypeService", unbind = "unbindArchetypeService")

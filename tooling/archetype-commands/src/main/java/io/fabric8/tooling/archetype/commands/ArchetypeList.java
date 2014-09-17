@@ -37,7 +37,7 @@ public class ArchetypeList extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "archetype-list";
-    public static final String DESCRIPTION = "List all available Fabric Maven archetypes";
+    public static final String DESCRIPTION = "List all available fabric Maven archetypes";
 
     @Reference(referenceInterface = ArchetypeService.class, bind = "bindArchetypeService", unbind = "unbindArchetypeService")
     private ArchetypeService archetypeService;

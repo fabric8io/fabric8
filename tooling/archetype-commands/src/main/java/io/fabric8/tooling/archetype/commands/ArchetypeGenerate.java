@@ -34,14 +34,14 @@ import org.apache.karaf.shell.console.completer.FileCompleter;
 @Component(immediate = true)
 @Service({ Function.class, AbstractCommand.class })
 @org.apache.felix.scr.annotations.Properties({
-    @Property(name = "osgi.command.scope", value = ArchetypeCreate.SCOPE_VALUE),
-    @Property(name = "osgi.command.function", value = ArchetypeCreate.FUNCTION_VALUE)
+    @Property(name = "osgi.command.scope", value = ArchetypeGenerate.SCOPE_VALUE),
+    @Property(name = "osgi.command.function", value = ArchetypeGenerate.FUNCTION_VALUE)
 })
-public class ArchetypeCreate extends AbstractCommandComponent {
+public class ArchetypeGenerate extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE = "archetype-create";
-    public static final String DESCRIPTION = "Creates a new project from a Fabric Maven Archetype";
+    public static final String FUNCTION_VALUE = "archetype-generate";
+    public static final String DESCRIPTION = "Generates a new project from a fabric Maven archetype";
 
     @Reference(referenceInterface = ArchetypeShortCompleter.class, bind = "bindArchetypeCompleter", unbind = "unbindArchetypeCompleter")
     @CompleterValues(index = 0)
@@ -53,7 +53,7 @@ public class ArchetypeCreate extends AbstractCommandComponent {
     @Override
     public Action createNewAction() {
         assertValid();
-        return new ArchetypeCreateAction(archetypeService.get());
+        return new ArchetypeGenerateAction(archetypeService.get());
     }
 
     @Activate

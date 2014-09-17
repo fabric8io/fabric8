@@ -1,8 +1,6 @@
-This command is use for creating new developer projects
+This command is use for generating new projects, that can be used to quickly get started developing projects with fabric.
 
 The command uses the Fabric Maven Archetypes to generate the project. This means the command reuse the same set of maven archetypes that is also available to be used from other tools such as Eclipse or Apache Maven.
-
-Users who are already familiar with Maven archetypes will pickup this command easily.
 
 
 Setting up workspace
@@ -23,24 +21,24 @@ To list what is the current workspace, then run the command without any argument
 Creating a project
 ------------------
 
-To create a new project, just run the archetype-create command
+To generate a new project, just run the `archetype-generate` command
 
-    archetype-create
+    archetype-generate
 
 Then the command runs in interactive mode, where it guides you through the selections.
-What happens is that each archetype is listed with a number. To pick an archetype then type in the number.
+What happens is that each archetype is listed with a number. To choose an archetype then type in the number.
 The list can be filtered by typing in a word. For example to filter so its only Camel related, then type `camel` and press enter.
 
-After selecting an archetype, then values for groupId, artifactId, version and others need to be entered. You can leave the values
-as default by pressing enter.
+After selecting an archetype, then values for groupId, artifactId, version and others properties needs to provided.
+You can leave the values as default by pressing enter.
 
 
 Opening the project in Eclipse
 ------------------------------
 
 After the project has been created, you can open the project in Eclipse or other editors, by importing the project as an Apache Maven project.
-In Eclipse you can develop the project anyway you want. For example try to change a little bit in the source code, to see that your changes are applied,
-when you deploy the project.
+In Eclipse you can develop the project anyway you want. For example try to change a little bit in the source code, to see that your changes are applied, when you deploy the project.
+
 
 Deploying the project
 ---------------------
