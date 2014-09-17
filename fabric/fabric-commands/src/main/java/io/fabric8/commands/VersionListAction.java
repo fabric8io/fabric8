@@ -15,6 +15,7 @@
  */
 package io.fabric8.commands;
 
+import static io.fabric8.commands.ProfileListAction.activeContainerCountText;
 import static io.fabric8.commands.support.CommandUtils.countContainersByVersion;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
@@ -24,6 +25,7 @@ import io.fabric8.api.Version;
 import java.io.PrintStream;
 import java.util.List;
 
+import io.fabric8.utils.TablePrinter;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
@@ -49,7 +51,8 @@ public class VersionListAction extends AbstractAction {
     }
 
     protected void printVersions(Container[] containers, List<String> versions, String defaultVersionId, PrintStream out) {
-        out.println(String.format(CONSOLE_FORMAT, "[version]", "[default]", "[# containers]", "[description]"));
+        TablePrinter table = new TablePrinter();
+        table.columns("version", "default", "# containers", "description");
 
         // they are sorted in the correct order by default
         for (String versionId : versions) {
@@ -57,8 +60,9 @@ public class VersionListAction extends AbstractAction {
             Version version = profileService.getRequiredVersion(versionId);
             int active = countContainersByVersion(containers, version);
             String description = version.getAttributes().get(Version.DESCRIPTION);
-            out.println(String.format(CONSOLE_FORMAT, version.getId(), (isDefault ? "true" : "false"), active, (description != null ? description : "")));
+            table.row(version.getId(), (isDefault ? "true" : ""), activeContainerCountText(active), description);
         }
+        table.print();
     }
 
 }

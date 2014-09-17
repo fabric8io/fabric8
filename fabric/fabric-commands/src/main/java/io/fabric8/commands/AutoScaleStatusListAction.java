@@ -18,6 +18,7 @@ package io.fabric8.commands;
 import io.fabric8.api.AutoScaleProfileStatus;
 import io.fabric8.api.AutoScaleStatus;
 import io.fabric8.api.FabricService;
+import io.fabric8.utils.TablePrinter;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
@@ -48,14 +49,14 @@ public class AutoScaleStatusListAction extends AbstractAction {
     }
 
     protected void printStatus(PrintStream out, AutoScaleStatus status) {
-        String format = "%-40s %-14s %s";
-        out.println(String.format(format, "[auto scale profile]", "[status]", "[message]"));
+        TablePrinter table = new TablePrinter();
+        table.columns("auto scale profile", "status", "message");
         List<AutoScaleProfileStatus> profileStatuses = status.getProfileStatuses();
         for (AutoScaleProfileStatus profile : profileStatuses) {
-            out.println(String.format(format,
-                    getStringOrBlank(profile.getProfile()),
+            table.row(getStringOrBlank(profile.getProfile()),
                     getStringOrBlank(profile.getStatus()),
-                    getStringOrBlank(profile.getMessage())));
+                    getStringOrBlank(profile.getMessage()));
         }
+        table.print();
     }
 }

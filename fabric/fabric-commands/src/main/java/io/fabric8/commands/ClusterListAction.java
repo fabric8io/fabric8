@@ -25,6 +25,7 @@ import java.util.TreeMap;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.FabricService;
+import io.fabric8.utils.TablePrinter;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -126,20 +127,21 @@ public class ClusterListAction extends AbstractAction {
             }
         }
 
-        out.println(String.format("%-30s %-30s %-30s %s", "[cluster]", "[masters]", "[slaves]", "[services]"));
+        TablePrinter table = new TablePrinter();
+        table.columns("cluster", "masters", "slaves", "services");
 
         for (String clusterName : clusters.keySet()) {
             Map<String, ClusterNode> nodes = clusters.get(clusterName);
-            out.println(String.format("%-30s %-30s %-30s %s", clusterName, "", "", "", ""));
+            table.row(clusterName, "", "", "", "");
             for (String nodeName : nodes.keySet()) {
                 ClusterNode node = nodes.get(nodeName);
-                out.println(String.format("%-30s %-30s %-30s %s",
-                            "   "  + nodeName,
-                            printList(node.masters),
-                            printList(node.slaves),
-                            printList(node.services)));
+                table.row("   " + nodeName,
+                        printList(node.masters),
+                        printList(node.slaves),
+                        printList(node.services));
             }
         }
+        table.print();
     }
 
     protected String printList(List list) {

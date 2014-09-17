@@ -16,6 +16,7 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.utils.TablePrinter;
 import org.apache.felix.gogo.commands.Command;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.ProfileRequirements;
@@ -33,14 +34,16 @@ public class RequireProfileListAction extends RequirementsListSupport {
 
     @Override
     protected void printRequirements(PrintStream out, FabricRequirements requirements) {
-        out.println(String.format("%-40s %-14s %-14s %s", "[profile]", "[# minimum]", "[# maximum]", "[depends on]"));
+        TablePrinter table = new TablePrinter();
+        table.columns("profile", "# minimum", "# maximum", "depends on");
         List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
         for (ProfileRequirements profile : profileRequirements) {
-            out.println(String.format("%-40s %-14s %-14s %s", profile.getProfile(),
+            table.row(profile.getProfile(),
                     getStringOrBlank(profile.getMinimumInstances()),
                     getStringOrBlank(profile.getMaximumInstances()),
-                    getStringOrBlank(profile.getDependentProfiles())));
+                    getStringOrBlank(profile.getDependentProfiles()));
         }
+        table.print();
     }
 
     public static String getStringOrBlank(Object value) {

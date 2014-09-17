@@ -21,15 +21,13 @@ import io.fabric8.api.FabricService;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.fabric8.utils.TablePrinter;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
 @Command(name = ContainerResolverList.FUNCTION_VALUE, scope = ContainerResolverList.SCOPE_VALUE, description = ContainerResolverList.DESCRIPTION, detailedDescription = "classpath:containerResolverList.txt")
 public class ContainerResolverListAction extends AbstractAction {
-
-    static final String FORMAT = "%-16s %-16s %-16s %-16s %-32s %-16s %-32s";
-    static final String[] HEADERS = { "[id]", "[resolver]", "[local hostname]", "[local ip]", "[public hostname]", "[public ip]", "[manual ip]" };
 
     @Argument(index = 0, name = "container", description = "The list of containers to display. Empty list assumes current container only.", required = false, multiValued = true)
     private List<String> containerIds;
@@ -49,7 +47,8 @@ public class ContainerResolverListAction extends AbstractAction {
                 containerIds.add(container.getId());
             }
         }
-        System.out.println(String.format(FORMAT, (Object[]) HEADERS));
+        TablePrinter table = new TablePrinter();
+        table.columns("id", "resolver", "local hostname", "local ip", "public hostname", "public ip", "manual ip");
         for (String containerId : containerIds) {
             Container container = fabricService.getContainer(containerId);
             String localHostName = container.getLocalHostname();
@@ -65,8 +64,9 @@ public class ContainerResolverListAction extends AbstractAction {
             manualIp = manualIp != null ? manualIp : "";
 
             String resolver = container.getResolver();
-            System.out.println(String.format(FORMAT, containerId, resolver, localHostName, localIp, publicHostName, publicIp, manualIp));
+            table.row(containerId, resolver, localHostName, localIp, publicHostName, publicIp, manualIp);
         }
+        table.print();
         return null;
     }
 }

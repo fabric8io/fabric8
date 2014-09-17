@@ -23,6 +23,7 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.common.util.Strings;
+import io.fabric8.utils.TablePrinter;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
@@ -59,7 +60,8 @@ public class ProfileListAction extends AbstractAction {
     }
 
     protected void printProfiles(ProfileService profileService, List<Profile> profiles, PrintStream out) {
-        out.println(String.format("%-50s %-14s %s", "[id]", "[# containers]", "[parents]"));
+        TablePrinter table = new TablePrinter();
+        table.columns("id", "# containers", "parents");
         for (Profile profile : profiles) {
         	String versionId = profile.getVersion();
         	String profileId = profile.getId();
@@ -67,8 +69,13 @@ public class ProfileListAction extends AbstractAction {
             if (profileService.hasProfile(versionId, profileId) && (hidden || !profile.isHidden())) {
                 int active = fabricService.getAssociatedContainers(versionId, profileId).length;
                 String parents = Strings.join(profile.getParentIds(), " ");
-                out.println(String.format("%-50s %-14s %s", profileId, active, parents));
+                table.row(profileId, activeContainerCountText(active), parents);
             }
         }
+        table.print();
+    }
+
+    public static String activeContainerCountText(int active) {
+        return (active > 0) ? "" + active : "";
     }
 }

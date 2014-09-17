@@ -26,6 +26,7 @@ import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.provider.KubernetesHelpers;
 import io.fabric8.kubernetes.provider.KubernetesService;
+import io.fabric8.utils.TablePrinter;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
@@ -38,9 +39,6 @@ import java.util.Map;
 @Command(name = PodList.FUNCTION_VALUE, scope = "fabric",
         description = PodList.DESCRIPTION)
 public class PodListAction extends AbstractAction {
-
-    static final String FORMAT = "%-20s %-20s %-20s %-89s %s";
-    static final String[] HEADERS = {"[id]", "[image(s)]", "[host]", "[labels]", "[status]"};
 
     @Argument(index = 0, name = "filter", description = "The label filter", required = false)
     String filterText = null;
@@ -62,7 +60,8 @@ public class PodListAction extends AbstractAction {
     }
 
     private void printContainers(PodListSchema pods, PrintStream out) {
-        out.println(String.format(FORMAT, (Object[]) HEADERS));
+        TablePrinter table = new TablePrinter();
+        table.columns("id", "image(s)", "host", "labels", "status");
         List<PodSchema> items = pods.getItems();
         if (items == null) {
             items = Collections.EMPTY_LIST;
@@ -87,8 +86,7 @@ public class PodListAction extends AbstractAction {
                         List<ManifestContainer> containers = manifest.getContainers();
                         for (ManifestContainer container : containers) {
                             String image = container.getImage();
-                            String firstLine = String.format(FORMAT, id, image, host, labels, status);
-                            out.println(firstLine);
+                            table.row(id, image, host, labels, status);
 
                             id = "";
                             host = "";
@@ -99,6 +97,7 @@ public class PodListAction extends AbstractAction {
                 }
             }
         }
+        table.print();
     }
 
 }
