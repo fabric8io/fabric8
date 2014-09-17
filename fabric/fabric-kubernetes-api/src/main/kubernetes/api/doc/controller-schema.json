@@ -45,6 +45,24 @@
         }
       }
     },
+    "currentState": {
+      "type": "object",
+      "javaType": "io.fabric8.kubernetes.api.model.ControllerCurrentState",
+      "required": false,
+      "description": "The current state of the replicationController",
+      "properties": {
+        "replicas": {
+          "type": "integer",
+          "required": false,
+          "description": "Number of pods currently in the set"
+        },
+        "podTemplate": {
+          "type": "object",
+          "required": false,
+          "description": "Template from which to create new pods, as necessary. Identical to pod schema."
+        }
+      }
+    },
     "labels": {
       "type": "object",
       "javaType": "java.util.Map<String,String>",

@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.provider.commands;
 import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Objects;
 import io.fabric8.kubernetes.api.Kubernetes;
+import io.fabric8.kubernetes.api.model.ControllerCurrentState;
 import io.fabric8.kubernetes.api.model.ControllerDesiredState;
 import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
@@ -69,13 +70,17 @@ public class ReplicationControllerListAction extends AbstractAction {
             if (filter.matches(item)) {
                 String id = item.getId();
                 String labels = KubernetesHelpers.toLabelsString(item.getLabels());
+                Integer replicas = null;
                 ControllerDesiredState desiredState = item.getDesiredState();
+                ControllerCurrentState currentState = item.getCurrentState();
+                String selector = null;
                 if (desiredState != null) {
-                    String selector = KubernetesHelpers.toLabelsString(desiredState.getReplicaSelector());
-                    table.row(id, labels, toPositiveNonZeroText(desiredState.getReplicas()), selector);
-                } else {
-                    table.row(id, labels);
+                    selector = KubernetesHelpers.toLabelsString(desiredState.getReplicaSelector());
                 }
+                if (currentState != null) {
+                    replicas = currentState.getReplicas();
+                }
+                table.row(id, labels, toPositiveNonZeroText(replicas), selector);
             }
         }
         table.print();
