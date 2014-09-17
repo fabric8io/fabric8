@@ -49,12 +49,12 @@ import io.fabric8.docker.provider.DockerCreateOptions;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.ControllerSchema;
 import io.fabric8.kubernetes.api.model.DesiredState;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.ManifestSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.Port;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -260,12 +260,12 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                                         LOG.error("Failed to create pod from " + definition + ". " + e + ". " + podSchema, e);
                                     }
                                 } else if (Objects.equal("Controller", kind)) {
-                                    ControllerSchema controllerSchema = objectMapper.reader(ControllerSchema.class).readValue(json);
+                                    ReplicationControllerSchema replicationControllerSchema = objectMapper.reader(ReplicationControllerSchema.class).readValue(json);
                                     LOG.info("Creating a controller from " + definition);
                                     try {
-                                        kubernetes.createReplicationController(controllerSchema);
+                                        kubernetes.createReplicationController(replicationControllerSchema);
                                     } catch (Exception e) {
-                                        LOG.error("Failed to create controller from " + definition + ". " + e + ". " + controllerSchema, e);
+                                        LOG.error("Failed to create controller from " + definition + ". " + e + ". " + replicationControllerSchema, e);
                                     }
                                 } else if (Objects.equal("Service", kind)) {
                                     ServiceSchema serviceSchema = objectMapper.reader(ServiceSchema.class).readValue(json);

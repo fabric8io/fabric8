@@ -19,7 +19,6 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.common.util.Strings;
-import io.fabric8.docker.provider.DockerFacade;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import org.apache.felix.scr.annotations.Activate;

@@ -1,32 +1,36 @@
 {
   "$schema": "http://json-schema.org/draft-03/schema",
   "type": "object",
+  "javaType": "io.fabric8.kubernetes.api.model.ServiceListSchema",
   "required": false,
-  "description": "Returns the current list of pods.",
+  "description": "Returns the current list of services.",
   "properties": {
     "kind": {
       "type": "string",
       "required": false,
       "enum": [
-        "PodList"
+        "ServiceList"
       ]
-    },
-    "id": {
-      "type": "string",
-      "required": false
     },
     "creationTimestamp": {
       "type": "string",
       "required": false
     },
-    "selfLink": {
-      "type": "string",
+    "resourceVersion": {
+      "type": "integer",
       "required": false
+    },
+    "apiVersion": {
+      "type": "string",
+      "required": false,
+      "enum": [
+        "v1beta1"
+      ]
     },
     "items": {
       "type": "array",
       "items": {
-        "$ref": "pod-schema.json"
+        "$ref": "service-schema.json"
       }
     }
   }

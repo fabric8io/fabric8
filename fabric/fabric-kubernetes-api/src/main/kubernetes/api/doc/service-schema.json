@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-03/schema",
   "type": "object",
+  "javaType": "io.fabric8.kubernetes.api.model.ServiceSchema",
   "required": false,
   "description": "A service resource.",
   "properties": {
@@ -25,7 +26,7 @@
       "required": false
     },
     "port": {
-      "type": "number",
+      "type": "integer",
       "required": false
     },
     "containerPort": {
@@ -34,10 +35,12 @@
     },
     "labels": {
       "type": "object",
+      "javaType": "java.util.Map<String,String>",
       "required": false
     },
     "selector": {
       "type": "object",
+      "javaType": "java.util.Map<String,String>",
       "required": false
     }
   }

@@ -66,7 +66,7 @@ public class PodListAction extends AbstractAction {
         if (items == null) {
             items = Collections.EMPTY_LIST;
         }
-        Filter<PodSchema> filter = KubernetesHelpers.createFilter(filterText);
+        Filter<PodSchema> filter = KubernetesHelpers.createPodFilter(filterText);
         for (PodSchema item : items) {
             if (filter.matches(item)) {
                 String id = item.getId();

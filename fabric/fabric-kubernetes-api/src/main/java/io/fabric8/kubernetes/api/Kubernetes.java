@@ -17,9 +17,11 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.ControllerSchema;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.ServiceListSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
 
 import javax.validation.constraints.NotNull;
@@ -95,7 +97,7 @@ public interface Kubernetes {
      */
     @GET
     @Path("pods/{podId}")
-    PodSchema getPod(@PathParam("podId") @NotNull String podId) throws Exception;
+    PodSchema getPod(@PathParam("podId") @NotNull String podId);
 
     /**
      * Update a pod
@@ -154,8 +156,7 @@ public interface Kubernetes {
     @Path("services")
     @GET
     @Produces("application/json")
-    // TODO
-    Object getServices() throws Exception;
+    ServiceListSchema getServices();
 
     /**
      * Create a new service
@@ -186,7 +187,7 @@ public interface Kubernetes {
     @GET
     @Path("services/{serviceId}")
     @Produces("application/json")
-    ServiceSchema getService(@PathParam("serviceId") @NotNull String serviceId) throws Exception;
+    ServiceSchema getService(@PathParam("serviceId") @NotNull String serviceId);
 
     /**
      * Update a service
@@ -216,7 +217,7 @@ public interface Kubernetes {
      * @param serviceId
      */
     @DELETE
-    @Path("{serviceId}")
+    @Path("services/{serviceId}")
     @Produces("application/json")
     String deleteService(@PathParam("serviceId") @NotNull String serviceId) throws Exception;
 
@@ -227,8 +228,7 @@ public interface Kubernetes {
     @Path("replicationControllers")
     @GET
     @Produces("application/json")
-    // TODO
-    Object getReplicationControllers() throws Exception;
+    ReplicationControllerListSchema getReplicationControllers();
 
     /**
      * Create a new controller. currentState is ignored if present.
@@ -260,7 +260,7 @@ public interface Kubernetes {
     @Path("replicationControllers")
     @POST
     @Consumes("application/json")
-    String createReplicationController(ControllerSchema entity) throws Exception;
+    String createReplicationController(ReplicationControllerSchema entity) throws Exception;
 
     /**
      * Get a specific controller
@@ -268,10 +268,9 @@ public interface Kubernetes {
      * @param controllerId
      */
     @GET
-    @Path("{controllerId}")
+    @Path("replicationControllers/{controllerId}")
     @Produces("application/json")
-    // TODO
-    Object getReplicationController(@PathParam("controllerId") @NotNull String controllerId) throws Exception;
+    ReplicationControllerSchema getReplicationController(@PathParam("controllerId") @NotNull String controllerId);
 
     /**
      * Update a controller
@@ -302,9 +301,9 @@ public interface Kubernetes {
      *                     }
      */
     @PUT
-    @Path("{controllerId}")
+    @Path("replicationControllers/{controllerId}")
     @Consumes("application/json")
-    String updateReplicationController(@PathParam("controllerId") @NotNull String controllerId, ControllerSchema entity) throws Exception;
+    String updateReplicationController(@PathParam("controllerId") @NotNull String controllerId, ReplicationControllerSchema entity) throws Exception;
 
     /**
      * Delete a specific controller
@@ -312,7 +311,7 @@ public interface Kubernetes {
      * @param controllerId
      */
     @DELETE
-    @Path("{controllerId}")
+    @Path("replicationControllers/{controllerId}")
     @Produces("application/json")
     String deleteReplicationController(@PathParam("controllerId") @NotNull String controllerId) throws Exception;
 }

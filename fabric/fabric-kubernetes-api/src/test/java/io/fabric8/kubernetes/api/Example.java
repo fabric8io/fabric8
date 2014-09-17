@@ -17,12 +17,16 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.common.util.Strings;
+import io.fabric8.kubernetes.api.model.ControllerDesiredState;
 import io.fabric8.kubernetes.api.model.DesiredState;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.ManifestSchema;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.ServiceListSchema;
+import io.fabric8.kubernetes.api.model.ServiceSchema;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,16 +46,18 @@ public class Example {
 
         try {
             Kubernetes kube = kubeFactory.createKubernetes();
-            listPodContainers(kube);
+            listPods(kube);
+            listServices(kube);
+            listReplicationControllers(kube);
             createPod(kube, kubeFactory);
-            listPodContainers(kube);
+            listPods(kube);
         } catch (Exception e) {
             System.out.println("FAILED: " + e);
             e.printStackTrace();
         }
     }
 
-    private static void createPod(Kubernetes kubernetes, KubernetesFactory kubernetesFactory) throws Exception {
+    protected static void createPod(Kubernetes kubernetes, KubernetesFactory kubernetesFactory) throws Exception {
         String name = "cheese";
         String image = "fabric8/fabric8";
 
@@ -83,10 +89,10 @@ public class Example {
         System.out.println();
     }
 
-    protected static void listPodContainers(Kubernetes kube) {
+    protected static void listPods(Kubernetes kube) {
         System.out.println("Looking up pods");
         PodListSchema pods = kube.getPods();
-        System.out.println("Got pods: " + pods);
+        //System.out.println("Got pods: " + pods);
         List<PodSchema> items = pods.getItems();
         for (PodSchema item : items) {
             System.out.println("PodSchema " + item.getId() + " created: " + item.getCreationTimestamp());
@@ -101,5 +107,35 @@ public class Example {
                 }
             }
         }
+        System.out.println();
+
     }
+
+    protected static void listServices(Kubernetes kube) {
+        System.out.println("Looking up services");
+        ServiceListSchema services = kube.getServices();
+        List<ServiceSchema> items = services.getItems();
+        for (ServiceSchema item : items) {
+            System.out.println("Service " + item.getId() + " labels: " + item.getLabels() + " selector: " + item.getSelector() + " port: " + item.getPort());
+        }
+        System.out.println();
+
+    }
+
+    protected static void listReplicationControllers(Kubernetes kube) {
+        System.out.println("Looking up replicationControllers");
+        ReplicationControllerListSchema replicationControllers = kube.getReplicationControllers();
+        List<ReplicationControllerSchema> items = replicationControllers.getItems();
+        for (ReplicationControllerSchema item : items) {
+            ControllerDesiredState desiredState = item.getDesiredState();
+            if (desiredState != null) {
+                System.out.println("ReplicationController " + item.getId() + " labels: " + item.getLabels()
+                        + " replicas: " + desiredState.getReplicas() + " replicatorSelector: " + desiredState.getReplicaSelector() + " podTemplate: " + desiredState.getPodTemplate());
+            } else {
+                System.out.println("ReplicationController " + item.getId() + " labels: " + item.getLabels() + " no desiredState");
+            }
+        }
+        System.out.println();
+    }
+
 }

@@ -17,7 +17,6 @@
  */
 package io.fabric8.kubernetes.provider;
 
-import io.fabric8.docker.provider.DockerConstants;
 import org.apache.felix.scr.annotations.Component;
 
 import java.util.List;
