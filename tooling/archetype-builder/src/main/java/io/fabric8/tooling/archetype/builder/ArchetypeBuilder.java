@@ -380,7 +380,7 @@ public class ArchetypeBuilder {
                 }
             }
 
-            String profile = replaceNodeValue(doc, root, "fabric8.profile", "${profile}");
+            String profile = replaceNodeValue(doc, root, "fabric8.profile", "${fabric8.profile}");
             if (profile != null) {
                 // we do not want a default name for the profile as the end user should be able to set that value
                 propertyNameSet.put("fabric8.profile", null);
@@ -391,7 +391,6 @@ public class ArchetypeBuilder {
             replaceOrAddElementText(doc, root, "version", "${version}", beforeNames);
             replaceOrAddElementText(doc, root, "artifactId", "${artifactId}", beforeNames);
             replaceOrAddElementText(doc, root, "groupId", "${groupId}", beforeNames);
-            replaceOrAddElementText(doc, root, "fabric8.profile", "${fabric8.profile}", beforeNames);
         }
         archetypePom.getParentFile().mkdirs();
 

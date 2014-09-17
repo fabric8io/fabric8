@@ -185,12 +185,19 @@ public class ArchetypeCreateAction extends AbstractAction {
         boolean mustChoose = false;
         if (!properties.isEmpty()) {
 
-            // check if we must choose if there is a value that has a ${ } token so we dont have a default value
+            // check if we must choose if there is an empty value or a value that has a ${ } token so we dont have a default value
             for (String value : properties.values()) {
-                if (value != null && value.contains("$")) {
+                if (isNullOrBlank(value) || value.contains("$")) {
                     mustChoose = true;
                     break;
                 }
+            }
+
+            // if we have fabric.profile as property, then use artifactId as its default suggested value
+            String profile = properties.get("fabric8.profile");
+            if (isNullOrBlank(profile)) {
+                properties.put("fabric8.profile", artifactId);
+                mustChoose = true;
             }
 
             if (!mustChoose) {
@@ -215,11 +222,12 @@ public class ArchetypeCreateAction extends AbstractAction {
                         System.out.println("----- Configure additional properties -----");
                         for (String key : properties.keySet()) {
                             String value = properties.get(key);
-                            if (value != null && value.contains("$")) {
+                            // if the value is empty or a token, then do not show any default value
+                            if (isNullOrBlank(value) || value.contains("$")) {
                                 value = "";
                             }
                             String p = ShellUtils.readLine(session, String.format("Define value for property '%s' (%s): ", key, value), false);
-                            p = p == null || p.trim().equals("") ? properties.get(key) : p;
+                            p = isNullOrBlank(p) ? value : p;
                             properties.put(key, p);
                         }
                     }
