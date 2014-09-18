@@ -197,7 +197,6 @@
         <dependency>
             <groupId>org.jboss.weld.se</groupId>
             <artifactId>weld-se</artifactId>
-            <version>${weld2-version}</version>
         </dependency>
 
         <!-- logging -->
@@ -231,9 +230,7 @@
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
-            <version>${validation-api-version}</version>
         </dependency>
-
  
     </dependencies>
 

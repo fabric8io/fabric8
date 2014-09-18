@@ -313,13 +313,19 @@
         <servlet-api-version>2.5</servlet-api-version>
         <servlet30-api-version>3.0.1</servlet30-api-version>
         <shrinkwrap-resolver-version>2.0.0</shrinkwrap-resolver-version>
+        <shrinkwrap-resolver-impl-maven-version>2.0.0-alpha-4</shrinkwrap-resolver-impl-maven-version>
         <shrinkwrap-version>1.1.2</shrinkwrap-version>
+        <sisu-inject-plexus-version>2.3.0</sisu-inject-plexus-version>
         <slf4j-api-version>1.7.5</slf4j-api-version>
         <slf4j-version>1.7.5</slf4j-version>
-        <spring-bundle-version>3.2.9.RELEASE_1</spring-bundle-version>
+        <sonatype-plexus-sec-version>1.3</sonatype-plexus-sec-version>
+        <sonatype-plexus-cifer-version>1.7</sonatype-plexus-cifer-version>
+        <spring-bundle-version>3.2.11.RELEASE_1</spring-bundle-version>
+        <spring-boot-version>1.1.6.RELEASE</spring-boot-version>
         <spring-data-rest-version>2.0.2.RELEASE</spring-data-rest-version>
         <spring-osgi-version>1.2.1</spring-osgi-version>
-        <spring-version>3.2.9.RELEASE</spring-version>
+        <spring-version>3.2.11.RELEASE</spring-version>
+        <spring4-version>4.0.7.RELEASE</spring4-version>
         <sshd-version>0.12.0</sshd-version>
         <sshj.version>0.8.1</sshj.version>
         <swagger-version>1.3.2_1</swagger-version>
@@ -1046,7 +1052,16 @@
                 <artifactId>archetype-commands</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>process-spring-boot-container</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>process-spring-boot-starter-activemq</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>io.fabric8.runtime</groupId>
                 <artifactId>fabric-runtime-container-karaf-registration</artifactId>
@@ -2334,6 +2349,17 @@
                 <scope>test</scope>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>${spring-boot-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot-version}</version>
+            </dependency>
+
             <!-- Equinox -->
             <dependency>
                 <groupId>org.eclipse.osgi</groupId>
@@ -3032,6 +3058,16 @@
                 <version>${arquillian-osgi-version}</version>
             </dependency>
             <dependency>
+                <groupId>org.jboss.arquillian.junit</groupId>
+                <artifactId>arquillian-junit-container</artifactId>
+                <version>${arquillian-junit-container-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.shrinkwrap.resolver</groupId>
+                <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+                <version>${shrinkwrap-resolver-impl-maven-version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.jboss.gravia</groupId>
                 <artifactId>gravia-arquillian-container-embedded</artifactId>
                 <version>${gravia-version}</version>
@@ -3449,14 +3485,252 @@
                 <version>${wildfly-version}</version>
             </dependency>
 
-            <!-- JGroups -->
-
             <dependency>
                 <groupId>org.jgroups</groupId>
                 <artifactId>jgroups</artifactId>
                 <version>${jgroups-version}</version>
             </dependency>
 
+            <!-- aether stuff -->
+
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-api</artifactId>
+                <version>${aether-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-spi</artifactId>
+                <version>${aether-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-util</artifactId>
+                <version>${aether-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-impl</artifactId>
+                <version>${aether-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-connector-wagon</artifactId>
+                <version>${aether-version}</version>
+                <!-- clashes with guava -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.collections</groupId>
+                        <artifactId>google-collections</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-model</artifactId>
+                <version>${maven-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-model-builder</artifactId>
+                <version>${maven-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-aether-provider</artifactId>
+                <version>${maven-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-settings</artifactId>
+                <version>${maven-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-settings-builder</artifactId>
+                <version>${maven-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-repository-metadata</artifactId>
+                <version>${maven-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-provider-api</artifactId>
+                <version>${wagon-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-file</artifactId>
+                <version>${wagon-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-http-lightweight</artifactId>
+                <version>${wagon-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>nekohtml</groupId>
+                        <artifactId>nekohtml</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>nekohtml</groupId>
+                        <artifactId>xercesMinimal</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-embedder</artifactId>
+                <version>${maven-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.eclipse.sisu</groupId>
+                        <artifactId>org.eclipse.sisu.plexus</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-utils</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.sonatype.plexus</groupId>
+                        <artifactId>plexus-cipher</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.shared</groupId>
+                <artifactId>maven-invoker</artifactId>
+                <version>${maven-shared-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-utils</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>${plexus-utils-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-classworlds</artifactId>
+                <version>${plexus-classworlds-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bndlib</artifactId>
+                <version>${bndlib-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.sonatype.plexus</groupId>
+                <artifactId>plexus-sec-dispatcher</artifactId>
+                <version>${sonatype-plexus-sec-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.sonatype.plexus</groupId>
+                <artifactId>plexus-cipher</artifactId>
+                <version>${sonatype-plexus-cifer-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-container-default</artifactId>
+                <version>${codehaus-plexus-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-annotations</artifactId>
+                <version>${codehaus-plexus-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-interpolation</artifactId>
+                <version>${codehaus-plexus-interpolation-version}</version>
+            </dependency>
+
+            <!-- OPS4J -->
+
+            <dependency>
+                <groupId>org.ops4j.base</groupId>
+                <artifactId>ops4j-base-net</artifactId>
+                <version>${ops4j-base.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ops4j.pax.tinybundles</groupId>
+                <artifactId>tinybundles</artifactId>
+                <version>${tinybundles-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ops4j.pax.swissbox</groupId>
+                <artifactId>pax-swissbox-optional-jcl</artifactId>
+                <version>${ops4j-pax-swissbox-optional-jcl.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ops4j.pax.swissbox</groupId>
+                <artifactId>pax-swissbox-property</artifactId>
+                <version>${ops4j-pax-swissbox-property.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.sonatype.sisu</groupId>
+                <artifactId>sisu-inject-plexus</artifactId>
+                <version>${sisu-inject-plexus-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>plexus-utils</artifactId>
+                        <groupId>org.codehaus.plexus</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-ejb_3.1_spec</artifactId>
+                <version>${geronimo-ejb-3-1-spec-version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.weld.se</groupId>
+                <artifactId>weld-se</artifactId>
+                <version>${weld2-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-interceptor_1.1_spec</artifactId>
+                <version>${geronimo-interceptor-api-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jcdi_1.0_spec</artifactId>
+                <version>${geronimo-cdi-api-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-el_2.2_spec</artifactId>
+                <version>${geronimo-el-api-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.validation</groupId>
+                <artifactId>validation-api</artifactId>
+                <version>${validation-api-version}</version>
+            </dependency>
+
+>>>>>>> #2552: Aligning quickstarts out of the box vs created using archetype to use same classpath. Also quickstarts should use BOM and not parent for the dependencies.
             <dependency>
                 <groupId>org.elasticsearch</groupId>
                 <artifactId>elasticsearch</artifactId>
