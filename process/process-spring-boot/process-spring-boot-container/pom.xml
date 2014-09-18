@@ -33,10 +33,6 @@
     <name>Fabric8 :: Process :: Spring Boot :: Container</name>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
         <!-- We add actuator dependency to expose metrics and Jolokia to Hawt.io by default. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
