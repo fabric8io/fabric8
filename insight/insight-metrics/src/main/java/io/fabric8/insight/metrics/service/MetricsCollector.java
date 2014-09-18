@@ -34,6 +34,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
@@ -42,6 +43,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -235,7 +238,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
                             public void groupEvent(Group<QueryNodeState> group, GroupEvent event) {
                                 try {
                                     state.lock.update(new QueryNodeState(queryName, containerName,
-                                            state.lock.isMaster() ? new String[] { "stat" } : null));
+                                            state.lock.isMaster() ? new String[]{"stat"} : null));
                                 } catch (IllegalStateException e) {
                                     // not joined ? ignore
                                 }
@@ -332,7 +335,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
         @Override
         public void run() {
             try {
-                MetricsStorageService svc = storage.get();
+                final MetricsStorageService svc = storage.get();
                 // Abort if required services aren't available
                 if (mbeanServer == null || svc == null) {
                     return;
@@ -342,23 +345,37 @@ public class MetricsCollector implements MetricsCollectorMBean {
                     return;
                 }
 
-                QueryResult qrs = JmxUtils.execute(query.server, query.query, mbeanServer);
-                boolean forceSend = query.query.getMinPeriod() == query.query.getPeriod() ||
-                        qrs.getTimestamp().getTime() - query.lastSent >= TimeUnit.SECONDS.toMillis(query.query.getMinPeriod());
-                if (!forceSend && query.lastResult != null) {
-                    if (qrs.getResults().equals(query.lastResult.getResults())) {
-                        query.lastResult = qrs;
-                        query.lastResultSent = false;
-                        return;
+                Subject subject = new Subject();
+                subject.getPrincipals().add(new RolePrincipal("viewer"));
+
+                Subject.doAsPrivileged(subject, new PrivilegedAction<Object>() {
+                    @Override
+                    public Object run() {
+                        try {
+                            QueryResult qrs = JmxUtils.execute(query.server, query.query, mbeanServer);
+
+                            boolean forceSend = query.query.getMinPeriod() == query.query.getPeriod() ||
+                                    qrs.getTimestamp().getTime() - query.lastSent >= TimeUnit.SECONDS.toMillis(query.query.getMinPeriod());
+                            if (!forceSend && query.lastResult != null) {
+                                if (qrs.getResults().equals(query.lastResult.getResults())) {
+                                    query.lastResult = qrs;
+                                    query.lastResultSent = false;
+                                    return null;
+                                }
+                                if (!query.lastResultSent) {
+                                    renderAndSend(svc, query.lastResult);
+                                }
+                            }
+                            query.lastResult = qrs;
+                            query.lastResultSent = true;
+                            query.lastSent = qrs.getTimestamp().getTime();
+                            renderAndSend(svc, qrs);
+                        } catch (Throwable e) {
+                            LOG.error("Error sending metrics", e);
+                        }
+                        return null;
                     }
-                    if (!query.lastResultSent) {
-                        renderAndSend(svc, query.lastResult);
-                    }
-                }
-                query.lastResult = qrs;
-                query.lastResultSent = true;
-                query.lastSent = qrs.getTimestamp().getTime();
-                renderAndSend(svc, qrs);
+                }, AccessController.getContext());
             } catch (Throwable e) {
                 LOG.error("Error sending metrics", e);
             }
