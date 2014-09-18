@@ -39,8 +39,6 @@
   <modules>
     <module>insight-activemq</module>
     <module>insight-camel</module>
-    <module>insight-kibana3</module>
-    <module>insight-eshead</module>
     <module>insight-jetty</module>
     <module>insight-log-core</module>
     <module>insight-log</module>
