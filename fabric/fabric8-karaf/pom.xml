@@ -250,7 +250,15 @@
            </dependency>
            <dependency>
                 <groupId>io.fabric8.insight</groupId>
-                <artifactId>insight-elasticsearch</artifactId>
+                <artifactId>insight-elasticsearch-factory</artifactId>
+           </dependency>
+           <dependency>
+                <groupId>io.fabric8.insight</groupId>
+                <artifactId>insight-elasticsearch-discovery</artifactId>
+           </dependency>
+           <dependency>
+                <groupId>io.fabric8.insight</groupId>
+                <artifactId>insight-elasticsearch-plugin</artifactId>
            </dependency>
            <dependency>
                 <groupId>io.fabric8.insight</groupId>
@@ -267,14 +275,6 @@
            <dependency>
                <groupId>io.fabric8.insight</groupId>
                <artifactId>insight-metrics</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>io.fabric8.insight</groupId>
-               <artifactId>insight-kibana3</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>io.fabric8.insight</groupId>
-               <artifactId>insight-eshead</artifactId>
            </dependency>
            <dependency>
                <groupId>io.fabric8.insight</groupId>
