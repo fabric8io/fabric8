@@ -15,11 +15,9 @@
  */
 package io.fabric8.internal;
 
-import io.fabric8.api.Constants;
-import io.fabric8.api.FabricException;
-import io.fabric8.api.Profile;
-import io.fabric8.utils.DataStoreUtils;
-
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,6 +26,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import io.fabric8.api.Constants;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.Profile;
+import io.fabric8.common.util.ChecksumUtils;
+import io.fabric8.utils.DataStoreUtils;
 
 /**
  * This immutable profile implementation.
@@ -188,7 +192,29 @@ final class ProfileImpl implements Profile {
 
     @Override
     public String getProfileHash() {
-        return lastModified;
+        StringBuilder answer = new StringBuilder();
+        if (lastModified != null) {
+            answer.append(lastModified);
+        }
+
+        // if the profile has embedded blueprint/spring-dm bundles within the profile,
+        // then we need to use a CRC of their file content in the hash calculation
+        for (String bundle : getBundles()) {
+            if (bundle.startsWith("blueprint:profile:") || bundle.startsWith("spring:profile:")) {
+                String name = bundle.startsWith("blueprint:profile:") ? bundle.substring(18) : bundle.substring(15);
+                byte[] data = fileConfigurations.get(name);
+                if (data != null) {
+                    InputStream is = new ByteArrayInputStream(data);
+                    try {
+                        long crc = ChecksumUtils.checksum(is);
+                        answer.append(crc);
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+            }
+        }
+        return answer.toString();
     }
 
     static List<String> getContainerConfigList(Profile p, ConfigListType type) {
