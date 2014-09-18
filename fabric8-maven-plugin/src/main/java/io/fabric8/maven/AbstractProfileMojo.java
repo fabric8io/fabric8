@@ -65,9 +65,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
-import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
-import org.apache.maven.shared.dependency.graph.DependencyNode;
+import org.apache.maven.shared.dependency.tree.DependencyNode;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
 import org.codehaus.plexus.util.IOUtil;
@@ -91,12 +89,6 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
 
     @Component
     protected ArtifactFactory artifactFactory;
-
-    /**
-     * The dependency tree builder to use.
-     */
-    @Component( hint = "default" )
-    private DependencyGraphBuilder dependencyGraphBuilder;
 
     @Component
     protected DependencyTreeBuilder dependencyTreeBuilder;
@@ -573,12 +565,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             }
         }
     }
-    protected DependencyDTO loadRootDependency() throws DependencyTreeBuilderException, DependencyGraphBuilderException {
-//        ArtifactFilter artifactFilter = createResolvingArtifactFilter();
-//        artifactFilter = null;
-        //                 rootNode = dependencyGraphBuilder.buildDependencyGraph( project, artifactFilter );
-//        DependencyNode dependencyNode = dependencyTreeBuilder.buildDependencyTree(project, localRepository, artifactFactory, metadataSource, artifactFilter, artifactCollector);
-        DependencyNode dependencyNode = dependencyGraphBuilder.buildDependencyGraph(project, null);
+    protected DependencyDTO loadRootDependency() throws DependencyTreeBuilderException {
+        ArtifactFilter artifactFilter = createResolvingArtifactFilter();
+        DependencyNode dependencyNode = dependencyTreeBuilder.buildDependencyTree(project, localRepository, artifactFactory, metadataSource, artifactFilter, artifactCollector);
         return buildFrom(dependencyNode);
     }
 
@@ -643,11 +632,11 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 getLog().debug("Ignoring pom.xml for " + answer);
                 return null;
             }
-//            int state = node.getState();
-//            if (state != DependencyNode.INCLUDED) {
-//                getLog().debug("Ignoring " + node);
-//                return null;
-//            }
+            int state = node.getState();
+            if (state != DependencyNode.INCLUDED) {
+                getLog().debug("Ignoring " + node);
+                return null;
+            }
             if (isWarProject()) {
                 if (scope != null && !scope.equals("provided")) {
                     getLog().debug("WAR packaging so ignoring non-provided scope " + scope + " for " + node);
@@ -658,7 +647,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             for (Object child : children) {
                 if (child instanceof DependencyNode) {
                     DependencyNode childNode = (DependencyNode) child;
-//                    if (childNode.getState() == DependencyNode.INCLUDED) {
+                    if (childNode.getState() == DependencyNode.INCLUDED) {
                         String childScope = childNode.getArtifact().getScope();
                         if (!"test".equals(childScope) && !"provided".equals(childScope)) {
                             DependencyDTO childDTO = buildFrom(childNode);
@@ -668,7 +657,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                         } else {
                             getLog().debug("Ignoring artifact " + childNode.getArtifact() + " with scope " + childScope);
                         }
-//                    }
+                    }
                 }
             }
             return answer;

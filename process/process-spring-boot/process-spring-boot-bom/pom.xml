@@ -65,6 +65,7 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
 
+    <activemq.version>5.10.0</activemq.version>
     <spring-boot-version>1.1.6.RELEASE</spring-boot-version>
   </properties>
 
@@ -94,6 +95,7 @@
         <scope>import</scope>
       </dependency>
 
+ 
       <!-- BOMed modules -->
       <dependency>
         <groupId>io.fabric8</groupId>
@@ -115,7 +117,26 @@
         <artifactId>process-spring-boot-starter-camel</artifactId>
         <version>${project.version}</version>
       </dependency>
+    
+      <!-- make sure to use our ActiveMQ version -->
+      <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>activemq-client</artifactId>
+        <version>${activemq.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>activemq-broker</artifactId>
+        <version>${activemq.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>activemq-pool</artifactId>
+        <version>${activemq.version}</version>
+      </dependency>
+
     </dependencies>
+
   </dependencyManagement>
 
     <build>
