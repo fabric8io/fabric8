@@ -57,6 +57,17 @@ Once you've created a container, it should appear if you type the following on t
 
 Other than that; the container should appear like any other container (e.g. like a child/ssh/openshift/cloud container).
 
+### Docker image for Java containers
+
+Fabric8 uses `fabric8/fabric8-java` image to create dockerized Java containers. You can start an empty Java container using 
+the following shell command:
+
+    docker run -P -i -t fabric8/fabric8-java /bin/bash
+    
+After the application is deployed into the Dockerized Java container, the latter contains the main jar of that application 
+together with all its transitive dependencies. Mentioned jars are kept in the `/home/fabric8/lib` directory. Application
+is started using the `/home/fabric8/startup.sh` script.
+
 ### how to ssh into a docker container
 
 If your docker based container doesn't start up you probably want to ssh into it and have a look around. Luckily the [fabric8/fabric8](https://index.docker.io/u/fabric8/fabric8/) container comes with sshd enabled by default.
