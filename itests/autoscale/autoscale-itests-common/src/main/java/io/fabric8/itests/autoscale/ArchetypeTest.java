@@ -191,7 +191,8 @@ public class ArchetypeTest {
                 property("groupId", groupId),
                 property("artifactId", artifactId),
                 property("version", version),
-                property("package", packageName)
+                property("package", packageName),
+                property("fabric8.profile", artifactId)
         ));
         assertExecuteCommand(commands, workDir);
         File projectDir = new File(workDir, artifactId);
