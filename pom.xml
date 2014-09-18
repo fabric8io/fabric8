@@ -3492,7 +3492,6 @@
             </dependency>
 
             <!-- aether stuff -->
-
             <dependency>
                 <groupId>org.eclipse.aether</groupId>
                 <artifactId>aether-api</artifactId>
