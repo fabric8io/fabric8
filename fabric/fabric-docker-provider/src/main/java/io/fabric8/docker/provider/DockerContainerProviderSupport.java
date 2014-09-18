@@ -28,7 +28,6 @@ import io.fabric8.api.Version;
 import io.fabric8.api.ZkDefs;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
-import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Strings;
 import io.fabric8.container.process.JavaContainerConfig;
 import io.fabric8.container.process.JolokiaAgentHelper;
@@ -43,7 +42,6 @@ import io.fabric8.docker.provider.customizer.CustomDockerContainerImageBuilder;
 import io.fabric8.docker.provider.customizer.CustomDockerContainerImageOptions;
 import io.fabric8.service.child.ChildContainers;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -392,7 +390,7 @@ public abstract class DockerContainerProviderSupport extends AbstractComponent {
                 CustomDockerContainerImageBuilder builder = new CustomDockerContainerImageBuilder();
                 CustomDockerContainerImageOptions customDockerContainerImageOptions = new CustomDockerContainerImageOptions(image, imageRepository, newImageName, libDir, deployDir, homeDir, entryPoint, configOverlayDockerProvider.getOverlayFolder());
 
-                String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, customDockerContainerImageOptions, javaConfig, options, downloadExecutor, environmentVariables);
+                String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, customDockerContainerImageOptions, options, downloadExecutor, environmentVariables);
                 if (actualImage != null) {
                     containerConfig.setImage(actualImage);
 

@@ -57,7 +57,7 @@ import java.util.concurrent.ExecutorService;
 public class CustomDockerContainerImageBuilder {
     private static final transient Logger LOGGER = LoggerFactory.getLogger(CustomDockerContainerImageBuilder.class);
 
-    public String generateContainerImage(FabricService fabric, Container container, List<Profile> profileList, Docker docker, CustomDockerContainerImageOptions options, JavaContainerConfig javaConfig, DockerCreateOptions containerOptions, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
+    public String generateContainerImage(FabricService fabric, Container container, List<Profile> profileList, Docker docker, CustomDockerContainerImageOptions options, DockerCreateOptions containerOptions, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
         String libDirAndSeparator = ensureEndsWithFileSeparator(options.getJavaLibraryPath());
         String deployDirAndSeparator = ensureEndsWithFileSeparator(options.getJavaDeployPath());
         String homeDirAndSeparator = ensureEndsWithFileSeparator(options.getHomePath());
