@@ -22,7 +22,6 @@ import io.fabric8.api.Version;
 import io.fabric8.api.VersionBuilder;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,19 +36,17 @@ import org.jboss.gravia.utils.IllegalStateAssertion;
  * @author thomas.diesler@jboss.com
  * @since 18-Mar-2014
  */
-final class DefaultVersionBuilder extends AbstractAttributableBuilder<VersionBuilder> implements VersionBuilder {
+public final class DefaultVersionBuilder extends AbstractAttributableBuilder<VersionBuilder> implements VersionBuilder {
 
 	private String versionId;
     private String revision;
 	private Map<String, Profile> profiles = new TreeMap<>();
 	
-	DefaultVersionBuilder(String versionId) {
-		this.versionId = versionId;
-	}
-
-	DefaultVersionBuilder(Version version) {
+	@Override
+	public VersionBuilder from(Version version) {
 		setAttributes(version.getAttributes());
 		addProfiles(version.getProfiles());
+        return this;
 	}
 
 	@Override

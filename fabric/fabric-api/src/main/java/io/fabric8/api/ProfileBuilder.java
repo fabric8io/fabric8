@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jboss.gravia.runtime.ServiceLocator;
-
 
 /**
  * A profile builder.
@@ -30,6 +28,8 @@ import org.jboss.gravia.runtime.ServiceLocator;
  */
 public interface ProfileBuilder extends AttributableBuilder<ProfileBuilder> {
 
+    ProfileBuilder from(Profile profile);
+    
     ProfileBuilder identity(String profileId);
 
     ProfileBuilder version(String versionId);
@@ -91,23 +91,23 @@ public interface ProfileBuilder extends AttributableBuilder<ProfileBuilder> {
     final class Factory {
 
         public static ProfileBuilder create() {
-            ProfileBuilders factory = ServiceLocator.getRequiredService(ProfileBuilders.class);
-            return factory.profileBuilder();
+            return getProfileBuilders().profileBuilder();
         }
 
         public static ProfileBuilder create(String profileId) {
-            ProfileBuilders factory = ServiceLocator.getRequiredService(ProfileBuilders.class);
-            return factory.profileBuilder(profileId);
+            return getProfileBuilders().profileBuilder(profileId);
         }
 
         public static ProfileBuilder create(String versionId, String profileId) {
-            ProfileBuilders factory = ServiceLocator.getRequiredService(ProfileBuilders.class);
-            return factory.profileBuilder(versionId, profileId);
+            return getProfileBuilders().profileBuilder(versionId, profileId);
         }
 
         public static ProfileBuilder createFrom(Profile profile) {
-            ProfileBuilders factory = ServiceLocator.getRequiredService(ProfileBuilders.class);
-            return factory.profileBuilderFrom(profile);
+            return getProfileBuilders().profileBuilderFrom(profile);
+        }
+
+        private static ProfileBuilders getProfileBuilders() {
+            return ProfileBuilders.Factory.getProfileBuilders();
         }
 
         // Hide ctor
