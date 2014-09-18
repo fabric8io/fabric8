@@ -227,7 +227,12 @@
 
 <p>If you haven't yet created a fabric, in the fabric8 distribution you can edit the file <strong>fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties</strong> then if you create a new fabric it should have this configuration included.</p>
 
-<p>  ### Known issues about using fabric8</p>
+<h4 id = "Where_did_the_child_container_provider_go_">Where did the child container provider go?</h4>
+
+<p>if you enable the <a href="http://fabric8.io/gitbook/docker.html">docker</a> profile or run fabric8 via the <a href="https://registry.hub.docker.com/u/fabric8/fabric8/">docker image</a> then fabric8 disables the <strong>child</strong> container provider by deafult. This is because if docker is available it is better that you use that to manage starting and stopping containers than the child container provider (which is suited for environments which don't support docker yet).</p>
+
+<p>Similarly if you enable <a href="http://fabric8.io/gitbook/kubernetes.html">kubernetes</a> or <a href="http://fabric8.io/gitbook/openshift.html">OpenShift</a> container providers (or provision fabric8 within kubernetes/openshift) then fabric8 automatically disables <strong>docker</strong> and <strong>child</strong> container providers because if you are using kubernetes/OpenShift then its better we use that to start/stop containers than relying on local processes on a single machine.
+  ### Known issues about using fabric8</p>
 
 <h4 id = "Why_does_the_welcome_screen_print_two_times_">Why does the welcome screen print two times?</h4>
 

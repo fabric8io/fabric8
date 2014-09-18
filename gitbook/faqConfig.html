@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="8.3" data-basepath="." data-revision="1410981917403">
+    <div class="book" data-github="fabric8io/fabric8" data-level="8.3" data-basepath="." data-revision="1411068397281">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -876,6 +876,9 @@
 <p>If you are running a fabric right now then clicking on the <a href="http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/default.profile/io.fabric8.agent.properties" target="_blank">default profile&apos;s io.fabric8.agent.properties</a> should let you view the current maven repositories configuration. Edit that file to add whatever maven repositories you wish.</p>
 <p>The other option is to clone your git repository and edit this file then git push it back again. Please see the <a href="http://fabric8.io/gitbook/git.html" target="_blank">these instructions for how to work with git and fabric8</a></p>
 <p>If you haven&apos;t yet created a fabric, in the fabric8 distribution you can edit the file <strong>fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties</strong> then if you create a new fabric it should have this configuration included.</p>
+<h4 id="where-did-the-child-container-provider-go-"><a name="where-did-the-child-container-provider-go-" class="anchor" href="#where-did-the-child-container-provider-go-"><span class="fa fa-link"></span></a>Where did the child container provider go?</h4>
+<p>if you enable the <a href="http://fabric8.io/gitbook/docker.html" target="_blank">docker</a> profile or run fabric8 via the <a href="https://registry.hub.docker.com/u/fabric8/fabric8/" target="_blank">docker image</a> then fabric8 disables the <strong>child</strong> container provider by deafult. This is because if docker is available it is better that you use that to manage starting and stopping containers than the child container provider (which is suited for environments which don&apos;t support docker yet).</p>
+<p>Similarly if you enable <a href="http://fabric8.io/gitbook/kubernetes.html" target="_blank">kubernetes</a> or <a href="http://fabric8.io/gitbook/openshift.html" target="_blank">OpenShift</a> container providers (or provision fabric8 within kubernetes/openshift) then fabric8 automatically disables <strong>docker</strong> and <strong>child</strong> container providers because if you are using kubernetes/OpenShift then its better we use that to start/stop containers than relying on local processes on a single machine.</p>
 
                     
                     </section>
