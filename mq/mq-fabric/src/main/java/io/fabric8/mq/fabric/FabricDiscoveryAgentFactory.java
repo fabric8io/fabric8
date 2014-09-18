@@ -15,17 +15,18 @@
  */
 package io.fabric8.mq.fabric;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
+
 import org.apache.activemq.transport.discovery.DiscoveryAgent;
 import org.apache.activemq.transport.discovery.DiscoveryAgentFactory;
 import org.apache.activemq.util.IOExceptionSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Map;
-
-import static org.apache.activemq.util.URISupport.*;
+import static org.apache.activemq.util.URISupport.parseQuery;
+import static org.apache.activemq.util.URISupport.stripPrefix;
 
 public class FabricDiscoveryAgentFactory extends DiscoveryAgentFactory {
 
@@ -33,8 +34,7 @@ public class FabricDiscoveryAgentFactory extends DiscoveryAgentFactory {
 
     protected DiscoveryAgent doCreateDiscoveryAgent(URI uri) throws IOException {
         try {
-
-            FabricDiscoveryAgent rc = null;
+            FabricDiscoveryAgent rc;
             boolean osgi = false;
 
             // detect osgi
@@ -43,7 +43,8 @@ public class FabricDiscoveryAgentFactory extends DiscoveryAgentFactory {
                     LOG.info("OSGi environment detected!");
                     osgi = true;
                 }
-            } catch (NoClassDefFoundError ignore) {
+            } catch (Throwable ignore) {
+                LOG.debug("OSGi not detected due " + ignore.getMessage() + ". This exception is ignored.", ignore);
             }
 
             if (osgi) {
@@ -52,17 +53,17 @@ public class FabricDiscoveryAgentFactory extends DiscoveryAgentFactory {
                 rc = new FabricDiscoveryAgent();
             }
 
-            if( uri.getSchemeSpecificPart()!=null && uri.getSchemeSpecificPart().length() > 0 ){
+            if (uri.getSchemeSpecificPart() != null && uri.getSchemeSpecificPart().length() > 0) {
                 String ssp = stripPrefix(uri.getSchemeSpecificPart(), "//");
                 Map<String, String> query = parseQuery(ssp);
                 String groupName = ssp.split("\\?")[0];
-                if( query.get("id")!=null ) {
+                if (query.get("id") != null) {
                     rc.setId(query.get("id"));
                 }
                 rc.setGroupName(groupName);
             }
             return rc;
-            
+
         } catch (Throwable e) {
             throw IOExceptionSupport.create("Could not create discovery agent: " + uri, e);
         }
