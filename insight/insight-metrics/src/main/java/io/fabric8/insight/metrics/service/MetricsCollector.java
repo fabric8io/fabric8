@@ -348,34 +348,35 @@ public class MetricsCollector implements MetricsCollectorMBean {
                 Subject subject = new Subject();
                 subject.getPrincipals().add(new RolePrincipal("viewer"));
 
-                Subject.doAsPrivileged(subject, new PrivilegedAction<Object>() {
+                QueryResult qrs = Subject.doAsPrivileged(subject, new PrivilegedAction<QueryResult>() {
                     @Override
-                    public Object run() {
+                    public QueryResult run() {
                         try {
-                            QueryResult qrs = JmxUtils.execute(query.server, query.query, mbeanServer);
-
-                            boolean forceSend = query.query.getMinPeriod() == query.query.getPeriod() ||
-                                    qrs.getTimestamp().getTime() - query.lastSent >= TimeUnit.SECONDS.toMillis(query.query.getMinPeriod());
-                            if (!forceSend && query.lastResult != null) {
-                                if (qrs.getResults().equals(query.lastResult.getResults())) {
-                                    query.lastResult = qrs;
-                                    query.lastResultSent = false;
-                                    return null;
-                                }
-                                if (!query.lastResultSent) {
-                                    renderAndSend(svc, query.lastResult);
-                                }
-                            }
-                            query.lastResult = qrs;
-                            query.lastResultSent = true;
-                            query.lastSent = qrs.getTimestamp().getTime();
-                            renderAndSend(svc, qrs);
+                            return JmxUtils.execute(query.server, query.query, mbeanServer);
                         } catch (Throwable e) {
                             LOG.error("Error sending metrics", e);
                         }
                         return null;
                     }
                 }, AccessController.getContext());
+
+                if (qrs != null) {
+                    boolean forceSend = query.query.getMinPeriod() == query.query.getPeriod() ||
+                            qrs.getTimestamp().getTime() - query.lastSent >= TimeUnit.SECONDS.toMillis(query.query.getMinPeriod());
+                    if (!forceSend && query.lastResult != null) {
+                        if (qrs.getResults().equals(query.lastResult.getResults())) {
+                            query.lastResult = qrs;
+                            query.lastResultSent = false;
+                        }
+                        if (!query.lastResultSent) {
+                            renderAndSend(svc, query.lastResult);
+                        }
+                    }
+                    query.lastResult = qrs;
+                    query.lastResultSent = true;
+                    query.lastSent = qrs.getTimestamp().getTime();
+                    renderAndSend(svc, qrs);
+                }
             } catch (Throwable e) {
                 LOG.error("Error sending metrics", e);
             }
