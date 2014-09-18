@@ -20,6 +20,7 @@ import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.utils.shell.ShellUtils;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,10 +72,22 @@ public class PatchApplyAction extends AbstractAction {
         }
         username = username != null && !username.isEmpty() ? username : ShellUtils.retrieveFabricUser(session);
         password = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
+        promptForJmxCredentialsIfNeeded();
         for (Version version : versions) {
             fabricService.getPatchService().applyPatch(version, patch, username, password);
         }
         return null;
+    }
+
+    private void promptForJmxCredentialsIfNeeded() throws IOException {
+        // If the username was not configured via cli, then prompt the user for the values
+        if (username == null || username.isEmpty()) {
+            log.debug("Prompting user for login");
+            username = ShellUtils.readLine(session, "Username: ", false);
+        }
+        if (password == null) {
+            password = ShellUtils.readLine(session, "Password for " + username + " : ", true);
+        }
     }
 
 }
