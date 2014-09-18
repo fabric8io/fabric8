@@ -23,9 +23,7 @@ import io.fabric8.api.Profiles;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
-import io.fabric8.container.process.JavaContainerConfig;
 import io.fabric8.container.process.JolokiaAgentHelper;
-import io.fabric8.deployer.JavaContainers;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.Dockers;
 import io.fabric8.docker.provider.DockerCreateOptions;
@@ -61,7 +59,6 @@ public class CustomDockerContainerImageBuilder {
         String libDirAndSeparator = ensureEndsWithFileSeparator(options.getJavaLibraryPath());
         String deployDirAndSeparator = ensureEndsWithFileSeparator(options.getJavaDeployPath());
         String homeDirAndSeparator = ensureEndsWithFileSeparator(options.getHomePath());
-        Map<String, File> artifacts = JavaContainers.getJavaContainerArtifactsFiles(fabric, profileList, downloadExecutor);
 
         String baseImage = options.getBaseImage();
         String tag = options.getNewImageName();
@@ -81,24 +78,17 @@ public class CustomDockerContainerImageBuilder {
         String overlaysDirPath = "overlays";
         File overlaysDir = new File(tmpDockerfileDir, overlaysDirPath);
 
-        int libFileCount = 0;
-        int deployFileCount = 0;
-        Set<Map.Entry<String, File>> entries = artifacts.entrySet();
-        for (Map.Entry<String, File> entry : entries) {
-            File file = entry.getValue();
-            String fileName = file.getName();
-            File outputDir;
-            if (fileName.toLowerCase().endsWith(".jar")) {
-                outputDir = uploadLibDir;
-                libFileCount++;
-            }
-            else {
-                outputDir = uploadDeployDir;
-                deployFileCount++;
-            }
-            outputDir.mkdirs();
-            Files.copy(file, new File(outputDir, fileName));
+        ArtifactFilesAdder artifactFilesAdder;
+        if (options.isMavenJavaLibraryPathLayout()) {
+            artifactFilesAdder = new MavenArtifactFilesAdder(fabric, profileList, downloadExecutor, uploadLibDir, uploadDeployDir);
+        } else {
+            artifactFilesAdder = new FlatArtifactFilesAdder(fabric, profileList, downloadExecutor, uploadLibDir, uploadDeployDir);
         }
+        artifactFilesAdder.invoke();
+
+        int libFileCount = artifactFilesAdder.getLibFileCount();
+        int deployFileCount = artifactFilesAdder.getDeployFileCount();
+        Set<String> artifactKeys = artifactFilesAdder.getArtifactKeys();
         if (libFileCount > 0) {
             dockerFile.add(libDirPath, libDirAndSeparator);
         }
@@ -110,7 +100,7 @@ public class CustomDockerContainerImageBuilder {
 
         if (container != null) {
             List<String> bundles = new ArrayList<String>();
-            for (String name : artifacts.keySet()) {
+            for (String name : artifactKeys) {
                 if (name.startsWith("fab:")) {
                     name = name.substring(4);
                 }

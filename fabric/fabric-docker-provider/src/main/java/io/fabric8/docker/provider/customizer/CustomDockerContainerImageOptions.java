@@ -27,8 +27,9 @@ public class CustomDockerContainerImageOptions {
     private final String homePath;
     private final String entryPoint;
     private final String overlayFolder;
+    private final boolean mavenJavaLibraryPathLayout;
 
-    public CustomDockerContainerImageOptions(String baseImage, String imageRepository, String newImageName, String javaLibraryPath, String javaDeployPath, String homePath, String entryPoint, String overlayFolder) {
+    public CustomDockerContainerImageOptions(String baseImage, String imageRepository, String newImageName, String javaLibraryPath, String javaDeployPath, String homePath, String entryPoint, String overlayFolder, boolean mavenJavaLibraryPathLayout) {
         this.baseImage = baseImage;
         this.imageRepository = imageRepository;
         this.newImageName = newImageName;
@@ -37,6 +38,7 @@ public class CustomDockerContainerImageOptions {
         this.homePath = homePath;
         this.entryPoint = entryPoint;
         this.overlayFolder = overlayFolder;
+        this.mavenJavaLibraryPathLayout = mavenJavaLibraryPathLayout;
     }
 
     public String getBaseImage() {
@@ -59,6 +61,13 @@ public class CustomDockerContainerImageOptions {
      */
     public String getJavaLibraryPath() {
         return javaLibraryPath;
+    }
+
+    /**
+     * Returns true if the java library path uses a flat folder; versus a maven style layout
+     */
+    public boolean isMavenJavaLibraryPathLayout() {
+        return mavenJavaLibraryPathLayout;
     }
 
     /**
@@ -85,4 +94,5 @@ public class CustomDockerContainerImageOptions {
     public String getOverlayFolder() {
         return overlayFolder;
     }
+
 }

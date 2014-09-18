@@ -43,6 +43,9 @@ public class DockerProviderConfig {
     @Property(label = "Java Library Path",
             description = "The path that shared java libraries should be installed into inside the docker image for Java containers or application servers")
     private String javaLibraryPath;
+    @Property(label = "Maven Java Library layout",
+            description = "Should libraries be added to a flat directory or use a maven style directory tree")
+    private boolean mavenJavaLibraryPathLayout;
 
     @Property(label = "Java Deploy Path",
             description = "The path that java deployment units (wars, ears etc) should be installed into inside the docker image for Java containers or application servers")
@@ -146,5 +149,13 @@ public class DockerProviderConfig {
 
     public void setOverlayFolder(String overlayFolder) {
         this.overlayFolder = overlayFolder;
+    }
+
+    public boolean isMavenJavaLibraryPathLayout() {
+        return mavenJavaLibraryPathLayout;
+    }
+
+    public void setMavenJavaLibraryPathLayout(boolean mavenJavaLibraryPathLayout) {
+        this.mavenJavaLibraryPathLayout = mavenJavaLibraryPathLayout;
     }
 }

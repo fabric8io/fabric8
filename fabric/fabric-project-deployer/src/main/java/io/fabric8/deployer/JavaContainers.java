@@ -23,6 +23,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileService;
+import io.fabric8.common.util.MultiException;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
@@ -50,6 +51,10 @@ public class JavaContainers {
     
     public static Map<String, Parser> getJavaContainerArtifacts(FabricService fabric, List<Profile> profileList, ExecutorService downloadExecutor) throws Exception {
         DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
+        return getJavaContainerArtifacts(fabric, profileList, downloadManager);
+    }
+
+    public static Map<String, Parser> getJavaContainerArtifacts(FabricService fabric, List<Profile> profileList, DownloadManager downloadManager) throws Exception {
         Map<String, Parser> artifacts = new TreeMap<String, Parser>();
         for (Profile profile : profileList) {
             Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(fabric, downloadManager, profile);
@@ -61,6 +66,10 @@ public class JavaContainers {
 
     public static Map<String, File> getJavaContainerArtifactsFiles(FabricService fabricService, List<Profile> profileList, ExecutorService downloadExecutor) throws Exception {
         DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, downloadExecutor);
+        return getJavaContainerArtifactsFiles(fabricService, profileList, downloadManager);
+    }
+
+    public static Map<String, File> getJavaContainerArtifactsFiles(FabricService fabricService, List<Profile> profileList, DownloadManager downloadManager) throws Exception {
         Map<String, File> answer = new HashMap<String, File>();
         ProfileService profileService = fabricService.adapt(ProfileService.class);
         for (Profile profile : profileList) {
@@ -68,17 +77,21 @@ public class JavaContainers {
             Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(fabricService, downloadManager, overlay);
             appendMavenDependencies(profileArtifacts, profile);
             Set<String> rawUrls = profileArtifacts.keySet();
-            List<String> cleanUrlsToDownload = new ArrayList<String>();
-            for (String rawUrl : rawUrls) {
-                String mvnUrl = removeUriPrefixBeforeMaven(rawUrl);
-                cleanUrlsToDownload.add(mvnUrl);
-            }
-            Map<String, File> profileFiles = AgentUtils.downloadLocations(downloadManager, cleanUrlsToDownload);
-            if (profileFiles != null) {
-                answer.putAll(profileFiles);
-            }
+            downloadArtifactUrls(downloadManager, rawUrls, answer);
         }
         return answer;
+    }
+
+    public static void downloadArtifactUrls(DownloadManager downloadManager, Set<String> rawUrls, Map<String, File> answer) throws MalformedURLException, InterruptedException, MultiException {
+        List<String> cleanUrlsToDownload = new ArrayList<String>();
+        for (String rawUrl : rawUrls) {
+            String mvnUrl = removeUriPrefixBeforeMaven(rawUrl);
+            cleanUrlsToDownload.add(mvnUrl);
+        }
+        Map<String, File> profileFiles = AgentUtils.downloadLocations(downloadManager, cleanUrlsToDownload);
+        if (profileFiles != null) {
+            answer.putAll(profileFiles);
+        }
     }
 
     /**

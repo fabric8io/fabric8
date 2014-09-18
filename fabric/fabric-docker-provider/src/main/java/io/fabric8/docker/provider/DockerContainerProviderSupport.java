@@ -388,7 +388,7 @@ public abstract class DockerContainerProviderSupport extends AbstractComponent {
                 }
 
                 CustomDockerContainerImageBuilder builder = new CustomDockerContainerImageBuilder();
-                CustomDockerContainerImageOptions customDockerContainerImageOptions = new CustomDockerContainerImageOptions(image, imageRepository, newImageName, libDir, deployDir, homeDir, entryPoint, configOverlayDockerProvider.getOverlayFolder());
+                CustomDockerContainerImageOptions customDockerContainerImageOptions = new CustomDockerContainerImageOptions(image, imageRepository, newImageName, libDir, deployDir, homeDir, entryPoint, configOverlayDockerProvider.getOverlayFolder(), configOverlayDockerProvider.isMavenJavaLibraryPathLayout());
 
                 String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, customDockerContainerImageOptions, options, downloadExecutor, environmentVariables);
                 if (actualImage != null) {
