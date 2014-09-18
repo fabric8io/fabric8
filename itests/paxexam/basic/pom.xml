@@ -175,7 +175,19 @@
 
         <dependency>
             <groupId>io.fabric8.insight</groupId>
-            <artifactId>insight-elasticsearch</artifactId>
+            <artifactId>insight-elasticsearch-factory</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fabric8.insight</groupId>
+            <artifactId>insight-elasticsearch-plugin</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fabric8.insight</groupId>
+            <artifactId>insight-elasticsearch-discovery</artifactId>
             <scope>test</scope>
         </dependency>
 
