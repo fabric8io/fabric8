@@ -15,7 +15,7 @@
  */
 package io.fabric8.api;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.net.URI;
 import java.util.Map;

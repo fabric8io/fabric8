@@ -15,51 +15,40 @@
  */
 package io.fabric8.boot.commands.support;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
+import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
-import io.fabric8.internal.ProfileImpl;
 import io.fabric8.zookeeper.ZkPath;
-import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 public abstract class FabricCommand extends OsgiCommandSupport {
 
-    private CuratorFramework curator;
+    protected CuratorFramework curator;
     protected FabricService fabricService;
     protected ConfigurationAdmin configurationAdmin;
 
-    public FabricService getFabricService() {
-        return fabricService;
-    }
-
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
-    }
-
-    public CuratorFramework getCurator() {
+    protected CuratorFramework getCurator() {
         return curator;
     }
 
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    protected FabricService getFabricService() {
+        return fabricService;
     }
 
-    public ConfigurationAdmin getConfigurationAdmin() {
+    protected ConfigurationAdmin getConfigurationAdmin() {
         return configurationAdmin;
-    }
-
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
     }
 
     protected void checkFabricAvailable() throws Exception {
@@ -95,12 +84,68 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         return sb.toString();
     }
 
+    /**
+     * Gets all the profiles for the given names.
+     * <p/>
+     * <b>Important:</b> If a profile does not already exists with the given name, then a new {@link Profile} is
+     * created and returned in the list.
+     *
+     * @see #getExistingProfiles(io.fabric8.api.FabricService, String, java.util.List)
+     */
     public static Profile[] getProfiles(FabricService fabricService, String version, List<String> names) {
-        return getProfiles(fabricService, fabricService.getVersion(version), names);
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        return getProfiles(fabricService, profileService.getVersion(version), names);
     }
 
+    /**
+     * Gets (or creates) all the profiles for the given names.
+     * <p/>
+     * <b>Important:</b> If a profile does not already exists with the given name, then a new {@link Profile} is
+     * created and returned in the list.
+     *
+     * @see #getExistingProfiles(io.fabric8.api.FabricService, io.fabric8.api.Version, java.util.List)
+     */
     public static Profile[] getProfiles(FabricService fabricService, Version version, List<String> names) {
-        Profile[] allProfiles = version.getProfiles();
+        List<Profile> allProfiles = version.getProfiles();
+        List<Profile> profiles = new ArrayList<>();
+        if (names == null) {
+            return new Profile[0];
+        }
+        for (String profileId : names) {
+            Profile profile = null;
+            for (Profile p : allProfiles) {
+                if (profileId.equals(p.getId())) {
+                    profile = p;
+                    break;
+                }
+            }
+            if (profile == null) {
+                ProfileBuilder builder = ProfileBuilder.Factory.create(version.getId(), profileId);
+                ProfileService profileService = fabricService.adapt(ProfileService.class);
+                profile = profileService.createProfile(builder.getProfile());
+            }
+            profiles.add(profile);
+        }
+        return profiles.toArray(new Profile[profiles.size()]);
+    }
+
+    /**
+     * Gets all the existing profiles for the given names.
+     *
+     * @throws IllegalArgumentException if a profile with the given name does not exists
+     */
+    public static Profile[] getExistingProfiles(FabricService fabricService, String version, List<String> names) {
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        return getExistingProfiles(fabricService, profileService.getVersion(version), names);
+    }
+
+    /**
+     * Gets all the existing profiles for the given names.
+     *
+     * @throws IllegalArgumentException if a profile with the given name does not exists
+     */
+    public static Profile[] getExistingProfiles(FabricService fabricService, Version version, List<String> names) {
+        List<Profile> allProfiles = version.getProfiles();
         List<Profile> profiles = new ArrayList<Profile>();
         if (names == null) {
             return new Profile[0];
@@ -114,15 +159,20 @@ public abstract class FabricCommand extends OsgiCommandSupport {
                 }
             }
             if (profile == null) {
-                profile = new ProfileImpl(name, version.getId(), fabricService);
+                throw new IllegalArgumentException("Profile " + name + " does not exist.");
             }
             profiles.add(profile);
         }
         return profiles.toArray(new Profile[profiles.size()]);
     }
 
+    /**
+     * Gets the profile for the given name
+     *
+     * @throws java.lang.IllegalArgumentException if the profile does not exists
+     */
     public static Profile getProfile(Version ver, String name) {
-        Profile p = ver.getProfile(name);
+        Profile p = ver.getRequiredProfile(name);
         if (p == null) {
             throw new IllegalArgumentException("Profile " + name + " does not exist.");
         }
@@ -155,6 +205,16 @@ public abstract class FabricCommand extends OsgiCommandSupport {
             }
         }
         throw new IllegalArgumentException("Container " + name + " does not exist.");
+    }
+
+    public static Container getContainerIfExists(FabricService fabricService, String name) {
+        Container[] containers = fabricService.getContainers();
+        for (Container container : containers) {
+            if (container.getId().equals(name)) {
+                return container;
+            }
+        }
+        return null;
     }
 
     public static boolean doesContainerExist(FabricService fabricService, String name) {

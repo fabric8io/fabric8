@@ -40,10 +40,10 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = ContainerCreateChild.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = ContainerCreateChild.FUNCTION_VALUE)
 })
-public final class ContainerCreateChild extends AbstractCommandComponent {
+public class ContainerCreateChild extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-create-child";
+    public static final String FUNCTION_VALUE = "container-create-child";
     public static final String DESCRIPTION = "Creates one or more child containers";
 
     @Reference(referenceInterface = FabricService.class)

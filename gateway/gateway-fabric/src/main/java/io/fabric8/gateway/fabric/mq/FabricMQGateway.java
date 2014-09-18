@@ -18,6 +18,13 @@ package io.fabric8.gateway.fabric.mq;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
+import io.fabric8.common.util.Strings;
+import io.fabric8.gateway.ServiceMap;
+import io.fabric8.gateway.fabric.support.vertx.VertxService;
+import io.fabric8.gateway.handlers.tcp.TcpGateway;
+import io.fabric8.gateway.handlers.tcp.TcpGatewayHandler;
+import io.fabric8.gateway.loadbalancer.LoadBalancer;
+import io.fabric8.gateway.loadbalancer.LoadBalancers;
 import io.fabric8.internal.Objects;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -28,14 +35,6 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.PropertyOption;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
-import io.fabric8.common.util.Strings;
-import io.fabric8.gateway.ServiceDetails;
-import io.fabric8.gateway.ServiceMap;
-import io.fabric8.gateway.fabric.support.vertx.VertxService;
-import io.fabric8.gateway.handlers.tcp.TcpGateway;
-import io.fabric8.gateway.handlers.tcp.TcpGatewayHandler;
-import io.fabric8.gateway.loadbalancer.LoadBalancer;
-import io.fabric8.gateway.loadbalancer.LoadBalancers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
@@ -64,7 +63,7 @@ public class FabricMQGateway extends AbstractComponent {
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
     private CuratorFramework curator;
 
-    @Property(name = "zooKeeperPath", value = "/fabric/registry/clusters/fusemq",
+    @Property(name = "zooKeeperPath", value = "/fabric/registry/clusters/amq",
             label = "ZooKeeper path", description = "The path in ZooKeeper which is monitored to discover the available message brokers")
     private String zooKeeperPath;
 
@@ -96,9 +95,9 @@ public class FabricMQGateway extends AbstractComponent {
     @Property(name = "mqttEnabled", boolValue = true,
             label = "MQTT enabled", description = "Enable or disable the MQTT transport protocol")
     private boolean mqttEnabled = true;
-    @Property(name = "mqttPort", intValue = 5672,
+    @Property(name = "mqttPort", intValue = 1883,
             label = "MQTT port", description = "Port number to listen on for MQTT")
-    private int mqttPort = 5672;
+    private int mqttPort = 1883;
 
     @Property(name = "websocketEnabled", boolValue = true,
             label = "WebSocket enabled", description = "Enable or disable the WebSocket transport protocol")
@@ -156,8 +155,8 @@ public class FabricMQGateway extends AbstractComponent {
         Vertx vertx = vertxService.getVertx();
         CuratorFramework curator = getCurator();
 
-        LoadBalancer<String> pathLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
-        LoadBalancer<ServiceDetails> serviceLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
+        LoadBalancer pathLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
+        LoadBalancer serviceLoadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
 
         LOG.info("activating MQ mapping ZooKeeper path: " + zkPath + " host: " + host
                 + " with load balancer: " + pathLoadBalancer);
@@ -176,7 +175,7 @@ public class FabricMQGateway extends AbstractComponent {
         return new GatewayServiceTreeCache(curator, zkPath, serviceMap, gateways);
     }
 
-    protected TcpGateway addGateway(List<TcpGateway> gateways, Vertx vertx, ServiceMap serviceMap, String protocolName, boolean enabled, int listenPort, LoadBalancer pathLoadBalancer, LoadBalancer<ServiceDetails> serviceLoadBalancer) {
+    protected TcpGateway addGateway(List<TcpGateway> gateways, Vertx vertx, ServiceMap serviceMap, String protocolName, boolean enabled, int listenPort, LoadBalancer pathLoadBalancer, LoadBalancer serviceLoadBalancer) {
         if (enabled) {
             TcpGatewayHandler handler = new TcpGatewayHandler(vertx, serviceMap, protocolName, pathLoadBalancer, serviceLoadBalancer);
             TcpGateway gateway = new TcpGateway(vertx, serviceMap, listenPort, protocolName, handler);

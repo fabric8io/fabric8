@@ -16,16 +16,15 @@
 package io.fabric8.zookeeper.bootstrap;
 
 import io.fabric8.api.Constants;
-import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.utils.SystemProperties;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -106,12 +105,11 @@ public class ZooKeeperServerFactory extends AbstractComponent {
 
         // Remove the dependency on the current dir from dataDir
         String dataDir = props.getProperty("dataDir");
-        if (dataDir != null && dataDir.startsWith(CreateEnsembleOptions.DEFAULT_DATA_DIR)) {
-            RuntimeProperties sysprops = runtimeProperties.get();
-            dataDir = dataDir.substring(dataDir.indexOf('/'));
-            dataDir = sysprops.getProperty(SystemProperties.KARAF_DATA) + dataDir;
+        if (dataDir != null && !Paths.get(dataDir).isAbsolute()) {
+            dataDir = runtimeProperties.get().getHomePath().resolve(dataDir).toFile().getAbsolutePath();
             props.setProperty("dataDir", dataDir);
         }
+        props.put("clientPortAddress", bootstrapConfiguration.get().getBindAddress());
 
         // Create myid file
         String serverId = (String) props.get("server.id");
@@ -261,6 +259,10 @@ public class ZooKeeperServerFactory extends AbstractComponent {
         public void destroy() throws Exception {
             cnxnFactory.shutdown();
             cnxnFactory.join();
+            if (server.getZKDatabase() != null) {
+                // see https://issues.apache.org/jira/browse/ZOOKEEPER-1459
+                server.getZKDatabase().close();
+            }
         }
 
         @Override

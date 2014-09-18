@@ -23,7 +23,7 @@
   <parent>
       <artifactId>tooling</artifactId>
       <groupId>io.fabric8</groupId>
-      <version>1.1.0-SNAPSHOT</version>
+      <version>1.2.0-SNAPSHOT</version>
   </parent>
 
   <groupId>io.fabric8</groupId>
@@ -75,8 +75,6 @@
     -->
     <fuse.osgi.import.additional>
     </fuse.osgi.import.additional>
-    <fuse.osgi.services.export>
-    </fuse.osgi.services.export>
     <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=false;groupId=org.apache.jclouds.provider|org.apache.jclouds.karaf|org.apache.jclouds|org.apache.jclouds.api|org.apache.jclouds.driver|net.schmizz|org.apache.servicemix.bundles|org.bouncycastle</fuse.osgi.embed.dependency>
     <fuse.osgi.embed.transitive>true</fuse.osgi.embed.transitive>
     <fuse.osgi.bundle.name>Fuse JClouds Tooling Plugin</fuse.osgi.bundle.name>

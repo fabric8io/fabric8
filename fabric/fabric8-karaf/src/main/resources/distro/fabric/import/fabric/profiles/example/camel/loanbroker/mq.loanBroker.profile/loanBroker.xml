@@ -41,7 +41,7 @@
     <route id="LoanBroker">
       <from uri="amq:LoanBroker.LoanBrokerService"/>
       <setHeader headerName="host.loan.broker">
-        <simple>${sys.karaf.name}</simple>
+        <simple>${sys.runtime.id}</simple>
       </setHeader>
       <to uri="amq:LoanBroker.CreditBureauService"/>
       <log message="&gt;&gt;&gt; Credit score : ${header.credit.score}"/>
@@ -57,7 +57,7 @@
     <route id="CreditBureau">
       <from uri="amq:LoanBroker.CreditBureauService"/>
       <setHeader headerName="host.credit.bureau">
-        <simple>${sys.karaf.name}</simple>
+        <simple>${sys.runtime.id}</simple>
       </setHeader>
       <delay>
         <constant>100</constant>
@@ -70,7 +70,7 @@
     <route id="RuleBase">
       <from uri="amq:LoanBroker.RuleBaseService"/>
       <setHeader headerName="host.rule.base">
-        <simple>${sys.karaf.name}</simple>
+        <simple>${sys.runtime.id}</simple>
       </setHeader>
       <delay>
         <constant>50</constant>

@@ -22,18 +22,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.FabricService;
+import io.fabric8.utils.TablePrinter;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getAllChildren;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
-@Command(name = "cluster-list", scope = "fabric", description = "Lists all cluster groups in the fabric")
+@Command(name = ClusterList.FUNCTION_VALUE, scope = ClusterList.SCOPE_VALUE, description = ClusterList.DESCRIPTION)
 public class ClusterListAction extends AbstractAction {
 
     protected static String CLUSTER_PREFIX = "/fabric/registry/clusters";
@@ -86,7 +88,13 @@ public class ClusterListAction extends AbstractAction {
                     }
 
                     ObjectMapper mapper = new ObjectMapper();
-                    Map<String, Object> map = mapper.readValue(data, HashMap.class);
+                    Map<String, Object> map = null;
+                    try {
+                        map = mapper.readValue(data, HashMap.class);
+                    } catch (JsonParseException e){
+                        log.error("Error parsing JSON string: {}", text);
+                        throw e;
+                    }
 
                     ClusterNode node = null;
 
@@ -119,20 +127,21 @@ public class ClusterListAction extends AbstractAction {
             }
         }
 
-        out.println(String.format("%-30s %-30s %-30s %s", "[cluster]", "[masters]", "[slaves]", "[services]"));
+        TablePrinter table = new TablePrinter();
+        table.columns("cluster", "masters", "slaves", "services");
 
         for (String clusterName : clusters.keySet()) {
             Map<String, ClusterNode> nodes = clusters.get(clusterName);
-            out.println(String.format("%-30s %-30s %-30s %s", clusterName, "", "", "", ""));
+            table.row(clusterName, "", "", "", "");
             for (String nodeName : nodes.keySet()) {
                 ClusterNode node = nodes.get(nodeName);
-                out.println(String.format("%-30s %-30s %-30s %s",
-                            "   "  + nodeName,
-                            printList(node.masters),
-                            printList(node.slaves),
-                            printList(node.services)));
+                table.row("   " + nodeName,
+                        printList(node.masters),
+                        printList(node.slaves),
+                        printList(node.services));
             }
         }
+        table.print();
     }
 
     protected String printList(List list) {

@@ -114,7 +114,7 @@ public class Auditor extends SwichtableBrokerPlugin implements ManagedService, A
             CompiledTemplate template = getTemplate(eventType, messageReference);
             Map<String, Object> vars = new HashMap<String, Object>();
             vars.put("event", eventType);
-            vars.put("host", System.getProperty("karaf.name"));
+            vars.put("host", System.getProperty("runtime.id"));
             vars.put("timestamp", new Date());
             vars.put("message", messageReference.getMessage());
             vars.put("messageReference", messageReference);

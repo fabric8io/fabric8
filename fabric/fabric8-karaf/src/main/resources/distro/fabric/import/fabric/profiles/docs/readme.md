@@ -1,4 +1,8 @@
-## Welcome to JBoss Fuse 6.2.0.redhat-SNAPSHOT
+## Welcome to Fabric8
+
+<div alt="Fabric8 Logo" style="width: 500px; text-align: center">
+  <img src="/app/fabric/doc/img/fabric8_logo.svg">
+</div>
 
 ### Getting Started
 
@@ -8,13 +12,7 @@ Try running some of the <a class="btn btn-primary" href="/fabric/profiles/ReadMe
 
 <ul>
   <li>
-    <a class="btn" href="/fabric/profiles/docs/jboss-amq-docs.md">JBoss A-MQ Product documentation</a>
-  </li>
-  <li>
-    <a class="btn" href="/fabric/profiles/docs/jboss-fuse-docs.md">JBoss Fuse Product documentation</a>
-  </li>
-  <li>
-    <a class="btn" href="/fabric/profiles/docs/fabric/index.md">Developer documentation</a>
+    <a class="btn" href="/fabric/profiles/docs/fabric/index.md">Documentation</a>
   </li>
 </ul>
 
@@ -23,9 +21,6 @@ Try running some of the <a class="btn btn-primary" href="/fabric/profiles/ReadMe
 
 <ul>
   <li>
-    <a class="btn" href="https://access.redhat.com/home">Red Hat Customer Portal</a>
-  </li>
-  <li>
-    <a class="btn" href="https://community.jboss.org/en/jbossfuse">Community Forums</a>
+    <a class="btn" href="http://fabric8.io/community/">Community</a>
   </li>
 </ul>

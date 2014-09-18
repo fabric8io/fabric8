@@ -16,6 +16,7 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
 import io.fabric8.boot.commands.support.ContainerCompleter;
@@ -36,14 +37,16 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = ContainerDelete.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = ContainerDelete.FUNCTION_VALUE)
 })
-public final class ContainerDelete extends AbstractCommandComponent {
+public class ContainerDelete extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-delete";
+    public static final String FUNCTION_VALUE = "container-delete";
     public static final String DESCRIPTION = "Stops and deletes an existing container";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
     // Completers
     @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
@@ -62,7 +65,7 @@ public final class ContainerDelete extends AbstractCommandComponent {
     @Override
     public Action createNewAction() {
         assertValid();
-        return new ContainerDeleteAction(fabricService.get());
+        return new ContainerDeleteAction(fabricService.get(), runtimeProperties.get());
     }
 
     void bindFabricService(FabricService fabricService) {
@@ -80,4 +83,13 @@ public final class ContainerDelete extends AbstractCommandComponent {
     void unbindContainerCompleter(ContainerCompleter completer) {
         unbindCompleter(completer);
     }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
+    }
+
 }

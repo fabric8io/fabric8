@@ -34,7 +34,7 @@
                 <value>http://repo1.maven.org/maven2/</value>
             </array>
         </property>
-        <property name="data" value="${karaf.data}/pomegranate"/>
+        <property name="data" value="${runtime.data}/pomegranate"/>
     </bean>
 
     <bean id="repositorySystem" class="org.apache.karaf.pomegranate.impl.RepositorySystemFactory" factory-method="newRepositorySystem"/>

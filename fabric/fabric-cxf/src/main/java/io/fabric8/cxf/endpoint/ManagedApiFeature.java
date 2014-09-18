@@ -28,11 +28,16 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.endpoint.ServerLifeCycleManager;
 import org.apache.cxf.endpoint.ServerRegistry;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.management.InstrumentationManager;
+import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
+import org.apache.cxf.service.factory.FactoryBeanListener;
+import org.apache.cxf.service.factory.FactoryBeanListenerManager;
+
 
 public class ManagedApiFeature extends AbstractFeature {
     private static final Logger LOG = LogUtils.getL7dLogger(ManagedApiFeature.class);
@@ -44,6 +49,12 @@ public class ManagedApiFeature extends AbstractFeature {
         if (iMgr != null) {   
             try {
                 iMgr.register(mApi);
+                ServerLifeCycleManager slcMgr = bus.getExtension(ServerLifeCycleManager.class);
+                if (slcMgr != null) {
+                    slcMgr.registerListener(mApi);
+                    slcMgr.startServer(server);
+                }
+
             } catch (JMException jmex) {
                 jmex.printStackTrace();
                 LOG.log(Level.WARNING, "Registering ManagedApi failed.", jmex);
@@ -52,31 +63,25 @@ public class ManagedApiFeature extends AbstractFeature {
     }
     
     @Override
-    public void initialize(Bus bus) {
-        List<Server> servers = new ArrayList<Server>();
-        
-        ServerRegistry serverRegistry = bus.getExtension(ServerRegistry.class);
-        servers.addAll(serverRegistry.getServers());
-        
-        for (Iterator<Server> iter = servers.iterator(); iter.hasNext();) {
-            Server server = (Server) iter.next();
-            ManagedApi mApi = new ManagedApi(bus, server.getEndpoint(), server);
-            InstrumentationManager iMgr = bus.getExtension(InstrumentationManager.class);
-            if (iMgr != null) {   
-                try {
-                    iMgr.register(mApi);
-                } catch (JMException jmex) {
-                    jmex.printStackTrace();
-                    LOG.log(Level.WARNING, "Registering ManagedApi failed.", jmex);
+    public void initialize(final Bus bus) {
+        FactoryBeanListenerManager factoryBeanListenerManager = bus.getExtension(FactoryBeanListenerManager.class);
+        if (factoryBeanListenerManager == null) {
+            factoryBeanListenerManager = new FactoryBeanListenerManager(bus);
+        }
+        factoryBeanListenerManager.addListener(new FactoryBeanListener() {
+            @Override
+            public void handleEvent(Event arg0, AbstractServiceFactoryBean arg1, Object... arg2) {
+                if (arg0.equals(Event.SERVER_CREATED) && (arg2[0] instanceof Server)) {
+                    Server server = (Server)arg2[0];
+                    initialize(server, bus);
                 }
             }
-        }
-
+        });
         
     }
     
     @Override
-    protected void initializeProvider(InterceptorProvider provider, Bus bus) {
+    protected void initializeProvider(InterceptorProvider provider, final Bus bus) {
         if (provider instanceof Endpoint) {
             EndpointImpl endpointImpl = (EndpointImpl)provider;
             List<Feature> features = endpointImpl.getActiveFeatures();
@@ -87,6 +92,20 @@ public class ManagedApiFeature extends AbstractFeature {
             } else {
                 features.add(this);
             }
+        } else if (provider instanceof Bus) {
+            FactoryBeanListenerManager factoryBeanListenerManager = bus.getExtension(FactoryBeanListenerManager.class);
+            if (factoryBeanListenerManager == null) {
+                factoryBeanListenerManager = new FactoryBeanListenerManager(bus);
+            }
+            factoryBeanListenerManager.addListener(new FactoryBeanListener() {
+                @Override
+                public void handleEvent(Event arg0, AbstractServiceFactoryBean arg1, Object... arg2) {
+                    if (arg0.equals(Event.SERVER_CREATED) && (arg2[0] instanceof Server)) {
+                        Server server = (Server)arg2[0];
+                        initialize(server, bus);
+                    }
+                }
+            });
         } else {
             List<Feature> features = (List<Feature>)bus.getFeatures();
             if (features == null) {

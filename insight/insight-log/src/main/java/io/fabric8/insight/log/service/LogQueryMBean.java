@@ -15,9 +15,6 @@
  */
 package io.fabric8.insight.log.service;
 
-import org.codehaus.jackson.JsonGenerationException;
-import io.fabric8.insight.log.LogFilter;
-import io.fabric8.insight.log.LogResults;
 import io.fabric8.insight.log.support.LogQuerySupportMBean;
 
 /**

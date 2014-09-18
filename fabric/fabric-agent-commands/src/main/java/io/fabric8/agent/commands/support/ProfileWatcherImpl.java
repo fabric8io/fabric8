@@ -15,6 +15,31 @@
  */
 package io.fabric8.agent.commands.support;
 
+import static io.fabric8.agent.commands.support.Utils.findProfileChecksums;
+import static io.fabric8.agent.commands.support.Utils.getFileChecksum;
+import static io.fabric8.agent.commands.support.Utils.isSnapshot;
+import io.fabric8.agent.commands.ProfileWatcher;
+import io.fabric8.agent.download.DownloadManager;
+import io.fabric8.agent.download.DownloadManagers;
+import io.fabric8.agent.mvn.DictionaryPropertyResolver;
+import io.fabric8.agent.mvn.MavenConfiguration;
+import io.fabric8.agent.mvn.MavenConfigurationImpl;
+import io.fabric8.agent.mvn.MavenRepositoryURL;
+import io.fabric8.agent.mvn.Parser;
+import io.fabric8.agent.utils.AgentUtils;
+import io.fabric8.api.Container;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.Closeables;
+import io.fabric8.deployer.JavaContainers;
+import io.fabric8.internal.Objects;
+import io.fabric8.service.child.ChildContainers;
+import io.fabric8.utils.Base64Encoder;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,6 +47,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -45,38 +71,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.fabric8.agent.commands.ProfileWatcher;
-import io.fabric8.agent.download.DownloadManager;
-import io.fabric8.agent.download.DownloadManagers;
-import io.fabric8.agent.mvn.Parser;
-import io.fabric8.agent.utils.AgentUtils;
-import io.fabric8.api.Container;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.Closeables;
-import io.fabric8.internal.Objects;
-import io.fabric8.utils.Base64Encoder;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.ops4j.pax.url.maven.commons.MavenConfiguration;
-import org.ops4j.pax.url.maven.commons.MavenConfigurationImpl;
-import org.ops4j.pax.url.maven.commons.MavenRepositoryURL;
-import org.ops4j.pax.url.mvn.ServiceConstants;
-import org.ops4j.util.property.DictionaryPropertyResolver;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static io.fabric8.agent.commands.support.Utils.findProfileChecksums;
-import static io.fabric8.agent.commands.support.Utils.getFileChecksum;
-import static io.fabric8.agent.commands.support.Utils.isSnapshot;
 
 /**
  * A Runnable singleton which watches at the defined location for bundle updates.
@@ -169,6 +173,7 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
         Map<File, Long> localChecksums = new HashMap<File, Long>();
         Map<File, Long> localModified = new HashMap<File, Long>();
         Set<Profile> refreshProfiles = new HashSet<Profile>();
+        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
         while (running.get() && watchURLs.size() > 0) {
             SortedSet<String> currentActiveProfiles = getCurrentActiveProfileVersions();
             if (profileArtifacts == null || oldCounter != counter.get() ||
@@ -184,9 +189,9 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
             }
 
             // lets refresh profiles on the next loop; so we've time to finish uploading/modifying files
-            for (Profile refreshProfile : refreshProfiles) {
-                LOG.info("Refreshing profile: " + refreshProfile);
-                refreshProfile.refresh();
+            for (Profile profile : refreshProfiles) {
+                LOG.info("Refreshing profile: " + profile);
+                Profiles.refreshProfile(fabricService.get(), profile);
             }
             refreshProfiles.clear();
 
@@ -200,7 +205,7 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
 
                     // lets find a container for the profile
                     Profile profile = key.getProfile();
-                    Properties checksums = findProfileChecksums(profile);
+                    Properties checksums = findProfileChecksums(fabricService.get(), profile);
                     if (checksums != null) {
                         Set<Map.Entry<String, Parser>> artifactMapEntries = artifactMap.entrySet();
                         for (Map.Entry<String, Parser> artifactMapEntry : artifactMapEntries) {
@@ -208,6 +213,9 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
                             Parser parser = artifactMapEntry.getValue();
                             if (isSnapshot(parser) || wildCardMatch(location)) {
                                 Object value = checksums.get(location);
+                                if (value == null) {
+                                    value = checksums.get(JavaContainers.removeUriPrefixBeforeMaven(location));
+                                }
                                 Long checksum = null;
                                 if (value instanceof Number) {
                                     checksum = ((Number) value).longValue();
@@ -216,7 +224,7 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
                                 }
                                 if (checksum == null) {
                                     if (missingChecksums.add(location)) {
-                                        LOG.debug("Could not find checksum for location " + location);
+                                        LOG.warn("Could not find checksum for location " + location);
                                     }
                                 } else {
                                     File file = new File(localRepository.getPath() + File.separator + parser.getArtifactPath());
@@ -304,9 +312,18 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
             FileChannel in = new FileInputStream(fileToUpload).getChannel();
             URLConnection connection = url.openConnection();
             connection.setDoOutput(true);
-            connection.setRequestProperty("Authorization", Base64Encoder.encode(user + ":" + password));
+            connection.setRequestProperty("Authorization", "Basic " + Base64Encoder.encode(user + ":" + password));
             WritableByteChannel out = Channels.newChannel(connection.getOutputStream());
             in.transferTo(0, fileToUpload.length(), out);
+
+            if (connection instanceof HttpURLConnection) {
+                int code = ((HttpURLConnection) connection).getResponseCode();
+                if (code < 200 || code >= 300) {
+                    LOG.warn(String.format("Got response code %s while uploading %s to fabric8 maven repo: %s", code, fileToUpload.getPath(), url));
+                    return;
+                }
+            }
+
             LOG.info("Uploaded  " + fileToUpload.getPath() + " to fabric8 maven repo: " + url);
         } catch (Exception e) {
             LOG.error("Failed to upload " + fileToUpload.getPath() + " to fabric8 maven repo: " + url + ". " + e, e);
@@ -360,25 +377,36 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
         }
         return answer;
     }
-    /**
-     * For each profile and version return the map of bundle locations to parsers
-     */
-    protected Map<ProfileVersionKey, Map<String, Parser>> findProfileArifacts() throws Exception {
+
+    // For each profile and version return the map of bundle locations to parsers
+    private Map<ProfileVersionKey, Map<String, Parser>> findProfileArifacts() throws Exception {
         Map<ProfileVersionKey, Map<String, Parser>> profileArtifacts = new HashMap<ProfileVersionKey, Map<String, Parser>>();
+        ProfileService profileService = fabricService.get().adapt(ProfileService.class);
         DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService.get(), executorService);
         Container[] containers = fabricService.get().getContainers();
         for (Container container : containers) {
-            container.getProvisionList();
             Profile[] profiles = container.getProfiles();
-            // TODO allow filter on a profile here?
-            for (Profile profile : profiles) {
-                Profile overlay = profile.getOverlay();
-                ProfileVersionKey key = new ProfileVersionKey(profile);
-                if (!profileArtifacts.containsKey(key)) {
-                    Map<String, Parser> artifacts = AgentUtils.getProfileArtifacts(downloadManager, overlay);
-                    profileArtifacts.put(key, artifacts);
+            boolean javaOrProcessContainer = ChildContainers.isJavaOrProcessContainer(fabricService.get(), container);
+                // TODO allow filter on a profile here?
+                for (Profile profile : profiles) {
+                    Profile overlay = profileService.getOverlayProfile(profile);
+                    ProfileVersionKey key = new ProfileVersionKey(profile);
+                    //if (!profileArtifacts.containsKey(key)) {
+                        Map<String, Parser> artifacts = null;
+                        if (javaOrProcessContainer) {
+                            List<Profile> singletonList = Collections.singletonList(profile);
+                            artifacts = JavaContainers.getJavaContainerArtifacts(fabricService.get(), singletonList, executorService);
+                        } else {
+                            artifacts = AgentUtils.getProfileArtifacts(fabricService.get(), downloadManager, overlay);
+                        }
+                        if (artifacts != null) {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Profile " + profile.getId() + " maps to artefacts: " + artifacts.keySet());
+                            }
+                            profileArtifacts.put(key, artifacts);
+                        }
+                    //}
                 }
-            }
         }
         return profileArtifacts;
     }
@@ -401,12 +429,12 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
     protected MavenConfiguration retrieveMavenConfiguration() {
         MavenConfiguration mavenConfiguration = null;
         try {
-            Configuration configuration = configurationAdmin.get().getConfiguration(ServiceConstants.PID);
+            Configuration configuration = configurationAdmin.get().getConfiguration("org.ops4j.pax.url.mvn");
             if (configuration != null) {
                 Dictionary dictonary = configuration.getProperties();
                 if (dictonary != null) {
                     DictionaryPropertyResolver resolver = new DictionaryPropertyResolver(dictonary);
-                    mavenConfiguration = new MavenConfigurationImpl(resolver, ServiceConstants.PID);
+                    mavenConfiguration = new MavenConfigurationImpl(resolver, "org.ops4j.pax.url.mvn");
                 }
             }
         } catch (IOException e) {

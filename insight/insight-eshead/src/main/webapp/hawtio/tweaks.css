@@ -1,6 +1,79 @@
-.es > * {
+#main {
+  padding: 0px;
+}
+
+.es * {
   font-size: 11px;
   line-height: normal;
+  font-family: Verdana, sans-serif;
+}
+
+.es .uiToolbar input {
+  height: 13px;
+  width: initial;
+  font-size: 11px;
+  margin: 2px;
+  border-radius: 0px;
+  padding-top: 2px;
+  padding-bottom: 5px;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+.es select {
+  height: 15px;
+  width: initial;
+  font-size: 11px;
+  margin: 2px;
+  border-radius: 0px;
+  padding-top: 2px;
+  padding-bottom: 5px;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.es .uiQueryFilter-aliases SELECT {
+ width: 100%;
+ height: 16px;
+}
+
+.es .fa {
+  font-family: FontAwesome;
+}
+
+.es .fa-2x {
+  font-size: 2em;
+}
+
+.es .uiToolbar H2 {
+  font-size: 120%;
+}
+
+.es .uiHeader-name, .es .uiHeader-status {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+.es .uiNodesView-routing div {
+	font-size: 32px;
+}
+
+.es h1 {
+  font-size: 2em;
+  font-weight: bold;
+  font-family: Verdana, sans-serif;
+  line-height: normal;
+}
+
+.es h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  font-family: Verdana, sans-serif;
+}
+
+.es h3 {
+  font-size: 1.17em;
+  font-weight: bold;
+  font-family: Verdana, sans-serif;
 }
 
 .es > label, input, button, select, textarea {

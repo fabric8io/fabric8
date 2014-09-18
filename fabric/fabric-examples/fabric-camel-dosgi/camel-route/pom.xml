@@ -20,7 +20,7 @@
     <parent>
         <groupId>io.fabric8.examples</groupId>
         <artifactId>fabric-camel-dosgi</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -28,7 +28,7 @@
     <artifactId>camel-route</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fabric8 :: Example :: Camel DOSGI :: Route</name>
+    <name>Fabric8 :: Examples :: Camel DOSGi :: Camel Route</name>
     
     <dependencies>
         <dependency>

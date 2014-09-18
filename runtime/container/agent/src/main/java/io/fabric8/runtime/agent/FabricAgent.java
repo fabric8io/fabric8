@@ -19,40 +19,25 @@ import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
-import io.fabric8.api.ContainerRegistration;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.karaf.features.Feature;
-import org.jboss.gravia.provision.Provisioner;
-import org.jboss.gravia.provision.ResourceHandle;
-import org.jboss.gravia.provision.ResourceInstaller;
-import org.jboss.gravia.repository.MavenCoordinates;
-import org.jboss.gravia.repository.MavenResourceBuilder;
-import org.jboss.gravia.resource.Capability;
-import org.jboss.gravia.resource.ContentNamespace;
-import org.jboss.gravia.resource.IdentityNamespace;
-import org.jboss.gravia.resource.Requirement;
-import org.jboss.gravia.resource.Resource;
-import org.jboss.gravia.resource.ResourceIdentity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.fabric8.common.util.Closeables;
+import io.fabric8.common.util.Strings;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -64,12 +49,54 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.jar.Attributes;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
-import static io.fabric8.agent.resolver.UriNamespace.getUri;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.karaf.features.Feature;
+import org.jboss.gravia.container.tomcat.WebAppContextListener;
+import org.jboss.gravia.provision.Provisioner;
+import org.jboss.gravia.provision.ResourceHandle;
+import org.jboss.gravia.provision.ResourceInstaller;
+import org.jboss.gravia.provision.spi.DefaultInstallerContext;
+import org.jboss.gravia.resource.Capability;
+import org.jboss.gravia.resource.ContentNamespace;
+import org.jboss.gravia.resource.DefaultResourceBuilder;
+import org.jboss.gravia.resource.IdentityNamespace;
+import org.jboss.gravia.resource.ManifestBuilder;
+import org.jboss.gravia.resource.MavenCoordinates;
+import org.jboss.gravia.resource.Requirement;
+import org.jboss.gravia.resource.Resource;
+import org.jboss.gravia.resource.ResourceIdentity;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.Asset;
+import org.jboss.shrinkwrap.api.exporter.ZipExporter;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.impl.base.asset.ZipFileEntryAsset;
+import org.osgi.service.component.ComponentContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component(name = "io.fabric8.runtime.agent.FabricAgent", label = "Fabric8 Runtime Agent", immediate = true, policy = ConfigurationPolicy.IGNORE, metatype = false)
 public class FabricAgent extends AbstractComponent implements FabricAgentMXBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricAgent.class);
+
+    private static final String SERVICE_COMPONENT = "Service-Component";
+    private static final String GENRATED_RESOURCE_IDENTITY = "io.fabric8.generated.fabric-profile";
+    private static final String GENRATED_MAVEN_COORDS = "mvn:io.fabric8.generated/fabric-profile/1.0.0/war";
+
+    private static final Pattern VALID_COMPONENT_PATH_PATTERN = Pattern.compile("[_a-zA-Z0-9\\-\\./]+");
 
     @Reference(referenceInterface = MBeanServer.class)
     private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
@@ -78,9 +105,6 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
     private final ValidatingReference<Provisioner> provisioner = new ValidatingReference<Provisioner>();
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
-    @Reference(referenceInterface = ContainerRegistration.class)
-    private final ValidatingReference<ContainerRegistration> containerRegistration = new ValidatingReference<ContainerRegistration>();
-
     private final Runnable onConfigurationChange = new Runnable() {
         @Override
         public void run() {
@@ -93,8 +117,11 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
     private ObjectName objectName;
     private Map<ResourceIdentity, ResourceHandle> resourcehandleMap = new ConcurrentHashMap<ResourceIdentity, ResourceHandle>();
 
+    private ComponentContext componentContext;
+
     @Activate
-    void activate() {
+    void activate(ComponentContext componentContext) {
+        this.componentContext = componentContext;
         LOGGER.info("Activating");
         fabricService.get().trackConfiguration(onConfigurationChange);
         activateComponent();
@@ -153,32 +180,27 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
     }
 
     protected synchronized void updateInternal() {
-        Profile profile = null;
-        FabricService fabric = null;
-        Provisioner provisionService = null;
-
+        Profile effectiveProfile;
         try {
-            fabric = fabricService.get();
-            Container container = fabric.getCurrentContainer();
-            profile = container.getOverlayProfile();
-            provisionService = provisioner.get();
+            Profile overlayProfile = fabricService.get().getCurrentContainer().getOverlayProfile();
+            effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), overlayProfile);
         } catch (Exception ex) {
-            LOGGER.debug("Failed to read container profile. This exception will be ignored..", ex);
+            LOGGER.warn("Failed to read container profile. This exception will be ignored..", ex);
             return;
         }
 
-        if (profile != null && fabric != null && provisionService != null) {
-            List<String> resources = null;
-            try {
-                resources = updateProvisioning(fabric, profile, provisionService);
-                updateStatus(Container.PROVISION_SUCCESS, null, resources);
-            } catch (Throwable e) {
-                if (isValid()) {
-                    LOGGER.warn("Exception updating provisioning: " + e, e);
-                    updateStatus(Container.PROVISION_ERROR, e, resources);
-                } else {
-                    LOGGER.debug("Exception updating provisioning: " + e, e);
-                }
+        List<String> resources = null;
+        try {
+            Map<String, File> artifacts = downloadProfileArtifacts(fabricService.get(), effectiveProfile);
+            populateExplodedWar(artifacts);
+            resources = updateProvisioning(artifacts, provisioner.get());
+            updateStatus(Container.PROVISION_SUCCESS, null, resources);
+        } catch (Throwable e) {
+            if (isValid()) {
+                LOGGER.warn("Exception updating provisioning: " + e, e);
+                updateStatus(Container.PROVISION_ERROR, e, resources);
+            } else {
+                LOGGER.debug("Exception updating provisioning: " + e, e);
             }
         }
     }
@@ -210,24 +232,84 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
         }
     }
 
-    protected List<String> updateProvisioning(FabricService fabric, Profile profile, Provisioner provisionService) throws Exception {
-        updateStatus("installing", null, null);
+    protected Map<String, File> downloadProfileArtifacts(FabricService fabric, Profile profile) throws Exception {
+        updateStatus("downloading", null, null);
         Set<String> bundles = new LinkedHashSet<String>();
         Set<Feature> features = new LinkedHashSet<Feature>();
         bundles.addAll(profile.getBundles());
-        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
-        AgentUtils.addFeatures(features, downloadManager, profile);
 
+        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
+        AgentUtils.addFeatures(features, fabric, downloadManager, profile);
+        //return AgentUtils.downloadProfileArtifacts(fabricService.get(), downloadManager, profile);
+        return AgentUtils.downloadBundles(downloadManager, features, bundles,
+                Collections.<String>emptySet());
+    }
+
+    protected void populateExplodedWar(Map<String, File> artifacts) throws IOException {
+        updateStatus("populating profile war", null, null);
+        ClassLoader original = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(FabricAgent.class.getClassLoader());
+            final WebArchive archive = ShrinkWrap.create(WebArchive.class, "profile.war");
+            final Set<String> components = new HashSet<String>();
+            for (Map.Entry<String, File> entry : artifacts.entrySet()) {
+                String name = entry.getKey();
+                File f = entry.getValue();
+                if (!isWar(name, f)) {
+                    archive.addAsLibrary(f);
+                    Manifest mf = readManifest(f);
+                    if (mf.getMainAttributes().containsKey(new Attributes.Name(SERVICE_COMPONENT))) {
+                        String serviceComponents = mf.getMainAttributes().getValue(SERVICE_COMPONENT);
+                        for (String component : Strings.splitAndTrimAsList(serviceComponents, ",")) {
+                            if (VALID_COMPONENT_PATH_PATTERN.matcher(component).matches()) {
+                                archive.add(new ZipFileEntryAsset(new ZipFile(f, ZipFile.OPEN_READ), new ZipEntry(component)), component);
+                                components.add(component);
+                            }
+                        }
+                    }
+                }
+            }
+
+            archive.addClass(WebAppContextListener.class);
+            archive.addAsWebInfResource("web.xml");
+            archive.addAsWebResource("context.xml", "META-INF/context.xml");
+            archive.setManifest(new Asset() {
+                @Override
+                public InputStream openStream() {
+                    return new ManifestBuilder()
+                            .addIdentityCapability(GENRATED_RESOURCE_IDENTITY, "1.0.0")
+                            .addManifestHeader(SERVICE_COMPONENT, Strings.join(components, ",")).openStream();
+                }
+            });
+
+            File profileWar = componentContext.getBundleContext().getDataFile("fabric-profile.war");
+            archive.as(ZipExporter.class).exportTo(profileWar, true);
+            artifacts.put(GENRATED_MAVEN_COORDS, profileWar);
+        } finally {
+            Thread.currentThread().setContextClassLoader(original);
+        }
+        updateStatus("populated profile war", null, null);
+    }
+
+    private static Manifest readManifest(File file) throws IOException {
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(file);
+            JarInputStream jis = new JarInputStream(fis);
+            return jis.getManifest();
+        } finally {
+            Closeables.closeQuitely(fis);
+        }
+    }
+
+    protected List<String> updateProvisioning(Map<String, File> artifacts, Provisioner provisionService) throws Exception {
         ResourceInstaller resourceInstaller = provisionService.getResourceInstaller();
         Map<ResourceIdentity, Resource> installedResources = getInstalledResources(provisionService);
-
         Map<Requirement, Resource> requirements = new HashMap<Requirement, Resource>();
-
-        Map<String, File> files = AgentUtils.downloadBundles(downloadManager, features, bundles,
-                Collections.<String>emptySet());
-        Set<Map.Entry<String, File>> entries = files.entrySet();
+        Set<Map.Entry<String, File>> entries = artifacts.entrySet();
         List<Resource> resourcesToInstall = new ArrayList<Resource>();
         List<String> resourceUrisInstalled = new ArrayList<String>();
+        updateStatus("installing", null, null);
         for (Map.Entry<String, File> entry : entries) {
             String name = entry.getKey();
             File file = entry.getValue();
@@ -239,7 +321,7 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
             }
             // lets switch to gravia's mvn coordinates
             coords = coords.replace('/', ':');
-            MavenCoordinates mvnCoords = MavenCoordinates.parse(coords);
+            MavenCoordinates mvnCoords = parse(coords);
             URL url = file.toURI().toURL();
             if (url == null) {
                 LOGGER.warn("Could not find URL for file " + file);
@@ -247,10 +329,8 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
             }
 
             // TODO lets just detect wars for now for servlet engines - how do we decide on WildFly?
-            boolean isWar = name.startsWith("war:") || name.contains("/war/") ||
-                                        file.getName().toLowerCase().endsWith(".war");
 
-            boolean isShared = !isWar;
+            boolean isShared = !isWar(name, file);
             Resource resource = findMavenResource(mvnCoords, url, isShared);
             if (resource == null) {
                 LOGGER.warn("Could not find resource for " + mvnCoords + " and " + url);
@@ -261,7 +341,7 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
                     if (isShared) {
                         // TODO lest not deploy shared stuff for now since bundles throw an exception when trying to stop them
                         // which breaks the tests ;)
-                        LOGGER.warn("TODO not installing " + (isShared ? "shared" : "non-shared") + " resource: " + identity);
+                        LOGGER.debug("TODO not installing " + (isShared ? "shared" : "non-shared") + " resource: " + identity);
                     } else {
                         LOGGER.info("Installing " + (isShared ? "shared" : "non-shared") + " resource: " + identity);
                         resourcesToInstall.add(resource);
@@ -286,7 +366,12 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
         }
         if (resourcesToInstall.size() > 0) {
             LOGGER.info("Installing " + resourcesToInstall.size() + " resource(s)");
-            Set<ResourceHandle> resourceHandles = resourceInstaller.installResources(resourcesToInstall, requirements);
+            Set<ResourceHandle> resourceHandles = new LinkedHashSet<>();
+            ResourceInstaller.Context context = new DefaultInstallerContext(resourcesToInstall, requirements);
+            for (Resource resource : resourcesToInstall) {
+                resourceHandles.add(resourceInstaller.installResource(context, resource));
+            }
+
             LOGGER.info("Got " + resourceHandles.size() + " resource handle(s)");
 
             for (ResourceHandle resourceHandle : resourceHandles) {
@@ -320,7 +405,7 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
         LOGGER.debug("Find maven providers for: {}", mavenid);
         Resource result = null;
         if (contentURL != null) {
-            MavenResourceBuilder builder = new MavenResourceBuilder();
+            DefaultResourceBuilder builder = new DefaultResourceBuilder();
             Capability identCap = builder.addIdentityCapability(mavenid);
             Capability ccap = builder.addCapability(ContentNamespace.CONTENT_NAMESPACE, null, null);
             ccap.getAttributes().put(ContentNamespace.CAPABILITY_URL_ATTRIBUTE, contentURL);
@@ -333,6 +418,27 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
             LOGGER.debug("Found maven resource: {}", result = builder.getResource());
         }
 
+        return result;
+    }
+
+    private static boolean isWar(String name, File file) {
+        return name.startsWith("war:") || name.contains("/war/") ||
+                file.getName().toLowerCase().endsWith(".war");
+    }
+
+    //TODO: This needs to be fixed at gravia
+    private static MavenCoordinates parse(String coordinates) {
+        MavenCoordinates result;
+        String[] parts = coordinates.split(":");
+        if (parts.length == 3) {
+            result =  MavenCoordinates.create(parts[0], parts[1], parts[2], null, null);
+        } else if (parts.length == 4) {
+            result = MavenCoordinates.create(parts[0], parts[1], parts[2], parts[3], null);
+        } else if (parts.length == 5) {
+            result = MavenCoordinates.create(parts[0], parts[1], parts[2], parts[3], parts[4]);
+        } else {
+            throw new IllegalArgumentException("Invalid coordinates: " + coordinates);
+        }
         return result;
     }
 
@@ -358,14 +464,6 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
 
     void unbindFabricService(FabricService fabricService) {
         this.fabricService.unbind(fabricService);
-    }
-
-    void bindContainerRegistration(ContainerRegistration service) {
-        this.containerRegistration.bind(service);
-    }
-
-    void unbindContainerRegistration(ContainerRegistration service) {
-        this.containerRegistration.unbind(service);
     }
 
 

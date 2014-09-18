@@ -5,9 +5,9 @@ function install_unzip() {
   else
     echo "Installing unzip."
     if which dpkg &> /dev/null; then
-      sudo -n apt-get -y install unzip
+      sudo_n apt-get -y install unzip
     elif which rpm &> /dev/null; then
-     sudo -n yum -y install unzip
+     sudo_n yum -y install unzip
     fi
   fi
 }

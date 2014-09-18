@@ -1,0 +1,18 @@
+---
+title: fabric8 FAQ
+--- pipeline:ssp,markdown
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+      <h1>FAQ</h1>
+
+  ${unescape(loadText(new FileInputStream("../docs/faqGeneral.md")))}
+  ${unescape(loadText(new FileInputStream("../docs/faqUsing.md")))}
+  ${unescape(loadText(new FileInputStream("../docs/faqOsgi.md")))}
+  ${unescape(loadText(new FileInputStream("../docs/faqConfig.md")))}
+  ${unescape(loadText(new FileInputStream("../docs/faqIssues.md")))}
+
+  </div>
+    </div>
+      </div>
+

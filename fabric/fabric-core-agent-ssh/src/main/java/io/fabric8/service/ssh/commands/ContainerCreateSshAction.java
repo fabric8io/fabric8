@@ -16,6 +16,7 @@
 package io.fabric8.service.ssh.commands;
 
 import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.boot.commands.support.AbstractContainerCreateAction;
@@ -68,6 +69,9 @@ public class ContainerCreateSshAction extends AbstractContainerCreateAction {
     private String newUserRole = "admin";
     @Option(name = "--with-admin-access", description = "Indicates that the target user has admin access (password-less sudo). When used installation of missing dependencies will be attempted.")
     private boolean adminAccess;
+    @Option(name = "--disable-distribution-upload", multiValued = false, description = "Flag to disable uploading the distribution. When used distribution will be downloaded via maven")
+    private Boolean distributionUploadDisable = false;
+
 
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
@@ -116,7 +120,7 @@ public class ContainerCreateSshAction extends AbstractContainerCreateAction {
         .version(version)
         .profiles(getProfileNames())
         .dataStoreProperties(getDataStoreProperties())
-        .dataStoreType(dataStoreType != null && isEnsembleServer ? dataStoreType : fabricService.getDataStore().getType());
+        .uploadDistribution(!distributionUploadDisable);
 
 
         if (path != null && !path.isEmpty()) {

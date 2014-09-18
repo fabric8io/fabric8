@@ -17,7 +17,11 @@ package io.fabric8.api;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+/**
+ * The immutable view of a profile
+ */
 public interface Profile extends Comparable<Profile>, HasId {
 
     /**
@@ -56,25 +60,21 @@ public interface Profile extends Comparable<Profile>, HasId {
      */
     String DELETED = "#deleted#";
 
+    /**
+     * The file suffix for a configuration
+     */
+    String PROPERTIES_SUFFIX = ".properties";
+
+    /**
+     * The attribute prefix for in the agent configuration
+     */
+    String ATTRIBUTE_PREFIX = "attribute.";
+
     String getVersion();
 
-    /**
-     * Returns a read only map of all the attributes of this profile
-     * @return
-     */
     Map<String, String> getAttributes();
 
-    /**
-     * Change an attribute on this version.
-     * @param key the name of the attribute
-     * @param value the new value or <code>null</code> to delete the attribute
-     */
-    void setAttribute(String key, String value);
-
-    Profile[] getParents();
-    void setParents(Profile[] parents);
-
-    Container[] getAssociatedContainers();
+    List<String> getParentIds();
 
     List<String> getLibraries();
     List<String> getEndorsedLibraries();
@@ -84,125 +84,67 @@ public interface Profile extends Comparable<Profile>, HasId {
     List<String> getFeatures();
     List<String> getRepositories();
     List<String> getOverrides();
+    List<String> getOptionals();
 
     /**
-     * Returns the configuration file names that are available on this profile
+     * Returns the URL of the profile's icon, relative to the Fabric REST API or null if no icon could be found
      */
-    List<String> getConfigurationFileNames();
+    String getIconURL();
+
+    /**
+     * Returns the summary markdown text of the profile or null if none could be found. Typically returns the "Summary.md" file contents as a String
+     */
+    String getSummaryMarkdown();
+
+
+    /**
+     * Returns the list of tags that are applied to this profile. If none is configured then it defaults to the parent folders of the profile ID.
+     */
+    List<String> getTags();
+
+    /**
+     * Get the configuration file names that are available on this profile
+     */
+    Set<String> getConfigurationFileNames();
 
     Map<String, byte[]> getFileConfigurations();
 
     /**
-     * Returns the configuration file for the given name
+     * Get the configuration file for the given name
      */
     byte[] getFileConfiguration(String fileName);
 
     /**
-     * Update configurations of this profile with the new values
-     *
-     * @param configurations
-     */
-    void setFileConfigurations(Map<String, byte[]> configurations);
-
-    /**
-     * Returns all of the configuration properties
+     * Get all configuration properties
      */
     Map<String, Map<String, String>> getConfigurations();
 
     /**
-     * Returns the configuration properties for the given PID
+     * Get the configuration properties for the given PID
+     * @return an empty map if the there is no configuration for the given pid
      */
     Map<String, String> getConfiguration(String pid);
 
     /**
-     * Returns the configuration properties for the container
-     */
-    Map<String, String> getContainerConfiguration();
-
-    /**
-     * Update configurations of this profile with the new values
-     *
-     * @param configurations
-     */
-    void setConfigurations(Map<String, Map<String, String>> configurations);
-
-    /**
-     * Update configurations of this profile with the new values for the given PID
-     *
-     * @param configuration is the new configuration value for the given PID
-     */
-    void setConfiguration(String pid, Map<String, String> configuration);
-
-    /**
-     * Gets profile with configuration slitted with parents.
-     *
-     * @return Calculated profile or null if instance is already a calculated overlay.
-     */
-    Profile getOverlay();
-
-    /**
-     * Same as getOverlay() but also perform variable substitutions
-     * @param substitute
-     * @return
-     */
-    Profile getOverlay(boolean substitute);
-
-    /**
      * Indicate if this profile is an overlay or not.
-     *
-     * @return
      */
     boolean isOverlay();
 
-    void delete();
-
-    public void delete(boolean force);
-
-    void setBundles(List<String> values);
-
-    void setFabs(List<String> values);
-
-    void setFeatures(List<String> values);
-
-    void setRepositories(List<String> values);
-
-    void setOverrides(List<String> values);
-
-    boolean configurationEquals(Profile other);
-
     /**
-     * Checks if the two Profiles share the same agent configuration.
-     * @param other
-     * @return
-     */
-    boolean agentConfigurationEquals(Profile other);
-
-    /**
-     * Checks if the profile exists.
-     * @return
-     */
-    boolean exists();
-
-    /**
-     * Manually trigger provisioning of this profile
-     */
-    void refresh();
-
-    /**
-     * Returns true if this profile is Abstract. Abstract profiles should not be provisioned by default,
-     * they are intended to be inherited
+     * Returns true if this profile is Abstract. 
+     * Abstract profiles should not be provisioned by default, they are intended to be inherited
      */
     boolean isAbstract();
 
     /**
-     * Returns true if this profile is locked.  Locked profiles can't be modified.
-     * @return
+     * Returns true if this profile is locked. 
+     * Locked profiles can't be modified.
      */
     boolean isLocked();
 
     /**
-     * Returns true if this profile is hidden.  Hidden profiles are not listed by default.
-     * @return
+     * Returns true if this profile is hidden.  
+     * Hidden profiles are not listed by default.
      */
     boolean isHidden();
 

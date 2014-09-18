@@ -15,6 +15,25 @@
  */
 package io.fabric8.openshift;
 
+import com.openshift.client.NotFoundOpenShiftException;
+import io.fabric8.api.Container;
+import io.fabric8.api.ContainerAutoScaler;
+import io.fabric8.api.ContainerAutoScalerFactory;
+import io.fabric8.api.ContainerProvider;
+import io.fabric8.api.CreationStateListener;
+import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.NameValidator;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Version;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
+import io.fabric8.api.scr.ValidatingReference;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,11 +42,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import com.openshift.client.IGearProfile;
-import com.openshift.client.OpenShiftTimeoutException;
 
-import io.fabric8.api.FabricException;
-import io.fabric8.api.scr.Configurer;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -38,48 +58,29 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
-import io.fabric8.api.Container;
-import io.fabric8.api.ContainerAutoScaler;
-import io.fabric8.api.ContainerAutoScalerFactory;
-import io.fabric8.api.ContainerProvider;
-import io.fabric8.api.CreationStateListener;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.NameValidator;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.openshift.client.ApplicationScale;
 import com.openshift.client.IApplication;
 import com.openshift.client.IDomain;
+import com.openshift.client.IGearProfile;
 import com.openshift.client.IHttpClient;
 import com.openshift.client.IOpenShiftConnection;
 import com.openshift.client.IUser;
+import com.openshift.client.OpenShiftTimeoutException;
 import com.openshift.client.cartridge.EmbeddableCartridge;
 import com.openshift.client.cartridge.IEmbeddableCartridge;
 import com.openshift.client.cartridge.StandaloneCartridge;
 import com.openshift.internal.client.GearProfile;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
-
 @ThreadSafe
-@Component(name = "io.fabric8.container.provider.openshift",
-        configurationPid = "io.fabric8.openshift",
-        label = "Fabric8 Openshift Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = false)
+@Component(configurationPid = "io.fabric8.openshift",
+        name = "io.fabric8.openshift",
+        label = "Fabric8 Openshift Container Provider",
+        description = "Fabric8 Container Provider which uses the OpenShift REST API to create, start, stop and delete containers",
+        policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service(ContainerProvider.class)
-@Properties(
-        @Property(name = "fabric.container.protocol", value = OpenshiftContainerProvider.SCHEME)
-)
 public final class OpenshiftContainerProvider extends AbstractComponent implements ContainerProvider<CreateOpenshiftContainerOptions, CreateOpenshiftContainerMetadata>, ContainerAutoScalerFactory {
 
     public static final String PROPERTY_AUTOSCALE_SERVER_URL = "autoscale.server.url";
@@ -103,7 +104,10 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     private MBeanServer mbeanServer;
 
 
-    @Property(name="default.cartridge.url", label = "Default Cartridge URL", value = "${default.cartridge.url}")
+    @Property(name="default.cartridge.url",
+            label = "Default Cartridge URL",
+            description = "The ID or URL used to locate the OpenShift cartridge",
+            value = "${default.cartridge.url}")
     private String defaultCartridgeUrl;
 
     private ObjectName objectName;
@@ -168,12 +172,13 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         String versionId = options.getVersion();
         Map<String, String> openshiftConfigOverlay = new HashMap<String, String>();
         if (profiles != null && versionId != null) {
-            Version version = fabricService.get().getVersion(versionId);
+            ProfileService profileService = fabricService.get().adapt(ProfileService.class);
+            Version version = profileService.getVersion(versionId);
             if (version != null) {
                 for (String profileId : profiles) {
-                    Profile profile = version.getProfile(profileId);
+                    Profile profile = version.getRequiredProfile(profileId);
                     if (profile != null) {
-                        Profile overlay = profile.getOverlay();
+                        Profile overlay = profileService.getOverlayProfile(profile);
                         Map<String, String> openshiftConfig = overlay.getConfiguration(OpenShiftConstants.OPENSHIFT_PID);
                         if (openshiftConfig != null)  {
                             openshiftConfigOverlay.putAll(openshiftConfig);
@@ -222,6 +227,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
             long t1;
             do {
                 Thread.sleep(5000);
+                domain.refresh();
                 application = domain.getApplicationByName(containerName);
                 if (application != null) {
                     break;
@@ -247,7 +253,9 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         }
 
         String gitUrl = application.getGitUrl();
-        CreateOpenshiftContainerMetadata metadata = new CreateOpenshiftContainerMetadata(domain.getId(), application.getUUID(), application.getCreationLog(), gitUrl);
+        // in case of OpenShiftTimeoutException, application resource doesn't contain getCreationLog().
+        // actually this method throws NPE
+        CreateOpenshiftContainerMetadata metadata = new CreateOpenshiftContainerMetadata(domain.getId(), application.getUUID(), application.getMessages() == null ? "" : application.getCreationLog(), gitUrl);
         metadata.setContainerName(containerName);
         metadata.setCreateOptions(options);
         return metadata;
@@ -263,6 +271,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     public void stop(Container container) {
         assertValid();
         getContainerApplication(container, true).stop();
+        container.setProvisionResult(Container.PROVISION_STOPPED);
     }
 
     @Override
@@ -270,7 +279,11 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         assertValid();
         IApplication app = getContainerApplication(container, false);
         if (app != null) {
-            app.destroy();
+            try {
+                app.destroy();
+            } catch (NotFoundOpenShiftException e) {
+                LOG.debug("Ignoring '{} when destroying {} container", e.getMessage(), container.getId());
+            }
         }
     }
 
@@ -278,6 +291,11 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     public String getScheme() {
         assertValid();
         return SCHEME;
+    }
+
+    @Override
+    public boolean isValidProvider() {
+        return true;
     }
 
     @Override
@@ -375,7 +393,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     }
 
     @Override
-    public ContainerAutoScaler createAutoScaler() {
+    public ContainerAutoScaler createAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
         return new OpenShiftAutoScaler(this);
     }
 

@@ -21,7 +21,7 @@
     <parent>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-project</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
+      <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-core</artifactId>
@@ -34,9 +34,7 @@
           *
         </fuse.osgi.import>
         <fuse.osgi.export>
-            io.fabric8.api.jmx;version=${project.version},
-            io.fabric8.api.locks;version=${project.version},
-            io.fabric8.api.proxy;version=${project.version};-noimport:=true,
+            io.fabric8.core.jmx;version=${project.version};-noimport:=true,
             io.fabric8.service*;version=${project.version};-noimport:=true,
             io.fabric8.internal*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
@@ -46,37 +44,9 @@
             org.apache.felix.utils.properties;-split-package:=first,
             org.apache.felix.utils.version;-split-package:=first
         </fuse.osgi.private.pkg>
-        <fuse.osgi.services.export>
-            io.fabric8.api.FabricService,
-            io.fabric8.api.DataStore,
-            io.fabric8.api.ZooKeeperClusterBootstrap,
-            io.fabric8.api.ZooKeeperClusterService
-        </fuse.osgi.services.export>
-        <fuse.osgi.service.component>
-            <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/io.fabric8.api.jmx.ClusterBootstrapManager.xml,
-            OSGI-INF/io.fabric8.api.jmx.ClusterServiceManager.xml,
-            OSGI-INF/io.fabric8.api.jmx.MetaTypeFacade.xml,
-            OSGI-INF/io.fabric8.api.jmx.MQManager.xml,
-            OSGI-INF/io.fabric8.internal.locks.LockServiceImpl.xml,
-            OSGI-INF/io.fabric8.internal.ZooKeeperClusterBootstrapImpl.xml,
-            OSGI-INF/io.fabric8.internal.ZooKeeperClusterServiceImpl.xml,
-            OSGI-INF/io.fabric8.service.child.ChildContainerProvider.xml,
-            OSGI-INF/io.fabric8.service.ChecksumPlaceholderResolver.xml,
-            OSGI-INF/io.fabric8.service.ComponentConfigurer.xml,
-            OSGI-INF/io.fabric8.service.ContainerPlaceholderResolver.xml,
-            OSGI-INF/io.fabric8.service.EncryptedPropertyResolver.xml,
-            OSGI-INF/io.fabric8.service.EnvPlaceholderResolver.xml,
-            OSGI-INF/io.fabric8.service.FabricMBeanRegistrationListener.xml,
-            OSGI-INF/io.fabric8.service.FabricServiceImpl.xml,
-            OSGI-INF/io.fabric8.service.PortPlaceholderResolver.xml,
-            OSGI-INF/io.fabric8.service.ProfilePropertyPointerResolver.xml,
-            OSGI-INF/io.fabric8.service.ProfileUrlHandler.xml,
-            OSGI-INF/io.fabric8.service.VersionPropertyPointerResolver.xml,
-            OSGI-INF/io.fabric8.service.ZookeeperPlaceholderResolver.xml,
-            OSGI-INF/io.fabric8.service.ZookeeperPortService.xml,
-            OSGI-INF/io.fabric8.service.FreeGeoIpService.xml
-        </fuse.osgi.service.component>
+        <fuse.osgi.capabilities.provide>
+            osgi.service;effective:=active;objectClass="io.fabric8.api.GeoLocationService"
+        </fuse.osgi.capabilities.provide>
     </properties>
 
     <dependencies>
@@ -89,8 +59,17 @@
             <artifactId>org.apache.karaf.admin.management</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-runtime-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>common-util</artifactId>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
@@ -113,12 +92,28 @@
             <artifactId>commons-beanutils</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>org.jboss.gravia</groupId>
+			<artifactId>gravia-runtime-api</artifactId>
+		</dependency>
+        <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-runtime-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mvel</groupId>
+            <artifactId>mvel2</artifactId>
         </dependency>
         
         <!-- Provided Dependencies -->
@@ -148,8 +143,6 @@
             <artifactId>org.osgi.enterprise</artifactId>
             <scope>provided</scope>
         </dependency>
-
-
 
         <!-- Test Dependencies -->
         <dependency>

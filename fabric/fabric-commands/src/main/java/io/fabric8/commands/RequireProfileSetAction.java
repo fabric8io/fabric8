@@ -25,7 +25,7 @@ import io.fabric8.commands.support.ChangeRequirementSupport;
 
 import java.util.List;
 
-@Command(name = "require-profile-set", scope = "fabric", description = "Sets the requirements of a profile in terms of its minimum and maximum required instances", detailedDescription = "classpath:status.txt")
+@Command(name = RequireProfileSet.FUNCTION_VALUE, scope = RequireProfileSet.SCOPE_VALUE, description = RequireProfileSet.DESCRIPTION, detailedDescription = "classpath:status.txt")
 public class RequireProfileSetAction extends ChangeRequirementSupport {
 
     @Option(name = "--minimum", multiValued = false, required = false, description = "The minimum number of instances expected of this profile in the fabric")

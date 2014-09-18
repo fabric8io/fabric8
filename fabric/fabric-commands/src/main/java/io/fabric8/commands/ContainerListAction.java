@@ -16,29 +16,24 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.Container;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
-import io.fabric8.boot.commands.support.FabricCommand;
 import io.fabric8.commands.support.CommandUtils;
 
 import java.io.PrintStream;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.Locale;
 
+import io.fabric8.utils.TablePrinter;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
-import org.fusesource.jansi.Ansi;
 
-@Command(name = ContainerList.FUNCTION_VALUE, scope = ContainerList.SCOPE_VALUE, description = ContainerList.DESCRIPTION)
+@Command(name = ContainerList.FUNCTION_VALUE, scope = ContainerList.SCOPE_VALUE, description = ContainerList.DESCRIPTION, detailedDescription = "classpath:containerList.txt")
 public class ContainerListAction extends AbstractAction {
-
-    static final String FORMAT = "%-30s %-9s %-11s %-50s %s";
-    static final String VERBOSE_FORMAT = "%-20s %-9s %-11s %-30s  %-30s %-90s %s";
-
-    static final String[] HEADERS = {"[id]", "[version]", "[connected]", "[profiles]", "[provision status]"};
-    static final String[] VERBOSE_HEADERS = {"[id]", "[version]", "[connected]", "[profiles]", "[ssh url]", "[jmx url]", "[provision status]"};
 
     @Option(name = "--version", description = "Optional version to use as filter")
     private String version;
@@ -48,9 +43,13 @@ public class ContainerListAction extends AbstractAction {
     private String filter = null;
 
     private final FabricService fabricService;
+    private final ProfileService profileService;
+    private final DataStore dataStore;
 
     ContainerListAction(FabricService fabricService) {
         this.fabricService = fabricService;
+        this.profileService = fabricService.adapt(ProfileService.class);
+        this.dataStore = fabricService.adapt(DataStore.class);
     }
 
     @Override
@@ -67,7 +66,7 @@ public class ContainerListAction extends AbstractAction {
         Version ver = null;
         if (version != null) {
             // limit containers to only with same version
-            ver = fabricService.getVersion(version);
+            ver = profileService.getRequiredVersion(version);
         }
 
         if (verbose) {
@@ -75,15 +74,12 @@ public class ContainerListAction extends AbstractAction {
         } else {
             printContainers(containers, ver, System.out);
         }
-        displayMissingProfiles(findMissingProfiles(containers), System.out);
         return null;
     }
 
     private void printContainers(Container[] containers, Version version, PrintStream out) {
-        Set<String> missingProfiles = findMissingProfiles(containers);
-        String header = String.format(FORMAT, (Object[])HEADERS);
-
-        out.println(String.format(FORMAT, (Object[])HEADERS));
+        TablePrinter table = new TablePrinter();
+        table.columns("id", "version", "type", "connected", "profiles", "provision status");
         for (Container container : containers) {
             if (CommandUtils.matchVersion(container, version)) {
                 String indent = "";
@@ -96,82 +92,55 @@ public class ContainerListAction extends AbstractAction {
                     marker = "*";
                 }
 
-                String assignedProfiles = FabricCommand.toString(fabricService.getDataStore().getContainerProfiles(container.getId()));
-                String highlightedProfiles = assignedProfiles;
-                String line = String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(), assignedProfiles, CommandUtils.status(container));
+                List<String> assignedProfiles = dataStore.getContainerProfiles(container.getId());
+                table.row(indent + container.getId() + marker, container.getVersion().getId(), container.getType(),
+                        aliveText(container), assignedProfiles.get(0), CommandUtils.status(container));
 
-                int pStart = Math.max(header.indexOf(HEADERS[3]), line.indexOf(assignedProfiles));
-                int pEnd = pStart + assignedProfiles.length();
-
-                for (String p : missingProfiles) {
-                    String highlighted = Ansi.ansi().fg(Ansi.Color.RED).a(p).toString() + Ansi.ansi().reset().toString();
-                    highlightedProfiles = highlightedProfiles.replaceAll(p, highlighted);
+                // we want multiple profiles to be displayed on next lines
+                for (int i = 1; i < assignedProfiles.size(); i++) {
+                    table.row("", "", "", "", assignedProfiles.get(i), "");
                 }
-
-                line = replaceAll(line, pStart, pEnd, assignedProfiles, highlightedProfiles);
-                out.println(line);
             }
         }
+        table.print();
+    }
+
+    protected static String aliveText(Container container) {
+        return container.isAlive() ? "yes" : "";
     }
 
     private void printContainersVerbose(Container[] containers, Version version, PrintStream out) {
-        Set<String> missingProfiles = findMissingProfiles(containers);
-        String header = String.format(VERBOSE_FORMAT, (Object[])VERBOSE_HEADERS);
-
-        out.println(header);
+        TablePrinter table = new TablePrinter();
+        table.columns("id", "version", "type", "connected", "profiles", "blueprint", "spring", "provision status");
         for (Container container : containers) {
             if (CommandUtils.matchVersion(container, version)) {
                 String indent = "";
                 for (Container c = container; !c.isRoot(); c = c.getParent()) {
                     indent += "  ";
                 }
-                //Mark local container with a star symobl
+                //Mark local container with a star symbol
                 String marker = "";
                 if (container.getId().equals(fabricService.getCurrentContainer().getId())) {
                     marker = "*";
                 }
-                String assignedProfiles = FabricCommand.toString(container.getProfiles());
-                String highlightedProfiles = new String(assignedProfiles);
-                String line = String.format(VERBOSE_FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(), assignedProfiles, container.getSshUrl(), container.getJmxUrl(), CommandUtils.status(container));
-                int pStart = Math.max(header.indexOf(HEADERS[3]), line.indexOf(assignedProfiles));
-                int pEnd = pStart + assignedProfiles.length();
 
-                for (String p : missingProfiles) {
-                    String highlighted = Ansi.ansi().fg(Ansi.Color.RED).a(p).toString() + Ansi.ansi().reset().toString();
-                    highlightedProfiles = highlightedProfiles.replaceAll(p, highlighted);
-                }
+                String blueprintStatus = dataStore.getContainerAttribute(container.getId(), DataStore.ContainerAttribute.BlueprintStatus, "", false, false);
+                String springStatus = dataStore.getContainerAttribute(container.getId(), DataStore.ContainerAttribute.SpringStatus, "", false, false);
+                blueprintStatus = blueprintStatus.toLowerCase(Locale.ENGLISH);
+                springStatus = springStatus.toLowerCase(Locale.ENGLISH);
 
-                line = replaceAll(line, pStart, pEnd, assignedProfiles, highlightedProfiles);
-                out.println(line);
-            }
-        }
-    }
+                List<String> assignedProfiles = dataStore.getContainerProfiles(container.getId());
+                table.row(indent + container.getId() + marker, container.getVersion().getId(), container.getType(),
+                        aliveText(container), assignedProfiles.get(0), blueprintStatus, springStatus, CommandUtils.status(container));
 
-    private String replaceAll(String source, int start, int end, String pattern, String replacement) {
-        return source.substring(0, start) + source.substring(start, end).replaceAll(pattern, replacement) + source.substring(end);
-    }
-
-    private void displayMissingProfiles(Set<String> missingProfiles, PrintStream out) {
-        if (!missingProfiles.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("The following profiles are assigned but not found:");
-            for (String profile : missingProfiles) {
-                sb.append(" ").append(profile);
-            }
-            sb.append(".");
-            out.println(sb.toString());
-        }
-    }
-
-    private Set<String> findMissingProfiles(Container[] containers) {
-        Set<String> missingProfiles = new HashSet<String>();
-        for (Container container : containers) {
-            for (String p : fabricService.getDataStore().getContainerProfiles(container.getId())) {
-                if (!container.getVersion().hasProfile(p)) {
-                    missingProfiles.add(p);
+                // we want multiple profiles to be displayed on next lines
+                for (int i = 1; i < assignedProfiles.size(); i++) {
+                    table.row("", "", "", "", assignedProfiles.get(i), "", "", "");
                 }
             }
         }
-        return missingProfiles;
+        table.print();
+
     }
+
 }

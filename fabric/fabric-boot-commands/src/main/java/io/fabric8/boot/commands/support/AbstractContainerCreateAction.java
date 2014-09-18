@@ -19,6 +19,8 @@ import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricAuthenticationException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRegistry;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.utils.FabricValidations;
@@ -51,16 +53,16 @@ public abstract class AbstractContainerCreateAction extends AbstractAction {
     protected String zookeeperPassword;
     @Option(name = "--jvm-opts", multiValued = false, required = false, description = "Options to pass to the container's JVM.")
     protected String jvmOpts;
-    @Option(name = "--datastore-type", multiValued = false, required = false, description = "Options to pass to the container's datastore type.")
-    protected String dataStoreType;
     @Option(name = "--datastore-option", multiValued = true, required = false, description = "Options to pass to the container's datastore.")
     protected String[] dataStoreOption;
 
     protected final FabricService fabricService;
+    protected final ProfileService profileService;
     protected final ZooKeeperClusterService clusterService;
 
     protected AbstractContainerCreateAction(FabricService fabricService, ZooKeeperClusterService clusterService) {
         this.fabricService = fabricService;
+        this.profileService = fabricService.adapt(ProfileService.class);
         this.clusterService = clusterService;
     }
 
@@ -94,8 +96,8 @@ public abstract class AbstractContainerCreateAction extends AbstractAction {
             }
 
             // get the profiles for the given version
-            Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-            Profile[] profiles = ver.getProfiles();
+            Version ver = version != null ? profileService.getRequiredVersion(version) : fabricService.getRequiredDefaultVersion();
+            List<Profile> profiles = ver.getProfiles();
 
             // validate profiles exists before creating a new container
             Set<String> names = getProfileNames();
@@ -150,7 +152,8 @@ public abstract class AbstractContainerCreateAction extends AbstractAction {
     }
 
     protected Map<String, String> getDataStoreProperties() {
-        Map<String, String> options = new HashMap<String, String>(fabricService.getDataStore().getDataStoreProperties());
+        ProfileRegistry profileRegistry = fabricService.adapt(ProfileRegistry.class);
+        Map<String, String> options = new HashMap<String, String>(profileRegistry.getDataStoreProperties());
         if (dataStoreOption != null) {
             for (String opt : dataStoreOption) {
                 String[] parts = opt.trim().split(" +");
@@ -160,17 +163,15 @@ public abstract class AbstractContainerCreateAction extends AbstractAction {
         return options;
     }
 
-    private static Profile getProfile(Profile[] profiles, String name, Version version) {
-        if (profiles == null || profiles.length == 0) {
+    private static Profile getProfile(List<Profile> profiles, String name, Version version) {
+        if (profiles == null || profiles.size() == 0) {
             return null;
         }
-
         for (Profile profile : profiles) {
             if (profile.getId().equals(name) && profile.getVersion().equals(version.getId())) {
                 return profile;
             }
         }
-
         return null;
     }
 }

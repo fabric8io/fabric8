@@ -27,9 +27,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 
-import aQute.lib.osgi.Macro;
-import aQute.lib.osgi.Processor;
+import aQute.bnd.osgi.Macro;
+import aQute.bnd.osgi.Processor;
 import org.apache.felix.framework.Felix;
+import org.apache.felix.utils.version.VersionRange;
 import org.apache.karaf.features.Repository;
 import io.fabric8.agent.DeploymentBuilder;
 import io.fabric8.agent.download.DownloadManager;
@@ -59,7 +60,7 @@ public class ResolverTest {
         properties.setProperty("mvn.repositories", "http://repo1.maven.org/maven2/,http://repository.jboss.org/nexus/content/groups/fs-public/,https://repo.fusesource.com/nexus/content/repositories/ea");
         PropertiesPropertyResolver propertyResolver = new PropertiesPropertyResolver(properties);
         MavenConfigurationImpl mavenConfiguration = new MavenConfigurationImpl(propertyResolver, "mvn");
-        mavenConfiguration.setSettings(new MavenSettingsImpl(new URL("file:"+home+"/.m2/settings.xml")));
+        mavenConfiguration.setSettings(new MavenSettingsImpl(getClass().getResource("maven-default-settings.xml")));
 
         DownloadManager manager = new DownloadManager(mavenConfiguration, Executors.newFixedThreadPool(2));
 
@@ -73,14 +74,15 @@ public class ResolverTest {
                          Collections.<String>emptySet(),
                          Collections.<String>emptySet(),
                          Collections.<String>emptySet(),
-                         Collections.<String>emptySet());
+                         Collections.<String>emptySet(),
+                         Collections.<String, Map<VersionRange, Map<String, String>>>emptyMap());
 
         properties = new Properties();
-        properties.setProperty("org.osgi.framework.system.packages.extra", "org.apache.karaf.jaas.boot;version=\"2.3.0.redhat-610-SNAPSHOT\",org.apache.karaf.jaas.boot.principal;version=\"2.3.0.redhat-610-SNAPSHOT\"");
+        properties.setProperty("org.osgi.framework.system.packages.extra", "org.apache.karaf.jaas.boot;version=\"2.4.0.SNAPSHOT\",org.apache.karaf.jaas.boot.principal;version=\"2.4.0.SNAPSHOT\",org.apache.karaf.management.boot;version=\"2.4.0.SNAPSHOT\"");
         properties.setProperty("org.osgi.framework.system.capabilities.extra",
-                "service-reference;effective:=active;objectClass=org.osgi.service.packageadmin.PackageAdmin," +
-                        "service-reference;effective:=active;objectClass=org.osgi.service.startlevel.StartLevel," +
-                        "service-reference;effective:=active;objectClass=org.osgi.service.url.URLHandlers");
+                        "osgi.service;effective:=active;objectClass=org.osgi.service.packageadmin.PackageAdmin," +
+                        "osgi.service;effective:=active;objectClass=org.osgi.service.startlevel.StartLevel," +
+                        "osgi.service;effective:=active;objectClass=org.osgi.service.url.URLHandlers");
         Framework felix = new Felix(properties);
         Collection<Resource> resources = builder.resolve(felix.adapt(BundleRevision.class), false);
 

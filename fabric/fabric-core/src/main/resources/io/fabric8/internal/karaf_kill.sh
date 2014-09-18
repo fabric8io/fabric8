@@ -2,8 +2,8 @@ function karaf_kill() {
    KARAF_HOME=$1
    INSTANCES_FILE=$KARAF_HOME/instances/instance.properties
    PID=`cat $INSTANCES_FILE | grep "item.0.pid" | awk -F "=" '{print $2}'`
-   kill $PID
-      for i in {1..5};
+   $KARAF_HOME/bin/stop
+      for i in {1..20};
         do
             if ps -p $PID > /dev/null; then
                 echo "Fabric has been successfully stopped"
@@ -12,4 +12,5 @@ function karaf_kill() {
                 sleep 3
             fi
         done
+      kill -9 $PID
 }

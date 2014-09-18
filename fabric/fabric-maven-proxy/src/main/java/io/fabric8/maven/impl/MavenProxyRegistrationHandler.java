@@ -15,13 +15,14 @@
  */
 package io.fabric8.maven.impl;
 
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.deployer.ProjectDeployer;
 import io.fabric8.maven.MavenProxy;
-import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
@@ -58,6 +59,10 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     private final ValidatingReference<HttpService> httpService = new ValidatingReference<HttpService>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+    @Reference(referenceInterface = RuntimeProperties.class)
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
+    @Reference(referenceInterface = ProjectDeployer.class)
+    private final ValidatingReference<ProjectDeployer> projectDeployer = new ValidatingReference<ProjectDeployer>();
 
     private final Map<String, Set<String>> registeredProxies;
 
@@ -101,7 +106,7 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     private String proxyPassword;
     @Property(name = "nonProxyHosts", label = "Non Proxy Hosts", description = "Hosts that should be reached without using a Proxy")
     private String nonProxyHosts;
-    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}")
+    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${runtime.id}")
     private String name;
 
     @GuardedBy("AtomicBoolean") private final AtomicBoolean connected = new AtomicBoolean(false);
@@ -117,9 +122,9 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     @Activate
     void init(Map<String, ?> configuration) throws Exception {
         configurer.configure(configuration, this);
-        this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
+        this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(runtimeProperties.get(), localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts, projectDeployer.get());
         this.mavenDownloadProxyServlet.start();
-        this.mavenUploadProxyServlet = new MavenUploadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
+        this.mavenUploadProxyServlet = new MavenUploadProxyServlet(runtimeProperties.get(), localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts, projectDeployer.get());
         this.mavenUploadProxyServlet.start();
         try {
             HttpContext base = httpService.get().createDefaultHttpContext();
@@ -222,5 +227,21 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
 
     void unbindHttpService(HttpService service) {
         this.httpService.unbind(service);
+    }
+
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
+    }
+
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
+    }
+
+    void bindProjectDeployer(ProjectDeployer projectDeployer) {
+        this.projectDeployer.bind(projectDeployer);
+    }
+
+    void unbindProjectDeployer(ProjectDeployer projectDeployer) {
+        this.projectDeployer.unbind(projectDeployer);
     }
 }

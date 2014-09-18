@@ -17,6 +17,7 @@ package io.fabric8.api;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -27,6 +28,17 @@ public class VersionSequence implements Comparable<VersionSequence> {
     private final String name;
     private final int[] numbers;
 
+    public static Comparator<String> getComparator() {
+        return new Comparator<String>() {
+            @Override
+            public int compare(String thisId, String thatId) {
+                VersionSequence thisSeq = new VersionSequence(thisId);
+                VersionSequence thatSeq = new VersionSequence(thatId);
+                return thisSeq.compareTo(thatSeq);
+            }
+        };
+    }
+    
     public VersionSequence(String name) {
         this.name = name;
         List<Integer> list = new ArrayList<Integer>();

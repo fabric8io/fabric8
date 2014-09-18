@@ -28,8 +28,6 @@ public final class DownloadManagerHelper {
 
     /**
      * Strips download urls from wrapper protocols.
-     * @param url
-     * @return
      */
     public static String stripUrl(String url) {
         String strippedUrl = url;
@@ -50,5 +48,19 @@ public final class DownloadManagerHelper {
         }
 
         return strippedUrl;
+    }
+
+    public static String stripInlinedMavenRepositoryUrl(String url) {
+        if (url.startsWith("mvn:") && url.contains("!")) {
+            return url.substring(4, url.indexOf('!'));
+        }
+        return null;
+    }
+
+    public static String removeInlinedMavenRepositoryUrl(String url) {
+        if (url.startsWith("mvn:") && url.contains("!")) {
+            return "mvn:" + url.substring(url.indexOf('!') + 1);
+        }
+        return url;
     }
 }

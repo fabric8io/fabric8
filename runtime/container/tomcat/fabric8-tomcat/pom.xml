@@ -22,7 +22,7 @@
     <parent>
         <groupId>io.fabric8.runtime</groupId>
         <artifactId>fabric-runtime-container-tomcat</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric8-tomcat</artifactId>
@@ -32,12 +32,18 @@
   <properties>
       <karaf.base>${tomcat.home}/work/karaf-base</karaf.base>
       <tomcat.home>${project.build.directory}/apache-tomcat-${tomcat-version}</tomcat.home>
-
       <fabric8.tomcat.build>${project.build.directory}/distro-build</fabric8.tomcat.build>
       <fabric8.tomcat.home>${fabric8.tomcat.build}/fabric8-tomcat-${project.version}</fabric8.tomcat.home>
   </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric-runtime-container-tomcat-patch</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <type>zip</type>
+        </dependency>
     </dependencies>
     
     <build>
@@ -96,9 +102,9 @@
                       <phase>process-test-resources</phase>
                       <configuration>
                           <target>
-                              <copy file="../../../itests/tomcat/src/test/resources/tomcat-users.xml" todir="${tomcat.home}/conf" overwrite="true" />
-                              <copy file="../../../itests/tomcat/src/test/resources/jaas.config" todir="${tomcat.home}/conf" overwrite="true" />
-                              <copy file="../../../itests/tomcat/src/test/resources/users.properties" todir="${karaf.base}/etc" overwrite="true" />
+                              <copy file="etc/tomcat/conf/tomcat-users.xml" todir="${tomcat.home}/conf" overwrite="true" />
+                              <copy file="etc/tomcat/conf/jaas.config" todir="${tomcat.home}/conf" overwrite="true" />
+                              <copy file="etc/tomcat/conf/users.properties" todir="${tomcat.home}/conf" overwrite="true" />
 
                               <!-- rename folder to fabric8 name -->
                               <move file="${tomcat.home}" tofile="${fabric8.tomcat.home}"/>

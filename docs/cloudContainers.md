@@ -9,7 +9,7 @@ The requirements for using this feature to create a container in a remote host a
 
 * **A valid account to a supported cloud provider**
 
-The list of supported cloud providers can be found at [jclouds supported providers](http://www.jclouds.org/documentation/reference/supported-providers).
+The list of supported cloud providers can be found at [jclouds supported providers](http://jclouds.apache.org/reference/providers/).
 **Important** The term **supported provider** does not refer to commerical support, its just an indication that there is an available implementation.
 
 #### Additional requirement for hybrid clusters

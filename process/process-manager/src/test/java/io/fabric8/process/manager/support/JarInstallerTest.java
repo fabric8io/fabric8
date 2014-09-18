@@ -22,7 +22,8 @@ import java.util.jar.Manifest;
 import static java.util.UUID.randomUUID;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
-import aQute.lib.osgi.Jar;
+import aQute.bnd.osgi.Jar;
+import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.config.ProcessConfig;
 import io.fabric8.process.manager.InstallOptions;
 import org.junit.Assert;
@@ -33,10 +34,8 @@ import static io.fabric8.process.manager.InstallOptions.InstallOptionsBuilder;
 
 public class JarInstallerTest extends Assert {
 
-    JarInstaller jarInstaller = new JarInstaller(newSingleThreadExecutor());
-
     File installDir = new File("target", randomUUID().toString());
-
+    JarInstaller jarInstaller;
     InstallOptions installOptions;
 
     @Before
@@ -44,18 +43,21 @@ public class JarInstallerTest extends Assert {
         System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url");
 
         installOptions = new InstallOptionsBuilder().url("mvn:org.apache.camel/camel-xstream/2.12.0/jar").build();
+        jarInstaller = new JarInstaller(installOptions, newSingleThreadExecutor());
     }
 
     @Test
     public void shouldInstallJarDependencies() throws Exception {
-        jarInstaller.unpackJarProcess(new ProcessConfig(), "1", installDir, installOptions);
+        InstallContext installContext = new InstallContext(null, installDir, false);
+        jarInstaller.install(installContext, new ProcessConfig(), "1", installDir);
         assertTrue(new File(installDir, "lib/xstream-1.4.4.jar").exists());
     }
 
     @Test
     public void shouldCopyMainJar() throws Exception {
         // When
-        jarInstaller.unpackJarProcess(new ProcessConfig(), "1", installDir, installOptions);
+        InstallContext installContext = new InstallContext(null, installDir, false);
+        jarInstaller.install(installContext, new ProcessConfig(), "1", installDir);
 
         // Then
         Manifest manifest = new Jar(new File(installDir, "lib/main.jar")).getManifest();

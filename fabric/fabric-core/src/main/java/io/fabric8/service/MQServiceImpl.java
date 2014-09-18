@@ -19,17 +19,23 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Closeables;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.MQService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileRegistry;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
 import io.fabric8.common.util.Files;
+import io.fabric8.common.util.IOHelpers;
 import io.fabric8.common.util.Strings;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,16 +47,19 @@ import static io.fabric8.api.MQService.Config.STANDBY_POOL;
 public class MQServiceImpl implements MQService {
     private static final transient Logger LOG = LoggerFactory.getLogger(MQServiceImpl.class);
 
-    private FabricService fabricService;
+    private final ProfileService profileService;
+    private final ProfileRegistry profileRegistry;
+    private final RuntimeProperties runtimeProperties;
 
-
-    public MQServiceImpl(FabricService fabricService) {
-        this.fabricService = fabricService;
+    public MQServiceImpl(FabricService fabricService, RuntimeProperties runtimeProperties) {
+        this.profileService = fabricService.adapt(ProfileService.class);
+        this.profileRegistry = fabricService.adapt(ProfileRegistry.class);
+        this.runtimeProperties = runtimeProperties;
     }
 
     @Override
-    public Profile createOrUpdateMQProfile(String versionId, String profile, String brokerName, Map<String, String> configs, boolean replicated) {
-        Version version = fabricService.getVersion(versionId);
+    public Profile createOrUpdateMQProfile(String versionId, String profileId, String brokerName, Map<String, String> configs, boolean replicated) {
+        Version version = profileService.getRequiredVersion(versionId);
 
         String parentProfileName = null;
         if (configs != null && configs.containsKey("parent")) {
@@ -59,152 +68,160 @@ public class MQServiceImpl implements MQService {
         if (Strings.isNullOrBlank(parentProfileName)) {
             parentProfileName = replicated ? MQ_PROFILE_REPLICATED : MQ_PROFILE_BASE;
         }
-
-        Profile parentProfile = version.getProfile(parentProfileName);
-        String pidName = getBrokerPID(brokerName);
-        Profile result = parentProfile;
-        if (brokerName != null && profile != null) {
-            // lets check we have a config value
-
-            // create a profile if it doesn't exist
-            Map config = null;
-            if (!version.hasProfile(profile)) {
-                result = version.createProfile(profile);
-                result.setParents(new Profile[]{parentProfile});
-            } else {
-                result = version.getProfile(profile);
-                config = result.getConfiguration(pidName);
-            }
-            Map<String, String> parentProfileConfig = parentProfile.getConfiguration(MQ_PID_TEMPLATE);
-            if (config == null) {
-                config = parentProfileConfig;
-            }
-
-            if( "true".equals(configs.get("ssl")) ) {
-
-                // Only generate the keystore file if it does not exist.
-                byte[] keystore  = fabricService.getDataStore().getFileConfiguration(versionId, profile, "keystore.jks");
-                if( keystore==null ) {
-                    try {
-
-                        String host = configs.get("keystore.cn");
-                        if( host == null ) {
-                            host = configs.get(GROUP);
-                            if( host == null ) {
-                                host = "localhost";
-                            }
-                            configs.put("keystore.cn", host);
-                        }
-                        String password = configs.get("keystore.password");
-                        if( password == null ) {
-                            password = generatePassword(8);
-                            configs.put("keystore.password", password);
-                        }
-
-                        File keystoreFile = io.fabric8.utils.Files.createTempFile();
-                        keystoreFile.delete();
-                        LOG.info("Generating ssl keystore...");
-                        int rc = system("keytool", "-genkey",
-                                "-storetype", "JKS",
-                                "-storepass", password,
-                                "-keystore", keystoreFile.getCanonicalPath(),
-                                "-keypass", password,
-                                "-alias", host,
-                                "-keyalg", "RSA",
-                                "-keysize", "4096",
-                                "-dname", String.format("cn=%s", host),
-                                "-validity", "3650");
-
-                        if(rc!=0) {
-                          throw new IOException("keytool failed with exit code: "+rc);
-                        }
-
-                        keystore = Files.readBytes(keystoreFile);
-                        keystoreFile.delete();
-                        LOG.info("Keystore generated");
-
-                        fabricService.getDataStore().setFileConfiguration(versionId, profile, "keystore.jks", keystore);
-                        configs.put("keystore.file", "profile:keystore.jks");
-
-                    } catch (IOException e) {
-                        LOG.info("Failed to generate keystore.jks: "+e, e);
-                    }
-
-                }
-
-                byte[] truststore = fabricService.getDataStore().getFileConfiguration(versionId, profile, "truststore.jks");
-                if( truststore==null ) {
-
-                    try {
-
-                        String password = configs.get("truststore.password");
-                        if( password == null ) {
-                            password = configs.get("keystore.password");
-                            configs.put("truststore.password", password);
-                        }
-
-                        File keystoreFile = io.fabric8.utils.Files.createTempFile();
-                        Files.writeToFile(keystoreFile, keystore);
-
-                        File certFile = io.fabric8.utils.Files.createTempFile();
-                        certFile.delete();
-
-                        LOG.info("Exporting broker certificate to create truststore.jks");
-                        int rc = system("keytool", "-exportcert", "-rfc",
-                                "-keystore", keystoreFile.getCanonicalPath(),
-                                "-storepass", configs.get("keystore.password"),
-                                "-alias",  configs.get("keystore.cn"),
-                                "--file", certFile.getCanonicalPath());
-
-                        keystoreFile.delete();
-                        if(rc!=0) {
-                          throw new IOException("keytool failed with exit code: "+rc);
-                        }
-
-                        LOG.info("Creating truststore.jks");
-                        File truststoreFile = io.fabric8.utils.Files.createTempFile();
-                        truststoreFile.delete();
-                        rc = system("keytool", "-importcert", "-noprompt",
-                                "-keystore", truststoreFile.getCanonicalPath(),
-                                "-storepass", password,
-                                "--file", certFile.getCanonicalPath());
-                        certFile.delete();
-                        if(rc!=0) {
-                          throw new IOException("keytool failed with exit code: "+rc);
-                        }
-
-                        truststore = Files.readBytes(truststoreFile);
-                        truststoreFile.delete();
-                        fabricService.getDataStore().setFileConfiguration(versionId, profile, "truststore.jks", truststore);
-                        configs.put("truststore.file", "profile:truststore.jks");
-
-
-                    } catch (IOException e) {
-                        LOG.info("Failed to generate truststore.jks: "+e, e);
-                    }
-
-                }
-
-            }
-
-            config.put("broker-name", brokerName);
-            if (configs != null) {
-                config.putAll(configs);
-            }
-
-            // lets check we've a bunch of config values inherited from the template
-            String[] propertiesToDefault = { CONFIG_URL, STANDBY_POOL, CONNECTORS };
-            for (String key : propertiesToDefault) {
-                if (config.get(key) == null) {
-                    String defaultValue = parentProfileConfig.get(key);
-                    if (Strings.isNotBlank(defaultValue)) {
-                        config.put(key, defaultValue);
-                    }
-                }
-            }
-            result.setConfiguration(pidName, config);
+        
+        Profile parentProfile = version.getRequiredProfile(parentProfileName);
+        if (brokerName == null || profileId == null) {
+            return parentProfile;
         }
-        return result;
+        
+        String pidName = getBrokerPID(brokerName);
+        // lets check we have a config value
+
+        ProfileBuilder builder;
+        
+        // create a profile if it doesn't exist
+        Map<String, String> config = null;
+        boolean create = !version.hasProfile(profileId);
+        if (create) {
+            builder = ProfileBuilder.Factory.create(versionId, profileId);
+            if (parentProfile != null) {
+                builder.addParent(parentProfile.getId());
+            }
+        } else {
+            Profile profile = version.getRequiredProfile(profileId);
+            builder = ProfileBuilder.Factory.createFrom(profile);
+            config = new HashMap<>(builder.getConfiguration(pidName));
+        }
+        
+        Map<String, String> parentProfileConfig = parentProfile.getConfiguration(MQ_PID_TEMPLATE);
+        if (config == null) {
+            config = new HashMap<>(parentProfileConfig);
+        }
+
+        if (configs != null && "true".equals(configs.get("ssl"))) {
+
+            // Only generate the keystore file if it does not exist.
+            // [TOOD] Fix direct data access! This should be part of the ProfileBuilder
+            byte[] keystore  = builder.getFileConfiguration("keystore.jks");
+            if( keystore==null ) {
+                try {
+
+                    String host = configs.get("keystore.cn");
+                    if( host == null ) {
+                        host = configs.get(GROUP);
+                        if( host == null ) {
+                            host = "localhost";
+                        }
+                        configs.put("keystore.cn", host);
+                    }
+                    String password = configs.get("keystore.password");
+                    if( password == null ) {
+                        password = generatePassword(8);
+                        configs.put("keystore.password", password);
+                    }
+
+                    File keystoreFile = io.fabric8.utils.Files.createTempFile(runtimeProperties.getDataPath());
+                    keystoreFile.delete();
+                    LOG.info("Generating ssl keystore...");
+                    int rc = system("keytool", "-genkey",
+                            "-storetype", "JKS",
+                            "-storepass", password,
+                            "-keystore", keystoreFile.getCanonicalPath(),
+                            "-keypass", password,
+                            "-alias", host,
+                            "-keyalg", "RSA",
+                            "-keysize", "4096",
+                            "-dname", String.format("cn=%s", host),
+                            "-validity", "3650");
+
+                    if(rc!=0) {
+                      throw new IOException("keytool failed with exit code: "+rc);
+                    }
+
+                    keystore = Files.readBytes(keystoreFile);
+                    keystoreFile.delete();
+                    LOG.info("Keystore generated");
+
+                    builder.addFileConfiguration("keystore.jks", keystore);
+                    configs.put("keystore.file", "profile:keystore.jks");
+
+                } catch (IOException e) {
+                    LOG.info("Failed to generate keystore.jks: "+e, e);
+                }
+
+            }
+
+            // [TOOD] Fix direct data access! This should be part of the ProfileBuilder
+            byte[] truststore = builder.getFileConfiguration("truststore.jks");
+            if (truststore == null) {
+               try {
+                    String password = configs.get("truststore.password");
+                    if( password == null ) {
+                        password = configs.get("keystore.password");
+                        configs.put("truststore.password", password);
+                    }
+
+                    File keystoreFile = io.fabric8.utils.Files.createTempFile(runtimeProperties.getDataPath());
+                    Files.writeToFile(keystoreFile, keystore);
+
+                    File certFile = io.fabric8.utils.Files.createTempFile(runtimeProperties.getDataPath());
+                    certFile.delete();
+
+                    LOG.info("Exporting broker certificate to create truststore.jks");
+                    int rc = system("keytool", "-exportcert", "-rfc",
+                            "-keystore", keystoreFile.getCanonicalPath(),
+                            "-storepass", configs.get("keystore.password"),
+                            "-alias",  configs.get("keystore.cn"),
+                            "--file", certFile.getCanonicalPath());
+
+                    keystoreFile.delete();
+                    if(rc!=0) {
+                      throw new IOException("keytool failed with exit code: "+rc);
+                    }
+
+                    LOG.info("Creating truststore.jks");
+                    File truststoreFile = io.fabric8.utils.Files.createTempFile(runtimeProperties.getDataPath());
+                    truststoreFile.delete();
+                    rc = system("keytool", "-importcert", "-noprompt",
+                            "-keystore", truststoreFile.getCanonicalPath(),
+                            "-storepass", password,
+                            "--file", certFile.getCanonicalPath());
+                    certFile.delete();
+                    if(rc!=0) {
+                      throw new IOException("keytool failed with exit code: "+rc);
+                    }
+
+                    truststore = Files.readBytes(truststoreFile);
+                    truststoreFile.delete();
+                    
+                    builder.addFileConfiguration("truststore.jks", truststore);
+                    configs.put("truststore.file", "profile:truststore.jks");
+
+                } catch (IOException e) {
+                    LOG.info("Failed to generate truststore.jks due: " + e.getMessage(), e);
+                }
+            }
+        }
+
+        config.put("broker-name", brokerName);
+        if (configs != null) {
+            config.putAll(configs);
+        }
+
+        // lets check we've a bunch of config values inherited from the template
+        String[] propertiesToDefault = { CONFIG_URL, STANDBY_POOL, CONNECTORS };
+        for (String key : propertiesToDefault) {
+            if (config.get(key) == null) {
+                String defaultValue = parentProfileConfig.get(key);
+                if (Strings.isNotBlank(defaultValue)) {
+                    config.put(key, defaultValue);
+                }
+            }
+        }
+        
+        builder.addConfiguration(pidName, config);
+        Profile profile = builder.getProfile();
+        return create ? profileService.createProfile(profile) : profileService.updateProfile(profile);
     }
 
     static public String generatePassword(int len) {
@@ -233,17 +250,18 @@ public class MQServiceImpl implements MQService {
         new Thread("system command output processor") {
             @Override
             public void run() {
-                StringBuffer buffer = new StringBuffer();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), Charsets.UTF_8));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.forName("UTF-8")));
                 try {
                     while (true) {
                         String line = reader.readLine();
-                        if (line == null) break;
+                        if (line == null) {
+                            break;
+                        }
                         LOG.info(String.format("%s: %s", args[0], line));
                     }
                 } catch (IOException e) {
                 } finally {
-                    Closeables.closeQuietly(reader);
+                    IOHelpers.close(reader);
                 }
             }
         }.start();
@@ -261,36 +279,39 @@ public class MQServiceImpl implements MQService {
     }
 
     @Override
-    public Profile createOrUpdateMQClientProfile(String versionId, String profile, String group, String parentProfileName) {
-        Version version = fabricService.getVersion(versionId);
+    public Profile createOrUpdateMQClientProfile(String versionId, String profileId, String group, String parentProfileName) {
+        Version version = profileService.getRequiredVersion(versionId);
 
         Profile parentProfile = null;
         if (Strings.isNotBlank(parentProfileName)) {
-            parentProfile = version.getProfile(parentProfileName);
+            parentProfile = version.getRequiredProfile(parentProfileName);
         }
-        Profile result = parentProfile;
-        if (group != null && profile != null) {
-            // create a profile if it doesn't exist
-            Map config = null;
-            if (!version.hasProfile(profile)) {
-                result = version.createProfile(profile);
-            } else {
-                result = version.getProfile(profile);
-            }
-
-            // set the parent if its specified
-            if (parentProfile != null) {
-                result.setParents(new Profile[]{parentProfile});
-            }
-
-            Map<String, String> parentProfileConfig = result.getConfiguration(MQ_CONNECTION_FACTORY_PID);
-            if (config == null) {
-                config = parentProfileConfig;
-            }
-            config.put(GROUP, group);
-            result.setConfiguration(MQ_CONNECTION_FACTORY_PID, config);
+        if (group == null || profileId == null)
+            return parentProfile;
+        
+        ProfileBuilder builder;
+        
+        // create a profile if it doesn't exist
+        boolean create = !version.hasProfile(profileId);
+        if (create) {
+            builder = ProfileBuilder.Factory.create(versionId, profileId);
+        } else {
+            Profile profile = version.getRequiredProfile(profileId);
+            builder = ProfileBuilder.Factory.createFrom(profile);
         }
-        return result;
+
+        // set the parent if its specified
+        if (parentProfile != null) {
+            builder.addParent(parentProfile.getId());
+        }
+
+        Map<String, String> config = builder.getConfiguration(MQ_CONNECTION_FACTORY_PID);
+        config = config != null ? new HashMap<>(config) : new HashMap<String, String>();
+        config.put(GROUP, group);
+        builder.addConfiguration(MQ_CONNECTION_FACTORY_PID, config);
+        
+        Profile profile = builder.getProfile();
+        return create ? profileService.createProfile(profile) : profileService.updateProfile(profile);
     }
 
 

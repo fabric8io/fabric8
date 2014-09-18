@@ -18,14 +18,21 @@ package io.fabric8.commands.support;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
 
+@Component(immediate = true)
+@Service({BundleLocationCompleter.class, Completer.class})
 public class BundleLocationCompleter implements Completer {
 
+    @Reference
     private FeaturesService featuresService;
 
     @Override

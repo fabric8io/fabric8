@@ -1,25 +1,38 @@
-#!/bin/sh
-# ------------------------------------------------------------------------
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
+#!/bin/bash
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+#  Copyright 2005-2014 Red Hat, Inc.
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ------------------------------------------------------------------------
+#  Red Hat licenses this file to you under the Apache License, version
+#  2.0 (the "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+#  implied.  See the License for the specific language governing
+#  permissions and limitations under the License.
+
+### Helper functions
+
+jvmArgs() {
+  if [ "x${FABRIC8_JVM_ARGS}" = "x" ]; then
+    cat ${APP_BASE}/etc/jvm.config
+  else
+    echo "$FABRIC8_JVM_ARGS"
+  fi
+}
+
+### Helper functions ends
 
 APP_USER=""
 SERVICE="process"
-APP_CONSOLE_OUT="/dev/null"
-APP_CONSOLE_ERR="/dev/null"
+
+SERVICE_NAME="$FABRIC8_RUNTIME_ID"
+if [ -f "${SERVICE_NAME}" ] ; then
+  SERVICE_NAME="$SERVICE"
+fi
 
 #
 # Discover the APP_BASE from the location of this script.
@@ -52,6 +65,11 @@ if [ -z "$APP_BASE" ] ; then
 fi
 PID_FILE="${APP_BASE}/var/${SERVICE}.pid"
 
+# Redirect process output to log files
+APP_CONSOLE_CMD="${APP_BASE}/logs/cmd.log"
+APP_CONSOLE_OUT="${APP_BASE}/logs/out.log"
+APP_CONSOLE_ERR="${APP_BASE}/logs/err.log"
+
 # Add the jars in the lib dir
 CLASSPATH=""
 for file in "$APP_BASE"/lib/*.jar
@@ -62,14 +80,35 @@ do
         CLASSPATH="$CLASSPATH:$file"
     fi
 done
+for file in "$APP_BASE"/lib/*.war
+do
+    if [ -z "$CLASSPATH" ]; then
+        CLASSPATH="$file"
+    else
+        CLASSPATH="$CLASSPATH:$file"
+    fi
+done
 CLASSPATH="$CLASSPATH:$APP_BASE/classes"
+
+JVM_DEBUG_ARGS="$FABRIC8_JVM_DEBUG_ARGS"
+if [ -z "$JVM_DEBUG_ARGS" ]; then
+  if [ ! -z "$FABRIC8_JVM_DEBUG" ] && [ "$FABRIC8_JVM_DEBUG" == 'TRUE' ]; then
+    JVM_DEBUG_ARGS='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'
+  fi
+fi
 
 JVM_EXEC="java"
 JAVA_AGENT="$FABRIC8_JAVA_AGENT"
-JVM_ARGS=`cat ${APP_BASE}/etc/jvm.config`"$FABRIC8_JVM_ARGS"
+JVM_ARGS=`jvmArgs`
 APP_ARGS="$FABRIC8_MAIN_ARGS"
 MAIN_JAR="$APP_BASE/lib/main.jar"
 MAIN_CLASS="$FABRIC8_JAVA_MAIN"
+JAVA_AGENT="$FABRIC8_JAVA_AGENT"
+SYSTEM_PROPERTIES="$FABRIC8_SYSTEM_PROPERTIES"
+STOP_TIMEOUT="$FABRIC8_PROCESS_STOP_TIMEOUT"
+if [ "x${STOP_TIMEOUT}" = "x" ] ; then
+  STOP_TIMEOUT="30"
+fi
 
 # Source the /etc/defaults script if it exists so it can modify the 
 # env vars setup so far..
@@ -97,23 +136,27 @@ status() {
 }
 
 stop() {
+  echo "Gracefully Stopping ${SERVICE_NAME} within ${STOP_TIMEOUT} second(s)"
+
   if [ -f "${PID_FILE}" ] ; then
     pid=`cat "${PID_FILE}"`
     kill $@ ${pid} > /dev/null
   fi
-  for i in 1 2 3 4 5 ; do
+  
+  for num in $(seq 1 $STOP_TIMEOUT); do
     status
     if [ $? -eq 0 ] ; then
       return 0
     fi
     sleep 1
   done
-  echo "Could not stop process ${pid}"
+  echo "Could not gracefully stop ${SERVICE_NAME} with pid: ${pid} within $STOP_TIMEOUT second(s)"
   return 1
 }
 
 start() {
 
+  echo "Starting ${SERVICE_NAME}"
   status
   if [ $? -eq 1 ] ; then
     echo "Already running."
@@ -121,10 +164,16 @@ start() {
   fi
 
   if [ -z "$MAIN_CLASS" ]; then
-    RUN_COMMAND="${JVM_EXEC} ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} -jar ${MAIN_JAR} ${APP_ARGS}"
+    RUN_COMMAND="${JVM_EXEC} ${JVM_DEBUG_ARGS} ${JAVA_AGENT} ${JVM_ARGS} ${SYSTEM_PROPERTIES} -classpath ${CLASSPATH} -jar ${MAIN_JAR} ${APP_ARGS}"
   else
-    RUN_COMMAND="${JVM_EXEC} ${JAVA_AGENT} ${JVM_ARGS} -classpath ${CLASSPATH} ${MAIN_CLASS} ${APP_ARGS}"
+    RUN_COMMAND="${JVM_EXEC} ${JVM_DEBUG_ARGS} ${JAVA_AGENT} ${JVM_ARGS} ${SYSTEM_PROPERTIES} -classpath ${CLASSPATH} ${MAIN_CLASS} ${APP_ARGS}"
   fi
+
+  echo "Running:" > ${APP_CONSOLE_CMD}
+  echo "$RUN_COMMAND" >> ${APP_CONSOLE_CMD}
+  echo >> ${APP_CONSOLE_CMD}
+  echo "Environment variables:" >> ${APP_CONSOLE_CMD}
+  env | sort | grep FABRIC >> ${APP_CONSOLE_CMD}
 
   echo "Running $RUN_COMMAND"
 
@@ -145,35 +194,38 @@ start() {
   sleep 1
   status
   if [ $? -eq 0 ] ; then
-    echo "Could not start ${SERVICE}"
+    echo "Could not start ${SERVICE_NAME}"
     return 1
   fi
-  echo "${SERVICE} is now running (${pid})"
+  echo "${SERVICE_NAME} is now running (${pid})"
   return 0
 }
 
 case $1 in
   start)
-    echo "Starting ${SERVICE}"
     start
     exit $?
   ;;
 
   force-stop)
-    echo "Forcibly Stopping ${SERVICE}"
+    echo "Forcibly Stopping ${SERVICE_NAME}"
     stop -9
     exit $?
   ;;
 
   stop)
-    echo "Gracefully Stopping ${SERVICE}"
     stop
     exit $?
   ;;
 
   restart)
-    echo "Restarting ${SERVICE}"
+    echo "Restarting ${SERVICE_NAME}"
     stop
+    status
+    if [ $? -eq 1 ] ; then
+      echo "${SERVICE_NAME} did not stop cleanly within the time so killing it..."
+      force-stop
+    fi
     start
     exit $?
   ;;
@@ -181,9 +233,9 @@ case $1 in
   status)
     status
     if [ $? -eq 0 ] ; then
-      echo "${SERVICE} is stopped"
+      echo "${SERVICE_NAME} is stopped"
     else
-      echo "${SERVICE} is running (${pid})"
+      echo "${SERVICE_NAME} is running (${pid})"
     fi
     exit 0
   ;;

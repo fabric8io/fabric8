@@ -16,7 +16,9 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
+import io.fabric8.api.ProfileService;
 import io.fabric8.utils.FabricValidations;
 
 import org.apache.felix.gogo.commands.Argument;
@@ -25,11 +27,11 @@ import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "profile-copy", scope = "fabric", description = "Copies the specified version of the source profile (where the version defaults to the current default version)")
+@Command(name = ProfileCopy.FUNCTION_VALUE, scope = ProfileCopy.SCOPE_VALUE, description = ProfileCopy.DESCRIPTION)
 public class ProfileCopyAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version to copy. Defaults to the current default version.")
-    private String version;
+    private String versionParam;
 
     @Option(name = "-f", aliases = "--force", description = "Flag to allow overwriting the target profile (if exists).")
     private boolean force;
@@ -42,33 +44,32 @@ public class ProfileCopyAction extends AbstractAction {
     @CompleterValues(index = 1)
     private String target;
 
+    private final ProfileService profileService;
     private final FabricService fabricService;
 
     ProfileCopyAction(FabricService fabricService) {
+        this.profileService = fabricService.adapt(ProfileService.class);
         this.fabricService = fabricService;
-    }
-
-    public FabricService getFabricService() {
-        return fabricService;
     }
 
     @Override
     protected Object doExecute() throws Exception {
         FabricValidations.validateProfileName(source);
         FabricValidations.validateProfileName(target);
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+        Version version = versionParam != null ? profileService.getRequiredVersion(versionParam) : fabricService.getRequiredDefaultVersion();
+        String versionId = version.getId();
 
-        if (!ver.hasProfile(source)) {
+        if (!version.hasProfile(source)) {
             System.out.println("Source profile " + source + " not found.");
             return null;
-        } else if (ver.hasProfile(target)) {
+        } else if (version.hasProfile(target)) {
             if (!force) {
                 System.out.println("Target profile " + target + " already exists. Use --force if you want to overwrite.");
                 return null;
             }
         }
 
-        ver.copyProfile(source, target, force);
+        Profiles.copyProfile(fabricService, versionId, source, target, force);
         return null;
     }
 

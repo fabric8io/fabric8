@@ -33,7 +33,7 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = Kill.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = Kill.FUNCTION_VALUE)
 })
-public final class Kill extends AbstractCommandComponent {
+public class Kill extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "zk";
     public static final String FUNCTION_VALUE = "kill";

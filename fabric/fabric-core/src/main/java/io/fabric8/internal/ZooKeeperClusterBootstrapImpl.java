@@ -18,10 +18,11 @@ package io.fabric8.internal;
 import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.api.DataStoreRegistrationHandler;
+import io.fabric8.api.DataStoreTemplate;
+import io.fabric8.api.FabricComplete;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.ServiceLocator;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
@@ -29,6 +30,7 @@ import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.utils.BundleUtils;
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration.DataStoreOptions;
 import io.fabric8.zookeeper.bootstrap.DataStoreBootstrapTemplate;
 
 import java.io.File;
@@ -46,6 +48,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.jboss.gravia.runtime.ServiceLocator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -62,7 +65,6 @@ import org.slf4j.LoggerFactory;
 /**
  * ZooKeeperClusterBootstrap
  * |_ ConfigurationAdmin
- * |_ DataStoreRegistrationHandler (@see DataStoreManager)
  * |_ BootstrapConfiguration (@see BootstrapConfiguration)
  */
 @ThreadSafe
@@ -75,18 +77,18 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     @Reference
     private Configurer configurer;
 
-    @Reference(referenceInterface = ConfigurationAdmin.class)
-    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
-    @Reference(referenceInterface = DataStoreRegistrationHandler.class)
-    private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
     @Reference(referenceInterface = BootstrapConfiguration.class)
     private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
+    @Reference(referenceInterface = ConfigurationAdmin.class)
+    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
+    @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
-    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}")
+    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${runtime.id}")
     private String name;
-    @Property(name = "home", label = "Container Home", description = "The home directory of the container", value = "${karaf.home}")
-    private String home;
-    @Property(name = "data", label = "Container Data", description = "The data directory of the container", value = "${karaf.data}")
+    @Property(name = "homeDir", label = "Container Home", description = "The home directory of the container", value = "${runtime.home}")
+    private File homeDir;
+    @Property(name = "data", label = "Container Data", description = "The data directory of the container", value = "${runtime.data}")
     private String data;
 
     private BundleContext bundleContext;
@@ -113,30 +115,34 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         assertValid();
         try {
             // Wait for bootstrap to be complete
-            ServiceLocator.awaitService(bundleContext, BootstrapComplete.class);
+            ServiceLocator.awaitService(BootstrapComplete.class);
 
             LOGGER.info("Create fabric with: {}", options);
 
             stopBundles();
 
-            DataStoreRegistrationHandler regHandler = registrationHandler.get();
+            RuntimeProperties runtimeProps = runtimeProperties.get();
             BootstrapConfiguration bootConfig = bootstrapConfiguration.get();
             BundleContext syscontext = bundleContext.getBundle(0).getBundleContext();
             if (options.isClean()) {
-                bootConfig = cleanInternal(syscontext, bootConfig, regHandler);
+                bootConfig = cleanInternal(syscontext, bootConfig, runtimeProps);
             }
 
-            BootstrapCreateHandler createHandler = new BootstrapCreateHandler(bootConfig, regHandler);
-            createHandler.bootstrapFabric(name, home, options);
+            BootstrapCreateHandler createHandler = new BootstrapCreateHandler(bootConfig, runtimeProps);
+            createHandler.bootstrapFabric(name, homeDir, options);
 
             startBundles(options);
 
             long startTime = System.currentTimeMillis();
-            createHandler.waitForContainerAlive(name, syscontext, options.getBootstrapTimeout());
+            long bootstrapTimeout = options.getBootstrapTimeout();
+            ServiceLocator.awaitService(FabricComplete.class, bootstrapTimeout, TimeUnit.MILLISECONDS);
+            
+            long timeDiff = System.currentTimeMillis() - startTime; 
+			createHandler.waitForContainerAlive(name, syscontext, bootstrapTimeout - timeDiff);
 
             if (options.isWaitForProvision() && options.isAgentEnabled()) {
                 long currentTime = System.currentTimeMillis();
-                createHandler.waitForSuccessfulDeploymentOf(name, syscontext, options.getBootstrapTimeout() - (currentTime - startTime));
+                createHandler.waitForSuccessfulDeploymentOf(name, syscontext, bootstrapTimeout - (currentTime - startTime));
             }
         } catch (RuntimeException rte) {
             throw rte;
@@ -145,7 +151,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         }
     }
 
-    private BootstrapConfiguration cleanInternal(final BundleContext syscontext, BootstrapConfiguration bootConfig, DataStoreRegistrationHandler registrationHandler) throws TimeoutException {
+    private BootstrapConfiguration cleanInternal(final BundleContext syscontext, BootstrapConfiguration bootConfig, RuntimeProperties runtimeProps) throws TimeoutException {
         LOGGER.debug("Begin clean fabric");
         try {
             Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=io.fabric8.zookeeper.server)(service.pid=io.fabric8.zookeeper))");
@@ -163,7 +169,9 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
                     }
                 }
             };
-            syscontext.addServiceListener(listener, "(objectClass=" + BootstrapConfiguration.class.getName() + ")");
+            String filter = "(objectClass=" + BootstrapConfiguration.class.getName() + ")";
+            // FABRIC-1052: register listener using the same bundle context that is used for listeners related to SCR
+            bootConfig.getComponentContext().getBundleContext().addServiceListener(listener, filter);
 
             // Disable the BootstrapConfiguration component
             LOGGER.debug("Disable BootstrapConfiguration");
@@ -174,7 +182,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
                 throw new TimeoutException("Timeout for unregistering BootstrapConfiguration service");
 
             // Do the cleanup
-            registrationHandler.removeRegistrationCallback();
+            runtimeProps.clearRuntimeAttributes();
             cleanConfigurations(configs);
             cleanZookeeperDirectory(karafData);
             cleanGitDirectory(karafData);
@@ -294,14 +302,13 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         this.bootstrapConfiguration.unbind(service);
     }
 
-    void bindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.bind(service);
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
     }
-
-    void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.unbind(service);
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
-
+    
     /**
      * This static bootstrap create handler does not have access to the {@link ZooKeeperClusterBootstrap} state.
      * It operates on the state that it is given, which is unrelated to this component.
@@ -309,17 +316,18 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     static class BootstrapCreateHandler {
 
         private final BootstrapConfiguration bootConfig;
-        private final DataStoreRegistrationHandler registrationHandler;
+        private final RuntimeProperties runtimeProperties;
 
-        BootstrapCreateHandler(BootstrapConfiguration bootConfig, DataStoreRegistrationHandler registrationHandler) {
+        BootstrapCreateHandler(BootstrapConfiguration bootConfig, RuntimeProperties runtimeProperties) {
             this.bootConfig = bootConfig;
-            this.registrationHandler = registrationHandler;
+            this.runtimeProperties = runtimeProperties;
         }
 
-        void bootstrapFabric(String karafName, String karafHome, CreateEnsembleOptions options) throws IOException {
+        void bootstrapFabric(String containerId, File homeDir, CreateEnsembleOptions options) throws IOException {
 
             String connectionUrl = bootConfig.getConnectionUrl(options);
-            registrationHandler.setRegistrationCallback(new DataStoreBootstrapTemplate(karafName, karafHome, connectionUrl, options));
+            DataStoreOptions bootOptions = new DataStoreOptions(containerId, homeDir, connectionUrl, options);
+            runtimeProperties.putRuntimeAttribute(DataStoreTemplate.class, new DataStoreBootstrapTemplate(bootOptions));
 
             bootConfig.createOrUpdateDataStoreConfig(options);
             bootConfig.createZooKeeeperServerConfig(options);
@@ -330,16 +338,17 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             System.out.println(String.format("Waiting for container: %s", containerName));
 
             Exception lastException = null;
-            long startedAt = System.currentTimeMillis();
-            while (!Thread.interrupted() && System.currentTimeMillis() < startedAt + timeout) {
-                ServiceReference<FabricService> sref = syscontext.getServiceReference(FabricService.class);
-                FabricService fabricService = sref != null ? syscontext.getService(sref) : null;
+            long now = System.currentTimeMillis();
+            long end = now + timeout;
+            while (!Thread.interrupted() && now < end) {
+                FabricService fabricService = ServiceLocator.getRequiredService(FabricService.class);
                 try {
-                    Container container = fabricService != null ? fabricService.getContainer(containerName) : null;
+                    Container container = fabricService.getContainer(containerName);
                     if (container != null && container.isAlive()) {
                         return;
                     } else {
                         Thread.sleep(500);
+                        now = System.currentTimeMillis();
                     }
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();

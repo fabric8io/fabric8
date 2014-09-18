@@ -15,25 +15,21 @@
  */
 package io.fabric8.process.manager.commands.support;
 
-import com.google.common.base.Preconditions;
-import org.apache.karaf.shell.console.OsgiCommandSupport;
 import io.fabric8.process.manager.ProcessManager;
+import org.apache.karaf.shell.console.AbstractAction;
 
 /**
  */
-public abstract class ProcessCommandSupport extends OsgiCommandSupport {
+public abstract class ProcessCommandSupport extends AbstractAction {
 
-    private ProcessManager processManager;
+    private final ProcessManager processManager;
 
     public ProcessManager getProcessManager() {
         return processManager;
     }
 
-    public void setProcessManager(ProcessManager processManager) {
+    protected ProcessCommandSupport(ProcessManager processManager) {
         this.processManager = processManager;
     }
 
-    protected void checkRequirements() {
-        Preconditions.checkNotNull(processManager, "processManager property");
-    }
 }

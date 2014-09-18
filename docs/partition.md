@@ -17,7 +17,7 @@ ii) Generate camel routes based on a template + json parameters and distribute t
 * **Worker** An interface that describes how the container should handle when added/removed a work items. The worker type is configurable for each task.
 
 
-## What does a work item look like?
+### What does a work item look like?
 A work item can be anything, that we want to distributed to containers. It can be a any file like a jar, an xml file, a json file.
 As long as there is a worker that can handle the work item, the work item can be anything you like.
 
@@ -27,10 +27,10 @@ In the example-camel-partition.routes the work items are raw xml files containin
 In the example-camel-partition.json the work items are json blobs, which are used to render camel routes from a template.
 
 
-## Creating Tasks
+### Creating Tasks
 A task can be defined by providing a configuration pid that uses teh io.fabric8.partition factoryPid.
 
-### Required configuration
+#### Required configuration
 * **id** A unique id that specifies the task.
 * **balancingPolicy.target** The name of the balancing policy (e.g. even). It is passed as an LDAP filter (e.g. (type=even)).
 * **workItemRepositoryFactory.target** The type of the work item repository (supported values: zookeeper, profile). It is passed as an LDAP filter (e.g. (type=zokeeper) or (type=profile)).
@@ -39,11 +39,11 @@ A task can be defined by providing a configuration pid that uses teh io.fabric8.
 
 Note, that the balancing policy, the work item repository and the worker type are looked up from the Service Registry, using the specified value as a filter.
 
-## Using fabric-partition to distribute dynamic profiles
+### Using fabric-partition to distribute dynamic profiles
 As mentioned above, fabric-partition module provides a Worker implementation that creates profiles "on the fly" based on the assigned work items and a profile.
 There are two example profiles that demonstrate this feature:
 
-### example-camel-partition.routes
+#### example-camel-partition.routes
 This profile can be used to automatically distribute raw xml routes to containers that are assigned this profile.
 The structure of the profile looks like:
 
@@ -81,7 +81,7 @@ The configuration specifies a template profile which is example-camel-template.r
 
     bundle.profile.camel-@{item.id}=blueprint:profile:@{item.location}
 
-### example-camel-partition.json
+#### example-camel-partition.json
 Similar to the previous example, this profile will distribute camel routes to containers. In this case the camel routes are not static, but are rendered using a template + parameters.
 The parameters are in the json format. These json blobs will play the role of the work item. Each containers will be assigned one or more json blobs and for each assigned json, the template will be rendered and deployed to the container
 
@@ -161,12 +161,12 @@ Then it will create a new profile and assign it to local container.
 
 *Note:* If you need to also have the resource names under the profile template, you can use in the file name a placeholder surrounded by double underscores, e.g: camel-__id__.xml.
 
-##The profile work item repository
+### The profile work item repository
 
 The examples above made use of the Profile Work Item Repository. This repository can lookup for work items to distribute under the profile, using the Profile URL Handler as a work item path.
 You can then add / remove work items, by adding or removing resources from the profile path.
 
-##The zookeeper work item repository
+### The zookeeper work item repository
 
 An alternative to the profile work item repository, is the zookeeper work item repository. When using it, you specify a zookeeper path that will contain work items.
 You can then add/remove znodes to that path, that will contain the work items. For example if you specify the workItemPath /fabric/partition/example. You can add workitems using the shell like:
@@ -175,7 +175,7 @@ You can then add/remove znodes to that path, that will contain the work items. F
     zk:create /fabric/partition/example/2 "{ \"inUri\" : \"direct:in2\" }"
 
 
-## Implementing custom Workers
+### Implementing custom Workers
 In most cases the user will want to implement his own workers. Implementing one is as trivial as implementing the following methods.
 
     String getType();

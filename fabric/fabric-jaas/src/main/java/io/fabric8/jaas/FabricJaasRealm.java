@@ -40,8 +40,9 @@ import io.fabric8.api.scr.ValidatingReference;
 import org.osgi.framework.BundleContext;
 
 @ThreadSafe
-@Component(name = "io.fabric8.jaas", label = "%Fabric8 Jaas Realm", //label = "Security realm using Fabric8",
-        policy = ConfigurationPolicy.OPTIONAL, immediate = false, metatype = true)
+@Component(name = "io.fabric8.jaas", label = "Fabric8 Security Jaas Realm",
+        description = "The security realm for Fabric8's single sign on mechanism",
+        policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service(JaasRealm.class)
 @Properties(
         @Property(name = "supports.container.tokens", value = "true", propertyPrivate=true)
@@ -121,7 +122,9 @@ public final class FabricJaasRealm extends AbstractComponent implements JaasReal
     @Override
     public int getRank() {
         assertValid();
-        return 1;
+        // we want to be highest by default but allow end user to install
+        // a JaasRealm with a higher rank so lets use rank 99
+        return 99;
     }
 
     @Override

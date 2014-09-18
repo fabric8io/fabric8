@@ -15,7 +15,8 @@
  */
 package io.fabric8.fab.osgi.internal;
 
-import aQute.lib.osgi.Analyzer;
+import aQute.bnd.header.Parameters;
+import aQute.bnd.osgi.Analyzer;
 import io.fabric8.fab.osgi.ServiceConstants;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
@@ -47,7 +48,7 @@ public class Bundles {
             }
             String value = (String) bundle.getHeaders().get("Export-Package");
             if (Strings.notEmpty(value)) {
-                Map<String, Map<String, String>> values = new Analyzer().parseHeader(value);
+                Parameters values = new Analyzer().parseHeader(value);
                 for (String packageName : packages) {
                     Map<String, String> map = values.get(packageName);
                     if (map != null) {

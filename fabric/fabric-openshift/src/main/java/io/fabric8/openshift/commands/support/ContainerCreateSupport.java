@@ -15,6 +15,16 @@
  */
 package io.fabric8.openshift.commands.support;
 
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.FabricAuthenticationException;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRegistry;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Version;
+import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.boot.commands.support.FabricCommand;
+import io.fabric8.utils.FabricValidations;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -22,20 +32,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.fabric8.api.CreateContainerMetadata;
-import io.fabric8.api.FabricAuthenticationException;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
-import io.fabric8.api.ZooKeeperClusterService;
-import io.fabric8.boot.commands.support.FabricCommand;
-import io.fabric8.utils.FabricValidations;
 import org.apache.felix.gogo.commands.Option;
 import org.osgi.framework.ServiceReference;
 
 @Deprecated // See {@link AbstractContainerCreateAction}
 public abstract class ContainerCreateSupport extends FabricCommand {
     @Option(name = "--version", description = "The version of the new container (must be an existing version). Defaults to the current default version.")
-    protected String version;
+    protected String versionId;
     @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new container(s). For multiple profiles, specify the flag multiple times. Defaults to the profile named, default.")
     protected Set<String> profiles;
     @Option(name = "--resolver", multiValued = false, required = false, description = "The resolver policy for this container(s). Possible values are: localip, localhostname, publicip, publichostname, manualip. Defaults to the fabric's default resolver policy.")
@@ -50,8 +53,6 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     protected String zookeeperPassword;
     @Option(name = "--jvm-opts", multiValued = false, required = false, description = "Options to pass to the container's JVM.")
     protected String jvmOpts;
-    @Option(name = "--datastore-type", multiValued = false, required = false, description = "Options to pass to the container's datastore type.")
-    protected String dataStoreType;
     @Option(name = "--datastore-option", multiValued = true, required = false, description = "Options to pass to the container's datastore.")
     protected String[] dataStoreOption;
 
@@ -90,18 +91,19 @@ public abstract class ContainerCreateSupport extends FabricCommand {
             }
 
             // get the profiles for the given version
-            Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-            Profile[] profiles = ver.getProfiles();
+            ProfileService profileService = fabricService.adapt(ProfileService.class);
+            Version version = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getRequiredDefaultVersion();
+            List<Profile> profiles = version.getProfiles();
 
             // validate profiles exists before creating a new container
             Set<String> names = getProfileNames();
             for (String profile : names) {
-                Profile prof = getProfile(profiles, profile, ver);
+                Profile prof = getProfile(profiles, profile, version);
                 if (prof == null) {
-                    throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getId() + " does not exist.");
+                    throw new IllegalArgumentException("Profile " + profile + " with version " + version.getId() + " does not exist.");
                 }
                 if (prof.isAbstract()) {
-                    throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getId() + " is abstract and can not be associated to containers.");
+                    throw new IllegalArgumentException("Profile " + profile + " with version " + version.getId() + " is abstract and can not be associated to containers.");
                 }
             }
         }
@@ -145,8 +147,8 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         }
     }
 
-    private static Profile getProfile(Profile[] profiles, String name, Version version) {
-        if (profiles == null || profiles.length == 0) {
+    private static Profile getProfile(List<Profile> profiles, String name, Version version) {
+        if (profiles == null || profiles.size() == 0) {
             return null;
         }
 
@@ -160,7 +162,8 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     }
 
     public Map<String, String> getDataStoreProperties() {
-        Map<String, String> options = new HashMap<String, String>(fabricService.getDataStore().getDataStoreProperties());
+        ProfileRegistry profileRegistry = fabricService.adapt(ProfileRegistry.class);
+        Map<String, String> options = new HashMap<String, String>(profileRegistry.getDataStoreProperties());
         if (dataStoreOption != null) {
             for (String opt : dataStoreOption) {
                 String[] parts = opt.trim().split(" +");

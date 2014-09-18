@@ -32,7 +32,7 @@ public interface FabricService {
 
     String getEnvironment();
 
-    void substituteConfigurations(Map<String, Map<String, String>> configurations);
+    Map<String, Map<String, String>> substituteConfigurations(Map<String, Map<String, String>> configurations);
 
     /**
      * Track configuration changes.
@@ -52,6 +52,8 @@ public interface FabricService {
      */
     Container[] getContainers();
 
+    Container[] getAssociatedContainers(String versionId, String profileId);
+    
     /**
      * Finds the {@link Container} with the specified name.
      * @param name  The name of the {@link Container}.
@@ -99,52 +101,45 @@ public interface FabricService {
     /**
      * Returns the default {@link Version}.
      */
-    Version getDefaultVersion();
+    String getDefaultVersionId();
 
     /**
      * Sets the default {@link Version}.
      */
-    void setDefaultVersion(Version version);
+    void setDefaultVersionId(String versionId);
 
     /**
-     * Returns all {@link Version}s.
+     * Returns the default {@link Version}.
      */
-    Version[] getVersions();
+    Version getDefaultVersion();
 
     /**
-     * Finds the {@link Version} with the specified name.
-     * @param name  The name of the {@link Version}.
-     * @return      The {@link Version} that matches the name.
+     * Returns the default {@link Version}.
      */
-    Version getVersion(String name);
+    Version getRequiredDefaultVersion();
 
     /**
-     * Creates a new {@link Version}.
-     * @param version   The name of the {@link Version} to be created.
-     * @return          The new {@link Version}.
-     */
-    Version createVersion(String version);
-
-    /**
-     * Creates a new {@link Version} with the specified parent {@link Version} and name.
-     * @param parent        The parent {@link Version}
-     * @param version       The name of the new {@link Version}.
-     */
-    Version createVersion(Version parent, String version);
-
-    /**
-     * Deletes a {@link Version} with the specified name.
+     * Lookup a container provider by name. Returns provider which should be checked for
+     * validity ({@link io.fabric8.api.ContainerProvider#isValidProvider()}).
      *
-     * @param version       The name of the new {@link Version}.
-     */
-    void deleteVersion(String version);
-
-    /**
-     * Lookup a container provider by name
      * @param scheme the name of the container provider
-     * @return the provider for the given scheme or null if there is none available
+     * @return the provider for the given scheme or null if there is none available. The provider may <b>not</b> be
+     * valid in current environment!
      */
     ContainerProvider getProvider(String scheme);
+
+    /**
+     * Returns a list of {@see ContainerProvider}s valid in current environment
+     *
+     * @return
+     */
+    Map<String, ContainerProvider> getValidProviders();
+
+    /**
+     * Returns a list of all registered {@see ContainerProvider}s
+     * @return
+     */
+    Map<String, ContainerProvider> getProviders();
 
     /**
      * Returns the current maven proxy repository to use to create new container
@@ -157,6 +152,22 @@ public interface FabricService {
      * Returns the current maven proxy repository to use to deploy new builds to the fabric
      */
     URI getMavenRepoUploadURI();
+
+    /**
+     * Returns the URL of the root of the REST API for working with fabric8. From this root you can add paths like
+     * ("/containers", "/container/{containerId}, "/versions", "/version/{versionId}/profiles", "/version/{versionId}/profile/{profileId}") etc
+     */
+    String getRestAPI();
+
+    /**
+     * Returns the URL of the git master
+     */
+    String getGitUrl();
+
+    /**
+     * Returns the URL of the web console
+     */
+    String getWebConsoleUrl();
 
     /**
      * Returns the pseudo url of the Zookeeper. It's not an actual url as it doesn't contain a scheme.
@@ -175,34 +186,6 @@ public interface FabricService {
     String getZookeeperPassword();
 
     /**
-     * Returns all the {@link Profile}s for the specified {@link Version}.
-     * @deprecated Use {@link Version#getProfiles()}
-     */
-    @Deprecated
-    Profile[] getProfiles(String version);
-
-    /**
-     * Gets the {@link Profile} that matches the specified {@link Version} and name.
-     * @deprecated Use {@link Version#getProfile(String)}
-     */
-    @Deprecated
-    Profile getProfile(String version, String name);
-
-    /**
-     * Creates a new {@link Profile} with the specified {@link Version} and name.
-     * @deprecated Use {@link Version#createProfile(String)}
-     */
-    @Deprecated
-    Profile createProfile(String version, String name);
-
-    /**
-     * Deletes the specified {@link Profile}.
-     * @deprecated Use Profile#delete() instead
-     */
-    @Deprecated
-    void deleteProfile(Profile profile);
-
-    /**
      * Returns the {@link Container} on which the method is executed.
      */
     Container getCurrentContainer();
@@ -217,6 +200,12 @@ public interface FabricService {
      * or empty requirements if none are defined.
      */
     FabricRequirements getRequirements();
+
+    /**
+     * Returns the status of the fabric <a href="http://fabric8.io/gitbook/requirements.html">auto scaler</a>
+     */
+    AutoScaleStatus getAutoScaleStatus();
+
 
     /**
      * Stores the fabric provisioning requirements
@@ -239,11 +228,6 @@ public interface FabricService {
     PortService getPortService();
 
     /**
-     * Get the {@link DataStore}
-     */
-    DataStore getDataStore();
-
-    /**
      * Get the default JVM options used when creating containers
      */
     String getDefaultJvmOptions();
@@ -253,10 +237,16 @@ public interface FabricService {
      */
     void setDefaultJvmOptions(String jvmOptions);
 
+
     /**
      * Returns the web app URL for the given web application (from its id)
      */
     String containerWebAppURL(String webAppId, String name);
+
+    /**
+     * Returns the web app URL of the given webAppId, profile and version
+     */
+    String profileWebAppURL(String webAppId, String profileId, String versionId);
 
     /**
      * Returns the configuration value for the given key
@@ -282,9 +272,11 @@ public interface FabricService {
     /**
      * Creates a new {@link io.fabric8.api.ContainerAutoScaler} instance
      * using the available container providers to determine the best way to auto-scale;
-     * or null if there are no suitable {@link ContainerPRovider} instances available
+     * or null if there are no suitable {@link ContainerProvider} instances available
      * with the correct configuration to enable this capability.
+     * @param requirements
+     * @param profileRequirements
      */
-    ContainerAutoScaler createContainerAutoScaler();
+    ContainerAutoScaler createContainerAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements);
 
 }

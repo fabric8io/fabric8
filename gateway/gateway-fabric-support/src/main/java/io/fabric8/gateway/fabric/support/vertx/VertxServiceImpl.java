@@ -16,7 +16,9 @@
 package io.fabric8.gateway.fabric.support.vertx;
 
 import io.fabric8.api.scr.AbstractComponent;
-import org.apache.aries.util.AriesFrameworkUtil;
+import io.fabric8.common.util.Objects;
+import io.fabric8.vertx.FabricVertexFactory;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -24,18 +26,12 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
-import io.fabric8.common.util.ClassLoaders;
-import io.fabric8.common.util.Objects;
-import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
-import org.vertx.java.core.VertxFactory;
-import org.vertx.java.core.impl.DefaultVertxFactory;
-
-import java.util.concurrent.Callable;
 
 /**
  * The gateway service which
@@ -48,6 +44,9 @@ public class VertxServiceImpl extends AbstractComponent implements VertxService 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
     private CuratorFramework curator;
 
+    @Reference(referenceInterface = FabricVertexFactory.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
+    private FabricVertexFactory vertxFactory;
+
     private Vertx vertx;
 
     public VertxServiceImpl() {
@@ -55,34 +54,7 @@ public class VertxServiceImpl extends AbstractComponent implements VertxService 
 
     @Activate
     public void activate(ComponentContext context) throws Exception {
-        // TODO support injecting of the ClassLoader without depending on OSGi APIs
-        // see https://github.com/jboss-fuse/fuse/issues/104
-        Bundle bundle = context.getBundleContext().getBundle();
-        final ClassLoader classLoader = AriesFrameworkUtil.getClassLoader(bundle);
-
-        // lets set the thread context class loader for vertx to be able to find services
-        ClassLoaders.withContextClassLoader(classLoader, new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                if (vertx == null) {
-                    try {
-                        vertx = VertxFactory.newVertx();
-                    } catch (Throwable e) {
-                        LOG.warn("Failed to use META-INF/services to discover vertx: " + e, e);
-                    }
-                    if (vertx == null) {
-                        try {
-                            DefaultVertxFactory factory = new DefaultVertxFactory();
-                            vertx = factory.createVertx();
-                        } catch (Throwable e) {
-                            LOG.error("Failed to create Vertx instance: " + e, e);
-                        }
-                    }
-                    LOG.info("Created a vertx implementation: " + vertx);
-                }
-                return null;
-            }
-        });
+        vertx = vertxFactory.createVertx();
         Objects.notNull(vertx, "vertx");
     }
 
@@ -124,5 +96,13 @@ public class VertxServiceImpl extends AbstractComponent implements VertxService 
 
     public void unsetCurator(CuratorFramework curator) {
         this.curator = null;
+    }
+
+    void bindVertxFactory(FabricVertexFactory service) {
+        this.vertxFactory = service;
+    }
+
+    void unbindVertxFactory(FabricVertexFactory service) {
+        this.vertxFactory = null;
     }
 }

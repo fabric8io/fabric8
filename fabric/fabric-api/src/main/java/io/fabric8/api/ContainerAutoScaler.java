@@ -33,8 +33,10 @@ public interface ContainerAutoScaler {
 
     /**
      * Creates the given number of containers of the given profile
+     *
+     * @param request the details for the auto scale request
      */
-    void createContainers(String version, String profile, int count) throws Exception;
+    void createContainers(AutoScaleRequest request) throws Exception;
 
     /**
      * Destroy a number of containers from the given list of containers

@@ -21,7 +21,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-core-agent-ssh</artifactId>
@@ -38,11 +38,9 @@
             io.fabric8.utils.shell;-split-package:=first,
             org.jclouds.karaf.utils;-split-package:=first
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>
-            <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/io.fabric8.service.ssh.SshContainerProvider.xml,
-            OSGI-INF/io.fabric8.service.ssh.commands.ContainerCreateSsh.xml
-        </fuse.osgi.service.component>
+        <fuse.osgi.capabilities.provide>
+            osgi.service;effective:=active;objectClass="io.fabric8.api.ContainerProvider";fabric.container.protocol=ssh
+        </fuse.osgi.capabilities.provide>
     </properties>
 
     <dependencies>
@@ -79,10 +77,14 @@
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>common-util</artifactId>
+        </dependency>
 
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-asl</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -98,6 +100,13 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.annotations</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- testing -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

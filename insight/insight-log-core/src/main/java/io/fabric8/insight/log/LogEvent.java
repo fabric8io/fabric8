@@ -15,7 +15,7 @@
  */
 package io.fabric8.insight.log;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.fabric8.insight.log.support.Objects;
 
 import java.util.Date;
@@ -41,7 +41,7 @@ public class LogEvent implements Comparable<LogEvent> {
     private String lineNumber;
 
     static {
-        setDefaultContainerName(System.getProperty("karaf.name"));
+        setDefaultContainerName(System.getProperty("runtime.id"));
     }
 
     public static LogEvent toLogEvent(Object element) {

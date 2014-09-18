@@ -1,91 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-     Copyright 2005-2014 Red Hat, Inc.
-
-     Red Hat licenses this file to you under the Apache License, version
-     2.0 (the "License"); you may not use this file except in compliance
-     with the License.  You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-     implied.  See the License for the specific language governing
-     permissions and limitations under the License.
-
--->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>io.fabric8</groupId>
-    <artifactId>fabric8-project</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
-    <relativePath>../parent</relativePath>
+    <groupId>io.fabric8.bom</groupId>
+    <artifactId>fabric8-bom</artifactId>
+    <version>1.2.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>website</artifactId>
   <packaging>war</packaging>
 
-  <name>Fabric8 :: Website and Documentation</name>
+  <name>${project.artifactId}</name>
+  <description>The fabric8.io Website and Documentation</description>
 
   <properties>
+    <jettyPort>8000</jettyPort>
+    <scala-version>2.9.0</scala-version>
+<!--
+    TODO lets not use 2.10 scala yet as it seems the 1.6.1 distro of scalate borks the scalate plugin
+    Or at least I've not figured out yet how to run it! :)
+    Wonder if the maven-scalate-plugin_2.10 needs to be called maven-scalate-plugin?
+
+    <scala-version>2.10.0</scala-version>
+    <scala-plugin-version>3.1.2</scala-plugin-version>
+    <scalate-version>1.6.1</scalate-version>
+-->
+    <scala-plugin-version>3.0.2</scala-plugin-version>
+    <scalate-version>1.5.3</scalate-version>
+
     <netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>
-    <wikitext-version>1.3</wikitext-version>
   </properties>
 
   <dependencies>
 
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.fusesource.wikitext</groupId>
-      <artifactId>confluence-core</artifactId>
-      <version>${wikitext-version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.fusesource.wikitext</groupId>
-      <artifactId>textile-core</artifactId>
-      <version>${wikitext-version}</version>
-    </dependency>
+    <!--
+        <dependency>
+          <groupId>javax.servlet</groupId>
+          <artifactId>servlet-api</artifactId>
+          <scope>provided</scope>
+        </dependency>
+    -->
 
     <dependency>
       <groupId>org.fusesource.scalate</groupId>
       <artifactId>scalate-page</artifactId>
+<!--
+      <artifactId>scalate-page_2.10</artifactId>
+-->
       <version>${scalate-version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-compiler</artifactId>
-      <version>${scala-version}</version>
-    </dependency>
+
+    <!--
+        <dependency>
+          <groupId>org.fusesource.scalate</groupId>
+          <artifactId>scalate-wikitext</artifactId>
+          <version>${scalate-version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>org.fusesource.scalate</groupId>
+          <artifactId>scalate-jruby</artifactId>
+          <version>${scalate-version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>org.fusesource.scalate</groupId>
+          <artifactId>scalate-page</artifactId>
+          <version>${scalate-version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>org.fusesource.scalamd</groupId>
+          <artifactId>scalamd</artifactId>
+          <version>${scalamd-version}</version>
+        </dependency>
+    -->
 
     <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>${logback-version}</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j-version}</version>
     </dependency>
 
   </dependencies>
 
   <build>
     <sourceDirectory>${basedir}/ext</sourceDirectory>
-
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-webdav-jackrabbit</artifactId>
-        <version>${wagon-webdav-plugin-version}</version>
-      </extension>
-    </extensions>
 
     <plugins>
       <plugin>
@@ -101,9 +103,65 @@
         </executions>
       </plugin>
 
+      <!-- lets copy any images for the plugins -->
+      <!--
       <plugin>
-        <groupId>org.scala-tools</groupId>
-        <artifactId>maven-scala-plugin</artifactId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <phase>generate-resources</phase>
+            <configuration>
+              <target>
+                <ac:for list="api,camel,core,forcegraph,jboss,jetty,jmx,junit,quartz,tomcat" param="file" xmlns:ac="antlib:net.sf.antcontrib">
+                  <sequential>
+                    <echo>Processing plugin @{file}</echo>
+                    <mkdir dir="${project.build.directory}/sitegen/plugins/@{file}/app/@{file}"/>
+                    <copy todir="${project.build.directory}/sitegen/plugins/@{file}/app/@{file}/doc/img">
+                      <fileset dir="${basedir}/../fabric8-web/src/main/webapp/app/@{file}/doc/img">
+                        <include name="**/*.*"/>
+                      </fileset>
+                    </copy>
+                  </sequential>
+                </ac:for>
+
+                <mkdir dir="${project.build.directory}/sitegen/directives"/>
+                <copy todir="${project.build.directory}/sitegen/directives">
+                  <fileset dir="${basedir}/../fabric8-directives/target/fabric8-directives-${project.version}">
+                    <include name="**/*.*"/>
+                  </fileset>
+                </copy>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>ant-contrib</groupId>
+            <artifactId>ant-contrib</artifactId>
+            <version>1.0b3</version>
+            <exclusions>
+              <exclusion>
+                <groupId>ant</groupId>
+                <artifactId>ant</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-nodeps</artifactId>
+            <version>1.8.1</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      -->
+
+      <plugin>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
         <version>${scala-plugin-version}</version>
         <executions>
           <execution>
@@ -116,15 +174,6 @@
         <configuration>
           <!-- lets disable vscaladoc -->
           <scaladocClassName>scala.tools.nsc.ScalaDoc</scaladocClassName>
-          <!--
-                      <scalaJars>
-                        <scalaJar>
-                          <groupId>org.scala-lang</groupId>
-                          <artifactId>scala-compiler</artifactId>
-                          <version>${scala-version}</version>
-                        </scalaJar>
-                      </scalaJars>
-          -->
           <jvmArgs>
             <jvmArg>-Xmx1024m</jvmArg>
           </jvmArgs>
@@ -137,118 +186,20 @@
       </plugin>
 
       <plugin>
-        <groupId>org.apache.karaf.tooling</groupId>
-        <artifactId>cmdhelp-maven-plugin</artifactId>
-        <version>${karaf-version}</version>
-        <executions>
-          <execution>
-            <id>generate-commands</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>cmdhelp</goal>
-            </goals>
-            <configuration>
-              <format>conf</format>
-              <targetFolder>src/fabric/docs/commands/</targetFolder>
-              <classLoader>plugin</classLoader>
-            </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <!-- Commands for help generation -->
-          <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-core</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-api</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-zookeeper</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric-commands</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-              <exclusion>
-                <groupId>org.apache.karaf.shell</groupId>
-                <artifactId>org.apache.karaf.shell.obr</artifactId>
-              </exclusion>
-            </exclusions>
-          </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric-boot-commands</artifactId>
-                <version>${project.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.karaf.shell</groupId>
-                        <artifactId>org.apache.karaf.shell.obr</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric-zookeeper-commands</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric-core-agent-jclouds</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-          <dependency>
-            <groupId>io.fabric8.fab</groupId>
-            <artifactId>fab-osgi</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-              <exclusion>
-                <groupId>org.apache.karaf.shell</groupId>
-                <artifactId>org.apache.karaf.shell.obr</artifactId>
-              </exclusion>
-            </exclusions>
-          </dependency>
-        </dependencies>
-      </plugin>
-
-      <plugin>
         <groupId>org.fusesource.scalate</groupId>
         <artifactId>maven-scalate-plugin</artifactId>
+<!--
+        <artifactId>maven-scalate-plugin_2.10</artifactId>
+-->
         <version>${scalate-version}</version>
         <configuration>
           <warSourceDirectory>${basedir}/src</warSourceDirectory>
-          <remoteServerId>website.fusesource.org</remoteServerId>
-          <remoteServerUrl>dav:http://fusesource.com/forge/dav/fuse</remoteServerUrl>
-          <!-- 
-          <remoteServerUrl>dav:http://fusesource.com/forge/dav/${forge-project-id}/fab</remoteServerUrl>
-
-          <remoteServerUrl>scp://repo.fusesource.com/www/repo.fusesource.com/fab</remoteServerUrl>
-          <remoteServerUrl>dav:http://fusesource.com/forge/dav/${forge-project-id}</remoteServerUrl>
-          -->
-          <!--
-          <remoteServerUrl>dav:http://fusesource.com/forge/dav/${forge-project-id}/versions/${scalate-version}</remoteServerUrl>
-          <remoteServerUrl>dav:http://fusesource.com/forge/dav/${forge-project-id}/versions/snapshot</remoteServerUrl> 
-          -->
+<!--
+          <targetDirectory>${project.build.directory}/site</targetDirectory>
+-->
+          <remoteServerId>github-project-site</remoteServerId>
+          <remoteServerUrl>gitsite:git@github.com/fabric8io/fabric8.git</remoteServerUrl>
         </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.fusesource.wikitext</groupId>
-            <artifactId>confluence-core</artifactId>
-            <version>${wikitext-version}</version>
-          </dependency>
-
-          <dependency>
-            <groupId>org.fusesource.wikitext</groupId>
-            <artifactId>textile-core</artifactId>
-            <version>${wikitext-version}</version>
-          </dependency>
-        </dependencies>
         <executions>
           <execution>
             <id>sitegen</id>
@@ -282,9 +233,17 @@
         <configuration>
           <webAppConfig>
             <contextPath>/</contextPath>
-            <resourceBase>${basedir}/src</resourceBase>
+            <baseResource implementation="org.eclipse.jetty.util.resource.ResourceCollection">
+              <resourcesAsCSV>${basedir}/src,${project.build.directory}/sitegen</resourcesAsCSV>
+            </baseResource>
             <unpackOverlays>false</unpackOverlays>
           </webAppConfig>
+          <connectors>
+            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+              <port>${jettyPort}</port>
+              <maxIdleTime>60000</maxIdleTime>
+            </connector>
+          </connectors>
           <webAppSourceDirectory>${basedir}/src</webAppSourceDirectory>
           <systemProperties>
             <systemProperty>
@@ -293,7 +252,7 @@
             </systemProperty>
             <systemProperty>
               <name>scalate.workdir</name>
-              <value>${basedir}/target/scalate</value>
+              <value>${basedir}/target/_scalate</value>
             </systemProperty>
             <systemProperty>
               <name>scalate.mode</name>
@@ -303,20 +262,93 @@
           <scanIntervalSeconds>0</scanIntervalSeconds>
         </configuration>
       </plugin>
+
+      <!-- livereload -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec-maven-plugin-version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>net.alchim31</groupId>
+            <artifactId>livereload-jvm</artifactId>
+            <version>0.2.0</version>
+            <type>jar</type>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <includeProjectDependencies>false</includeProjectDependencies>
+          <includePluginDependencies>true</includePluginDependencies>
+          <executableDependency>
+            <groupId>net.alchim31</groupId>
+            <artifactId>livereload-jvm</artifactId>
+          </executableDependency>
+          <mainClass>net_alchim31_livereload.Main</mainClass>
+          <classpathScope>test</classpathScope>
+          <arguments>
+            <argument>-d</argument>
+            <argument>${basedir}/src</argument>
+          </arguments>
+          <systemProperties>
+          </systemProperties>
+        </configuration>
+      </plugin>
     </plugins>
+
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.scm</groupId>
+        <artifactId>maven-scm-provider-gitexe</artifactId>
+        <version>1.6</version>
+      </extension>
+      <extension>
+        <groupId>org.apache.maven.scm</groupId>
+        <artifactId>maven-scm-manager-plexus</artifactId>
+        <version>1.6</version>
+      </extension>
+      <extension>
+        <groupId>com.github.stephenc.wagon</groupId>
+        <artifactId>wagon-gitsite</artifactId>
+        <version>0.4.1</version>
+      </extension>
+    </extensions>
   </build>
+
+  <distributionManagement>
+    <!--
+    To deploy this add this to your ~/.m2/settings.xml
+
+   <server>
+       <id>github-project-site</id>
+       <username>git</username>
+   </server>
+    -->
+
+    <site>
+      <id>github-project-site</id>
+      <url>gitsite:git@github.com/fabric8io/fabric8.git</url>
+    </site>
+  </distributionManagement>
 
   <reporting>
     <plugins>
       <plugin>
         <groupId>org.fusesource.mvnplugins</groupId>
         <artifactId>maven-linkchecker-plugin</artifactId>
+        <version>${mvnplugins-version}</version>
         <configuration>
           <excludedLinks>
             <value>http://github.com/</value>
             <value>http://git.or.cz/</value>
             <value>http://localhost:8080/</value>
-            <value>https://repo.fusesource.com/</value>
+            <value>http://repo.fusesource.com/</value>
             <value>http://search.twitter.com/</value>
             <value>http://www.chengin.com/</value>
           </excludedLinks>
@@ -324,5 +356,6 @@
       </plugin>
     </plugins>
   </reporting>
+
 </project>
 

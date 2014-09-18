@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+     Copyright 2005-2014 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<!--
+   This is the OSGi Blueprint XML file defining the Camel context and routes.  Because the file is in the
+   OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the artifact is being installed.
+
+   The root element for any OSGi Blueprint file is 'blueprint' - you also see the namespace definitions for both the Blueprint
+   and the Camel namespaces.
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="
+             http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+             http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+
+
+    <!--
+      We are using the OSGi Blueprint XML syntax to define a bean that we use in our Camel route to validate
+      the order date. It has a method that intermittently throws runtime exceptions.
+    -->
+    <bean id="myOrderService" class="io.fabric8.quickstarts.errors.OrderService"/>
+
+    <!--
+      Here, we define the dead-letter channel configuration we want to use.  We want to retry delivering a failed exchange
+      twice and we also want to use exponential backoff between retries (so first retry after 1 second, second retry another
+      2 seconds later).  After a total of 3 failed deliveries (1 initial delivery plus our 2 redeliveries), the message will
+      be sent to the configured dead letter uri (direct:deadletter).
+    -->
+    <bean id="myDeadLetterErrorHandler" class="org.apache.camel.builder.DeadLetterChannelBuilder">
+        <property name="deadLetterUri" value="direct:deadletter"/>
+        <property name="redeliveryPolicy">
+            <bean class="org.apache.camel.processor.RedeliveryPolicy">
+                <property name="maximumRedeliveries" value="2"/>
+                <property name="useExponentialBackOff" value="true"/>
+            </bean>
+        </property>
+    </bean>
+
+    <!--
+      The namespace for the camelContext element in Blueprint is 'http://camel.apache.org/schema/blueprint'.  Additionally,
+      we can also define namespace prefixes we want to use in the XPath expressions in our CBR here.
+
+      While it is not required to assign id's to the <camelContext/> and <route/> elements, it is usually a good idea
+      to set those for runtime management purposes (logging, JMX MBeans, ...)
+
+      We also configure the default error handler for this Camel context by setting the errorHandlerRef attribute to the
+      'myDeadLetterErrorHandler' bean defined earlier.  Any exceptions that are not being handled by a more specific
+      mechanism (e.g. an <onException/> or <doTry/>) will be handled by this default error handler.
+    -->
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint"
+                  id="errors-example-context"
+                  errorHandlerRef="myDeadLetterErrorHandler">
+
+        <!--
+          Using <onException/>, we can define recovery scenarios for specific exceptions.  In our case, if order date validation
+          fails (OrderValidationException is thrown, we want to move the file to the work/errors/validation folder.
+
+          We don't specify a redelivery policy and mark the exception handled to ensure processing will not be retried for this exception.
+        -->
+        <onException>
+            <exception>io.fabric8.quickstarts.errors.OrderValidationException</exception>
+            <handled>
+                <constant>true</constant>
+            </handled>
+            <log message="Validation failed for ${file:name} - moving the file to work/errors/validation"/>
+            <to uri="file:work/errors/validation"/>
+        </onException>
+
+        <!--
+          This is the main Camel route.  Files dropped in work/errors/input directory will be processed by two methods in our order service bean:
+          - the first method will validate the order date - it will throw an OrderValidationException whenever the order date is a Sunday
+            these exceptions will be handled by the <onException/> definition
+          - the second method will just randomly throw a RuntimeException 2 out of 3 times
+            our default error handler strategy configured on the <camelContext/> will retry the exchange 3 times and afterwards send it to the dead letter channel
+        -->
+        <route id="mainRoute">
+            <from uri="file:work/errors/input"/>
+            <log message="Processing ${file:name}"/>
+            <to uri="bean:myOrderService?method=validateOrderDate"/>
+            <to uri="bean:myOrderService?method=randomlyThrowRuntimeException"/>
+            <to uri="file:work/errors/done"/>
+            <log message="Done processing ${file:name}"/>
+        </route>
+
+        <!--
+          This route starts with the direct:deadletter endpoint we used in the 'myDeadLetterErrorHandler' bean definition,
+          so any exchanges that have failed delivery 3 times will be sent to this route.  The route itself logs a human-friendly
+          error message and afterwards stores the failed message in the work/errors/deadletter folder.
+        -->
+        <route id="dlcRoute">
+            <from uri="direct:deadletter"/>
+            <log message="File ${file:name} was moved to the dead letter channel"/>
+            <to uri="file:work/errors/deadletter"/>
+        </route>
+
+    </camelContext>
+
+</blueprint>

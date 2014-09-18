@@ -15,13 +15,13 @@
  */
 package io.fabric8.insight.metrics;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.insight.metrics.model.MBeanAttrs;
 import io.fabric8.insight.metrics.model.MBeanOpers;
 import io.fabric8.insight.metrics.model.Query;
 import io.fabric8.insight.metrics.model.Request;
-import io.fabric8.insight.metrics.support.JmxUtils;
-import io.fabric8.insight.metrics.support.Renderer;
-import org.codehaus.jackson.map.ObjectMapper;
+import io.fabric8.insight.metrics.service.support.JmxUtils;
+import io.fabric8.insight.metrics.mvel.Renderer;
 import io.fabric8.insight.metrics.model.QueryResult;
 import io.fabric8.insight.metrics.model.Server;
 import org.junit.Test;

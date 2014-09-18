@@ -15,9 +15,11 @@
  */
 package io.fabric8.mq;
 
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.jms.JMSException;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 public class Main {
@@ -29,9 +31,13 @@ public class Main {
     int count = 100;
     int sleep = 0;
     int size = 0;
+    long ttl = 0L;
+    int parallelThreads = 1;
+    String textSize;
     String clientId;
     String password;
     String user;
+    String groupID;
     int batchSize;
 
     public static void main(String[] args) throws Exception {
@@ -48,8 +54,12 @@ public class Main {
         while (!arg1.isEmpty()) {
             try {
                 String arg = arg1.removeFirst();
-                if ("--size".equals(arg)) {
+                if ("--ttl".equals(arg)) {
+                    main.ttl = Long.parseLong(shift(arg1));
+                } else if ("--size".equals(arg)) {
                     main.size = Integer.parseInt(shift(arg1));
+                } else if ("--textSize".equals(arg)) {
+                    main.textSize = shift(arg1);
                 } else if ("--count".equals(arg)) {
                     main.count = Integer.parseInt(shift(arg1));
                 } else if ("--sleep".equals(arg)) {
@@ -58,6 +68,8 @@ public class Main {
                     main.destination = shift(arg1);
                 } else if ("--brokerUrl".equals(arg)) {
                     main.brokerUrl = shift(arg1);
+                } else if ("--groupId".equals(arg)) {
+                    main.groupID = shift(arg1);
                 } else if ("--user".equals(arg)) {
                     main.user = shift(arg1);
                 } else if ("--password".equals(arg)) {
@@ -68,6 +80,8 @@ public class Main {
                     main.batchSize = Integer.parseInt(shift(arg1));
                 } else if ("--persistent".equals(arg)) {
                     main.persistent = Boolean.valueOf(shift(arg1)).booleanValue();
+                } else if ("--parallelThreads".equals(arg)) {
+                    main.parallelThreads = Integer.parseInt(shift(arg1));
                 } else {
                     System.err.println("Invalid usage: unknown option: " + arg);
                     displayHelpAndExit(1);
@@ -84,50 +98,86 @@ public class Main {
 
     private void execute() {
         initDestination();
+
         System.out.println("Using destination: " + destination + ", on broker: " + brokerUrl);
 
-        ActiveMQService activeMQService = new ActiveMQService(user, password, brokerUrl);
-        activeMQService.setTransacted(batchSize > 0);
-        try {
+        ArrayList<ProducerThread> producerThreads = new ArrayList();
+        ArrayList<ConsumerThread> consumerThreads = new ArrayList();
+        ActiveMQService activeMQService;
+        ProducerThread producerThread;
+        ConsumerThread consumerThread;
 
-            if ("producer".equals(action)) {
+        for (int i = 1; i <= parallelThreads; i++) {
 
-                activeMQService.start();
+            activeMQService = new ActiveMQService(user, password, brokerUrl);
+            activeMQService.setTransacted(batchSize > 0);
 
-                ProducerThread producerThread = new ProducerThread(activeMQService, destination);
-                producerThread.setMessageCount(count);
-                producerThread.setMessageSize(size);
-                producerThread.setSleep(sleep);
-                producerThread.setPersistent(persistent);
-                producerThread.setTransactionBatchSize(batchSize);
-                producerThread.run();
-                System.out.println("Produced: " + producerThread.getSentCount());
+            try {
 
-            } else if ("consumer".equals(action)) {
+                if ("producer".equals(action)) {
 
-                activeMQService.setClientId(clientId);
-                activeMQService.start();
+                    producerThread = new ProducerThread(activeMQService, destination);
+                    producerThread.setMessageCount(count);
+                    producerThread.setMessageSize(size);
+                    producerThread.setTextMessageSize(textSize);
+                    producerThread.setSleep(sleep);
+                    producerThread.setPersistent(persistent);
+                    producerThread.setTransactionBatchSize(batchSize);
+                    producerThread.setTTL(ttl);
+                    producerThread.setMsgGroupID(groupID);
 
-                ConsumerThread consumerThread = new ConsumerThread(activeMQService, destination);
-                consumerThread.setMessageCount(count);
-                consumerThread.setSleep(sleep);
-                consumerThread.setTransactionBatchSize(batchSize);
+                    producerThread.start();
+                    producerThreads.add(producerThread);
 
-                System.out.println("Waiting for: " + count + " messages");
-                consumerThread.run();
-                System.out.println("Consumed: " + consumerThread.getReceived() + " messages");
+                } else if ("consumer".equals(action)) {
 
-            } else {
-                displayHelpAndExit(1);
+                    activeMQService.setClientId(clientId);
+                    activeMQService.start();
+
+                    consumerThread = new ConsumerThread(activeMQService, destination);
+                    consumerThread.setMessageCount(count);
+                    consumerThread.setSleep(sleep);
+                    consumerThread.setTransactionBatchSize(batchSize);
+
+                    consumerThread.start();
+                    consumerThreads.add(consumerThread);
+
+                } else {
+                    displayHelpAndExit(1);
+                }
+
+            } catch (JMSException error) {
+                System.err.println(Thread.currentThread().getName() + "Execution failed with: " + error);
+                error.printStackTrace(System.err);
+                System.exit(2);
             }
-
-        } catch (JMSException error) {
-            System.err.println("Execution failed with: " + error);
-            error.printStackTrace(System.err);
-            System.exit(2);
-        } finally {
-            activeMQService.stop();
         }
+
+        while (true) {
+            Iterator<?> itr = null;
+            if (producerThreads.size() > 0) {
+                itr = producerThreads.iterator();
+            }
+            if (consumerThreads.size() > 0) {
+                itr = consumerThreads.iterator();
+            }
+            int running = 0;
+            while (itr.hasNext()) {
+                Thread thread = (Thread) itr.next();
+                if (thread.isAlive()) {
+                    running++;
+                }
+            }
+            if (running <= 0) {
+                System.out.println("All threads completed their work");
+                break;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+            }
+        }
+
     }
 
     private void initDestination() {
@@ -152,14 +202,18 @@ public class Main {
         System.out.println(" usage   : (producer|consumer) [OPTIONS]");
         System.out.println(" options : [--destination (queue://..|topic://..) - ; default TEST");
         System.out.println("           [--persistent  true|false] - use persistent or non persistent messages; default true");
-        System.out.println("           [--count       N] - number of messages to send or receive; default 100");
-        System.out.println("           [--size        N] - size in bytes of a BytesMessage; default 0, a simple TextMessage is used");
-        System.out.println("           [--sleep       N] - millisecond sleep period between sends or receives; default 0");
-        System.out.println("           [--batchSize   N] - use send and receive transaction batches of size N; default 0, no jms transactions");
-        System.out.println("           [--clientId   id] - use a durable topic consumer with the supplied id; default null, non durable consumer");
-        System.out.println("           [--brokerUrl URL] - connection factory url; default " + ActiveMQConnectionFactory.DEFAULT_BROKER_URL);
-        System.out.println("           [--user      .. ] - connection user name");
-        System.out.println("           [--password  .. ] - connection password");
+        System.out.println("           [--count           N] - number of messages to send or receive; default 100");
+        System.out.println("           [--size            N] - size in bytes of a BytesMessage; default 0, a simple TextMessage is used");
+        System.out.println("           [--textSize        N] - size in bytes of a TextMessage (supported values : 100b, 1K, 10K); default 100b, a Lorem ipsum dummy TextMessage is used");
+        System.out.println("           [--sleep           N] - millisecond sleep period between sends or receives; default 0");
+        System.out.println("           [--batchSize       N] - use send and receive transaction batches of size N; default 0, no jms transactions");
+        System.out.println("           [--ttl             N] - message TTL in milliseconds");
+        System.out.println("           [--parallelThreads N] - number of threads to run in parallel; default 1");
+        System.out.println("           [--groupId       .. ] - JMS message group identifier");
+        System.out.println("           [--clientId       id] - use a durable topic consumer with the supplied id; default null, non durable consumer");
+        System.out.println("           [--brokerUrl     URL] - connection factory url; default " + ActiveMQConnectionFactory.DEFAULT_BROKER_URL);
+        System.out.println("           [--user          .. ] - connection user name");
+        System.out.println("           [--password      .. ] - connection password");
 
         System.out.println("");
 

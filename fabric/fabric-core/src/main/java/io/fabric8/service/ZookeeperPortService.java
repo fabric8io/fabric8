@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import io.fabric8.api.scr.support.Strings;
+import io.fabric8.internal.Objects;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.locks.InterProcessLock;
 import org.apache.curator.framework.recipes.locks.InterProcessMultiLock;
@@ -98,7 +100,9 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
         assertValid();
         String portAsString = String.valueOf(port);
         String containerPortsPath = ZkPath.PORTS_CONTAINER_PID_KEY.getPath(container.getId(), pid, key);
-        String ipPortsPath = ZkPath.PORTS_IP.getPath(container.getIp());
+        String ip = container.getIp();
+        assertValidIp(container, ip);
+        String ipPortsPath = ZkPath.PORTS_IP.getPath(ip);
         try {
             if (interProcessLock.acquire(60, TimeUnit.SECONDS)) {
                 createDefault(curator.get(), containerPortsPath, portAsString);
@@ -119,11 +123,19 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
         }
     }
 
+    protected static void assertValidIp(Container container, String ip) {
+        if (Strings.isNullOrBlank(ip)) {
+            throw new IllegalArgumentException("No IP defined for container " + container.getId());
+        }
+    }
+
     @Override
     public void unregisterPort(Container container, String pid, String key) {
         assertValid();
         String containerPortsPidKeyPath = ZkPath.PORTS_CONTAINER_PID_KEY.getPath(container.getId(), pid, key);
-        String ipPortsPath = ZkPath.PORTS_IP.getPath(container.getIp());
+        String ip = container.getIp();
+        assertValidIp(container, ip);
+        String ipPortsPath = ZkPath.PORTS_IP.getPath(ip);
         try {
             if (interProcessLock.acquire(60, TimeUnit.SECONDS)) {
                 if (exists(curator.get(), containerPortsPidKeyPath) != null) {
@@ -248,6 +260,7 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
     public Set<Integer> findUsedPortByHost(Container container) {
         assertValid();
         String ip = container.getIp();
+        assertValidIp(container, ip);
         Set<Integer> ports = new HashSet<Integer>();
         String path = ZkPath.PORTS_IP.getPath(ip);
         try {

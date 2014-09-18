@@ -21,7 +21,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-zookeeper</artifactId>
@@ -47,32 +47,14 @@
         <fuse.osgi.import.additional>
             org.apache.log4j*;version="[1.2,2)"
         </fuse.osgi.import.additional>
-        <fuse.osgi.services.export>
-            org.apache.curator.framework.CuratorFramework,
-            org.apache.curator.framework.api.ACLProvider,
-            io.fabric8.zookeeper.ACLManager,
-            org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=zk
-        </fuse.osgi.services.export>
         <fuse.osgi.capabilities.provide><![CDATA[
-            service-reference;effective:=active;objectClass=org.apache.curator.framework.CuratorFramework,
-            service-reference;effective:=active;objectClass:List<String>="org.apache.curator.framework.api.ACLProvider,io.fabric8.org.apache.zookeeper.ACLManager",
-            service-reference;effective:=active;objectClass=org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=zk
+            osgi.service;effective:=active;objectClass=org.apache.curator.framework.CuratorFramework
         ]]></fuse.osgi.capabilities.provide>
         <fuse.osgi.private.pkg>
             org.apache.jute*,
             io.fabric8.utils,
             org.apache.felix.utils.properties;-split-package:=first,
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>
-            <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/io.fabric8.zookeeper.bootstrap.BootstrapConfiguration.xml,
-            OSGI-INF/io.fabric8.zookeeper.bootstrap.DataStoreTemplateRegistry.xml,
-            OSGI-INF/io.fabric8.zookeeper.bootstrap.RuntimePropertiesService.xml,
-            OSGI-INF/io.fabric8.zookeeper.bootstrap.ZooKeeperServerFactory.xml,
-            OSGI-INF/io.fabric8.zookeeper.curator.CuratorACLManager.xml,
-            OSGI-INF/io.fabric8.zookeeper.curator.ManagedCuratorFramework.xml,
-            OSGI-INF/io.fabric8.zookeeper.internal.ZkUrlHandler.xml
-        </fuse.osgi.service.component>
     </properties>
 
     <dependencies>
@@ -109,10 +91,14 @@
             <artifactId>commons-logging-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
         <!-- Provided Dependencies -->
         <dependency>
             <groupId>org.apache.felix</groupId>

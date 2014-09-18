@@ -22,17 +22,16 @@
   <parent>
     <groupId>io.fabric8.fab.tests</groupId>
     <artifactId>tests-project</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>fab-itests</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Application Bundles :: Tests :: Integration Tests</description>
+  <name>Fabric8 :: FAB (deprecated) :: Tests :: Integration Tests</name>
 
   <properties>
-    <pax-exam-version>3.0.1</pax-exam-version>
+    <pax-exam-version>3.5.0</pax-exam-version>
   </properties>
 
   <dependencies>
@@ -46,57 +45,57 @@
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-junit4</artifactId>
-          <version>${pax-exam-version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-container-native</artifactId>
-          <version>${pax-exam-version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-link-assembly</artifactId>
-          <version>${pax-exam-version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-inject</artifactId>
-          <version>${pax-exam-version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.runner</groupId>
           <artifactId>pax-runner-no-jcl</artifactId>
-          <version>${pax-runner-version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.apache.geronimo.specs</groupId>
           <artifactId>geronimo-atinject_1.0_spec</artifactId>
-          <version>1.0</version>
       </dependency>
 
-      <!-- Scala -->
       <dependency>
-          <groupId>org.scala-lang</groupId>
-          <artifactId>scala-library</artifactId>
-          <version>${scala-version}</version>
-          <scope>compile</scope>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-interceptor_1.1_spec</artifactId>
+      </dependency>
+
+      <dependency>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-jcdi_1.0_spec</artifactId>
+      </dependency>
+
+      <dependency>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-el_2.2_spec</artifactId>
       </dependency>
 
       <!-- We might need FAB itself too ;) -->
       <dependency>
           <groupId>io.fabric8.fab</groupId>
           <artifactId>fab-osgi</artifactId>
-          <version>${project.version}</version>
           <scope>test</scope>
       </dependency>
 
@@ -200,19 +199,13 @@
           <artifactId>org.apache.servicemix.bundles.asm</artifactId>
       </dependency>
       <dependency>
-          <groupId>org.apache.servicemix.bundles</groupId>
-          <artifactId>org.apache.servicemix.bundles.scala-library</artifactId>
-          <version>2.9.1_1</version>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
           <groupId>org.apache.servicemix.specs</groupId>
           <artifactId>org.apache.servicemix.specs.activation-api-1.1</artifactId>
           <version>${servicemix-specs-version}</version>
       </dependency>
       <dependency>
           <groupId>org.ops4j.pax.url</groupId>
-          <artifactId>pax-url-mvn</artifactId>
+          <artifactId>pax-url-aether</artifactId>
       </dependency>
       <dependency>
           <groupId>org.ops4j.pax.logging</groupId>
@@ -228,78 +221,100 @@
           <artifactId>sshd-core</artifactId>
           <version>${sshd-version}</version>
       </dependency>
+      <dependency>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm-all</artifactId>
+          <version>${asm.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>commons-collections</groupId>
+          <artifactId>commons-collections</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>commons-io</groupId>
+          <artifactId>commons-io</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>commons-lang</groupId>
+          <artifactId>commons-lang</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.ops4j.pax.swissbox</groupId>
+          <artifactId>pax-swissbox-optional-jcl</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.ops4j.pax.swissbox</groupId>
+          <artifactId>pax-swissbox-property</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.servicemix.bundles</groupId>
+          <artifactId>org.apache.servicemix.bundles.aopalliance</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>com.google.inject</groupId>
+          <artifactId>guice</artifactId>
+      </dependency>
   </dependencies>
 
   <build>
-      <testSourceDirectory>src/test/scala</testSourceDirectory>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.servicemix.tooling</groupId>
-        <artifactId>depends-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>generate-depends-file</id>
-            <goals>
-              <goal>generate-depends-file</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.servicemix.tooling</groupId>
+              <artifactId>depends-maven-plugin</artifactId>
+              <executions>
+                  <execution>
+                      <id>generate-depends-file</id>
+                      <goals>
+                          <goal>generate-depends-file</goal>
+                      </goals>
+                  </execution>
+              </executions>
+          </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.12</version>
-        <configuration>
-          <argLine>-Dproject.version=${project.version} -Dorg.ops4j.pax.url.mvn.localRepository=${settings.localRepository}</argLine>
-          <redirectTestOutputToFile>true</redirectTestOutputToFile>
-          <useSystemClassLoader>true</useSystemClassLoader>
-        </configuration>
-      </plugin>
-
-        <!--
-          The use of the features-maven-plugin:add-features-to-repo goal ensures that all bundles we use for testing are available
-          in the local Maven repository.
-        -->
-        <plugin>
-          <groupId>org.apache.karaf.tooling</groupId>
-          <artifactId>features-maven-plugin</artifactId>
-          <version>${karaf-version}</version>
-          <executions>
-            <execution>
-              <id>download-feature-bundle</id>
-              <phase>generate-resources</phase>
-              <goals>
-                <goal>add-features-to-repo</goal>
-              </goals>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-plugin</artifactId>
               <configuration>
-                <descriptors>
-                  <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
-                </descriptors>
-                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
-                <repository>target/features-repo</repository>
-                <features>
-                  <feature>camel-velocity</feature>
-                  <feature>camel-blueprint</feature>
-                </features>
+                  <argLine>-Dproject.version=${project.version}
+                      -Dorg.ops4j.pax.url.mvn.localRepository=${settings.localRepository}
+                  </argLine>
+                  <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                  <useSystemClassLoader>true</useSystemClassLoader>
               </configuration>
-            </execution>
-          </executions>
-        </plugin>
+          </plugin>
 
-        <plugin>
-            <groupId>org.scala-tools</groupId>
-            <artifactId>maven-scala-plugin</artifactId>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>compile</goal>
-                        <goal>testCompile</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
+          <!--
+            The use of the features-maven-plugin:add-features-to-repo goal ensures that all bundles we use for testing are available
+            in the local Maven repository.
+          -->
+          <plugin>
+              <groupId>org.apache.karaf.tooling</groupId>
+              <artifactId>features-maven-plugin</artifactId>
+              <version>${karaf-version}</version>
+              <executions>
+                  <execution>
+                      <id>download-feature-bundle</id>
+                      <phase>generate-resources</phase>
+                      <goals>
+                          <goal>add-features-to-repo</goal>
+                      </goals>
+                      <configuration>
+                          <descriptors>
+                              <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
+                              </descriptor>
+                          </descriptors>
+                          <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
+                          <repository>target/features-repo</repository>
+                          <features>
+                              <feature>camel-velocity</feature>
+                              <feature>camel-blueprint</feature>
+                          </features>
+                      </configuration>
+                  </execution>
+              </executions>
+          </plugin>
+
+      </plugins>
   </build>
 
 </project>

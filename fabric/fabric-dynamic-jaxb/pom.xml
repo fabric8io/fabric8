@@ -21,7 +21,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-dynamic-jaxb</artifactId>
@@ -42,7 +42,6 @@
             javax.xml.namespace,
             *
         </fuse.osgi.import>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>
@@ -63,18 +62,19 @@
           <artifactId>fabric-api</artifactId>
           <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-git</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>common-util</artifactId>

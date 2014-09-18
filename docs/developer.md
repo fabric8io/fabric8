@@ -6,7 +6,7 @@ There's also a [more in depth screencast](http://www.christianposta.com/blog/?p=
 
 ### To start create an archetype
 
-We've lots of [quickstarts](https://github.com/fabric8io/fabric8/tree/master/quickstarts) and [examples](https://github.com/fabric8io/fabric8/tree/master/tooling/examples) which we've converted into [Maven Archetypes](https://maven.apache.org/guides/introduction/introduction-to-archetypes.html). 
+We've got lots of [quickstarts](https://github.com/fabric8io/fabric8/tree/master/quickstarts) and [examples](https://github.com/fabric8io/fabric8/tree/master/tooling/examples) which we've converted into [Maven Archetypes](https://maven.apache.org/guides/introduction/introduction-to-archetypes.html).
 
 So if you have [installed Maven](http://maven.apache.org/download.cgi#Installation), type the following:
 
@@ -27,10 +27,10 @@ And confirm with 'Y'.
 
 Now type this in your shell:
 
-    cd demo
+    cd mydemo
     mvn fabric8:deploy
     
-The [mvn fabric8:deploy](http://fabric8.io/#/site/book/doc/index.md?chapter=mavenPlugin_md) goal should build your project, upload your artefacts to [fabric's maven repository](http://fabric8.io/#/site/book/doc/index.md?chapter=mavenProxy_md) and create a new [Profile](http://fabric8.io/#/site/book/doc/index.md?chapter=profiles_md) for your maven project. 
+The [mvn fabric8:deploy](mavenPlugin.html) goal should build your project, upload your artefacts to [fabric's maven repository](mavenProxy.html) and create a new [Profile](profiles.html) for your maven project.
 
 Open the [hawtio web console](http://hawt.io/) which by default is on [http://locahost:8181/](http://locahost:8181/) and navigate to the **Wiki** tab in the **Fabric** perspective you should see a **my** folder and inside that a **cbr** profile. 
 

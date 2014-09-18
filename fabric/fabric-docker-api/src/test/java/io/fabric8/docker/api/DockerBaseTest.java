@@ -16,11 +16,27 @@
 package io.fabric8.docker.api;
 
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import com.google.mockwebserver.MockResponse;
 import com.google.mockwebserver.MockWebServer;
+import org.junit.Before;
 
 import java.io.IOException;
 
+import static com.google.common.io.Resources.getResource;
+
 public class DockerBaseTest {
+
+    protected MockWebServer server = new MockWebServer();
+
+    protected Docker docker;
+
+    @Before
+    public void dockerBaseTestBefore() throws IOException {
+        server.play();
+        docker = createDockerForMock(server);
+    }
 
     public Docker createDocker(String url) throws IOException {
         DockerFactory factory = new DockerFactory(url);
@@ -32,4 +48,18 @@ public class DockerBaseTest {
         String url = "http://localhost:" + server.getPort();
         return createDocker(url);
     }
+
+    protected void recordResponse(MockWebServer server, String responseName) {
+        try {
+            String json = Resources.toString(getResource(responseName + ".json"), Charsets.UTF_8);
+            server.enqueue(new MockResponse().addHeader("Content-Type", "application/json").setBody(json));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void recordResponse(String responseName) {
+        recordResponse(server, responseName);
+    }
+
 }

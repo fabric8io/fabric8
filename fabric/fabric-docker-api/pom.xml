@@ -22,7 +22,7 @@
   <parent>
     <artifactId>fabric-project</artifactId>
     <groupId>io.fabric8</groupId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -64,23 +64,21 @@
     </fuse.osgi.private.pkg>
     <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=jaxrs-api</fuse.osgi.embed.dependency>
 
-    <!--
-    <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
--->
     <mockwebserver.version>20130706</mockwebserver.version>
     <dockerHost></dockerHost>
+
+    <resteasy-version>3.0.8.Final</resteasy-version>
   </properties>
 
   <dependencies>
     <dependency>
         <groupId>com.fasterxml.jackson.module</groupId>
         <artifactId>jackson-module-jaxb-annotations</artifactId>
-        <version>${jackson-2-version}</version>
+        <version>${jackson2-version}</version>
     </dependency>
     <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${jackson-2-version}</version>
     </dependency>
     <dependency>
         <groupId>io.fabric8</groupId>
@@ -93,7 +91,7 @@
     <dependency>
         <groupId>com.fasterxml.jackson.jaxrs</groupId>
         <artifactId>jackson-jaxrs-json-provider</artifactId>
-        <version>${jackson-2-version}</version>
+        <version>${jackson2-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
@@ -111,17 +109,17 @@
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>jaxrs-api</artifactId>
-      <version>3.0.6.Final</version>
+      <version>${resteasy-version}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-client</artifactId>
-      <version>3.0.6.Final</version>
+      <version>${resteasy-version}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-jackson2-provider</artifactId>
-      <version>3.0.6.Final</version>
+      <version>${resteasy-version}</version>
     </dependency>
 
     <!-- generates the getters/setters -->
@@ -136,6 +134,11 @@
     <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
         <scope>test</scope>
     </dependency>
     <dependency>
@@ -177,15 +180,6 @@
         </executions>
       </plugin>
 -->
-
-      <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-              <excludes>
-                  <exclude>**/*Test.*</exclude>
-              </excludes>
-          </configuration>
-      </plugin>
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>

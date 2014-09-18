@@ -13,26 +13,6 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
 package io.fabric8.zookeeper.curator;
 
 import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
@@ -149,7 +129,7 @@ public final class ManagedCuratorFramework extends AbstractComponent implements 
 
         @Override
         public void stateChanged(CuratorFramework client, ConnectionState newState) {
-            if (newState == ConnectionState.CONNECTED) {
+            if (newState == ConnectionState.CONNECTED || newState == ConnectionState.READ_ONLY || newState == ConnectionState.RECONNECTED) {
                 if (registration == null) {
                     registration = bundleContext.registerService(CuratorFramework.class, curator, null);
                 }
@@ -166,6 +146,9 @@ public final class ManagedCuratorFramework extends AbstractComponent implements 
             closed.set(true);
             CuratorFramework curator = this.curator;
             if (curator != null) {
+                for (ConnectionStateListener listener : connectionStateListeners) {
+                    listener.stateChanged(curator, ConnectionState.LOST);
+                }
                 curator.getZookeeperClient().stop();
             }
             try {
@@ -231,6 +214,7 @@ public final class ManagedCuratorFramework extends AbstractComponent implements 
      */
     private synchronized CuratorFramework buildCuratorFramework(CuratorConfig curatorConfig) {
         CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
+                .canBeReadOnly(true)
                 .ensembleProvider(new FixedEnsembleProvider(curatorConfig.getZookeeperUrl()))
                 .connectionTimeoutMs(curatorConfig.getZookeeperConnectionTimeOut())
                 .sessionTimeoutMs(curatorConfig.getZookeeperSessionTimeout())

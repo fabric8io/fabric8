@@ -169,6 +169,11 @@ public class DelegateZooKeeperGroup<T extends NodeState> implements Group<T> {
         }
     }
 
+    @Override
+    public T getLastState() {
+        return group != null ? group.getLastState() : null;
+    }
+
     public static void closeQuietly(Closeable closeable) {
         if (closeable != null) {
             try {

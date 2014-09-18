@@ -21,7 +21,7 @@ import org.apache.felix.gogo.commands.Command;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.commands.support.ChangeRequirementSupport;
 
-@Command(name = "require-profile-delete", scope = "fabric", description = "Deletes the requirements for a profile", detailedDescription = "classpath:status.txt")
+@Command(name = RequireProfileDelete.FUNCTION_VALUE, scope = RequireProfileDelete.SCOPE_VALUE, description = RequireProfileDelete.DESCRIPTION, detailedDescription = "classpath:status.txt")
 public class RequireProfileDeleteAction extends ChangeRequirementSupport {
 
     @Argument(index = 0, required = true, description = "Profile ID")

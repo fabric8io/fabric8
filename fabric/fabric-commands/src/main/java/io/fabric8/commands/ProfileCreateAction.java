@@ -17,7 +17,8 @@ package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
-import io.fabric8.api.Version;
+import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.ProfileService;
 import io.fabric8.boot.commands.support.FabricCommand;
 import io.fabric8.utils.FabricValidations;
 
@@ -28,19 +29,21 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "profile-create", scope = "fabric", description = "Create a new profile with the specified name and version", detailedDescription = "classpath:profileCreate.txt")
+@Command(name = ProfileCreate.FUNCTION_VALUE, scope = ProfileCreate.SCOPE_VALUE, description = ProfileCreate.DESCRIPTION, detailedDescription = "classpath:profileCreate.txt")
 public class ProfileCreateAction extends AbstractAction {
 
     @Option(name = "--version", description = "The profile version. Defaults to the current default version.")
-    private String version;
+    private String versionId;
     @Option(name = "--parents", multiValued = true, required = false, description = "Optionally specifies one or multiple parent profiles. To specify multiple parent profiles, specify this flag multiple times on the command line. For example, --parents foo --parents bar.")
     private List<String> parents;
     @Argument(index = 0)
-    private String name;
+    private String profileId;
 
+    private final ProfileService profileService;
     private final FabricService fabricService;
 
     ProfileCreateAction(FabricService fabricService) {
+        this.profileService = fabricService.adapt(ProfileService.class);
         this.fabricService = fabricService;
     }
 
@@ -50,12 +53,20 @@ public class ProfileCreateAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        FabricValidations.validateProfileName(name);
-        Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
+        FabricValidations.validateProfileName(profileId);
+        if (versionId != null) {
+            profileService.getRequiredVersion(versionId);
+        } else {
+            versionId = fabricService.getDefaultVersionId();
+        }
 
-        Profile[] parents = FabricCommand.getProfiles(fabricService, ver, this.parents);
-        Profile profile = fabricService.getVersion(ver.getId()).createProfile(name);
-        profile.setParents(parents);
+        // we can only use existing parent profiles
+        Profile[] parents = FabricCommand.getExistingProfiles(fabricService, versionId, this.parents);
+        ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
+        for (Profile parent : parents) {
+            builder.addParent(parent.getId());
+        }
+		profileService.createProfile(builder.getProfile());
         return null;
     }
 

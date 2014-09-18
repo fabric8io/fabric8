@@ -36,10 +36,10 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = ContainerResolverList.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = ContainerResolverList.FUNCTION_VALUE)
 })
-public final class ContainerResolverList extends AbstractCommandComponent {
+public class ContainerResolverList extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-resolver-list";
+    public static final String FUNCTION_VALUE = "container-resolver-list";
     public static final String DESCRIPTION = "List the resolver policy and the host data for each container in the fabric";
 
     @Reference(referenceInterface = FabricService.class)

@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "ensemble-list", scope = "fabric", description = "List the containers in the current fabric ensemble (ZooKeeper ensemble)", detailedDescription = "classpath:ensembleList.txt")
+@Command(name = EnsembleList.FUNCTION_VALUE, scope = EnsembleList.SCOPE_VALUE, description = EnsembleList.DESCRIPTION, detailedDescription = "classpath:ensembleList.txt")
 public class EnsembleListAction extends AbstractAction {
 
     private final ZooKeeperClusterService clusterService;

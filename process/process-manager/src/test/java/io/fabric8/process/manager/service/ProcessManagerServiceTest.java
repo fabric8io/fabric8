@@ -17,6 +17,7 @@ package io.fabric8.process.manager.service;
 
 import com.google.common.io.Files;
 import io.fabric8.process.manager.InstallOptions;
+import io.fabric8.process.manager.InstallTask;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +37,7 @@ public class ProcessManagerServiceTest extends Assert {
     ProcessManagerService processManagerService;
 
     InstallOptions installOptions;
-
+    InstallTask postInstall;
     String firstJvmOption = "-Dfoo=bar";
 
     String secondJvmOption = "-server";
@@ -55,7 +56,7 @@ public class ProcessManagerServiceTest extends Assert {
     @Test
     public void shouldGenerateJvmConfig() throws Exception {
         // When
-        processManagerService.installJar(installOptions);
+        processManagerService.installJar(installOptions, postInstall);
         String generatedJvmConfig = Files.toString(new File(installDir, "1/etc/jvm.config"), Charset.forName("UTF-8"));
 
         // Then

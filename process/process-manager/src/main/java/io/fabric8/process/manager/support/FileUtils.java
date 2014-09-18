@@ -24,8 +24,11 @@ import io.fabric8.process.manager.support.command.Duration;
 import io.fabric8.process.manager.support.command.CommandFailedException;
 
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileUtils {
+    private static final transient Logger LOG = LoggerFactory.getLogger(FileUtils.class);
 
     public static void extractArchive(File archiveFile, File targetDirectory, String extractCommand, Duration timeLimit, Executor executor)
             throws CommandFailedException {
@@ -33,12 +36,23 @@ public class FileUtils {
         Preconditions.checkNotNull(targetDirectory, "targetDirectory is null");
         Preconditions.checkArgument(targetDirectory.isDirectory(), "targetDirectory is not a directory: " + targetDirectory.getAbsolutePath());
 
-        final String[] commands = extractCommand.split(" ");
+        final String[] commands = splitCommands(extractCommand);
         final String[] args = Arrays.copyOf(commands, commands.length + 1);
         args[args.length - 1] = archiveFile.getAbsolutePath();
+        LOG.info("Extracting archive with commands: " + Arrays.asList(args));
+
         new Command(args)
                 .setDirectory(targetDirectory)
                 .setTimeLimit(timeLimit)
                 .execute(executor);
+    }
+
+    /**
+     * Splits the given command into an array of arguments.
+     *
+     * NOTE does not deal with quoted strings!
+     */
+    public static String[] splitCommands(String extractCommand) {
+        return extractCommand.split(" ");
     }
 }

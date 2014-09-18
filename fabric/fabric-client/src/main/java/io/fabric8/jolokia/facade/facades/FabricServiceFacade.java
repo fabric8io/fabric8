@@ -76,6 +76,11 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
+	public Container[] getAssociatedContainers(String versionId, String profileId) {
+        throw new UnsupportedOperationException();
+	}
+
+	@Override
     public Container getContainer(String containerId) {
         return new ContainerFacade(this, getJolokiaClient(), containerId);
     }
@@ -166,46 +171,29 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
+    public String getDefaultVersionId() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Version getRequiredDefaultVersion() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Version getDefaultVersion() {
         String id = Helpers.read(getJolokiaClient(), "DefaultVersion");
-        return new VersionFacade(getJolokiaClient(), id);
+        //TODO: find a way to obtain the actual revision
+        return new VersionFacade(getJolokiaClient(), id, "HEAD");
     }
 
     @Override
-    public void setDefaultVersion(Version version) {
-        Helpers.write(getJolokiaClient(), "DefaultVersion", version.getId());
+    public void setDefaultVersionId(String versionId) {
+        Helpers.write(getJolokiaClient(), "DefaultVersion", versionId);
     }
 
-    @Override
-    public Version[] getVersions() {
-        List<Map<String, Object>> results = Helpers.exec(getJolokiaClient(), "versions(java.util.List)", Helpers.toList("id"));
-        List<Version> answer = new ArrayList<Version>();
-        for (Map<String, Object> result : results) {
-            answer.add(new VersionFacade(getJolokiaClient(), (String)result.get("id")));
-        }
-        return answer.toArray(new Version[answer.size()]);
-    }
-
-    @Override
     public Version getVersion(String versionKey) {
-        return new VersionFacade(getJolokiaClient(), versionKey);
-    }
-
-    @Override
-    public Version createVersion(String versionKey) {
-        JSONObject obj = Helpers.exec(getJolokiaClient(), "createVersion(java.lang.String)", versionKey);
-        return new VersionFacade(getJolokiaClient(), (String)obj.get("id"));
-    }
-
-    @Override
-    public Version createVersion(Version version, String versionKey) {
-        JSONObject obj = Helpers.exec(getJolokiaClient(), "createVersion(java.lang.String, java.lang.String)", version.getId(), versionKey);
-        return new VersionFacade(getJolokiaClient(), versionKey);
-    }
-
-    @Override
-    public void deleteVersion(String versionKey) {
-        JSONObject obj = Helpers.exec(getJolokiaClient(), "deleteVersion(java.lang.String)", versionKey);
+        return new VersionFacade(getJolokiaClient(), versionKey, "HEAD");
     }
 
     @Override
@@ -234,6 +222,21 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
+    public String getRestAPI() {
+        return Helpers.read(getJolokiaClient(), "RestAPI");
+    }
+
+    @Override
+    public String getGitUrl() {
+        return Helpers.read(getJolokiaClient(), "GitUrl");
+    }
+
+    @Override
+    public String getWebConsoleUrl() {
+        return Helpers.read(getJolokiaClient(), "WebConsoleUrl");
+    }
+
+    @Override
     public String getZookeeperUrl() {
         return Helpers.read(getJolokiaClient(), "ZookeeperUrl");
     }
@@ -242,39 +245,6 @@ public class FabricServiceFacade implements FabricService {
     @Override
     public String getZookeeperPassword() {
         throw new UnsupportedOperationException();
-    }
-
-    /* Not going to implement these deprecated methods */
-    /**
-     * @deprecated
-     */
-    @Override
-    public Profile[] getProfiles(String s) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * @deprecated
-     */
-    @Override
-    public Profile getProfile(String s, String s2) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * @deprecated
-     */
-    @Override
-    public Profile createProfile(String s, String s2) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * @deprecated
-     */
-    @Override
-    public void deleteProfile(Profile profile) {
-        Helpers.exec(getJolokiaClient(), "deleteProfile(java.lang.String,java.lang.String)", profile.getVersion(), profile.getId());
     }
 
     @Override
@@ -303,6 +273,18 @@ public class FabricServiceFacade implements FabricService {
             ex.printStackTrace();
         }
         return requirements;
+    }
+
+    @Override
+    public AutoScaleStatus getAutoScaleStatus() {
+        JSONObject obj = Helpers.exec(getJolokiaClient(), "autoScaleStatus()");
+        AutoScaleStatus answer = null;
+        try {
+            answer = Helpers.getObjectMapper().readValue(obj.toJSONString(), AutoScaleStatus.class);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return answer;
     }
 
     @Override
@@ -338,11 +320,6 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
-    public DataStore getDataStore() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String getDefaultJvmOptions() {
         return Helpers.read(getJolokiaClient(), "DefaultJvmOptions");
     }
@@ -354,6 +331,11 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public String containerWebAppURL(String s, String s2) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String profileWebAppURL(String webAppId, String profileId, String versionId) {
         throw new UnsupportedOperationException();
     }
 
@@ -377,7 +359,7 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
-    public ContainerAutoScaler createContainerAutoScaler() {
+    public ContainerAutoScaler createContainerAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
         throw new UnsupportedOperationException();
     }
 
@@ -387,12 +369,22 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
+    public Map<String, ContainerProvider> getValidProviders() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Map<String, ContainerProvider> getProviders() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String getZooKeeperUser() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void substituteConfigurations(Map<String, Map<String, String>> configurations) {
+    public Map<String, Map<String, String>> substituteConfigurations(Map<String, Map<String, String>> configurations) {
         throw new UnsupportedOperationException();
     }
 }

@@ -16,36 +16,25 @@
 package io.fabric8.api;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 /**
+ * The Zookeeper based data store
  */
 public interface DataStore {
 
-    public static final String ATTRIBUTE_PREFIX = "attribute.";
-
-    public static final String DATASTORE_TYPE_PROPERTY = "type";
-    public static final String DEFAULT_DATASTORE_TYPE = "caching-git";
-
     /**
-     * Return the DataStore type.
-     * @return
+     * Gets the fabric release version, eg such as 1.1.0
      */
-    String getType();
-
-
-    //
-    // Import
-    //
-
-    void importFromFileSystem(String from);
+    String getFabricReleaseVersion();
 
     //
     // Tracking
     //
 
+    void fireChangeNotifications();
+    
     void trackConfiguration(Runnable callback);
     void untrackConfiguration(Runnable callback);
 
@@ -59,7 +48,7 @@ public interface DataStore {
 
     String getContainerParent(String containerId);
 
-    void deleteContainer(String containerId);
+    void deleteContainer(FabricService fabricService, String containerId);
 
     void createContainerConfig(CreateContainerOptions options);
 
@@ -81,6 +70,8 @@ public interface DataStore {
 
     void setContainerAlive(String id, boolean flag);
 
+
+
     public enum ContainerAttribute {
         BlueprintStatus,
         SpringStatus,
@@ -88,6 +79,7 @@ public interface DataStore {
         ProvisionException,
         ProvisionList,
         ProvisionChecksums,
+        DebugPort,
         Location,
         GeoLocation,
         Resolver,
@@ -122,77 +114,6 @@ public interface DataStore {
     void setDefaultVersion(String versionId);
 
     //
-    // Version management
-    //
-
-    List<String> getVersions();
-
-    boolean hasVersion(String name);
-
-    void createVersion(String version);
-
-    void createVersion(String parentVersionId, String toVersion);
-
-    void deleteVersion(String version);
-
-    Map<String, String> getVersionAttributes(String version);
-
-    void setVersionAttribute(String version, String key, String value);
-
-    //
-    // Profile management
-    //
-
-    List<String> getProfiles(String version);
-
-    boolean hasProfile(String version, String profile);
-
-    void createProfile(String version, String profile);
-
-    String getProfile(String version, String profile, boolean create);
-
-    void deleteProfile(String version, String profile);
-
-    Map<String, String> getProfileAttributes(String version, String profile);
-
-    void setProfileAttribute(String version, String profile, String key, String value);
-
-    String getLastModified(String version, String profile);
-
-    /**
-     * Lists the files for the given profiles with the optional extra relative path
-     *
-     * @param version the version of the profiles to look at
-     * @param profiles the list of profiles to look into; using values from the first profiles overlaying
-     *                 later profiles
-     * @param path if null then the root configuration directory is listed for the profile
-     */
-    Collection<String> listFiles(String version, Iterable<String> profiles, String path);
-
-    // File configurations, including Map based configurations
-
-
-    List<String> getConfigurationFileNames(String version, String id);
-
-    Map<String, byte[]> getFileConfigurations(String version, String profile);
-
-    byte[] getFileConfiguration(String version, String profile, String name);
-
-    void setFileConfigurations(String version, String profile, Map<String, byte[]> configurations);
-
-    void setFileConfiguration(String version, String profile, String name, byte[] configuration);
-
-    // Map based configurations
-
-    Map<String, Map<String, String>> getConfigurations(String version, String profile);
-
-    Map<String, String> getConfiguration(String version, String profile, String pid);
-
-    void setConfigurations(String version, String profile, Map<String, Map<String, String>> configurations);
-
-    void setConfiguration(String version, String profile, String pid, Map<String, String> configuration);
-
-    //
     // Global information storage
     //
 
@@ -202,9 +123,9 @@ public interface DataStore {
     FabricRequirements getRequirements();
     void setRequirements(FabricRequirements requirements) throws IOException;
 
+    AutoScaleStatus getAutoScaleStatus();
+
     //Ensemble
     String getClusterId();
     List<String> getEnsembleContainers();
-
-    Map<String, String> getDataStoreProperties();
 }

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.api.jcip.Immutable;
 import io.fabric8.api.jcip.ThreadSafe;
 
@@ -235,11 +235,6 @@ public class ContainerOptions implements Serializable {
 
         public B dataStoreProperty(String key, String value) {
             this.dataStoreProperties.put(key, value);
-            return (B) this;
-        }
-
-        public B dataStoreType(String type) {
-            this.dataStoreProperties.put(DataStore.DATASTORE_TYPE_PROPERTY, type);
             return (B) this;
         }
 

@@ -96,8 +96,8 @@ public class ShellUtils {
      * @return
      */
     public static String retrieveFabricZookeeperPassword(CommandSession session) {
-        if (session != null && session.get(FABRIC_USER_PASSWORD) != null) {
-            return (String) session.get(FABRIC_USER_PASSWORD);
+        if (session != null && session.get(FABRIC_ZOOKEEPER_PASSWORD) != null) {
+            return (String) session.get(FABRIC_ZOOKEEPER_PASSWORD);
         }
         return null;
     }

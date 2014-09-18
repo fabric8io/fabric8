@@ -15,13 +15,16 @@
  */
 package io.fabric8.openshift.agent;
 
+import io.fabric8.api.FabricService;
 import io.fabric8.common.util.Files;
+
 import org.apache.karaf.features.Feature;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
+
 import io.fabric8.common.util.LoggingOutputStream;
 import io.fabric8.common.util.Strings;
 import io.fabric8.agent.download.DownloadManager;
@@ -30,7 +33,9 @@ import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 import io.fabric8.git.internal.GitHelpers;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -38,6 +43,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -70,15 +76,17 @@ public class DeploymentUpdater {
     public static final String OPENSHIFT_CONFIG_CATALINA_PROPERTIES = ".openshift/config/catalina.properties";
 
     private final DownloadManager downloadManager;
+    private final FabricService fabricService;
     private final Container container;
     private final String webAppDir;
     private final String deployDir;
     private boolean copyFilesIntoGit = false;
     private String repositories;
 
-    public DeploymentUpdater(DownloadManager downloadManager, Container container, String webAppDir,
+    public DeploymentUpdater(DownloadManager downloadManager, FabricService fabricService, Container container, String webAppDir,
                              String deployDir) {
         this.downloadManager = downloadManager;
+        this.fabricService = fabricService;
         this.container = container;
         this.webAppDir = webAppDir;
         this.deployDir = deployDir;
@@ -87,14 +95,15 @@ public class DeploymentUpdater {
     public void updateDeployment(Git git, File baseDir, CredentialsProvider credentials) throws Exception {
         Set<String> bundles = new LinkedHashSet<String>();
         Set<Feature> features = new LinkedHashSet<Feature>();
-        Profile profile = container.getOverlayProfile();
-        bundles.addAll(profile.getBundles());
-        AgentUtils.addFeatures(features, downloadManager, profile);
+        Profile overlayProfile = container.getOverlayProfile();
+        Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService, overlayProfile);
+        bundles.addAll(effectiveProfile.getBundles());
+        AgentUtils.addFeatures(features, fabricService, downloadManager, effectiveProfile);
 
         if (copyFilesIntoGit) {
             copyDeploymentsIntoGit(git, baseDir, bundles, features);
         } else {
-            addDeploymentsIntoPom(git, baseDir, profile, bundles, features);
+            addDeploymentsIntoPom(git, baseDir, effectiveProfile, bundles, features);
         }
 
         // now lets do a commit
@@ -168,7 +177,7 @@ public class DeploymentUpdater {
      * run the build and download the deployments into the {@link #webAppDir} or {@link #deployDir}
      */
     protected void addDeploymentsIntoPom(Git git, File baseDir, Profile profile, Set<String> bundles, Set<Feature> features) throws SAXException, ParserConfigurationException, XPathExpressionException, IOException, TransformerException, GitAPIException {
-        Collection<Parser> artifacts = AgentUtils.getProfileArtifacts(profile, bundles, features).values();
+        Collection<Parser> artifacts = AgentUtils.getProfileArtifacts(fabricService, profile, bundles, features).values();
 
         if (artifacts.size() > 0) {
             OpenShiftPomDeployer pomDeployer = new OpenShiftPomDeployer(git, baseDir, deployDir, webAppDir);

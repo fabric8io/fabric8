@@ -11,11 +11,14 @@ A profile is a description of how a logical group of containers needs to be prov
 
 and also defines the OSGi framework that is going to be used.
 
-Each profile can have none, one or more parents, and this allows allows you to have profile hierarchies and a container can be assigned one or more profiles.
-Profiles are also version, which allows you to keep different versions of each profile and then upgrade or rollback containers by changing the version of the profiles they use.
+Each profile can have none, one or more parents, and this allows you to have profile hierarchies and a container can be assigned to one or more profiles.
+Profiles are also versioned, which allows you to keep different versions of each profile and then upgrade or rollback containers by changing the version of the profiles they use.
+
+Each profile may also define none, one or more dependents. This allows a profile to specify any containers that must be active for it to start, an example would be requiring that
+a MongoDB container is active so that a profile can use it as a database.
 
 ### Profile hierarchies
-It is quite often that multiple profiles share similar bits of configuration. Its quite common different application to use common frameworks libraries etc. Defining everything from group up for each profile can be a real pain and is not that easy to maintain.
+It is quite often that multiple profiles share similar bits of configuration. Its quite common for different applications to use common frameworks libraries etc. Defining everything from group up for each profile can be a real pain and is not that easy to maintain.
 To avoid having duplicate configuration across profiles and reduce the required maintenance, Fabric uses a hierarchical model for profiles, which allows you to build a generic profile which contains common configuration and then inherit the common bits.
 
 The section below describes the profiles that are shipped with Fabric out of the box and are a good example of how profile hierarchies work.
@@ -23,7 +26,7 @@ The section below describes the profiles that are shipped with Fabric out of the
 ### Out of the box profiles
 Fabric provides a rich set of profiles *"out of the box" that can be used as the basic building blocks for definining your own profiles. The most important profiles are:
 
-* **default** The default profile defines the all the basic stuff that fabric needs to run. For example it defines the *fabric-agent* feature, the fabric registry url & the list of maven repositories that can be used to download artifacts from.
+* **default** The default profile defines all the basic stuff that fabric needs to run. For example it defines the *fabric-agent* feature, the fabric registry url & the list of maven repositories that can be used to download artifacts from.
 * **karaf** It is a child of **default** (so it doesn't need to define the same things again. It also defines the karaf feature repositories, that can be used for defining any karaf feature.
 * **camel** It is a child of **karaf**. It also defines the camel feature repositories and some core camel features such as *camel-core* & *camel-blueprint*. Any profile for describing camel application is suggested to inherit this one.
 * **cxf** It is a child of **karaf**. It also defines the cxf feature repositories and some core cxf features. It is intended to be the parent of any profile that describes a cxf application.
@@ -31,8 +34,27 @@ Fabric provides a rich set of profiles *"out of the box" that can be used as the
 * **mq** It is a child of the **mq-base** profile and it also provides a fuse mq broker configuration.
 * **esb** It is a child of **camel**,**mq** & more profiles and also defines the *Fuse ESB* feature repository.
 
+### Profile dependencies
+A profile defines a dependency within a `io.fabric8.profile.dependency-[name].properties` file, where `[name]` can be any descriptive name for a particular dependency.
+ 
+This is an example dependency defining that a container must exist with the MongoDB profile:
+
+```
+kind = ZOOKEEPER_SERVICE
+zookeeperPath = /fabric/registry/clusters/mongodb/default
+summary = You must have a MongoDB instance running to be able to start this profile.
+profileWildcards = mongodb
+```
+
+`kind` only supports `ZOOKEEPER_SERVICE` as a method of determining whether a dependency is present.
+`zookeeperPath` defines the path in the registry whose child nodes will be containers of the appropriate profile(s) for this dependency.
+`profileWildcards` defines what profile ids to match on. If an id within `profileWildcards` is not contained within part of a profile id of the container, then no match is made.
+`summary` specifies a message to be displayed in hawt.io when no dependent container is found.
+
+Dependencies will attempt to match by `profileWildcards` first, and if no dependent container is found, it will then use `profileTags`. For a match to be made by `profileTags`, all the tags specified must be present on the profile of the dependent container. A match is still made if the dependent container has more tags than was defined in `profileTags`. 
+
 ### Changing the profile of a container
-At any give time you are able to change on of more of the profiles that are assigned to a container. You can use the [fabric:container-change-profile](commands/fabric-container-change-profile.html) command as shown below:
+At any given time you are able to change one of more of the profiles that are assigned to a container. You can use the [fabric:container-change-profile](commands/fabric-container-change-profile.html) command as shown below:
 
       fabric:container-change-profile mycontainer myprofile
 
@@ -233,23 +255,18 @@ It describe how to modify profiles and explains how to perform single and rollin
 <object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/-2W5NwC2oAo?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/-2W5NwC2oAo?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
 
 #### Importing and exporting profiles
+
 There are cases where you have put quite a lot of effort in creating the profiles that much your needs and you want to store them somewhere.
 A good example is when you move from the development environment to the staging or the production environment. You simply just don't want to go over the process of creating the profiles again.
 For such cases Fabric allows you export your profiles in text and also import them back. So you can safely store them or even import them to a version control system.
 
 To export the Fabric profiles you can use the [fabric:export](commands/fabric-export.html)
 
-         fabric:export
+         fabric:profile-export
 
-This command will export the whole registry to files. The default export location is the fabric/export folder under the karaf home directory. To change the default location you just need to specify the path as an argument:
+This command will export all the profiles to files. The default export location is the fabric/export folder under the karaf home directory. To change the default location you just need to specify the path as an argument:
 
-         fabric:export /path/to/my/export/location
-
-Of course the registry also contains runtime information which may be unneeded. You can choose initial znode from which the export will occur. For example to just keep the configuration data:
-
-         fabric:export -p /fabric/configs /path/to/my/export/location
-
-You also have the option to include or exclude part of the registry using regular expression.
+         fabric:profile-export /path/to/my/export/location
 
 In a similar way the import operation works. Please keep in mind that by default when creating a Fabric the [fabric:create](commands/fabric-create.html) command will import everything it finds in fabric/import under the karaf home folder.
 
@@ -257,16 +274,54 @@ In a similar way the import operation works. Please keep in mind that by default
 
 to specify an other folder for importing to the registry you can simply use the **--import-dir** option. For example:
 
-
         fabric:create --import-dir /path/to/my/import/location
 
-Of course there are cases where you need to import data to the registry after the registry has been created. You can use the the [fabric:export](commands/fabric-export.html) as described below:
+Of course there are cases where you need to import profiles after fabric has been created. You can use the the [fabric:export](commands/fabric-import-profile.html) as described below:
 
-        fabric:import
+        fabric:profile-import /path/to/my/profiles.zip
 
-All the arguments and options of the [fabric:export](commands/fabric-export.html) are also available to the [fabric:import](commands/fabric-import.html) command.
+The `profile-import` command import profiles stored as zip files from url locations. You can also import using maven coordinates such as:
 
-For example if you exported the registry starting from the /fabric/configs/ znode and want to import them back starting from the same znode *(this is what makes sense, when exporting starting from a specific znode to import back starting from the same)*:
+        fabric:profile-import mvn:com.foo/mystuff/1.0/zip/profile
 
-      fabric:import -p /fabric/configs /path/to/my/import/location
+Fabric provides a Maven Plugin fabric8:zip which allows to export profiles to zips. Read  more about this at the Continues Deployment section.
+
+Fabric provides the [maven fabric8 plugin](mavenPlugin.html) supporting the _fabric8:zip_ goal to export profiles to zips. This allows end users to develop projects, and easily export their projects as zips which can be imported into fabric. Read more about this at the [continues deployment](continuousDeployment.html) section.
+
+#### Importing initial profiles 
+
+When fabric is started it imports an initial set of profiles from the `<fabric_home>/fabric/import` directory. 
+
+In addition fabric imports additional .zip files from the following two sources:
+
+1. .zip files which have been copied to the `<fabric_home>/fabric` directory. 
+1. .properties file which haven been copied to the `<fabric_home>/fabric` directory. 
+
+In the .properties files, you specify url locations for .zip files to be imported. For example fabric uses this to import additional profiles such as the quickstarts, by having a `io.fabric8.import.profiles.properties` file with the following content
+
+    importProfileURLs = ${env:FABRIC8_IMPORT_PROFILE_URLS?:mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${version:fabric}/zip/profile}
+
+The url above is using the [environment property resolver](http://fabric8.io/gitbook/propertyResolver.html#env) to either load urls from the given environment variable, or if not provided, then use the default value which is `mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${version:fabric}/zip/profile`. Notice how the url uses the `?:` elvis operator so we can lookup the environment variable, and if not given, then fallback and use the default value. The value `${version:fabric}` will get replaced with the version of fabric8. 
+
+The environment variable `FABRIC8_IMPORT_PROFILE_URLS` can be used to define custom profiles to be loaded instead of the quickstarts. Multiple urls can be separated bt comma. For example to load two custom profiles instead of the quickstarts, then the environment can be configured with:
+
+    export FABRIC8_IMPORT_PROFILE_URLS="mvn:com.foo/myprofiles/1.0,mvn:com.foo/myotherprofiles/1.0"
+
+##### Skipping importing some folders
+
+If for some reason you want to skip importing some folders (profiles) from a .zip file, you can include an empty `.skipimport` file in the folder to skip. 
+
+##### Disabling quickstarts
+
+This allows easily to disable importing the quickstarts, by either deleting the `io.fabric8.import.profiles.properties` file, or disable the above line,  by prefixing the line with the `#` character, or setting the environment variable `FABRIC8_IMPORT_PROFILE_URLS` to the value `false`. 
+
+#### Documenting profiles
+
+A profile can include documentation by including the following files
+
+1. `readme.md` - a readme file including the main documentation of the profile
+1. `summary.md` - an optional file for a quick summary of the profile.
+1. `icon.svg` or `icon.png` or `icon.jpg` - an optional graphical logo for the profile
+
+The profile can be viewed from the web console which will automatic include the above information if available.
 

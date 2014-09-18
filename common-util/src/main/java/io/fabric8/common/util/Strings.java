@@ -149,12 +149,51 @@ public class Strings {
         }
     }
 
+    /**
+     * This method is used to pad a line by max length with a delimiter.
+     * @param delimiter - String that will be used to concatenate to the end of line
+     * @param str - string input that will be changed and returned
+     * @param max - size of the maximum length of a string
+     * @return
+     */
+
+    public static String rpad(String delimiter, String str, int max){
+        for(int i=1; i<= max; i++){
+            str = str.concat(delimiter);
+        }
+        return str;
+    }
+
+    /**
+     *  When you have a line that has a maximum length and want to pad the remaining space with ' ' whitespace then
+     *  this method is for you.
+     * @param delimiter - String that will be used to concatenate to the end of line
+     * @param str - string input that will be changed and returned
+     * @param max - size of the maximum length of a string
+     * @return
+     */
+    public static String rpadByMaxSize(String delimiter, String str, int max){
+        int len= max- str.length();
+        for(int i=1; i<= len; i++){
+            str = str.concat(delimiter);
+        }
+        return str;
+    }
+
     public static boolean isNullOrBlank(String value) {
         return value == null || value.length() == 0 || value.trim().length() == 0;
     }
 
     public static boolean isNotBlank(String text) {
         return !isNullOrBlank(text);
+    }
+
+    public static String stripSuffix(String value, String suffix) {
+        if (!value.endsWith(suffix)) {
+            return value;
+        } else {
+            return value.substring(0, value.length() - suffix.length());
+        }
     }
 
     public static List<String> parseDelimitedString(String value, String delim) {

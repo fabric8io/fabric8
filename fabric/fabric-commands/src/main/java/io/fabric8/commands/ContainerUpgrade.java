@@ -15,6 +15,11 @@
  */
 package io.fabric8.commands;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
@@ -32,6 +37,8 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.service.command.Function;
+import org.apache.karaf.shell.console.Completer;
+import org.apache.karaf.shell.console.completer.NullCompleter;
 
 @Component(immediate = true)
 @Service({ Function.class, AbstractCommand.class })
@@ -39,10 +46,10 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = ContainerUpgrade.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = ContainerUpgrade.FUNCTION_VALUE)
 })
-public final class ContainerUpgrade extends AbstractCommandComponent {
+public class ContainerUpgrade extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-upgrade";
+    public static final String FUNCTION_VALUE = "container-upgrade";
     public static final String DESCRIPTION = "Upgrade containers to a new version";
 
     @Reference(referenceInterface = FabricService.class)
@@ -50,9 +57,11 @@ public final class ContainerUpgrade extends AbstractCommandComponent {
 
     // Completers
     @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
-    private ContainerCompleter containerCompleter; // dummy field
+    private ContainerCompleter containerCompleter;
     @Reference(referenceInterface = VersionCompleter.class, bind = "bindVersionCompleter", unbind = "unbindVersionCompleter", cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
-    private VersionCompleter versionCompleter; // dummy field
+    private VersionCompleter versionCompleter;
+
+    private final List<Completer> completers = new ArrayList<Completer>();
 
     @Activate
     void activate() {
@@ -79,18 +88,35 @@ public final class ContainerUpgrade extends AbstractCommandComponent {
     }
 
     void bindContainerCompleter(ContainerCompleter completer) {
-        bindCompleter(completer);
+        synchronized (completers) {
+            // container last (2nd)
+            completers.add(completer);
+        }
     }
 
     void unbindContainerCompleter(ContainerCompleter completer) {
-        unbindCompleter(completer);
+        completers.remove(completer);
     }
 
     void bindVersionCompleter(VersionCompleter completer) {
-        bindCompleter(completer);
+        synchronized (completers) {
+            // version first
+            completers.add(0, completer);
+        }
     }
 
     void unbindVersionCompleter(VersionCompleter completer) {
-        unbindCompleter(completer);
+        completers.remove(completer);
     }
+
+    @Override
+    public List<Completer> getCompleters() {
+        synchronized (completers) {
+            if (completers.isEmpty()) {
+                return Arrays.<Completer>asList(new NullCompleter());
+            }
+            return Collections.unmodifiableList(completers);
+        }
+    }
+
 }

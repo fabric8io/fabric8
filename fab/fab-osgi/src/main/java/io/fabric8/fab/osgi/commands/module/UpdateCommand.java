@@ -24,7 +24,7 @@ public class UpdateCommand extends CommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        Activator.registry.update(session.getConsole());
+        getModuleRegistry().update(session.getConsole());
         return null;
     }
 

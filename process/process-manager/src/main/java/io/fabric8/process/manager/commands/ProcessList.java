@@ -15,39 +15,72 @@
  */
 package io.fabric8.process.manager.commands;
 
-import io.fabric8.process.manager.Installation;
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.process.manager.commands.support.ProcessCommandSupport;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.process.manager.ProcessManager;
+import io.fabric8.process.manager.commands.support.ProcessNumberCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
+import org.osgi.framework.BundleContext;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.List;
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = ProcessList.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = ProcessList.FUNCTION_VALUE)
+})
+public class ProcessList extends AbstractCommandComponent {
 
-@Command(name = "ps", scope = "process", description = "Lists the currently installed managed processes.")
-public class ProcessList extends ProcessCommandSupport {
-    static final String[] HEADERS = {"[id]", "[pid]", "[name]"};
-    static final String FORMAT = "%-20s %9s %s";
+    public static final String SCOPE_VALUE = "process";
+    public static final String FUNCTION_VALUE = "ps";
+    public static final String DESCRIPTION = "Lists the currently installed managed processes.";
+
+    @Reference(referenceInterface = ProcessManager.class)
+    private final ValidatingReference<ProcessManager> processManager = new ValidatingReference<ProcessManager>();
+
+    @Reference(referenceInterface = ProcessNumberCompleter.class, bind = "bindProcessNumberCompleter", unbind = "unbindProcessNumberCompleter")
+    private ProcessNumberCompleter processNumberCompleter; // dummy field
+
+    private BundleContext bundleContext;
+
+    @Activate
+    void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected Object doExecute() throws Exception {
-        checkRequirements();
-        List<Installation> installations = getProcessManager().listInstallations();
-
-        printInstallations(installations, System.out);
-        return null;
+    public Action createNewAction() {
+        assertValid();
+        return new ProcessListAction(processManager.get());
     }
 
-    protected void printInstallations(List<Installation> installations, PrintStream out) {
-        out.println(String.format(FORMAT, HEADERS));
-        for (Installation installation : installations) {
-            String id = installation.getId();
-            Long pid = null;
-            try {
-                pid = installation.getActivePid();
-            } catch (IOException e) {
-                System.err.println("Failed to find pid for id: " + id + ". " + e);
-            }
-            out.println(String.format(FORMAT, "" + id, (pid != null) ? pid.toString() : "", installation.getName()));
-        }
+    void bindProcessManager(ProcessManager processManager) {
+        this.processManager.bind(processManager);
     }
+
+    void unbindProcessManager(ProcessManager processManager) {
+        this.processManager.unbind(processManager);
+    }
+
+    void bindProcessNumberCompleter(ProcessNumberCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindProcessNumberCompleter(ProcessNumberCompleter completer) {
+        unbindCompleter(completer);
+    }
+
 }

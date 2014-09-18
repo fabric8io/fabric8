@@ -15,12 +15,14 @@
  */
 package io.fabric8.openshift;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateRemoteContainerOptions;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -45,6 +47,8 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
         private String gearProfile = "small";
         @JsonProperty
         private Map<String, String> environmentalVariables = new HashMap<String, String>();
+        @JsonProperty
+        private List<String> fallbackRepositories = new ArrayList<String>();
 
         public Builder serverUrl(final String serverUrl) {
             this.serverUrl = serverUrl;
@@ -74,6 +78,11 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
 
         public Builder environmentalVariables(final Map<String, String> environmentalVariables) {
             this.environmentalVariables = environmentalVariables;
+            return this;
+        }
+
+        public Builder fallbackRepositories(final List<String> fallbackRepositories) {
+            this.fallbackRepositories = fallbackRepositories;
             return this;
         }
 
@@ -118,12 +127,20 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
             this.environmentalVariables = environmentalVariables;
         }
 
+        public List<String> getFallbackRepositories() {
+            return fallbackRepositories;
+        }
+
+        public void setFallbackRepositories(List<String> fallbackRepositories) {
+            this.fallbackRepositories = fallbackRepositories;
+        }
+
         public CreateOpenshiftContainerOptions build() {
             return new CreateOpenshiftContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                     getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isAutoImportEnabled(),
                     getImportPath(), getUsers(), getName(), getParent(), "openshift", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
                     getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(),
-                    serverUrl, login, password, domain, gearProfile, environmentalVariables);
+                    serverUrl, login, password, domain, gearProfile, environmentalVariables, fallbackRepositories);
         }
     }
 
@@ -143,9 +160,11 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
     private final String gearProfile;
     @JsonProperty
     private final Map<String, String> environmentalVariables;
+    @JsonProperty
+    private final List<String> fallbackRepositories;
 
 
-    public CreateOpenshiftContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, boolean clean, String serverUrl, String login, String password, String domain, String gearProfile, Map<String, String> environmentalVariables) {
+    public CreateOpenshiftContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, boolean clean, String serverUrl, String login, String password, String domain, String gearProfile, Map<String, String> environmentalVariables, List<String> fallbackRepositories) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, false, 0, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, clean);
         this.serverUrl = serverUrl;
         this.login = login;
@@ -153,6 +172,7 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
         this.domain = domain;
         this.gearProfile = gearProfile;
         this.environmentalVariables = environmentalVariables;
+        this.fallbackRepositories = fallbackRepositories;
     }
 
     @Override
@@ -161,7 +181,7 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
                 getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(),  getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isAutoImportEnabled(),
                 getImportPath(), getUsers(), getName(), getParent(), "openshift", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
                 getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(),
-                serverUrl, user, password, domain, gearProfile, environmentalVariables);
+                serverUrl, user, password, domain, gearProfile, environmentalVariables, fallbackRepositories);
     }
 
     public String getServerUrl() {
@@ -197,5 +217,14 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
     @Override
     public Map<String, String> getEnvironmentalVariables() {
         return environmentalVariables;
+    }
+
+    @Override
+    public Boolean doUploadDistribution() {
+        return false;
+    }
+
+    public List<String> getFallbackRepositories() {
+        return fallbackRepositories;
     }
 }

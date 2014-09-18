@@ -2,11 +2,10 @@ Modules
 ===================
 
 By default Fabric8 builds the set of modules required by the karaf distribution and runs the associated integration tests.
-There are three main build targets associated with corresponding maven profiles
+There are two main build targets associated with corresponding maven profiles
 
 * tomcat: Fabric8 on Tomcat 
 * wildfly: Fabric8 on WildFly
-* all: All available modules
 
 Build examples are below
 
@@ -17,6 +16,14 @@ Be sure to check out the [committer instructions](http://174.129.32.31:8080/) on
 
 Building Fabric8
 ============
+
+First of all, the Fabric8 build process needs, most 
+of the time, more memory than the default allocated
+to the maven process. Therefore, ensure to set the 
+MAVEN_OPTS system property with the following settings
+before starting
+
+    > MAVEN_OPTS="-Xmx1024m -XX:MaxPermSize=512m"
 
 Build Fabric8 and run the associated smoke tests
 
@@ -67,10 +74,6 @@ Build Fabric8 and run all tests
 
     > mvn clean install -Dts.all
     
-Build fabric8 with all modules and run all tests
-
-    > mvn clean install -Pall -Dts.all
-    
 
 License check
 =============
@@ -92,3 +95,24 @@ And from any sub module, you need to refer to the license file using a relative 
 You can update the license headers in the source code using the ```format``` goal, for example:
 
     > mvn license:format -Plicense -Dlicense.header=../../fabric-license-header.txt 
+
+
+GitBook
+=======
+
+The documentation is compiled into a book using [GitBook](https://github.com/GitbookIO/gitbook).
+
+First install gitbook using npm
+
+    npm install gitbook -g
+
+And then build the book locally using
+
+    cd docs
+    gitbook serve ./
+
+And access the book from a web browser at
+
+    http://localhost:4000
+
+To add new sections into the gitbook, ecit the `docs/SUMMARY.md` file.

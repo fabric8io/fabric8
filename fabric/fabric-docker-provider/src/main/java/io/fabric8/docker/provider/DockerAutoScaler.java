@@ -15,15 +15,28 @@
  */
 package io.fabric8.docker.provider;
 
+import io.fabric8.api.AutoScaleRequest;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.Containers;
+import io.fabric8.api.DockerHostConfiguration;
+import io.fabric8.api.DockerScalingRequirements;
+import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.HostConfiguration;
 import io.fabric8.api.NameValidator;
+import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.SshHostConfiguration;
+import io.fabric8.internal.autoscale.AutoScalers;
+import io.fabric8.internal.autoscale.HostProfileCounter;
+import io.fabric8.internal.autoscale.LoadSortedHostConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.SortedSet;
+
+import static io.fabric8.internal.autoscale.AutoScalers.filterHosts;
 
 /**
  */
@@ -38,39 +51,80 @@ public class DockerAutoScaler implements ContainerAutoScaler {
 
     @Override
     public int getWeight() {
-        return 10;
+        return 80;
     }
 
     @Override
-    public void createContainers(String version, String profile, int count) throws Exception {
-        FabricService fabricService = containerProvider.getFabricService();
-        CreateDockerContainerOptions.Builder builder = null;
+    public void createContainers(AutoScaleRequest request) throws Exception {
+        int count = request.getDelta();
+        String profile = request.getProfile();
+        String version = request.getVersion();
+        FabricService fabricService = request.getFabricService();
         if (fabricService != null) {
-            builder = createAuthoScaleOptions(fabricService);
-        }
-        if (builder != null) {
+
+            Container[] containers = fabricService.getContainers();
+            FabricRequirements requirements = request.getFabricRequirements();
+            List<? extends HostConfiguration> hostConfigurations = requirements.getDockerHosts();
+            HostProfileCounter hostProfileCounter = new HostProfileCounter();
+            AutoScalers.createHostToProfileScaleMap(hostProfileCounter, hostConfigurations, containers);
+
+
             // TODO this is actually generic to all providers! :)
             for (int i = 0; i < count; i++) {
-                Container[] containers = fabricService.getContainers();
-                final CreateDockerContainerOptions.Builder configuredBuilder = builder.number(1).version(version).profiles(profile);
+                CreateDockerContainerOptions.Builder builder = createAutoScaleOptions(request, fabricService, hostProfileCounter);
+                if (builder == null) {
+                    return;
+                }
 
                 NameValidator nameValidator = Containers.createNameValidator(fabricService.getContainers());
                 String name = Containers.createContainerName(containers, profile, containerProvider.getScheme(), nameValidator);
 
-                CreateDockerContainerOptions options = configuredBuilder.name(name).build();
+                CreateDockerContainerOptions options = builder.name(name).build();
                 LOG.info("Creating container name " + name + " version " + version + " profile " + profile + " " + count + " container(s)");
                 fabricService.createContainers(options);
             }
         } else {
-            LOG.warn("Could not create version " + version + " profile " + profile + " due to missing autoscale configuration");
+            LOG.warn("Could not create version " + version + " profile " + profile + " due to missing FabricService");
         }
     }
 
-    protected CreateDockerContainerOptions.Builder createAuthoScaleOptions(FabricService fabricService) {
-        CreateDockerContainerOptions.Builder builder = CreateDockerContainerOptions.builder();
+    protected CreateDockerContainerOptions.Builder createAutoScaleOptions(AutoScaleRequest request, FabricService fabricService, HostProfileCounter hostProfileCounter) {
+        String profile = request.getProfile();
+        String version = request.getVersion();
+        CreateDockerContainerOptions.Builder builder = chooseHostOptions(request, hostProfileCounter);
+        if (builder == null) {
+            return null;
+        }
         String zookeeperUrl = fabricService.getZookeeperUrl();
         String zookeeperPassword = fabricService.getZookeeperPassword();
-        return builder.zookeeperUrl(zookeeperUrl).zookeeperPassword(zookeeperPassword);
+        return builder.number(1).version(version).profiles(profile).zookeeperUrl(zookeeperUrl).zookeeperPassword(zookeeperPassword);
+    }
+
+    /**
+     * This method is public for easier testing
+     */
+    public static CreateDockerContainerOptions.Builder chooseHostOptions(AutoScaleRequest request, HostProfileCounter hostProfileCounter) {
+        CreateDockerContainerOptions.Builder builder = CreateDockerContainerOptions.builder();
+        FabricRequirements requirements = request.getFabricRequirements();
+        ProfileRequirements profileRequirements = request.getProfileRequirements();
+        DockerScalingRequirements scalingRequirements = profileRequirements.getDockerScalingRequirements();
+        List<DockerHostConfiguration> hosts = requirements.getDockerHosts();
+        if (hosts.isEmpty()) {
+            // lets default to use the current docker container provider as there are no others configured
+            return builder;
+        }
+        SortedSet<LoadSortedHostConfiguration<DockerHostConfiguration>> sortedHostConfigurations = filterHosts(profileRequirements, scalingRequirements, hostProfileCounter, hosts);
+        DockerHostConfiguration hostConfig = null;
+        if (!sortedHostConfigurations.isEmpty()) {
+            LoadSortedHostConfiguration<DockerHostConfiguration> first = sortedHostConfigurations.first();
+            hostConfig = first.getConfiguration();
+        }
+        if (hostConfig == null) {
+            LOG.warn("Could not create version " + request.getVersion() + " profile " + request.getProfile() + " as no matching hosts could be found for " + scalingRequirements);
+            request.getProfileAutoScaleStatus().noSuitableHost("" + scalingRequirements);
+            return null;
+        }
+        return builder;
     }
 
     @Override

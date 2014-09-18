@@ -16,11 +16,12 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-project</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -28,106 +29,81 @@
     <groupId>io.fabric8</groupId>
     <artifactId>fabric-project</artifactId>
     <packaging>pom</packaging>
-    
+
     <name>Fabric8 :: Project</name>
 
     <licenses>
-      <license>
-        <name>FuseSource Fabric License</name>
-        <url>fabric_license.txt</url>
-        <distribution>repo</distribution>
-        <comments>Fabric license is based on ASL 2.0</comments>
-      </license>
+        <license>
+            <name>FuseSource Fabric License</name>
+            <url>fabric_license.txt</url>
+            <distribution>repo</distribution>
+            <comments>Fabric license is based on ASL 2.0</comments>
+        </license>
     </licenses>
 
     <modules>
+        <module>dynamic-jaxb</module>
         <module>fabric-agent</module>
         <module>fabric-agent-commands</module>
+        <module>fabric-autoscale</module>
         <module>fabric-api</module>
-        <module>fabric-api-test</module>
         <module>fabric-boot-commands</module>
         <module>fabric-branding</module>
         <module>fabric-camel</module>
+        <module>fabric-camel-autotest</module>
+        <module>fabric-client</module>
         <module>fabric-commands</module>
         <module>fabric-configadmin</module>
         <module>fabric-core</module>
         <module>fabric-core-agent-ssh</module>
         <module>fabric-core-agent-jclouds</module>
         <module>fabric-cxf</module>
+        <module>fabric-cxf-registry</module>
+        <module>fabric-cxf-plugins</module>
+        <module>fabric-dns</module>
+        <module>fabric-docker-api</module>
+        <module>fabric-docker-provider</module>
         <module>fabric-dosgi</module>
+        <module>fabric-dynamic-jaxb</module>
         <module>fabric-examples</module>
         <module>fabric-extender-listener</module>
         <module>fabric-features-service</module>
         <module>fabric-git</module>
         <module>fabric-git-hawtio</module>
         <module>fabric-git-server</module>
+        <module>fabric-groovy</module>
         <module>fabric-groups</module>
-        <module>fabric-itests</module>
+        <module>fabric-hadoop</module>
         <module>fabric-jaas</module>
         <module>fabric-jolokia</module>
+        <module>fabric-kubernetes-api</module>
+        <module>fabric-kubernetes-provider</module>
         <module>fabric-ldap</module>
         <module>fabric-maven-proxy</module>
+        <module>fabric-openshift</module>
+        <module>fabric-osgimetadata</module>
         <module>fabric-partition</module>
         <module>fabric-process-container</module>
         <module>fabric-project-deployer</module>
+        <module>fabric-rest</module>
         <module>fabric-redirect</module>
+        <module>fabric-ssl</module>
         <module>fabric-utils</module>
+        <module>fabric-vertx</module>
         <module>fabric-web</module>
+        <module>fabric-webapp-agent</module>
         <module>fabric-zeroconf</module>
         <module>fabric-zookeeper</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-zookeeper-commands</module>
+        <module>fabric-zookeeper-jgroups</module>
         <module>fabric8-karaf</module>
         <module>fabric8-profiles</module>
+        <module>watcher-blueprint-web</module>
+        <module>watcher-core</module>
+        <module>watcher-dynamic-jaxb</module>
+        <module>watcher-dozer</module>
+        <module>watcher-spring-context</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>all</id>
-            <modules>
-                <module>dynamic-jaxb</module>
-                <module>fabric-autoscale</module>
-                <module>fabric-camel-autotest</module>
-                <module>fabric-client</module>
-                <module>fabric-cxf-registry</module>
-                <module>fabric-docker-api</module>
-                <module>fabric-docker-provider</module>
-                <module>fabric-dynamic-jaxb</module>
-                <module>fabric-hadoop</module>
-                <module>fabric-ldap</module>
-                <module>fabric-openshift</module>
-                <module>fabric-osgimetadata</module>
-                <module>fabric-scala</module>
-                <module>fabric-webapp-agent</module>
-                <module>fabric8-maven-plugin</module>
-                <module>watcher-blueprint-web</module>
-                <module>watcher-core</module>
-                <module>watcher-dynamic-jaxb</module>
-                <module>watcher-dozer</module>
-                <module>watcher-spring-context</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>ts.all</id>
-            <activation>
-                <property>
-                    <name>ts.all</name>
-                </property>
-            </activation>
-            <modules>
-                <module>fabric-scala</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>ts.basic</id>
-            <activation>
-                <property>
-                    <name>ts.basic</name>
-                </property>
-            </activation>
-            <modules>
-                <module>fabric-scala</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>

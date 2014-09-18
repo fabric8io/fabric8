@@ -27,7 +27,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "profile-scale", scope = "fabric", description = "Scales up or down the required number of instances of a profile (defaults to adding one container)")
+@Command(name = ProfileScale.FUNCTION_VALUE, scope = ProfileScale.SCOPE_VALUE, description = ProfileScale.DESCRIPTION)
 public class ProfileScaleAction extends AbstractAction {
 
     @Argument(index = 0, required = true, name = "profile", description = "The name of the profile to scale up or down.")

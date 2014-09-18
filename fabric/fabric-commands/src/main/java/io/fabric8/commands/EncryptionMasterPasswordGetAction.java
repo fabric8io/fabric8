@@ -24,7 +24,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
 
-@Command(name = "crypt-password-get", scope = "fabric", description = "Displays the master password for encryption.")
+@Command(name = EncryptionMasterPasswordGet.FUNCTION_VALUE, scope = EncryptionMasterPasswordGet.SCOPE_VALUE, description = EncryptionMasterPasswordGet.DESCRIPTION)
 public class EncryptionMasterPasswordGetAction extends AbstractAction {
 
     private final CuratorFramework curator;

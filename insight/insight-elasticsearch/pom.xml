@@ -21,7 +21,7 @@
     <parent>
         <groupId>io.fabric8.insight</groupId>
         <artifactId>insight-project</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
   <artifactId>insight-elasticsearch</artifactId>
@@ -34,20 +34,25 @@
           *;resolution:=optional
       </fuse.osgi.import.additional>
       <fuse.osgi.export>
-          org.elasticsearch*;-noimport:=true;version=0.20.5;-split-package:=merge-first,
+          org.elasticsearch*;-noimport:=true;version=1.2.1;-split-package:=merge-first,
           io.fabric8.insight.elasticsearch;version=${project.version}
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
-          org.apache.lucene*;-split-package:=merge-first,
-          org.tartarus*,
-          org.ops4j.peaberry*,
-          io.fabric8.insight.elasticsearch.impl
+          io.fabric8.insight.elasticsearch.command,
+          io.fabric8.insight.elasticsearch.impl,
+          io.fabric8.insight.elasticsearch.pojo,
+          io.fabric8.insight.elasticsearch.indices,
+          org.apache.lucene*;-split-package:=merge-last,
+          org.tartarus.snowball*,
+          org.apache.regexp,
+          META-INF.*
       </fuse.osgi.private.pkg>
-      <fuse.osgi.services.export>
-          org.elasticsearch.node.Node,
-          io.fabric8.insight.elasticsearch.ElasticRest,
-          io.fabric8.insight.storage.StorageService
-      </fuse.osgi.services.export>
+      <fuse.osgi.capabilities.provide><![CDATA[
+            osgi.service;effective:=active;objectClass=org.elasticsearch.node.Node,
+            osgi.service;effective:=active;objectClass=io.fabric8.insight.elasticsearch.ElasticRest,
+            osgi.service;effective:=active;objectClass=io.fabric8.insight.storage.StorageService,
+            osgi.service;effective:=active;objectClass=org.elasticsearch.node.Node,
+      ]]></fuse.osgi.capabilities.provide>
   </properties>
 
   <dependencies>
@@ -63,6 +68,14 @@
           <groupId>io.fabric8.insight</groupId>
           <artifactId>insight-storage</artifactId>
       </dependency>
+      <dependency>
+          <groupId>io.fabric8.insight</groupId>
+          <artifactId>insight-metrics-model</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>io.fabric8.insight</groupId>
+          <artifactId>insight-metrics-mvel</artifactId>
+      </dependency>
 
       <dependency>
           <groupId>org.osgi</groupId>
@@ -76,38 +89,7 @@
       <dependency>
           <groupId>org.elasticsearch</groupId>
           <artifactId>elasticsearch</artifactId>
-          <version>0.20.5</version>
-      </dependency>
-      <dependency>
-          <groupId>org.elasticsearch</groupId>
-          <artifactId>elasticsearch-hadoop</artifactId>
-          <version>1.2.0</version>
-      </dependency>
-
-      <dependency>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-core</artifactId>
-          <version>3.6.0</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-analyzers</artifactId>
-          <version>3.6.0</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-highlighter</artifactId>
-          <version>3.6.0</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-memory</artifactId>
-          <version>3.6.0</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-queries</artifactId>
-          <version>3.6.0</version>
+          <version>1.2.1</version>
       </dependency>
 
       <dependency>

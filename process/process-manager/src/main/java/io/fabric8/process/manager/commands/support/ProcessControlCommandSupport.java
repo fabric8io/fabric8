@@ -16,6 +16,7 @@
 package io.fabric8.process.manager.commands.support;
 
 import io.fabric8.process.manager.Installation;
+import io.fabric8.process.manager.ProcessManager;
 import org.apache.felix.gogo.commands.Argument;
 
 import java.util.Map;
@@ -27,9 +28,12 @@ public abstract class ProcessControlCommandSupport extends ProcessCommandSupport
     @Argument(index = 0, required = true, multiValued = true, name = "id", description = "The id of the managed processes to control")
     protected String[] ids;
 
+    protected ProcessControlCommandSupport(ProcessManager processManager) {
+        super(processManager);
+    }
+
     @Override
     protected Object doExecute() throws Exception {
-        checkRequirements();
         Map<String, Installation> map = getProcessManager().listInstallationMap();
         for (String id : ids) {
             Installation installation = map.get(id);

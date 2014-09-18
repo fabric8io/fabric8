@@ -15,6 +15,7 @@
  */
 package io.fabric8.groups.internal;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -33,7 +34,6 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.data.Stat;
-import org.codehaus.jackson.map.ObjectMapper;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.NodeState;
@@ -81,7 +81,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
     protected final SequenceComparator sequenceComparator = new SequenceComparator();
 
     private volatile String id;
-    private T state;
+    private volatile T state;
 
     private final Watcher childrenWatcher = new Watcher() {
         @Override
@@ -186,6 +186,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
             } catch (Exception e) {
                 handleException(e);
             }
+            listeners.clear();
         }
     }
 
@@ -304,6 +305,10 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
         return slaves;
     }
 
+    @Override
+    public T getLastState() {
+        return this.state;
+    }
 
     /**
      * Return the cache listenable
@@ -342,8 +347,24 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
      * @throws Exception errors
      */
     public void clearAndRefresh() throws Exception {
+        clearAndRefresh(false, false);
+    }
+
+    /**
+     * Clear out current data and begin a new query on the path
+     *
+     * @param force - whether to force clear and refresh to trigger updates
+     * @param sync  - whether to run this synchronously (block current thread) or asynchronously
+     * @throws Exception errors
+     */
+    public void clearAndRefresh(boolean force, boolean sync) throws Exception {
+        RefreshMode mode = force ? RefreshMode.FORCE_GET_DATA_AND_STAT : RefreshMode.STANDARD;
         currentData.clear();
-        offerOperation(new RefreshOperation(this, RefreshMode.STANDARD));
+        if (sync) {
+            this.refresh(mode);
+        } else {
+            offerOperation(new RefreshOperation(this, mode));
+        }
     }
 
     /**
@@ -465,7 +486,9 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
             String fullPath = ZKPaths.makePath(path, name);
 
             if ((mode == RefreshMode.FORCE_GET_DATA_AND_STAT) || !currentData.containsKey(fullPath)) {
-                getDataAndStat(fullPath);
+                try {
+                    getDataAndStat(fullPath);
+                } catch (KeeperException.NoNodeException ignore) {}
             }
         }
     }

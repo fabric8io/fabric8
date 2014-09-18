@@ -1,31 +1,19 @@
+/**
+ *  Copyright 2005-2014 Red Hat, Inc.
+ *
+ *  Red Hat licenses this file to you under the Apache License, version
+ *  2.0 (the "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *  implied.  See the License for the specific language governing
+ *  permissions and limitations under the License.
+ */
 package io.fabric8.runtime.embedded.registration;
-
-import io.fabric8.api.ContainerRegistration;
-import io.fabric8.api.GeoLocationService;
-import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.utils.HostUtils;
-import io.fabric8.utils.SystemProperties;
-import io.fabric8.zookeeper.ZkDefs;
-import io.fabric8.zookeeper.ZkPath;
-import io.fabric8.zookeeper.utils.ZooKeeperUtils;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.framework.state.ConnectionStateListener;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.data.Stat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static io.fabric8.zookeeper.ZkPath.CONFIG_CONTAINER;
 import static io.fabric8.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
@@ -40,6 +28,32 @@ import static io.fabric8.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MAX;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_PORT_MIN;
 import static io.fabric8.zookeeper.ZkPath.CONTAINER_RESOLVER;
+import io.fabric8.api.ContainerRegistration;
+import io.fabric8.api.GeoLocationService;
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.ZkDefs;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.utils.HostUtils;
+import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.data.Stat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 @Component(name = "io.fabric8.container.registration.embedded", label = "Fabric8 Embedded Registration", immediate = true, metatype = false)
@@ -69,7 +83,7 @@ public class EmbeddedContainerRegistration extends AbstractComponent implements 
 
     private void activateInternal() {
         RuntimeProperties sysprops = runtimeProperties.get();
-        String karafName = sysprops.getProperty(SystemProperties.KARAF_NAME);
+        String karafName = sysprops.getRuntimeIdentity();
         String version = sysprops.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
         String profiles = sysprops.getProperty("fabric.profiles");
         try {
@@ -131,8 +145,8 @@ public class EmbeddedContainerRegistration extends AbstractComponent implements 
 
     private void checkAlive() throws Exception {
         RuntimeProperties sysprops = runtimeProperties.get();
-        String karafName = sysprops.getProperty(SystemProperties.KARAF_NAME);
-        String nodeAlive = CONTAINER_ALIVE.getPath(karafName);
+        String runtimeIdentity = sysprops.getRuntimeIdentity();
+        String nodeAlive = CONTAINER_ALIVE.getPath(runtimeIdentity);
         Stat stat = ZooKeeperUtils.exists(curator.get(), nodeAlive);
         if (stat != null) {
             if (stat.getEphemeralOwner() != curator.get().getZookeeperClient().getZooKeeper().getSessionId()) {
@@ -215,7 +229,7 @@ public class EmbeddedContainerRegistration extends AbstractComponent implements 
         this.geoLocationService.bind(service);
     }
 
-    void ubindGeoLocationService(GeoLocationService service) {
+    void unbindGeoLocationService(GeoLocationService service) {
         this.geoLocationService.unbind(service);
     }
 }

@@ -1,0 +1,147 @@
+<!--
+
+     Copyright 2005-2014 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.fabric8.mq</groupId>
+    <artifactId>mq-project</artifactId>
+    <version>1.2.0-SNAPSHOT</version>
+  </parent>
+
+  <groupId>io.fabric8.mq</groupId>
+  <artifactId>camel-amq</artifactId>
+  <packaging>bundle</packaging>
+
+  <name>Fabric8 :: MQ :: Fabric Camel Component</name>
+
+  <properties>
+    <fuse.osgi.export>io.fabric8.mq.fabric.camel;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+
+    <!-- lets explicitly import the mq-fabric and cf code -->
+    <fuse.osgi.import.pkg>
+      io.fabric8.mq.fabric,
+      org.apache.activemq.pool,
+      *
+    </fuse.osgi.import.pkg>
+  </properties>
+
+  <dependencies>
+    <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.scr.annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-osgi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-camel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-pool</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8.mq</groupId>
+        <artifactId>mq-fabric</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric-api</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>common-util</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <defaultGoal>install</defaultGoal>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-scr-plugin</artifactId>
+        <executions>
+            <execution>
+                <phase>prepare-package</phase>
+                <goals>
+                    <goal>scr</goal>
+                </goals>
+                <configuration>
+                    <specVersion>1.2</specVersion>
+                    <strictMode>false</strictMode>
+                </configuration>
+            </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-package-maven-plugin</artifactId>
+        <version>${camel-version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate-components-list</goal>
+            </goals>
+            <phase>generate-resources</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-package-maven-plugin</artifactId>
+        <version>${camel-version}</version>
+      </plugin>
+    </plugins>
+  </reporting>
+  <profiles>
+    <!-- enables the APT dependency so that it can be disabled in IDE builds -->
+    <profile>
+      <id>apt</id>
+      <activation>
+        <!-- don't enable on jdk 1.6 as it would not work and also it causes build problems by the CI-Server -->
+        <jdk>[1.7,)</jdk>
+      </activation>
+
+      <dependencies>
+        <!-- enable the APT processor -->
+        <dependency>
+          <groupId>org.apache.camel</groupId>
+          <artifactId>apt</artifactId>
+          <version>${camel-version}</version>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
+</project>

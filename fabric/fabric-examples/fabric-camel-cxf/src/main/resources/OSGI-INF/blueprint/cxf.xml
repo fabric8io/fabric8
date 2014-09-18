@@ -31,11 +31,13 @@
         </cm:default-properties>
     </cm:property-placeholder>
 
-
     <cxf:cxfEndpoint id="greeterEndpoint"
-                     address="http://localhost:${greeterPort}/greeter/"
-                     serviceClass="io.fabric8.examples.camelcxf.Greeter"/>
-
+                     address="http://localhost:${greeterPort}/greeter"
+                     serviceClass="io.fabric8.examples.camelcxf.Greeter">
+      <cxf:features>
+        <bean class="io.fabric8.cxf.endpoint.ManagedApiFeature"/>
+      </cxf:features>
+    </cxf:cxfEndpoint>
 
     <camelContext id="fabric-camel-demo" xmlns="http://camel.apache.org/schema/blueprint"
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

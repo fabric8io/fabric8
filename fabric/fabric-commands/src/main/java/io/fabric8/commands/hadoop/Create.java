@@ -35,7 +35,7 @@ import org.apache.felix.service.command.Function;
     @Property(name = "osgi.command.scope", value = Create.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = Create.FUNCTION_VALUE)
 })
-public final class Create extends AbstractCommandComponent {
+public class Create extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "hadoop";
     public static final String FUNCTION_VALUE = "create";

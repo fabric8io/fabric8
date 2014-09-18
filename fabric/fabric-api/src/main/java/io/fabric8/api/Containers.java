@@ -15,12 +15,11 @@
  */
 package io.fabric8.api;
 
-import io.fabric8.api.scr.support.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.fabric8.api.jmx.ContainerDTO;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -31,8 +30,34 @@ import java.util.Set;
 /**
  * A helper class for working with containers
  */
-public class Containers {
-    private static final transient Logger LOG = LoggerFactory.getLogger(Containers.class);
+public final class Containers {
+    
+    public static List<String> containerIds(Container[] containers) {
+        List<String> answer = new ArrayList<String>();
+        if (containers != null) {
+            for (Container container : containers) {
+                answer.add(container.getId());
+            }
+        }
+        Collections.sort(answer);
+        return answer;
+    }
+
+    public static List<String> containerIds(Iterable<Container> containers) {
+        List<String> answer = new ArrayList<String>();
+        if (containers != null) {
+            for (Container container : containers) {
+                answer.add(container.getId());
+            }
+        }
+        Collections.sort(answer);
+        return answer;
+    }
+
+
+    public static String containerId(Container container) {
+        return container != null ? container.getId() : null;
+    }
 
     public static List<Container> containersForProfile(Container[] containers, String profileId) {
         List<Container> answer = new ArrayList<Container>();
@@ -46,11 +71,31 @@ public class Containers {
         return answer;
     }
 
+    public static List<Container> containersForProfile(Container[] containers, String profileId, String versionId) {
+        List<Container> answer = new ArrayList<Container>();
+        if (profileId != null) {
+            for (Container c : containers) {
+                String currentId = c.getVersionId();
+                if (currentId != null && currentId.equals(versionId) && containerHasProfile(c, profileId)) {
+                    answer.add(c);
+                }
+            }
+        }
+        return answer;
+    }
+
     /**
      * Creates a name validator that excludes any container names that already exist
      */
     public static  NameValidator createNameValidator(Container[] containers) {
-        final Set<String> ignoreNames = new HashSet<String>();
+        return createNameValidator(containers, Collections.<String>emptySet());
+    }
+
+    /**
+     * Creates a name validator that excludes any container names that already exist
+     */
+    public static  NameValidator createNameValidator(Container[] containers, Set<String> ignoreContainerIds) {
+        final Set<String> ignoreNames = new HashSet<String>(ignoreContainerIds);
         if (containers != null) {
             for (Container container : containers) {
                 ignoreNames.add(container.getId());
@@ -120,20 +165,20 @@ public class Containers {
      * that is the list of all profiles and descendant profiles in order in which their values
      * are to be applied.
      */
-    public static List<Profile> overlayProfiles(Container container) {
-        Set<Profile> set = new LinkedHashSet<Profile>();
-        Profile[] profiles = container.getProfiles();
-        recursiveAddProfiles(set, profiles);
-        return new ArrayList<Profile>(set);
+    public static List<String> overlayProfiles(Container container) {
+        Version version = container.getVersion();
+        Set<String> result = new LinkedHashSet<String>();
+        List<String> profiles = container.getProfileIds();
+        recursiveAddProfiles(version, result, profiles);
+        return Collections.unmodifiableList(new ArrayList<String>(result));
     }
 
-    protected static void recursiveAddProfiles(Set<Profile> set, Profile[] profiles) {
-        for (Profile profile : profiles) {
-            set.add(profile);
-            Profile[] parents = profile.getParents();
-            if (parents != null) {
-                recursiveAddProfiles(set, parents);
-            }
+    private static void recursiveAddProfiles(Version version, Set<String> result, List<String> profiles) {
+        for (String profileId : profiles) {
+            result.add(profileId);
+            Profile profile = version.getRequiredProfile(profileId);
+            List<String> parents = profile.getParentIds();
+            recursiveAddProfiles(version, result, parents);
         }
     }
 
@@ -164,6 +209,34 @@ public class Containers {
         }
     }
 
+    /**
+     * Creates a unique container name using the validator to exclude existing container names
+     */
+    public static String createUniqueContainerName(Container[] containers, String currentName, NameValidator nameValidator) {
+        if (nameValidator.isValid(currentName)) {
+            return currentName;
+        }
+        String namePrefix = currentName;
+
+        // lets trim trailing numbers
+        while (namePrefix.length() > 0) {
+            int lastIndex = namePrefix.length() - 1;
+            char lastChar = namePrefix.charAt(lastIndex);
+            if (Character.isDigit(lastChar)) {
+                namePrefix = namePrefix.substring(0, lastIndex);
+            } else {
+                break;
+            }
+        }
+        int idx = 1;
+        while (true) {
+            String name = namePrefix + Integer.toString(++idx);
+            if (nameValidator.isValid(name)) {
+                return name;
+            }
+        }
+    }
+
     private static String filterOutNonAlphaNumerics(String text) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0, size = text.length(); i < size; i++) {
@@ -176,38 +249,105 @@ public class Containers {
     }
 
     /**
-     * Returns a list of parent profile Ids for the given profile
+     * Returns a list of all the root container ids
      */
-    public static List<String> getParentProfileIds(Profile profile) {
+    public static List<String> rootContainerIds(Container[] containers) {
         List<String> answer = new ArrayList<String>();
-        Profile[] parents = profile.getParents();
-        if (parents != null) {
-            for (Profile parent : parents) {
-                answer.add(parent.getId());
+        for (Container container : containers) {
+            if (container.isRoot()) {
+                String id = container.getId();
+                if (!answer.contains(id)) {
+                    answer.add(id);
+                }
             }
         }
         return answer;
     }
 
     /**
-     * Sets the list of parent profile IDs
+     * Returns all the current alive or pending profiles for the given profile
      */
-    public static void setParentProfileIds(Version version, Profile profile, List<String> parentProfileIds) {
-        List<Profile> list = new ArrayList<Profile>();
-        for (String parentProfileId : parentProfileIds) {
-            if (!Strings.isNullOrBlank(parentProfileId)) {
-                Profile parentProfile = null;
-                if (version.hasProfile(parentProfileId)) {
-                    parentProfile = version.getProfile(parentProfileId);
-                }
-                if (parentProfile != null) {
-                    list.add(parentProfile);
-                } else {
-                    LOG.warn("Could not find parent profile: " + parentProfileId + " in version " + version.getId());
-                }
+    public static List<Container> aliveOrPendingContainersForProfile(String profile, FabricService fabricService) {
+        Container[] allContainers = fabricService.getContainers();
+        return aliveOrPendingContainersForProfile(profile, allContainers);
+    }
+
+    /**
+     * Returns all the current alive or pending profiles for the given profile
+     */
+    public static List<Container> aliveOrPendingContainersForProfile(String profile, Container[] allContainers) {
+        List<Container> answer = new ArrayList<Container>();
+        List<Container> containers = containersForProfile(allContainers, profile);
+        for (Container container : containers) {
+            boolean alive = container.isAlive();
+            boolean provisioningPending = container.isProvisioningPending();
+            if (alive || provisioningPending) {
+                answer.add(container);
             }
         }
-        Profile[] parents = list.toArray(new Profile[list.size()]);
-        profile.setParents(parents);
+        return answer;
+    }
+
+    /**
+     * Returns all the current alive and successful containers for the given profile which have completed provisioning
+     */
+    public static List<Container> aliveAndSuccessfulContainersForProfile(String profile, FabricService fabricService) {
+        Container[] allContainers = fabricService.getContainers();
+        return aliveAndSuccessfulContainersForProfile(profile, allContainers);
+    }
+
+    /**
+     * Returns all the current alive and successful containers for the given profile which have completed provisioning
+     */
+    public static List<Container> aliveAndSuccessfulContainersForProfile(String profile, Container[] allContainers) {
+        List<Container> answer = new ArrayList<Container>();
+        List<Container> containers = containersForProfile(allContainers, profile);
+        for (Container container : containers) {
+            boolean aliveAndProvisionSuccess = isAliveAndProvisionSuccess(container);
+            if (aliveAndProvisionSuccess) {
+                answer.add(container);
+            }
+        }
+        return answer;
+    }
+
+    /**
+     * Returns true if the current container is a live and provisioned successfully.
+     */
+    public static boolean isCurrentContainerAliveAndProvisionSuccess(FabricService service) {
+        if (service == null) {
+            return false;
+        }
+        return isAliveAndProvisionSuccess(service.getCurrentContainer());
+    }
+
+    /**
+     * Returns true if the container is a live and provisioned successfully.
+     */
+    public static boolean isAliveAndProvisionSuccess(Container container) {
+        if (container == null) {
+            return false;
+        }
+        boolean alive = container.isAlive();
+        boolean provisioningPending = container.isProvisioningPending();
+        String provisionResult = container.getProvisionResult();
+        return alive && !provisioningPending && Container.PROVISION_SUCCESS.equals(provisionResult);
+    }
+
+    /**
+     * Returns all the current alive and successful containers for the given profile which have completed provisioning
+     */
+    public static List<ContainerDTO> aliveAndSuccessfulContainers(Iterable<ContainerDTO> allContainers) {
+        List<ContainerDTO> answer = new ArrayList<>();
+        for (ContainerDTO container : allContainers) {
+            boolean alive = container.isAlive();
+            boolean provisioningPending = container.isProvisioningPending();
+            String provisionResult = container.getProvisionResult();
+            boolean aliveAndProvisionSuccess = alive && !provisioningPending && Container.PROVISION_SUCCESS.equals(provisionResult);
+            if (aliveAndProvisionSuccess) {
+                answer.add(container);
+            }
+        }
+        return answer;
     }
 }

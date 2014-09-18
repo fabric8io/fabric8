@@ -39,6 +39,7 @@ import org.eclipse.jgit.errors.UnsupportedCredentialItem;
 import org.eclipse.jgit.transport.CredentialItem;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.URIish;
+
 import io.fabric8.common.util.Maps;
 import io.fabric8.common.util.Strings;
 import io.fabric8.agent.download.DownloadManager;
@@ -47,6 +48,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
@@ -58,6 +60,7 @@ import io.fabric8.openshift.CreateOpenshiftContainerOptions;
 import io.fabric8.openshift.OpenShiftConstants;
 import io.fabric8.openshift.OpenShiftUtils;
 import io.fabric8.zookeeper.ZkPath;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,7 +142,7 @@ public final class OpenShiftDeployAgent extends AbstractComponent implements Gro
             try {
                 DataStore dataStore = null;
                 if (fabricService != null) {
-                    dataStore = fabricService.get().getDataStore();
+                    dataStore = fabricService.get().adapt(DataStore.class);
                 } else {
                     LOGGER.warn("No fabricService yet!");
                 }
@@ -165,8 +168,8 @@ public final class OpenShiftDeployAgent extends AbstractComponent implements Gro
         LOGGER.info("Configuration has changed; so checking the Fabric managed Java cartridges on OpenShift are up to date");
         Container[] containers = fabricService.get().getContainers();
         for (Container container : containers) {
-            Profile profile = container.getOverlayProfile();
-            Map<String, String> openshiftConfiguration = profile.getConfiguration(OpenShiftConstants.OPENSHIFT_PID);
+            Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), container.getOverlayProfile());
+            Map<String, String> openshiftConfiguration = effectiveProfile.getConfiguration(OpenShiftConstants.OPENSHIFT_PID);
             if (openshiftConfiguration != null) {
                 DeploymentUpdater deployTask = null;
                 try {
@@ -266,8 +269,9 @@ public final class OpenShiftDeployAgent extends AbstractComponent implements Gro
         String webappDir = relativePath(container, openshiftConfiguration, OpenShiftConstants.PROPERTY_DEPLOY_WEBAPPS);
         String deployDir = relativePath(container, openshiftConfiguration, OpenShiftConstants.PROPERTY_DEPLOY_JARS);
         if (webappDir != null || deployDir != null) {
-            DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService.get(), downloadExecutor);
-            DeploymentUpdater deploymentUpdater = new DeploymentUpdater(downloadManager, container, webappDir, deployDir);
+            FabricService fabric = fabricService.get();
+            DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
+            DeploymentUpdater deploymentUpdater = new DeploymentUpdater(downloadManager, fabric, container, webappDir, deployDir);
             deploymentUpdater.setRepositories(Maps.stringValue(openshiftConfiguration, OpenShiftConstants.PROPERTY_REPOSITORIES, OpenShiftConstants.DEFAULT_REPOSITORIES));
             deploymentUpdater.setCopyFilesIntoGit(Maps.booleanValue(openshiftConfiguration, OpenShiftConstants.PROPERTY_COPY_BINARIES_TO_GIT, false));
             return deploymentUpdater;

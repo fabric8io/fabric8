@@ -19,16 +19,30 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
+import java.net.URL;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
+import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpProgressMonitor;
 import io.fabric8.api.Container;
+import io.fabric8.api.ContainerAutoScaler;
+import io.fabric8.api.ContainerAutoScalerFactory;
 import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreationStateListener;
+import io.fabric8.api.FabricConstants;
 import io.fabric8.api.FabricException;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.SshHostConfiguration;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
@@ -49,11 +63,11 @@ import static io.fabric8.internal.ContainerProviderUtils.buildUninstallScript;
 @Properties(
         @Property(name = "fabric.container.protocol", value = SshContainerProvider.SCHEME)
 )
-public class SshContainerProvider implements ContainerProvider<CreateSshContainerOptions, CreateSshContainerMetadata> {
+public class SshContainerProvider implements ContainerProvider<CreateSshContainerOptions, CreateSshContainerMetadata>, ContainerAutoScalerFactory {
 
     static final String SCHEME = "ssh";
 
-    private static final Logger logger = LoggerFactory.getLogger(SshContainerProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SshContainerProvider.class);
 
     private boolean verbose = false;
 
@@ -83,11 +97,22 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             metadata.setCreateOptions(options);
             metadata.setContainerName(containerName);
             String script = buildInstallAndStartScript(containerName, options);
-            logger.debug("Running script on host {}:\n{}", host, script);
+            LOGGER.debug("Running script on host {}:\n{}", host, script);
+            Session session = null;
             try {
-                runScriptOnHost(options,script);
+                session = createSession(options);
+                if (options.doUploadDistribution()) {
+                    uploadTo(session, options.getProxyUri()
+                                    .resolve("io/fabric8/fabric8-karaf/" + FabricConstants.FABRIC_VERSION + "/fabric8-karaf-" + FabricConstants.FABRIC_VERSION + ".zip").toURL(),
+                            "/tmp/fabric8-karaf-" + FabricConstants.FABRIC_VERSION + ".zip");
+                }
+                runScriptOnHost(session, script);
             } catch (Throwable ex) {
                 metadata.setFailure(ex);
+            } finally {
+                if (session != null) {
+                    session.disconnect();
+                }
             }
             return metadata;
         } catch (Exception e) {
@@ -103,11 +128,17 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
         } else {
             CreateSshContainerMetadata sshContainerMetadata = (CreateSshContainerMetadata) metadata;
             CreateSshContainerOptions options = sshContainerMetadata.getCreateOptions();
+            Session session = null;
             try {
                 String script = buildStartScript(container.getId(), options);
-                runScriptOnHost(options,script);
+                session = createSession(options);
+                runScriptOnHost(session, script);
             } catch (Throwable t) {
-                logger.error("Failed to start container: " + container.getId(), t);
+                LOGGER.error("Failed to start container: " + container.getId(), t);
+            } finally {
+                if (session != null) {
+                    session.disconnect();
+                }
             }
         }
     }
@@ -120,11 +151,18 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
         } else {
             CreateSshContainerMetadata sshContainerMetadata = (CreateSshContainerMetadata) metadata;
             CreateSshContainerOptions options = sshContainerMetadata.getCreateOptions();
+            Session session = null;
             try {
                 String script = buildStopScript(container.getId(), options);
-                runScriptOnHost(options,script);
+                session = createSession(options);
+                runScriptOnHost(session, script);
             } catch (Throwable t) {
-                logger.error("Failed to stop container: " + container.getId(), t);
+                container.setProvisionResult(Container.PROVISION_STOPPED);
+                LOGGER.error("Failed to stop container: " + container.getId(), t);
+            } finally {
+                if (session != null) {
+                    session.disconnect();
+                }
             }
         }
     }
@@ -137,11 +175,17 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
         } else {
             CreateSshContainerMetadata sshContainerMetadata = (CreateSshContainerMetadata) metadata;
             CreateSshContainerOptions options = sshContainerMetadata.getCreateOptions();
+            Session session = null;
             try {
                 String script = buildUninstallScript(container.getId(), options);
-                runScriptOnHost(options, script);
+                session = createSession(options);
+                runScriptOnHost(session, script);
             } catch (Throwable t) {
-                logger.error("Failed to stop container: " + container.getId(), t);
+                LOGGER.error("Failed to stop container: " + container.getId(), t);
+            } finally {
+                if (session != null) {
+                    session.disconnect();
+                }
             }
         }
     }
@@ -149,6 +193,11 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
     @Override
     public String getScheme() {
         return SCHEME;
+    }
+
+    @Override
+    public boolean isValidProvider() {
+        return true;
     }
 
     @Override
@@ -161,7 +210,18 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
         return CreateSshContainerMetadata.class;
     }
 
-    protected void runScriptOnHost(CreateSshContainerOptions options, String script) throws Exception {
+
+    @Override
+    public ContainerAutoScaler createAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
+        // only create an auto-scaler if the requirements specify at least one ssh host configuration
+        List<SshHostConfiguration> hosts = requirements.getSshHosts();
+        if (!hosts.isEmpty()) {
+            return new SshAutoScaler(this);
+        }
+        return null;
+    }
+
+    protected Session createSession(CreateSshContainerOptions options) throws Exception {
         Session session = null;
         Exception connectException = null;
         for (int i = 0; i <= options.getSshRetries(); i++) {
@@ -196,9 +256,14 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                 session = null;
             }
         }
+
         if (connectException != null) {
             throw connectException;
         }
+        return session;
+    }
+
+    protected void runScriptOnHost(Session session, String script) throws Exception {
         ChannelExec executor = null;
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         ByteArrayOutputStream error = new ByteArrayOutputStream();
@@ -220,22 +285,58 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                     break;
                 }
             }
-            logger.debug("Output: {}", output.toString());
-            logger.debug("Error:  {}", error.toString());
+            LOGGER.debug("Output: {}", output.toString());
+            LOGGER.debug("Error:  {}", error.toString());
             if (verbose) {
                 System.out.println("Output : " + output.toString());
                 System.out.println("Error : " + error.toString());
             }
 
             if (errorStatus != 0) {
-                throw new Exception(String.format("%s@%s:%d: received exit status %d executing \n--- command ---\n%s\n--- output ---\n%s\n--- error ---\n%s\n------\n", options.getUsername(), options.getHost(),
-                        options.getPort(), executor.getExitStatus(), script, output.toString(), error.toString()));
+                throw new Exception(String.format("%s@%s:%d: received exit status %d executing \n--- command ---\n%s\n--- output ---\n%s\n--- error ---\n%s\n------\n", session.getUserName(), session.getHost(),
+                        session.getPort(), executor.getExitStatus(), script, output.toString(), error.toString()));
             }
         } finally {
             if (executor != null) {
                 executor.disconnect();
             }
-            session.disconnect();
+        }
+    }
+
+    protected void uploadTo(Session session, URL url, String path) {
+        Channel channel = null;
+        try (InputStream is = url.openStream()) {
+            channel = session.openChannel("sftp");
+            channel.connect();
+            ChannelSftp sftpChannel = (ChannelSftp) channel;
+            final CountDownLatch uploadLatch = new CountDownLatch(1);
+
+            sftpChannel.put(is, path, new SftpProgressMonitor() {
+                @Override
+                public void init(int op, String src, String dest, long max) {
+                }
+                @Override
+                public boolean count(long count) {
+                    try {
+                        return is.available() > 0;
+                    } catch (IOException e) {
+                        return false;
+                    }
+                }
+
+                @Override
+                public void end() {
+                    uploadLatch.countDown();
+                }
+            }, ChannelSftp.OVERWRITE);
+
+            uploadLatch.await(10, TimeUnit.MINUTES);
+        } catch (Exception e) {
+            LOGGER.warn("Failed to upload. Will attempt downloading distribution via maven.");
+        } finally {
+            if (channel != null) {
+                channel.disconnect();
+            }
         }
     }
 
@@ -250,7 +351,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                 bytes = new byte[(int)file.length()];
                 fin.read(bytes);
             } catch (IOException e) {
-                logger.warn("Error reading file {}.", path);
+                LOGGER.warn("Error reading file {}.", path);
             } finally {
                 if (fin != null) {
                     try{fin.close();}catch(Exception ex){}

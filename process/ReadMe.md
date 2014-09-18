@@ -1,1 +1,1 @@
-See the [Process Manager docs](https://github.com/fabric8io/fabric8/blob/master/docs/processManager.md) for more details.
+See the [Process Manager docs](http://fabric8.io/gitbook/processManager.html) for more details.

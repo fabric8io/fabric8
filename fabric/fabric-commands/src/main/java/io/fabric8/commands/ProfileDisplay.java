@@ -36,11 +36,11 @@ import org.apache.felix.service.command.Function;
     @Property(name = "osgi.command.scope", value = ProfileDisplay.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = ProfileDisplay.FUNCTION_VALUE)
 })
-public final class ProfileDisplay extends AbstractCommandComponent {
+public class ProfileDisplay extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "profile-display";
-    public static final String DESCRIPTION = "Displays information about the specified version of the specified profile (where the version defaults to the current default version)";
+    public static final String DESCRIPTION = "Displays information about the specified version of the specified profile";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();

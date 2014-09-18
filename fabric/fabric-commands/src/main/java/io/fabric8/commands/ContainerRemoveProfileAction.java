@@ -21,6 +21,7 @@ import io.fabric8.api.Profile;
 import io.fabric8.boot.commands.support.FabricCommand;
 import io.fabric8.utils.FabricValidations;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
@@ -47,8 +48,12 @@ public class ContainerRemoveProfileAction extends AbstractAction {
         //Do not validate profile names, because we want to be able to remove non-existent profiles.
 
         Container cont = FabricCommand.getContainer(fabricService, container);
-        Profile[] profs = FabricCommand.getProfiles(fabricService, cont.getVersion(), profiles);
-        cont.removeProfiles(profs);
+        // allow to remove non-existing profiles
+        List<String> profileIds = new ArrayList<>();
+        for (Profile profile : FabricCommand.getProfiles(fabricService, cont.getVersion(), profiles)) {
+        	profileIds.add(profile.getId());
+        }
+        cont.removeProfiles(profileIds.toArray(new String[profileIds.size()]));
         return null;
     }
 }

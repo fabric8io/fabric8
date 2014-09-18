@@ -18,7 +18,7 @@ package io.fabric8.gateway.handlers.detecting.protocol.openwire;
 import io.fabric8.gateway.handlers.detecting.Protocol;
 import io.fabric8.gateway.handlers.detecting.protocol.openwire.command.Command;
 import io.fabric8.gateway.handlers.detecting.protocol.openwire.command.WireFormatInfo;
-import io.fabric8.gateway.loadbalancer.ConnectionParameters;
+import io.fabric8.gateway.handlers.loadbalancer.ConnectionParameters;
 import io.fabric8.gateway.SocketWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

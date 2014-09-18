@@ -15,17 +15,30 @@
  */
 package io.fabric8.process.manager.support;
 
+import com.google.common.collect.Maps;
+import io.fabric8.api.FabricService;
+import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
 import io.fabric8.common.util.Closeables;
+import io.fabric8.common.util.Filter;
+import io.fabric8.common.util.Filters;
+import io.fabric8.common.util.Function;
+import io.fabric8.common.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
+
+import static java.lang.String.format;
 
 public class ProcessUtils {
     private static final transient Logger LOGGER = LoggerFactory.getLogger(ProcessUtils.class);
@@ -57,86 +70,20 @@ public class ProcessUtils {
         return false;
     }
 
-    /**
-     * Returns true if the given PID is still alive
-     */
-    public static boolean isProcessAlive(long pid) {
-        List<Long> processIds = getProcessIds();
-        if (processIds.isEmpty()) {
-            // we must be on a platform that the PID list doesn't work like windows
-            return true;
-        }
-        return processIds.contains(pid);
-    }
 
-    /**
-     * Returns the list of current active PIDs on a platform that supports such a thing (e.g. unix)
-     */
-    public static List<Long> getProcessIds() {
-        // TODO we should use a nice library like Sigar really
-        // here's a simple unix only workaround for now...
-        String commands = "ps -e";
-        Process process = null;
-        Runtime runtime = Runtime.getRuntime();
-        String message = commands;
-        LOGGER.debug("Executing commands: " + message);
-        List<Long> answer = new ArrayList<Long>();
-        try {
-            process = runtime.exec(commands);
-            parseProcesses(process.getInputStream(), answer, message);
-            processErrors(process.getErrorStream(), message);
-        } catch (Exception e) {
-            LOGGER.error("Failed to execute process " + "stdin" + " for " +
-                    message +
-                    ": " + e, e);
+    public static Map<String, String> getProcessLayout(FabricService fabricService, List<Profile> profiles, String layoutPath) {
+        Map<String, String> answer = new HashMap<String, String>();
+        for (Profile profile : profiles) {
+            Map<String, String> map = getProcessLayout(fabricService, profile, layoutPath);
+            answer.putAll(map);
         }
         return answer;
     }
 
-    protected static void parseProcesses(InputStream inputStream, List<Long> answer, String message) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        try {
-            while (true) {
-                String line = reader.readLine();
-                if (line == null) break;
-                StringTokenizer tokenizer = new StringTokenizer(line);
-                if (tokenizer.hasMoreTokens()) {
-                    String pidText = tokenizer.nextToken();
-                    try {
-                        long pid = Long.parseLong(pidText);
-                        answer.add(pid);
-                    } catch (NumberFormatException e) {
-                        LOGGER.debug("Could not parse pid " + pidText + " from command: " + message);
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-            LOGGER.debug("Failed to process stdin for " +
-                    message +
-                    ": " + e, e);
-            throw e;
-        } finally {
-            Closeables.closeQuitely(reader);
-        }
+    public static Map<String, String> getProcessLayout(FabricService fabricService, Profile profile, String layoutPath) {
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        Profile overlay = profileService.getOverlayProfile(profile);
+        return ByteToStringValues.INSTANCE.apply(Maps.filterKeys(overlay.getFileConfigurations(), new LayOutPredicate(layoutPath)));
     }
 
-    protected static void processErrors(InputStream inputStream, String message) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        try {
-            while (true) {
-                String line = reader.readLine();
-                if (line == null) break;
-                LOGGER.debug("Error from " + message + ": " + line);
-            }
-
-        } catch (Exception e) {
-            LOGGER.error("Failed to process stderr for " +
-                    message +
-                    ": " + e, e);
-            throw e;
-        } finally {
-            Closeables.closeQuitely(reader);
-        }
-    }
 }

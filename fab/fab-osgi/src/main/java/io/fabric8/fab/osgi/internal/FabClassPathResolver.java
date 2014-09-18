@@ -28,7 +28,9 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import aQute.lib.osgi.Analyzer;
+import aQute.bnd.header.Attrs;
+import aQute.bnd.header.Parameters;
+import aQute.bnd.osgi.Analyzer;
 import org.apache.felix.utils.version.VersionCleaner;
 import io.fabric8.common.util.*;
 import io.fabric8.fab.*;
@@ -38,8 +40,8 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.RepositoryException;
-import org.sonatype.aether.graph.Dependency;
+import org.eclipse.aether.RepositoryException;
+import org.eclipse.aether.graph.Dependency;
 
 import static io.fabric8.fab.ModuleDescriptor.FAB_MODULE_DESCRIPTION;
 import static io.fabric8.fab.ModuleDescriptor.FAB_MODULE_ID;
@@ -98,11 +100,11 @@ public class FabClassPathResolver implements FabConfiguration {
 
     private Manifest manifest;
 
-    public FabClassPathResolver(FabFacade connection, Properties instructions, Map<String, Object> embeddedResources) {
+    public FabClassPathResolver(ModuleRegistry registry, FabFacade connection, Properties instructions, Map<String, Object> embeddedResources) {
         this.connection = connection;
         this.instructions = instructions;
         this.embeddedResources = embeddedResources;
-        this.moduleRegistry = Activator.registry;
+        this.moduleRegistry = registry;
         this.resolver = connection.getResolver();
     }
 
@@ -392,8 +394,8 @@ public class FabClassPathResolver implements FabConfiguration {
         try {
             String text = dependencyTree.getManifestEntry(ServiceConstants.INSTR_EXPORT_PACKAGE);
             if (text != null && text.length() > 0) {
-                Map<String, Map<String, String>> map = new Analyzer().parseHeader(text);
-                for (Map.Entry<String, Map<String, String>> entry : map.entrySet()) {
+                Parameters map = new Analyzer().parseHeader(text);
+                for (Map.Entry<String, Attrs> entry : map.entrySet()) {
                     String key = entry.getKey();
                     Map<String, String> values = entry.getValue();
                     // TODO add optional resolution if this dependency is otional??

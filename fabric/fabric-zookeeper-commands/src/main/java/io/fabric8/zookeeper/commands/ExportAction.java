@@ -39,7 +39,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getAllChildren;
 public class ExportAction extends ZooKeeperCommandSupport {
 
     @Argument(description="Path of the directory to export to")
-    String target = System.getProperty("karaf.home") + File.separator + "fabric" + File.separator + "export";
+    String target = System.getProperty("runtime.home") + File.separator + "fabric" + File.separator + "export";
 
     @Option(name="-f", aliases={"--regex"}, description="Specifies a regular expression that matches the znode paths you want to include in the export. For multiple include expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
     String regex[];
@@ -108,8 +108,13 @@ public class ExportAction extends ZooKeeperCommandSupport {
             }
             founMatch = true;
             byte[] data = curator.getData().forPath(p);
+            String name = p;
+            // FABRIC-1072 - we can't create paths containing '*'
+            // there are more characters which are legal in ZK paths but illegal in different filesystems...
+            if (name.contains("/*")) {
+                name = name.replaceAll(Pattern.quote("/*"), "/__asterisk__");
+            }
             if (data != null && data.length > 0) {
-                String name = p;
                 //Znodes that translate into folders and also have data need to change their name to avoid a collision.
                 if (!p.contains(".") || p.endsWith("fabric-ensemble")) {
                     name += ".cfg";
@@ -124,7 +129,7 @@ public class ExportAction extends ZooKeeperCommandSupport {
                 }
                 settings.put(new File(target + File.separator + name), value);
             } else {
-                directories.add(new File(target + File.separator + p));
+                directories.add(new File(target + File.separator + name));
             }
         }
 

@@ -20,6 +20,8 @@ import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.TypeConverter;
+import org.apache.camel.component.properties.PropertiesComponent;
+import org.apache.camel.component.properties.PropertiesParser;
 import org.apache.camel.spring.SpringCamelContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -27,8 +29,75 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * <p>
  * Opinionated auto-configuration of the Camel context. Auto-detects Camel routes available in the Spring context and
  * exposes the key Camel utilities (like producer template, consumer template and type converter).
+ * </p>
+ * <p>
+ * The most important piece of functionality provided by the Camel starter is {@code CamelContext} instance. Fabric Camel starter
+ * will create {@code SpringCamelContext} for your and take care of the proper initialization and shutdown of that context. Created
+ * Camel context is also registered in the Spring application context (under {@code camelContext} name), so you can access it just
+ * as the any other Spring bean.
+ *
+ * <pre>
+ * {@literal @}Configuration
+ * public class MyAppConfig {
+ *
+ *   {@literal @}Autowired
+ *   CamelContext camelContext;
+ *
+ *   {@literal @}Bean
+ *   MyService myService() {
+ *     return new DefaultMyService(camelContext);
+ *   }
+ *
+ * }
+ * </pre>
+ *
+ * </p>
+ * <p>
+ * Camel starter collects all the `RoutesBuilder` instances from the Spring context and automatically injects
+ * them into the provided {@code CamelContext}. It means that creating new Camel route with the Spring Boot starter is as simple as
+ * adding the {@code @Component} annotated class into your classpath:
+ * </p>
+ *
+ * <p>
+ * <pre>
+ * {@literal @}Component
+ * public class MyRouter extends RouteBuilder {
+ *
+ *  {@literal @}Override
+ *    public void configure() throws Exception {
+ *     from("jms:invoices").to("file:/invoices");
+ *   }
+ *
+ * }
+ * </pre>
+ * </p>
+ *
+ * <p>
+ * Or creating new route {@code RoutesBuilder} in your {@code @Configuration} class:
+ * </p>
+ * <p>
+ * <pre>
+ * {@literal @}Configuration
+ * public class MyRouterConfiguration {
+ *
+ *   {@literal @}Bean
+ *   RoutesBuilder myRouter() {
+ *     return new RouteBuilder() {
+ *
+ *       {@literal @}Override
+ *       public void configure() throws Exception {
+ *         from("jms:invoices").to("file:/invoices");
+ *       }
+ *
+ *     };
+ *   }
+ *
+ * }
+ * </pre>
+ * </p>
  */
 @Configuration
 public class CamelAutoConfiguration {
@@ -73,6 +142,18 @@ public class CamelAutoConfiguration {
     @Bean
     TypeConverter typeConverter() throws Exception {
         return camelContext().getTypeConverter();
+    }
+
+    @Bean
+    PropertiesParser propertiesParser() {
+        return new SpringPropertiesParser();
+    }
+
+    @Bean
+    PropertiesComponent properties() {
+        PropertiesComponent properties = new PropertiesComponent();
+        properties.setPropertiesParser(propertiesParser());
+        return properties;
     }
 
 }

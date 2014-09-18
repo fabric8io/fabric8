@@ -25,7 +25,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-git</artifactId>
@@ -37,28 +37,23 @@
         <fuse.osgi.export>
             io.fabric8.git*;version=${fuse.osgi.version};-noimport:=true,
             org.eclipse.jgit*;-noimport:=true,
-            org.gitective.core*;version=${gitective-version};-noimport:=true
+            org.gitective.core*;version=${gitective-version};-noimport:=true,
+            com.googlecode.javaewah*;-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
-          !javaewah,
           *
         </fuse.osgi.import>
-        <fuse.osgi.services.export>
-        </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
             org.apache.felix.utils.properties;-split-package:=first,
+            org.apache.commons.io*;-split-package:=first,
             io.fabric8.utils;-split-package:=first,
-            io.fabric8.git.internal
+            io.fabric8.git.internal,
+            com.googlecode.javaewah*;-split-package:=first,
+            javaewah
         </fuse.osgi.private.pkg>
         <fuse.osgi.require.bundle>
             io.fabric8.fabric-git
         </fuse.osgi.require.bundle>
-        <fuse.osgi.service.component>
-            <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/io.fabric8.git.internal.CachingGitDataStore.xml,
-            OSGI-INF/io.fabric8.git.internal.FabricGitServiceImpl.xml,
-            OSGI-INF/io.fabric8.git.internal.GitMasterListener.xml
-        </fuse.osgi.service.component>
     </properties>
 
     <dependencies>
@@ -94,8 +89,8 @@
             <artifactId>fabric-groups</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -127,6 +122,12 @@
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-runtime</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>commons-io</groupId>
+          <artifactId>commons-io</artifactId>
+          <version>${commons-io2-version}</version>
+          <scope>compile</scope>
         </dependency>
 
         <!-- Testing -->

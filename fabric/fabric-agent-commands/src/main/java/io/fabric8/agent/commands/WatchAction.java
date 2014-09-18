@@ -28,7 +28,7 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 
 import static io.fabric8.agent.commands.support.Utils.isSnapshot;
 
-@Command(name = "watch", scope = "fabric", description = "Watches and updates bundles.", detailedDescription = "classpath:watch.txt")
+@Command(name = "watch", scope = "fabric", description = "Watches and updates bundles", detailedDescription = "classpath:watch.txt")
 public class WatchAction extends OsgiCommandSupport {
 
     @Argument(index = 0, name = "urls", description = "The bundle URLs", required = false, multiValued = true)

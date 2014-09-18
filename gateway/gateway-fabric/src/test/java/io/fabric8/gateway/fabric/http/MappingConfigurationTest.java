@@ -42,7 +42,7 @@ public class MappingConfigurationTest {
     private String oldVersion = "1.0";
     private String newVersion = "1.1";
     private String enabledVersion = null;
-    private LoadBalancer<String> loadBalancer = new RoundRobinLoadBalancer<String>();
+    private LoadBalancer loadBalancer = new RoundRobinLoadBalancer();
     private boolean reverseHeaders = true;
 
     @Before

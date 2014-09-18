@@ -15,7 +15,7 @@
  */
 package io.fabric8.api;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.api.jcip.Immutable;
 import io.fabric8.api.jcip.ThreadSafe;
 
@@ -344,6 +344,10 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
         public void setZooKeeperServerPort(int zooKeeperServerPort) {
             this.zooKeeperServerPort = zooKeeperServerPort;
+        }
+
+        public void setZooKeeperServerConnectionPort(int zooKeeperServerConnectionPort) {
+            this.zooKeeperServerConnectionPort = zooKeeperServerConnectionPort;
         }
 
         public void setZookeeperPassword(String zookeeperPassword) {

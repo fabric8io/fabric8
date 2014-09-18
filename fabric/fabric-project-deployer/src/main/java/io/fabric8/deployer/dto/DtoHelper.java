@@ -15,10 +15,11 @@
  */
 package io.fabric8.deployer.dto;
 
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import io.fabric8.insight.log.support.Strings;
 
 /**
  * A helper class for working with the DTO marshalling with JSON
@@ -27,11 +28,11 @@ public class DtoHelper {
     private static ObjectMapper mapper = new ObjectMapper();
 
     static {
-        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        mapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
-        mapper.configure(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES, false);
-        mapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     }
 
     /**
@@ -39,5 +40,24 @@ public class DtoHelper {
      */
     public static ObjectMapper getMapper() {
         return mapper;
+    }
+
+    /**
+     * Returns the file name of the JSON file stored in the profile for the dependencies
+     */
+    public static String getRequirementsConfigFileName(ProjectRequirements requirements) {
+        StringBuilder builder = new StringBuilder("dependencies/");
+        String groupId = requirements.getGroupId();
+        if (!Strings.isEmpty(groupId)) {
+            builder.append(groupId);
+            builder.append("/");
+        }
+        String artifactId = requirements.getArtifactId();
+        if (!Strings.isEmpty(artifactId)) {
+            builder.append(artifactId);
+            builder.append("-");
+        }
+        builder.append("requirements.json");
+        return builder.toString();
     }
 }

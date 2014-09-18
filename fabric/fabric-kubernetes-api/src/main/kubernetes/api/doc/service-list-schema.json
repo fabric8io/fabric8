@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-03/schema",
+  "type": "object",
+  "javaType": "io.fabric8.kubernetes.api.model.ServiceListSchema",
+  "required": false,
+  "description": "Returns the current list of services.",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "required": false,
+      "enum": [
+        "ServiceList"
+      ]
+    },
+    "creationTimestamp": {
+      "type": "string",
+      "required": false
+    },
+    "resourceVersion": {
+      "type": "integer",
+      "required": false
+    },
+    "apiVersion": {
+      "type": "string",
+      "required": false,
+      "enum": [
+        "v1beta1"
+      ]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "service-schema.json"
+      }
+    }
+  }
+}

@@ -30,8 +30,11 @@ import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.common.util.Files;
+import io.fabric8.service.VersionPropertyPointerResolver;
+
 import org.apache.karaf.features.Feature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +51,8 @@ public class ProfileDownloader {
     private final ExecutorService executorService;
     private final Set<File> processedFiles = new HashSet<File>();
     private boolean stopOnFailure;
+    private boolean downloadFilesFromProfile = true;
+    private ProfileDownloaderListener listener;
     private final Map<String,Exception> errors = new HashMap<String, Exception>();
 
     public ProfileDownloader(FabricService fabricService, File target, boolean force, ExecutorService executorService) {
@@ -57,23 +62,57 @@ public class ProfileDownloader {
         this.executorService = executorService;
     }
 
+    public ProfileDownloaderListener getListener() {
+        return listener;
+    }
+
+    public void setListener(ProfileDownloaderListener listener) {
+        this.listener = listener;
+    }
+
+    public boolean isStopOnFailure() {
+        return stopOnFailure;
+    }
+
+    public void setStopOnFailure(boolean stopOnFailure) {
+        this.stopOnFailure = stopOnFailure;
+    }
+
+    public boolean isDownloadFilesFromProfile() {
+        return downloadFilesFromProfile;
+    }
+
+    public void setDownloadFilesFromProfile(boolean downloadFilesFromProfile) {
+        this.downloadFilesFromProfile = downloadFilesFromProfile;
+    }
+
     /**
      * Downloads the bundles, features and FABs for all the profiles in this version
      */
     public void downloadVersion(Version version) throws Exception {
-        Profile[] profiles = version.getProfiles();
+        List<Profile> profiles = version.getProfiles();
+        Profile[] prfarray = profiles.toArray(new Profile[profiles.size()]);
+        if (listener != null) {
+            listener.beforeDownloadProfiles(prfarray);
+        }
         for (Profile profile : profiles) {
-            if (stopOnFailure) {
+            try {
                 downloadProfile(profile);
-            } else {
-                try {
-                    downloadProfile(profile);
-                } catch (Exception e) {
+            } catch (Exception e) {
+                if (listener != null) {
+                    listener.onError(profile, e);
+                }
+                if (!stopOnFailure) {
                     String id = profile.getId();
                     errors.put(id, e);
-                    LOG.error("Failed to download profile " + id + " " + e, e);
+                    LOG.error("Failed to download profile " + id + " due " + e.getMessage(), e);
+                } else {
+                    throw e;
                 }
             }
+        }
+        if (listener != null) {
+            listener.afterDownloadProfiles(prfarray);
         }
     }
 
@@ -81,17 +120,23 @@ public class ProfileDownloader {
      * Downloads the bundles, features and FABs for this profile.
      */
     public void downloadProfile(Profile profile) throws Exception {
+        if (listener != null) {
+            listener.beforeDownloadProfile(profile);
+        }
+
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
         if (!profile.isOverlay()) {
-            profile = profile.getOverlay();
+            profile = profileService.getOverlayProfile(profile);
         }
 
         DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, executorService);
+        downloadManager.setDownloadFilesFromProfile(isDownloadFilesFromProfile());
 
         Set<String> bundles = new LinkedHashSet<String>();
         Set<Feature> features = new LinkedHashSet<Feature>();
-        addMavenBundles(bundles, profile.getBundles());
-        addMavenBundles(bundles, profile.getFabs());
-        AgentUtils.addFeatures(features, downloadManager, profile);
+        addMavenBundles(fabricService, profile, bundles, profile.getBundles());
+        addMavenBundles(fabricService, profile, bundles, profile.getFabs());
+        AgentUtils.addFeatures(features, fabricService, downloadManager, profile);
 
         Map<String, File> files = AgentUtils.downloadBundles(downloadManager, features, bundles,
                 Collections.<String>emptySet());
@@ -111,10 +156,16 @@ public class ProfileDownloader {
                     destFile = new File(target, fileName);
                 }
                 if (force || !destFile.exists()) {
-                    LOG.info("Copying file " + name + " to :  " + destFile.getCanonicalPath());
+                    LOG.info("Copying file: " + file + " to: " + destFile.getCanonicalPath());
                     Files.copy(file, destFile);
+                    if (listener != null) {
+                        listener.onCopyDone(profile, destFile);
+                    }
                 }
             }
+        }
+        if (listener != null) {
+            listener.afterDownloadProfile(profile);
         }
     }
 
@@ -135,27 +186,30 @@ public class ProfileDownloader {
     }
 
     /**
-     * Returns the number of files succesfully processed
+     * Returns the number of files successfully processed
      */
     public int getProcessedFileCount() {
         return processedFiles.size();
     }
 
-
     /**
      * Returns the list of profile IDs which failed
      */
-
     public List<String> getFailedProfileIDs() {
         return new ArrayList<String>(errors.keySet());
     }
 
-
-    protected void addMavenBundles(Set<String> bundles, List<String> bundleList) {
+    protected void addMavenBundles(FabricService fabricService, Profile profile,  Set<String> bundles, List<String> bundleList) {
         for (String bundle : bundleList) {
-            String mvnCoords = getMavenCoords(bundle);
-            if (mvnCoords != null) {
-                bundles.add(mvnCoords);
+            if (bundle != null) {
+                if (bundle.contains("$")) {
+                    // use similar logic as io.fabric8.agent.utils.AgentUtils.getProfileArtifacts method
+                    // as we need to substitute version placeholders
+                    ProfileService profileService = fabricService.adapt(ProfileService.class);
+                    Profile overlay = profileService.getOverlayProfile(profile);
+                    bundle = VersionPropertyPointerResolver.replaceVersions(fabricService, overlay.getConfigurations(), bundle);
+                }
+                bundles.add(bundle);
             }
         }
     }

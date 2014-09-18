@@ -1,0 +1,266 @@
+a {
+  color: #4B6989;
+}
+
+#main-nav {
+  left: 0;
+  right: 0;
+  border-bottom: 1px solid #4e4e4e;
+  height: 44px;
+
+  box-shadow: 0 1px 15px rgba(0, 0, 0, 0.5);
+
+  background: #c0ebf7; /* Old browsers */
+  background: -moz-linear-gradient(top,  #c0ebf7 0%, #b3d4e0 1%, #86afce 96%, #4b6989 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c0ebf7), color-stop(1%,#b3d4e0), color-stop(96%,#86afce), color-stop(100%,#4b6989)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #c0ebf7 0%,#b3d4e0 1%,#86afce 96%,#4b6989 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #c0ebf7 0%,#b3d4e0 1%,#86afce 96%,#4b6989 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #c0ebf7 0%,#b3d4e0 1%,#86afce 96%,#4b6989 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #c0ebf7 0%,#b3d4e0 1%,#86afce 96%,#4b6989 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c0ebf7', endColorstr='#4b6989',GradientType=0 ); /* IE6-9 */
+}
+
+#main-nav > .main-nav-upper {
+  position: absolute;
+  display: inline-block;
+  z-index: 50;
+  top: 0;
+  bottom: 0;
+  right: 50%;
+  margin-right: 270px;
+  box-shadow: none;
+  background: none;
+  border: none;
+  height: 100%;
+}
+
+#main-nav > .main-nav-lower {
+  position: absolute;
+  display: inline-block;
+  left: 50%;
+  margin-left: -100px;
+  width: 600px;
+  top: 0;
+  bottom: 0;
+  box-shadow: none;
+  background: none;
+  border: none;
+}
+
+.main-nav-lower > .container .nav > li > a {
+  line-height: 25px;
+  box-shadow: none;
+  text-align: center;
+  border-left: 1px solid rgba(0, 0, 0, 0.0);
+  border-right: 1px solid rgba(0, 0, 0, 0.0);
+  transition: all 1s;
+}
+
+.main-nav-lower > .container .nav > .active > a {
+  box-shadow: none;
+  background: inherit;
+  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.25);
+  color: #000000;
+  border-left: 1px solid rgba(0, 0, 0, 0.25);
+  border-right: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.main-nav-upper .brand {
+  margin-top: 10px;
+  font-size: 20px;
+}
+
+.navbar .brand, .navbar .nav > li > a {
+  color: #222222;
+  font-weight: bold;
+  text-shadow: 0px 1px 0px rgba(255,255,255, 0.4);
+}
+
+.brand > img {
+  margin-bottom: 3px;
+  height: 36px;
+  position: relative;
+  top: -13px;
+}
+
+#main-nav > .main-nav-upper > .container > .pull-left {
+  height: 40px;
+  vertical-align: middle;
+  box-shadow: none;
+}
+
+#main-nav > .main-nav-upper > .container > .pull-right {
+  display: none;
+}
+
+.instance-name {
+  display: none;
+}
+
+#main {
+  margin-top: 56px !important;
+}
+
+.wiki-fixed {
+  margin-top: 0;
+}
+
+.tocify {
+  top: 70px;
+}
+
+.main-heading > h3 {
+  font-size: 40px;
+  font-weight: bold;
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+
+}
+
+.hawtio-toc .panel-title a {
+  background: #bed9e8; /* Old browsers */
+  color: #4B6989;
+}
+
+@media only screen
+and (max-width : 880px) {
+  /* Styles */
+  #main-nav {
+    white-space: nowrap;
+  }
+
+  #main-nav > .main-nav-upper {
+    position: static;
+    display: inline-block;
+    width: 100px;
+    margin-left: 5px;
+  }
+  #main-nav > .main-nav-lower {
+    position: absolute;
+    right: 0;
+    left: 150px;
+    display: inline-block;
+    width: auto;
+    margin-left: auto;
+  }
+
+}
+
+.community-header {
+  margin-bottom: 12px;
+}
+
+.community-body > .span3 {
+  margin: 10px;
+  padding: 10px;
+  min-height: 300px;
+}
+
+div[ng-controller='Site.PageController'] > div > div[ng-bind-html-unsafe] {
+  margin-left: 300px;
+  margin-right: 300px;
+}
+
+@media only screen
+and (max-width : 1076px) {
+
+  div[ng-controller='Site.PageController'] > div > div[ng-bind-html-unsafe] {
+    margin-left: 4px;
+    margin-right: 4px;
+  }
+
+}
+
+@media only screen
+and (max-width : 1300px) {
+
+  div[ng-controller='Site.PageController'] > div > div[ng-bind-html-unsafe] {
+  margin-left: 150px;
+  margin-right: 150px;
+  }
+
+}
+
+.btn-success, 
+.btn-primary,
+.download-box > a {
+  color: #222222;
+  font-weight: bold;
+  text-shadow: 0px 1px 0px rgba(255,255,255, 0.4);
+
+  background: #c0ebf7; /* Old browsers */
+  background: -moz-linear-gradient(top,  #c0ebf7 0%, #b3d4e0 1%, #86afce 96%, #4b6989 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#c0ebf7), color-stop(1%,#b3d4e0), color-stop(96%,#86afce), color-stop(100%,#4b6989)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  #c0ebf7 0%,#b3d4e0 1%,#86afce 96%,#4b6989 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  #c0ebf7 0%,#b3d4e0 1%,#86afce 96%,#4b6989 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  #c0ebf7 0%,#b3d4e0 1%,#86afce 96%,#4b6989 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  #c0ebf7 0%,#b3d4e0 1%,#86afce 96%,#4b6989 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c0ebf7', endColorstr='#4b6989',GradientType=0 ); /* IE6-9 */
+
+  border-color: rgba(255, 255, 255, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  transition: background 0.1s linear;
+}
+
+
+.btn-success:hover, 
+.btn-primary:hover,
+.download-box > a:hover {
+  color: #222222;
+  font-weight: bold;
+  text-shadow: 0px 1px 0px rgba(255,255,255, 0.4);
+  background-position: 0, -5px;
+  background: #c0ebf7; /* Old browsers */
+}
+
+.btn-success:active, 
+.btn-primary:active,
+.download-box > a:active {
+  color: #222222;
+  font-weight: bold;
+  text-shadow: 0px 1px 0px rgba(255,255,255, 0.4);
+  background-position: 0, -5px;
+  background: #c0ebf7; /* Old browsers */
+}
+
+.download-block {
+    width: 100%;
+    display: block;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.download-box {
+    float: none;
+    list-style-type: none;
+    display: inline-block;
+    margin-left: 10px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.download-box > a {
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid #3d3d3d;
+}
+
+.download-box > a:hover {
+    text-decoration: none;
+}
+
+.download-box > a:before {
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: inherit;
+  -webkit-font-smoothing: antialiased;
+  *margin-right: .3em;
+  text-decoration: inherit;
+  display: inline-block;
+  speak: none;
+  content: "\f0ed";
+  margin-right: 5px;
+  font-size: 150%;
+}
+
+
+

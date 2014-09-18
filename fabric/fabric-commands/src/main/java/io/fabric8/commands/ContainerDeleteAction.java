@@ -17,7 +17,9 @@ package io.fabric8.commands;
 
 import static io.fabric8.utils.FabricValidations.validateContainerName;
 import io.fabric8.api.Container;
+import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.boot.commands.support.FabricCommand;
 
 import java.util.Collection;
@@ -28,11 +30,14 @@ import org.apache.felix.gogo.commands.Option;
 @Command(name = ContainerDelete.FUNCTION_VALUE, scope = ContainerDelete.SCOPE_VALUE, description = ContainerDelete.DESCRIPTION, detailedDescription = "classpath:containerDelete.txt")
 public class ContainerDeleteAction extends AbstractContainerLifecycleAction {
 
+    protected final RuntimeProperties runtimeProperties;
+
     @Option(name = "-r", aliases = {"--recursive"}, multiValued = false, required = false, description = "Recursively stops and deletes all child containers")
     protected boolean recursive = false;
 
-    ContainerDeleteAction(FabricService fabricService) {
+    ContainerDeleteAction(FabricService fabricService, RuntimeProperties runtimeProperties) {
         super(fabricService);
+        this.runtimeProperties = runtimeProperties;
     }
 
     @Override
@@ -45,14 +50,25 @@ public class ContainerDeleteAction extends AbstractContainerLifecycleAction {
                 return null;
             }
 
-            Container found = FabricCommand.getContainer(fabricService, containerName);
-            applyUpdatedCredentials(found);
-            if (recursive || force) {
-                for (Container child : found.getChildren()) {
-                    child.destroy(force);
-                }
+            String runtimeIdentity = runtimeProperties.getRuntimeIdentity();
+            if (containerName.equals(runtimeIdentity) && !force) {
+                System.out.println("You shouldn't delete current container. If you still want to delete it, please use --force option.");
+                return null;
             }
-            found.destroy(force);
+
+            Container found = FabricCommand.getContainerIfExists(fabricService, containerName);
+            if (found != null) {
+                applyUpdatedCredentials(found);
+                if (recursive || force) {
+                    for (Container child : found.getChildren()) {
+                        child.destroy(force);
+                    }
+                }
+                found.destroy(force);
+            } else if (force) {
+                //We also want to try and delete any leftover entries
+                fabricService.adapt(DataStore.class).deleteContainer(fabricService, containerName);
+            }
         }
         return null;
     }

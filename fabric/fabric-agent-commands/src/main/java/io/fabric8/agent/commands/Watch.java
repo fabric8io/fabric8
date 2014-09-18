@@ -33,7 +33,7 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = Watch.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = Watch.FUNCTION_VALUE)
 })
-public final class Watch extends AbstractCommandComponent {
+public class Watch extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "watch";

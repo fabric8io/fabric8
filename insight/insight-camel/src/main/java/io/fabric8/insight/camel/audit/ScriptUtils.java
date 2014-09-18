@@ -15,12 +15,12 @@
  */
 package io.fabric8.insight.camel.audit;
 
-import org.codehaus.jackson.map.ObjectMapper;
-
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public final class ScriptUtils {
 
@@ -30,10 +30,8 @@ public final class ScriptUtils {
     static {
         format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         mapper = new ObjectMapper();
-        mapper.setSerializationConfig(
-                mapper.getSerializationConfig()
-                      .withDateFormat(format)
-        );
+        mapper.getSerializationConfig()
+                .with(format);
     }
 
     public static String toIso(Date d) {

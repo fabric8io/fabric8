@@ -35,10 +35,10 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = EnsemblePassword.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = EnsemblePassword.FUNCTION_VALUE)
 })
-public final class EnsemblePassword extends AbstractCommandComponent {
+public class EnsemblePassword extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "ensemble-password";
+    public static final String FUNCTION_VALUE = "ensemble-password";
     public static final String DESCRIPTION = "Display the ensemble password";
 
     @Reference(referenceInterface = FabricService.class)

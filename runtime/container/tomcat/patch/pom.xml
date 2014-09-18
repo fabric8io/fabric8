@@ -22,7 +22,7 @@
     <parent>
         <groupId>io.fabric8.runtime</groupId>
         <artifactId>fabric-runtime-container-tomcat</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-runtime-container-tomcat-patch</artifactId>
@@ -54,18 +54,28 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
-            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-git</artifactId>
-            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-jaas</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric8-profiles</artifactId>
+            <version>${project.version}</version>
+            <type>pom</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric-runtime-container-tomcat-managed</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -82,6 +92,13 @@
             <version>${project.version}</version>
             <scope>provided</scope>
             <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat</artifactId>
+            <version>${tomcat-version}</version>
+            <type>zip</type>
+            <scope>provided</scope>
         </dependency>
 
         <!-- lets force the profiles to be created -->
@@ -114,6 +131,25 @@
                                     <type>tar.gz</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}/gravia-tomcat-patch</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-apache-tomcat</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.tomcat</groupId>
+                                    <artifactId>tomcat</artifactId>
+                                    <version>${version.apache.tomcat}</version>
+                                    <type>tar.gz</type>
+                                    <overWrite>false</overWrite>
+                                    <outputDirectory>${project.build.directory}/tomcat-base</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

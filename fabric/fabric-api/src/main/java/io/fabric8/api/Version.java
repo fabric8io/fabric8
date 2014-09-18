@@ -15,8 +15,12 @@
  */
 package io.fabric8.api;
 
+import java.util.List;
 import java.util.Map;
 
+/**
+ * The immutable view of a profile version
+ */
 public interface Version extends Comparable<Version>, HasId {
 
     /**
@@ -30,48 +34,39 @@ public interface Version extends Comparable<Version>, HasId {
     String LOCKED = "locked";
 
     /**
-     * Returns the name of the version
-     * @return
-     * @deprecated use {@link #getId()}
+     * @return Returns the revision of the Version.
      */
-    @Deprecated
-    String getName();
+    public String getRevision();
 
     /**
-     * Returns a read only map of all the attributes of this version
-     * @return
+     * Get the version attributes
      */
     Map<String, String> getAttributes();
-
+    
     /**
-     * Change an attribute on this version.
-     * @param key the name of the attribute
-     * @param value the new value or <code>null</code> to delete the attribute
+     * Get the list of available profile identities
      */
-    void setAttribute(String key, String value);
-
-    VersionSequence getSequence();
-
-    Version getDerivedFrom();
-
-    Profile[] getProfiles();
+    List<String> getProfileIds();
+    
+    /**
+     * Get the list of available profiles
+     */
+    List<Profile> getProfiles();
 
     /**
-     * Gets a profile with the given name.
-     * @param profileId name of the profile to get.
-     * @return {@link Profile} with the given name.
-     * @throws FabricException if it doesn't exist.
+     * Get a profile for the given identity.
+     * @return null if there is no profile for the given identity
      */
     Profile getProfile(String profileId);
+    
+    /**
+     * Get a profile for the given identity.
+     * @throws IllegalStateException if there is no profile for the given identity
+     */
+    Profile getRequiredProfile(String profileId);
 
-    Profile createProfile(String profileId);
-
-    void copyProfile(String sourceId, String targetId, boolean force);
-
-    void renameProfile(String sourceId, String targetId, boolean force);
-
+    /**
+     * True if the version contains a profile for the given identity.
+     */
     boolean hasProfile(String profileId);
-
-    void delete();
-
 }

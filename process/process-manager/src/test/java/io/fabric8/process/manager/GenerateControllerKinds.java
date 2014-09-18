@@ -76,7 +76,7 @@ public class GenerateControllerKinds {
         // lets try find the process tarball
         String groupId = System.getProperty("groupId", "io.fabric8.process");
         String artifactId = "process-launcher";
-        String version = System.getProperty("version", "1.1.0-SNAPSHOT");
+        String version = System.getProperty("version", "1.2.0-SNAPSHOT");
         String classifier = "bin";
         String extension = "tar.gz";
 
@@ -87,10 +87,8 @@ public class GenerateControllerKinds {
 
         assertNotNull("Cannot find the file for " + name + " using " + file.getPath(), file);
         File newFile = new File(classesDir, "process-launcher.tar.gz");
-        Files.move(file, newFile);
+        Files.copy(file, newFile);  // lets leave a copy there though so the next build works
 
-        // lets leave a copy there though so the next build works
-        Files.copy(newFile, file);
-        System.out.println("Moved process launch tarball to " + newFile);
+        System.out.println("Copied process launch tarball to " + newFile);
     }
 }

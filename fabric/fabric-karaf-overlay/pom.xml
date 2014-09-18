@@ -21,7 +21,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-karaf-overlay</artifactId>
@@ -174,11 +174,6 @@
                                     <file>target/classes/distro/etc/install-fabric.karaf</file>
                                     <type>karaf</type>
                                     <classifier>installer</classifier>
-                                  </artifact>
-                                  <artifact>
-                                    <file>target/classes/distro/etc/add-scala-tools-repo.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>add-scala-tools-repo</classifier>
                                   </artifact>
                                   <artifact>
                                     <file>target/classes/distro/etc/dosgi.karaf</file>

@@ -26,7 +26,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
-import org.sonatype.aether.RepositoryException;
+import org.eclipse.aether.RepositoryException;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 public abstract class CommandSupport extends OsgiCommandSupport {
     private PackageAdmin admin;
     private FabResolverFactory factory;
+    private OsgiModuleRegistry registry;
 
     protected PackageAdmin getPackageAdmin() {
         if (admin == null) {
@@ -63,6 +64,18 @@ public abstract class CommandSupport extends OsgiCommandSupport {
             factory = getService(FabResolverFactory.class, ref);
         }
         return factory;
+    }
+
+    protected OsgiModuleRegistry getModuleRegistry() {
+        if (registry == null) {
+            ServiceReference ref = getBundleContext().getServiceReference(OsgiModuleRegistry.class.getName());
+            if (ref == null) {
+                throw new IllegalStateException("ModuleRegistry service is unavailable.");
+            }
+            // using the getService call ensures that the reference will be released at the end
+            registry = getService(OsgiModuleRegistry.class, ref);
+        }
+        return registry;
     }
 
     protected FabResolverFactoryImpl.FabResolverImpl getFabResolverImpl(String arg) throws MalformedURLException {
@@ -109,7 +122,7 @@ public abstract class CommandSupport extends OsgiCommandSupport {
 
         FabFacade facade = new BundleFabFacade(bundle);
         Map<String, Object> embeddedResources = new HashMap<String, Object>();
-        FabClassPathResolver resolver = new FabClassPathResolver(facade, instructions, embeddedResources);
+        FabClassPathResolver resolver = new FabClassPathResolver(getModuleRegistry(), facade, instructions, embeddedResources);
         resolver.resolve();
         return resolver;
     }

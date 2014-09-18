@@ -15,8 +15,8 @@
  */
 package io.fabric8.mq.fabric.http;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.curator.framework.CuratorFramework;
-import org.codehaus.jackson.annotate.JsonProperty;
 import io.fabric8.groups.NodeState;
 import io.fabric8.groups.internal.ZooKeeperGroup;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
@@ -36,7 +36,7 @@ public class FabricDiscoveryServlet extends HttpServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(FabricDiscoveryServlet.class);
 
-    volatile  CuratorFramework curator = null;
+    volatile CuratorFramework curator = null;
     long cacheTimeout = 1000;
     ConcurrentHashMap<String, CacheEntry> cache = new ConcurrentHashMap<String, CacheEntry>();
 
@@ -60,36 +60,36 @@ public class FabricDiscoveryServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        CuratorFramework  curator = this.curator;
-        if( curator==null ) {
+        CuratorFramework curator = this.curator;
+        if (curator == null) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Not attached to Fabric");
             return;
         }
 
         try {
             String groupName = req.getPathInfo();
-            if( groupName==null ) {
+            if (groupName == null) {
                 groupName = "";
             }
-            if( groupName.startsWith("/") ) {
+            if (groupName.startsWith("/")) {
                 groupName = groupName.substring(1);
             }
 
-            LOG.debug("discovery request for group name="+groupName);
+            LOG.debug("discovery request for group name={}", groupName);
 
             // To avoid hammering ZooKeeper if we get to many HTTP requests back to back,
             // lets cache results.
             CacheEntry cacheEntry = cache.get(groupName);
             long now = System.currentTimeMillis();
-            if( cacheEntry==null || cacheEntry.timestamp+cacheTimeout < now ) {
+            if (cacheEntry == null || cacheEntry.timestamp + cacheTimeout < now) {
 
                 try {
-                    Map<String, ActiveMQNode> members = ZooKeeperGroup.members(curator, "/fabric/registry/clusters/fusemq/" + groupName, ActiveMQNode.class);
+                    Map<String, ActiveMQNode> members = ZooKeeperGroup.members(curator, "/fabric/registry/clusters/amq/" + groupName, ActiveMQNode.class);
                     HashSet<String> masters = new HashSet<String>();
                     StringBuilder buff = new StringBuilder();
 
                     for (ActiveMQNode node : members.values()) {
-                        if( !masters.contains(node.getId()) ) {
+                        if (!masters.contains(node.getId())) {
                             for (int i = 0; i < node.services.length; i++) {
                                 String url = node.services[i];
                                 url = ZooKeeperUtils.getSubstitutedData(curator, url);
@@ -108,14 +108,14 @@ public class FabricDiscoveryServlet extends HttpServlet {
                 cache.put(groupName, cacheEntry);
             }
 
-            if( cacheEntry.result !=null ) {
+            if (cacheEntry.result != null) {
                 resp.getWriter().print(cacheEntry.result.toString());
             } else {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Group not found");
             }
 
         } catch (Exception e) {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error occurred: "+e);
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error occurred: " + e);
         }
     }
 

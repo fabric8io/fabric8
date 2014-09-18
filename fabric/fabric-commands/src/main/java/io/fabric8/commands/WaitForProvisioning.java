@@ -34,7 +34,7 @@ import org.apache.felix.service.command.Function;
     @Property(name = "osgi.command.scope", value = WaitForProvisioning.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = WaitForProvisioning.FUNCTION_VALUE)
 })
-public final class WaitForProvisioning extends AbstractCommandComponent {
+public class WaitForProvisioning extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "wait-for-provisioning";

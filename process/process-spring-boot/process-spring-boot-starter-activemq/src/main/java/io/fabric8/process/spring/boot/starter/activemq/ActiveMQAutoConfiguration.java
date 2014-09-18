@@ -26,6 +26,84 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.jms.ConnectionFactory;
 
+/**
+ * <p>
+ *     Auto-configuration class for the ActiveMQ client. It provides a pooled ActiveMQ
+ *     {@code javax.jms.ConnectionFactory}. In order to use the {@link ActiveMQAutoConfiguration} in your application
+ *     just add the following jar to your Spring Boot project dependencies:
+ * </p>
+ * 
+ * <pre>
+ * &lt;dependency&gt;
+ *   &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+ *   &lt;artifactId&gt;process-spring-boot-starter-activemq&lt;/artifactId&gt;
+ *   &lt;version&gt;${fabric-version}&lt;/version&gt;
+ * &lt;/dependency&gt;
+ * </pre>
+ *
+ * <p>
+ *     Fabric's ActiveMQ starter will provide the default connection factory for you.
+ * </p>
+ *
+ * <pre>
+ * @Component
+ * public class InvoiceReader {
+ *
+ *   private final ConnectionFactory connectionFactory;
+ *
+ *   @Autowired
+ *   public InvoiceReader(ConnectionFactory connectionFactory) {
+ *     this.connectionFactory = connectionFactory;
+ *   }
+ *
+ *   void ProcessNextInvoice() {
+ *     Connection invoiceQueueConnection = connectionFactory.createConnection();
+ *     // invoice processing logic here
+ *   }
+ *
+ * }
+ * </pre>
+ *
+ * <p>
+ *     Keep in mind that if you include the
+ *     <a href="http://docs.spring.io/spring/docs/4.0.x/spring-framework-reference/html/remoting.html#remoting-jms">spring-jms</a>
+ *     jar together with the ActiveMQ starter in your Spring Boot application classpath, {@code JmsTemplate} will be
+ *     automatically populated with the ActiveMQ connection factory.
+ * </p>
+ *
+ * <pre>
+ * &lt;dependency&gt;
+ *   &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+ *   &lt;artifactId&gt;process-spring-boot-starter-activemq&lt;/artifactId&gt;
+ *   &lt;version&gt;${fabric-version}&lt;/version&gt;
+ * &lt;/dependency&gt;
+ * &lt;dependency&gt;
+ *   &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+ *   &lt;artifactId&gt;spring-jms&lt;/artifactId&gt;
+ *   &lt;version&gt;${spring-version}&lt;/version&gt;
+ * &lt;/dependency&gt;
+ * </pre>
+ *
+ * <pre>
+ * @Component
+ * public class InvoiceReader {
+ *
+ *   private final JmsTemplate jmsTemplate;
+ *
+ *   @Autowired
+ *   public InvoiceReader(JmsTemplate jmsTemplate) {
+ *     this.jmsTemplate = jmsTemplate;
+ *   }
+ *
+ *   void ProcessNextInvoice() {
+ *     String invoiceId = (String) jmsTemplate.receiveAndConvert("invoices");
+ *     // invoice processing logic
+ *   }
+ *
+ * }
+ * </pre>
+ *
+ */
 @Configuration
 public class ActiveMQAutoConfiguration {
 

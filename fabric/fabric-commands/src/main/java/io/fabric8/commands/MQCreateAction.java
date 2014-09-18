@@ -16,28 +16,32 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.common.util.Strings;
+import io.fabric8.core.jmx.MQManager;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
+
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricAuthenticationException;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.api.jmx.BrokerKind;
 import io.fabric8.api.jmx.MQBrokerConfigDTO;
-import io.fabric8.api.jmx.MQManager;
 import io.fabric8.utils.shell.ShellUtils;
-import io.fabric8.zookeeper.ZkDefs;
+
 import org.apache.karaf.shell.console.AbstractAction;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@Command(name = "mq-create", scope = "fabric", description = "Create a new broker")
+@Command(name = MQCreate.FUNCTION_VALUE, scope = MQCreate.SCOPE_VALUE, description = MQCreate.DESCRIPTION)
 public class MQCreateAction extends AbstractAction {
 
     @Argument(index = 0, required = true, description = "Broker name")
@@ -52,7 +56,7 @@ public class MQCreateAction extends AbstractAction {
     @Option(name = "--client-profile", description = "The profile name for clients to use to connect to the broker group. Defaults to 'mq-client-$GROUP'")
     protected String clientProfile;
 
-    @Option(name = "--client-parent-profile", description = "The parent profile used for the client-profile for clients connecting to the broker group. Defaults to 'default'")
+    @Option(name = "--client-parent-profile", description = "The parent profile used for the client-profile for clients connecting to the broker group. Defaults to 'mq-client-base'")
     protected String clientParentProfile;
 
     @Option(name = "--property", aliases = {"-D"}, description = "Additional properties to define in the profile", multiValued = true)
@@ -111,16 +115,19 @@ public class MQCreateAction extends AbstractAction {
     protected boolean nossl;
 
     private final FabricService fabricService;
+    private final RuntimeProperties runtimeProperties;
 
-    MQCreateAction(FabricService fabricService) {
+
+    MQCreateAction(FabricService fabricService, RuntimeProperties runtimeProperties) {
         this.fabricService = fabricService;
+        this.runtimeProperties = runtimeProperties;
     }
 
     @Override
     protected Object doExecute() throws Exception {
         MQBrokerConfigDTO dto = createDTO();
 
-        Profile profile = MQManager.createOrUpdateProfile(dto, fabricService);
+        Profile profile = MQManager.createOrUpdateProfile(dto, fabricService, runtimeProperties);
         String profileId = profile.getId();
 
         System.out.println("MQ profile " + profileId + " ready");
@@ -144,6 +151,16 @@ public class MQCreateAction extends AbstractAction {
                         builder = childBuilder.jmxUser(username).jmxPassword(password);
                     }
                     metadatas = fabricService.createContainers(builder.build());
+
+                    // check if there was a FabricAuthenticationException as failure then we can try again
+                    if (metadatas != null) {
+                        for (CreateContainerMetadata meta : metadatas) {
+                            if (meta.getFailure() != null && meta.getFailure() instanceof FabricAuthenticationException) {
+                                throw (FabricAuthenticationException) meta.getFailure();
+                            }
+                        }
+                    }
+
                     ShellUtils.storeFabricCredentials(session, username, password);
                 } catch (FabricAuthenticationException fae) {
                     //If authentication fails, prompts for credentials and try again.

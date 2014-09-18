@@ -15,6 +15,9 @@
  */
 package io.fabric8.insight.elasticsearch.impl;
 
+import io.fabric8.insight.metrics.mvel.MetricsStorageServiceImpl;
+import io.fabric8.insight.metrics.model.MetricsStorageService;
+import io.fabric8.insight.metrics.model.QueryResult;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -30,7 +33,7 @@ import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class ElasticStorageImpl implements StorageService, Runnable {
+public class ElasticStorageImpl implements StorageService, MetricsStorageService, Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticStorageImpl.class);
 
@@ -41,6 +44,7 @@ public class ElasticStorageImpl implements StorageService, Runnable {
     private Thread thread;
     private volatile boolean running;
     private BlockingQueue<ActionRequest> queue = new LinkedBlockingQueue<ActionRequest>();
+    private MetricsStorageService metricsStorage = new MetricsStorageServiceImpl(this);
 
     public ElasticStorageImpl(Node node) {
         this.node = node;
@@ -59,6 +63,10 @@ public class ElasticStorageImpl implements StorageService, Runnable {
         }
     }
 
+    @Override
+    public void store(String type, long timestamp, QueryResult queryResult) {
+        metricsStorage.store(type, timestamp, queryResult);
+    }
 
     @Override
     public void store(String type, long timestamp, String jsonData) {
@@ -86,8 +94,8 @@ public class ElasticStorageImpl implements StorageService, Runnable {
                 }
                 if (bulk.numberOfActions() > 0) {
                     BulkResponse rep = node.client().bulk(bulk).actionGet();
-                    for (BulkItemResponse bir : rep.items()) {
-                        if (bir.failed()) {
+                    for (BulkItemResponse bir : rep.getItems()) {
+                        if (bir.isFailed()) {
                             LOGGER.warn("Error executing request: {}", bir.getFailureMessage());
                         }
                     }

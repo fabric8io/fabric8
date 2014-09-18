@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.jboss.gravia.repository.MavenCoordinates;
+import org.jboss.gravia.resource.MavenCoordinates;
 import org.jboss.gravia.runtime.RuntimeType;
-import org.jboss.gravia.utils.NotNullException;
+import org.jboss.gravia.utils.IllegalStateAssertion;
 
 
 /**
@@ -80,8 +80,8 @@ public abstract class ContainerConfiguration {
     }
 
     protected void validate() {
-        NotNullException.assertValue(mavenCoordinates, "mavenCoordinates");
-        NotNullException.assertValue(targetDirectory, "targetDirectory");
+        IllegalStateAssertion.assertNotNull(mavenCoordinates, "mavenCoordinates");
+        IllegalStateAssertion.assertNotNull(targetDirectory, "targetDirectory");
     }
 
     void makeImmutable() {

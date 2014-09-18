@@ -17,6 +17,7 @@ package io.fabric8.boot;
 
 import io.fabric8.api.BootstrapComplete;
 import io.fabric8.api.ManagedCuratorFrameworkAvailable;
+import io.fabric8.api.ProfileManager;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.git.GitService;
@@ -27,19 +28,27 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.osgi.service.cm.ConfigurationAdmin;
 
+/**
+ * Indicates the completion of the bootstrap process before the fabric is created.
+ */
 @Component(immediate = true)
 @Service({ BootstrapComplete.class })
 public final class BootstrapCompleteService extends AbstractComponent implements BootstrapComplete {
 
     @Reference
-    private ACLManager aclManagerAvailable;
+    private ACLManager aclManager;
     @Reference
-    private GitService gitServiceAvailable;
+    private ConfigurationAdmin configAdmin;
     @Reference
-    private ManagedCuratorFrameworkAvailable managedCuratorAvailable;
+    private GitService gitService;
     @Reference
-    private ZooKeeperClusterBootstrap zookeeperBootstrapAvailable;
+    private ProfileManager profileManager;
+    @Reference
+    private ManagedCuratorFrameworkAvailable managedCurator;
+    @Reference
+    private ZooKeeperClusterBootstrap zookeeperBootstrap;
 
     @Activate
     void activate() {

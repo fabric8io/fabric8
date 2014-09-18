@@ -20,8 +20,12 @@ import io.fabric8.groups.Group;
 import java.util.List;
 
 public interface LoadBalanceStrategy {
-    void setGroup(Group<CxfNodeState> group);
+
+    void setGroup(Group<CxfNodeState> group) throws Exception;
+
     Group<CxfNodeState> getGroup();
+
     List<String> getAlternateAddressList();
+
     String getNextAlternateAddress();
 }

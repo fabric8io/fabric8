@@ -50,11 +50,11 @@
         </managementContext>
 
         <persistenceAdapter>
-            <replicatedLevelDB directory="${data}/leveldb/${karaf.name}"
+            <replicatedLevelDB directory="${data}/leveldb/${runtime.id}"
               replicas="${replicas}"
               zkAddress="${zookeeper.url}"
               zkPassword="${zookeeper.password}"
-              zkPath="/fabric/registry/clusters/fusemq-replication-elections/${group}"
+              zkPath="/fabric/registry/clusters/amq-replication-elections/${group}"
               securityToken="${zookeeper.password}"
               hostname="${container.ip}"
               container="${container.id}"
@@ -68,7 +68,7 @@
         <systemUsage>
             <systemUsage>
                 <memoryUsage>
-                    <memoryUsage limit="64 mb"/>
+                    <memoryUsage percentOfJvmHeap="70"/>
                 </memoryUsage>
                 <storeUsage>
                     <storeUsage limit="100 gb"/>

@@ -38,8 +38,9 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * File utilities
  */
-public class Files {
+public final class Files {
 
     private static final ThreadLocal<LinkedHashSet<URL>> ACTIVE_DOWNLOADS = new ThreadLocal<LinkedHashSet<URL>>();
     private static final AtomicLong lastTmpFileId = new AtomicLong(System.currentTimeMillis());
@@ -86,10 +87,47 @@ public class Files {
     }
 
     /**
+     * Strip any leading separators
+     */
+    public static String stripLeadingSeparator(String name) {
+        if (name == null) {
+            return null;
+        }
+        while (name.startsWith("/") || name.startsWith(File.separator)) {
+            name = name.substring(1);
+        }
+        return name;
+    }
+
+    /**
+     * Returns the file name part of the path
+     */
+    public static String getFileName(String path) {
+        if (path != null) {
+            return new File(path).getName();
+        }
+        return null;
+    }
+
+    /**
+     * Returns the file extension of the file name of the path or null
+     */
+    public static String getFileExtension(String path) {
+        String fileName = getFileName(path);
+        if (fileName  != null) {
+            int idx = fileName.lastIndexOf('.');
+            if (idx > 1) {
+                String answer = fileName.substring(idx + 1);
+                if (answer.length() > 0) {
+                    return answer;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Creates a temporary file.
-     *
-     * @return
-     * @throws IOException
      */
     public static File createTempFile(String path) throws IOException {
         File dataDir = new File(path);
@@ -101,35 +139,7 @@ public class Files {
     }
 
     /**
-     * Recursively deletes the file and any children files if its a directory
-     */
-    public static void recursiveDelete(File file, FileFilter filter) {
-        if (filter == null || filter.accept(file)) {
-            if (file.isDirectory()) {
-                File[] files = file.listFiles();
-                if (files != null) {
-                    for (File child : files) {
-                        recursiveDelete(child, filter);
-                    }
-                }
-                files = file.listFiles();
-                // lets not delete if we didn't delete a child file
-                if (files == null || files.length == 0) {
-                    file.delete();
-                }
-            } else {
-                file.delete();
-            }
-        }
-    }
-
-    /**
      * Reads a {@link File} and returns a {@String}.
-     *
-     * @param file
-     * @param charset
-     * @return
-     * @throws IOException
      */
     public static String toString(File file, Charset charset) throws IOException {
         byte[] bytes = readBytes(file);
@@ -143,8 +153,6 @@ public class Files {
 
     /**
      * Reads an {@link InputStream} and returns a {@String}.
-     *
-     * @throws IOException
      */
     public static String toString(InputStream inputStream) throws IOException {
         return toString(inputStream, null);
@@ -153,8 +161,6 @@ public class Files {
 
     /**
      * Reads an {@link InputStream} and returns a {@String}.
-     *
-     * @throws IOException
      */
     public static String toString(InputStream inputStream, Charset charset) throws IOException {
         byte[] bytes = readBytes(inputStream);
@@ -203,8 +209,6 @@ public class Files {
 
     /**
      * Reads a {@link File} and returns the data as a byte array
-     *
-     * @throws IOException
      */
     public static byte[] readBytes(File file) throws IOException {
         FileInputStream fis = null;
@@ -229,8 +233,6 @@ public class Files {
 
     /**
      * Reads an {@link InputStream} and returns the data as a byte array
-     *
-     * @throws IOException
      */
     public static byte[] readBytes(InputStream in) throws IOException {
         ByteArrayOutputStream bos = null;
@@ -253,10 +255,6 @@ public class Files {
 
     /**
      * Reads a {@link File} and returns a {@String}.
-     *
-     * @param file
-     * @return
-     * @throws IOException
      */
     public static String toString(File file) throws IOException {
         return toString(file, null);
@@ -264,11 +262,6 @@ public class Files {
 
     /**
      * Writes {@link String} content to {@link File}.
-     *
-     * @param file
-     * @param content
-     * @param charset
-     * @throws IOException
      */
     public static void writeToFile(File file, String content, Charset charset) throws IOException {
         FileOutputStream fos = null;
@@ -292,10 +285,6 @@ public class Files {
 
     /**
      * Writes {@link String} content to {@link File}.
-     *
-     * @param file
-     * @param content
-     * @throws IOException
      */
     public static void writeToFile(File file, byte[] content) throws IOException {
         FileOutputStream fos = null;
@@ -314,10 +303,6 @@ public class Files {
 
     /**
      * Copy the source {@link File} to the target {@link File}.
-     *
-     * @param source
-     * @param target
-     * @throws IOException
      */
     public static void copy(File source, File target) throws IOException {
         if (!source.exists()) {
@@ -334,10 +319,6 @@ public class Files {
 
     /**
      * Copy the {@link InputStream} to the {@link OutputStream}.
-     *
-     * @param is
-     * @param os
-     * @throws IOException
      */
     public static void copy(InputStream is, OutputStream os) throws IOException {
         try {
@@ -418,6 +399,29 @@ public class Files {
         return answer;
     }
 
+    /**
+     * Recursively deletes the file and any children files if its a directory
+     */
+    public static void recursiveDelete(File file, FileFilter filter) {
+        if (filter == null || filter.accept(file)) {
+            if (file.isDirectory()) {
+                File[] files = file.listFiles();
+                if (files != null) {
+                    for (File child : files) {
+                        recursiveDelete(child, filter);
+                    }
+                }
+                files = file.listFiles();
+                // lets not delete if we didn't delete a child file
+                if (files == null || files.length == 0) {
+                    file.delete();
+                }
+            } else {
+                file.delete();
+            }
+        }
+    }
+
     public static File urlToFile(String url, String tempFilePrefix, String tempFilePostfix) throws IOException {
         File file = new File(url);
         if (file.exists()) {
@@ -427,8 +431,9 @@ public class Files {
         }
     }
 
-    public static class DownloadCycle extends IOException {
-        public DownloadCycle(String s) {
+    @SuppressWarnings("serial")
+    public static class DownloadCycleException extends IOException {
+        public DownloadCycleException(String s) {
             super(s);
         }
     }
@@ -445,7 +450,7 @@ public class Files {
         }
         try {
             if (downloads.contains(url)) {
-                throw new DownloadCycle("Download cycle detected: " + downloads);
+                throw new DownloadCycleException("Download cycle detected: " + downloads);
             }
             downloads.add(url);
             try {

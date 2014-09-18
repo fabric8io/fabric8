@@ -37,10 +37,10 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = ContainerStop.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = ContainerStop.FUNCTION_VALUE)
 })
-public final class ContainerStop extends AbstractCommandComponent {
+public class ContainerStop extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "container-stop";
+    public static final String FUNCTION_VALUE = "container-stop";
     public static final String DESCRIPTION = "Shut down an existing container";
 
     @Reference(referenceInterface = FabricService.class)

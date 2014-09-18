@@ -1,1 +1,1 @@
-the base JBoss A-MQ broker profile
+the base A-MQ broker profile

@@ -40,7 +40,6 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerLifeCycleListener;
-import org.apache.cxf.endpoint.ServerLifeCycleManager;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.jaxrs.JAXRSServiceFactoryBean;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
@@ -633,11 +632,6 @@ public class ManagedApi implements ManagedComponent, ServerLifeCycleListener {
     public void stopServer(Server s) {
         if (server.equals(s)) {
             state = State.STOPPED;
-            // unregister server to avoid the memory leak
-            ServerLifeCycleManager mgr = bus.getExtension(ServerLifeCycleManager.class);
-            if (mgr != null) {
-                mgr.unRegisterListener(this);                
-            }
         }
     }
 }

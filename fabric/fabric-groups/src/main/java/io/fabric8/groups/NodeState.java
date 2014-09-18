@@ -15,7 +15,7 @@
  */
 package io.fabric8.groups;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.groups.internal.ZooKeeperGroup;
 
 import java.util.UUID;
@@ -35,7 +35,7 @@ public class NodeState {
     }
 
     public NodeState(String id) {
-        this(id, System.getProperty("karaf.name", UUID.randomUUID().toString()));
+        this(id, System.getProperty("runtime.id", UUID.randomUUID().toString()));
     }
 
     public NodeState(String id, String container) {

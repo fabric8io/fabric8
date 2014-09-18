@@ -38,7 +38,7 @@ import org.apache.felix.service.command.Function;
     @Property(name = "osgi.command.scope", value = ContainerRemoveProfile.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = ContainerRemoveProfile.FUNCTION_VALUE)
 })
-public final class ContainerRemoveProfile extends AbstractCommandComponent {
+public class ContainerRemoveProfile extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "container-remove-profile";

@@ -15,8 +15,11 @@
  */
 package io.fabric8.service.child;
 
-import io.fabric8.api.CreateChildContainerOptions;
+import io.fabric8.api.Constants;
+import io.fabric8.api.Container;
 import io.fabric8.api.CreateContainerBasicOptions;
+import io.fabric8.api.CreateContainerMetadata;
+import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profiles;
@@ -31,15 +34,46 @@ import java.util.Set;
  */
 public class ChildContainers {
 
-    public static boolean isJavaContainer(FabricService fabricService, CreateChildContainerOptions options) {
-        Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), ChildConstants.JAVA_CONTAINER_PID);
+    /**
+     * Returns true if the given container is a java or process child container
+     */
+    public static boolean isJavaOrProcessContainer(FabricService fabric, Container container) {
+        if (container != null) {
+            CreateContainerMetadata<?> metadata = container.getMetadata();
+            if (metadata != null) {
+                CreateContainerOptions createOptions = metadata.getCreateOptions();
+                if (createOptions instanceof CreateContainerBasicOptions) {
+                    return isJavaOrProcessContainer(fabric, (CreateContainerBasicOptions) createOptions);
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the given container is a java or process child container
+     */
+    public static boolean isJavaOrProcessContainer(FabricService fabric, CreateContainerOptions options) {
+        boolean isJavaContainer = isJavaContainer(fabric, options);
+        boolean isProcessContainer = isProcessContainer(fabric, options);
+        return isProcessContainer || isJavaContainer;
+    }
+
+    /**
+     * Returns true if the given container is a java child container
+     */
+    public static boolean isJavaContainer(FabricService fabricService, CreateContainerOptions options) {
+        Map<String, ?> javaContainerConfig = Profiles.getOverlayConfiguration(fabricService, options.getProfiles(), options.getVersion(), Constants.JAVA_CONTAINER_PID);
         return !javaContainerConfig.isEmpty();
     }
 
-    public static boolean isProcessContainer(FabricService fabricService, CreateChildContainerOptions options) {
+    /**
+     * Returns true if the given container is a process child container
+     */
+    public static boolean isProcessContainer(FabricService fabricService, CreateContainerOptions options) {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
-        Map<String, ?> processConfig = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, ChildConstants.PROCESS_CONTAINER_PID);
+        Map<String, ?> processConfig = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, Constants.PROCESS_CONTAINER_PID);
         return processConfig != null && processConfig.size() > 0;
     }
 
@@ -47,11 +81,17 @@ public class ChildContainers {
      * Creates the environment variables for the given container options using the profiles specified in the options to figure out
      * what environment variables to use.
      */
-    public static Map<String, String> getEnvironmentVariables(FabricService service, CreateContainerBasicOptions options) {
+    public static Map<String, String> getEnvironmentVariables(FabricService service, CreateContainerOptions options) {
+        return getEnvironmentVariables(service, options, service.getEnvironment());
+    }
+
+    public static Map<String, String> getEnvironmentVariables(FabricService service, CreateContainerOptions options, String environment) {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         String zookeeperUrl = service.getZookeeperUrl();
-        String zookeeperPassword = service.getZookeeperPassword();
+        String zookeeperUser = service.getZooKeeperUser();
+        String zookeeperPasswordRaw = service.getZookeeperPassword();
+        String zookeeperPassword = zookeeperPasswordRaw;
         if (zookeeperPassword != null) {
             zookeeperPassword = PasswordEncoder.encode(zookeeperPassword);
         }
@@ -64,20 +104,29 @@ public class ChildContainers {
             zookeeperUrl = localIp;
         }
 
-        Map<String, String> envVarsOverlay = Profiles.getOverlayConfiguration(service, profileIds, versionId, EnvironmentVariables.ENVIRONMENT_VARIABLES_PID);
-        envVarsOverlay.put(EnvironmentVariables.KARAF_NAME, options.getName());
+        Map<String, String> envVarsOverlay = Profiles.getOverlayConfiguration(service, profileIds, versionId, EnvironmentVariables.ENVIRONMENT_VARIABLES_PID, environment);
+        String containerName = options.getName();
+        envVarsOverlay.put(EnvironmentVariables.KARAF_NAME, containerName);
+        envVarsOverlay.put(EnvironmentVariables.RUNTIME_ID, containerName);
         if (!options.isEnsembleServer()) {
-            if (envVarsOverlay.get(EnvironmentVariables.ZOOKEEPER_URL) == null) {
+            if (!envVarsOverlay.containsKey(EnvironmentVariables.ZOOKEEPER_URL)) {
                 envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_URL, zookeeperUrl);
             }
-            if (envVarsOverlay.get(EnvironmentVariables.ZOOKEEPER_PASSWORD) == null) {
+            if (!envVarsOverlay.containsKey(EnvironmentVariables.ZOOKEEPER_USER)) {
+                envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_USER, zookeeperUser);
+            }
+            if (!envVarsOverlay.containsKey(EnvironmentVariables.ZOOKEEPER_PASSWORD)) {
                 envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_PASSWORD, zookeeperPassword);
             }
-            if (envVarsOverlay.get(EnvironmentVariables.ZOOKEEPER_PASSWORD_ENCODE) == null) {
+            if (!envVarsOverlay.containsKey(EnvironmentVariables.ZOOKEEPER_PASSWORD_RAW)) {
+                envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_PASSWORD_RAW, zookeeperPasswordRaw);
+            }
+            if (!envVarsOverlay.containsKey(EnvironmentVariables.ZOOKEEPER_PASSWORD_ENCODE)) {
                 String zkPasswordEncode = System.getProperty("zookeeper.password.encode", "true");
                 envVarsOverlay.put(EnvironmentVariables.ZOOKEEPER_PASSWORD_ENCODE, zkPasswordEncode);
             }
         }
         return envVarsOverlay;
     }
+
 }

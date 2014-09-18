@@ -15,11 +15,14 @@
  */
 package io.fabric8.zookeeper;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.curator.framework.CuratorFramework;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
+
+import io.fabric8.api.ZkDefs;
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
 
 import java.io.ByteArrayInputStream;
@@ -58,18 +61,21 @@ public enum ZkPath {
 	CONFIG_ENSEMBLE_PROFILES       ("/fabric/configs/ensemble/profiles"),
 	CONFIG_ENSEMBLE_PROFILE        ("/fabric/configs/ensemble/profiles/{profile}"),
 
-
-
     BOOTSTRAP                      ("/fabric/registry/bootstrap"),
     MAVEN_PROXY                    ("/fabric/registry/maven/proxy/{type}"),
+    GIT_TRIGGER                    ("/fabric/registry/git/trigger"),
 	GIT                            ("/fabric/registry/clusters/git"),
-	AUTO_SCALE                     ("/fabric/registry/clusters/autoscale"),
+	AUTO_SCALE_STATUS              ("/fabric/registry/autoscale/status"),
+	AUTO_SCALE_CLUSTER             ("/fabric/registry/clusters/autoscale"),
+	KUBERNETES_HEALTH_CLUSTER      ("/fabric/registry/clusters/kubernetes/health"),
 	OPENSHIFT                      ("/fabric/registry/clusters/openshift"),
     WEBAPPS_CLUSTERS               ("/fabric/registry/clusters/webapps"),
     WEBAPPS_CLUSTER                ("/fabric/registry/clusters/webapps/{group}"),
     SERVLETS_CLUSTER               ("/fabric/registry/clusters/servlets/{group}"),
-    MQ_CLUSTERS                    ("/fabric/registry/clusters/fusemq"),
-    MQ_CLUSTER                     ("/fabric/registry/clusters/fusemq/{group}"),
+    MQ_CLUSTERS                    ("/fabric/registry/clusters/amq"),
+    MQ_CLUSTER                     ("/fabric/registry/clusters/amq/{group}"),
+    REST_API_CLUSTERS              ("/fabric/registry/clusters/apis/rest/{apiName}"),
+    WS_API_CLUSTERS                ("/fabric/registry/clusters/apis/ws/{apiName}"),
     TASK                           ("/fabric/registry/clusters/task/{task}"),
     TAKS_MEMBERS                   ("/fabric/registry/clusters/task/{task}/0{member}"),
     TASK_MEMBER_PARTITIONS         ("/fabric/registry/containers/task/{container}/{task}"),
@@ -86,9 +92,12 @@ public enum ZkPath {
     CONTAINER_PROVISION_CHECKSUMS  ("/fabric/registry/containers/provision/{container}/checksums"),
     CONTAINER_PROVISION_RESULT     ("/fabric/registry/containers/provision/{container}/result"),
     CONTAINER_PROVISION_EXCEPTION  ("/fabric/registry/containers/provision/{container}/exception"),
+    CONTAINER_STATUS               ("/fabric/registry/containers/status/{container}"),
     CONTAINER_EXTENDER             ("/fabric/registry/containers/provision/{container}/extender/{extender}"),
     CONTAINER_EXTENDER_BUNDLE      ("/fabric/registry/containers/provision/{container}/extender/{extender}/bundle/{bundle}"),
     CONTAINER_EXTENDER_STATUS      ("/fabric/registry/containers/provision/{container}/extender/{extender}/status"),
+
+    CONTAINER_DEBUG_PORT           ("/fabric/registry/containers/debug/{container}/port"),
     CONTAINER_ENTRY                ("/fabric/registry/containers/config/{container}/{entry}"),
     CONTAINER_PORT_MIN             ("/fabric/registry/containers/config/{container}/minimumport"),
     CONTAINER_PORT_MAX             ("/fabric/registry/containers/config/{container}/maximumport"),
@@ -140,7 +149,8 @@ public enum ZkPath {
     PORTS_IP                       ("/fabric/registry/ports/ip/{address}"),
 
     AUTHENTICATION_CRYPT_ALGORITHM ("/fabric/authentication/crypt/algorithm"),
-    AUTHENTICATION_CRYPT_PASSWORD  ("/fabric/authentication/crypt/password");
+    AUTHENTICATION_CRYPT_PASSWORD  ("/fabric/authentication/crypt/password"),
+    AUTHENTICATION_CONTAINER       ("/fabric/authentication/containers/{container}");
 
 
 
@@ -202,8 +212,8 @@ public enum ZkPath {
             } else if( path.endsWith(".json") ) {
                 String[] fields = ref.split("\\.");
                 ObjectMapper mapper = new ObjectMapper();
-                JsonFactory factory = mapper.getJsonFactory();
-                JsonParser jp = factory.createJsonParser(rc);
+                JsonFactory factory = mapper.getFactory();
+                JsonParser jp = factory.createParser(rc);
                 JsonNode node = mapper.readTree(jp);
                 for(String field: fields) {
                     if(!field.isEmpty()) {

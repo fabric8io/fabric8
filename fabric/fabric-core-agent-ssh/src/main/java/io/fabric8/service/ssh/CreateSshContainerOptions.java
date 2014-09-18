@@ -15,21 +15,26 @@
  */
 package io.fabric8.service.ssh;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.CreateRemoteContainerOptions;
+import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.SshConfiguration;
+import io.fabric8.api.SshHostConfiguration;
 import io.fabric8.api.jcip.NotThreadSafe;
+import io.fabric8.common.util.Strings;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Arguments for creating a new container via SSH
@@ -43,6 +48,8 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     static final int DEFAULT_SSH_RETRIES = 1;
     static final int DEFAULT_SSH_PORT = 22;
+    public static final String DEFAULT_PATH = "~/containers/";
+    public static final String DEFAULT_USERNAME = "root";
 
     @JsonProperty
     private final String username;
@@ -65,8 +72,12 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     @JsonProperty
     private final Map<String, String> environmentalVariables; // keep imutable
+    @JsonProperty
+    private final List<String> fallbackRepositories;
+    @JsonProperty
+    private final Boolean uploadDistribution;
 
-    CreateSshContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, boolean clean, String username, String password, String host, int port, int sshRetries, int retryDelay, String privateKeyFile, String passPhrase, String path, Map<String, String> environmentalVariables) {
+    CreateSshContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, boolean clean, String username, String password, String host, int port, int sshRetries, int retryDelay, String privateKeyFile, String passPhrase, String path, Map<String, String> environmentalVariables, List<String> fallbackRepositories, Boolean uploadDistribution) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, false, 0, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, clean);
         this.username = username;
         this.password = password;
@@ -77,6 +88,8 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         this.privateKeyFile = privateKeyFile;
         this.passPhrase = passPhrase;
         this.path = path;
+        this.fallbackRepositories = fallbackRepositories;
+        this.uploadDistribution = uploadDistribution;
         this.environmentalVariables = Collections.unmodifiableMap(new HashMap<String, String>(environmentalVariables));
     }
 
@@ -86,7 +99,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
                 getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isAutoImportEnabled(),
                 getImportPath(), getUsers(), getName(), getParent(), "ssh", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
                 getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(),
-                newUser != null ? newUser : username, newPassword != null ? newPassword : password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
+                newUser != null ? newUser : username, newPassword != null ? newPassword : password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables, fallbackRepositories, uploadDistribution);
     }
 
     public static Builder builder() {
@@ -122,6 +135,11 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         return environmentalVariables;
     }
 
+    @Override
+    public Boolean doUploadDistribution() {
+        return uploadDistribution;
+    }
+
     public String getPrivateKeyFile() {
         //We check for a parameter first as the privateKeyFile has a default value assigned.
         return privateKeyFile;
@@ -134,6 +152,10 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     @Override
     public String getHostNameContext() {
         return "none";
+    }
+
+    public List<String> getFallbackRepositories() {
+        return fallbackRepositories;
     }
 
     public CreateSshContainerOptions clone() throws CloneNotSupportedException {
@@ -164,9 +186,13 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         @JsonProperty
         private String passPhrase;
         @JsonProperty
-        private String path = "~/containers/";
+        private String path = DEFAULT_PATH;
         @JsonProperty
         private Map<String, String> environmentalVariables = new HashMap<String, String>();
+        @JsonProperty
+        private List<String> fallbackRepositories = new ArrayList<String>();
+        @JsonProperty
+        private Boolean uploadDistribution = true;
 
 
         public Builder username(final String username) {
@@ -239,6 +265,16 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
         public Builder passPhrase(final String passPhrase) {
             this.passPhrase = passPhrase;
+            return this;
+        }
+
+        public Builder fallbackRepositories(final List<String> fallbackRepositories) {
+            this.fallbackRepositories = fallbackRepositories;
+            return this;
+        }
+
+        public Builder uploadDistribution(final Boolean uploadDistribution) {
+            this.uploadDistribution = uploadDistribution;
             return this;
         }
 
@@ -318,12 +354,100 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
             this.environmentalVariables = environmentalVariables;
         }
 
+        public List<String> getFallbackRepositories() {
+            return fallbackRepositories;
+        }
+
+        public void setFallbackRepositories(List<String> fallbackRepositories) {
+            this.fallbackRepositories = fallbackRepositories;
+        }
+
+        public Boolean getUploadDistribution() {
+            return uploadDistribution;
+        }
+
+        public void setUploadDistribution(Boolean uploadDistribution) {
+            this.uploadDistribution = uploadDistribution;
+        }
 
         public CreateSshContainerOptions build() {
             return new CreateSshContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                     getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isAutoImportEnabled(),
                     getImportPath(), getUsers(), getName(), getParent(), "ssh", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
-                    getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), false, username, password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
+                    getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), false, username, password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables, fallbackRepositories, uploadDistribution);
+        }
+
+        /**
+         * Configures the builder from the requirements and chosen host configuration
+         */
+        public void configure(SshHostConfiguration sshHostConfig, FabricRequirements requirements, ProfileRequirements profileRequirements) {
+            SshConfiguration sshHosts = requirements.getSshConfiguration();
+            host = sshHostConfig.getHostName();
+            if (Strings.isNullOrBlank(host)) {
+                throw new IllegalArgumentException("Missing host property in the ssh configuration: " + sshHostConfig);
+            }
+            String preferredAddress = getPreferredAddress();
+            if (Strings.isNullOrBlank(preferredAddress)) {
+                preferredAddress = sshHostConfig.getPreferredAddress();
+                if (Strings.isNullOrBlank(preferredAddress)) {
+                    preferredAddress = host;
+                }
+                preferredAddress(preferredAddress);
+            }
+            path = sshHostConfig.getPath();
+            if (Strings.isNullOrBlank(path)) {
+                if (sshHosts != null) {
+                    path = sshHosts.getDefaultPath();
+                }
+                if (Strings.isNullOrBlank(path)) {
+                    path = DEFAULT_PATH;
+                }
+            }
+            Integer portValue = sshHostConfig.getPort();
+            if (portValue == null) {
+                if (sshHosts != null) {
+                    portValue = sshHosts.getDefaultPort();
+                }
+            }
+            port = portValue != null ? portValue : DEFAULT_SSH_PORT;
+
+            username = sshHostConfig.getUsername();
+            if (Strings.isNullOrBlank(username)) {
+                if (sshHosts != null) {
+                    username = sshHosts.getDefaultUsername();
+                }
+                if (Strings.isNullOrBlank(username)) {
+                    username = DEFAULT_USERNAME;
+                }
+            }
+
+            password = sshHostConfig.getPassword();
+            if (Strings.isNullOrBlank(password)) {
+                if (sshHosts != null) {
+                    password = sshHosts.getDefaultPassword();
+                }
+            }
+
+            if (sshHosts != null) {
+                fallbackRepositories = sshHosts.getFallbackRepositories();
+            }
+
+            passPhrase = sshHostConfig.getPassPhrase();
+            if (Strings.isNullOrBlank(passPhrase)) {
+                if (sshHosts != null) {
+                    passPhrase = sshHosts.getDefaultPassPhrase();
+                }
+            }
+
+            privateKeyFile = sshHostConfig.getPrivateKeyFile();
+            if (Strings.isNullOrBlank(privateKeyFile)) {
+                if (sshHosts != null) {
+                    privateKeyFile = sshHosts.getDefaultPrivateKeyFile();
+                }
+                if (Strings.isNullOrBlank(privateKeyFile)) {
+                    privateKeyFile = DEFAULT_PRIVATE_KEY_FILE;
+                }
+            }
         }
     }
 }

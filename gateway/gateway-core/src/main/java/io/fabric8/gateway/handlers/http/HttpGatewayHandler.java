@@ -16,6 +16,7 @@
 package io.fabric8.gateway.handlers.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
@@ -28,12 +29,15 @@ import org.vertx.java.core.http.HttpClientResponse;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpServerResponse;
 
+import io.fabric8.gateway.CallDetailRecord;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +58,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
 
     @Override
     public void handle(final HttpServerRequest request) {
+    	long callStart = System.nanoTime();
         String uri = request.uri();
         String uri2 = null;
         if (!uri.endsWith("/")) {
@@ -127,6 +132,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                     }
 
                     LOG.info("Proxying request " + uri + " to service path: " + servicePath + " on service: " + proxyServiceUrl + " reverseServiceUrl: " + reverseServiceUrl);
+                    final HttpClient finalClient = client;
                     Handler<HttpClientResponse> responseHandler = new Handler<HttpClientResponse>() {
                         public void handle(HttpClientResponse clientResponse) {
                             if (LOG.isDebugEnabled()) {
@@ -146,6 +152,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                             clientResponse.endHandler(new VoidHandler() {
                                 public void handle() {
                                     request.response().end();
+                                    finalClient.close();
                                 }
                             });
                         }
@@ -181,8 +188,12 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                     request.response().close();
                 }
             }
+            CallDetailRecord cdr = new CallDetailRecord(System.nanoTime() - callStart, null);
+            httpGateway.addCallDetailRecord(cdr);
         } catch (Throwable e) {
             LOG.error("Caught: " + e, e);
+            CallDetailRecord cdr = new CallDetailRecord(System.nanoTime() - callStart, new Date() + ":" + e.getMessage());
+            httpGateway.addCallDetailRecord(cdr);
             request.response().setStatusCode(404);
             StringWriter buffer = new StringWriter();
             e.printStackTrace(new PrintWriter(buffer));

@@ -1,0 +1,6 @@
+The command `container-info` has more details about the container, such as SSH, JMX, and network address information.
+
+In case an exception occurred during provisioning a container, then the full exception details can be seen using the `container-info` command.
+
+Example:
+fabric:container-info <container name>

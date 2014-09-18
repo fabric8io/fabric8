@@ -8,6 +8,7 @@
 
 * <a href="developer.md">Developer Workflow</a>
 * <a href="mavenPlugin.md">Maven Plugin</a>
+* <a href="migration.md">Migration</a>
 
 ### Architecture
 
@@ -16,10 +17,15 @@
 * <a href="agent.md">Agent</a>
 * <a href="git.md">Git</a>
 * <a href="mavenProxy.md">Maven Proxy</a>
-* <a href="cloudContainers.md">Cloud Containers</a>
-* <a href="docker.md">Docker</a>
+
+### Containers
+
 * <a href="microServices.md">Micro Services</a>
+* <a href="javaContainer.md">Java Container</a>
+* <a href="springBootContainer.md">Spring Boot Container</a>
+* <a href="docker.md">Docker</a>
 * <a href="sshContainers.md">SSH Containers</a>
+* <a href="cloudContainers.md">Cloud Containers</a>
 
 ### Additional Features
 
@@ -40,9 +46,22 @@
 
 ### Using Apache Camel
 
-* <a href="camelFabric.md">Camel Fabric</a>
+* <a href="dataTransform.md">Data Transform</a>
+
+#### Endpoints
+
+* <a href="camelEndpointAmq.md">amq:</a>
+* <a href="camelEndpointFabric.md">fabric:</a>
+* <a href="camelEndpointMaster.md">master:</a>
 
 ### Using Apache CXF
 
 * <a href="cxfFabric.md">CXF Fabric</a>
 
+### Using Spring
+
+* <a href="spring.md">Spring framework</a>
+
+### Reference
+
+* <a href="FAQ.md">FAQ</a>

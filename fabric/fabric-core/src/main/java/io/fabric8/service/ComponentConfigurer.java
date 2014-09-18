@@ -15,34 +15,36 @@
  */
 package io.fabric8.service;
 
-import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.api.scr.support.ConfigInjection;
-import io.fabric8.common.util.Strings;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.jboss.gravia.runtime.Runtime;
+import org.jboss.gravia.runtime.spi.CompositePropertiesProvider;
+import org.jboss.gravia.runtime.spi.EnvPropertiesProvider;
+import org.jboss.gravia.runtime.spi.MapPropertiesProvider;
+import org.jboss.gravia.runtime.spi.PropertiesProvider;
+import org.jboss.gravia.runtime.spi.SubstitutionPropertiesProvider;
+import org.jboss.gravia.runtime.spi.SystemPropertiesProvider;
+import org.jboss.gravia.utils.IllegalStateAssertion;
 
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Component(immediate = true)
 @Service(Configurer.class)
 public class ComponentConfigurer extends AbstractComponent implements Configurer {
 
-    private static final String ENV_VAR_PREFIX = "FABRIC8_";
-    private static final String REPLACE_PATTERN = "-|\\.";
-    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([a-zA-Z0-9\\.\\-]+)}");
-    private static final String BOX_FORMAT = "\\$\\{%s\\}";
-
-    @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
-    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
+    @Reference(referenceInterface = Runtime.class)
+    private ValidatingReference<Runtime> runtime = new ValidatingReference<>();
 
     @Activate
     void activate() {
@@ -54,49 +56,59 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
         deactivateComponent();
     }
 
-
-    void bindRuntimeProperties(RuntimeProperties service) {
-        this.runtimeProperties.bind(service);
-    }
-
-    void unbindRuntimeProperties(RuntimeProperties service) {
-        this.runtimeProperties.unbind(service);
+    @Override
+    public <T> Map<String, ?> configure(final Dictionary<String, ?> configuration, T target, String... ignorePrefix) throws Exception {
+        assertValid();
+        Map<String, Object> mapConfiguration = new HashMap<>();
+        for (Enumeration<String> keys = configuration.keys(); keys.hasMoreElements();) {
+            String key = keys.nextElement();
+            mapConfiguration.put(key, configuration.get(key));
+        }
+        return configure(mapConfiguration, target, ignorePrefix);
     }
 
     @Override
-    public <T> void configure(Map<String, ?> configuration, T target) throws Exception {
+    public <T> Map<String, ?> configure(final Map<String, ?> configuration, T target, String... ignorePrefix) throws Exception {
         assertValid();
-        final RuntimeProperties properties = runtimeProperties.get();
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
+        final Runtime runtime = this.runtime.get();
 
+        final PropertiesProvider runtimeProperties = new PropertiesProvider() {
+            @Override
+            public Object getProperty(String key) {
+                return runtime.getProperty(key);
+            }
+
+            @Override
+            public Object getRequiredProperty(String key) {
+                return runtime.getRequiredProperty(key);
+            }
+
+            @Override
+            public Object getProperty(String key, Object defaultValue) {
+                return runtime.getProperty(key, defaultValue);
+            }
+        };
+
+        final PropertiesProvider configurationProvider = new MapPropertiesProvider((Map<String, Object>) configuration);
+        final PropertiesProvider[] propertiesProviders = new PropertiesProvider[]{configurationProvider, runtimeProperties};
+
+        PropertiesProvider provider = new SubstitutionPropertiesProvider(propertiesProviders);
 
         for (Map.Entry<String, ?> entry : configuration.entrySet()) {
             String key = entry.getKey();
-            Object value = entry.getValue();
-            if (value.getClass().isArray()) {
-                //do nothing
-            } else if (value instanceof String) {
-                String substitutedValue = substitute((String) value, properties);
-                //We don't want to inject blanks. If substitution fails, do not inject.
-                if (Strings.isNotBlank(substitutedValue)) {
-                    result.put(key, substitutedValue);
-                }
-            }
+            Object value = provider.getProperty(key);
+            result.put(key, value);
         }
-        ConfigInjection.applyConfiguration(result, target);
+        ConfigInjection.applyConfiguration(result, target, ignorePrefix);
+        return result;
     }
 
+    void bindRuntime(Runtime service) {
+        runtime.bind(service);
+    }
 
-    static String substitute(String key, RuntimeProperties properties) {
-        String result = key;
-        Matcher matcher = PLACEHOLDER_PATTERN.matcher(key);
-        while (matcher.find()) {
-            String name = matcher.group(1);
-            String toReplace = String.format(BOX_FORMAT, name);
-            String replacement = properties.getProperty(name);
-            replacement = Strings.isNotBlank(replacement) ? replacement : "";
-            result = result.replaceAll(toReplace, replacement);
-        }
-        return result;
+    void unbindRuntime(Runtime service) {
+        runtime.unbind(service);
     }
 }

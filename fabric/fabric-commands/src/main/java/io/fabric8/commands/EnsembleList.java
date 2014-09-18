@@ -35,10 +35,10 @@ import org.apache.felix.service.command.Function;
         @Property(name = "osgi.command.scope", value = EnsembleList.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = EnsembleList.FUNCTION_VALUE)
 })
-public final class EnsembleList extends AbstractCommandComponent {
+public class EnsembleList extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "ensemble-list";
+    public static final String FUNCTION_VALUE = "ensemble-list";
     public static final String DESCRIPTION = "List the containers in the current fabric ensemble (ZooKeeper ensemble)";
 
     @Reference(referenceInterface = ZooKeeperClusterService.class)

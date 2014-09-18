@@ -20,7 +20,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.elasticsearch.Version;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.junit.Test;
@@ -33,7 +34,7 @@ public class NodeJsonTest {
     public void testJson() throws Exception {
         Map<String, String> attr = new HashMap<String, String>();
         attr.put("key", "value");
-        DiscoveryNode n = new DiscoveryNode("thename", "theid", new InetSocketTransportAddress("thehost", 3234), attr);
+        DiscoveryNode n = new DiscoveryNode("thename", "theid", new InetSocketTransportAddress("thehost", 3234), attr, Version.CURRENT);
         FabricDiscovery.ESNode node = new FabricDiscovery.ESNode("thecluster", n, false);
 
         byte[] data = encode(node);

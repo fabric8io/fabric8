@@ -17,6 +17,7 @@ package io.fabric8.commands;
 
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.boot.commands.support.FabricCommand;
 import io.fabric8.commands.support.ContainerUpgradeSupport;
@@ -41,10 +42,12 @@ public final class ContainerRollbackAction extends AbstractAction {
     @Argument(index = 1, name = "container", description = "The list of containers to roll back. An empty list implies the current container.", required = false, multiValued = true)
     private List<String> containerIds;
 
-    protected final FabricService fabricService;
+    private final FabricService fabricService;
+    private final ProfileService profileService;
 
     ContainerRollbackAction(FabricService fabricService) {
         this.fabricService = fabricService;
+        this.profileService = fabricService.adapt(ProfileService.class);
     }
 
     @Override
@@ -52,7 +55,7 @@ public final class ContainerRollbackAction extends AbstractAction {
         FabricValidations.validateContainerNames(containerIds);
 
         // check and validate version
-        Version version = fabricService.getVersion(this.version);
+        Version version = profileService.getRequiredVersion(this.version);
 
         if (containerIds == null || containerIds.isEmpty()) {
             if (all) {
@@ -77,8 +80,8 @@ public final class ContainerRollbackAction extends AbstractAction {
             // check first that all can rollback
             int num = ContainerUpgradeSupport.canRollback(version, container);
             if (num < 0) {
-                throw new IllegalArgumentException("Container " + container.getId() + " has already lower version " + container.getVersion()
-                        + " than the requested version " + version + " to rollback.");
+                throw new IllegalArgumentException("Container " + container.getId() + " has already lower version " + container.getVersion().getId()
+                        + " than the requested version " + version.getId() + " to rollback.");
             } else if (num == 0) {
                 // same version
                 same.add(container);
@@ -90,7 +93,7 @@ public final class ContainerRollbackAction extends AbstractAction {
 
         // report same version
         for (Container container : same) {
-            System.out.println("Container " + container.getId() + " is already version " + version);
+            System.out.println("Container " + container.getId() + " is already version " + version.getId());
         }
 
         // report and do rollbacks
@@ -98,13 +101,13 @@ public final class ContainerRollbackAction extends AbstractAction {
             Version oldVersion = container.getVersion();
             // rollback version first
             container.setVersion(version);
-            log.debug("Rolled back container {} from {} to {}", new Object[]{container, oldVersion, version});
-            System.out.println("Rolled back container " + container.getId() + " from version " + oldVersion + " to " + version);
+            log.info("Rolled back container {} from {} to {}", new Object[]{container.getId(), oldVersion.getId(), version.getId()});
+            System.out.println("Rolled back container " + container.getId() + " from version " + oldVersion.getId() + " to " + version.getId());
         }
 
 		if (all) {
-			fabricService.setDefaultVersion(version);
-			System.out.println("Changed default version to " + version);
+			fabricService.setDefaultVersionId(version.getId());
+			System.out.println("Changed default version to " + version.getId());
 		}
 
         return null;

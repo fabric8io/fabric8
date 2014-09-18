@@ -20,12 +20,19 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * Allows the requirements of a profile to be defined so that we can do automatic provisioning,
  * can ensure that required services stay running and can provide health checks
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FabricRequirements {
+    
     private List<ProfileRequirements> profileRequirements = new ArrayList<ProfileRequirements>();
+    private SshConfiguration sshConfiguration;
+    private DockerConfiguration dockerConfiguration;
     private String version;
 
     public FabricRequirements() {
@@ -64,6 +71,41 @@ public class FabricRequirements {
         this.version = version;
     }
 
+    public SshConfiguration getSshConfiguration() {
+        return sshConfiguration;
+    }
+
+    public void setSshConfiguration(SshConfiguration sshConfiguration) {
+        this.sshConfiguration = sshConfiguration;
+    }
+
+    public DockerConfiguration getDockerConfiguration() {
+        return dockerConfiguration;
+    }
+
+    public void setDockerConfiguration(DockerConfiguration dockerConfiguration) {
+        this.dockerConfiguration = dockerConfiguration;
+    }
+
+    @JsonIgnore
+    public List<SshHostConfiguration> getSshHosts() {
+        if (sshConfiguration != null) {
+            return sshConfiguration.getHosts();
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+
+    @JsonIgnore
+    public List<DockerHostConfiguration> getDockerHosts() {
+        if (dockerConfiguration != null) {
+            return dockerConfiguration.getHosts();
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
     /**
      * Returns or creates a new {@link ProfileRequirements} for the given profile id
      */
@@ -100,7 +142,7 @@ public class FabricRequirements {
         sortProfilesRequirements();
     }
 
-    protected void sortProfilesRequirements() {
+    public void sortProfilesRequirements() {
         Collections.sort(profileRequirements);
     }
 
@@ -125,6 +167,48 @@ public class FabricRequirements {
             return profileRequirement.hasMinimumInstances();
         }
         return false;
+    }
+
+
+
+    // Fluid API to make constructing requirements easier
+    //-------------------------------------------------------------------------
+
+    /**
+     * Looks up and lazily creates if required a SSH host configuration for the given host alias.
+     * The host name will be defaulted to the same hostName value for cases when the alias is the same as the actual host name
+     */
+    public SshHostConfiguration sshHost(String hostName) {
+        SshConfiguration config = getSshConfiguration();
+        if (config == null) {
+            config = new SshConfiguration();
+            setSshConfiguration(config);
+        }
+        List<SshHostConfiguration> hosts = config.getHosts();
+        if (hosts == null) {
+            hosts = new ArrayList<>();
+            config.setHosts(hosts);
+        }
+        return config.host(hostName);
+    }
+
+    /**
+     * Returns the requirements for the given profile; lazily creating requirements if none exist yet.
+     */
+    public ProfileRequirements profile(String profileId) {
+        return getOrCreateProfileRequirement(profileId);
+    }
+
+    /**
+     * Returns the ssh configuration; lazily creating one if it does not exist yet
+     */
+    public SshConfiguration sshConfiguration() {
+        SshConfiguration answer = getSshConfiguration();
+        if (answer == null) {
+            answer = new SshConfiguration();
+            setSshConfiguration(answer);
+        }
+        return answer;
     }
 
 }

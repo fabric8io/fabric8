@@ -353,10 +353,12 @@ public class ServiceImpl implements Service {
     }
 
     Map<String, Result> install(final Collection<Patch> patches, boolean simulate, boolean synchronous) {
+        checkPrerequisites(patches);
         try {
             // Compute individual patch results
             final Map<String, Result> results = new LinkedHashMap<String, Result>();
             final Map<Bundle, String> toUpdate = new HashMap<Bundle, String>();
+            final BundleVersionHistory history = createBundleVersionHistory();
             Map<String, BundleUpdate> allUpdates = new HashMap<String, BundleUpdate>();
             for (Patch patch : patches) {
                 String startup = readFully(new File(System.getProperty("karaf.base"), "etc/startup.properties"));
@@ -393,7 +395,7 @@ public class ServiceImpl implements Service {
                         for (Bundle bundle : allBundles) {
                             Version oldV = bundle.getVersion();
                             if (bundle.getBundleId() != 0 && stripSymbolicName(sn).equals(stripSymbolicName(bundle.getSymbolicName())) && range.contains(oldV)) {
-                                String location = bundle.getLocation();
+                                String location = history.getLocation(bundle);
                                 BundleUpdate update = new BundleUpdateImpl(sn, v.toString(), url, oldV.toString(), location);
                                 updates.add(update);
                                 // Merge result
@@ -666,6 +668,13 @@ public class ServiceImpl implements Service {
         return result;
     }
 
+    /*
+     * Create a bundle version history based on the information in the .patch and .patch.result files
+     */
+    protected BundleVersionHistory createBundleVersionHistory() {
+        return new BundleVersionHistory(load());
+    }
+
     /**
      * Strips symbolic name from directives.
      * @param symbolicName
@@ -677,6 +686,80 @@ public class ServiceImpl implements Service {
             return m.group(1);
         } else {
             return symbolicName;
+        }
+    }
+
+    /**
+     * Check if the requirements for the specified patch have been installed
+     * @param patch the patch to check
+     * @throws PatchException if the requirements for the patch are missing or not yet installed
+     */
+    protected void checkPrerequisites(Patch patch) throws PatchException {
+        for (String requirement : patch.getRequirements()) {
+            Patch required = getPatch(requirement);
+            if (required == null) {
+                throw new PatchException(String.format("Required patch '%s' is missing", requirement));
+            }
+            if (!required.isInstalled()) {
+                throw new PatchException(String.format("Required patch '%s' is not installed", requirement));
+            }
+        }
+    }
+
+    /**
+     * Check if the requirements for all specified patches have been installed
+     * @param patches the set of patches to check
+     * @throws io.fabric8.patch.PatchException if at least one of the patches has missing requirements
+     */
+    protected void checkPrerequisites(Collection<Patch> patches) throws PatchException {
+        for (Patch patch : patches) {
+            checkPrerequisites(patch);
+        }
+    }
+
+    /**
+     * Contains the history of bundle versions that have been applied through the patching mechanism
+     */
+    protected static final class BundleVersionHistory {
+
+        private Map<String, Map<String, String>> bundleVersions = new HashMap<String, Map<String, String>>();
+
+        public BundleVersionHistory(Map<String, Patch> patches) {
+            super();
+            for (Map.Entry<String, Patch> patch : patches.entrySet()) {
+                Result result = patch.getValue().getResult();
+                if (result != null) {
+                    for (BundleUpdate update : result.getUpdates()) {
+                        String symbolicName = stripSymbolicName(update.getSymbolicName());
+                        Map<String, String> versions = bundleVersions.get(symbolicName);
+                        if (versions == null) {
+                            versions = new HashMap<String, String>();
+                            bundleVersions.put(symbolicName, versions);
+                        }
+                        versions.put(update.getNewVersion(), update.getNewLocation());
+                    }
+                }
+            }
+        }
+
+        /**
+         * Get the bundle location for a given bundle version.  If this bundle version was not installed through a patch,
+         * this methods will return the original bundle location.
+         *
+         * @param bundle the bundle
+         * @return the location for this bundle version
+         */
+        protected String getLocation(Bundle bundle) {
+            String symbolicName = stripSymbolicName(bundle.getSymbolicName());
+            Map<String, String> versions = bundleVersions.get(symbolicName);
+            String location = null;
+            if (versions != null) {
+                location = versions.get(bundle.getVersion().toString());
+            }
+            if (location == null) {
+                location = bundle.getLocation();
+            }
+            return location;
         }
     }
 }

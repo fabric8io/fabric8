@@ -22,7 +22,7 @@
     <parent>
         <artifactId>fabric-project</artifactId>
         <groupId>io.fabric8</groupId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-api</artifactId>
@@ -32,8 +32,12 @@
 
     <properties>
         <fuse.osgi.import>
-            org.codehaus.jackson.annotate.*,
-            org.osgi.framework, 
+            com.fasterxml.jackson.annotation.*,
+            com.google.common.*,
+            org.jboss.gravia.utils,
+            org.jboss.gravia.runtime,
+            org.osgi.framework,
+            org.osgi.service.metatype, 
             org.osgi.util.tracker,
             org.slf4j,
             javax.xml.parsers,
@@ -46,11 +50,29 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-runtime-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        
         <!-- Provided Dependencies -->
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-asl</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-runtime-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -62,16 +84,38 @@
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.enterprise</artifactId>
+            <scope>provided</scope>
+        </dependency>
         
         <!-- Test Dependencies -->
+	    <dependency>
+	        <groupId>org.apache.felix</groupId>
+	        <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <scope>test</scope>
+	    </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.hawt</groupId>
+            <artifactId>hawtio-json-schema-mbean</artifactId>
+            <version>${hawtio-version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>

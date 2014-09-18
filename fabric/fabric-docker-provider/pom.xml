@@ -22,7 +22,7 @@
     <parent>
         <artifactId>fabric-project</artifactId>
         <groupId>io.fabric8</groupId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -36,6 +36,7 @@
             io.fabric8.docker.provider.commands;-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
+          org.osgi.service.event*;resolution:=optional,
           io.fabric8.docker.api*,
           <!--
                 CXF version
@@ -47,25 +48,34 @@
           -->
           <!-- resteasy version -->
           !javax.ws.rs*,
+
+          <!-- avoid unnecessary stuff from plexus.archiver -->
+          !org.codehaus.classworlds*,
+          !junit.framework*,
+          !org.apache.commons.compress.compressors.bzip2*,
+          !hidden.org.codehaus.plexus*,
+          !org.apache.velocity*,
+          !org.apache.xbean*,
+
           *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
+          <!-- plexus.archiver for TarArchive -->
+          org.codehaus.plexus.*;-split-package:=first,
+          org.apache.commons.compress.*;-split-package:=first,
+          org.tukaani.*;-split-package:=first,
+
           io.fabric8.utils.features;-split-package:=first,
           io.fabric8.utils;-split-package:=first,
           io.fabric8.utils.shell;-split-package:=first,
           org.apache.karaf.features.*;-split-package:=first,
           org.apache.karaf.util.collections.*;-split-package:=first,
+          org.apache.karaf.util;-split-package:=first,
           org.apache.felix.utils.*;-split-package:=first,
           org.ops4j.pax.url.maven.commons.*;-split-package:=first,
           org.ops4j.util.collections.*;-split-package:=first,
           org.ops4j.util.xml.*;-split-package:=first,
         </fuse.osgi.private.pkg>
-        <fuse.osgi.service.component>
-            <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/io.fabric8.docker.provider.commands.ContainerCreateDocker.xml,
-            OSGI-INF/io.fabric8.docker.provider.DockerApiRegistry.xml,
-            OSGI-INF/io.fabric8.docker.provider.DockerContainerProvider.xml
-        </fuse.osgi.service.component>
     </properties>
 
     <dependencies>
@@ -94,6 +104,13 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+          <groupId>org.codehaus.plexus</groupId>
+          <artifactId>plexus-archiver</artifactId>
+          <version>2.4.1</version>
+        </dependency>
+
+
+      <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-project-deployer</artifactId>
             <version>${project.version}</version>

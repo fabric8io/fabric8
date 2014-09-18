@@ -32,11 +32,13 @@ import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreateRemoteContainerOptions;
 import io.fabric8.api.FabricConstants;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.common.util.ObjectUtils;
 import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;
-import io.fabric8.zookeeper.ZkDefs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class ContainerProviderUtils {
     public static final String FAILURE_PREFIX = "Command Failed:";
@@ -48,6 +50,7 @@ public final class ContainerProviderUtils {
     private static final String FIRST_FABRIC_DIRECTORY = "ls -l | grep fabric8-karaf | grep ^d | awk '{ print $NF }' | sort -n | head -1";
 
     private static final String RUN_FUNCTION = loadFunction("run.sh");
+    private static final String SUDO_N_FUNCTION = loadFunction("sudo_n.sh");
     private static final String DOWNLOAD_FUNCTION = loadFunction("download.sh");
     private static final String MAVEN_DOWNLOAD_FUNCTION = loadFunction("maven_download.sh");
     private static final String INSTALL_JDK = loadFunction("install_open_jdk.sh");
@@ -66,11 +69,19 @@ public final class ContainerProviderUtils {
 	private static final String FIND_FREE_PORT = loadFunction("find_free_port.sh");
     private static final String WAIT_FOR_PORT = loadFunction("wait_for_port.sh");
     private static final String EXTRACT_ZIP = loadFunction("extract_zip.sh");
+    private static final String GENERATE_SSH_KEYS = loadFunction("generate_ssh_keys.sh");
 
     public static final int DEFAULT_SSH_PORT = 8101;
     public static final int DEFAULT_RMI_SERVER_PORT = 44444;
     public static final int DEFAULT_RMI_REGISTRY_PORT = 1099;
+    public static final String DEFAULT_JMX_SERVER_URL = "";
 	public static final int DEFAULT_HTTP_PORT = 8181;
+
+    private static final String DISTNAME_PATTERN = "fabric8-%s-%s.zip";
+    private static final String SYSTEM_DIST = "system/io/fabric8/fabric8-%s/%s";
+
+    protected transient static Logger logger = LoggerFactory.getLogger(ContainerProviderUtils.class);
+
 
     private static final String[] FALLBACK_REPOS = {"https://repo.fusesource.com/nexus/content/groups/public/", "https://repo.fusesource.com/nexus/content/groups/ea/", "https://repo.fusesource.com/nexus/content/repositories/snapshots/"};
 
@@ -86,8 +97,15 @@ public final class ContainerProviderUtils {
      * @throws MalformedURLException
      */
     public static String buildInstallAndStartScript(String name, CreateRemoteContainerOptions options) throws MalformedURLException, URISyntaxException {
+        String distFilename = String.format(DISTNAME_PATTERN, "karaf", FabricConstants.FABRIC_VERSION);
+        String systemDistPath = String.format(SYSTEM_DIST, "karaf", FabricConstants.FABRIC_VERSION);
+
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
+        if(logger.isTraceEnabled()) {
+            sb.append("set -x ").append("\n");
+            sb.append("export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }' ").append("\n");
+        }
         //Export environmental variables
         if (options.getEnvironmentalVariables() != null && !options.getEnvironmentalVariables().isEmpty()) {
             for (Map.Entry<String, String> entry : options.getEnvironmentalVariables().entrySet()) {
@@ -96,6 +114,7 @@ public final class ContainerProviderUtils {
         }
 
         sb.append(RUN_FUNCTION).append("\n");
+        sb.append(SUDO_N_FUNCTION).append("\n");
         sb.append(DOWNLOAD_FUNCTION).append("\n");
         sb.append(MAVEN_DOWNLOAD_FUNCTION).append("\n");
         sb.append(UPDATE_PKGS).append("\n");
@@ -113,6 +132,7 @@ public final class ContainerProviderUtils {
 		sb.append(FIND_FREE_PORT).append("\n");
         sb.append(WAIT_FOR_PORT).append("\n");
         sb.append(EXTRACT_ZIP).append("\n");
+        sb.append(GENERATE_SSH_KEYS).append("\n");
         sb.append("run mkdir -p ").append(options.getPath()).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");
         sb.append("run mkdir -p ").append(name).append("\n");
@@ -128,8 +148,16 @@ public final class ContainerProviderUtils {
             sb.append("install_telnet").append("\n");
         }
         sb.append("validate_requirements").append("\n");
-        extractZipIntoDirectory(sb, options.getProxyUri(), "io.fabric8", "fabric8-karaf", FabricConstants.FABRIC_VERSION);
+        List<String> fallbackRepositories = new ArrayList<String>();
+        List<String> optionsRepos = options.getFallbackRepositories();
+        if (optionsRepos != null) {
+            fallbackRepositories.addAll(optionsRepos);
+        }
+        fallbackRepositories.addAll(Arrays.asList(FALLBACK_REPOS));
+        extractZipIntoDirectory(sb, options.getProxyUri(), "io.fabric8", "fabric8-karaf", FabricConstants.FABRIC_VERSION, fallbackRepositories);
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
+        sb.append("run mkdir -p ").append(systemDistPath).append("\n");
+        sb.append("run cp ../").append(distFilename).append(" ").append(systemDistPath).append("/\n");
         sb.append("run chmod +x bin/*").append("\n");
         List<String> lines = new ArrayList<String>();
         String globalResolver = options.getResolver() != null ? options.getResolver() : ZkDefs.DEFAULT_RESOLVER;
@@ -141,22 +169,30 @@ public final class ContainerProviderUtils {
             lines.add(ZkDefs.MANUAL_IP + "=" + options.getManualIp());
         }
         appendFile(sb, "etc/system.properties", lines);
-        replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name=" + name);
+        // backslash s , to handle any possible space
+        replaceLineInFile(sb, "etc/system.properties", "karaf.name\\s*=\\s*root", "karaf.name=" + name);
         for (Map.Entry<String, String> entry : options.getDataStoreProperties().entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            replacePropertyValue(sb, "etc/" + Constants.DATASTORE_TYPE_PID + ".cfg", key, value);
+            replacePropertyValue(sb, "etc/" + Constants.DATASTORE_PID + ".cfg", key, value);
         }
         //Apply port range
-		sb.append("SSH_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_SSH_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
-		sb.append("RMI_REGISTRY_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_RMI_REGISTRY_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
-		sb.append("RMI_SERVER_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_RMI_SERVER_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
-		sb.append("HTTP_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_HTTP_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
+        sb.append("BIND_ADDRESS=").append(options.getBindAddress() != null && !options.getBindAddress().isEmpty() ? options.getBindAddress() : "0.0.0.0").append("\n");
+        sb.append("SSH_PORT=").append("\"").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_SSH_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\"").append("\n");
+		sb.append("RMI_REGISTRY_PORT=").append("\"").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_RMI_REGISTRY_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\"").append("\n");
+		sb.append("RMI_SERVER_PORT=").append("\"").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_RMI_SERVER_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\"").append("\n");
+        sb.append("JMX_SERVER_URL=\"").append("service:jmx:rmi:\\/\\/${BIND_ADDRESS}:${RMI_SERVER_PORT}\\/jndi\\/rmi:\\/\\/${BIND_ADDRESS}:${RMI_REGISTRY_PORT}\\/karaf-").append(name).append("\"\n");
+		sb.append("HTTP_PORT=").append("\"").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_HTTP_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\"").append("\n");
 
-        replaceLineInFile(sb, "etc/org.apache.karaf.shell.cfg", "sshPort=" + DEFAULT_SSH_PORT, "sshPort=$SSH_PORT" );
-        replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiRegistryPort = " + DEFAULT_RMI_REGISTRY_PORT, "rmiRegistryPort=$RMI_REGISTRY_PORT");
-        replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiServerPort = " + DEFAULT_RMI_SERVER_PORT, "rmiServerPort=$RMI_SERVER_PORT");
-		replaceLineInFile(sb, "etc/org.ops4j.pax.web.cfg", String.valueOf(DEFAULT_HTTP_PORT), "$HTTP_PORT");
+
+        replacePropertyValue(sb, "etc/org.apache.karaf.shell.cfg", "sshPort" , "$SSH_PORT" );
+        replacePropertyValue(sb, "etc/org.apache.karaf.shell.cfg", "sshHost" , "$BIND_ADDRESS");
+        replacePropertyValue(sb, "etc/org.apache.karaf.management.cfg", "rmiRegistryPort", "$RMI_REGISTRY_PORT");
+        replacePropertyValue(sb, "etc/org.apache.karaf.management.cfg", "rmiServerPort", "$RMI_SERVER_PORT");
+        replacePropertyValue(sb, "etc/org.apache.karaf.management.cfg", "rmiServerHost" , "$BIND_ADDRESS");
+        replacePropertyValue(sb, "etc/org.apache.karaf.management.cfg", "rmiRegistryHost" , "$BIND_ADDRESS");
+        replacePropertyValue(sb, "etc/org.apache.karaf.management.cfg", "serviceUrl", "$JMX_SERVER_URL");
+        replacePropertyValue(sb, "etc/org.ops4j.pax.web.cfg", "org.osgi.service.http.port", "$HTTP_PORT");
 		replaceLineInFile(sb, "etc/jetty.xml", String.valueOf(DEFAULT_HTTP_PORT), "$HTTP_PORT");
         appendFile(sb, "etc/system.properties", Arrays.asList(ZkDefs.MINIMUM_PORT + "=" + options.getMinimumPort()));
         appendFile(sb, "etc/system.properties", Arrays.asList(ZkDefs.MAXIMUM_PORT + "=" + options.getMaximumPort()));
@@ -184,7 +220,7 @@ public final class ContainerProviderUtils {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.password.encode = " + zkPasswordEncode));
             appendFile(sb, "etc/system.properties", Arrays.asList(CreateEnsembleOptions.ENSEMBLE_AUTOSTART + "=true"));
             appendFile(sb, "etc/system.properties", Arrays.asList(CreateEnsembleOptions.AGENT_AUTOSTART + "=true"));
-            appendFile(sb, "etc/system.properties", Arrays.asList(CreateEnsembleOptions.PROFILES_AUTOIMPORT_PATH + "=${karaf.home}/fabric/import/"));
+            appendFile(sb, "etc/system.properties", Arrays.asList(CreateEnsembleOptions.PROFILES_AUTOIMPORT_PATH + "=${runtime.home}/fabric/import/"));
             if (options.getUsers() != null) {
                 appendFile(sb, "etc/users.properties",  Arrays.asList("\n"));
                 for (Map.Entry<String, String> entry : options.getUsers().entrySet()) {
@@ -214,6 +250,7 @@ public final class ContainerProviderUtils {
             }
         }
 
+        sb.append("generate_ssh_keys").append("\n");
         sb.append("configure_hostnames").append(" ").append(options.getHostNameContext()).append("\n");
 
         String jvmOptions = options.getJvmOpts();
@@ -248,6 +285,7 @@ public final class ContainerProviderUtils {
             }
         }
         sb.append(RUN_FUNCTION).append("\n");
+        sb.append(SUDO_N_FUNCTION).append("\n");
         sb.append(KARAF_CHECK).append("\n");
         sb.append(CONFIGURE_HOSTNAMES).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");
@@ -286,6 +324,7 @@ public final class ContainerProviderUtils {
             }
         }
         sb.append(RUN_FUNCTION).append("\n");
+        sb.append(SUDO_N_FUNCTION).append("\n");
         sb.append(KARAF_KILL).append("\n");
 
         sb.append("run cd ").append(options.getPath()).append("\n");
@@ -312,6 +351,7 @@ public final class ContainerProviderUtils {
             }
         }
         sb.append(RUN_FUNCTION).append("\n");
+        sb.append(SUDO_N_FUNCTION).append("\n");
         sb.append(KARAF_KILL).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");
         sb.append("run cd ").append(name).append("\n");
@@ -353,22 +393,23 @@ public final class ContainerProviderUtils {
         sb.append(marker).append("\n");
     }
 
-    private static void extractZipIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version) throws URISyntaxException {
+    private static void extractZipIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version, Iterable<String> fallbackRepos) throws URISyntaxException {
         String file = artifactId + "-" + version + ".zip";
+        List<String> allRepos = new ArrayList<>();
         //TODO: There may be cases where this is not good enough
         if (proxy != null) {
             String baseProxyURL = (!proxy.toString().endsWith("/")) ? proxy.toString() + "/" : proxy.toString();
-
-
-            sb.append("maven_download ").append(baseProxyURL).append(" ")
-                    .append(groupId).append(" ")
-                    .append(artifactId).append(" ")
-                    .append(version).append(" ")
-                    .append("zip").append("\n");
+            allRepos.add(baseProxyURL);
         }
 
-        for (String fallbackRepo : FALLBACK_REPOS) {
-            sb.append("if [ ! -f " + file + " ] ; then ").append("maven_download ").append(fallbackRepo).append(" ")
+        for (String fallbackRepo : fallbackRepos) {
+            allRepos.add(fallbackRepo);
+        }
+
+        sb.append("cp /tmp/" + file + " " + file).append("\n");
+
+        for (String repo : allRepos) {
+            sb.append("if [ ! -f " + file + " ] && [ ! -s " + file + "] ; then ").append("maven_download ").append(repo).append(" ")
                     .append(groupId).append(" ")
                     .append(artifactId).append(" ")
                     .append(version).append(" ")

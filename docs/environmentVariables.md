@@ -6,7 +6,7 @@ Fabric8 supports a number of environment variables which make it easy to configu
  * join an existing fabric
  * startup in stand alone mode (no fabric)
 
-The use of environment variables is particularly useful for when you are using Fabric8 with some kind of cloud technologies like [Docker](http://fabric8.io/#/site/book/doc/index.md?chapter=docker_md), [OpenShift](https://www.openshift.com/quickstarts/jboss-fuse-61), [OpenStack](http://fabric8.io/#/site/book/doc/index.md?chapter=cloudContainers_md), [EC2](http://fabric8.io/#/site/book/doc/index.md?chapter=cloudContainers_md) etc.
+The use of environment variables is particularly useful for when you are using Fabric8 with some kind of cloud technologies like [Docker](docker.html), [OpenShift](https://www.openshift.com/quickstarts/jboss-fuse-61), [OpenStack](cloudContainers.html), [EC2](cloudContainers.html) etc.
 
 i.e. you can use the same distribution, [docker container image](https://github.com/fabric8io/fabric8-docker#fabric8-docker) or virtual machine image and change how you wish the container to behave just via environment variables.
 
@@ -50,7 +50,11 @@ i.e. you can use the same distribution, [docker container image](https://github.
 <td>What network address should the container bind to.</td>
 </tr>
 <tr>
-<td>FABRIC8_KARAF_NAME</td>
+<td>FABRIC8_RUNTIME_ID</td>
 <td>The default container name to use.</td>
+</tr>
+<tr>
+<td>FABRIC8_KARAF_NAME</td>
+<td>The default container name to use (now <b>deprecated</b>, please use FABRIC8_RUNTIME_ID instead).</td>
 </tr>
 </table>

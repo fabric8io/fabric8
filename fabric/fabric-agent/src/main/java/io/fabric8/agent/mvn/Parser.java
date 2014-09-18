@@ -113,9 +113,18 @@ public class Parser {
      */
     public static Parser parsePathWithSchemePrefix(String location) throws MalformedURLException {
         String withoutMvnPrefix = location;
-        int idx = location.lastIndexOf(':');
-        if (idx > 0) {
-            withoutMvnPrefix = location.substring(idx + 1);
+        boolean done = false;
+        while (!done) {
+            int idx = withoutMvnPrefix.indexOf(':');
+            if (idx >= 0) {
+                withoutMvnPrefix = withoutMvnPrefix.substring(idx + 1);
+            }
+            // there may be a inlined maven repo location (assuming http), so we are done if we find that
+            if (withoutMvnPrefix.startsWith("http:") || withoutMvnPrefix.startsWith("https:")) {
+                done = true;
+            } else if (withoutMvnPrefix.indexOf(':') < 0) {
+                done = true;
+            }
         }
         return new Parser(withoutMvnPrefix);
     }
@@ -138,8 +147,10 @@ public class Parser {
         }
         if (path.contains(REPOSITORY_SEPARATOR)) {
             int pos = path.lastIndexOf(REPOSITORY_SEPARATOR);
-            parseArtifactPart(path.substring(pos + 1));
-            m_repositoryURL = new MavenRepositoryURL(path.substring(0, pos) + "@snapshots");
+            String artifact = path.substring(pos + 1);
+            String url = path.substring(0, pos);
+            parseArtifactPart(artifact);
+            m_repositoryURL = new MavenRepositoryURL(url);
         } else {
             parseArtifactPart(path);
         }

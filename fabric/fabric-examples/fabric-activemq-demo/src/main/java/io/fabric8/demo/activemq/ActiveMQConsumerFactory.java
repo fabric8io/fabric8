@@ -15,22 +15,28 @@
  */
 package io.fabric8.demo.activemq;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.felix.scr.annotations.*;
+import java.util.Map;
+import javax.jms.JMSException;
+
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.mq.ActiveMQService;
 import io.fabric8.mq.ConsumerThread;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jms.JMSException;
-
-import java.util.Map;
 
 @Component(name = "io.fabric8.example.mq.consumer", label = "ActiveMQ Consumer Factory", configurationFactory = true, immediate = true, metatype = true)
 public class ActiveMQConsumerFactory extends AbstractComponent {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActiveMQProducerFactory.class);
+
+    public static final String DEFAULT_DESTINATION = "example";
+
     ConsumerThread consumer;
     ActiveMQService consumerService;
     @Reference(referenceInterface = ActiveMQConnectionFactory.class)
@@ -55,18 +61,24 @@ public class ActiveMQConsumerFactory extends AbstractComponent {
     }
 
     protected void deactivateInternal() {
+        LOG.info("Stopping consumer");
         if (consumer != null) {
             consumer.setRunning(false);
             consumerService.stop();
         }
+        LOG.info("Consumer stopped");
     }
 
     private void updateInternal(Map<String, ?> configuration) throws Exception {
         try {
+            LOG.info("Starting consumer");
             consumerService = new ActiveMQService(connectionFactory);
             consumerService.setMaxAttempts(10);
             consumerService.start();
             String destination = (String) configuration.get("destination");
+            if (destination == null) {
+                destination = DEFAULT_DESTINATION;
+            }
             consumer = new ConsumerThread(consumerService, destination);
             consumer.start();
             LOG.info("Consumer started");

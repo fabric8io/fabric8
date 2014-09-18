@@ -23,13 +23,14 @@ import io.fabric8.docker.provider.CreateDockerContainerOptions;
 import io.fabric8.utils.FabricValidations;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.shell.ShellUtils;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
 
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.List;
+
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 
 @Command(name = "container-create-docker", scope = "fabric", description = "Creates one or more new containers via docker", detailedDescription = "classpath:containerCreateDocker.txt")
 public class ContainerCreateDockerAction extends AbstractContainerCreateAction {
@@ -91,8 +92,7 @@ public class ContainerCreateDockerAction extends AbstractContainerCreateAction {
         .withUser(newUser, newUserPassword , newUserRole)
         .version(version)
         .profiles(getProfileNames())
-        .dataStoreProperties(getDataStoreProperties())
-        .dataStoreType(dataStoreType != null && isEnsembleServer ? dataStoreType : fabricService.getDataStore().getType());
+        .dataStoreProperties(getDataStoreProperties());
 
 
         CreateContainerMetadata<?>[] metadatas = fabricService.createContainers(builder.build());

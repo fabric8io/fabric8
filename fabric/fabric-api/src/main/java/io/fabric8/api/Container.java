@@ -24,6 +24,7 @@ public interface Container extends HasId {
     String PROVISION_SUCCESS = "success";
     String PROVISION_ERROR = "error";
     String PROVISION_FAILED = "failed";
+    String PROVISION_STOPPED = "stopped";
 
     String getType();
 
@@ -56,17 +57,28 @@ public interface Container extends HasId {
     String getJolokiaUrl();
     void setJolokiaUrl(String location);
 
+    /**
+     * Returns the debugging port text for this container or null if debugging isn't enabled
+     */
+    String getDebugPort();
+
+    void setHttpUrl(String location);
+
     boolean isManaged();
 
+    String getVersionId();
+    void setVersionId(String versionId);
+    
     Version getVersion();
     void setVersion(Version version);
 
     Long getProcessId();
 
     Profile[] getProfiles();
+    List<String> getProfileIds();
     void setProfiles(Profile[] profiles);
     void addProfiles(Profile... profiles);
-    void removeProfiles(Profile... profiles);
+    void removeProfiles(String... profileIds);
 
     Profile getOverlayProfile();
 

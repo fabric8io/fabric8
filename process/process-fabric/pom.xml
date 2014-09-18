@@ -22,7 +22,7 @@
     <parent>
         <artifactId>process-project</artifactId>
         <groupId>io.fabric8</groupId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -45,15 +45,16 @@
         <fuse.osgi.private.pkg>
             io.fabric8.boot.commands.support;-split-package:=first,
             io.fabric8.commands.support,
-            io.fabric8.agent.mvn,
-            io.fabric8.agent.download,
-            io.fabric8.agent.utils,
+            io.fabric8.agent.mvn;-split-package:=first,
+            io.fabric8.agent.download;-split-package:=first,
+            io.fabric8.agent.utils;-split-package:=first,
             io.fabric8.process.manager.utils,
             io.fabric8.utils.features;-split-package:=first,
             io.fabric8.utils.shell;-split-package:=first,
             io.fabric8.utils;-split-package:=first,
             org.apache.karaf.features.*;-split-package:=first,
             org.apache.karaf.util.collections.*;-split-package:=first,
+            org.apache.karaf.util;-split-package:=first,
             org.apache.felix.utils.*;-split-package:=first,
         </fuse.osgi.private.pkg>
     </properties>
@@ -81,13 +82,15 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fabric-agent</artifactId>
+            <artifactId>fabric-project-deployer</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.mvel</groupId>
-            <artifactId>mvel2</artifactId>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-agent</artifactId>
+            <version>${project.version}</version>
         </dependency>
+
     </dependencies>
 
 

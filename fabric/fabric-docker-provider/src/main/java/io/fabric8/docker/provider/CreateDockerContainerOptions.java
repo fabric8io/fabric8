@@ -15,19 +15,20 @@
  */
 package io.fabric8.docker.provider;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.CreateRemoteContainerOptions;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-public class CreateDockerContainerOptions extends CreateContainerBasicOptions<CreateDockerContainerOptions> implements CreateRemoteContainerOptions {
+public class CreateDockerContainerOptions extends CreateContainerBasicOptions<CreateDockerContainerOptions> implements DockerCreateOptions {
     private static final long serialVersionUID = 4489740280396972109L;
 
 
@@ -51,6 +52,8 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
         private Map<String, Integer> internalPorts = new HashMap<String, Integer>();
         @JsonProperty
         private Map<String, Integer> externalPorts = new HashMap<String, Integer>();
+        @JsonProperty
+        private List<String> fallbackRepositories = new ArrayList<String>();
 
         public Builder image(String image) {
             this.image = image;
@@ -94,6 +97,11 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
 
         public Builder externalPorts(Map<String, Integer> externalPorts) {
             this.externalPorts = externalPorts;
+            return this;
+        }
+
+        public Builder fallbackRepositories(final List<String> fallbackRepositories) {
+            this.fallbackRepositories = fallbackRepositories;
             return this;
         }
 
@@ -169,12 +177,20 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
             this.externalPorts = externalPorts;
         }
 
+        public List<String> getFallbackRepositories() {
+            return fallbackRepositories;
+        }
+
+        public void setFallbackRepositories(List<String> fallbackRepositories) {
+            this.fallbackRepositories = fallbackRepositories;
+        }
+
         public CreateDockerContainerOptions build() {
             return new CreateDockerContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                     getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(),
                     getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isWaitForProvision(), getBootstrapTimeout(), isAutoImportEnabled(), getImportPath(),
                     getUsers(), getName(), getParent(), DockerConstants.SCHEME, isEnsembleServer(), getPreferredAddress(), getSystemProperties(), getNumber(),
-                    getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(), image, cmd, entrypoint, user, workingDir, gearProfile, environmentalVariables, internalPorts, externalPorts);
+                    getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(), image, cmd, entrypoint, user, workingDir, gearProfile, environmentalVariables, internalPorts, externalPorts, fallbackRepositories);
 
         }
     }
@@ -202,9 +218,11 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
     private final Map<String, Integer> internalPorts;
     @JsonProperty
     private final Map<String, Integer> externalPorts;
+    @JsonProperty
+    private final List<String> fallbackRepositories;
 
 
-    private CreateDockerContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int getZooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, boolean clean, String image, List<String> cmd, String entrypoint, String user, String workingDir, String gearProfile, Map<String, String> environmentalVariables, Map<String, Integer> internalPorts, Map<String, Integer> externalPorts) {
+    private CreateDockerContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int getZooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, boolean clean, String image, List<String> cmd, String entrypoint, String user, String workingDir, String gearProfile, Map<String, String> environmentalVariables, Map<String, Integer> internalPorts, Map<String, Integer> externalPorts, List<String> fallbackRepositories) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, getZooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, clean);
         this.image = image;
         this.cmd = cmd;
@@ -215,6 +233,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
         this.environmentalVariables = environmentalVariables;
         this.internalPorts = internalPorts;
         this.externalPorts = externalPorts;
+        this.fallbackRepositories = fallbackRepositories;
     }
 
     @Override
@@ -223,7 +242,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
                 getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(),
                 getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isWaitForProvision(), getBootstrapTimeout(), isAutoImportEnabled(), getImportPath(),
                 getUsers(), getName(), getParent(), getProviderType(), isEnsembleServer(), getPreferredAddress(), getSystemProperties(), getNumber(),
-                getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(), image, cmd, entrypoint, user, workingDir, gearProfile, environmentalVariables, internalPorts, externalPorts);
+                getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(), image, cmd, entrypoint, user, workingDir, gearProfile, environmentalVariables, internalPorts, externalPorts, fallbackRepositories);
     }
 
     public CreateDockerContainerOptions updateManualIp(String manualip) {
@@ -232,7 +251,7 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
                 getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(),
                 getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isWaitForProvision(), getBootstrapTimeout(), isAutoImportEnabled(), getImportPath(),
                 getUsers(), getName(), getParent(), getProviderType(), isEnsembleServer(), getPreferredAddress(), getSystemProperties(), getNumber(),
-                getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(), image, cmd, entrypoint, user, workingDir, gearProfile, environmentalVariables, internalPorts, externalPorts);
+                getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), isClean(), image, cmd, entrypoint, user, workingDir, gearProfile, environmentalVariables, internalPorts, externalPorts, fallbackRepositories);
     }
 
 
@@ -247,39 +266,58 @@ public class CreateDockerContainerOptions extends CreateContainerBasicOptions<Cr
         return null;
     }
 
+    @Override
     public String getImage() {
         return image;
     }
 
+    @Override
     public List<String> getCmd() {
         return cmd;
     }
 
+    @Override
     public String getEntrypoint() {
         return entrypoint;
     }
 
+    @Override
     public String getUser() {
         return user;
     }
 
+    @Override
     public String getWorkingDir() {
         return workingDir;
     }
 
+    @Override
     public String getGearProfile() {
         return gearProfile;
     }
 
+    @Override
     public Map<String, String> getEnvironmentalVariables() {
         return environmentalVariables;
     }
 
+    @Override
+    public Boolean doUploadDistribution() {
+        return false;
+    }
+
+    @Override
     public Map<String, Integer> getInternalPorts() {
         return internalPorts;
     }
 
+    @Override
     public Map<String, Integer> getExternalPorts() {
         return externalPorts;
+    }
+
+    @Override
+    public List<String> getFallbackRepositories() {
+        return fallbackRepositories;
     }
 }

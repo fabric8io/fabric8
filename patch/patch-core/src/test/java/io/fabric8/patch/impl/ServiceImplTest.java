@@ -27,12 +27,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -40,9 +35,7 @@ import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import io.fabric8.patch.Patch;
-import io.fabric8.patch.Result;
-import io.fabric8.patch.Service;
+import io.fabric8.patch.*;
 import junit.framework.Assert;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
@@ -77,12 +70,7 @@ public class ServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
-        URL base = getClass().getClassLoader().getResource("log4j.properties");
-        try {
-            baseDir = new File(base.toURI()).getParentFile();
-        } catch(URISyntaxException e) {
-            baseDir = new File(base.getPath()).getParentFile();
-        }
+        baseDir = getDirectoryForResource("log4j.properties");
 
         URL.setURLStreamHandlerFactory(new CustomBundleURLStreamHandlerFactory());
         generateData();
@@ -193,10 +181,99 @@ public class ServiceImplTest {
 
         Patch patch = ServiceImpl.doLoad(service, getClass().getClassLoader().getResourceAsStream("test1.patch"));
         assertEquals(2, patch.getBundles().size());
+        assertTrue(patch.getRequirements().isEmpty());
     }
 
     @Test
     public void testLoadWithRanges() throws IOException {
+        ServiceImpl service = createMockServiceImpl();
+
+        Patch patch = ServiceImpl.doLoad(service, getClass().getClassLoader().getResourceAsStream("test2.patch"));
+        assertEquals(2, patch.getBundles().size());
+        assertEquals("[1.0.0,2.0.0)", patch.getVersionRange("mvn:io.fabric8.test/test1/1.0.0"));
+        assertNull(patch.getVersionRange("mvn:io.fabric8.test/test2/1.0.0"));
+        assertTrue(patch.getRequirements().isEmpty());
+    }
+
+    @Test
+    public void testLoadWithPrereqs() throws IOException {
+        ServiceImpl service = createMockServiceImpl();
+
+        Patch patch = ServiceImpl.doLoad(service, getClass().getClassLoader().getResourceAsStream("test-with-prereq.patch"));
+        assertEquals(2, patch.getBundles().size());
+        assertEquals(1, patch.getRequirements().size());
+        assertTrue(patch.getRequirements().contains("prereq1"));
+        assertNull(patch.getVersionRange("mvn:io.fabric8.test/test2/1.0.0"));
+    }
+
+    @Test
+    public void testCheckPrerequisitesMissing() {
+        ServiceImpl service = createMockServiceImpl(getDirectoryForResource("prereq/patch1.patch"));
+
+        Patch patch = service.getPatch("patch1");
+        assertNotNull(patch);
+        try {
+            service.checkPrerequisites(patch);
+            fail("Patch will missing prerequisites should not pass check");
+        } catch (PatchException e) {
+            assertTrue(e.getMessage().toLowerCase().contains("required patch 'prereq1' is missing"));
+        }
+    }
+
+    @Test
+    public void testCheckPrerequisitesNotInstalled() {
+        ServiceImpl service = createMockServiceImpl(getDirectoryForResource("prereq/patch2.patch"));
+
+        Patch patch = service.getPatch("patch2");
+        assertNotNull(patch);
+        try {
+            service.checkPrerequisites(patch);
+            fail("Patch will prerequisites that are not yet installed should not pass check");
+        } catch (PatchException e) {
+            assertTrue(e.getMessage().toLowerCase().contains("required patch 'prereq2' is not installed"));
+        }
+    }
+
+    @Test
+    public void testCheckPrerequisitesSatisfied() {
+        ServiceImpl service = createMockServiceImpl(getDirectoryForResource("prereq/patch3.patch"));
+
+        Patch patch = service.getPatch("patch3");
+        assertNotNull(patch);
+        // this should not throw a PatchException
+        service.checkPrerequisites(patch);
+    }
+
+    @Test
+    public void testCheckPrerequisitesMultiplePatches() {
+        ServiceImpl service = createMockServiceImpl(getDirectoryForResource("prereq/patch1.patch"));
+
+        Collection<Patch> patches = new LinkedList<Patch>();
+        patches.add(service.getPatch("patch3"));
+        // this should not throw a PatchException
+        service.checkPrerequisites(patches);
+
+        patches.add(service.getPatch("patch2"));
+        try {
+            service.checkPrerequisites(patches);
+            fail("Should not pass check if one of the patches is missing a requirement");
+        } catch (PatchException e) {
+            // graciously do nothing, this is OK
+        }
+
+    }
+
+    /*
+     * Create a mock patch service implementation with access to the generated data directory
+     */
+    private ServiceImpl createMockServiceImpl() {
+        return createMockServiceImpl(storage);
+    }
+
+    /*
+     * Create a mock patch service implementation with a provided patch storage location
+     */
+    private ServiceImpl createMockServiceImpl(File patches) {
         BundleContext bundleContext = createMock(BundleContext.class);
         Bundle sysBundle = createMock(Bundle.class);
         BundleContext sysBundleContext = createMock(BundleContext.class);
@@ -208,17 +285,11 @@ public class ServiceImplTest {
         expect(bundleContext.getBundle(0)).andReturn(sysBundle);
         expect(sysBundle.getBundleContext()).andReturn(sysBundleContext);
         expect(sysBundleContext.getProperty(Service.PATCH_LOCATION))
-                .andReturn(storage.toString()).anyTimes();
+                .andReturn(patches.toString()).anyTimes();
         replay(sysBundleContext, sysBundle, bundleContext, bundle);
 
-        ServiceImpl service = new ServiceImpl(bundleContext);
-
-        Patch patch = ServiceImpl.doLoad(service, getClass().getClassLoader().getResourceAsStream("test2.patch"));
-        assertEquals(2, patch.getBundles().size());
-        assertEquals("[1.0.0,2.0.0)", patch.getVersionRange("mvn:io.fabric8.test/test1/1.0.0"));
-        assertNull(patch.getVersionRange("mvn:io.fabric8.test/test2/1.0.0"));
+        return new ServiceImpl(bundleContext);
     }
-
 
     @Test
     public void testSymbolicNameStrip() {
@@ -431,6 +502,46 @@ public class ServiceImplTest {
         assertTrue(result.isSimulation());
     }
 
+    @Test
+    public void testVersionHistory() {
+        // the same bundle has been patched twice
+        PatchImpl patch1 = new PatchImpl(null, new PatchData("patch1", "First patch", null, null, null));
+        patch1.setResult(new ResultImpl(patch1, true, System.currentTimeMillis(), new LinkedList<BundleUpdate>(), null, null));
+        patch1.getResult().getUpdates().add(new BundleUpdateImpl("my-bsn", "1.1.0", "mvn:groupId/my-bsn/1.1.0",
+                "1.0.0", "mvn:groupId/my-bsn/1.0.0"));
+        PatchImpl patch2 = new PatchImpl(null, new PatchData("patch2", "Second patch", null, null, null));
+        patch2.setResult(new ResultImpl(patch1, true, System.currentTimeMillis(), new LinkedList<BundleUpdate>(), null, null));
+        patch2.getResult().getUpdates().add(new BundleUpdateImpl("my-bsn;directive1=true", "1.2.0", "mvn:groupId/my-bsn/1.2.0",
+                "1.1.0", "mvn:groupId/my-bsn/1.1.0"));
+        Map<String, Patch> patches = new HashMap<String, Patch>();
+        patches.put("patch1", patch1);
+        patches.put("patch2", patch2);
+
+        // the version history should return the correct URL, even when bundle.getLocation() does not
+        ServiceImpl.BundleVersionHistory  history = new ServiceImpl.BundleVersionHistory(patches);
+        assertEquals("Should return version from patch result instead of the original location",
+                     "mvn:groupId/my-bsn/1.2.0",
+                     history.getLocation(createMockBundle("my-bsn", "1.2.0", "mvn:groupId/my-bsn/1.0.0")));
+        assertEquals("Should return version from patch result instead of the original location",
+                     "mvn:groupId/my-bsn/1.1.0",
+                     history.getLocation(createMockBundle("my-bsn", "1.1.0", "mvn:groupId/my-bsn/1.0.0")));
+        assertEquals("Should return original bundle location if no maching version is found in the history",
+                     "mvn:groupId/my-bsn/1.0.0",
+                     history.getLocation(createMockBundle("my-bsn", "1.0.0", "mvn:groupId/my-bsn/1.0.0")));
+        assertEquals("Should return original bundle location if no maching version is found in the history",
+                     "mvn:groupId/my-bsn/0.9.0",
+                     history.getLocation(createMockBundle("my-bsn", "0.9.0", "mvn:groupId/my-bsn/0.9.0")));
+    }
+
+    private Bundle createMockBundle(String bsn, String version, String location) {
+        Bundle result = createNiceMock(Bundle.class);
+        expect(result.getSymbolicName()).andReturn(bsn);
+        expect(result.getVersion()).andReturn(Version.parseVersion(version));
+        expect(result.getLocation()).andReturn(location);
+        replay(result);
+        return result;
+    }
+
     private void generateData() throws Exception {
         karaf = new File(baseDir, "karaf");
         delete(karaf);
@@ -451,6 +562,8 @@ public class ServiceImplTest {
         patch132 = createPatch("patch-1.3.2", bundlev132, "mvn:foo/my-bsn/1.3.2");
         patch140 = createPatch("patch-1.4.0", bundlev140, "mvn:foo/my-bsn/1.4.0", "[1.3.0,1.5.0)");
         patch200 = createPatch("patch-2.0.0", bundlev140, "mvn:foo/my-bsn/2.0.0");
+
+        createPatch("patch-with-prereq2", bundlev132, "mvn:foo/my-bsn/1.3.2", null, "prereq2");
     }
 
     private File createPatch(String id, File bundle, String mvnUrl) throws Exception {
@@ -458,6 +571,10 @@ public class ServiceImplTest {
     }
 
     private File createPatch(String id, File bundle, String mvnUrl, String range) throws Exception {
+        return createPatch(id, bundle, mvnUrl, range, null);
+    }
+
+    private File createPatch(String id, File bundle, String mvnUrl, String range, String requirement) throws Exception {
         File patchFile = new File(storage, "temp/" + id + ".zip");
         File pd = new File(storage, "temp/" + id + "/" + id + ".patch");
         pd.getParentFile().mkdirs();
@@ -467,6 +584,10 @@ public class ServiceImplTest {
         props.put("bundle.0", mvnUrl);
         if (range != null) {
             props.put("bundle.0.range", range);
+        }
+        if (requirement != null) {
+            props.put("requirement.count", "1");
+            props.put("requirement.O", requirement);
         }
         FileOutputStream fos = new FileOutputStream(pd);
         props.store(fos, null);
@@ -523,6 +644,25 @@ public class ServiceImplTest {
         jarDir(new File(baseDir, name), os);
         os.close();
         return f2.toURI().toURL();
+    }
+
+    /*
+     * Get the directory where a test resource has been stored
+     */
+    private static File getDirectoryForResource(String name) {
+        return getFileForResource(name).getParentFile();
+    }
+
+    /*
+     * Get the File object for a test resource
+     */
+    private static File getFileForResource(String name) {
+        URL base = ServiceImpl.class.getClassLoader().getResource(name);
+        try {
+            return new File(base.toURI());
+        } catch(URISyntaxException e) {
+            return new File(base.getPath());
+        }
     }
 
 

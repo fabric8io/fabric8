@@ -18,6 +18,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <reference id="fabricService" interface="io.fabric8.api.FabricService"/>
+    <reference id="clusterService" interface="io.fabric8.api.ZooKeeperClusterService"/>
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
 
     <reference id="imageCompleter" interface="org.apache.karaf.shell.console.Completer"
@@ -53,7 +54,8 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command name="fabric/container-create-cloud">
             <action class="io.fabric8.service.jclouds.commands.ContainerCreateCloud">
-                <property name="fabricService" ref="fabricService"/>
+                <argument index="0" ref="fabricService"/>
+                <argument index="1" ref="clusterService"/>
             </action>
             <optional-completers>
                 <entry key="--name" value-ref="computeServiceIdCompleter"/>

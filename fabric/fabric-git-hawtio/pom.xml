@@ -24,7 +24,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-git-hawtio</artifactId>
@@ -42,34 +42,24 @@
         <fuse.osgi.import>
           io.fabric*,*
         </fuse.osgi.import>
-        <fuse.osgi.services.export>
-        </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
           io.hawt.introspect*
         </fuse.osgi.private.pkg>
         <fuse.osgi.require.bundle>
             io.fabric8.fabric-git
         </fuse.osgi.require.bundle>
-        <fuse.osgi.service.component>
-          <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-          OSGI-INF/io.fabric8.git.hawtio.FabricGitFacade.xml
-        </fuse.osgi.service.component>
     </properties>
 
     <dependencies>
 
-        <!-- Git Library -->
         <dependency>
             <groupId>io.hawt</groupId>
             <artifactId>hawtio-git</artifactId>
-            <version>${hawtio-version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-git</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
@@ -78,34 +68,28 @@
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-groups</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -118,13 +102,17 @@
             <scope>provided</scope>
         </dependency>
         
-        <!-- testing -->
+        <!-- Test Dependencies -->
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper-spring</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

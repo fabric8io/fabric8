@@ -15,6 +15,7 @@
  */
 package io.fabric8.openshift;
 
+import io.fabric8.api.AutoScaleRequest;
 import io.fabric8.common.util.Maps;
 import io.fabric8.common.util.Strings;
 import io.fabric8.common.util.Systems;
@@ -46,8 +47,12 @@ public class OpenShiftAutoScaler implements ContainerAutoScaler {
     }
 
     @Override
-    public void createContainers(String version, String profile, int count) throws Exception {
-        FabricService fabricService = containerProvider.getFabricService();
+    public void createContainers(AutoScaleRequest request) throws Exception {
+        int count = request.getDelta();
+        String profile = request.getProfile();
+        String version = request.getVersion();
+        FabricService fabricService = request.getFabricService();
+
         CreateOpenshiftContainerOptions.Builder builder = null;
         if (fabricService != null) {
             builder = createAutoScaleOptions(fabricService);

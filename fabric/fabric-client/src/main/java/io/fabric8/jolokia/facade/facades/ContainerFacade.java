@@ -17,9 +17,11 @@ package io.fabric8.jolokia.facade.facades;
 
 import io.fabric8.api.*;
 import io.fabric8.jolokia.facade.utils.Helpers;
+
 import org.jolokia.client.J4pClient;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -117,6 +119,11 @@ public class ContainerFacade implements Container, HasId {
     }
 
     @Override
+    public void setHttpUrl(String location) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String getJolokiaUrl() {
         return getFieldValue("jolokiaUrl");
     }
@@ -132,14 +139,31 @@ public class ContainerFacade implements Container, HasId {
     }
 
     @Override
+    public String getVersionId() {
+        return getFieldValue("versionId");
+    }
+
+
+    @Override
+    public void setVersionId(String versionId) {
+        Helpers.exec(j4p, "applyVersionToContainers(java.lang.String, java.util.List)", versionId, Helpers.toList(id));
+    }
+
+    @Override
     public Version getVersion() {
         String version = getFieldValue("versionId");
-        return new VersionFacade(j4p, version);
+        String revision = getFieldValue("revision");
+        return new VersionFacade(j4p, version, revision);
     }
 
     @Override
     public void setVersion(Version version) {
         Helpers.exec(j4p, "applyVersionToContainers(java.lang.String, java.util.List)", version.getId(), Helpers.toList(id));
+    }
+
+    @Override
+    public List<String> getProfileIds() {
+        return getFieldValue("profileIds");
     }
 
     @Override
@@ -172,14 +196,14 @@ public class ContainerFacade implements Container, HasId {
     }
 
     @Override
-    public void removeProfiles(Profile... profiles) {
-        List<String> ids = Helpers.extractIds(profiles);
+    public void removeProfiles(String... profileIds) {
+        List<String> ids = Arrays.asList(profileIds);
         Helpers.exec(j4p, "removeProfilesFromContainer(java.lang.String, java.util.List)", id, ids);
     }
 
     @Override
     public Profile getOverlayProfile() {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -408,6 +432,11 @@ public class ContainerFacade implements Container, HasId {
     @Override
     public CreateContainerMetadata<?> getMetadata() {
         throw new UnsupportedOperationException("This cannot be obtained from a remote process");
+    }
+
+    @Override
+    public String getDebugPort() {
+        return getFieldValue("debugPort");
     }
 
     @Override

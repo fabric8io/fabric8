@@ -15,6 +15,8 @@
  */
 package io.fabric8.api;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,11 +26,17 @@ import java.util.List;
  * Represents the requirements to successfully provision a profile such as the minimum instances required
  * and which other profiles should be profiled before hand.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProfileRequirements implements Comparable<ProfileRequirements> {
     private String profile;
     private Integer minimumInstances;
     private Integer maximumInstances;
     private List<String> dependentProfiles;
+    private ChildScalingRequirements childScalingRequirements;
+    private SshScalingRequirements sshScalingRequirements;
+    private DockerScalingRequirements dockerScalingRequirements;
+    private OpenShiftScalingRequirements openShiftScalingRequirements;
+    private Integer maximumInstancesPerHost;
 
     public ProfileRequirements() {
     }
@@ -89,6 +97,101 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
         return value != null ? value.toString() : "";
     }
 
+
+    /**
+     * Checks that the configuation of these requirements are valid
+     */
+    public void validate() {
+        if (maximumInstances != null) {
+            if (maximumInstances < 0) {
+                throw new IllegalArgumentException("Maximum instances should be >= 0");
+            }
+            if (minimumInstances != null) {
+                if (minimumInstances > maximumInstances) {
+                    throw new IllegalArgumentException("Minimum instances must not be greater than the maximum instances");
+                }
+            }
+        }
+        if (minimumInstances != null) {
+            if (minimumInstances < 0) {
+                throw new IllegalArgumentException("Minimum instances should be >= 0");
+            }
+        }
+    }
+
+    // Builder DSL
+    //-------------------------------------------------------------------------
+    public ProfileRequirements dependentProfiles(List<String> profiles) {
+        setDependentProfiles(profiles);
+        return this;
+    }
+
+    public ProfileRequirements dependentProfiles(String... profiles) {
+        return dependentProfiles(Arrays.asList(profiles));
+    }
+
+    public ProfileRequirements minimumInstances(Integer value) {
+        setMinimumInstances(value);
+        return this;
+    }
+
+    public ProfileRequirements maximumInstances(Integer value) {
+        setMaximumInstances(value);
+        return this;
+    }
+
+    /**
+     * Lazily creates the scaling requirements for the child container provider
+     */
+    public ChildScalingRequirements childScaling() {
+        if (childScalingRequirements == null) {
+            childScalingRequirements = new ChildScalingRequirements();
+        }
+        return getChildScalingRequirements();
+    }
+
+    /**
+     * Lazily creates the scaling requirements for the ssh container provider
+     */
+    public SshScalingRequirements sshScaling() {
+        if (sshScalingRequirements == null) {
+            sshScalingRequirements = new SshScalingRequirements();
+        }
+        return getSshScalingRequirements();
+    }
+
+    /**
+     * Lazily creates the scaling requirements for the docker container provider
+     */
+    public DockerScalingRequirements dockerScaling() {
+        if (dockerScalingRequirements == null) {
+            dockerScalingRequirements = new DockerScalingRequirements();
+        }
+        return getDockerScalingRequirements();
+    }
+
+    /**
+     * Lazily creates the scaling requirements for the OpenShift container provider
+     */
+    public OpenShiftScalingRequirements openShiftScaling() {
+        if (openShiftScalingRequirements == null) {
+            openShiftScalingRequirements = new OpenShiftScalingRequirements();
+        }
+        return getOpenShiftScalingRequirements();
+    }
+
+    /**
+     * Specifies the maximum number of instances of this profile per host. e.g. set to 1 to ensure that only 1 instance of a profile is provisioned per host
+     */
+    public ProfileRequirements maximumInstancesPerHost(final Integer maximumInstancesPerHost) {
+        this.maximumInstancesPerHost = maximumInstancesPerHost;
+        return this;
+    }
+
+
+    // Properties
+    //-------------------------------------------------------------------------
+
     public String getProfile() {
         return profile;
     }
@@ -105,6 +208,7 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
         this.dependentProfiles = dependentProfiles;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Integer getMaximumInstances() {
         return maximumInstances;
     }
@@ -113,12 +217,54 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
         this.maximumInstances = maximumInstances;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Integer getMinimumInstances() {
         return minimumInstances;
     }
 
     public void setMinimumInstances(Integer minimumInstances) {
         this.minimumInstances = minimumInstances;
+    }
+
+    public ChildScalingRequirements getChildScalingRequirements() {
+        return childScalingRequirements;
+    }
+
+    public void setChildScalingRequirements(ChildScalingRequirements childScalingRequirements) {
+        this.childScalingRequirements = childScalingRequirements;
+    }
+
+    public SshScalingRequirements getSshScalingRequirements() {
+        return sshScalingRequirements;
+    }
+
+    public void setSshScalingRequirements(SshScalingRequirements sshScalingRequirements) {
+        this.sshScalingRequirements = sshScalingRequirements;
+    }
+
+    public DockerScalingRequirements getDockerScalingRequirements() {
+        return dockerScalingRequirements;
+    }
+
+    public void setDockerScalingRequirements(DockerScalingRequirements dockerScalingRequirements) {
+        this.dockerScalingRequirements = dockerScalingRequirements;
+    }
+
+    public OpenShiftScalingRequirements getOpenShiftScalingRequirements() {
+        return openShiftScalingRequirements;
+    }
+
+    public void setOpenShiftScalingRequirements(OpenShiftScalingRequirements openShiftScalingRequirements) {
+        this.openShiftScalingRequirements = openShiftScalingRequirements;
+    }
+
+
+    public Integer getMaximumInstancesPerHost() {
+        return maximumInstancesPerHost;
+    }
+
+    public void setMaximumInstancesPerHost(Integer maximumInstancesPerHost) {
+        this.maximumInstancesPerHost = maximumInstancesPerHost;
     }
 
     /**
@@ -146,7 +292,9 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
     //@JsonIgnore
     // name this differently so it's not picked up as a property
     public boolean checkIsEmpty() {
-        return isEmpty(minimumInstances) && isEmpty(maximumInstances) && isEmpty(dependentProfiles);
+        // we allow 0 maximum instances as being non-empty so we can keep the requirements around to
+        // stop things
+        return isEmpty(minimumInstances) && isEmpty(dependentProfiles) && maximumInstances == null;
     }
 
     protected static boolean isEmpty(Integer number) {
@@ -163,4 +311,5 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
     public boolean hasMinimumInstances() {
         return minimumInstances != null && minimumInstances.intValue() > 0;
     }
+
 }

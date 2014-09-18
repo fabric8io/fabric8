@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.StringReader;
 import java.net.ServerSocket;
 import java.net.URL;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -32,7 +33,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -106,6 +109,30 @@ public class ZookeeperImportUtilsTest {
         Properties properties = new Properties();
         properties.load(new StringReader(new String(curator.getData().forPath("/fabric3/fabric/configs/versions/1.0/profiles/p1/io.fabric8.agent.properties"))));
         assertThat(properties.getProperty("parents"), equalTo("x y z"));
+
+
+        // now lets test the facade
+        ZooKeeperFacade facade = new ZooKeeperFacade(curator);
+        List<String> childTextData = facade.matchingDescendantStringData("/fabric3/fabric/configs/versions/*/profiles/*");
+        assertThat("children size: " + childTextData, childTextData.size(), equalTo(1));
+        String firstText = childTextData.get(0).trim();
+        assertThat(firstText, containsString("x y z"));
+    }
+
+    @Test
+    public void testImportServletRegistration() throws Exception {
+        String target = "/fabric4/";
+        String source = this.getClass().getResource("/import4").getFile();
+
+        ZookeeperImportUtils.importFromFileSystem(curator, source, target, null, null, false, false, false);
+        assertThat(curator.getChildren().forPath("/fabric4/fabric/registry/clusters/servlets/io.fabric8.fabric-redirect/1.0.0/*").size(), equalTo(1));
+        assertThat(curator.getChildren().forPath("/fabric4/fabric/registry/clusters/servlets/io.fabric8.fabric-redirect/1.0.0/*").get(0), equalTo("root"));
+
+        // now lets test the facade
+        ZooKeeperFacade facade = new ZooKeeperFacade(curator);
+        List<String> children = facade.matchingDescendants("/fabric4/fabric/registry/clusters/servlets/*/1.0.0");
+        assertThat("children size: " + children, children.size(), not(equalTo(0)));
+
     }
 
     private int findFreePort() throws Exception {

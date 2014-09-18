@@ -21,7 +21,7 @@
   <parent>
     <groupId>io.fabric8.insight</groupId>
     <artifactId>insight-project</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>insight-metrics</artifactId>
@@ -30,10 +30,8 @@
 
   <properties>
     <fuse.osgi.export>
+      io.fabric8.insight.metrics.service*;version=${project.version}
     </fuse.osgi.export>
-    <fuse.osgi.private.pkg>
-        io.fabric8.insight.metrics*;version=${project.version}
-    </fuse.osgi.private.pkg>
   </properties>
 
   <dependencies>
@@ -73,6 +71,17 @@
         <artifactId>insight-storage</artifactId>
         <scope>provided</scope>
     </dependency>
+    <dependency>
+        <groupId>io.fabric8.insight</groupId>
+        <artifactId>insight-metrics-model</artifactId>
+        <scope>provided</scope>
+    </dependency>
+    <!-- TODO remove ? -->
+    <dependency>
+        <groupId>io.fabric8.insight</groupId>
+        <artifactId>insight-metrics-mvel</artifactId>
+        <scope>provided</scope>
+    </dependency>
 
     <dependency>
         <groupId>org.mvel</groupId>
@@ -80,8 +89,8 @@
     </dependency>
 
       <dependency>
-          <groupId>org.codehaus.jackson</groupId>
-          <artifactId>jackson-mapper-asl</artifactId>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-core</artifactId>
       </dependency>
 
     <dependency>

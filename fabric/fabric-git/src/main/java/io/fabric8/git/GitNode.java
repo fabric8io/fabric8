@@ -15,7 +15,7 @@
  */
 package io.fabric8.git;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.groups.NodeState;
 
 public class GitNode extends NodeState {
@@ -24,12 +24,10 @@ public class GitNode extends NodeState {
     String[] services;
 
     public GitNode() {
-        super();
     }
 
-    public GitNode(String id) {
-        super(id);
-        this.services = services;
+    public GitNode(String id, String container) {
+        super(id, container);
     }
 
     public String getUrl() {

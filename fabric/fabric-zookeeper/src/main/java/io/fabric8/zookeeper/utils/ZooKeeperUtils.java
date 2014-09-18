@@ -15,6 +15,7 @@
  */
 package io.fabric8.zookeeper.utils;
 
+import io.fabric8.api.FabricException;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.TreeCache;
@@ -23,8 +24,8 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.data.Stat;
+
 import io.fabric8.api.RuntimeProperties;
-import io.fabric8.utils.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
 
 import java.io.IOException;
@@ -45,6 +46,7 @@ import java.util.Properties;
 public final class ZooKeeperUtils {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
+    private static final String CONTAINERS_NODE = "/fabric/authentication/containers";
 
     private ZooKeeperUtils() {
         //Utility Class
@@ -54,7 +56,7 @@ public final class ZooKeeperUtils {
         for (String child : source.getChildren().forPath(path)) {
             child = ZKPaths.makePath(path, child);
             Stat stat = source.checkExists().forPath(child);
-            if (stat.getEphemeralOwner() == 0 &&  dest.checkExists().forPath(child) == null) {
+            if (stat != null && stat.getEphemeralOwner() == 0 && dest.checkExists().forPath(child) == null) {
                 byte[] data = source.getData().forPath(child);
                 setData(dest, child, data);
                 copy(source, dest, child);
@@ -128,10 +130,8 @@ public final class ZooKeeperUtils {
      * Returns an empty list if the given path doesn't exist in curator
      */
     public static List<String> getChildrenSafe(CuratorFramework curator, String path) throws Exception {
-        if (curator.checkExists().forPath(path) == null) {
-            return Collections.EMPTY_LIST;
-        }
-        return curator.getChildren().forPath(path);
+        boolean pathExists = curator.checkExists().forPath(path) != null;
+        return pathExists ? curator.getChildren().forPath(path) : Collections.<String>emptyList();
     }
 
     public static List<String> getChildren(TreeCache cache, String path) throws Exception {
@@ -191,6 +191,26 @@ public final class ZooKeeperUtils {
             return new String(bytes, UTF_8);
         }
     }
+
+    public static String getStringDataSafe(CuratorFramework curator, String path) throws Exception {
+        byte[] bytes = getData(curator, path);
+        if (bytes == null) {
+            return null;
+        } else {
+            return new String(bytes, UTF_8);
+        }
+    }
+
+    /**
+     * Returns the data for the given path or null if it doesn not exist
+     */
+    public static byte[] getData(CuratorFramework curator, String path) throws Exception {
+        if (curator.checkExists().forPath(path) != null) {
+            return curator.getData().forPath(path);
+        }
+        return null;
+    }
+
 
     public static void setData(CuratorFramework curator, String path, String value) throws Exception {
         setData(curator, path, value != null ? value.getBytes(UTF_8) : null);
@@ -253,7 +273,6 @@ public final class ZooKeeperUtils {
         curator.delete().forPath(path);
     }
 
-
     public static Stat exists(CuratorFramework curator, String path) throws Exception {
         return curator.checkExists().forPath(path);
     }
@@ -289,7 +308,7 @@ public final class ZooKeeperUtils {
     }
 
     public static Properties getProperties(CuratorFramework curator, String path) throws Exception {
-        String value = getStringData(curator, path);
+        String value = getStringDataSafe(curator, path);
         Properties properties = new Properties();
         if (value != null) {
             try {
@@ -323,6 +342,9 @@ public final class ZooKeeperUtils {
     public static void setProperties(CuratorFramework curator, String path, Properties properties) throws Exception {
         try {
             org.apache.felix.utils.properties.Properties p = new org.apache.felix.utils.properties.Properties();
+            if(curator.checkExists().forPath(path) == null){
+                create(curator, path);
+            }
             String org = getStringData(curator, path);
             if (org != null) {
                 p.load(new StringReader(org));
@@ -341,6 +363,7 @@ public final class ZooKeeperUtils {
             p.save(writer);
             setData(curator, path, writer.toString());
         } catch (IOException e) {
+            // ignore
         }
     }
 
@@ -381,8 +404,6 @@ public final class ZooKeeperUtils {
 
     /**
      * Generate a random String that can be used as a Zookeeper password.
-     *
-     * @return
      */
     public static String generatePassword() {
         StringBuilder password = new StringBuilder();
@@ -400,13 +421,7 @@ public final class ZooKeeperUtils {
     }
 
     /**
-     * Returns the last modified time of the znode taking childs into consideration.
-     *
-     * @param curator
-     * @param path
-     * @return
-     * @throws KeeperException
-     * @throws InterruptedException
+     * Returns the last modified time of the znode taking children into consideration.
      */
     public static long lastModified(CuratorFramework curator, String path) throws Exception {
         long lastModified = 0;
@@ -421,11 +436,8 @@ public final class ZooKeeperUtils {
         return lastModified;
     }
 
-
-    private static String CONTAINERS_NODE = "/fabric/authentication/containers";
-
     public static String getContainerLogin(RuntimeProperties sysprops) {
-        String container = sysprops.getProperty(SystemProperties.KARAF_NAME);
+        String container = sysprops.getRuntimeIdentity();
         return "container#" + container;
     }
 
@@ -443,10 +455,10 @@ public final class ZooKeeperUtils {
         return props;
     }
 
-    private static long lastTokenGenerationTime = 0;
+    private static volatile long lastTokenGenerationTime = 0;
 
     public static String generateContainerToken(RuntimeProperties sysprops, CuratorFramework curator) {
-        String container = sysprops.getProperty(SystemProperties.KARAF_NAME);
+        String container = sysprops.getRuntimeIdentity();
         long time = System.currentTimeMillis();
         String password = null;
         try {
@@ -462,6 +474,8 @@ public final class ZooKeeperUtils {
                 setData(curator, CONTAINERS_NODE + "/" + container, password);
                 lastTokenGenerationTime = time;
             }
+        } catch (KeeperException.NotReadOnlyException e) {
+            throw new FabricException("ZooKeeper server is partitioned. Currently working in read-only mode!");
         } catch (RuntimeException rte) {
             throw rte;
         } catch (Exception ex) {

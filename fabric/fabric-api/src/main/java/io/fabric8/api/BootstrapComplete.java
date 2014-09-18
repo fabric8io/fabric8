@@ -18,6 +18,7 @@ package io.fabric8.api;
 
 /**
  * Service that marks the completion of the bootstrap process
+ * before the fabric is created.
  */
 public interface BootstrapComplete {
 

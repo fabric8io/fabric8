@@ -1,7 +1,0 @@
----
-title: Business Activity Insight
---- pipeline:ssp,markdown
-
-{:toc}
-
-${loadText(new URL("https://raw.github.com/fusesource/fuse/master/bai/ReadMe.md").openStream())}

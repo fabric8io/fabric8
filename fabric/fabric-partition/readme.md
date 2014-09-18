@@ -1,1 +1,1 @@
-See the [Partition docs](https://github.com/jboss-fuse/fuse/blob/master/doc/partition.md) for more details
+See the [Partition docs](http://fabric8.io/gitbook/partition.html) for more details

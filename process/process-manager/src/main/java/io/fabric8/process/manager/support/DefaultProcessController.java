@@ -20,6 +20,7 @@ import com.google.common.io.Files;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import io.fabric8.common.util.ExecParseUtils;
+import io.fabric8.common.util.Processes;
 import io.fabric8.process.manager.ProcessController;
 import io.fabric8.process.manager.config.ProcessConfig;
 import io.fabric8.process.manager.support.command.CommandFailedException;
@@ -31,22 +32,39 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+
+import static java.util.concurrent.Executors.newFixedThreadPool;
 
 /**
- * A default implementation of {@link io.fabric8.process.manager.ProcessController} which assumes a launch script which takes opertions as the first argument
- * such as for the <a href="http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html">Init Script Actions spec</a>
+ * A default implementation of {@link io.fabric8.process.manager.ProcessController} which assumes a launch script which
+ * takes operations as the first argument such as for the
+ * <a href="http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html">Init Script Actions spec</a>
+ * .
  */
-public class DefaultProcessController implements ProcessController
-{
-    private static final transient Logger LOG = LoggerFactory.getLogger(DefaultProcessController.class);
+public class DefaultProcessController implements ProcessController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultProcessController.class);
+
+    /**
+     * Number of threads used to execute the controller's tasks. We need at least two, because we execute process and
+     * consume its output concurrently.
+     */
+    private static final int THREADS_PER_CONTROLLER = 2;
+
+    /**
+     * Local identifier of the controlled process
+     * (assigned by the {@link io.fabric8.process.manager.service.ProcessManagerService}).
+     */
     private final String id;
+
     private final File baseDir;
     private final ProcessConfig config;
     private transient Executor executor;
 
 
+    /**
+     * @param id identifier of the controlled process. Usually PID.
+     */
     public DefaultProcessController(String id, ProcessConfig config, File baseDir) {
         this.id = id;
         this.config = config;
@@ -74,7 +92,13 @@ public class DefaultProcessController implements ProcessController
 
     @Override
     public int uninstall() {
-        throw new UnsupportedOperationException();
+        String name = baseDir.getName();
+        if (name.startsWith(".")) {
+            throw new IllegalArgumentException("baseDir is already deleted for " + baseDir);
+        } else {
+            baseDir.renameTo(new File(baseDir.getParentFile(), "." + name));
+        }
+        return 0;
     }
 
     @Override
@@ -84,16 +108,22 @@ public class DefaultProcessController implements ProcessController
 
     @Override
     public int stop() throws Exception {
-        return runConfigCommandValueOrLaunchScriptWith(config.getStopCommand(), "stop");
+        String customCommand = config.getKillCommand();
+        if (Strings.isNullOrEmpty(customCommand)) {
+            // lets just kill it
+            LOG.info("No stop command configured so lets just try killing it " + this);
+            return Processes.killProcess(getPid(), "");
+        }
+        return runConfigCommandValueOrLaunchScriptWith(customCommand, "stop");
     }
 
     @Override
     public int kill() throws Exception {
         String customCommand = config.getKillCommand();
-        if (customCommand != null && customCommand.trim().isEmpty()) {
+        if (Strings.isNullOrEmpty(customCommand)) {
             // lets stop it
-            LOG.info("No kill command configured so lets just try stopping " + this);
-            return stop();
+            LOG.info("No kill command configured so lets just try killing it " + this);
+            return Processes.killProcess(getPid(), "-9");
         }
         return runConfigCommandValueOrLaunchScriptWith(customCommand, "kill");
     }
@@ -129,6 +159,8 @@ public class DefaultProcessController implements ProcessController
         return runCommandLine(customCommand);
     }
 
+
+
     // Properties
     //-------------------------------------------------------------------------
     public File getBaseDir() {
@@ -137,9 +169,14 @@ public class DefaultProcessController implements ProcessController
 
     public Executor getExecutor() {
     	if (executor == null) {
-    	    executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("fuse-process-controller-%s").build());
+    	    executor = newFixedThreadPool(THREADS_PER_CONTROLLER, new ThreadFactoryBuilder().setDaemon(true).setNameFormat("fuse-process-controller-%s").build());
     	}
         return executor;
+    }
+
+    @Override
+    public ProcessConfig getConfig() {
+        return config;
     }
 
     public Long getPid() throws IOException {

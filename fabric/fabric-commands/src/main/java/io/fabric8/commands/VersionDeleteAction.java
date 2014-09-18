@@ -16,36 +16,37 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+
 import io.fabric8.api.Container;
 import io.fabric8.api.Version;
-import org.apache.karaf.shell.console.AbstractAction;
+import io.fabric8.api.ProfileService;
 
-@Command(name = "version-delete", scope = "fabric", description = "Delete the specified version, together with all of its associated profile data")
+import org.apache.karaf.shell.console.AbstractAction;
+import org.jboss.gravia.utils.IllegalStateAssertion;
+
+@Command(name = VersionDelete.FUNCTION_VALUE, scope = VersionDelete.SCOPE_VALUE, description = VersionDelete.DESCRIPTION)
 public class VersionDeleteAction extends AbstractAction {
 
     @Argument(index = 0, name = "version", description = "The version to delete", required = true, multiValued = false)
-    private String versionName;
+    private String versionId;
 
+    private final ProfileService profileService;
     private final FabricService fabricService;
 
     VersionDeleteAction(FabricService fabricService) {
+        this.profileService = fabricService.adapt(ProfileService.class);
         this.fabricService = fabricService;
-    }
-
-    public FabricService getFabricService() {
-        return fabricService;
     }
 
     @Override
     protected Object doExecute() throws Exception {
-        Version version = getFabricService().getVersion(versionName);
-        if (version == null) {
-            throw new IllegalArgumentException("Cannot find version: " + versionName);
-        }
+        Version version = profileService.getRequiredVersion(versionId);
+        
         StringBuilder sb = new StringBuilder();
-        for (Container container : getFabricService().getContainers()) {
+        for (Container container : fabricService.getContainers()) {
             if (version.equals(container.getVersion())) {
                 if (sb.length() > 0) {
                     sb.append(", ");
@@ -53,10 +54,9 @@ public class VersionDeleteAction extends AbstractAction {
                 sb.append(container.getId());
             }
         }
-        if (sb.length() > 0) {
-            throw new IllegalArgumentException("Version " + versionName + " is still in used by the following containers: " + sb.toString());
-        }
-        version.delete();
+        IllegalStateAssertion.assertTrue(sb.length() == 0, "Version " + versionId + " is still in used by the following containers: " + sb.toString());
+        
+        profileService.deleteVersion(versionId);
         return null;
     }
 }

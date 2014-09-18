@@ -1,0 +1,1 @@
+Insight console for viewing the historical metrics stored via [RHQ Metrics](https://github.com/rhq-project/rhq-metrics)

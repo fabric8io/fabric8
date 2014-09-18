@@ -42,3 +42,35 @@ You should then have the version 1.0 branch checked out where you can edit the v
     git push
 
 And hey presto, fabric8 should update and any containers running the version/branch and profiles you modified should update.
+
+### Working with the external git repositories
+
+Instead of using clustered git repository provided by the Fabric8, you can store your configuration in the external 
+git repository of your choice. You can specify external repository URL when creating new Fabric8 instance.
+
+    fabric8:create --external-git-url=git@github.com:john/johnsproject.git
+    
+Keep in mind that although you introduce a single point of failure (single external Git repository), Fabric8 can still
+operate even if the repository is down for the moment. All the changes performed by containers on their local
+repositories (i.e. all changes to the configuration) will be pushed and distributed to the other containers as soon as 
+the external Git repository becomes available again.
+
+### Using a HTTP proxy with the git cluster
+
+Using the built-in git cluster in fabric will communicate directly between the nodes over HTTP. If a HTTP proxy is required for communication, then you can configure the git proxy in fabric by configuring the ```GitProxyService```.
+
+From the CLI type:
+
+    fabric:profile-edit --pid io.fabric8.git.proxy/proxyHost=servername default
+    fabric:profile-edit --pid io.fabric8.git.proxy/proxyPort=portNumber default
+
+Notice you must specify both a hostname and port to use.
+
+It is also possible to specify a nonProxyHost to allow some nodes to not use the HTTP proxy. Multiple hosts is separated using the ```|``` charachter. Remember to qoute the pid value using ```'``` quotes when you use the ```|``` charachter, as the ```|``` is used for chaining commands.
+
+    fabric:profile-edit --pid 'io.fabric8.git.proxy/nonProxyHosts=someServer|somerOtherServer' default
+
+Notice that by default nonProxyHosts will not proxy any URIs that is localhost as access to itself, does not require to use the HTTP proxy.
+But if you configure this option, then remember to add ```localhost|127.*``` to still not proxy any localhost addresses.
+
+You can also configure the ```GitProxySerivce``` from the web console, by selecting the fabric profile, and click the ```Configuration``` button.

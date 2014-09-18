@@ -29,8 +29,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
 
-import aQute.lib.osgi.Analyzer;
-import aQute.lib.osgi.Jar;
+import aQute.bnd.header.Parameters;
+import aQute.bnd.osgi.Analyzer;
+import aQute.bnd.osgi.Jar;
 import org.apache.felix.utils.version.VersionCleaner;
 import io.fabric8.fab.DependencyTree;
 import io.fabric8.fab.PomDetails;
@@ -147,7 +148,7 @@ public class FabBundleInfoImpl implements FabBundleInfo, VersionResolver {
             if (dependency.isBundle()) {
                 String exportPackages = dependency.getManifestEntry("Export-Package");
                 if (notEmpty(exportPackages)) {
-                    Map<String, Map<String, String>> values = new Analyzer().parseHeader(exportPackages);
+                    Parameters values = new Analyzer().parseHeader(exportPackages);
                     Map<String, String> map = values.get(packageName);
                     if (map != null) {
                         String version = map.get("version");

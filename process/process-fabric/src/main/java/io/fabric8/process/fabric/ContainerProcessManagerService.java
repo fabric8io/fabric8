@@ -94,7 +94,7 @@ public class ContainerProcessManagerService implements ContainerProcessManagerSe
 
     @Override
     public List<Installation> listInstallations(final ContainerInstallOptions options) {
-        Container container = fabricService.getContainer(options.getContainer());
+        Container container = options.getContainer();
         ProcessManagerJmxTemplate jmxTemplate = getJmxTemplate(container, options.getUser(), options.getPassword());
         return jmxTemplate.execute(new ProcessManagerCallback<List<Installation>>() {
             @Override
@@ -106,7 +106,7 @@ public class ContainerProcessManagerService implements ContainerProcessManagerSe
 
     @Override
     public Installation install(final ContainerInstallOptions options, final InstallTask postInstall) throws Exception {
-        Container container = fabricService.getContainer(options.getContainer());
+        Container container = options.getContainer();
         ProcessManagerJmxTemplate jmxTemplate = getJmxTemplate(container, options.getUser(), options.getPassword());
         return jmxTemplate.execute(new ProcessManagerCallback<Installation>() {
             @Override
@@ -117,20 +117,20 @@ public class ContainerProcessManagerService implements ContainerProcessManagerSe
     }
 
     @Override
-    public Installation installJar(final ContainerInstallOptions options) throws Exception {
-        Container container = fabricService.getContainer(options.getContainer());
+    public Installation installJar(final ContainerInstallOptions options, final InstallTask postInstall) throws Exception {
+        Container container = options.getContainer();
         ProcessManagerJmxTemplate jmxTemplate = getJmxTemplate(container, options.getUser(), options.getPassword());
         return jmxTemplate.execute(new ProcessManagerCallback<Installation>() {
             @Override
             public Installation doWithProcessManager(ProcessManagerServiceMBean processManagerService) throws Exception {
-                return processManagerService.installJar(options.asInstallOptions());
+                return processManagerService.installJar(options.asInstallOptions(), postInstall);
             }
         });
     }
 
     @Override
     public ImmutableMap<String, Installation> listInstallationMap(final ContainerInstallOptions options) {
-        Container container = fabricService.getContainer(options.getContainer());
+        Container container = options.getContainer();
         ProcessManagerJmxTemplate jmxTemplate = getJmxTemplate(container, options.getUser(), options.getPassword());
         return jmxTemplate.execute(new ProcessManagerCallback<ImmutableMap<String, Installation>>() {
             @Override

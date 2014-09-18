@@ -31,11 +31,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class MappedServices {
     private final ServiceDetails serviceDetails;
-    private final LoadBalancer<String> loadBalancer;
+    private final LoadBalancer loadBalancer;
     private final boolean reverseHeaders;
     private List<String> serviceUrls = new CopyOnWriteArrayList<String>();
 
-    public MappedServices(String service, ServiceDetails serviceDetails, LoadBalancer<String> loadBalancer, boolean reverseHeaders) {
+    public MappedServices(String service, ServiceDetails serviceDetails, LoadBalancer loadBalancer, boolean reverseHeaders) {
         this.serviceDetails = serviceDetails;
         this.loadBalancer = loadBalancer;
         this.reverseHeaders = reverseHeaders;

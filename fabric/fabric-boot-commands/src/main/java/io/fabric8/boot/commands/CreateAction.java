@@ -17,20 +17,22 @@ package io.fabric8.boot.commands;
 
 import io.fabric8.api.ContainerOptions;
 import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.api.DefaultRuntimeProperties;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.ServiceProxy;
+import io.fabric8.api.ZkDefs;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Ports;
-import io.fabric8.utils.SystemProperties;
 import io.fabric8.utils.shell.ShellUtils;
-import io.fabric8.zookeeper.ZkDefs;
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
@@ -38,13 +40,17 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.felix.utils.properties.Properties;
+import org.apache.karaf.jaas.modules.BackingEngine;
 import org.apache.karaf.shell.console.AbstractAction;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 import com.google.common.base.Strings;
 
-@Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
-final class CreateAction extends AbstractAction {
+@Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble)", detailedDescription = "classpath:create.txt")
+class CreateAction extends AbstractAction {
 
     private static final String GIT_REMOTE_URL = "gitRemoteUrl";
     private static final String GIT_REMOTE_USER = "gitRemoteUser";
@@ -58,6 +64,8 @@ final class CreateAction extends AbstractAction {
     private String importDir;
     @Option(name = "-v", aliases = {"--verbose"}, description = "Flag to enable verbose output of files being imported")
     boolean verbose = false;
+    @Option(name = "-f", aliases = "--force", multiValued = false, description = "Forces re-creating fabric")
+    private boolean force;
     @Option(name = "-g", aliases = {"--global-resolver"}, description = "The global resolver policy, which becomes the default resolver policy applied to all new containers created in this fabric. Possible values are: localip, localhostname, publicip, publichostname, manualip. Default is localhostname.")
     String globalResolver;
     @Option(name = "-r", aliases = {"--resolver"}, description = "The local resolver policy. Possible values are: localip, localhostname, publicip, publichostname, manualip. Default is localhostname.")
@@ -92,17 +100,19 @@ final class CreateAction extends AbstractAction {
     private String zooKeeperDataDir = CreateEnsembleOptions.DEFAULT_DATA_DIR;
     @Option(name = "--zookeeper-password", multiValued = false, description = "The ensemble password to use (one will be generated if not given)")
     private String zookeeperPassword;
+    @Option(name = "--zookeeper-server-port", multiValued = false, description = "The main port for ZooKeeper server")
+    private int zooKeeperServerPort = -1;
     @Option(name = "--generate-zookeeper-password", multiValued = false, description = "Flag to enable automatic generation of password")
     private boolean generateZookeeperPassword = false;
     @Option(name = "--new-user", multiValued = false, description = "The username of a new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUser;
     @Option(name = "--new-user-password", multiValued = false, description = "The password of the new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUserPassword;
-    @Option(name = "--external-git-url", multiValued = false, description = "Specify an external git url.")
+    @Option(name = "--external-git-url", multiValued = false, description = "Specify an external git URL.")
     private String externalGitUrl;
     @Option(name = "--external-git-user", multiValued = false, description = "Specify an external git user.")
     private String externalGitUser;
-    @Option(name = "--external-git-passowrd", multiValued = false, description = "Specify an external git password.")
+    @Option(name = "--external-git-password", multiValued = false, description = "Specify an external git password.")
     private String externalGitPassword;
     @Option(name = "--new-user-role", multiValued = false, description = "The role of the new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUserRole = "admin";
@@ -111,29 +121,46 @@ final class CreateAction extends AbstractAction {
     private List<String> containers;
 
     private static final String ROLE_DELIMITER = ",";
-
+    
     private final BundleContext bundleContext;
+    private final ConfigurationAdmin configAdmin;
     private final ZooKeeperClusterBootstrap bootstrap;
     private final RuntimeProperties runtimeProperties;
 
-    CreateAction(BundleContext bundleContext, ZooKeeperClusterBootstrap bootstrap, RuntimeProperties runtimeProperties) {
+    CreateAction(BundleContext bundleContext, ConfigurationAdmin configAdmin, ZooKeeperClusterBootstrap bootstrap, RuntimeProperties runtimeProperties) {
         this.bundleContext = bundleContext;
+        this.configAdmin = configAdmin;
         this.bootstrap = bootstrap;
         this.runtimeProperties = runtimeProperties;
 
-        String karafHome = runtimeProperties.getProperty(SystemProperties.KARAF_HOME);
-        importDir = karafHome + File.separator + "fabric" + File.separator + "import";
+        Path homePath = runtimeProperties.getHomePath();
+        importDir = homePath.resolve("fabric").resolve("import").toFile().getAbsolutePath();
     }
 
     protected Object doExecute() throws Exception {
 
-        String karafName = runtimeProperties.getProperty(SystemProperties.KARAF_NAME);
-        CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder()
+        // prevent creating fabric if already created
+        ServiceReference<FabricService> sref = bundleContext.getServiceReference(FabricService.class);
+        FabricService fabricService = sref != null ? bundleContext.getService(sref) : null;
+        if (!force && (fabricService != null && fabricService.getCurrentContainer().isEnsembleServer())) {
+            System.out.println("Current container " + fabricService.getCurrentContainerName() + " is already in the current fabric ensemble. Cannot create fabric.");
+            System.out.println("You can use the --force option, if you want to force re-create the fabric.");
+            return null;
+        }
+
+        Configuration bootConfiguration = configAdmin.getConfiguration(BootstrapConfiguration.COMPONENT_PID, null);
+        Dictionary<String, Object> bootProperties = bootConfiguration.getProperties();
+        if (bootProperties == null) {
+            bootProperties = new Hashtable<>();
+        }
+
+        String runtimeIdentity = runtimeProperties.getRuntimeIdentity();
+        CreateEnsembleOptions.Builder<?> builder = CreateEnsembleOptions.builder()
                 .zooKeeperServerTickTime(zooKeeperTickTime)
                 .zooKeeperServerInitLimit(zooKeeperInitLimit)
                 .zooKeeperServerSyncLimit(zooKeeperSyncLimit)
                 .zooKeeperServerDataDir(zooKeeperDataDir)
-                .fromRuntimeProperties(new DefaultRuntimeProperties())
+                .fromRuntimeProperties(runtimeProperties)
                 .bootstrapTimeout(bootstrapTimeout)
                 .waitForProvision(waitForProvisioning)
                 .clean(clean);
@@ -141,7 +168,7 @@ final class CreateAction extends AbstractAction {
         builder.version(version);
 
         if (containers == null || containers.isEmpty()) {
-            containers = Arrays.asList(karafName);
+            containers = Arrays.asList(runtimeIdentity);
         }
 
         if (!noImport && importDir != null) {
@@ -151,29 +178,37 @@ final class CreateAction extends AbstractAction {
 
         if (globalResolver != null) {
             builder.globalResolver(globalResolver);
-            System.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, globalResolver);
+            bootProperties.put(ZkDefs.GLOBAL_RESOLVER_PROPERTY, globalResolver);
         }
 
         if (resolver != null) {
             builder.resolver(resolver);
-            System.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, resolver);
+            bootProperties.put(ZkDefs.LOCAL_RESOLVER_PROPERTY, resolver);
         }
 
         if (manualIp != null) {
             builder.manualIp(manualIp);
-            System.setProperty(ZkDefs.MANUAL_IP, manualIp);
+            bootProperties.put(ZkDefs.MANUAL_IP, manualIp);
         }
 
         if (bindAddress != null) {
             if (!bindAddress.contains(":")) {
                 builder.bindAddress(bindAddress);
-                System.setProperty(ZkDefs.BIND_ADDRESS, bindAddress);
+                bootProperties.put(ZkDefs.BIND_ADDRESS, bindAddress);
             } else {
                 String[] parts = bindAddress.split(":");
                 builder.bindAddress(parts[0]);
                 builder.zooKeeperServerPort(Integer.parseInt(parts[1]));
-                System.setProperty(ZkDefs.BIND_ADDRESS, parts[0]);
+                bootProperties.put(ZkDefs.BIND_ADDRESS, parts[0]);
             }
+        }
+
+        if (zooKeeperServerPort > 0) {
+            // --zookeeper-server-port option has higher priority than
+            // CreateEnsembleOptions.ZOOKEEPER_SERVER_PORT and CreateEnsembleOptions.ZOOKEEPER_SERVER_CONNECTION_PORT
+            // system/runtime properties
+            builder.setZooKeeperServerPort(zooKeeperServerPort);
+            builder.setZooKeeperServerConnectionPort(zooKeeperServerPort);
         }
 
         //Configure External Git Repository.
@@ -187,7 +222,6 @@ final class CreateAction extends AbstractAction {
             builder.dataStoreProperty(GIT_REMOTE_PASSWORD, externalGitPassword);
         }
 
-
         if (profiles != null && profiles.size() > 0) {
             builder.profiles(profiles);
         }
@@ -200,24 +234,50 @@ final class CreateAction extends AbstractAction {
 
         builder.minimumPort(minimumPort);
         builder.minimumPort(maximumPort);
-        System.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
-        System.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
+        bootProperties.put(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
+        bootProperties.put(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
         newUser = newUser != null ? newUser : ShellUtils.retrieveFabricUser(session);
         newUserPassword = newUserPassword != null ? newUserPassword : ShellUtils.retrieveFabricUserPassword(session);
 
-        String karafEtc = runtimeProperties.getProperty(SystemProperties.KARAF_ETC);
-        Properties userProps = new Properties(new File(karafEtc, "users.properties"));
+        Path propsPath = runtimeProperties.getConfPath().resolve("users.properties");
+        Properties userProps = new Properties(propsPath.toFile());
 
         if (userProps.isEmpty()) {
             String[] credentials = promptForNewUser(newUser, newUserPassword);
             newUser = credentials[0];
             newUserPassword = credentials[1];
-        } else if (newUser == null || newUserPassword == null) {
-            newUser = "" + userProps.keySet().iterator().next();
-            newUserPassword = "" + userProps.get(newUser);
-            if (newUserPassword.contains(ROLE_DELIMITER)) {
-                newUserPassword = newUserPassword.substring(0, newUserPassword.indexOf(ROLE_DELIMITER));
+        } else {
+            if (newUser == null || newUserPassword == null) {
+                newUser = "" + userProps.keySet().iterator().next();
+                newUserPassword = "" + userProps.get(newUser);
+                if (newUserPassword.contains(ROLE_DELIMITER)) {
+                    newUserPassword = newUserPassword.substring(0, newUserPassword.indexOf(ROLE_DELIMITER));
+                }
+            }
+            String passwordWithroles = userProps.get(newUser);
+            if (passwordWithroles != null && passwordWithroles.contains(ROLE_DELIMITER)) {
+                String[] infos = passwordWithroles.split(",");
+                String oldUserRole = newUserRole;
+                for (int i = 1; i < infos.length; i++) {
+                    if (infos[i].trim().startsWith(BackingEngine.GROUP_PREFIX)) {
+                        // it's a group reference
+                        String groupInfo = (String) userProps.get(infos[i].trim());
+                        if (groupInfo != null) {
+                            String[] roles = groupInfo.split(",");
+                            for (int j = 1; j < roles.length; j++) {
+                                if (!roles[j].trim().equals(oldUserRole)) {
+                                    newUserRole = newUserRole + ROLE_DELIMITER + roles[j].trim();
+                                }
+                            }
+                        }
+                    } else {
+                        // it's an user reference
+                        if (!infos[i].trim().equals(oldUserRole)) {
+                            newUserRole = newUserRole + ROLE_DELIMITER + infos[i].trim();
+                        }
+                    }                
+                }
             }
         }
 
@@ -242,11 +302,12 @@ final class CreateAction extends AbstractAction {
             builder.zookeeperPassword(zookeeperPassword);
         }
 
+        bootConfiguration.update(bootProperties);
         CreateEnsembleOptions options = builder.users(userProps)
                                                .withUser(newUser, newUserPassword , newUserRole)
                                                .build();
 
-        if (containers.size() == 1 && containers.contains(karafName)) {
+        if (containers.size() == 1 && containers.contains(runtimeIdentity)) {
             bootstrap.create(options);
         } else {
             ServiceProxy<ZooKeeperClusterService> serviceProxy = ServiceProxy.createServiceProxy(bundleContext, ZooKeeperClusterService.class);
@@ -256,7 +317,6 @@ final class CreateAction extends AbstractAction {
                 serviceProxy.close();
             }
         }
-
 
         ShellUtils.storeZookeeperPassword(session, options.getZookeeperPassword());
         if (zookeeperPassword == null && !generateZookeeperPassword) {
@@ -272,6 +332,7 @@ final class CreateAction extends AbstractAction {
             System.out.println("It may take a couple of seconds for the container to provision...");
             System.out.println("You can use the --wait-for-provisioning option, if you want this command to block until the container is provisioned.");
         }
+
         return null;
     }
 

@@ -1,0 +1,15 @@
+{
+    "startCommand": "keycloak-appliance-dist-all-1.0-beta-3/keycloak/bin/standalone.sh",
+    "pidFile": "keycloak-wildfly.pid",
+    "restartCommand": "",
+    "statusCommand": "",
+    "killCommand": "",
+    "configureCommand": "",
+
+    "deployPath": "keycloak-appliance-dist-all-1.0-beta-3/keycloak/standalone/deployments",
+    "sharedLibraryPath": "keycloak-appliance-dist-all-1.0-beta-3/keycloak/standalone/lib",
+
+    "environment": {
+        "JBOSS_PIDFILE": "keycloak-wildfly.pid"
+    }
+}

@@ -18,8 +18,8 @@ package io.fabric8.commands;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
-import io.fabric8.boot.commands.support.ContainerCompleter;
 
+import io.fabric8.commands.support.EnsembleAddCompleter;
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.scr.annotations.Activate;
@@ -37,18 +37,18 @@ import org.osgi.framework.BundleContext;
         @Property(name = "osgi.command.scope", value = EnsembleAdd.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = EnsembleAdd.FUNCTION_VALUE)
 })
-public final class EnsembleAdd extends AbstractCommandComponent {
+public class EnsembleAdd extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
-    public static final String FUNCTION_VALUE =  "ensemble-add";
+    public static final String FUNCTION_VALUE = "ensemble-add";
     public static final String DESCRIPTION = "Extend the current fabric ensemble by converting the specified containers into ensemble servers";
 
     @Reference(referenceInterface = ZooKeeperClusterService.class)
     private final ValidatingReference<ZooKeeperClusterService> clusterService = new ValidatingReference<ZooKeeperClusterService>();
 
     // Completers
-    @Reference(referenceInterface = ContainerCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
-    private ContainerCompleter containerCompleter; // dummy field
+    @Reference(referenceInterface = EnsembleAddCompleter.class, bind = "bindContainerCompleter", unbind = "unbindContainerCompleter")
+    private EnsembleAddCompleter containerCompleter; // dummy field
 
     private BundleContext bundleContext;
 
@@ -77,11 +77,11 @@ public final class EnsembleAdd extends AbstractCommandComponent {
         this.clusterService.unbind(clusterService);
     }
 
-    void bindContainerCompleter(ContainerCompleter completer) {
+    void bindContainerCompleter(EnsembleAddCompleter completer) {
         bindCompleter(completer);
     }
 
-    void unbindContainerCompleter(ContainerCompleter completer) {
+    void unbindContainerCompleter(EnsembleAddCompleter completer) {
         unbindCompleter(completer);
     }
 }

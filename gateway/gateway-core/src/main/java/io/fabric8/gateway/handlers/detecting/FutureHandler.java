@@ -34,12 +34,12 @@ public class FutureHandler<T> implements Handler<T> {
         done.countDown();
     }
 
-    T await() throws InterruptedException {
+    public T await() throws InterruptedException {
         done.await();
         return event;
     }
 
-    T await(long timeout, TimeUnit unit) throws InterruptedException {
+    public T await(long timeout, TimeUnit unit) throws InterruptedException {
         if( done.await(timeout, unit) ) {
             return event;
         } else {

@@ -36,11 +36,11 @@ import org.apache.felix.service.command.Function;
     @Property(name = "osgi.command.scope", value = ProfileDelete.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = ProfileDelete.FUNCTION_VALUE)
 })
-public final class ProfileDelete extends AbstractCommandComponent {
+public class ProfileDelete extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "profile-delete";
-    public static final String DESCRIPTION = "Delete the specified version of the specified profile (where the version defaults to the current default version)";
+    public static final String DESCRIPTION = "Delete the specified version of the specified profile";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();

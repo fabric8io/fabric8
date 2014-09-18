@@ -15,11 +15,14 @@
  */
 package io.fabric8.jaxb.dynamic.profile;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
@@ -43,6 +46,8 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
+import org.eclipse.jgit.api.Git;
+
 import io.fabric8.common.util.Maps;
 import io.fabric8.common.util.Strings;
 import io.fabric8.api.Container;
@@ -50,11 +55,16 @@ import io.fabric8.api.Containers;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.Profiles;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.git.GitService;
+import io.fabric8.git.internal.GitHelpers;
 import io.fabric8.jaxb.dynamic.CompileResults;
 import io.fabric8.jaxb.dynamic.CompileResultsHandler;
 import io.fabric8.jaxb.dynamic.DynamicCompiler;
 import io.fabric8.jaxb.dynamic.DynamicXJC;
+
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +74,7 @@ import org.slf4j.LoggerFactory;
  */
 @Component(name = "io.fabric8.profile.jaxb.compiler", label = "Fabric8 Profile JAXB Compiler", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service({DynamicCompiler.class})
-public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
+public class ProfileDynamicJaxbCompiler extends AbstractComponent implements DynamicCompiler {
     public static final String PROPERTY_SCHEMA_PATH = "schemaPath";
 
     private static final transient Logger LOG = LoggerFactory.getLogger(ProfileDynamicJaxbCompiler.class);
@@ -73,9 +83,10 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
 
     @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
-
     @Reference(referenceInterface = Introspector.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
     private Introspector introspector;
+    @Reference(referenceInterface = GitService.class)
+    private GitService gitService;
 
     private String schemaPath;
     private Timer timer = new Timer();
@@ -113,6 +124,7 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
+        activateComponent();
     }
 
     @Deactivate
@@ -123,6 +135,7 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
         if (localIntrospector != null) {
             localIntrospector.destroy();
         }
+        deactivateComponent();
     }
 
     public void setHandler(CompileResultsHandler handler) throws Exception {
@@ -149,7 +162,7 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
     }
 
     public DataStore getDataStore() {
-        return getFabricService().getDataStore();
+        return getFabricService().adapt(DataStore.class);
     }
 
     public BundleContext getBundleContext() {
@@ -207,10 +220,9 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
         Set<String> urls = new TreeSet<String>();
         FabricService fabric = getFabricService();
         Container container = fabric.getCurrentContainer();
-        String version = container.getVersion().getId();
-        List<Profile> profiles = Containers.overlayProfiles(container);
-        List<String> profileIds = Profiles.profileIds(profiles);
-        Collection<String> names = fabric.getDataStore().listFiles(version, profileIds, schemaPath);
+        String versionId = container.getVersion().getId();
+        List<String> profileIds = Containers.overlayProfiles(container);
+        Collection<String> names = listFiles(versionId, profileIds, schemaPath);
         for (String name : names) {
             if (name.endsWith(".xsd")) {
                 String prefix = schemaPath;
@@ -242,5 +254,26 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
                 }
             });
         }
+    }
+
+    private Collection<String> listFiles(final String versionId, final Iterable<String> profileIds, final String path) {
+        assertValid();
+        Git git = gitService.getGit();
+        ProfileRegistry profileRegistry = getFabricService().adapt(ProfileRegistry.class);
+        SortedSet<String> answer = new TreeSet<String>();
+        for (String profileId : profileIds) {
+            profileRegistry.getRequiredProfile(versionId, profileId);
+            File profileDirectory = GitHelpers.getProfileDirectory(git, profileId);
+            File file = Strings.isNotBlank(path) ? new File(profileDirectory, path) : profileDirectory;
+            if (file.exists()) {
+                String[] values = file.list();
+                if (values != null) {
+                    for (String value : values) {
+                        answer.add(value);
+                    }
+                }
+            }
+        }
+        return Collections.unmodifiableSet(answer);
     }
 }

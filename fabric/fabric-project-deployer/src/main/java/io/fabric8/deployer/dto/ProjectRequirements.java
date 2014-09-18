@@ -15,26 +15,36 @@
  */
 package io.fabric8.deployer.dto;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Represents the project requirements and dependencies and how they should be mapped to a profile in fabric8
  */
 public class ProjectRequirements {
     private String profileId;
+    private boolean abstractProfile;
     private String version;
     private String baseVersion;
+    private String description;
     private List<String> parentProfiles;
     private List<String> features;
     private List<String> bundles;
     private List<String> featureRepositories;
+    private Integer minimumInstances;
     private DependencyDTO rootDependency;
+    private String webContextPath;
+    private Boolean useResolver;
+    private Boolean locked;
 
     @Override
     public String toString() {
         return "ProjectRequirements{" + rootDependency + "}";
+    }
+
+    public boolean isUseResolver() {
+        return useResolver != null && useResolver.booleanValue();
     }
 
     public String getProfileId() {
@@ -43,6 +53,14 @@ public class ProjectRequirements {
 
     public void setProfileId(String profileId) {
         this.profileId = profileId;
+    }
+
+    public boolean isAbstractProfile() {
+        return abstractProfile;
+    }
+
+    public void setAbstractProfile(boolean abstractProfile) {
+        this.abstractProfile = abstractProfile;
     }
 
     public String getVersion() {
@@ -85,6 +103,14 @@ public class ProjectRequirements {
         return rootDependency != null ? rootDependency.getArtifactId() : null;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public List<String> getParentProfiles() {
         return parentProfiles;
     }
@@ -115,5 +141,41 @@ public class ProjectRequirements {
 
     public void setBundles(List<String> bundles) {
         this.bundles = bundles;
+    }
+
+    public Integer getMinimumInstances() {
+        return minimumInstances;
+    }
+
+    public void setMinimumInstances(Integer minimumInstances) {
+        this.minimumInstances = minimumInstances;
+    }
+
+    public String getWebContextPath() {
+        return webContextPath;
+    }
+
+    public void setWebContextPath(String webContextPath) {
+        this.webContextPath = webContextPath;
+    }
+
+    public Boolean getUseResolver() {
+        return useResolver;
+    }
+
+    public void setUseResolver(Boolean useResolver) {
+        this.useResolver = useResolver;
+    }
+
+    public Boolean getLocked() {
+        return locked;
+    }
+
+    public void setLocked(Boolean locked) {
+        this.locked = locked;
+    }
+
+    public boolean isLocked() {
+        return locked != null && locked.booleanValue();
     }
 }

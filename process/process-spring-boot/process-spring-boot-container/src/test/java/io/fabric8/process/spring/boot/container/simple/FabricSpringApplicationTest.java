@@ -22,7 +22,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static io.fabric8.process.spring.boot.container.ComponentScanningApplicationContextInitializer.BASE_PACKAGE_PROPERTY_KEY;
+import static io.fabric8.process.spring.boot.container.FabricSpringApplication.SPRING_MAIN_SOURCES;
 
 @Configuration
 public class FabricSpringApplicationTest extends Assert {
@@ -39,7 +39,7 @@ public class FabricSpringApplicationTest extends Assert {
     @Test
     public void shouldLoadFabricStarterConfiguration() {
         // Given
-        System.setProperty(BASE_PACKAGE_PROPERTY_KEY, "io.fabric8.process.spring.boot.container.simple");
+        System.setProperty(SPRING_MAIN_SOURCES, "io.fabric8.process.spring.boot.container.simple");
 
         // When
         ApplicationContext applicationContext = new FabricSpringApplication().run();
@@ -52,7 +52,7 @@ public class FabricSpringApplicationTest extends Assert {
     @Test
     public void shouldLoadTestScopedBean() {
         // Given
-        System.setProperty(BASE_PACKAGE_PROPERTY_KEY, "io.fabric8.process.spring.boot.container.simple");
+        System.setProperty(SPRING_MAIN_SOURCES, "io.fabric8.process.spring.boot.container.simple");
 
         // When
         ApplicationContext applicationContext = new FabricSpringApplication().run();

@@ -29,6 +29,8 @@ import org.osgi.framework.BundleContext;
  */
 public class InterpolationHelper {
 
+    public static final String MARKER = "$__";
+
     private InterpolationHelper() {
     }
 
@@ -107,6 +109,7 @@ public class InterpolationHelper {
      * @param cycleMap    Map of variable references used to detect nested cycles.
      * @param configProps Set of configuration properties.
      * @param callback    the callback to obtain substitution values
+     * @param defaultsToEmptyString    sets an empty string if a replacement value is not found, leaves intact otherwise
      * @return The value of the specified string after system property substitution.
      * @throws IllegalArgumentException If there was a syntax error in the
      *                                  property placeholder syntax or a recursive variable reference.
@@ -115,7 +118,8 @@ public class InterpolationHelper {
                                    String currentKey,
                                    Map<String, String> cycleMap,
                                    Map<String, String> configProps,
-                                   SubstitutionCallback callback)
+                                   SubstitutionCallback callback,
+                                   boolean defaultsToEmptyString)
             throws IllegalArgumentException {
         if (cycleMap == null) {
             cycleMap = new HashMap<String, String>();
@@ -154,6 +158,13 @@ public class InterpolationHelper {
             return unescape(val);
         }
 
+        // TODO if we end up with startDelim bigger, lets just avoid throwing an exception
+        // don't grok why we should end here though? Seems to happen with 2 consecutive expressions
+        // e.g. see  JolokiaAgentHelperSubstituteTest.
+        if (startDelim >= stopDelim) {
+            return unescape(val);
+        }
+
         // At this point, we have found a variable placeholder so
         // we must perform a variable substitution on it.
         // Using the start and stop delimiter indices, extract
@@ -176,7 +187,14 @@ public class InterpolationHelper {
                     substValue = callback.getValue(variable);
                 }
                 if (substValue == null) {
-                    substValue = System.getProperty(variable, "");
+                    if (defaultsToEmptyString) {
+                        substValue = System.getProperty(variable, "");
+                    } else{
+                        // alters the original token to avoid infinite recursion
+                        // altered tokens are reverted in substVarsPreserveUnresolved()
+                        substValue = System.getProperty(variable, MARKER + "{" + variable + "}");
+                    }
+
                 }
             }
         }
@@ -193,7 +211,11 @@ public class InterpolationHelper {
 
         // Now perform substitution again, since there could still
         // be substitutions to make.
-        val = substVars(val, currentKey, cycleMap, configProps, callback);
+        if(defaultsToEmptyString) {
+            val = substVars(val, currentKey, cycleMap, configProps, callback, defaultsToEmptyString);
+        }else{
+            val = substVarsPreserveUnresolved(val, currentKey, cycleMap, configProps, callback);
+        }
 
         // Remove escape characters preceding {, } and \
         val = unescape(val);
@@ -201,6 +223,84 @@ public class InterpolationHelper {
         // Return the value.
         return val;
     }
+
+    /**
+     * <p>
+     * This method performs property variable substitution on the
+     * specified value. If the specified value contains the syntax
+     * <tt>${&lt;prop-name&gt;}</tt>, where <tt>&lt;prop-name&gt;</tt>
+     * refers to either a configuration property or a system property,
+     * then the corresponding property value is substituted for the variable
+     * placeholder. Multiple variable placeholders may exist in the
+     * specified value as well as nested variable placeholders, which
+     * are substituted from inner most to outer most. Configuration
+     * properties override system properties.
+     * If a corresponding replacement value is not found, an empty String will be used.
+     * </p>
+     *
+     * @param val         The string on which to perform property substitution.
+     * @param currentKey  The key of the property being evaluated used to
+     *                    detect cycles.
+     * @param cycleMap    Map of variable references used to detect nested cycles.
+     * @param configProps Set of configuration properties.
+     * @param callback    the callback to obtain substitution values
+     * @return The value of the specified string after system property substitution.
+     * @throws IllegalArgumentException If there was a syntax error in the
+     *                                  property placeholder syntax or a recursive variable reference.
+     */
+    public static String substVars(String val,
+                                   String currentKey,
+                                   Map<String, String> cycleMap,
+                                   Map<String, String> configProps,
+                                   SubstitutionCallback callback)
+            throws IllegalArgumentException {
+                return substVars(   val,
+                                    currentKey,
+                                    cycleMap,
+                                    configProps,
+                                    callback,
+                                    true);
+    }
+
+
+    /**
+     * <p>
+     * This method performs property variable substitution on the
+     * specified value. If the specified value contains the syntax
+     * <tt>${&lt;prop-name&gt;}</tt>, where <tt>&lt;prop-name&gt;</tt>
+     * refers to either a configuration property or a system property,
+     * then the corresponding property value is substituted for the variable
+     * placeholder. Multiple variable placeholders may exist in the
+     * specified value as well as nested variable placeholders, which
+     * are substituted from inner most to outer most. Configuration
+     * properties override system properties.
+     * </p>
+     *
+     * @param val         The string on which to perform property substitution.
+     * @param currentKey  The key of the property being evaluated used to
+     *                    detect cycles.
+     * @param cycleMap    Map of variable references used to detect nested cycles.
+     * @param configProps Set of configuration properties.
+     * @param callback    the callback to obtain substitution values
+     * @return The value of the specified string after system property substitution.
+     * @throws IllegalArgumentException If there was a syntax error in the
+     *                                  property placeholder syntax or a recursive variable reference.
+     */
+    public static String substVarsPreserveUnresolved(String val,
+                                                     String currentKey,
+                                                     Map<String, String> cycleMap,
+                                                     Map<String, String> configProps,
+                                                     SubstitutionCallback callback)
+            throws IllegalArgumentException {
+            String result =  substVars(   val,
+                    currentKey,
+                    cycleMap,
+                    configProps,
+                    callback,
+                    false);
+            String subs =  (result != null) ? result.replaceAll("\\" + MARKER, "\\$"): result;
+            return subs;
+        }
 
     private static String unescape(String val) {
         int escape = val.indexOf(ESCAPE_CHAR);

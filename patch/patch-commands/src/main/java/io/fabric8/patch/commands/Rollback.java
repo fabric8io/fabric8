@@ -15,28 +15,68 @@
  */
 package io.fabric8.patch.commands;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.patch.Patch;
-import io.fabric8.patch.PatchException;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
 import io.fabric8.patch.Service;
+import io.fabric8.patch.commands.support.InstallPatchCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.service.command.Function;
 
-@Command(scope = "patch", name = "rollback", description = "Rollback a patch installation")
-public class Rollback extends PatchCommandSupport {
+@Component(immediate = true)
+@org.apache.felix.scr.annotations.Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = Rollback.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = Rollback.FUNCTION_VALUE)
+})
+public class Rollback extends AbstractCommandComponent {
 
-    @Argument(name = "PATCH", description = "name of the patch to rollback", required = true, multiValued = false)
-    String patchId;
-    
+    public static final String SCOPE_VALUE = "patch";
+    public static final String FUNCTION_VALUE = "rollback";
+    public static final String DESCRIPTION = "Rollback a patch installation";
+
+    @Reference(referenceInterface = Service.class)
+    private final ValidatingReference<Service> service = new ValidatingReference<Service>();
+
+    // Completers
+    @Reference(referenceInterface = InstallPatchCompleter.class, bind = "bindInstallCompleter", unbind = "unbindInstallCompleter")
+    private InstallPatchCompleter installCompleter; // dummy field
+
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
     @Override
-    protected void doExecute(Service service) throws Exception {
-        Patch patch = service.getPatch(patchId);
-        if (patch == null) {
-            throw new PatchException("Patch '" + patchId + "' not found");
-        }
-        if (!patch.isInstalled()) {
-            throw new PatchException("Patch '" + patchId + "' is not installed");
-        }
-        patch.rollback(false);
+    public Action createNewAction() {
+        assertValid();
+        return new RollbackAction(service.get());
+    }
+
+    void bindService(Service service) {
+        this.service.bind(service);
+    }
+
+    void unbindService(Service service) {
+        this.service.unbind(service);
+    }
+
+    void bindInstallCompleter(InstallPatchCompleter completer) {
+        bindCompleter(completer);
+    }
+
+    void unbindInstallCompleter(InstallPatchCompleter completer) {
+        unbindCompleter(completer);
     }
 
 }

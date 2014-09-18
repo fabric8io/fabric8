@@ -29,8 +29,8 @@ public final class FabricConstants {
     public static final String FRAMEWORK_VERSION;
 
     static {
-        String fabricVersion="unknown";
-        String frameworkVersion="unknown";
+        String fabricVersion = "unknown";
+        String frameworkVersion = "unknown";
         InputStream is = FabricConstants.class.getResourceAsStream("version.properties");
         InputStreamReader reader = null;
         Properties properties = new Properties();
@@ -50,8 +50,8 @@ public final class FabricConstants {
             is.close();
           } catch (Throwable e) {
           }
-
         }
+
         FABRIC_VERSION = fabricVersion;
         FRAMEWORK_VERSION = frameworkVersion;
     }

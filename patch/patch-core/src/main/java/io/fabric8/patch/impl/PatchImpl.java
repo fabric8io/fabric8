@@ -48,6 +48,11 @@ public class PatchImpl implements Patch {
     }
 
     @Override
+    public Collection<String> getRequirements() {
+        return patch.getRequirements();
+    }
+
+    @Override
     public String getVersionRange(String bundle) {
         return patch.getVersionRange(bundle);
     }

@@ -15,16 +15,24 @@
  */
 package io.fabric8.service.child;
 
+import io.fabric8.api.AutoScaleRequest;
+import io.fabric8.api.ChildScalingRequirements;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.Containers;
 import io.fabric8.api.CreateChildContainerOptions;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.NameValidator;
+import io.fabric8.api.ProfileRequirements;
+import io.fabric8.api.scr.support.Strings;
+import io.fabric8.common.util.Filter;
+import io.fabric8.common.util.Filters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  */
@@ -43,19 +51,24 @@ public class ChildAutoScaler implements ContainerAutoScaler {
     }
 
     @Override
-    public void createContainers(String version, String profile, int count) throws Exception {
+    public void createContainers(AutoScaleRequest request) throws Exception {
+        int count = request.getDelta();
+        String profile = request.getProfile();
+        String version = request.getVersion();
+        FabricService fabricService = request.getFabricService();
         CreateChildContainerOptions.Builder builder = null;
-        FabricService fabricService = containerProvider.getFabricService();
         if (fabricService != null) {
-            builder = createAuthoScaleOptions(fabricService);
+            builder = createAutoScaleOptions(request, fabricService);
         }
         if (builder != null) {
-            Container[] containers = fabricService.getContainers();
+            Set<String> ignoreContainerNames = new HashSet<>();
             for (int i = 0; i < count; i++) {
                 final CreateChildContainerOptions.Builder configuredBuilder = builder.number(1).version(version).profiles(profile);
 
+                Container[] containers = fabricService.getContainers();
                 NameValidator nameValidator = Containers.createNameValidator(containers);
                 String name = Containers.createContainerName(containers, profile, containerProvider.getScheme(), nameValidator);
+                ignoreContainerNames.add(name);
 
                 CreateChildContainerOptions options = configuredBuilder.name(name).build();
                 LOG.info("Creating container name " + name + " version " + version + " profile " + profile + " " + count + " container(s)");
@@ -66,23 +79,53 @@ public class ChildAutoScaler implements ContainerAutoScaler {
         }
     }
 
-    protected CreateChildContainerOptions.Builder createAuthoScaleOptions(FabricService fabricService) {
+    protected CreateChildContainerOptions.Builder createAutoScaleOptions(AutoScaleRequest request, FabricService fabricService) {
         CreateChildContainerOptions.Builder builder = CreateChildContainerOptions.builder();
         Container[] containers = fabricService.getContainers();
         if (containers != null) {
-            String parent = null;
-            for (Container container : containers) {
-                if (container.isRoot()) {
-                    parent = container.getId();
-                    builder = builder.parent(parent);
-                    break;
-                }
+            List<String> containerIds = Containers.rootContainerIds(containers);
+            // allow the requirements to customise which root to use...
+            if (containerIds.isEmpty()) {
+                throw new IllegalStateException("No root containers are available!");
+            }
+            String rootContainer = null;
+            if (containerIds.size() == 1) {
+                rootContainer = containerIds.get(0);
+            } else {
+                rootContainer = chooseRootContainer(request, containerIds);
+            }
+            if (Strings.isNullOrBlank(rootContainer)) {
+                throw new IllegalStateException("Could not choose a root container from the possible IDs: " + containerIds + " with requirements: " +  getChildScalingRequirements(request));
+            } else {
+                builder = builder.parent(rootContainer);
             }
         }
         String zookeeperUrl = fabricService.getZookeeperUrl();
         String zookeeperPassword = fabricService.getZookeeperPassword();
         return builder.jmxUser("admin").jmxPassword(zookeeperPassword).
                 zookeeperUrl(zookeeperUrl).zookeeperPassword(zookeeperPassword);
+    }
+
+    protected String chooseRootContainer(AutoScaleRequest request, List<String> containerIds) {
+        ChildScalingRequirements scalingRequirements = getChildScalingRequirements(request);
+        if (scalingRequirements != null) {
+            List<String> rootContainerPatterns = scalingRequirements.getRootContainerPatterns();
+            if (rootContainerPatterns != null && !rootContainerPatterns.isEmpty()) {
+                Filter<String> filter = Filters.createStringFilters(rootContainerPatterns);
+                List<String> matchingRootContainers = Filters.filter(containerIds, filter);
+                return Filters.matchRandomElement(matchingRootContainers);
+            }
+        }
+        return Filters.matchRandomElement(containerIds);
+    }
+
+    protected ChildScalingRequirements getChildScalingRequirements(AutoScaleRequest request) {
+        ChildScalingRequirements scalingRequirements = null;
+        ProfileRequirements profileRequirements = request.getProfileRequirements();
+        if (profileRequirements != null) {
+            scalingRequirements = profileRequirements.getChildScalingRequirements();
+        }
+        return scalingRequirements;
     }
 
     @Override

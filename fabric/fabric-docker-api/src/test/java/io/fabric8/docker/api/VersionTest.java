@@ -15,15 +15,10 @@
  */
 package io.fabric8.docker.api;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import com.google.mockwebserver.MockResponse;
-import com.google.mockwebserver.MockWebServer;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.google.common.io.Resources.getResource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -31,10 +26,7 @@ public class VersionTest extends DockerBaseTest {
 
     @Test
     public void testVersion() throws IOException {
-        String json = Resources.toString(getResource("version.json"), Charsets.UTF_8);
-        MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody(json));
-        server.play();
+        recordResponse("version");
         Docker docker = createDockerForMock(server);
         Version version = docker.version();
         assertNotNull(version);
@@ -42,4 +34,5 @@ public class VersionTest extends DockerBaseTest {
         assertEquals(version.getGitCommit(), "5a2a5cc+CHANGES");
         assertEquals(version.getGoVersion(), "go1.0.3");
     }
+
 }

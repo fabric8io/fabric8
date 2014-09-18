@@ -15,14 +15,14 @@
  */
 package io.fabric8.process.manager.config;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Helper methods for marshaling to and from JSON
@@ -32,7 +32,7 @@ public class JsonHelper {
     private static ObjectMapper mapper = new ObjectMapper();
 
     static {
-        mapper.getSerializationConfig().withSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY);
+        mapper.getSerializationConfig().withSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     }
 
 
@@ -55,6 +55,10 @@ public class JsonHelper {
 
     public static void saveProcessConfig(ProcessConfig config, File installDir) throws IOException {
         mapper.writeValue(createControllerConfigFile(installDir), config);
+    }
+
+    public static String toJson(ProcessConfig config) throws IOException {
+        return mapper.writeValueAsString(config);
     }
 
 

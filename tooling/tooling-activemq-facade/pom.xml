@@ -23,14 +23,14 @@
   <parent>
     <groupId>io.fabric8</groupId>
     <artifactId>tooling</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
   </parent>
 
   <groupId>io.fabric8</groupId>
   <artifactId>tooling-activemq-facade</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: Tooling :: ActiveMQ Facade</name>
+  <name>Fabric8 :: Tooling :: ActiveMQ Facade (deprecated)</name>
   
   <properties>
     <fuse.osgi.import.pkg>
@@ -41,7 +41,7 @@
     <fuse.osgi.export>
         io.fabric8.activemq.facade*;version=${project.version};-noimport:=true,
     </fuse.osgi.export>
-    <fuse.osgi.bundle.name>Fuse Active MQ Facade Plugin</fuse.osgi.bundle.name>
+    <fuse.osgi.bundle.name>Fabric8 Active MQ Facade Plugin</fuse.osgi.bundle.name>
   </properties>
   
   <dependencies>
@@ -67,53 +67,6 @@
       <groupId>io.fabric8.insight</groupId>
       <artifactId>insight-log</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.fabric8.itests</groupId>
-      <artifactId>fabric-itests-common</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <!--
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-        <artifactId>activemq-camel</artifactId>
-      <version>${activemq-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-core</artifactId>
-      <version>${activemq-version}</version>
-      <scope>test</scope>
-      <type>test-jar</type>
-    </dependency>
-  -->
-
-    <!--
-    <dependency>
-      <groupId>org.apache.xbean</groupId>
-      <artifactId>xbean-spring</artifactId>
-    </dependency>
-  -->
-
-<!--
-    <dependency>
-      <groupId>com.thoughtworks.xstream</groupId>
-      <artifactId>xstream</artifactId>
-    </dependency>
-  -->
-
-  <dependency>
-    <groupId>junit</groupId>
-    <artifactId>junit</artifactId>
-    <version>${junit-version}</version>
-    <scope>test</scope>
-  </dependency>
-  <dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>slf4j-log4j12</artifactId>
-    <version>${slf4j-version}</version>
-    <scope>test</scope>
-  </dependency>
 
 </dependencies>
 

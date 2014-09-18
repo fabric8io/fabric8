@@ -32,6 +32,21 @@ package io.fabric8.zookeeper.bootstrap;
  * limitations under the License.
  */
 
+import io.fabric8.api.Constants;
+import io.fabric8.api.ContainerOptions;
+import io.fabric8.api.CreateEnsembleOptions;
+import io.fabric8.api.DataStoreTemplate;
+import io.fabric8.api.RuntimeProperties;
+import io.fabric8.api.ZkDefs;
+import io.fabric8.api.jcip.ThreadSafe;
+import io.fabric8.api.scr.AbstractComponent;
+import io.fabric8.api.scr.Configurer;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.Strings;
+import io.fabric8.utils.HostUtils;
+import io.fabric8.utils.PasswordEncoder;
+import io.fabric8.utils.Ports;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,29 +58,15 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
-import io.fabric8.api.ContainerOptions;
-import io.fabric8.api.scr.Configurer;
-import io.fabric8.common.util.Strings;
-import io.fabric8.utils.PasswordEncoder;
-
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.utils.properties.Properties;
-
-import io.fabric8.api.Constants;
-import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.api.DataStoreRegistrationHandler;
-import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.utils.HostUtils;
-import io.fabric8.utils.Ports;
-import io.fabric8.zookeeper.ZkDefs;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -74,93 +75,112 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = BootstrapConfiguration.COMPONENT_NAME, label = "Fabric8 Bootstrap Configuration", immediate = true, metatype = false)
+@Component(name = BootstrapConfiguration.COMPONENT_NAME, configurationPid = BootstrapConfiguration.COMPONENT_PID, policy = ConfigurationPolicy.OPTIONAL, label = "Fabric8 Bootstrap Configuration", immediate = true, metatype = false)
 @Service(BootstrapConfiguration.class)
 public class BootstrapConfiguration extends AbstractComponent {
 
     static final Logger LOGGER = LoggerFactory.getLogger(BootstrapConfiguration.class);
 
     public static final String ENSEMBLE_MARKER = "ensemble-created.properties";
-    public static final String COMPONENT_NAME = "io.fabric8.zookeeper.configuration";
+    public static final String COMPONENT_PID = "io.fabric8.bootstrap.configuration";
+    public static final String COMPONENT_NAME = COMPONENT_PID;
 
     public static final String DEFAULT_ADMIN_USER = "admin";
-    public static final String DEFAULT_ADMIN_ROLE = "admin";
+    public static final String DEFAULT_ADMIN_ROLE = "admin,manager,viewer";
     public static final String ROLE_DELIMITER = ",";
 
     @Reference
     private Configurer configurer;
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
-    @Reference(referenceInterface = DataStoreRegistrationHandler.class)
-    private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
+    @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
+    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
 
     private CreateEnsembleOptions options;
 
     @Property(name = "ensemble.auto.start", label = "Ensemble Auto Start", description = "Flag to automatically start a zookeeper ensemble", value = "${ensemble.auto.start}")
     private boolean ensembleAutoStart;
-
     @Property(name = "agent.auto.start", label = "Agent Auto Start", description = "Flag to automatically start the provisioning agent", value = "${agent.auto.start}")
     private boolean agentAutoStart = true;
-
     @Property(name = "bind.address", label = "Bind Address", description = "The Bind Address", value = "${bind.address}")
     private String bindAddress = "0.0.0.0";
-
     @Property(name = "zookeeper.password", label = "ZooKeeper Password", description = "The zookeeper password", value = "${zookeeper.password}")
     private String zookeeperPassword = null;
-
     @Property(name = "zookeeper.server.port", label = "ZooKeeper Server Port", description = "The zookeeper server binding port", value = "${zookeeper.server.port}")
     private int zookeeperServerPort = 2181;
-
     @Property(name = "zookeeper.server.connection.port", label = "ZooKeeper Client Port", description = "The zookeeper server connection port", value = "${zookeeper.server.connection.port}")
     private int zookeeperServerConnectionPort = 2181;
-
     @Property(name = "profiles.auto.import", label = "Auto Import Enabled", description = "Flag to automatically import the default profiles", value = "${profiles.auto.import}")
     private boolean profilesAutoImport = true;
-
     @Property(name = "profiles.auto.import.path", label = "Auto Import Enabled", description = "Flag to automatically import the default profiles", value = "${profiles.auto.import.path}")
     private String profilesAutoImportPath = "fabric/import";
-
     @Property(name = "profiles", value = "${profiles}")
     private Set<String> profiles = Collections.emptySet();
-
     @Property(name = "version", value = "${version}")
     private String version = ContainerOptions.DEFAULT_VERSION;
-
-    @Property(name = "resolver", label = "Global Resolver", description = "The global resolver", value = "${global.resolver}")
-    private String resolver = "localhostname";
-
-    @Property(name = "manualip", label = "Global Resolver", description = "The global resolver", value = "${manualip}")
+    @Property(name = "local.resolver", label = "Resolver", description = "The container resolver", value = "${local.resolver}")
+    private String localResolver;
+    @Property(name = "global.resolver", label = "Global Resolver", description = "The global resolver", value = "${global.resolver}")
+    private String globalResolver = "localhostname";
+    @Property(name = "manualip", label = "Global Resolver", description = "The manally set ip", value = "${manualip}")
     private String manualip;
-
-    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}", propertyPrivate = true)
-    private String name;
-    @Property(name = "home", label = "Container Home", description = "The home directory of the container", value = "${karaf.home}", propertyPrivate = true)
-    private String home;
-    @Property(name = "dataDir", label = "Container Data Dir", description = "The data directory of the container", value = "${karaf.data}", propertyPrivate = true)
+    @Property(name = "publichostname", label = "Public Hostname", description = "The public hostname", value = "${publichostname}")
+    private String publichostname;
+    @Property(name = "runtime.id", label = "Container Name", description = "The name of the container", value = "${runtime.id}", propertyPrivate = true)
+    private String runtimeId;
+    @Property(name = "homeDir", label = "Container Home", description = "The homeDir directory of the container", value = "${runtime.home}", propertyPrivate = true)
+    private File homeDir;
+    @Property(name = "confDir", label = "Container Conf", description = "The configuration directory of the container", value = "${runtime.conf}", propertyPrivate = true)
+    private File confDir;
+    @Property(name = "dataDir", label = "Container Data Dir", description = "The data directory of the container", value = "${runtime.data}", propertyPrivate = true)
     private File dataDir;
     @Property(name = "zookeeper.url", label = "ZooKeeper URL", description = "The url to an existing zookeeper ensemble", value = "${zookeeper.url}", propertyPrivate = true)
     private String zookeeperUrl;
 
     private ComponentContext componentContext;
+    private Map<String, ?> configuration;
 
     @Activate
-    void activate(ComponentContext componentContext, Map<String, ?> configuration) throws Exception {
+    void activate(ComponentContext componentContext, Map<String, ?> conf) throws Exception {
         this.componentContext = componentContext;
-        configurer.configure(configuration, this);
+        configureInternal(conf);
+        bootIfNeeded();
+        activateComponent();
+    }
+
+    @Modified
+    void modified(Map<String, ?> conf) throws Exception {
+        configureInternal(conf);
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
+    void configureInternal(Map<String, ?> conf) throws Exception {
+        configuration = configurer.configure(conf, this);
+
+        if (Strings.isNullOrBlank(runtimeId)) {
+            throw new IllegalArgumentException("Runtime id must not be null or empty.");
+        }
+
+        if (Strings.isNullOrBlank(localResolver)) {
+            localResolver = globalResolver;
+        }
 
         String decodedZookeeperPassword = null;
 
         Properties userProps = new Properties();
-        // [TODO] abstract access to karaf users.properties
         try {
-            userProps.load(new File(home + "/etc/users.properties"));
+            userProps.load(new File(confDir , "users.properties"));
         } catch (IOException e) {
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
 
         if (Strings.isNotBlank(zookeeperPassword)) {
             decodedZookeeperPassword = PasswordEncoder.decode(zookeeperPassword);
-        } else if (userProps.containsKey(DEFAULT_ADMIN_ROLE)) {
+        } else if (userProps.containsKey(DEFAULT_ADMIN_USER)) {
             String passwordAndRole = userProps.getProperty(DEFAULT_ADMIN_USER).trim();
             decodedZookeeperPassword = passwordAndRole.substring(0, passwordAndRole.indexOf(ROLE_DELIMITER));
         } else {
@@ -173,14 +193,17 @@ public class BootstrapConfiguration extends AbstractComponent {
 
         options = CreateEnsembleOptions.builder().bindAddress(bindAddress).agentEnabled(agentAutoStart).ensembleStart(ensembleAutoStart).zookeeperPassword(decodedZookeeperPassword)
                 .zooKeeperServerPort(zookeeperServerPort).zooKeeperServerConnectionPort(zookeeperServerConnectionPort).autoImportEnabled(profilesAutoImport)
-                .importPath(profilesAutoImportPath).users(userProps).profiles(profiles).version(version).build();
+                .importPath(profilesAutoImportPath).resolver(localResolver).globalResolver(globalResolver).users(userProps).profiles(profiles).version(version).build();
+    }
 
+    void bootIfNeeded() throws IOException {
         BundleContext bundleContext = componentContext.getBundleContext();
         boolean isCreated = checkCreated(bundleContext);
 
         if (!Strings.isNotBlank(zookeeperUrl) && !isCreated && options.isEnsembleStart()) {
             String connectionUrl = getConnectionUrl(options);
-            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(name, home, connectionUrl, options));
+            DataStoreOptions bootOptions = new DataStoreOptions(runtimeId, homeDir, connectionUrl, options);
+            runtimeProperties.get().putRuntimeAttribute(DataStoreTemplate.class, new DataStoreBootstrapTemplate(bootOptions));
 
             createOrUpdateDataStoreConfig(options);
             createZooKeeeperServerConfig(options);
@@ -188,13 +211,6 @@ public class BootstrapConfiguration extends AbstractComponent {
 
             markCreated(bundleContext);
         }
-
-        activateComponent();
-    }
-
-    @Deactivate
-    void deactivate() {
-        deactivateComponent();
     }
 
     public ComponentContext getComponentContext() {
@@ -228,7 +244,7 @@ public class BootstrapConfiguration extends AbstractComponent {
     }
 
     public void createOrUpdateDataStoreConfig(CreateEnsembleOptions options) throws IOException {
-        Configuration config = configAdmin.get().getConfiguration(Constants.DATASTORE_TYPE_PID, null);
+        Configuration config = configAdmin.get().getConfiguration(Constants.DATASTORE_PID, null);
         Dictionary<String, Object> properties = config.getProperties();
         if (properties == null || properties.isEmpty()) {
             boolean updateConfig = false;
@@ -285,17 +301,20 @@ public class BootstrapConfiguration extends AbstractComponent {
     }
 
     private String getConnectionAddress(CreateEnsembleOptions options) throws UnknownHostException {
-        String oResolver = Strings.isNotBlank(options.getResolver()) ? options.getResolver() : resolver;
+        String oResolver = Strings.isNotBlank(options.getResolver()) ? options.getResolver() : localResolver;
         String oManualIp = Strings.isNotBlank(options.getManualIp()) ? options.getManualIp() : manualip;
 
         if (oResolver.equals(ZkDefs.LOCAL_HOSTNAME)) {
             return HostUtils.getLocalHostName();
         } else if (oResolver.equals(ZkDefs.LOCAL_IP)) {
             return HostUtils.getLocalIp();
+        } else if (oResolver.equals(ZkDefs.PUBLIC_HOSTNAME) && (publichostname != null && !publichostname.isEmpty())) {
+            return publichostname;
         } else if (oResolver.equals(ZkDefs.MANUAL_IP) && (oManualIp != null && !oManualIp.isEmpty())) {
             return oManualIp;
-        } else
+        } else {
             return HostUtils.getLocalHostName();
+        }
     }
 
     private void loadPropertiesFrom(Dictionary<String, Object> dictionary, String from) {
@@ -320,19 +339,70 @@ public class BootstrapConfiguration extends AbstractComponent {
         }
     }
 
+    public String getLocalResolver() {
+        return localResolver;
+    }
+
+    public String getGlobalResolver() {
+        return globalResolver;
+    }
+
+    public String getManualip() {
+        return manualip;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public Set<String> getProfiles() {
+        return Collections.unmodifiableSet(profiles);
+    }
+
+    public String getBindAddress() {
+        return bindAddress;
+    }
+
+    public Map<String, ?> getConfiguration() {
+        return Collections.unmodifiableMap(configuration);
+    }
+
+    public static class DataStoreOptions {
+        private final String containerId;
+        private final File homeDir; 
+        private final String connectionUrl;
+        private final CreateEnsembleOptions options;
+        public DataStoreOptions(String containerId, File homeDir, String connectionUrl, CreateEnsembleOptions options) {
+            this.connectionUrl = connectionUrl;
+            this.containerId = containerId;
+            this.homeDir = homeDir;
+            this.options = options;
+        }
+        public String getContainerId() {
+            return containerId;
+        }
+        public File getHomeDir() {
+            return homeDir;
+        }
+        public String getConnectionUrl() {
+            return connectionUrl;
+        }
+        public CreateEnsembleOptions getCreateOptions() {
+            return options;
+        }
+    }
+    
     void bindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.bind(service);
     }
-
     void unbindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.unbind(service);
     }
 
-    void bindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.bind(service);
+    void bindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.bind(service);
     }
-
-    void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.unbind(service);
+    void unbindRuntimeProperties(RuntimeProperties service) {
+        this.runtimeProperties.unbind(service);
     }
 }

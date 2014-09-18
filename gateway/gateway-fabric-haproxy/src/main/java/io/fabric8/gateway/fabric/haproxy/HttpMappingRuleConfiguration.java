@@ -114,7 +114,7 @@ public class HttpMappingRuleConfiguration extends AbstractComponent {
         Objects.notNull(zkPath, "zooKeeperPath");
         Objects.notNull(getUriTemplate(), "uriTemplate");
 
-        LoadBalancer<String> loadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
+        LoadBalancer loadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
 
         LOG.info("activating http mapping ZooKeeper path: " + zkPath + " with URI template: " + uriTemplate
                 + " enabledVersion: " + enabledVersion + " with load balancer: " + loadBalancer);

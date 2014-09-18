@@ -62,12 +62,14 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
 
     private final MavenRepositoryURL cache;
     private final MavenRepositoryURL system;
+    private final MavenRepositoryURL inlined;
     private final MavenConfiguration configuration;
 
-    public MavenDownloadTask(String url, MavenRepositoryURL cache, MavenRepositoryURL system, MavenConfiguration configuration, ExecutorService executor) {
+    public MavenDownloadTask(String url, MavenRepositoryURL cache, MavenRepositoryURL system, MavenRepositoryURL inlined, MavenConfiguration configuration, ExecutorService executor) {
         super(url, executor);
         this.cache = cache;
         this.system = system;
+        this.inlined = inlined;
         this.configuration = configuration;
     }
 
@@ -138,6 +140,9 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
     private Set<DownloadableArtifact> collectPossibleDownloads(final Parser parser)
             throws MalformedURLException {
         final List<MavenRepositoryURL> repositories = new ArrayList<MavenRepositoryURL>();
+        if (inlined != null) {
+            repositories.add(inlined);
+        }
         repositories.addAll(configuration.getRepositories());
         repositories.add(configuration.getLocalRepository());
         repositories.add(system);
@@ -450,8 +455,8 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
     private InputStream prepareInputStream(URL repositoryURL, final String path)
             throws IOException {
         String repository = repositoryURL.toExternalForm();
-        if (!repository.endsWith(org.ops4j.pax.url.mvn.internal.Parser.FILE_SEPARATOR)) {
-            repository = repository + org.ops4j.pax.url.mvn.internal.Parser.FILE_SEPARATOR;
+        if (!repository.endsWith(Parser.FILE_SEPARATOR)) {
+            repository = repository + Parser.FILE_SEPARATOR;
         }
         configuration.enableProxy(repositoryURL);
         final URL url = new URL(repository + path);

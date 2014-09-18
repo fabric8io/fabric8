@@ -22,11 +22,13 @@ import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,28 +52,25 @@ public class JavaContainers {
         DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
         Map<String, Parser> artifacts = new TreeMap<String, Parser>();
         for (Profile profile : profileList) {
-            Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(downloadManager, profile);
+            Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(fabric, downloadManager, profile);
             artifacts.putAll(profileArtifacts);
             appendMavenDependencies(artifacts, profile);
         }
         return artifacts;
     }
 
-    public static Map<String, File> getJavaContainerArtifactsFiles(FabricService fabric, List<Profile> profileList, ExecutorService downloadExecutor) throws Exception {
-        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
+    public static Map<String, File> getJavaContainerArtifactsFiles(FabricService fabricService, List<Profile> profileList, ExecutorService downloadExecutor) throws Exception {
+        DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, downloadExecutor);
         Map<String, File> answer = new HashMap<String, File>();
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
         for (Profile profile : profileList) {
-            Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(downloadManager, profile.getOverlay());
+            Profile overlay = profileService.getOverlayProfile(profile);
+            Map<String, Parser> profileArtifacts = AgentUtils.getProfileArtifacts(fabricService, downloadManager, overlay);
             appendMavenDependencies(profileArtifacts, profile);
             Set<String> rawUrls = profileArtifacts.keySet();
             List<String> cleanUrlsToDownload = new ArrayList<String>();
             for (String rawUrl : rawUrls) {
-                String mvnUrl = rawUrl;
-                // remove any prefix before :mvn:
-                int idx = mvnUrl.indexOf(":mvn:");
-                if (idx > 0) {
-                    mvnUrl = mvnUrl.substring(idx + 1);
-                }
+                String mvnUrl = removeUriPrefixBeforeMaven(rawUrl);
                 cleanUrlsToDownload.add(mvnUrl);
             }
             Map<String, File> profileFiles = AgentUtils.downloadLocations(downloadManager, cleanUrlsToDownload);
@@ -82,10 +81,26 @@ public class JavaContainers {
         return answer;
     }
 
+    /**
+     * Any URI which has a prefix before the "mvn:" part of the URI, such as "fab:mvn:..." or "war:mvn:..." gets the prefix removed so
+     * that the URI is just "mvn:..."
+     *
+     * @return the URI with any prefix before ":mvn:" removed so that the string starts with "mvn:"
+     */
+    public static String removeUriPrefixBeforeMaven(String rawUrl) {
+        String answer = rawUrl;
+        // remove any prefix before :mvn:
+        int idx = answer.indexOf(":mvn:");
+        if (idx > 0) {
+            answer = answer.substring(idx + 1);
+        }
+        return answer;
+    }
+
     protected static void appendMavenDependencies(Map<String, Parser> artifacts, Profile profile) {
-        List<String> configurationFileNames = profile.getConfigurationFileNames();
+        Set<String> configurationFileNames = profile.getConfigurationFileNames();
         for (String configurationFileName : configurationFileNames) {
-            if (configurationFileName.startsWith("modules/") && configurationFileName.endsWith("-requirements.json")) {
+            if (configurationFileName.startsWith("dependencies/") && configurationFileName.endsWith("-requirements.json")) {
                 byte[] data = profile.getFileConfiguration(configurationFileName);
                 try {
                     ProjectRequirements requirements = DtoHelper.getMapper().readValue(data, ProjectRequirements.class);
@@ -104,7 +119,7 @@ public class JavaContainers {
     }
 
     protected static void addMavenDependencies(Map<String, Parser> artifacts, DependencyDTO dependency) throws MalformedURLException {
-        String url = dependency.toBundleUrl();
+        String url = dependency.toBundleUrlWithType();
         Parser parser = Parser.parsePathWithSchemePrefix(url);
         String scope = dependency.getScope();
         if (!artifacts.containsKey(url) && !artifacts.containsValue(parser) && !(Objects.equal("test", scope))) {

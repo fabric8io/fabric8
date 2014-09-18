@@ -25,7 +25,7 @@ public class ServerAddressResolverTest extends Assert {
         // Setup FabricServerListener
         PrefixAddressResolver resolver = new PrefixAddressResolver();
         resolver.setPrefixAddress("http://localhost:8081/cxf/service");
-        FabricServerListener listener = new FabricServerListener(null, resolver);
+        FabricServerListener listener = new FabricServerListener(null, resolver, null);
         String address = listener.getFullAddress("/test1");
         assertEquals("Get a wrong address.", "http://localhost:8081/cxf/service/test1", address);
 

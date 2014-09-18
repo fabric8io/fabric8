@@ -21,7 +21,7 @@
     <parent>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-project</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>fabric-cxf</artifactId>
@@ -33,10 +33,19 @@
         <fuse.osgi.export>
             io.fabric8.cxf*;version=${project.version},
         </fuse.osgi.export>
+        <fuse.osgi.import>
+            org.apache.cxf.management.jmx,                           
+            com.fasterxml.jackson.module.jaxb;resolution:=mandatory,
+            *
+        </fuse.osgi.import>
     </properties>
 
     <dependencies>
 
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-core</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
@@ -122,28 +131,25 @@
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jaxb-annotations</artifactId>
-            <version>${jackson-2-version}</version>
+            <version>${jackson2-version}</version>
             <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson-2-version}</version>
             <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${jackson-2-version}</version>
             <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>${jackson-2-version}</version>
             <optional>true</optional>
         </dependency>
 
@@ -164,20 +170,6 @@
                     <forkMode>perTest</forkMode>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Import-Package>
-                           org.apache.cxf.management.jmx,
-                           *
-                        </Import-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-
         </plugins>
     </build>
 

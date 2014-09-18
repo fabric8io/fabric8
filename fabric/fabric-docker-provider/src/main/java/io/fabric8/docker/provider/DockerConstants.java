@@ -28,11 +28,6 @@ public class DockerConstants {
     public static final String DOCKER_PROVIDER_PID = "io.fabric8.docker.provider";
 
     /**
-     * The PID for the list of ports and their default values
-     */
-    public static final String PORTS_PID = "io.fabric8.ports";
-
-    /**
      * The default docker image to create
      */
     public static final String DEFAULT_IMAGE = "fabric8/fabric8";
@@ -47,22 +42,6 @@ public class DockerConstants {
      * no docker specific configuration in the given profiles which are being created.
      */
     public static final String DOCKER_PROVIDER_PROFILE_ID = "docker";
-
-    /**
-     * The name of the Jolokia port in the configuration PID io.fabric8.ports
-     */
-    public static final String JOLOKIA_PORT_NAME = "JOLOKIA";
-
-    /**
-     * Config Admin property keys of the {@link #DOCKER_PROVIDER_PID}
-     */
-    public static class PROPERTIES {
-        public static final String IMAGE = "image";
-        public static final String CMD = "cmd";
-        public static final String JAVA_LIBRARY_PATH = "javaLibraryPath";
-        public static final String IMAGE_REPOSITORY = "imageRepository";
-        public static final String IMAGE_ENTRY_POINT = "imageEntryPoint";
-    }
 
     /**
      * Environment variables

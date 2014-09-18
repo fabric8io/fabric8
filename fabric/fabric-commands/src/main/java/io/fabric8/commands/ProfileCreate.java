@@ -36,7 +36,7 @@ import org.apache.felix.service.command.Function;
     @Property(name = "osgi.command.scope", value = ProfileCreate.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = ProfileCreate.FUNCTION_VALUE)
 })
-public final class ProfileCreate extends AbstractCommandComponent {
+public class ProfileCreate extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "profile-create";

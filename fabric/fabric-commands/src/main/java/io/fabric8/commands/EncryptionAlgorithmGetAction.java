@@ -24,7 +24,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.exists;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
 
-@Command(name = "crypt-algorithm-get", scope = "fabric", description = "Displays the current encryption algorithm.")
+@Command(name = EncryptionAlgorithmGet.FUNCTION_VALUE, scope = EncryptionAlgorithmGet.SCOPE_VALUE, description = EncryptionAlgorithmGet.DESCRIPTION)
 public class EncryptionAlgorithmGetAction extends AbstractAction {
 
     private final CuratorFramework curator;

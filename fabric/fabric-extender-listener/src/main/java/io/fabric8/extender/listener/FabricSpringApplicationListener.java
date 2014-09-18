@@ -15,6 +15,7 @@
  */
 package io.fabric8.extender.listener;
 
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.Configurer;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -41,14 +42,13 @@ import java.util.Map;
 @ThreadSafe
 @Component(name = "io.fabric8.extender.listener.spring", label = "Fabric8 Spring Application Listener", immediate = true, metatype = false)
 @References({
-    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
+    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator"),
+    @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
 })
 public final class FabricSpringApplicationListener extends AbstractExtenderListener {
 
     @Reference
     private Configurer configurer;
-    @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${karaf.name}", propertyPrivate = true)
-    private String name;
     private static final String EXTENDER_TYPE = "spring";
 
     private ServiceRegistration<?> registration;
@@ -56,6 +56,7 @@ public final class FabricSpringApplicationListener extends AbstractExtenderListe
     @Activate
     void activate(BundleContext bundleContext, Map<String,?> configuration) throws Exception {
         configurer.configure(configuration, this);
+        runtimeIdentity = runtimeProperties.get().getRuntimeIdentity();
         Object listener = createListener(bundleContext);
         if (listener != null) {
             registration = bundleContext.registerService(OsgiBundleApplicationContextListener.class.getName(), listener, null);

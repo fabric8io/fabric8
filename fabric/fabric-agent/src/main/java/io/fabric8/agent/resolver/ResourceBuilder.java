@@ -161,7 +161,7 @@ public class ResourceBuilder {
 
         boolean hasServiceReferenceCapability = false;
         for (Capability cap : exportCaps) {
-            hasServiceReferenceCapability |= ServiceNamespace.SERVICE_NAMESPACE.equals(cap.getNamespace());
+            hasServiceReferenceCapability |= "osgi.service".equals(cap.getNamespace());
         }
         if (!hasServiceReferenceCapability) {
             List<ParsedHeaderClause> exportServices = parseStandardHeader(headerMap.get(Constants.EXPORT_SERVICE));
@@ -171,7 +171,7 @@ public class ResourceBuilder {
 
         boolean hasServiceReferenceRequirement = false;
         for (Requirement req : requireReqs) {
-            hasServiceReferenceRequirement |= ServiceNamespace.SERVICE_NAMESPACE.equals(req.getNamespace());
+            hasServiceReferenceRequirement |= "osgi.service".equals(req.getNamespace());
         }
         if (!hasServiceReferenceRequirement) {
             List<ParsedHeaderClause> importServices = parseStandardHeader(headerMap.get(Constants.IMPORT_SERVICE));
@@ -295,7 +295,7 @@ public class ResourceBuilder {
                 attrs.putAll(clause.attrs);
                 capList.add(new CapabilityImpl(
                                 resource,
-                                ServiceNamespace.SERVICE_NAMESPACE,
+                                "osgi.service",
                                 dirs,
                                 attrs));
             }
@@ -329,7 +329,7 @@ public class ResourceBuilder {
                     dirs.put(ServiceNamespace.REQUIREMENT_FILTER_DIRECTIVE, filter);
                     reqList.add(new RequirementImpl(
                                     resource,
-                                    ServiceNamespace.SERVICE_NAMESPACE,
+                                    "osgi.service",
                                     dirs,
                                     Collections.<String, Object>emptyMap(),
                                     SimpleFilter.parse(filter)));
@@ -439,6 +439,17 @@ public class ResourceBuilder {
             List<ParsedHeaderClause> clauses)
             throws BundleException {
 
+        // Convert service-reference to osgi.service
+        for (ParsedHeaderClause clause : clauses)
+        {
+            for (int i = 0; i < clause.paths.size(); i++)
+            {
+                if ("service-reference".equals(clause.paths.get(i)))
+                {
+                    clause.paths.set(i, "osgi.service");
+                }
+            }
+        }
         return clauses;
     }
 
@@ -446,7 +457,17 @@ public class ResourceBuilder {
             List<ParsedHeaderClause> clauses)
             throws BundleException
     {
-
+        // Convert service-reference to osgi.service
+        for (ParsedHeaderClause clause : clauses)
+        {
+            for (int i = 0; i < clause.paths.size(); i++)
+            {
+                if ("service-reference".equals(clause.paths.get(i)))
+                {
+                    clause.paths.set(i, "osgi.service");
+                }
+            }
+        }
         // Convert attributes into specified types.
         for (ParsedHeaderClause clause : clauses)
         {

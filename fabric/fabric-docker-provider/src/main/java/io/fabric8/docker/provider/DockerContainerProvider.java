@@ -15,56 +15,30 @@
  */
 package io.fabric8.docker.provider;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
-
+import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.ContainerAutoScalerFactory;
 import io.fabric8.api.ContainerProvider;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreationStateListener;
-import io.fabric8.api.EnvironmentVariables;
+import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
-import io.fabric8.api.Profile;
-import io.fabric8.api.Profiles;
-import io.fabric8.api.Version;
+import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.jcip.ThreadSafe;
-import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.container.process.JavaContainerConfig;
-import io.fabric8.container.process.JolokiaAgentHelper;
 import io.fabric8.common.util.Strings;
+import io.fabric8.container.process.JolokiaAgentHelper;
 import io.fabric8.docker.api.Docker;
-import io.fabric8.docker.api.DockerFactory;
+import io.fabric8.docker.api.DockerApiConnectionException;
 import io.fabric8.docker.api.Dockers;
 import io.fabric8.docker.api.container.ContainerConfig;
 import io.fabric8.docker.api.container.ContainerCreateStatus;
 import io.fabric8.docker.api.container.HostConfig;
-import io.fabric8.docker.provider.javacontainer.JavaContainerOptions;
-import io.fabric8.docker.provider.javacontainer.JavaDockerContainerImageBuilder;
-import io.fabric8.service.child.ChildConstants;
-import io.fabric8.service.child.ChildContainers;
-import io.fabric8.zookeeper.ZkDefs;
+import io.fabric8.internal.Objects;
+import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -77,22 +51,42 @@ import org.apache.felix.scr.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.docker", label = "Fabric8 Docker Container Provider", policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service(ContainerProvider.class)
 @Properties(
         @Property(name = "fabric.container.protocol", value = DockerConstants.SCHEME)
 )
-public final class DockerContainerProvider extends AbstractComponent implements ContainerProvider<CreateDockerContainerOptions, CreateDockerContainerMetadata>, ContainerAutoScalerFactory {
+public class DockerContainerProvider extends DockerContainerProviderSupport implements ContainerProvider<CreateDockerContainerOptions, CreateDockerContainerMetadata>, ContainerAutoScalerFactory {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(DockerContainerProvider.class);
 
-
-    @Reference
-    private Configurer configurer;
-
-    @Reference(referenceInterface = FabricService.class)
+    @Reference(referenceInterface = FabricService.class, bind = "bindFabricService", unbind = "unbindFabricService")
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+    @Reference(bind = "bindConfigurer", unbind = "unbindConfigurer")
+    private Configurer configurer;
 
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
@@ -101,24 +95,21 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             label = "The Jolokia Keep Alive Timer Poll Period", description = "The number of milliseconds after which the jolokia agents for any docker containers which expose jolokia will be polled to check for the container status and discover any container resources.")
     private long jolokiaKeepAlivePollTime = 10000;
 
+    private ZooKeeperMasterCache zkMasterCache;
 
     private ObjectName objectName;
     private DockerFacade mbean;
-    private DockerFactory dockerFactory = new DockerFactory();
-    private Docker docker;
     private int externalPortCounter;
+    private final Object portLock = new Object();
 
-    private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
     private Timer keepAliveTimer;
-    private Map<String,CreateDockerContainerMetadata> jolokiaKeepAliveContainers = new ConcurrentHashMap<String, CreateDockerContainerMetadata>();
+    private Map<String, CreateDockerContainerMetadata> jolokiaKeepAliveContainers = new ConcurrentHashMap<String, CreateDockerContainerMetadata>();
 
     public static CreateDockerContainerMetadata newInstance(ContainerConfig containerConfig, ContainerCreateStatus status) {
         List<String> warnings = new ArrayList<String>();
         String[] warningArray = status.getWarnings();
         if (warningArray != null) {
-            for (String warning : warningArray) {
-                warnings.add(warning);
-            }
+            Collections.addAll(warnings, warningArray);
         }
         return new CreateDockerContainerMetadata(status.getId(), warnings);
     }
@@ -151,8 +142,12 @@ public final class DockerContainerProvider extends AbstractComponent implements 
                 mbeanServer.unregisterMBean(objectName);
             }
         }
+        if (zkMasterCache != null) {
+            zkMasterCache = null;
+        }
         deactivateComponent();
     }
+
 
     private void updateConfiguration(Map<String, ?> configuration) {
         Object url = configuration.get("url");
@@ -171,222 +166,45 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         }
     }
 
-    FabricService getFabricService() {
-        return fabricService.get();
-    }
 
-    @Override
     public CreateDockerContainerOptions.Builder newBuilder() {
         return CreateDockerContainerOptions.builder();
     }
 
+
     @Override
     public CreateDockerContainerMetadata create(CreateDockerContainerOptions options, CreationStateListener listener) throws Exception {
-        assertValid();
-
-        String containerId = options.getName();
-        ContainerConfig containerConfig = createContainerConfig(options);
-
-        // allow values to be extracted from the profile configuration
-        // such as the image
-        Set<String> profileIds = options.getProfiles();
-        String versionId = options.getVersion();
-        FabricService service = fabricService.get();
-        Map<String, String> configOverlay = new HashMap<String, String>();
-        Map<String, String> ports = null;
-        Map<String, String> dockerProviderConfig = new HashMap<String, String>();
+        DockerCreateContainerParameters parameters = new DockerCreateContainerParameters(options).invoke();
+        return doCreateDockerContainer(options, parameters);
+    }
 
 
-        List<Profile> profileOverlays = new ArrayList<Profile>();
-        Version version = null;
-        if (profileIds != null && versionId != null) {
-            version = service.getVersion(versionId);
-            if (version != null) {
-                for (String profileId : profileIds) {
-                    Profile profile = version.getProfile(profileId);
-                    if (profile != null) {
-                        Profile overlay = profile.getOverlay();
-                        profileOverlays.add(overlay);
-                        Map<String, String> dockerConfig = overlay.getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
-                        if (dockerConfig != null) {
-                            configOverlay.putAll(dockerConfig);
-                        }
-                        if (ports == null || ports.size() == 0) {
-                            ports = overlay.getConfiguration(DockerConstants.PORTS_PID);
-                        }
-                    }
-                }
-                if (version.hasProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID)) {
-                    Profile profile = version.getProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID);
-                    if (profile != null) {
-                        Map<String, String> dockerConfig = profile.getOverlay().getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
-                        if (dockerConfig != null) {
-                            dockerProviderConfig.putAll(dockerConfig);
-                        }
-                    }
-                }
-            }
-        }
-        if (ports == null || ports.size() == 0) {
-            // lets find the defaults from the docker profile
-            if (version == null) {
-                version = service.getDefaultVersion();
-            }
-            Profile dockerProfile = version.getProfile("docker");
-            ports = dockerProfile.getConfiguration(DockerConstants.PORTS_PID);
-            if (ports == null || ports.size() == 0) {
-                LOG.warn("Could not a docker ports configuration for: " + DockerConstants.PORTS_PID);
-                ports = new HashMap<String, String>();
-            }
-        }
-        LOG.info("Got port configuration: " + ports);
-        String image = containerConfig.getImage();
-        if (Strings.isNullOrBlank(image)) {
-            image = configOverlay.get(DockerConstants.PROPERTIES.IMAGE);
-            if (Strings.isNullOrBlank(image)) {
-                image = System.getenv(DockerConstants.EnvironmentVariables.FABRIC8_DOCKER_DEFAULT_IMAGE);
-            }
-            if (Strings.isNullOrBlank(image)) {
-                image = dockerProviderConfig.get(DockerConstants.PROPERTIES.IMAGE);
-            }
-            if (Strings.isNullOrBlank(image)) {
-                image = DockerConstants.DEFAULT_IMAGE;
-            }
-            containerConfig.setImage(image);
-        }
-        String containerType = "docker " + image;
-        Container container = service.getContainer(containerId);
-        if (container != null) {
-            container.setType(containerType);
-        }
-        Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(service, options);
-
-
-        String[] cmd = containerConfig.getCmd();
-        if (cmd == null || cmd.length == 0) {
-            String value = configOverlay.get(DockerConstants.PROPERTIES.CMD);
-            if (Strings.isNullOrBlank(value)) {
-                cmd = null;
-            } else {
-                cmd = new String[]{value};
-            }
-            containerConfig.setCmd(cmd);
-        }
-
-        Map<String, Object> exposedPorts = new HashMap<String, Object>();
-        Set<Integer> usedPortByHost = findUsedPortByHostAndDocker();
-        Map<String, Integer> internalPorts = options.getInternalPorts();
-        Map<String, Integer> externalPorts = options.getExternalPorts();
-        Map<String, String> emptyMap = new HashMap<String, String>();
-
-        SortedMap<Integer, String> sortedInternalPorts = new TreeMap<Integer, String>();
-        for (Map.Entry<String, String> portEntry : ports.entrySet()) {
-            String portName = portEntry.getKey();
-            String portText = portEntry.getValue();
-            if (portText != null && !Strings.isNullOrBlank(portText)) {
-                Integer port = null;
-                try {
-                    port = Integer.parseInt(portText);
-                } catch (NumberFormatException e) {
-                    LOG.warn("Ignoring bad port number for " + portName + " value '" + portText + "' in PID: " + DockerConstants.PORTS_PID);
-                }
-                if (port != null) {
-                    sortedInternalPorts.put(port, portName);
-                    internalPorts.put(portName, port);
-                    exposedPorts.put(portText + "/tcp", emptyMap);
-                } else {
-                    LOG.info("No port for " + portName);
-                }
-            }
-        }
-
-        String dockerHost = dockerFactory.getDockerHost();
-        String jolokiaUrl = null;
-
-        Map<String, String> javaContainerConfig = Profiles.getOverlayConfiguration(service, profileIds, versionId, ChildConstants.JAVA_CONTAINER_PID);
-        JavaContainerConfig javaConfig = new JavaContainerConfig();
-        configurer.configure(javaContainerConfig, javaConfig);
-
-        // lets create the ports in sorted order
-        for (Map.Entry<Integer, String> entry : sortedInternalPorts.entrySet()) {
-            Integer port = entry.getKey();
-            String portName = entry.getValue();
-            int externalPort = createExternalPort(containerId, portName, usedPortByHost, options);
-            externalPorts.put(portName, externalPort);
-            environmentVariables.put("FABRIC8_" + portName + "_PORT", "" + port);
-            environmentVariables.put("FABRIC8_" + portName + "_PROXY_PORT", "" + externalPort);
-
-            if (portName.equals(DockerConstants.JOLOKIA_PORT_NAME)) {
-                jolokiaUrl = "http://" + dockerHost + ":" + externalPort + "/jolokia/";
-                LOG.info("Found Jolokia URL: " + jolokiaUrl);
-
-                JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, JolokiaAgentHelper.getJolokiaPortOverride(port),  JolokiaAgentHelper.getJolokiaAgentIdOverride(getFabricService().getEnvironment()));
-            } else {
-                JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, JolokiaAgentHelper.getJolokiaAgentIdOverride(getFabricService().getEnvironment()));
-
-            }
-        }
-        javaConfig.updateEnvironmentVariables(environmentVariables);
-
-
-        LOG.info("Passing in manual ip: " + dockerHost);
-        environmentVariables.put(EnvironmentVariables.FABRIC8_MANUALIP, dockerHost);
-        environmentVariables.put(EnvironmentVariables.FABRIC8_GLOBAL_RESOLVER, ZkDefs.MANUAL_IP);
-        environmentVariables.put(EnvironmentVariables.FABRIC8_FABRIC_ENVIRONMENT, DockerConstants.SCHEME);
-
-        // now the environment variables are all set lets see if we need to make a custom image
-        String libDir = configOverlay.get(DockerConstants.PROPERTIES.JAVA_LIBRARY_PATH);
-        if (!Strings.isNullOrBlank(libDir)) {
-            if (container != null) {
-                container.setProvisionResult("preparing");
-                container.setAlive(true);
-            }
-            String imageRepository = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_REPOSITORY);
-            String entryPoint = configOverlay.get(DockerConstants.PROPERTIES.IMAGE_ENTRY_POINT);
-            List<String> names = new ArrayList<String>(profileIds);
-            names.add(versionId);
-            String tag = "fabric8-" + Strings.join(names, "-").replace('.', '-');
-
-            JavaDockerContainerImageBuilder builder = new JavaDockerContainerImageBuilder();
-            JavaContainerOptions javaContainerOptions = new JavaContainerOptions(image, imageRepository, tag, libDir, entryPoint);
-
-            String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, javaContainerOptions, downloadExecutor, environmentVariables);
-            containerConfig.setImage(actualImage);
-        }
-
-
-        List<String> env = containerConfig.getEnv();
-        if (env == null) {
-            env = new ArrayList<String>();
-        }
-        Set<Map.Entry<String, String>> entries = environmentVariables.entrySet();
-        for (Map.Entry<String, String> entry : entries) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (key != null && value != null) {
-                env.add(key + "=" + value);
-            }
-        }
-        containerConfig.setExposedPorts(exposedPorts);
-        containerConfig.setEnv(env);
-
+    protected CreateDockerContainerMetadata doCreateDockerContainer(CreateDockerContainerOptions options, DockerCreateContainerParameters parameters) {
+        ContainerConfig containerConfig = parameters.getContainerConfig();
+        Map<String, String> environmentVariables = parameters.getEnvironmentVariables();
+        String containerType = parameters.getContainerType();
+        String jolokiaUrl = parameters.getJolokiaUrl();
         String name = options.getName();
+        String dockerHost = dockerFactory.getDockerHost();
+        ContainerCreateStatus status = null;
+        CreateDockerContainerMetadata metadata = null;
+        try {
+            status = docker.containerCreate(containerConfig, name);
+            LOG.info("Got status: " + status);
+            options = options.updateManualIp(dockerHost);
 
-        LOG.info("Creating container on docker: " + getDockerAddress() + " name: " + name + " env vars: " + env);
-        LOG.info("Creating container with config: " + containerConfig);
+            metadata = newInstance(containerConfig, options, status, containerType);
 
-        ContainerCreateStatus status = docker.containerCreate(containerConfig, name);
-        LOG.info("Got status: " + status);
-        options = options.updateManualIp(dockerHost);
+            publishZooKeeperValues(options, environmentVariables);
 
-        CreateDockerContainerMetadata metadata = newInstance(containerConfig, status);
-        metadata.setContainerName(containerId);
-        metadata.setContainerType(containerType);
-        metadata.setOverridenResolver(ZkDefs.MANUAL_IP);
-        metadata.setCreateOptions(options);
-        if (jolokiaUrl != null) {
-            metadata.setJolokiaUrl(jolokiaUrl);
-            startJolokiaKeepAlive(metadata);
+            if (jolokiaUrl != null) {
+                metadata.setJolokiaUrl(jolokiaUrl);
+                startJolokiaKeepAlive(metadata);
+            }
+        } catch (Exception e) {
+            LOG.info("Failed to create container " + name + " from config " + containerConfig
+                    + ": " + e + Dockers.dockerErrorMessage(e), e);
+            throw e;
         }
         startDockerContainer(status.getId(), options);
         return metadata;
@@ -402,40 +220,26 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         startDockerContainer(id, options);
     }
 
-    protected ContainerConfig createContainerConfig(CreateDockerContainerOptions options) {
-        ContainerConfig containerConfig = new ContainerConfig();
-        containerConfig.setImage(options.getImage());
-        List<String> cmdList = options.getCmd();
-        if (cmdList != null && cmdList.size() > 0) {
-            containerConfig.setCmd(cmdList.toArray(new String[cmdList.size()]));
-        }
-        containerConfig.setEntrypoint(options.getEntrypoint());
-        String workingDir = options.getWorkingDir();
-        if (workingDir != null) {
-            containerConfig.setWorkingDir(workingDir);
-        }
-        containerConfig.setAttachStdout(true);
-        containerConfig.setAttachStderr(true);
-        containerConfig.setTty(true);
-        return containerConfig;
-    }
 
-    protected int createExternalPort(String containerId, String portKey, Set<Integer> usedPortByHost, CreateDockerContainerOptions options) {
-        while (true) {
-            if (externalPortCounter <= 0) {
-                externalPortCounter = options.getMinimumPort();
-                if (externalPortCounter == 0) {
-                    externalPortCounter = DockerConstants.DEFAULT_EXTERNAL_PORT;
+    @Override
+    protected int createExternalPort(String containerId, String portKey, Set<Integer> usedPortByHost, DockerCreateOptions options) {
+        synchronized (portLock) {
+            while (true) {
+                if (externalPortCounter <= 0) {
+                    externalPortCounter = options.getMinimumPort();
+                    if (externalPortCounter == 0) {
+                        externalPortCounter = DockerConstants.DEFAULT_EXTERNAL_PORT;
+                    }
+                } else {
+                    externalPortCounter++;
                 }
-            } else {
-                externalPortCounter++;
-            }
-            if (!usedPortByHost.contains(externalPortCounter)) {
-                Container container = getFabricService().getCurrentContainer();
-                String pid = DockerConstants.PORTS_PID;
-                String key = containerId + "-" + portKey;
-                getFabricService().getPortService().registerPort(container, pid, key, externalPortCounter);
-                return externalPortCounter;
+                if (!usedPortByHost.contains(externalPortCounter)) {
+                    Container container = getFabricService().getCurrentContainer();
+                    String pid = Constants.PORTS_PID;
+                    String key = containerId + "-" + portKey;
+                    getFabricService().getPortService().registerPort(container, pid, key, externalPortCounter);
+                    return externalPortCounter;
+                }
             }
         }
     }
@@ -447,7 +251,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             Map<String, Integer> externalPorts = options.getExternalPorts();
             Map<String, Integer> internalPorts = options.getInternalPorts();
 
-            SortedMap<Integer, List<Map<String, String>>> sortedPortsToBinding = new TreeMap<Integer, List<Map<String, String>>>();
+            SortedMap<Integer, List<Map<String, String>>> sortedPortsToBinding = new TreeMap<>();
             for (Map.Entry<String, Integer> entry : internalPorts.entrySet()) {
                 String portName = entry.getKey();
                 Integer internalPort = entry.getValue();
@@ -458,7 +262,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             }
 
             // now lets add the bindings in port order
-            Map<String, List<Map<String, String>>> portBindings = new LinkedHashMap<String, List<Map<String, String>>>();
+            Map<String, List<Map<String, String>>> portBindings = new LinkedHashMap<>();
             for (Map.Entry<Integer, List<Map<String, String>>> entry : sortedPortsToBinding.entrySet()) {
                 Integer internalPort = entry.getKey();
                 List<Map<String, String>> value = entry.getValue();
@@ -467,7 +271,12 @@ public final class DockerContainerProvider extends AbstractComponent implements 
 
             hostConfig.setPortBindings(portBindings);
             LOG.info("starting container " + id + " with " + hostConfig);
-            docker.containerStart(id, hostConfig);
+            try {
+                docker.containerStart(id, hostConfig);
+            } catch (Exception e) {
+                LOG.error("Failed to start container " + id + " with " + hostConfig + " " + e + Dockers.dockerErrorMessage(e), e);
+                throw e;
+            }
         }
     }
 
@@ -479,13 +288,23 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         return answer;
     }
 
+    @Override
     protected Set<Integer> findUsedPortByHostAndDocker() {
-        FabricService fabric = getFabricService();
-        Container currentContainer = fabric.getCurrentContainer();
-        Set<Integer> usedPorts = fabric.getPortService().findUsedPortByHost(currentContainer);
-        Set<Integer> dockerPorts = Dockers.getUsedPorts(docker);
-        usedPorts.addAll(dockerPorts);
-        return usedPorts;
+        try {
+            FabricService fabric = getFabricService();
+            Container currentContainer = fabric.getCurrentContainer();
+            Set<Integer> usedPorts;
+            Set<Integer> dockerPorts;
+            synchronized (portLock) {
+                usedPorts = fabric.getPortService().findUsedPortByHost(currentContainer);
+                dockerPorts = Dockers.getUsedPorts(docker);
+            }
+            usedPorts.addAll(dockerPorts);
+            return usedPorts;
+        } catch (DockerApiConnectionException e) {
+            String suggestion = String.format("Can't connect to the Docker server. Are you sure a Docker server is running at %s?", dockerFactory.getAddress());
+            throw new DockerApiConnectionException(suggestion, e.getCause());
+        }
     }
 
     @Override
@@ -500,7 +319,13 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             }
 
             Integer timeToWait = null;
-            docker.containerStop(id, timeToWait);
+            try {
+                docker.containerStop(id, timeToWait);
+            } catch (final Exception e) {
+                LOG.info("Could not stop container " + id + ": " + e + Dockers.dockerErrorMessage(e), e);
+                throw e;
+            }
+            container.setProvisionResult(Container.PROVISION_STOPPED);
         }
     }
 
@@ -514,7 +339,7 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             try {
                 docker.containerRemove(id, removeVolumes);
             } catch (Exception e) {
-                LOG.info("Docker container probably does not exist: " + e, e);
+                LOG.info("Docker container probably does not exist: " + e + Dockers.dockerErrorMessage(e), e);
             }
         }
     }
@@ -529,12 +354,12 @@ public final class DockerContainerProvider extends AbstractComponent implements 
             TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
-                    List<CreateDockerContainerMetadata> list = new ArrayList<CreateDockerContainerMetadata>(jolokiaKeepAliveContainers.values());
+                    List<CreateDockerContainerMetadata> list = new ArrayList<>(jolokiaKeepAliveContainers.values());
                     for (CreateDockerContainerMetadata containerMetadata : list) {
                         try {
                             String jolokiaUrl = containerMetadata.getJolokiaUrl();
                             String containerName = containerMetadata.getContainerName();
-                            JolokiaAgentHelper.jolokiaKeepAliveCheck(getFabricService(), jolokiaUrl, containerName);
+                            JolokiaAgentHelper.jolokiaKeepAliveCheck(zkMasterCache, getFabricService(), jolokiaUrl, containerName);
 
                         } catch (Exception e) {
                             LOG.warn("Jolokia keep alive check failed for container " + containerMetadata.getId() + ". " + e, e);
@@ -555,6 +380,20 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     public String getScheme() {
         assertValid();
         return DockerConstants.SCHEME;
+    }
+
+    @Override
+    public boolean isValidProvider() {
+        // docker provider isn't valid in openshift/kubernetes environment
+        FabricService service = getFabricService();
+        if (service != null) {
+            // lets disable child if in docker or openshift environments
+            String environment = service.getEnvironment();
+            if (Objects.equal(environment, "openshift") || Objects.equal(environment, "kubernetes")) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -591,8 +430,24 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     }
 
     @Override
-    public ContainerAutoScaler createAutoScaler() {
+    public ContainerAutoScaler createAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
         return new DockerAutoScaler(this);
+    }
+
+    protected FabricService getFabricService() {
+        return fabricService.get();
+    }
+
+    protected CuratorFramework getCuratorFramework() {
+        return curator.getOptional();
+    }
+
+    public Configurer getConfigurer() {
+        return configurer;
+    }
+
+    public void setConfigurer(Configurer configurer) {
+        this.configurer = configurer;
     }
 
 
@@ -604,12 +459,21 @@ public final class DockerContainerProvider extends AbstractComponent implements 
         this.fabricService.unbind(fabricService);
     }
 
+    void bindCurator(CuratorFramework curator) {
+        this.curator.bind(curator);
+        zkMasterCache = new ZooKeeperMasterCache(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.unbind(curator);
+    }
+
     void bindConfigurer(Configurer configurer) {
-        this.configurer = configurer;
+        this.setConfigurer(configurer);
     }
 
     void unbindConfigurer(Configurer configurer) {
-        this.configurer = null;
+        this.setConfigurer(null);
     }
 
     void bindMBeanServer(MBeanServer mbeanServer) {
@@ -621,7 +485,9 @@ public final class DockerContainerProvider extends AbstractComponent implements 
     }
 
 
+    @Override
     public String getDockerAddress() {
         return dockerFactory.getAddress();
     }
+
 }

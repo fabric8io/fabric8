@@ -16,40 +16,35 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ProfileService;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import io.fabric8.api.Version;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "version-set-default", scope = "fabric", description = "Set the new default version (must be one of the existing versions)", detailedDescription = "classpath:versionSetDefault.txt")
+@Command(name = VersionSetDefault.FUNCTION_VALUE, scope = VersionSetDefault.SCOPE_VALUE, description = VersionSetDefault.DESCRIPTION, detailedDescription = "classpath:versionSetDefault.txt")
 public class VersionSetDefaultAction extends AbstractAction {
 
     @Argument(index = 0, description = "Version number to use as new default version.", required = true)
-    private String versionName;
+    private String versionId;
 
     private final FabricService fabricService;
+    private final ProfileService profileService;
 
     VersionSetDefaultAction(FabricService fabricService) {
         this.fabricService = fabricService;
-    }
-
-    public FabricService getFabricService() {
-        return fabricService;
+        this.profileService = fabricService.adapt(ProfileService.class);
     }
 
     @Override
     protected Object doExecute() throws Exception {
-        Version version = getFabricService().getVersion(versionName);
-        if (version == null) {
-            throw new IllegalArgumentException("Cannot find version: " + versionName);
-        }
-
-        Version currentDefault = getFabricService().getDefaultVersion();
-        if (version.compareTo(currentDefault) == 0) {
-            System.out.println("Version " + version + " is already default version.");
+        profileService.getRequiredVersion(versionId);
+        String defaultId = fabricService.getDefaultVersionId();
+        if (versionId.compareTo(defaultId) == 0) {
+            System.out.println("Version " + versionId + " is already default version");
         } else {
-            getFabricService().setDefaultVersion(version);
-            System.out.println("Changed default version to " + version);
+            fabricService.setDefaultVersionId(versionId);
+            System.out.println("Changed default version from " + defaultId + " to " + versionId);
         }
 
         return null;

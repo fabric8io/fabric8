@@ -1,0 +1,218 @@
+@import url(http://fonts.googleapis.com/css?family=Marvel:400,700);
+@import url(http://fonts.googleapis.com/css?family=Jura:400,300);
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+
+#ajbossproject {
+  font-family: 'Open Sans';
+  font-size: smaller;
+  font-weight: bold;
+  line-height: 20px;
+}
+
+
+body {
+  font-family: 'Open Sans';
+  font-size: 16px;
+  background: #fff;
+  color: #333;
+}
+
+
+h1, h2, h3 {
+  font-family: "Jura", sans-serif;
+}
+
+h2, h3 {
+  margin-top: 2em;
+  border-bottom: 1px solid #d4d4d4;
+}
+
+h4 {
+  margin-top: 1.5em;
+  font-weight: bold;
+}
+
+h2:first-child {
+  margin-top: 0;
+}
+
+.community h2:first-child {
+  margin-top: 2em;
+}
+
+.jumbotron {
+  background: none;
+}
+
+/* not sure yet where this is coming from */
+#main > p {
+  display: none;
+}
+
+.top-banner {
+  height: 312px;
+  background-image: url(../images/banner.png);
+  background-position: left;
+  position: relative;
+}
+
+.top-banner-logo {
+  position: absolute;
+  top: 50%;
+  left: 9em;
+  margin-top: -100px;
+}
+
+.top-banner-logo > img {
+  height: 200px;
+}
+
+.navbar-header {
+  border-bottom: 1px solid #d4d4d4;
+}
+
+.logo-brand {
+  display: block;
+  height: 35px;
+}
+
+.carousel-control.right {
+  background-image: none;
+}
+
+.carousel-control.left {
+  background-image: none;
+}
+
+.navbar-default {
+  background: inherit;
+  border: none;
+}
+
+.navbar > .container .navbar-brand,
+.navbar-brand {
+  padding: 8px 0 0 8px; 
+  margin-left: 0;
+}
+
+.top-bar .navbar-collapse {
+  text-align: center;
+}
+
+.top-bar .navbar-collapse > .nav.navbar-nav {
+  float: none;
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.link-top {
+  margin-bottom: 2em;
+}
+
+.footer {
+  margin-top: 2em;
+  background: #ddd;
+  padding-bottom: 2em;
+}
+
+
+/*
+.navbar-brand {
+  font-family: "Marvel", "Trebuchet MS", Arial, sans-serif;
+  font-size: 1.7em;
+  line-height: .8em;
+  text-transform: lowercase;
+}
+
+.navbar-brand > img {
+  display: block;
+  float: left;
+}
+*/
+
+.top-bar {
+  font-family: "Jura", sans-serif;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.top-bar {
+  margin-bottom: 0;
+}
+
+.top-bar > container > row:after {
+  display: block;
+  height: 1em;
+  background: #eee;
+  width: 100%;
+}
+
+/*
+.top-bar .nav li a {
+  font-weight: bold;
+}
+*/
+
+.top-bar .plusone, .top-bar .g-plusone-slot {
+  display: block;
+  float: right;
+  margin-top: 7px;
+  margin-right: 5px;
+}
+
+/*
+@media (min-width: 980px) {
+
+  .top-bar .navbar-inner {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+    height: 64px;
+  }
+
+  .navbar-brand {
+    padding-top: 10px;
+    padding-bottom: 0;
+    margin-top: 5px;
+    font-size: 2.2em;
+    line-height: 1em;
+    -webkit-transition: color 0.8s ease;
+    -webkit-transition-delay: 0.05s;
+    -moz-transition: color 0.8s ease 0.05s;
+    -o-transition: color 0.8s ease 0.05s;
+    transition: color 0.8s ease 0.05s;
+  }
+
+  .top-bar .g-plusone-slot {
+    display: block;
+    float: right;
+    margin-top: 21px;
+    margin-right: 0;
+  }
+}
+*/
+
+/*
+.btn-primary {
+  background-color: #f7600f;
+  background-image: -moz-linear-gradient(top, #B55242, #f7830f);
+  background-image: -ms-linear-gradient(top, #B55242, #f7830f);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#B55242), to(#f7830f));
+  background-image: -webkit-linear-gradient(top, #B55242, #f7830f);
+  background-image: -o-linear-gradient(top, #B55242, #f7830f);
+  background-image: linear-gradient(top, #B55242, #f7830f);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFB55242', endColorstr='#FFF7830F', GradientType=0);
+  border-color: #f7830f #f7830f #b45d06;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) fadein(rgba(0, 0, 0, 0.1), 15%);
+  *background-color: #f7830f;
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+}
+.btn-primary:hover, .btn-primary:active, .btn-primary.active, .btn-primary.disabled, .btn-primary[disabled] {
+  background-color: #f7830f;
+  *background-color: #e57608;
+}
+.btn-primary:active, .btn-primary.active {
+  background-color: #cc6a07 \9;
+}
+*/

@@ -15,10 +15,10 @@
  */
 package io.fabric8.gateway.fabric.detecting;
 
-import io.fabric8.gateway.handlers.detecting.DetectingGatewayProtocolHandler;
+import io.fabric8.gateway.handlers.detecting.DetectingGateway;
 
 /**
  */
 public interface FabricDetectingGatewayService {
-    DetectingGatewayProtocolHandler getDetectingGatewayProtocolHandler();
+    public DetectingGateway getDetectingGateway();
 }

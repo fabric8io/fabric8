@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.fabric8.zookeeper.utils.InterpolationHelper;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -59,6 +60,29 @@ public final class ContainerPlaceholderResolver extends AbstractComponent implem
         attributes = Collections.unmodifiableMap(auxatts);
     }
 
+    /**
+     * Resolves all the container expressions in the string using the given container
+     */
+    public String resolveContainerExpressions(String value, final FabricService service, final Container container) {
+        return resolveContainerExpressions(value, service, container.getId());
+    }
+
+    /**
+     * Resolves all the container expressions in the string using the given container
+     */
+    public String resolveContainerExpressions(String value, final FabricService service, final String containerId) {
+        InterpolationHelper.SubstitutionCallback substitutionCallback = new InterpolationHelper.SubstitutionCallback() {
+            @Override
+            public String getValue(String key) {
+                if (key.startsWith("container:")) {
+                    return resolveExpression(service, containerId, key);
+                }
+                return null;
+            }
+        };
+        return InterpolationHelper.substVarsPreserveUnresolved(value, "dummy", null, Collections.EMPTY_MAP, substitutionCallback);
+    }
+
     @Activate
     void activate() {
         activateComponent();
@@ -76,6 +100,11 @@ public final class ContainerPlaceholderResolver extends AbstractComponent implem
 
     @Override
     public String resolve(FabricService fabricService, Map<String, Map<String, String>> configs, String pid, String key, String value) {
+        String currentContainerName = fabricService.getCurrentContainerName();
+        return resolveExpression(fabricService, currentContainerName, value);
+    }
+
+    public String resolveExpression(FabricService fabricService, String currentContainerName, String value) {
         Matcher namedMatcher = NAMED_CONTAINER_PATTERN.matcher(value);
         Matcher currentMatcher = CURRENT_CONTAINER_PATTERN.matcher(value);
         if (namedMatcher.matches()) {
@@ -84,7 +113,7 @@ public final class ContainerPlaceholderResolver extends AbstractComponent implem
             return getContainerAttribute(fabricService, name, attribute);
         } else if (currentMatcher.matches()) {
             String attribute = currentMatcher.group(1);
-            return getContainerAttribute(fabricService, fabricService.getCurrentContainerName(), attribute);
+            return getContainerAttribute(fabricService, currentContainerName, attribute);
         }
         return "";
     }
@@ -94,7 +123,8 @@ public final class ContainerPlaceholderResolver extends AbstractComponent implem
         if (NAME_ATTRIBUTE.equals(attribute)) {
             return container.getId();
         } else {
-            return fabricService.getDataStore().getContainerAttribute(container.getId(), attributes.get(attribute.toLowerCase()), "", false, true);
+            DataStore dataStore = fabricService.adapt(DataStore.class);
+            return dataStore.getContainerAttribute(container.getId(), attributes.get(attribute.toLowerCase()), "", false, true);
         }
     }
 }

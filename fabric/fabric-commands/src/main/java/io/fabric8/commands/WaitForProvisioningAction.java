@@ -23,7 +23,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "wait-for-provisioning", scope = "fabric", description = "Waits for containers to be provisioned")
+@Command(name = WaitForProvisioning.FUNCTION_VALUE, scope = WaitForProvisioning.SCOPE_VALUE, description = WaitForProvisioning.DESCRIPTION)
 public class WaitForProvisioningAction extends AbstractAction {
     
     @Option(name = "-v", aliases = "--verbose", description = "Flag for verbose output", multiValued = false, required = false)
@@ -67,12 +67,12 @@ public class WaitForProvisioningAction extends AbstractAction {
     }
 
 	private boolean isFabricProvisioned(Container[] fabric) {
-		if (fabric == null){
-			return false;
+        if (fabric == null) {
+            return false;
 		}
-		
-		for(Container container : fabric){
-			if (container == null || !container.isAlive() || !Container.PROVISION_SUCCESS.equals(container.getProvisionStatus())) {
+
+        for (Container container : fabric) {
+            if (container == null || !container.isAlive() || !Container.PROVISION_SUCCESS.equals(container.getProvisionStatus())) {
 				if (container != null) {
                     if (verbose) {
                         System.out.println(String.format("Waiting: Container %s is %s", container.getId(), container.getProvisionStatus()));

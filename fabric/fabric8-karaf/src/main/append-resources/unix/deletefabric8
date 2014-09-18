@@ -1,0 +1,16 @@
+#!/bin/sh
+echo "Deleting the local fabric8 cluster!"
+echo "killing all local karaf containers...."
+jps -l | grep karaf | cut -d ' ' -f 1 | xargs -n1 kill -kill
+echo "Clearing the fabric8 instance data"
+rm -rf instances/ processes/
+rm -rf data/cache
+rm -rf data/git
+rm -rf data/port
+rm -rf data/zookeeper
+rm -rf data/generated-bundles
+rm -rf data/pax-web-jsp
+rm -rf data/tmp
+rm -rf data/log
+rm data/*.*  2>/dev/null
+echo "Local fabric8 cluster deleted!"

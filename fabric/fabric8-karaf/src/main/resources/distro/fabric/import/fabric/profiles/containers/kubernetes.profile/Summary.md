@@ -1,0 +1,1 @@
+A base profile for running [Kubernetes](http://fabric8.io/gitbook/kubernetes.html) pods

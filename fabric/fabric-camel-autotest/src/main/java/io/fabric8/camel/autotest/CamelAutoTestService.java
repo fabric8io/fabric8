@@ -20,13 +20,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.management.MBeanServer;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.Profiles;
 import io.fabric8.api.scr.AbstractFieldInjectionComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Strings;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.ProducerTemplate;
@@ -56,7 +59,7 @@ public final class CamelAutoTestService extends AbstractFieldInjectionComponent 
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
 
-    @Reference(referenceInterface = CamelContext.class, cardinality = ReferenceCardinality.MANDATORY_MULTIPLE, bind = "bindCamelContexts", unbind = "unbindCamelContexts")
+    @Reference(referenceInterface = CamelContext.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, bind = "bindCamelContexts", unbind = "unbindCamelContexts")
     private Map<String, CamelContext> camelContexts = new HashMap<String, CamelContext>();
 
     @Property(name = "mockOutputs", boolValue = true,
@@ -95,7 +98,8 @@ public final class CamelAutoTestService extends AbstractFieldInjectionComponent 
         MBeanServer mbeanServerValue = mbeanServer;
         if (mbeanServerValue != null && fabricService != null) {
             Profile overlayProfile = fabricService.getCurrentContainer().getOverlayProfile();
-            List<String> configurationFileNames = overlayProfile.getConfigurationFileNames();
+            Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService, overlayProfile);
+            Set<String> configurationFileNames = effectiveProfile.getConfigurationFileNames();
             for (CamelContext camelContext : camelContexts.values()) {
                 String camelContextID = camelContext.getName();
                 // check we only add testing stuff to each context once
@@ -156,7 +160,7 @@ public final class CamelAutoTestService extends AbstractFieldInjectionComponent 
                                         for (String configFile : configurationFileNames) {
                                             if (configFile.startsWith(routePath)) {
                                                 LOG.info("Sending file: " + configFile + " to " + endpoint);
-                                                byte[] data = overlayProfile.getFileConfiguration(configFile);
+                                                byte[] data = effectiveProfile.getFileConfiguration(configFile);
                                                 if (data != null) {
                                                     // lest send this message to this endpoint
                                                     producerTemplate.sendBody(endpoint, data);

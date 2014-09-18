@@ -35,7 +35,7 @@ import org.apache.felix.service.command.Function;
     @Property(name = "osgi.command.scope", value = Import.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = Import.FUNCTION_VALUE)
 })
-public final class Import extends AbstractCommandComponent {
+public class Import extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "zk";
     public static final String FUNCTION_VALUE = "import";

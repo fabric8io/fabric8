@@ -22,7 +22,6 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -58,6 +57,11 @@ public class ZookeeperImportUtils {
             String key = entry.getKey();
             String data = entry.getValue();
             key = target + key;
+            // FABRIC-1072 - we can't create paths containing '*'
+            // there are more characters which are legal in ZK paths but illegal in different filesystems...
+            if (key.contains("/__asterisk__")) {
+                key = key.replaceAll(Pattern.quote("/__asterisk__"), "/*");
+            }
             paths.add(key);
             if (!matches(include, key, true) || matches(exclude, key, false)) {
                 continue;

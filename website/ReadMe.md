@@ -1,11 +1,17 @@
-## Website
+## fabric8 website
 
-This project generates the Fuse developer zone at: http://fuse.fusesource.org/ along with the documentation for the Fuse open source project.
+This maven project builds the fabric8 website content. Its mostly consists of markdown files you can view/edit directly or via github.
 
-We love contributions! :) To work on the documentation & try out patches locally try
+If you want to build the HTML yourself try:
 
-    cd website
-    mvn jetty:run
-    open http://localhost:8080/
+    mvn install jetty:run
 
-Then as you edit the page files in the **src** directory you can hit reload on your browser to see the new content.
+
+The website can be accessed from a web browser using the following url:
+
+    http://localhost:8000
+
+
+To generate the static html try:
+
+    mvn scalate:sitegen

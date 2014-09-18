@@ -35,7 +35,7 @@ import org.apache.felix.service.command.Function;
     @Property(name = "osgi.command.scope", value = VersionSetDefault.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = VersionSetDefault.FUNCTION_VALUE)
 })
-public final class VersionSetDefault extends AbstractCommandComponent {
+public class VersionSetDefault extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "version-set-default";

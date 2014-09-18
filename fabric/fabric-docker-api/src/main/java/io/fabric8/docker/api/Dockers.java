@@ -16,9 +16,15 @@
 package io.fabric8.docker.api;
 
 import io.fabric8.docker.api.container.Port;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,23 +33,30 @@ import java.util.regex.Pattern;
  * A selection of helper methods on a {@link Docker} instance
  */
 public class Dockers {
+
+    private static final transient Logger LOG = LoggerFactory.getLogger(Dockers.class);
+
     public static Set<Integer> getUsedPorts(Docker docker) {
-        List<Container> containers = docker.containers(null, null, null, null, null);
-        Set<Integer> answer = new HashSet<Integer>();
-        for (Container container : containers) {
-            List<Port> ports = container.getPorts();
-            if (ports != null) {
-                for (Port port : ports) {
-                    Integer privatePort = port.getPrivatePort();
-                    Integer publicPort = port.getPublicPort();
-                    // lets ignore ports which are not exposed to the public
-                    if (privatePort != null && publicPort != null) {
-                        answer.add(publicPort);
+        try {
+            List<Container> containers = docker.containers(null, null, null, null, null);
+            Set<Integer> answer = new HashSet<>();
+            for (Container container : containers) {
+                List<Port> ports = container.getPorts();
+                if (ports != null) {
+                    for (Port port : ports) {
+                        Integer privatePort = port.getPrivatePort();
+                        Integer publicPort = port.getPublicPort();
+                        // lets ignore ports which are not exposed to the public
+                        if (privatePort != null && publicPort != null) {
+                            answer.add(publicPort);
+                        }
                     }
                 }
             }
+            return answer;
+        } catch (ProcessingException e) {
+            throw new DockerApiConnectionException("Can't connect to the Docker REST API.", e);
         }
-        return answer;
     }
 
     /**
@@ -58,5 +71,47 @@ public class Dockers {
             answer = matcher.group(1);
         }
         return answer;
+    }
+
+    /**
+     * Returns the detailed error message from the error if its a REST based exception
+     */
+    public static String dockerErrorMessage(Exception e) {
+        if (e instanceof WebApplicationException) {
+            try {
+                WebApplicationException webException = (WebApplicationException) e;
+                return " " + webException.getResponse().readEntity(String.class);
+            } catch (Exception e1) {
+                return " could not extract response message: " + e;
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Adds the given map of environment variables to the given environment list so that it can be passed into the
+     * {@link io.fabric8.docker.api.container.ContainerConfig#setEnv(java.util.List)} function
+     */
+    public static void addEnvironmentVariablesToList(List<String> envList, Map<String, String> environmentVariables) {
+        if (environmentVariables != null) {
+            Set<Map.Entry<String, String>> entries = environmentVariables.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (key != null && value != null) {
+                    envList.add(key + "=" + value);
+                }
+            }
+        }
+    }
+
+    /**
+     * Converts the environment variables Map into a list so that it can be passed into the
+     * {@link io.fabric8.docker.api.container.ContainerConfig#setEnv(java.util.List)} function
+     */
+    public static List<String> toEnvList(Map<String, String> environmentVariables) {
+        List<String> envList = new ArrayList<>();
+        addEnvironmentVariablesToList(envList, environmentVariables);
+        return envList;
     }
 }

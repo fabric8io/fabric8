@@ -15,10 +15,8 @@
  */
 package io.fabric8.partition;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.fabric8.groups.NodeState;
-
-import java.net.URL;
 
 public class WorkerNode extends NodeState {
 

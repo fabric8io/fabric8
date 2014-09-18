@@ -25,7 +25,7 @@ import io.fabric8.api.ProfileStatus;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
-@Command(name = "status", scope = "fabric", description = "Displays the current status of the fabric by comparing the requirements to the actual instance counts", detailedDescription = "classpath:status.txt")
+@Command(name = Status.FUNCTION_VALUE, scope = Status.SCOPE_VALUE, description = Status.DESCRIPTION, detailedDescription = "classpath:status.txt")
 public class StatusAction extends AbstractAction {
 
     private final FabricService fabricService;

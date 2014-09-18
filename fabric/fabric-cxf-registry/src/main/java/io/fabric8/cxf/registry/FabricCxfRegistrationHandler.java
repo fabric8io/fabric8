@@ -17,6 +17,7 @@ package io.fabric8.cxf.registry;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -44,6 +45,7 @@ import io.fabric8.api.Version;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.common.util.PublicPortMapper;
 import io.fabric8.common.util.Strings;
 import io.fabric8.internal.JsonHelper;
 import io.fabric8.zookeeper.ZkPath;
@@ -90,7 +92,10 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
                 MBeanServerNotification mBeanServerNotification = (MBeanServerNotification) notification;
                 ObjectName mBeanName = mBeanServerNotification.getMBeanName();
                 String type = mBeanServerNotification.getType();
-                onMBeanEvent(getCurrentContainer(), mBeanName, type);
+                Container currentContainer = getCurrentContainer();
+                if (currentContainer != null) {
+                    onMBeanEvent(currentContainer, mBeanName, type);
+                }
             }
         }
     };
@@ -167,28 +172,34 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
         // query all the mbeans and check they are all registered for the current container...
         if (mBeanServer != null) {
             Container container = getCurrentContainer();
-            ObjectName objectName = createObjectName(CXF_API_ENDPOINT_MBEAN_NAME);
-            if (objectName != null && container != null) {
-                Set<ObjectInstance> instances = mBeanServer.queryMBeans(objectName, isCxfServiceEndpointQuery);
-                for (ObjectInstance instance : instances) {
-                    ObjectName oName = instance.getObjectName();
-                    String type = null;
-                    onMBeanEvent(container, oName, type);
+            if (container != null) {
+                ObjectName objectName = createObjectName(CXF_API_ENDPOINT_MBEAN_NAME);
+                if (objectName != null && container != null) {
+                    Set<ObjectInstance> instances = mBeanServer.queryMBeans(objectName, isCxfServiceEndpointQuery);
+                    for (ObjectInstance instance : instances) {
+                        ObjectName oName = instance.getObjectName();
+                        String type = null;
+                        onMBeanEvent(container, oName, type);
+                    }
                 }
-            }
-            if (container == null) {
-                LOGGER.warn("No container available!");
             }
         }
     }
 
     protected Container getCurrentContainer() {
-        return fabricService.get().getCurrentContainer();
+        try {
+            return fabricService.get().getCurrentContainer();
+        } catch (Exception e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Ignoring exception due to current container not being available " + e, e);
+            }
+            return null;
+        }
     }
 
     protected void onMBeanEvent(Container container, ObjectName oName, String type) {
         try {
-            if (isCxfServiceEndpointQuery.apply(oName)) {
+            if (isCxfServiceEndpointQuery.apply(oName) && mBeanServer.isRegistered(oName)) {
                 Object state = mBeanServer.getAttribute(oName, "State");
                 String address = null;
                 try {
@@ -235,7 +246,7 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
             String url;
             String id = container.getId();
             if (isFullAddress(address)) {
-                url = address;
+                url = toPublicAddress(id, address);
             } else {
                 String cxfBus = getCxfServletPath(oName);
                 url = "${zk:" + id + "/http}" + cxfBus + address;
@@ -280,6 +291,22 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
             ZooKeeperUtils.setData(curator.get(), path, json, CreateMode.EPHEMERAL);
         } catch (Exception e) {
             LOGGER.error("Failed to register API endpoint for {}.", actualEndpointUrl, e);
+        }
+    }
+
+    private String toPublicAddress(String container, String address) {
+        try {
+            URI uri = new URI(address);
+            int port = PublicPortMapper.getPublicPort(uri.getPort());
+            String hostname = "${zk:" + container + "/ip}";
+            String path = uri.getPath();
+            while (path.startsWith("/")) {
+                path = path.substring(1);
+            }
+            return uri.getScheme() + "://" + hostname + ":" + port + "/" + path;
+        } catch (URISyntaxException e) {
+            LOGGER.warn("Could not map URL to a public address: " + address);
+            return address;
         }
     }
 
@@ -381,7 +408,7 @@ public final class FabricCxfRegistrationHandler extends AbstractComponent implem
         if (name.startsWith("\"") && name.endsWith("\"")) {
             name = name.substring(1, name.length() - 1);
         }
-        String version = container.getVersion().toString();
+        String version = container.getVersion().getId();
         String endpointPath = address;
         if (isFullAddress(address)) {
             // lets remove the prefix "http://localhost:8181/cxf/"

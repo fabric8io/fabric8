@@ -68,7 +68,22 @@ public class DependencyDTO {
      * Returns the maven URL for the artifact
      */
     public String toBundleUrl() {
+        // TODO ignores type and classifier
         return toBundleUrlWithoutVersion() + version;
+    }
+
+    /**
+     * Returns the maven URL for the artifact including any type or modifier
+     */
+    public String toBundleUrlWithType() {
+        String answer = toBundleUrl();
+        if (type != null && (!type.equals("jar") && !type.equals("bundle"))) {
+            answer += "/" + type;
+            if (classifier != null) {
+                answer += "/" + classifier;
+            }
+        }
+        return answer;
     }
 
     public String getGroupId() {

@@ -1,1 +1,0 @@
-Runs a child WildFly container to provision the Drools consoles

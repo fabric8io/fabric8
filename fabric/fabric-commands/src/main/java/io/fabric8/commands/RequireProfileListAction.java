@@ -16,6 +16,7 @@
 package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.utils.TablePrinter;
 import org.apache.felix.gogo.commands.Command;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.ProfileRequirements;
@@ -24,7 +25,7 @@ import io.fabric8.commands.support.RequirementsListSupport;
 import java.io.PrintStream;
 import java.util.List;
 
-@Command(name = "require-profile-list", scope = "fabric", description = "Lists the requirements for profiles in the fabric", detailedDescription = "classpath:status.txt")
+@Command(name = RequireProfileList.FUNCTION_VALUE, scope = RequireProfileList.SCOPE_VALUE, description = RequireProfileList.DESCRIPTION, detailedDescription = "classpath:status.txt")
 public class RequireProfileListAction extends RequirementsListSupport {
 
     public RequireProfileListAction(FabricService fabricService) {
@@ -33,17 +34,19 @@ public class RequireProfileListAction extends RequirementsListSupport {
 
     @Override
     protected void printRequirements(PrintStream out, FabricRequirements requirements) {
-        out.println(String.format("%-40s %-14s %-14s %s", "[profile]", "[# minimum]", "[# maximum]", "[depends on]"));
+        TablePrinter table = new TablePrinter();
+        table.columns("profile", "# minimum", "# maximum", "depends on");
         List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
         for (ProfileRequirements profile : profileRequirements) {
-            out.println(String.format("%-40s %-14s %-14s %s", profile.getProfile(),
+            table.row(profile.getProfile(),
                     getStringOrBlank(profile.getMinimumInstances()),
                     getStringOrBlank(profile.getMaximumInstances()),
-                    getStringOrBlank(profile.getDependentProfiles())));
+                    getStringOrBlank(profile.getDependentProfiles()));
         }
+        table.print();
     }
 
-    protected Object getStringOrBlank(Object value) {
+    public static String getStringOrBlank(Object value) {
         if (value == null) {
             return "";
         } else {

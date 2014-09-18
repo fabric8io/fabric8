@@ -15,27 +15,55 @@
  */
 package io.fabric8.patch.commands;
 
-import java.net.URL;
-
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import io.fabric8.patch.Patch;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
 import io.fabric8.patch.Service;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.service.command.Function;
 
-@Command(scope = "patch", name = "add", description = "Download a patch")
-public class Add extends PatchCommandSupport {
+@Component(immediate = true)
+@org.apache.felix.scr.annotations.Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = Add.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = Add.FUNCTION_VALUE)
+})
+public class Add extends AbstractCommandComponent {
 
-    @Option(name = "--bundles", description = "Show bundles contained in patches")
-    boolean bundles;
+    public static final String SCOPE_VALUE = "patch";
+    public static final String FUNCTION_VALUE = "add";
+    public static final String DESCRIPTION = "Download a patch";
 
-    @Argument(required = true, multiValued = false)
-    String url;
-    
+    @Reference(referenceInterface = Service.class)
+    private final ValidatingReference<Service> service = new ValidatingReference<Service>();
+
+    @Activate
+    void activate() {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
+
     @Override
-    protected void doExecute(Service service) throws Exception {
-        Iterable<Patch> patches = service.download(new URL(url));
-        display(patches, bundles);
+    public Action createNewAction() {
+        assertValid();
+        return new AddAction(service.get());
+    }
+
+    void bindService(Service service) {
+        this.service.bind(service);
+    }
+
+    void unbindService(Service service) {
+        this.service.unbind(service);
     }
 
 }

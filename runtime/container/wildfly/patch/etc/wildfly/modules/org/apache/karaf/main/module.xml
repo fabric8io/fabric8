@@ -28,6 +28,7 @@
         <resource-root path="org.apache.karaf.admin.core-@karaf.version@.jar"/>
         <resource-root path="org.apache.karaf.admin.management-@karaf.version@.jar"/>
         <resource-root path="org.apache.karaf.jaas.boot-@karaf.version@.jar"/>
+        <resource-root path="org.apache.karaf.jaas.config-@karaf.version@.jar"/>
         <resource-root path="org.apache.karaf.jaas.modules-@karaf.version@.jar"/>
         <resource-root path="org.apache.karaf.shell.console-@karaf.version@.jar"/>
         <resource-root path="org.apache.karaf.util-@karaf.version@.jar"/>

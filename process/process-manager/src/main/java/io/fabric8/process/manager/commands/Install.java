@@ -15,38 +15,72 @@
  */
 package io.fabric8.process.manager.commands;
 
-import io.fabric8.process.manager.Installation;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.process.manager.InstallOptions;
-import io.fabric8.process.manager.InstallTask;
-import io.fabric8.process.manager.commands.support.InstallSupport;
+import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.boot.commands.support.AbstractCommandComponent;
+import io.fabric8.process.manager.ProcessManager;
+import io.fabric8.process.manager.commands.support.KindCompleter;
+import org.apache.felix.gogo.commands.Action;
+import org.apache.felix.gogo.commands.basic.AbstractCommand;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.service.command.Function;
+import org.osgi.framework.BundleContext;
 
+@Component(immediate = true)
+@Service({ Function.class, AbstractCommand.class })
+@org.apache.felix.scr.annotations.Properties({
+        @Property(name = "osgi.command.scope", value = Install.SCOPE_VALUE),
+        @Property(name = "osgi.command.function", value = Install.FUNCTION_VALUE)
+})
+public class Install extends AbstractCommandComponent {
 
-/**
- * Installs a new process
- */
-@Command(name = "install", scope = "process", description = "Installs a managed process into this container.")
-public class Install extends InstallSupport {
+    public static final String SCOPE_VALUE = "process";
+    public static final String FUNCTION_VALUE = "install";
+    public static final String DESCRIPTION = "Installs a managed process into this container.";
 
-    @Argument(index = 0, required = true, name = "name", description = "The name of the process to add")
-    protected String name;
+    @Reference(referenceInterface = ProcessManager.class)
+    private final ValidatingReference<ProcessManager> processManager = new ValidatingReference<ProcessManager>();
 
-    @Argument(index = 1, required = true, name = "url", description = "The URL of the installation distribution to install. Typically this is a tarball or zip file")
-    protected String url;
+    @Reference(referenceInterface = KindCompleter.class, bind = "bindKindCompleter", unbind = "unbindKindCompleter")
+    private KindCompleter kindCompleter; // dummy field
+
+    private BundleContext bundleContext;
+
+    @Activate
+    void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
-    protected Object doExecute() throws Exception {
-        checkRequirements();
-        InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder().name(name).url(url).controllerUrl(getControllerURL());
-        InstallOptions options = build(builder);
+    public Action createNewAction() {
+        assertValid();
+        return new InstallAction(processManager.get(), bundleContext);
+    }
 
-        // allow a post install step to be specified - e.g. specifying jars/wars?
-        InstallTask postInstall = null;
-        Installation install = getProcessManager().install(options, postInstall);
+    void bindProcessManager(ProcessManager processManager) {
+        this.processManager.bind(processManager);
+    }
 
-        System.out.println("Installed process " + install.getId() + " to " + install.getInstallDir());
-        return null;
+    void unbindProcessManager(ProcessManager processManager) {
+        this.processManager.unbind(processManager);
+    }
+
+    void bindKindCompleter(KindCompleter completer) {
+        bindOptionalCompleter("--kind", completer);
+    }
+
+    void unbindKindCompleter(KindCompleter completer) {
+        unbindOptionalCompleter("--kind");
     }
 
 }

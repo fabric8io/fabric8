@@ -35,11 +35,11 @@ import org.apache.felix.service.command.Function;
     @Property(name = "osgi.command.scope", value = ProfileScale.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = ProfileScale.FUNCTION_VALUE)
 })
-public final class ProfileScale extends AbstractCommandComponent {
+public class ProfileScale extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "profile-scale";
-    public static final String DESCRIPTION = "Scales up or down the required number of instances of a profile (defaults to adding one container)";
+    public static final String DESCRIPTION = "Scales up or down the required number of instances of a profile";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();

@@ -32,7 +32,6 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Version;
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.utils.SystemProperties;
 
 /**
  * A completer that is aware of the target container.
@@ -55,7 +54,7 @@ public abstract class AbstractProfileCompleter extends AbstractComponent impleme
     public int complete(String buffer, int cursor, List<String> candidates) {
         StringsCompleter delegate = new StringsCompleter();
         try {
-            Version version = getFabricService().getDefaultVersion();
+            Version version = getFabricService().getRequiredDefaultVersion();
             Container container = getFabricService().getCurrentContainer();
             try{
                 container =  getFabricService().getContainer(getContainer(CommandSessionHolder.getSession(), containerArgumentIndex));
@@ -71,7 +70,7 @@ public abstract class AbstractProfileCompleter extends AbstractComponent impleme
                 }
             }
 
-            Profile[] profiles = version.getProfiles();
+            List<Profile> profiles = version.getProfiles();
             List<String> allProfileNames = new LinkedList<String>();
             if (containerProfiles != null) {
                 for (Profile p : profiles) {
@@ -98,7 +97,7 @@ public abstract class AbstractProfileCompleter extends AbstractComponent impleme
      * Retrieves the container name from the arugment list on the specified index.
      */
     private String getContainer(CommandSession commandSession, int index) {
-        String containerName = getRuntimeProperties().getProperty(SystemProperties.KARAF_NAME);
+        String containerName = getRuntimeProperties().getRuntimeIdentity();
         ArgumentCompleter.ArgumentList list = (ArgumentCompleter.ArgumentList) commandSession.get(ArgumentCompleter.ARGUMENTS_LIST);
         if (list != null && list.getArguments() != null && list.getArguments().length > 0) {
             List<String> arguments = Arrays.asList(list.getArguments());

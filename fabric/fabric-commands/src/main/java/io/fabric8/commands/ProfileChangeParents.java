@@ -36,11 +36,11 @@ import org.apache.felix.service.command.Function;
     @Property(name = "osgi.command.scope", value = ProfileChangeParents.SCOPE_VALUE),
     @Property(name = "osgi.command.function", value = ProfileChangeParents.FUNCTION_VALUE)
 })
-public final class ProfileChangeParents extends AbstractCommandComponent {
+public class ProfileChangeParents extends AbstractCommandComponent {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "profile-change-parents";
-    public static final String DESCRIPTION = "Replace the profile's parents with the specified list of parents (where the parents are specified as a space-separated list)";
+    public static final String DESCRIPTION = "Replace the profile's parents with the specified list of parents";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();

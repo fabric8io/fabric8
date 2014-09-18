@@ -41,7 +41,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
         @Property(name = "osgi.command.scope", value = JoinCommand.SCOPE_VALUE),
         @Property(name = "osgi.command.function", value = JoinCommand.FUNCTION_VALUE)
 })
-public final class JoinCommand extends AbstractCommandComponent implements JoinAvailable {
+public class JoinCommand extends AbstractCommandComponent implements JoinAvailable {
 
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE =  "join";
@@ -54,6 +54,7 @@ public final class JoinCommand extends AbstractCommandComponent implements JoinA
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = RuntimeProperties.class, bind = "bindRuntimeProperties", unbind = "unbindRuntimeProperties")
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
+
 
     private BundleContext bundleContext;
 

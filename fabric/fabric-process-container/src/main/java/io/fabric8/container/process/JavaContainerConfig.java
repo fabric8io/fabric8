@@ -15,8 +15,8 @@
  */
 package io.fabric8.container.process;
 
+import io.fabric8.api.Constants;
 import io.fabric8.common.util.Strings;
-import io.fabric8.service.child.ChildConstants;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 
@@ -30,8 +30,16 @@ import static io.fabric8.service.child.JavaContainerEnvironmentVariables.FABRIC8
 /**
  * Represents the configuration for a Java Container when used with a child or docker container
  */
-@Component(name = "io.fabric8.container.java", label = "Fabric8 Java Child Container Configuration", immediate = false, metatype = true)
+@Component(name = "io.fabric8.container.java",
+        label = "Fabric8 Java Container",
+        description = "The configuration for the Java Container",
+        immediate = true, metatype = true)
 public class JavaContainerConfig {
+
+    @Property(label = "Jar URL", cardinality = 1,
+            description = "The URL (usually using maven coordinates) for the jar to install.")
+    private String jarUrl;
+
     @Property(label = "Java main class",
             description = "The name of the Java class which contains a static main(String[] args) function.")
     private String mainClass;
@@ -48,11 +56,19 @@ public class JavaContainerConfig {
             description = "The JVM command line options such as to set the memory size and garbage collection settings.")
     private String jvmArguments;
 
-    public void updateEnvironmentVariables(Map<String,String> environmentVariables) {
+    @Property(name = "overlayFolder", label = "Overlay folder path", value = "overlayFiles",
+            description = "The folder path inside the profile used to contain files and MVEL templates which are then overlayed ontop of the process installation; for customizing the configuration of the process with configuration files maintained inside the profile; possibly with dynamically resolved values.")
+    private String overlayFolder;
+
+    public void updateEnvironmentVariables(Map<String, String> environmentVariables, boolean isJavaContainer) {
         if (Strings.isNotBlank(mainClass)) {
             environmentVariables.put(FABRIC8_JAVA_MAIN, mainClass);
         } else {
-            throw new IllegalArgumentException("No mainClass value is specified in the " + ChildConstants.JAVA_CONTAINER_PID + " configuration!");
+            if (isJavaContainer) {
+                throw new IllegalArgumentException("No mainClass value is specified in the " + Constants.JAVA_CONTAINER_PID + " configuration!");
+            } else {
+                environmentVariables.remove(FABRIC8_JAVA_MAIN);
+            }
         }
         if (Strings.isNotBlank(arguments)) {
             environmentVariables.put(FABRIC8_MAIN_ARGS, arguments);
@@ -63,6 +79,14 @@ public class JavaContainerConfig {
         if (Strings.isNotBlank(jvmArguments)) {
             environmentVariables.put(FABRIC8_JVM_ARGS, jvmArguments);
         }
+    }
+
+    public String getJarUrl() {
+        return jarUrl;
+    }
+
+    public void setJarUrl(String jarUrl) {
+        this.jarUrl = jarUrl;
     }
 
     public String getMainClass() {
@@ -95,5 +119,13 @@ public class JavaContainerConfig {
 
     public void setJvmArguments(String jvmArguments) {
         this.jvmArguments = jvmArguments;
+    }
+
+    public String getOverlayFolder() {
+        return overlayFolder;
+    }
+
+    public void setOverlayFolder(String overlayFolder) {
+        this.overlayFolder = overlayFolder;
     }
 }

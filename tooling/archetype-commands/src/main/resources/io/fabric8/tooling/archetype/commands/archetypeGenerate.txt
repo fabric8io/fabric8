@@ -1,0 +1,52 @@
+This command is use for generating new projects, that can be used to quickly get started developing projects with fabric.
+
+The command uses the Fabric Maven Archetypes to generate the project. This means the command reuse the same set of maven archetypes that is also available to be used from other tools such as Eclipse or Apache Maven.
+
+
+Setting up workspace
+--------------------
+
+At first you need to setup a `workspace` which is the root directory where you want the projects to be generated (you can think of Eclipse workspace).
+This can be setup using the `archetype-workspace` command. For example to setup `/Users/myname/myprojects` as a workspace run this command:
+
+    archetype-workspace /Users/myname/myprojects
+
+Notice that the command has tab-completion for the directory
+
+To list what is the current workspace, then run the command without any arguments
+
+    archetype-workspace
+
+
+Creating a project
+------------------
+
+To generate a new project, just run the `archetype-generate` command
+
+    archetype-generate
+
+Then the command runs in interactive mode, where it guides you through the selections.
+What happens is that each archetype is listed with a number. To choose an archetype then type in the number.
+The list can be filtered by typing in a word. For example to filter so its only Camel related, then type `camel` and press enter.
+
+After selecting an archetype, then values for groupId, artifactId, version and others properties needs to provided.
+You can leave the values as default by pressing enter.
+
+
+Opening the project in Eclipse
+------------------------------
+
+After the project has been created, you can open the project in Eclipse or other editors, by importing the project as an Apache Maven project.
+In Eclipse you can develop the project anyway you want. For example try to change a little bit in the source code, to see that your changes are applied, when you deploy the project.
+
+
+Deploying the project
+---------------------
+
+You can deploy the project to fabric, from the the command shell.
+
+  mvn fabric8:deploy
+
+For more details about how to deploy to fabric, see the online documentation at:
+
+  http://fabric8.io/gitbook/mavenPlugin.html

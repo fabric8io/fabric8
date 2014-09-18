@@ -4,7 +4,7 @@ The **Process Manager** bundle provides support for running *managed processes* 
 
 A managed process keeps running if the Process Manager is restarted and it can still start/stop/restart/uninstall the process after it itself is restarted; as the Process Manager knows how to find the underlying operating system process ID (PID) of each managed process.
 
-The Process Manager can run any application; in which case it acts like using init.d, xinit.d, daemontools, monit and other kinds of unix process manager. The difference though is the Process Manager can act at the Fabric8 level since we can use [Fabric Profiles](http://fabric8.io/#/site/book/doc/index.md?chapter=profiles_md) to determine which machines run which proceses in a fabric.
+The Process Manager can run any application; in which case it acts like using init.d, xinit.d, daemontools, monit and other kinds of unix process manager. The difference though is the Process Manager can act at the Fabric8 level since we can use [Fabric Profiles](profiles.html) to determine which machines run which proceses in a fabric.
 
 A *managed process* is similar conceptually to *child containers* in a root Apache Karaf container; each managed process is a separate, stand alone operating system process installed in a sub directory of **${karaf-home}/processes** and is managed by the root container to install/start/stop/restart/uninstall the process.
 
@@ -26,7 +26,7 @@ This means with Fabric8 you can easily move your Java code between OSGi bundles,
 
 ### Managing processes like Tomcat, Jetty, HQ Agent
 
-The [ProcessController](https://github.com/fabric8io/fabric8/blob/master/process/process-manager/src/main/java/io/fabric8/process/manager/ProcessController.java#L35) can run any process; though it needs to know exactly how to run it. It assumes the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
+The [ProcessController](https://github.com/fabric8io/fabric8/blob/master/process/process-manager/src/main/java/io/fabric8/process/manager/ProcessController.java#L35) can run any process; though it needs to know exactly how to run it. It assumes the [Init Script Actions Specification](http://refspecs.linuxbase.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
 The default is to use a launch script called **bin/launcher** and then specify a parameter for each command
 
@@ -52,11 +52,11 @@ Process Manager ships with some default **kinds** of controller which lets you u
 
 For example to install an [Apache Tomcat](http://tomcat.apache.org/) distro with the name mycat, in this case [Apache TomEE](http://tomee.apache.org/):
 
-    process:install -k tomcat mycat mvn:org.apache.openejb/apache-tomee/1.5.0/tar.gz/plus
+    process:install -k tomcat mycat mvn:org.apache.openejb/apache-tomee/1.7.0/tar.gz/plus
 
 You can use any URL for a distro of Tomcat you wish in the above command. For example you could refer to a specific HTTP URL for a Tomcat distro...
 
-    process:install -k tomcat mycat http://repo2.maven.org/maven2/org/apache/openejb/apache-tomee/1.5.0/apache-tomee-1.5.0-plus.tar.gz
+    process:install -k tomcat mycat http://repo2.maven.org/maven2/org/apache/openejb/apache-tomee/1.7.0/apache-tomee-1.7.0-plus.tar.gz
 
 To run [Jetty](http://www.eclipse.org/jetty/):
 
@@ -87,9 +87,24 @@ Once you know the process number you can then start/stop/restart/status/kill it
     process:restart 1
     process:status 1
 
-To see all the available commands type
+#### Listing all the process-related commands
+
+To see all the available process-related commands type as follows:
 
     help process
+
+#### Listing environment variables of managed process
+
+In order to display the environment variables assigned by the Fabric8 to the managed process, use
+`process:environment <pid>` command.
+
+    > process:environment myProcess
+    [Variable]                     [Value]
+    FABRIC8_CONTAINER_NAME         sb1
+    FABRIC8_HTTP_PORT              8080
+    FABRIC8_HTTP_PROXY_PORT        9002
+    FABRIC8_SSHD_PROXY_PORT        9000
+    FABRIC8_ZOOKEEPER_URL          192.168.122.1:2181
 
 ### Installing a jar as a managed process
 
@@ -131,83 +146,81 @@ So to install the above sample as a tarball use:
 
     process:install mvn:io.fabric8.samples/process-sample-camel-spring/1.1.0/tar.gz
 
-## Process management - Spring Boot support
+### Debugging managed processes
 
-Fabric comes with a set of features simplifying the effort of running and managing Spring Boot JVM processes. Fabric
-Boot utilities and starters are especially useful if you plan to run your system in a microservices-manner backed by
-the Spring Boot micro-containers and Fabric-related middleware (Camel, ActiveMQ, CXF and so forth).
+Not all your process deployments will succeed with no issues. If your process is not starting successfully, try to
+examine the logs of the process you want to start. If digging into logs doesn't help, try to connect to the process with
+the debugger build into your IDE.
 
-### FabricSpringApplication
+#### Location of the managed processes data
 
-`FabricSpringApplication` is an executable Java class to be used as a base for the Fabric-managed Spring Boot applications. Its main purpose is to
-eliminate the custom code bootstrapping the application, so end-users could create Spring Boot managed process via
-Fabric without any custom wiring.
+The managed processes data can be usually found in the `FABRIC8_HOME/processes` directory. Each process uses directory
+identified by the numerical ID assigned to it by the process manager. The same numerical identifiers are displayed by the
+process manager when you execute `ps` command in the Fabric8 shell.
 
-`FabricSpringApplication` can be used in the conjunction with the Fabric Jar Managed Process installer (just
- as demonstrated on the snippet below).
+The listing below demonstrates what you might see in the `processes` directory. Directories `1`, `2` and `3` are the
+directories of the particular managed  processes:
 
-     process:install-jar -m io.fabric8.process.spring.boot.container.FabricSpringApplication my.group.id my-artifact 1.0
+     ~/labs/fabric8 % ls instances
+     instance.properties 1 2 3
 
- Keep in mind that you don't have to use `FabricSpringApplication` in order to use Fabric goodies for Spring
- Boot (like Fabric starters). However we recommend to use this class as an entry point for your Fabric SpringBoot
- integration, as it implements our opinionated view of the proper Fabric+Boot wiring.
+#### Managed process logs
 
-### Embedded FabricSpringApplication
+The standard output and standard error streams of the process are redirected to the `PROCESS_DIRECTORY/logs/out.log` and
+`PROCESS_DIRECTORY/logs/err.log` respectively. This is usually a good place to start to investigate when your
+application doesn't start properly.
 
-Sometimes you cannot start new Spring Boot JVM process, but instead you have to integrate with the existing web application
-or the other piece of legacy Spring software. To support such cases Fabric comes withe the
-`EmbeddedFabricSpringApplication`, a bean that can be added to the existing Spring application context in order to start
-embedded Fabric Spring Boot context from within it. The embedding context (the one `EmbeddedFabricSpringApplication` has
-been added to will become a parent context for the embedded Fabric Spring Boot context.
+#### Connecting to the remote process with the debugger
 
-Creating embedded Fabric application is as simple as that:
+If investigating process logs isn't enough to identify the issue, you should consider connecting with the debugger to
+the managed process. In order to start managed process with the remote debugger port 5005 opened and waiting for you to
+connect, execute the following command:
 
-    @Bean
-    EmbeddedFabricSpringApplication fabricSpringApplication() {
-      return new EmbeddedFabricSpringApplication();
-    }
+    FABRIC8_JVM_DEBUG=TRUE PROCESS_DIRECTORY/bin/launcher start
 
-For XML configuration the snippet above looks as follows:
+If environmental variable `FABRIC8_JVM_DEBUG` is set to `TRUE`, the process will be started with the debugger waiting
+for you to connect to the port 5005.
 
-    <bean class="io.fabric8.process.spring.boot.container.EmbeddedFabricSpringApplication" />
+### Process management - test API
 
-`EmbeddedFabricSpringApplication` automatically detects its patent Spring `ApplicationContext` and uses it when starting
-up new embedded Fabric application.
-
-### Spring Boot Camel starter
-
-Fabric Spring Boot support comes with the opinionated auto-configuration of the Camel context. It provides default
-`CamelContext` instance, auto-detects Camel routes available in the Spring context and exposes the key Camel utilities
-(like consumer template, producer template or type converter service).
-
-In order to start using Camel with Spring Boot just include `process-spring-boot-starter-camel` jar in your application
-classpath.
+Fabric8 comes with the `io.fabric8.process.test.AbstractProcessTest` base class dedicated for testing processes managed 
+by Fabric8. `AbstractProcessTest` provides utilities to gracefully start, test and stop managed processes. In order to use
+Fabric8 test API, include add the following jar in your project:
 
     <dependency>
       <groupId>io.fabric8</groupId>
-      <artifactId>process-spring-boot-starter-camel</artifactId>
+      <artifactId>process-test</artifactId>
       <version>${fabric-version}</version>
+      <scope>test</scope>
     </dependency>
 
-When `process-spring-boot-starter-camel` jar is included in the classpath, Spring Boot will auto-configure the Camel
-context for you.
+Keep in mind that due to the performance reasons you should bootstrap tested process as a singleton static member of
+the test class before your test suite starts (you can do it in the `@BeforeClass` block). `AbstractProcessTest` is 
+primarily designed to work with the static singleton instances of the processes living as long as the test suite.
+The snippet below demonstrates this approach.
 
-#### Auto-configured CamelContext
+    public class InvoicingMicroServiceTest extends AbstractProcessTest {
 
-The most important piece of functionality provided by the Camel starter is `CamelContext` instance. Fabric Camel starter
-will create `SpringCamelContext` for your and take care of the proper initialization and shutdown of that context. Created
-Camel context is also registered in the Spring application context (under `camelContext` name), so you can access it just
-as the any other Spring bean.
+      static ProcessController processController;
 
-    @Configuration
-    public class MyAppConfig {
+      @BeforeClass
+      public static void before() throws Exception {
+        processController = processManagerService.installJar(...).getController();
+        startProcess(processController);
+      }
 
-        @Autowired
-        CamelContext camelContext;
+      @AfterClass
+      public static void after() throws Exception {
+        stopProcess(processController);
+      }
 
-        @Bean
-        MyService myService() {
-          return new DefaultMyService(camelContext);
-        }
+      @Test
+      public void shouldDoSomething() throws Exception {
+        // test your process here
+      }
 
     }
+
+As you can see in the snippet above, `AbstractProcessTest` comes with the `ProcessManagerService` instance
+(`processManagerService`) living for the period of the test class lifespan. Data of the tested processes is stored in
+the temporary directory.

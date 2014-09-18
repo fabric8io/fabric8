@@ -17,7 +17,7 @@ package io.fabric8.gateway.handlers.detecting.protocol.stomp;
 
 import io.fabric8.gateway.handlers.detecting.Protocol;
 import io.fabric8.gateway.SocketWrapper;
-import io.fabric8.gateway.loadbalancer.ConnectionParameters;
+import io.fabric8.gateway.handlers.loadbalancer.ConnectionParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;

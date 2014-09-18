@@ -16,6 +16,7 @@
 package io.fabric8.process.fabric.commands;
 
 import com.google.common.collect.ImmutableMap;
+import io.fabric8.api.Container;
 import org.apache.felix.gogo.commands.Argument;
 import io.fabric8.process.fabric.ContainerInstallOptions;
 import io.fabric8.process.manager.Installation;
@@ -32,7 +33,7 @@ public abstract class ContainerProcessControllerSupport extends ContainerProcess
     void doWithAuthentication(String jmxUser, String jmxPassword) throws Exception {
         {
             ContainerInstallOptions options = ContainerInstallOptions.builder()
-                    .container(container)
+                    .container(getContainerObject())
                     .user(jmxUser)
                     .password(jmxPassword)
                     .build();
@@ -48,4 +49,5 @@ public abstract class ContainerProcessControllerSupport extends ContainerProcess
             }
         }
     }
+
 }

@@ -1,0 +1,1 @@
+Runs the redis master in the [guestbook demo](/fabric/profiles/example/kubernetes/guestbook)

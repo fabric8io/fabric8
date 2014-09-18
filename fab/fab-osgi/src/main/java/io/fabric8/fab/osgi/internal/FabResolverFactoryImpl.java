@@ -46,8 +46,8 @@ import org.osgi.framework.BundleException;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.RepositoryException;
-import org.sonatype.aether.graph.Dependency;
+import org.eclipse.aether.RepositoryException;
+import org.eclipse.aether.graph.Dependency;
 
 import static io.fabric8.common.util.Strings.notEmpty;
 
@@ -62,6 +62,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
     private static final transient Logger LOG = LoggerFactory.getLogger(FabResolver.class);
 
     private BundleContext bundleContext;
+    private ModuleRegistry registry;
     private ConfigurationAdmin configurationAdmin;
     private FeaturesService featuresService;
     private Configuration configuration;
@@ -73,6 +74,14 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+    }
+
+    public ModuleRegistry getRegistry() {
+        return registry;
+    }
+
+    public void setRegistry(ModuleRegistry registry) {
+        this.registry = registry;
     }
 
     @Override
@@ -302,7 +311,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
 
         public FabClassPathResolver getClasspathResolver(Properties instructions, Map<String, Object> embeddedResources) {
             if (classPathResolver == null) {
-                classPathResolver = new FabClassPathResolver(this, instructions, embeddedResources);
+                classPathResolver = new FabClassPathResolver(registry, this, instructions, embeddedResources);
 
                 // when used inside Fabric, the features service is not available
                 if (featuresService != null) {

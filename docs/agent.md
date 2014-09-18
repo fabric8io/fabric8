@@ -28,11 +28,11 @@ Note, that the profile contain two types of information:
 The configuration admin bridge will read all of them and create the OSGi configuration that represents them.
 All the provisioning & system information will go under the **io.fabric8.agent** pid. For containers that are assigned multiple profiles, or just use the profile hierarchy the overlay view of the profiles will be added to io.fabric8.agent *(There is a single pid even if we have multiple profiles)*.
 
-All the OSGi configuration will just you the pid and key value pairs that have been added to the profile.
+All the OSGi configuration will just use the pid and key value pairs that have been added to the profile.
 
 The bridge will also watch the registry for changes, so any change in the profiles that are assigned to the container will be *tracked* and will immediately be applied to the local OSGi configuration of the container.
 
-## The deployment agent (fabric-agent)
+### The deployment agent (fabric-agent)
 
 The deployment agent is listening for local configuration changes on the io.fabric8.agent pid. Any change in that configuration will trigger the *deployment agent*.
 Once the *deployment agent* is triggered, it will read the whole **io.fabric8.agent** pid and calculate the bundles that the container should have installed.
@@ -61,6 +61,15 @@ To change that list of repositories for a specific profile you can simply, you t
       fabric:profile-edit --pid io.fabric8.agent/org.ops4j.pax.url.mvn.repositories=http://repositorymanager.mylocalnetwork.net default
 
 It is suggested to keep this configuration in one profile and have the rest of profiles inherit from it. The default profile, which is the root of all of the default profiles, seems the ideal place.
+
+### Configuring the download thread pool
+
+By default the *deployment agent* uses a thread pool for concurrent download of needed artifcats. The default size of the pool is 2 which you can reconfigure by configuring the option with key `io.fabric8.agent.download.threads` in the `etc\custom.properties` file. 
+
+For example to use 5 threads:
+
+    io.fabric8.agent.download.threads=5
+
 
 ### No container restarts
 
@@ -102,7 +111,7 @@ The requirements are usually package requirements but can also be service requir
 * If a bundle specifies in its headers an Import-Package requirement, an other bundle with the corresponding Export-Package is required
 * If a bundle specifies in its headers an Import-Service requirement, an other bundle with the corresponding Export-Service is required
 
-The last point is really important, because blueprint users the have mandatory references of services in their blueprint descriptor, will automatically have the Import-Service headers in their bundle (assuming the use of maven-bundle-plugin).
+The last point is really important, because blueprint users that have mandatory references of services in their blueprint descriptor, will automatically have the Import-Service headers in their bundle (assuming the use of maven-bundle-plugin).
 If the bundle that exports that service doesn't explicitly specify it in its headers, then resolution will fail. Either the exporter bundle will have to add an Export-Service directive or the importer bundle will have to remove the Import-Service directive.
 
 When the resolution is successful the fabric-agent will start the bundles. Even though you should try to avoid having requirements in the startup order of your bundles, the fabric-agent will attempt to start the bundles based on their expressed requirements and capabilities.

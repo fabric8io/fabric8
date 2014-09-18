@@ -15,7 +15,7 @@
  */
 package io.fabric8.jolokia.facade.utils;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.fabric8.api.CreationStateListener;
 
 /**

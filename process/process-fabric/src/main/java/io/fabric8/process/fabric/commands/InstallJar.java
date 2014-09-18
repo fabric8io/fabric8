@@ -52,7 +52,7 @@ public class InstallJar extends ContainerInstallSupport {
 
     void doWithAuthentication(String jmxUser, String jmxPassword) throws Exception {
         ContainerInstallOptions options = ContainerInstallOptions.builder()
-                .container(container)
+                .container(getContainerObject())
                 .user(jmxUser)
                 .password(jmxPassword)
                 .controllerUrl(getControllerURL())
@@ -70,7 +70,7 @@ public class InstallJar extends ContainerInstallSupport {
         // allow a post install step to be specified - e.g. specifying jars/wars?
         InstallTask postInstall = null;
 
-        Installation install = getContainerProcessManager().installJar(options);
+        Installation install = getContainerProcessManager().installJar(options, postInstall);
         ShellUtils.storeFabricCredentials(session, jmxUser, jmxPassword);
         System.out.println("Installed process " + install.getId() + " to " + install.getInstallDir());
     }

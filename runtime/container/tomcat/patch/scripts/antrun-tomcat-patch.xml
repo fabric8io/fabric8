@@ -36,6 +36,7 @@
   <property name="output.dir" value="${basedir}/target" />
   <property name="resources.dir" value="${basedir}/src/main/resources" />
   <property name="tomcat.patch.dir" value="${output.dir}/tomcat-patch" />
+  <property name="tomcat.source.dir" value="${output.dir}/tomcat-base/apache-tomcat-${tomcat-version}" />
   <property name="deploy.artifacts.dir" value="${output.dir}/deploy-artifacts" />
   <property name="deploy.artifacts.lib" value="${deploy.artifacts.dir}/lib" />
   <property name="deploy.artifacts.resources" value="${deploy.artifacts.dir}/resources" />
@@ -63,16 +64,17 @@
     </copy>
     <chmod dir="${tomcat.patch.dir}/bin" perm="ugo+rx" includes="**/*" verbose="true"/>
 
-    <mkdir dir="${tomcat.patch.dir}/work/karaf-base/fabric/import/fabric/profiles"/>
+    <mkdir dir="${tomcat.patch.dir}/fabric/import/fabric/profiles"/>
     <unzip src="${deploy.artifacts.lib}/fabric8-profiles-${project.version}.zip"
-           dest="${tomcat.patch.dir}/work/karaf-base/fabric/import/fabric/profiles" overwrite="true"/>
+           dest="${tomcat.patch.dir}/fabric/import/fabric/profiles" overwrite="true"/>
 
   	<!-- Copy gravia patch -->
     <copy todir="${tomcat.patch.dir}" overwrite="true">
         <fileset dir="${output.dir}/gravia-tomcat-patch">
-       		<exclude name="webapps/**"/>
+       		<exclude name="conf/users.properties"/>
        		<exclude name="lib/slf4j*"/>
        		<exclude name="lib/log4j*"/>
+       		<exclude name="webapps/**"/>
         </fileset>
     </copy>
   	
@@ -93,6 +95,17 @@
     <copy tofile="${tomcat.patch.dir}/webapps/hawtio.war" overwrite="true">
       <fileset file="${deploy.artifacts.lib}/fabric-runtime-container-console-webapp-${project.version}.war" />
     </copy>
+
+    <copy file="${tomcat.source.dir}/conf/catalina.properties" todir="${tomcat.patch.dir}/conf" overwrite="true"/>
+    <echo file="${tomcat.patch.dir}/conf/catalina.properties" append="true">
+          environment.prefix=FABRIC8_
+          runtime.id=tomcat
+          runtime.home=${catalina.home}
+          runtime.conf=${catalina.home}/conf
+          runtime.data=${catalina.home}/work
+          zookeeper.sasl.client=false
+          readonlymode.enabled=true
+    </echo>
 
   	<!-- Zip the tomcat patch -->
   	<zip destfile="${output.dir}/${project.artifactId}-${project.version}.zip" basedir="${tomcat.patch.dir}"/>

@@ -15,10 +15,10 @@
  */
 package io.fabric8.tooling.testing.pax.exam.karaf;
 
-import io.fabric8.api.ServiceLocator;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.security.PrivilegedAction;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -27,21 +27,26 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+import javax.security.auth.Subject;
 
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.features.FeaturesService;
-import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
+import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.junit.Assert;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.TestProbeBuilder;
 import org.ops4j.pax.exam.junit.ProbeBuilder;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.options.MavenArtifactProvisionOption;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FabricKarafTestSupport {
 
@@ -52,6 +57,8 @@ public class FabricKarafTestSupport {
     public static final Long COMMAND_TIMEOUT = 70000L;
 
     static final ExecutorService executor = Executors.newCachedThreadPool();
+
+    static final Logger LOGGER = LoggerFactory.getLogger(FabricKarafTestSupport.class);
 
     @Inject
     protected BundleContext bundleContext;
@@ -115,7 +122,7 @@ public class FabricKarafTestSupport {
      */
     public static String tryCommand(final String command) {
         try {
-            return executeCommands(COMMAND_TIMEOUT, false, command);
+            return executeCommands(COMMAND_TIMEOUT, false, null, command);
         } catch (Throwable t) {
             return "Error executing command:" + t.getMessage();
         }
@@ -126,15 +133,36 @@ public class FabricKarafTestSupport {
      * Commands have a default timeout of 10 seconds.
      */
     public static String executeCommand(final String command) {
-        return executeCommands(COMMAND_TIMEOUT, false, command);
+        return executeCommands(COMMAND_TIMEOUT, false, null, command);
     }
 
     /**
      * Executes a shell command and returns output as a String.
      * Commands have a default timeout of 10 seconds.
+     * @param command The command to execute.
+     * @param roles The roles for the command to execute.
+     */
+    public static String executeCommand(final Set<RolePrincipal> roles, final String command) {
+        return executeCommands(COMMAND_TIMEOUT, false, roles, command);
+    }
+       
+    
+    /**
+     * Executes a shell command and returns output as a String.
+     * Commands have a default timeout of 10 seconds.
      */
     public static String executeCommands(final String... commands) {
-        return executeCommands(COMMAND_TIMEOUT, false, commands);
+        return executeCommands(COMMAND_TIMEOUT, false, null, commands);
+    }
+    
+    /**
+     * Executes a shell command and returns output as a String.
+     * Commands have a default timeout of 10 seconds.
+     * @param commands The command to execute.
+     * @param roles The roles for the command to execute.
+     */
+    public static String executeCommand(final Set<RolePrincipal> roles, final String... commands) {
+        return executeCommands(COMMAND_TIMEOUT, false, roles, commands);
     }
 
     /**
@@ -145,7 +173,7 @@ public class FabricKarafTestSupport {
      * @param silent  Specifies if the command should be displayed in the screen.
      */
     public static String executeCommand(final String command, final long timeout, final boolean silent) {
-        return executeCommands(timeout, silent, command);
+        return executeCommands(timeout, silent, null, command);
     }
 
     /**
@@ -155,42 +183,57 @@ public class FabricKarafTestSupport {
     * @param silent  Specifies if the command should be displayed in the screen.
     * @param commands The command to execute.
     */
-    public static String executeCommands(final long timeout, final boolean silent, final String... commands) {
+    public static String executeCommands(final long timeout, final boolean silent, final Set<RolePrincipal> roles, final String... commands) {
         String response = null;
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         final PrintStream printStream = new PrintStream(byteArrayOutputStream);
         final CommandProcessor commandProcessor = ServiceLocator.awaitService(FrameworkUtil.getBundle(FabricKarafTestSupport.class).getBundleContext(), CommandProcessor.class);
         final CommandSession commandSession = commandProcessor.createSession(System.in, printStream, printStream);
-        commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
+        commandSession.put("APPLICATION", System.getProperty("runtime.id", "root"));
         commandSession.put("USER", "karaf");
         FutureTask<String> commandFuture = new FutureTask<String>(new Callable<String>() {
             public String call() throws Exception {
-                for (String command : commands) {
-                    boolean keepRunning = true;
-
-                    if (!silent) {
-                        System.out.println(command);
-                        System.out.flush();
-                    }
-
-                    while (!Thread.currentThread().isInterrupted() && keepRunning) {
-                        try {
-                            commandSession.execute(command);
-                            keepRunning = false;
-                        } catch (Exception e) {
-                            if (retryException(e)) {
-                                keepRunning = true;
-                                sleep(1000);
-                            } else {
-                                throw new CommandExecutionException(e);
-                            }
-                        }
+                Subject subject = new Subject();
+                subject.getPrincipals().add(new UserPrincipal("admin"));
+                subject.getPrincipals().add(new RolePrincipal("admin"));
+                subject.getPrincipals().add(new RolePrincipal("manager"));
+                subject.getPrincipals().add(new RolePrincipal("viewer"));
+                if (roles != null) {
+                    for (RolePrincipal role : roles) {
+                        subject.getPrincipals().add(role);
                     }
                 }
-                printStream.flush();
-                return byteArrayOutputStream.toString();
-            }
+                return Subject.doAs(subject, new PrivilegedAction<String>() {
+                    @Override
+                    public String run() {
+                        for (String command : commands) {
+                            boolean keepRunning = true;
 
+                            if (!silent) {
+                                System.out.println(command);
+                                System.out.flush();
+                            }
+                            LOGGER.info("Executing command: " + command);
+
+                            while (!Thread.currentThread().isInterrupted() && keepRunning) {
+                                try {
+                                    commandSession.execute(command);
+                                    keepRunning = false;
+                                } catch (Exception e) {
+                                    if (retryException(e)) {
+                                        keepRunning = true;
+                                        sleep(1000);
+                                    } else {
+                                        throw new CommandExecutionException(e);
+                                    }
+                                }
+                            }
+                        }
+                        printStream.flush();
+                        return byteArrayOutputStream.toString();
+                    }
+                });
+            }
         });
 
         try {
