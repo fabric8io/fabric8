@@ -15,6 +15,8 @@
  */
 package io.fabric8.process.spring.boot.starter.activemq;
 
+import javax.jms.ConnectionFactory;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.jms.pool.PooledConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +25,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.jms.ConnectionFactory;
 
 /**
  * <p>
@@ -115,20 +115,20 @@ public class ActiveMQAutoConfiguration {
     @Autowired
     BrokerUrlResolver brokerUrlResolver;
 
-    @ConditionalOnMissingClass({org.junit.runner.Runner.class,io.fabric8.mq.fabric.FabricDiscoveryAgent.class})
+    @ConditionalOnMissingClass(name = {"org.junit.runner.Runner", "io.fabric8.mq.fabric.FabricDiscoveryAgent"})
     @Bean
     BrokerUrlResolver defaultBrokerUrlResolver() {
         return new DefaultBrokerUrlResolver();
     }
 
-    @ConditionalOnClass(org.junit.runner.Runner.class)
+    @ConditionalOnClass(name = "org.junit.runner.Runner")
     @Bean
     BrokerUrlResolver testBrokerUrlResolver() {
         return new TestBrokerUrlResolver();
     }
 
-    @ConditionalOnClass(io.fabric8.mq.fabric.FabricDiscoveryAgent.class)
-    @ConditionalOnMissingClass(org.junit.runner.Runner.class)
+    @ConditionalOnClass(name = "io.fabric8.mq.fabric.FabricDiscoveryAgent")
+    @ConditionalOnMissingClass(name = "org.junit.runner.Runner")
     @Bean
     BrokerUrlResolver fabricDiscoveryBrokerUrlResolver() {
         return new FabricDiscoveryBrokerUrlResolver();
