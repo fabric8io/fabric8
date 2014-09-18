@@ -10,7 +10,7 @@ For example, if you have already created a new fabric (for example, by invoking 
 
 karaf@root> fabric:container-create-child root child 3
 
-By default, the new child containers are associated with the profile, default. If you want  to specify the profile explicitly, use the --profile option. For example, to specify the esb profile:
+By default, the new child containers are associated with the profile, default. If you want to specify the profile explicitly, use the --profile option. For example, to specify the esb profile:
 
 fabric:container-create-child --profile esb root childESB
 
