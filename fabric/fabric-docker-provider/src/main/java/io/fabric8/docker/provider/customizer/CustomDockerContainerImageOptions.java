@@ -21,17 +21,17 @@ package io.fabric8.docker.provider.customizer;
 public class CustomDockerContainerImageOptions {
     private final String baseImage;
     private final String imageRepository;
-    private final String newImageTag;
+    private final String newImageName;
     private final String javaLibraryPath;
     private final String javaDeployPath;
     private final String homePath;
     private final String entryPoint;
     private final String overlayFolder;
 
-    public CustomDockerContainerImageOptions(String baseImage, String imageRepository, String newImageTag, String javaLibraryPath, String javaDeployPath, String homePath, String entryPoint, String overlayFolder) {
+    public CustomDockerContainerImageOptions(String baseImage, String imageRepository, String newImageName, String javaLibraryPath, String javaDeployPath, String homePath, String entryPoint, String overlayFolder) {
         this.baseImage = baseImage;
         this.imageRepository = imageRepository;
-        this.newImageTag = newImageTag;
+        this.newImageName = newImageName;
         this.javaLibraryPath = javaLibraryPath;
         this.javaDeployPath = javaDeployPath;
         this.homePath = homePath;
@@ -50,8 +50,8 @@ public class CustomDockerContainerImageOptions {
     /**
      * The tag name of the newly created image
      */
-    public String getNewImageTag() {
-        return newImageTag;
+    public String getNewImageName() {
+        return newImageName;
     }
 
     /**

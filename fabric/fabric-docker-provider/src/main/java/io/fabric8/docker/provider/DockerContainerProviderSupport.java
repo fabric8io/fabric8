@@ -33,6 +33,7 @@ import io.fabric8.common.util.Strings;
 import io.fabric8.container.process.JavaContainerConfig;
 import io.fabric8.container.process.JolokiaAgentHelper;
 import io.fabric8.container.process.ZooKeeperPublishConfig;
+import io.fabric8.docker.api.Auth;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.DockerFactory;
 import io.fabric8.docker.api.Dockers;
@@ -83,6 +84,10 @@ public abstract class DockerContainerProviderSupport extends AbstractComponent {
     protected DockerProviderConfig createDockerProviderConfig(Map<String, String> dockerProviderConfig, Map<String, String> environmentVariables) throws Exception {
         FabricService service = getFabricService();
         JolokiaAgentHelper.substituteEnvironmentVariableExpressions(dockerProviderConfig, environmentVariables, service, getCuratorFramework());
+        return createDockerProviderConfig(dockerProviderConfig);
+    }
+
+    protected DockerProviderConfig createDockerProviderConfig(Map<String, String> dockerProviderConfig) throws Exception {
         DockerProviderConfig dockerProviderConfigObject = new DockerProviderConfig();
         getConfigurer().configure(dockerProviderConfig, dockerProviderConfigObject);
         return dockerProviderConfigObject;
@@ -153,213 +158,6 @@ public abstract class DockerContainerProviderSupport extends AbstractComponent {
 
         public DockerCreateContainerParameters(DockerCreateOptions options) throws Exception {
             this.options = options;
-            assertValid();
-
-            String containerId = options.getName();
-            ContainerConfig containerConfig = createContainerConfig(options);
-
-            // allow values to be extracted from the profile configuration
-            // such as the image
-            Set<String> profileIds = options.getProfiles();
-            String versionId = options.getVersion();
-            FabricService service = getFabricService();
-            Map<String, String> configOverlay = new HashMap<>();
-            Map<String, String> ports = null;
-            Map<String, String> dockerProviderConfig = new HashMap<>();
-
-            List<Profile> profileOverlays = new ArrayList<>();
-            Version version = null;
-            if (profileIds != null && versionId != null) {
-                ProfileService profileService = service.adapt(ProfileService.class);
-                version = profileService.getVersion(versionId);
-                if (version != null) {
-                    for (String profileId : profileIds) {
-                        Profile profile = version.getRequiredProfile(profileId);
-                        if (profile != null) {
-                            Profile overlay = profileService.getOverlayProfile(profile);
-                            profileOverlays.add(overlay);
-                            Map<String, String> dockerConfig = overlay.getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
-                            if (dockerConfig != null) {
-                                configOverlay.putAll(dockerConfig);
-                            }
-                            if (ports == null || ports.size() == 0) {
-                                ports = overlay.getConfiguration(Constants.PORTS_PID);
-                            }
-                        }
-                    }
-                    if (version.hasProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID)) {
-                        Profile profile = version.getRequiredProfile(DockerConstants.DOCKER_PROVIDER_PROFILE_ID);
-                        if (profile != null) {
-                            Profile overlay = profileService.getOverlayProfile(profile);
-                            Map<String, String> dockerConfig = overlay.getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
-                            if (dockerConfig != null) {
-                                dockerProviderConfig.putAll(dockerConfig);
-                            }
-                        }
-                    }
-                }
-            }
-            if (ports == null || ports.size() == 0) {
-                // lets find the defaults from the docker profile
-                if (version == null) {
-                    version = service.getRequiredDefaultVersion();
-                }
-                Profile dockerProfile = version.getRequiredProfile("docker");
-                ports = dockerProfile.getConfiguration(Constants.PORTS_PID);
-                if (ports == null || ports.size() == 0) {
-                    LOG.warn("Could not a docker ports configuration for: " + Constants.PORTS_PID);
-                    ports = new HashMap<String, String>();
-                }
-            }
-            LOG.info("Got port configuration: " + ports);
-
-            environmentVariables = ChildContainers.getEnvironmentVariables(service, options, DockerConstants.SCHEME);
-
-            DockerProviderConfig configOverlayDockerProvider = createDockerProviderConfig(configOverlay, environmentVariables);
-
-            CuratorFramework curatorOptional = getCuratorFramework();
-            String image = JolokiaAgentHelper.substituteVariableExpression(containerConfig.getImage(), environmentVariables, service, curatorOptional, true);
-
-            if (Strings.isNullOrBlank(image)) {
-                image = configOverlayDockerProvider.getImage();
-                if (Strings.isNullOrBlank(image)) {
-                    DockerProviderConfig dockerProviderConfigObject = createDockerProviderConfig(dockerProviderConfig, environmentVariables);
-                    image = dockerProviderConfigObject.getImage();
-                }
-                if (Strings.isNullOrBlank(image)) {
-                    image = System.getenv(DockerConstants.EnvironmentVariables.FABRIC8_DOCKER_DEFAULT_IMAGE);
-                }
-                if (Strings.isNullOrBlank(image)) {
-                    image = DockerConstants.DEFAULT_IMAGE;
-                }
-                containerConfig.setImage(image);
-            }
-            containerType = "docker " + image;
-            Container container = service.getContainer(containerId);
-            if (container != null) {
-                container.setType(containerType);
-            }
-
-
-            String[] cmd = containerConfig.getCmd();
-            if (cmd == null || cmd.length == 0) {
-                String value = configOverlayDockerProvider.getCmd();
-                if (Strings.isNullOrBlank(value)) {
-                    cmd = null;
-                } else {
-                    cmd = new String[]{value};
-                }
-                containerConfig.setCmd(cmd);
-            }
-
-            Map<String, Integer> internalPorts = options.getInternalPorts();
-            Map<String, Integer> externalPorts = options.getExternalPorts();
-
-            Map<String, Object> exposedPorts = new HashMap<>();
-            Set<Integer> usedPortByHost = findUsedPortByHostAndDocker();
-            Map<String, String> emptyMap = new HashMap<>();
-
-            SortedMap<Integer, String> sortedInternalPorts = new TreeMap<>();
-            for (Map.Entry<String, String> portEntry : ports.entrySet()) {
-                String portName = portEntry.getKey();
-                String portText = portEntry.getValue();
-                if (portText != null && !Strings.isNullOrBlank(portText)) {
-                    Integer port = null;
-                    try {
-                        port = Integer.parseInt(portText);
-                    } catch (NumberFormatException e) {
-                        LOG.warn("Ignoring bad port number for " + portName + " value '" + portText + "' in PID: " + Constants.PORTS_PID);
-                    }
-                    if (port != null) {
-                        sortedInternalPorts.put(port, portName);
-                        internalPorts.put(portName, port);
-                        exposedPorts.put(portText + "/tcp", emptyMap);
-                    } else {
-                        LOG.info("No port for " + portName);
-                    }
-                }
-            }
-
-            String dockerHost = dockerFactory.getDockerHost();
-            jolokiaUrl = null;
-
-            Map<String, String> javaContainerConfig = Profiles.getOverlayConfiguration(service, profileIds, versionId, Constants.JAVA_CONTAINER_PID);
-            JavaContainerConfig javaConfig = new JavaContainerConfig();
-            getConfigurer().configure(javaContainerConfig, javaConfig);
-
-            boolean isJavaContainer = ChildContainers.isJavaContainer(getFabricService(), options);
-
-            // lets create the ports in sorted order
-            for (Map.Entry<Integer, String> entry : sortedInternalPorts.entrySet()) {
-                Integer port = entry.getKey();
-                String portName = entry.getValue();
-                int externalPort = createExternalPort(containerId, portName, usedPortByHost, options);
-                externalPorts.put(portName, externalPort);
-                environmentVariables.put("FABRIC8_" + portName + "_PORT", "" + port);
-                environmentVariables.put("FABRIC8_" + portName + "_PROXY_PORT", "" + externalPort);
-
-                if (portName.equals(JolokiaAgentHelper.JOLOKIA_PORT_NAME)) {
-                    jolokiaUrl = "http://" + dockerHost + ":" + externalPort + "/jolokia/";
-                    LOG.info("Found Jolokia URL: " + jolokiaUrl);
-
-                    JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, isJavaContainer, JolokiaAgentHelper.getJolokiaPortOverride(port), JolokiaAgentHelper.getJolokiaAgentIdOverride(getFabricService().getEnvironment()));
-                } else {
-                    JolokiaAgentHelper.substituteEnvironmentVariables(javaConfig, environmentVariables, isJavaContainer, JolokiaAgentHelper.getJolokiaAgentIdOverride(getFabricService().getEnvironment()));
-
-                }
-            }
-            javaConfig.updateEnvironmentVariables(environmentVariables, isJavaContainer);
-
-
-            LOG.info("Passing in manual ip: " + dockerHost);
-            environmentVariables.put(EnvironmentVariables.FABRIC8_MANUALIP, dockerHost);
-            if (container != null) {
-                container.setManualIp(dockerHost);
-            }
-            if (!environmentVariables.containsKey(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS)) {
-                environmentVariables.put(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS, dockerHost);
-            }
-            environmentVariables.put(EnvironmentVariables.FABRIC8_GLOBAL_RESOLVER, ZkDefs.MANUAL_IP);
-            environmentVariables.put(EnvironmentVariables.FABRIC8_FABRIC_ENVIRONMENT, DockerConstants.SCHEME);
-
-            // now the environment variables are all set lets see if we need to make a custom image
-            String libDir = configOverlayDockerProvider.getJavaLibraryPath();
-            String deployDir = configOverlayDockerProvider.getJavaDeployPath();
-            String homeDir = configOverlayDockerProvider.getHomePath();
-            if (Strings.isNotBlank(libDir) || Strings.isNotBlank(deployDir)) {
-                if (container != null) {
-                    container.setProvisionResult("preparing");
-                    container.setAlive(true);
-                }
-                String imageRepository = configOverlayDockerProvider.getImageRepository();
-                String entryPoint = configOverlayDockerProvider.getImageEntryPoint();
-                List<String> names = new ArrayList<String>(profileIds);
-                names.add(versionId);
-                String tag = "fabric8-" + Strings.join(names, "-").replace('.', '-');
-
-                CustomDockerContainerImageBuilder builder = new CustomDockerContainerImageBuilder();
-                CustomDockerContainerImageOptions customDockerContainerImageOptions = new CustomDockerContainerImageOptions(image, imageRepository, tag, libDir, deployDir, homeDir, entryPoint, configOverlayDockerProvider.getOverlayFolder());
-
-                String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, customDockerContainerImageOptions, javaConfig, options, downloadExecutor, environmentVariables);
-                if (actualImage != null) {
-                    containerConfig.setImage(actualImage);
-                }
-            }
-
-            JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables, service, curatorOptional, false);
-
-            List<String> env = containerConfig.getEnv();
-            if (env == null) {
-                env = new ArrayList<>();
-            }
-            Dockers.addEnvironmentVariablesToList(env, environmentVariables);
-            containerConfig.setExposedPorts(exposedPorts);
-            containerConfig.setEnv(env);
-
-            String name = options.getName();
-
-            LOG.info("Creating container on docker: " + getDockerAddress() + " name: " + name + " env vars: " + env);
-            LOG.info("Creating container with config: " + containerConfig);
         }
 
         public ContainerConfig getContainerConfig() {
@@ -561,14 +359,52 @@ public abstract class DockerContainerProviderSupport extends AbstractComponent {
                 String entryPoint = configOverlayDockerProvider.getImageEntryPoint();
                 List<String> names = new ArrayList<String>(profileIds);
                 names.add(versionId);
-                String tag = "fabric8-" + Strings.join(names, "-").replace('.', '-');
+                String newImageName = "fabric8-" + Strings.join(names, "-").replace('.', '-');
+                String customImageUserName = configOverlayDockerProvider.getCustomImageUserName();
+
+                DockerProviderConfig currentContainerDockerProviderConfig = null;
+                Container currentContainer = service.getCurrentContainer();
+                if (currentContainer != null) {
+                    Map<String, String> configuration = currentContainer.getOverlayProfile().getConfiguration(DockerConstants.DOCKER_PROVIDER_PID);
+                    if (configuration != null && !configuration.isEmpty()) {
+                        Map<String, Map<String, String>> configurations = new HashMap<>();
+                        configurations.put(DockerConstants.DOCKER_PROVIDER_PID, configuration);
+                        service.substituteConfigurations(configurations);
+                        configuration = configurations.get(DockerConstants.DOCKER_PROVIDER_PID);
+                        configuration = JolokiaAgentHelper.substituteEnvironmentVariableExpressionKeysAndValues(configuration, System.getenv());
+                        currentContainerDockerProviderConfig = createDockerProviderConfig(configuration);
+                    }
+                }
+                if (Strings.isNullOrBlank(customImageUserName) && currentContainerDockerProviderConfig != null) {
+                    customImageUserName = currentContainerDockerProviderConfig.getCustomImageUserName();
+                }
+                Boolean customImagePushValue = configOverlayDockerProvider.getCustomImagePush();
+                if (customImagePushValue == null && currentContainerDockerProviderConfig != null) {
+                    customImagePushValue = currentContainerDockerProviderConfig.getCustomImagePush();
+                }
+                boolean customImagePush = customImagePushValue != null && customImagePushValue.booleanValue();
+                if (Strings.isNotBlank(customImageUserName)) {
+                    newImageName = customImageUserName + "/" + newImageName;
+                } else {
+                    customImagePush = false;
+                }
 
                 CustomDockerContainerImageBuilder builder = new CustomDockerContainerImageBuilder();
-                CustomDockerContainerImageOptions customDockerContainerImageOptions = new CustomDockerContainerImageOptions(image, imageRepository, tag, libDir, deployDir, homeDir, entryPoint, configOverlayDockerProvider.getOverlayFolder());
+                CustomDockerContainerImageOptions customDockerContainerImageOptions = new CustomDockerContainerImageOptions(image, imageRepository, newImageName, libDir, deployDir, homeDir, entryPoint, configOverlayDockerProvider.getOverlayFolder());
 
                 String actualImage = builder.generateContainerImage(service, container, profileOverlays, docker, customDockerContainerImageOptions, javaConfig, options, downloadExecutor, environmentVariables);
                 if (actualImage != null) {
                     containerConfig.setImage(actualImage);
+
+                    if (customImagePush) {
+                        LOG.info("Pushing image to repository " + newImageName + " actualImage: " + actualImage);
+                        Auth authConfig = new Auth();
+                        authConfig.setEmail("person@fabric8.io");
+                        authConfig.setUsername(service.getZooKeeperUser());
+                        authConfig.setPassword(service.getZookeeperPassword());
+                        docker.imagePush(newImageName, "latest", authConfig);
+                        LOG.info("Image pushed to repository " + newImageName);
+                    }
                 }
             }
 

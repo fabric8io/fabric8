@@ -323,7 +323,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         String containerType = parameters.getContainerType();
         String jolokiaUrl = parameters.getJolokiaUrl();
         String name = options.getName();
-        String image = parameters.getContainerConfig().getImage();
+        String image = containerConfig.getImage();
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         FabricService service = getFabricService();

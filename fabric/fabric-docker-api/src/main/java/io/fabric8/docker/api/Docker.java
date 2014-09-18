@@ -224,7 +224,7 @@ public interface Docker {
      */
     @POST
     @Path("/images/{name}/push")
-    Progress imagePush(@PathParam(NAME) String name, @QueryParam("registry") String registry, Auth authConfig);
+    Progress imagePush(@PathParam(NAME) String name, @QueryParam("tag") String tag, Auth authConfig);
 
     /**
      * Tag an image into a repository

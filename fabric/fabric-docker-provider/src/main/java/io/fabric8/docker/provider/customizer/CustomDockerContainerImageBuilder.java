@@ -64,7 +64,7 @@ public class CustomDockerContainerImageBuilder {
         Map<String, File> artifacts = JavaContainers.getJavaContainerArtifactsFiles(fabric, profileList, downloadExecutor);
 
         String baseImage = options.getBaseImage();
-        String tag = options.getNewImageTag();
+        String tag = options.getNewImageName();
 
         DockerFileBuilder dockerFile = DockerFileBuilder.from(baseImage);
 

@@ -56,6 +56,14 @@ public class DockerProviderConfig {
             description = "The docker image repository")
     private String imageRepository;
 
+    @Property(label = "Custom Image User Name",
+            description = "The user name or image repository URL used for creating custom images")
+    private String customImageUserName;
+
+    @Property(label = "Push Custom Images",
+            description = "Whether custom images should be pushed to the custom image user name or repository")
+    private Boolean customImagePush;
+
     @Property(label = "Image entry point",
             description = "The docker image entry point command used")
     private String imageEntryPoint;
@@ -106,6 +114,22 @@ public class DockerProviderConfig {
 
     public void setImageRepository(String imageRepository) {
         this.imageRepository = imageRepository;
+    }
+
+    public String getCustomImageUserName() {
+        return customImageUserName;
+    }
+
+    public void setCustomImageUserName(String customImageUserName) {
+        this.customImageUserName = customImageUserName;
+    }
+
+    public Boolean getCustomImagePush() {
+        return customImagePush;
+    }
+
+    public void setCustomImagePush(Boolean customImagePush) {
+        this.customImagePush = customImagePush;
     }
 
     public String getImageEntryPoint() {
