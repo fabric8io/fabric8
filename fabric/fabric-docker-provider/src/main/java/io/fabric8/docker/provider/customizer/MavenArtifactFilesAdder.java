@@ -22,13 +22,25 @@ import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.mvn.Parser;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
+import io.fabric8.api.ProfileService;
+import io.fabric8.api.Profiles;
 import io.fabric8.common.util.Files;
 import io.fabric8.deployer.JavaContainers;
+import io.fabric8.service.VersionPropertyPointerResolver;
+import io.fabric8.service.child.ChildContainers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -84,6 +96,9 @@ public class MavenArtifactFilesAdder implements ArtifactFilesAdder {
         JavaContainers.downloadArtifactUrls(downloadManager, rawUrls, files);
         for (Map.Entry<String, Parser> entry : entries) {
             String uri = entry.getKey();
+            if (uri.startsWith("fab:")) {
+                uri = uri.substring(4);
+            }
             Parser parser = entry.getValue();
             File file = files.get(uri);
             if (file == null) {
@@ -104,6 +119,54 @@ public class MavenArtifactFilesAdder implements ArtifactFilesAdder {
             File outFile = new File(outputDir, fileName);
             outFile.getParentFile().mkdirs();
             Files.copy(file, outFile);
+        }
+
+        // lets make sure there's all the feature files too
+        Set<String> processedFeatureXmls = new HashSet<>();
+        for (Profile profile : profileList) {
+            List<String> repositories = profile.getRepositories();
+            for (String repository : repositories) {
+                if (processedFeatureXmls.add(repository)) {
+                    if (repository.contains("$")) {
+                        Map<String, Map<String, String>> configurations = Profiles.getOverlayConfigurations(fabric, profileList);
+                        repository = VersionPropertyPointerResolver.replaceVersions(fabric, configurations, repository);
+                    }
+                    Parser parser = null;
+                    URL url = null;
+                    try {
+                        parser = Parser.parsePathWithSchemePrefix(repository);
+                    } catch (MalformedURLException e) {
+                        LOG.warn("Could not parse maven coords in features repository: " + repository + ". " + e, e);
+                    }
+                    try {
+                        url = new URL(repository);
+                    } catch (MalformedURLException e) {
+                        LOG.warn("Could not parse URL for feature repository: " + repository + ". " + e, e);
+                    }
+                    if (parser != null && url != null) {
+                        InputStream inputStream = null;
+                        try {
+                            inputStream = url.openStream();
+                            if (inputStream == null) {
+                                LOG.warn("Could not load URL for feature repository: " + repository);
+                                continue;
+                            }
+                        } catch (IOException e) {
+                            LOG.warn("Could not load URL for feature repository: " + repository + ". " + e, e);
+                            continue;
+                        }
+                        String fileName = parser.getArtifactPath();
+                        uploadLibDir.mkdirs();
+                        File outFile = new File(uploadLibDir, fileName);
+                        outFile.getParentFile().mkdirs();
+                        try {
+                            Files.copy(inputStream, new FileOutputStream(outFile));
+                        } catch (FileNotFoundException e) {
+                            LOG.warn("Failed to copy stream to " + outFile);
+                        }
+                    }
+                }
+            }
         }
         artifactKeys = artifacts.keySet();
         return this;

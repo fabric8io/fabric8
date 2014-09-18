@@ -253,6 +253,79 @@ public final class Profiles {
     }
 
     /**
+     * Returns the overlay configurations for the given list of profile ids
+     *
+     * This method will find the overlay profile for each profile id and combine all the configurations together.
+     *
+     * Usually we would use the Profile objects directly; but this API call is useful when creating new containers; letting us
+     * figure out the effective overlay before a container exists.
+     */
+    public static Map<String, Map<String, String>> getOverlayConfigurations(FabricService fabricService, Iterable<String> profileIds, String versionId) {
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        Map<String, Map<String, String>> answer = new HashMap<String, Map<String, String>>();
+        Version version = null;
+        if (versionId == null) {
+            version = fabricService.getRequiredDefaultVersion();
+        } else {
+            version = profileService.getRequiredVersion(versionId);
+        }
+        if (profileIds != null) {
+            for (String profileId : profileIds) {
+                Profile profile = version.getRequiredProfile(profileId);
+                Profile overlay = profileService.getOverlayProfile(profile);
+                Map<String, Map<String, String>> configurations = overlay.getConfigurations();
+                Set<Entry<String, Map<String, String>>> entries = configurations.entrySet();
+                for (Entry<String, Map<String, String>> entry : entries) {
+                    String pid = entry.getKey();
+                    Map<String, String> configuration = entry.getValue();
+                    if (configuration != null) {
+                        Map<String, String> oldConfig = answer.get(pid);
+                        if (oldConfig == null) {
+                            answer.put(pid, configuration);
+                        } else {
+                            oldConfig.putAll(configuration);
+                        }
+                    }
+                }
+            }
+        }
+        return answer;
+    }
+
+    /**
+     * Returns the overlay configurations for the given list of profiles
+     *
+     * This method will find the overlay profile for each profile id and combine all the configurations together.
+     *
+     * Usually we would use the Profile objects directly; but this API call is useful when creating new containers; letting us
+     * figure out the effective overlay before a container exists.
+     */
+    public static Map<String, Map<String, String>> getOverlayConfigurations(FabricService fabricService, Iterable<Profile> profiles) {
+        ProfileService profileService = fabricService.adapt(ProfileService.class);
+        Map<String, Map<String, String>> answer = new HashMap<String, Map<String, String>>();
+        if (profiles != null) {
+            for (Profile profile : profiles) {
+                Profile overlay = profileService.getOverlayProfile(profile);
+                Map<String, Map<String, String>> configurations = overlay.getConfigurations();
+                Set<Entry<String, Map<String, String>>> entries = configurations.entrySet();
+                for (Entry<String, Map<String, String>> entry : entries) {
+                    String pid = entry.getKey();
+                    Map<String, String> configuration = entry.getValue();
+                    if (configuration != null) {
+                        Map<String, String> oldConfig = answer.get(pid);
+                        if (oldConfig == null) {
+                            answer.put(pid, configuration);
+                        } else {
+                            oldConfig.putAll(configuration);
+                        }
+                    }
+                }
+            }
+        }
+        return answer;
+    }
+
+    /**
      * Returns the {@link Profile} objects for the given list of profile ids for the given version
      */
     public static List<Profile> getProfiles(FabricService fabricService, Iterable<String> profileIds, String versionId) {
