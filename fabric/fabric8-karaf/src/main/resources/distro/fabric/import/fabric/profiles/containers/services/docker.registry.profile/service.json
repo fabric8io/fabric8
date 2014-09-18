@@ -1,0 +1,13 @@
+{
+  "id": "dockerreg",
+  "kind": "Service",
+  "apiVersion": "v1beta1",
+  "port": 5000,
+  "containerPort": 5000,
+  "labels": {
+    "name": "dockerRegistry"
+  },
+  "selector": {
+    "name": "dockerRegistry"
+  }
+}

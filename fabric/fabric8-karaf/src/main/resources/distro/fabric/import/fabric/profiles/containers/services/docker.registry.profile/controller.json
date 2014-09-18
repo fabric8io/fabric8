@@ -1,0 +1,23 @@
+{
+  "id": "dockerRegistryController",
+  "kind": "ReplicationController",
+  "apiVersion": "v1beta1",
+  "desiredState": {
+    "replicas": 1,
+    "replicaSelector": {"name": "dockerRegistry"},
+    "podTemplate": {
+      "desiredState": {
+         "manifest": {
+           "version": "v1beta1",
+           "id": "dockerRegistryController",
+           "containers": [{
+             "name": "registry",
+             "image": "registry",
+             "ports": [{"containerPort": 5000, "hostPort": 5000}]
+           }]
+         }
+       },
+       "labels": {"name": "dockerRegistry"}
+      }},
+  "labels": {"name": "dockerRegistry"}
+}
