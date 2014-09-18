@@ -81,11 +81,17 @@
   	<!-- Copy to libs -->
     <copy todir="${tomcat.patch.dir}/lib" overwrite="true">
         <fileset dir="${deploy.artifacts.lib}">
-        	<include name="org.apache.felix.gogo.runtime-*"/>
-        	<include name="org.apache.karaf.shell.console-*"/>
-        </fileset>
-        <fileset dir="${deploy.artifacts.lib}">
         	<include name="fabric-api-*"/>
+        	<include name="guava-*"/>
+        	<include name="jackson-annotations-*"/>
+        	<include name="jackson-core-*"/>
+        	<include name="jackson-databind-*"/>
+        	<include name="jasypt-*"/>
+        	<include name="org.apache.felix.gogo.runtime-*"/>
+        	<include name="org.apache.karaf.admin.management-*"/>
+        	<include name="org.apache.karaf.jaas.boot-*"/>
+        	<include name="org.apache.karaf.jaas.config-*"/>
+        	<include name="org.apache.karaf.shell.console-*"/>
         </fileset>
     </copy>
     <copy tofile="${tomcat.patch.dir}/webapps/fabric.war" overwrite="true">

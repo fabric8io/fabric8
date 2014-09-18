@@ -45,7 +45,7 @@ import org.jboss.gravia.utils.IllegalStateAssertion;
  * @author thomas.diesler@jboss.com
  * @since 18-Mar-2014
  */
-final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implements AttributableBuilder<ProfileBuilder>, ProfileBuilder {
+public final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implements AttributableBuilder<ProfileBuilder>, ProfileBuilder {
 
     private static final String PARENTS_ATTRIBUTE_KEY = Profile.ATTRIBUTE_PREFIX + Profile.PARENTS;
     private static final String LOCKED_ATTRIBUTE_KEY = Profile.ATTRIBUTE_PREFIX + Profile.LOCKED;
@@ -56,16 +56,12 @@ final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder> implem
 	private String lastModified;
 	private boolean isOverlay;
 	
-	DefaultProfileBuilder(String versionId, String profileId) {
-	    this.versionId = versionId;
-		this.profileId = profileId;
-	}
-
-	DefaultProfileBuilder(Profile profile) {
+	@Override
+	public ProfileBuilder from(Profile profile) {
 		versionId = profile.getVersion();
 		profileId = profile.getId();
 		setFileConfigurations(profile.getFileConfigurations());
-		lastModified = null;
+        return this;
 	}
 
 	@Override

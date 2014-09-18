@@ -22,6 +22,7 @@
 	<container qualifier="tomcat" default="true">
 		<configuration>
             <property name="catalinaHome">${tomcat.home}</property>
+            <property name="catalinaBase">${tomcat.home}</property>
             <property name="javaVmArguments">-Djava.security.auth.login.config=${tomcat.home}/conf/jaas.config -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Djava.util.logging.config.file=${tomcat.home}/conf/logging.properties -Dlog4j.debug=true -Dlog4j.configuration=file://${tomcat.home}/conf/log4j.properties -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</property>
             <property name="jmxServiceURL">service:jmx:rmi:///jndi/rmi://localhost:8089/jmxrmi</property>
 			<property name="user">tomcat</property>

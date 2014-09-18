@@ -34,7 +34,7 @@ public interface ProfileManagement {
     
     VersionState createVersion(String sourceId, String targetId, Map<String, String> attributes);
     
-    List<String> getVersions();
+    List<String> getVersionIds();
     
     VersionState getVersion(String versionId);
     

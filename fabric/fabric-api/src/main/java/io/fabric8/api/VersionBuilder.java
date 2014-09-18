@@ -18,11 +18,11 @@ package io.fabric8.api;
 import java.util.List;
 import java.util.Set;
 
-import org.jboss.gravia.runtime.ServiceLocator;
-
 public interface VersionBuilder extends AttributableBuilder<VersionBuilder> {
 
-	VersionBuilder identity(String versionId);
+    VersionBuilder from(Version version);
+    
+    VersionBuilder identity(String versionId);
 
     VersionBuilder setRevision(String revision);
 	
@@ -41,18 +41,19 @@ public interface VersionBuilder extends AttributableBuilder<VersionBuilder> {
     final class Factory {
 
         public static VersionBuilder create() {
-            ProfileBuilders factory = ServiceLocator.getRequiredService(ProfileBuilders.class);
-            return factory.profileVersionBuilder();
+            return getProfileBuilders().profileVersionBuilder();
         }
 
         public static VersionBuilder create(String versionId) {
-            ProfileBuilders factory = ServiceLocator.getRequiredService(ProfileBuilders.class);
-            return factory.profileVersionBuilder(versionId);
+            return getProfileBuilders().profileVersionBuilder(versionId);
         }
 
         public static VersionBuilder createFrom(Version version) {
-            ProfileBuilders factory = ServiceLocator.getRequiredService(ProfileBuilders.class);
-            return factory.profileVersionBuilderFrom(version);
+            return getProfileBuilders().profileVersionBuilderFrom(version);
+        }
+
+        private static ProfileBuilders getProfileBuilders() {
+            return ProfileBuilders.Factory.getProfileBuilders();
         }
 
         // Hide ctor

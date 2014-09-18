@@ -61,6 +61,11 @@
         
         <!-- Test Dependencies -->
         <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.fabric8.runtime</groupId>
             <artifactId>fabric-runtime-container-tomcat-managed</artifactId>
             <version>${project.version}</version>

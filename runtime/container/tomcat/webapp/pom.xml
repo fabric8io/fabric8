@@ -62,6 +62,10 @@
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.karaf.features</groupId>
+                    <artifactId>org.apache.karaf.features.core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.karaf.features</groupId>
                     <artifactId>org.apache.karaf.features.command</artifactId>
                 </exclusion>
                 <exclusion>
@@ -69,48 +73,18 @@
                     <artifactId>org.apache.karaf.features.console</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.karaf.features</groupId>
-                    <artifactId>org.apache.karaf.features.core</artifactId>
+                    <groupId>org.apache.karaf.shell</groupId>
+                    <artifactId>org.apache.karaf.shell.console</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.karaf.shell</groupId>
                     <artifactId>org.apache.karaf.shell.config</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.karaf.shell</groupId>
-                    <artifactId>org.apache.karaf.shell.console</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-core</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.felix</groupId>
-                    <artifactId>org.apache.felix.utils</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.karaf.shell</groupId>
-                    <artifactId>org.apache.karaf.shell.console</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.karaf.shell</groupId>
-                    <artifactId>org.apache.karaf.shell.obr</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.karaf.management</groupId>
-                    <artifactId>org.apache.karaf.management.server</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.karaf.features</groupId>
-                    <artifactId>org.apache.karaf.features.core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.fabric8.insight</groupId>
-                    <artifactId>insight-log</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
@@ -130,10 +104,6 @@
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-git-hawtio</artifactId>
             <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging-api</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -142,7 +112,7 @@
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.karaf.jaas</groupId>
-                    <artifactId>org.apache.karaf.jaas.config</artifactId>
+                    <artifactId>org.apache.karaf.jaas.modules</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -154,24 +124,17 @@
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
             <exclusions>
-                <exclusion>
-                    <groupId>org.apache.curator</groupId>
-                    <artifactId>curator-framework</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.curator</groupId>
-                    <artifactId>curator-recipes</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging-api</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>io.fabric8.runtime</groupId>
             <artifactId>fabric-runtime-container-tomcat-registration</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-container-tomcat-extension</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Provided Dependencies -->        
@@ -186,6 +149,92 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>io.fabric8.runtime</groupId>
+            <artifactId>fabric-runtime-container-agent</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.utils</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.admin</groupId>
+            <artifactId>org.apache.karaf.admin.management</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.jaas</groupId>
+            <artifactId>org.apache.karaf.jaas.boot</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.jaas</groupId>
+            <artifactId>org.apache.karaf.jaas.config</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.gravia</groupId>
             <artifactId>gravia-provision</artifactId>
             <scope>provided</scope>
@@ -197,17 +246,27 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.gravia</groupId>
+            <artifactId>gravia-repository</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gravia</groupId>
             <artifactId>gravia-runtime-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.fabric8.runtime</groupId>
-            <artifactId>fabric-runtime-container-agent</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.mvel</groupId>
+            <artifactId>mvel2</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.enterprise</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

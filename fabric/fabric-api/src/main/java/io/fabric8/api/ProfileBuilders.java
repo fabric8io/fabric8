@@ -15,6 +15,9 @@
  */
 package io.fabric8.api;
 
+import org.jboss.gravia.runtime.RuntimeLocator;
+import org.jboss.gravia.runtime.ServiceLocator;
+
 /**
  * A profile builder factory
  * 
@@ -40,4 +43,26 @@ public interface ProfileBuilders {
 	// ConfigurationItemBuilder configurationItemBuilder();
 
 	// ConfigurationItemBuilder configurationItemBuilder(String identity);
+
+    final class Factory {
+
+        public static ProfileBuilders getProfileBuilders() {
+            ProfileBuilders builders;
+            if (RuntimeLocator.getRuntime() != null) {
+                builders = ServiceLocator.getRequiredService(ProfileBuilders.class);
+            } else {
+                try {
+                    ClassLoader classLoader = ProfileBuilders.class.getClassLoader();
+                    builders = (ProfileBuilders) classLoader.loadClass("io.fabric8.internal.DefaultProfileBuilders").newInstance();
+                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+                    throw new IllegalStateException(ex);
+                }
+            }
+            return builders;
+        }
+
+        // Hide ctor
+        private Factory() {
+        }
+    }
 }
