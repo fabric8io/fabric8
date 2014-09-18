@@ -75,7 +75,7 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
         StoredConfig config = repository.getConfig();
         String remoteUrl = config.getString("remote", remoteRef, "url");
         if (remoteUrl == null) {
-            LOGGER.info("No remote repository defined, so not doing a pull");
+            LOGGER.debug("No remote repository defined, so not doing a pull");
             return new AbstractPullPolicyResult();
         }
         
@@ -117,10 +117,10 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
             
             // Remote repository has no branches, force a push
             if (remoteBranches.isEmpty()) {
-                LOGGER.info("Pulled from an empty remote repository");
+                LOGGER.debug("Pulled from an empty remote repository");
                 return new AbstractPullPolicyResult(versions, false, !localBranches.isEmpty(), null);
             } else {
-                LOGGER.info("Processing remote branches: {}", remoteBranches);
+                LOGGER.debug("Processing remote branches: {}", remoteBranches);
             }
             
             // Verify master branch and do a checkout of it when we have it locally (already)
@@ -136,7 +136,7 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
                 boolean allowDelete = allowVersionDelete && !GitHelpers.MASTER_BRANCH.equals(branch);
                 if (localBranches.containsKey(branch) && !remoteBranches.containsKey(branch)) {
                     if (allowDelete) {
-                        LOGGER.info("Deleting local branch: {}", branch);
+                        LOGGER.debug("Deleting local branch: {}", branch);
                         git.branchDelete().setBranchNames(branch).setForce(true).call();
                         localUpdate = true;
                     } else {
@@ -146,7 +146,7 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
                 
                 // Create a local branch that exists remotely
                 else if (!localBranches.containsKey(branch) && remoteBranches.containsKey(branch)) {
-                    LOGGER.info("Adding local branch: {}", branch);
+                    LOGGER.debug("Adding local branch: {}", branch);
                     git.checkout().setCreateBranch(true).setName(branch).setStartPoint(remoteRef + "/" + branch).setUpstreamMode(SetupUpstreamMode.TRACK).setForce(true).call();
                     versions.add(branch);
                     localUpdate = true;
@@ -164,20 +164,20 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
                         git.checkout().setName(branch).setForce(true).call();
                         MergeResult mergeResult = git.merge().setFastForward(FastForwardMode.FF_ONLY).include(remoteObjectId).call();
                         MergeStatus mergeStatus = mergeResult.getMergeStatus();
-                        LOGGER.info("Updating local branch {} with status: {}", branch, mergeStatus);
+                        LOGGER.debug("Updating local branch {} with status: {}", branch, mergeStatus);
                         if (mergeStatus == MergeStatus.FAST_FORWARD) {
                             localUpdate = true;
                         } else if (mergeStatus == MergeStatus.ALREADY_UP_TO_DATE) {
                             remoteUpdate = true;
                         } else if (mergeStatus == MergeStatus.ABORTED) {
-                            LOGGER.info("Cannot fast forward branch {}, attempting rebase", branch);
+                            LOGGER.debug("Cannot fast forward branch {}, attempting rebase", branch);
                             RebaseResult rebaseResult = git.rebase().setUpstream(remoteCommit).call();
                             RebaseResult.Status rebaseStatus = rebaseResult.getStatus();
                             if (rebaseStatus == RebaseResult.Status.OK) {
                                 localUpdate = true;
                                 remoteUpdate = true;
                             } else {
-                                LOGGER.info("Rebase on branch {} failed, restoring remote branch", branch);
+                                LOGGER.warn("Rebase on branch {} failed, restoring remote branch", branch);
                                 git.rebase().setOperation(Operation.ABORT).call();
                                 git.checkout().setName(GitHelpers.MASTER_BRANCH).setForce(true).call();
                                 git.branchDelete().setBranchNames(branch).setForce(true).call();
@@ -189,7 +189,8 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
                     versions.add(branch);
                 }
             }
-            
+
+
             PullPolicyResult result = new AbstractPullPolicyResult(versions, localUpdate, remoteUpdate, null);
             LOGGER.info("Pull result: {}", result);
             return result;
@@ -204,7 +205,7 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
         StoredConfig config = git.getRepository().getConfig();
         String remoteUrl = config.getString("remote", remoteRef, "url");
         if (remoteUrl == null) {
-            LOGGER.info("No remote repository defined, so not doing a push");
+            LOGGER.debug("No remote repository defined, so not doing a push");
             return new AbstractPushPolicyResult();
         }
 
