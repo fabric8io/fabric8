@@ -1,7 +1,5 @@
 package io.fabric8.insight.elasticsearch.impl;
 
-import io.fabric8.api.PortService;
-import io.fabric8.api.scr.Configurer;
 import org.apache.felix.scr.annotations.*;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -17,8 +15,6 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 @Component(name = "io.fabric8.elasticsearch", policy = ConfigurationPolicy.REQUIRE, configurationFactory = true, metatype = false)
 @Service(org.elasticsearch.node.Node.class)
 public class ElasticsearchNode implements Node {
-    @Reference
-    private PortService portService;
 
     private org.elasticsearch.node.Node nodeDelegate;
 
@@ -29,7 +25,7 @@ public class ElasticsearchNode implements Node {
             stringProps.put(entry.getKey(), entry.getValue().toString());
         }
 
-        Thread.currentThread().setContextClassLoader(Settings.class.getClassLoader());
+        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 
         ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder();
 
@@ -38,7 +34,7 @@ public class ElasticsearchNode implements Node {
             settings.loadFromUrl(new URL(configFilePath));
         }
 
-        settings.put(stringProps).classLoader(Settings.class.getClassLoader());
+        settings.put(stringProps).classLoader(getClass().getClassLoader());
 
         nodeDelegate = nodeBuilder().settings(settings).node();
     }

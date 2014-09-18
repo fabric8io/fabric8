@@ -78,17 +78,17 @@ public class MetricsCollector implements MetricsCollectorMBean {
 
     private ObjectName objectName;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private FabricService fabricService;
 
     private ScheduledThreadPoolExecutor executor;
     private Map<Query, QueryState> queries = new ConcurrentHashMap<Query, QueryState>();
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private MBeanServer mbeanServer;
 
     @Reference(name = "storage", referenceInterface = MetricsStorageService.class)
-    private final ValidatingReference<MetricsStorageService> storage = new ValidatingReference<>() ;
+    private final ValidatingReference<MetricsStorageService> storage = new ValidatingReference<>();
 
     private int defaultDelay = 60;
     private int threadPoolSize = 5;
@@ -342,12 +342,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
                     return;
                 }
 
-                LocalJMXConnector jmxConnector = new LocalJMXConnector(mbeanServer);
-                Subject subject = new Subject();
-                subject.getPrincipals().add(new RolePrincipal("viewer"));
-                MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection(subject);
-
-                QueryResult qrs = JmxUtils.execute(query.server, query.query, mBeanServerConnection);
+                QueryResult qrs = JmxUtils.execute(query.server, query.query, mbeanServer);
                 boolean forceSend = query.query.getMinPeriod() == query.query.getPeriod() ||
                         qrs.getTimestamp().getTime() - query.lastSent >= TimeUnit.SECONDS.toMillis(query.query.getMinPeriod());
                 if (!forceSend && query.lastResult != null) {

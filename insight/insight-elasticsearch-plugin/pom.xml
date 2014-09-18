@@ -35,7 +35,7 @@
       !org.elasticsearch*,
       *;resolution:=optional
     </fuse.osgi.import.additional>
-    <fuse.osgi.fragment.host>org.apache.servicemix.bundles.elasticsearch;bundle-version="[1.3.2,1.4)"</fuse.osgi.fragment.host>
+    <fuse.osgi.fragment.host>io.fabric8.insight.insight-elasticsearch-factory</fuse.osgi.fragment.host>
   </properties>
 
   <dependencies>

@@ -40,6 +40,7 @@
       osgi.service;effective:=active;cluster.name=elasticsearch;objectClass=org.elasticsearch.node.Node,
       osgi.service;effective:=active;cluster.name=insight;objectClass=org.elasticsearch.node.Node
     </fuse.osgi.capabilities.provide>
+    <fuse.osgi.require.bundle>org.apache.servicemix.bundles.elasticsearch</fuse.osgi.require.bundle>
   </properties>
 
   <dependencies>
