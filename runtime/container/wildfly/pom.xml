@@ -30,6 +30,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>connector</module>
         <module>extension</module>
         <module>registration</module>
         <module>managed</module>

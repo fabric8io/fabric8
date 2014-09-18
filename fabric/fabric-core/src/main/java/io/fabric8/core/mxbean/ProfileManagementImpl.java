@@ -33,7 +33,7 @@ public final class ProfileManagementImpl implements ProfileManagement {
 
     @Override
     public VersionState createVersion(VersionState versionState) {
-        Version version = getProfileManager().createVersion(versionState);
+        Version version = getProfileManager().createVersion(versionState.toVersion());
         return new VersionState(version);
     }
 
@@ -44,7 +44,7 @@ public final class ProfileManagementImpl implements ProfileManagement {
     }
 
     @Override
-    public List<String> getVersions() {
+    public List<String> getVersionIds() {
         return getProfileManager().getVersions();
     }
 
@@ -61,7 +61,7 @@ public final class ProfileManagementImpl implements ProfileManagement {
 
     @Override
     public ProfileState createProfile(ProfileState profileState) {
-        Profile profile = getProfileManager().createProfile(profileState);
+        Profile profile = getProfileManager().createProfile(profileState.toProfile());
         return new ProfileState(profile);
     }
 
@@ -73,7 +73,7 @@ public final class ProfileManagementImpl implements ProfileManagement {
 
     @Override
     public ProfileState updateProfile(ProfileState profileState) {
-        Profile profile = getProfileManager().updateProfile(profileState);
+        Profile profile = getProfileManager().updateProfile(profileState.toProfile());
         return new ProfileState(profile);
     }
 

@@ -147,7 +147,7 @@
         <arquillian-core-version>1.1.1.Final</arquillian-core-version>
         <arquillian-junit-container-version>1.0.0.CR7</arquillian-junit-container-version>
         <arquillian-osgi-version>2.1.0.CR16</arquillian-osgi-version>
-        <arquillian-tomcat-version>1.0.0.CR6</arquillian-tomcat-version>
+        <arquillian-tomcat-version>1.0.0.CR7</arquillian-tomcat-version>
         <arquillian-weld-ee-embedded-version>1.0.0.CR3</arquillian-weld-ee-embedded-version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
         <asm.version>5.0.3</asm.version>
@@ -3115,6 +3115,11 @@
             <dependency>
                 <groupId>org.jboss.shrinkwrap</groupId>
                 <artifactId>shrinkwrap-api</artifactId>
+                <version>${shrinkwrap-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.shrinkwrap</groupId>
+                <artifactId>shrinkwrap-impl-base</artifactId>
                 <version>${shrinkwrap-version}</version>
             </dependency>
             <dependency>
