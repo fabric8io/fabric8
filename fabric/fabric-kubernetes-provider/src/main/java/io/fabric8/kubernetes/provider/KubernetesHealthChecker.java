@@ -312,54 +312,62 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
             hostOrIp = host;
         }
 
-        if (jolokiaPort == null) {
-            // lets see if there's an environment variable
-            CreateContainerMetadata<?> metadata = container.getMetadata();
-            if (metadata != null) {
-                Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(service, metadata.getCreateOptions());
-                if (!environmentVariables.containsKey(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS)) {
-                    environmentVariables.put(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS, hostOrIp);
-                }
-                // lets override env vars from the pod
-                if (item != null) {
-                    DesiredState desiredState = item.getDesiredState();
-                    if (desiredState != null) {
-                        ManifestSchema manifest = desiredState.getManifest();
-                        if (manifest != null) {
-                            List<ManifestContainer> containers = manifest.getContainers();
-                            if (containers != null && containers.size() > 0) {
-                                ManifestContainer container1 = containers.get(0);
-                                List<Env> envList = container1.getEnv();
-                                for (Env env : envList) {
-                                    environmentVariables.put(env.getName(), env.getValue());
-                                    environmentVariables.put(env.getName(), env.getValue());
-                                }
+        // lets see if there's an environment variable
+        CreateContainerMetadata<?> metadata = container.getMetadata();
+        if (metadata != null) {
+            Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(service, metadata.getCreateOptions());
+            if (!environmentVariables.containsKey(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS)) {
+                environmentVariables.put(EnvironmentVariables.FABRIC8_LISTEN_ADDRESS, hostOrIp);
+            }
+            // lets override env vars from the pod
+            if (item != null) {
+                DesiredState desiredState = item.getDesiredState();
+                if (desiredState != null) {
+                    ManifestSchema manifest = desiredState.getManifest();
+                    if (manifest != null) {
+                        List<ManifestContainer> containers = manifest.getContainers();
+                        if (containers != null && containers.size() > 0) {
+                            ManifestContainer container1 = containers.get(0);
+                            List<Env> envList = container1.getEnv();
+                            for (Env env : envList) {
+                                environmentVariables.put(env.getName(), env.getValue());
+                                environmentVariables.put(env.getName(), env.getValue());
                             }
                         }
                     }
                 }
-                // lets add default ports
-                if (ports != null) {
-                    Set<Map.Entry<String, String>> entries = ports.entrySet();
-                    for (Map.Entry<String, String> entry : entries) {
-                        String key = entry.getKey();
-                        String value = entry.getValue();
-                        String envVar = "FABRIC8_" + key + "_PROXY_PORT";
-                        if (!environmentVariables.containsKey(envVar)) {
-                            environmentVariables.put(envVar, value);
-                        }
+            }
+            // lets add default ports
+            if (ports != null) {
+                Set<Map.Entry<String, String>> entries = ports.entrySet();
+                for (Map.Entry<String, String> entry : entries) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                    String envVar = "FABRIC8_" + key + "_PROXY_PORT";
+                    if (!environmentVariables.containsKey(envVar)) {
+                        environmentVariables.put(envVar, value);
                     }
                 }
-                environmentVariables.put(EnvironmentVariables.FABRIC8_JOLOKIA_URL, "http://${container:publichostname}:${env:FABRIC8_HTTP_PROXY_PORT}/jolokia");
-                JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables, service, getCuratorFramework(), true);
-                ContainerPlaceholderResolver containerResolver = containerPlaceholderResolver.getOptional();
-                String jolokiaUrl = environmentVariables.get(EnvironmentVariables.FABRIC8_JOLOKIA_URL);
-                if (jolokiaUrl != null && containerResolver != null) {
-                    jolokiaUrl = containerResolver.resolveContainerExpressions(jolokiaUrl, service, container);
-                    environmentVariables.put(EnvironmentVariables.FABRIC8_JOLOKIA_URL, jolokiaUrl);
-                }
-                return JolokiaAgentHelper.findJolokiaUrlFromEnvironmentVariables(environmentVariables, hostOrIp);
             }
+            environmentVariables.put(EnvironmentVariables.FABRIC8_JOLOKIA_URL, "http://${container:publichostname}:${env:FABRIC8_JOLOKIA_PROXY_PORT}/jolokia");
+            if (!environmentVariables.containsKey("FABRIC8_JOLOKIA_PROXY_PORT")) {
+                String httpPort = environmentVariables.get("FABRIC8_HTTP_PROXY_PORT");
+                if (httpPort != null) {
+                    environmentVariables.put("FABRIC8_JOLOKIA_PROXY_PORT", httpPort);
+                }
+            }
+
+            JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables, service, getCuratorFramework(), true);
+            ContainerPlaceholderResolver containerResolver = containerPlaceholderResolver.getOptional();
+            String jolokiaUrl = environmentVariables.get(EnvironmentVariables.FABRIC8_JOLOKIA_URL);
+            if (jolokiaUrl != null && containerResolver != null) {
+                jolokiaUrl = containerResolver.resolveContainerExpressions(jolokiaUrl, service, container);
+                environmentVariables.put(EnvironmentVariables.FABRIC8_JOLOKIA_URL, jolokiaUrl);
+            }
+            if (!Strings.isNullOrBlank(jolokiaUrl)) {
+                return jolokiaUrl;
+            }
+            return JolokiaAgentHelper.findJolokiaUrlFromEnvironmentVariables(environmentVariables, hostOrIp);
         }
 
         String jolokiaUrl = null;
