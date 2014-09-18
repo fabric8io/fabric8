@@ -112,7 +112,7 @@ class CreateAction extends AbstractAction {
     private String externalGitUrl;
     @Option(name = "--external-git-user", multiValued = false, description = "Specify an external git user.")
     private String externalGitUser;
-    @Option(name = "--external-git-passowrd", multiValued = false, description = "Specify an external git password.")
+    @Option(name = "--external-git-password", multiValued = false, description = "Specify an external git password.")
     private String externalGitPassword;
     @Option(name = "--new-user-role", multiValued = false, description = "The role of the new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUserRole = "admin";
