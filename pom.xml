@@ -145,7 +145,11 @@
         <aries-proxy-version>1.0.1</aries-proxy-version>
         <aries-util-version>1.1.0</aries-util-version>
         <arquillian-core-version>1.1.1.Final</arquillian-core-version>
+        <arquillian-version>1.1.1.Final</arquillian-version>
         <arquillian-junit-container-version>1.0.0.CR7</arquillian-junit-container-version>
+        <!-- TODO: wait with upgrade
+        <arquillian-junit-container-version>1.1.5.Final</arquillian-junit-container-version>
+        <arquillian-version>1.1.5.Final</arquillian-version> -->
         <arquillian-osgi-version>2.1.0.CR16</arquillian-osgi-version>
         <arquillian-tomcat-version>1.0.0.CR6</arquillian-tomcat-version>
         <arquillian-weld-ee-embedded-version>1.0.0.CR3</arquillian-weld-ee-embedded-version>
