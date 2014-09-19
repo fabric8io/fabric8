@@ -212,10 +212,10 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
         LOGGER.info("Pushing last change to: {}", remoteUrl);
         
         Iterator<PushResult> resit = null;
-        GitAPIException lastException = null;
+        Exception lastException = null;
         try {
             resit = git.push().setTimeout(gitTimeout).setCredentialsProvider(credentialsProvider).setPushAll().call().iterator();
-        } catch (GitAPIException ex) {
+        } catch (GitAPIException | JGitInternalException ex) {
             lastException = ex;
         }
         
