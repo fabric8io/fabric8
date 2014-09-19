@@ -46,6 +46,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import io.fabric8.common.util.Strings;
 import io.fabric8.patch.Patch;
 import org.apache.felix.utils.manifest.Clause;
 import org.apache.felix.utils.manifest.Parser;
@@ -140,7 +141,11 @@ public class ServiceImpl implements Service {
             } catch (IOException e) {
             }
             if (zipFile != null) {
-                File localRepoPath = new File(System.getProperty("karaf.base"), "system");
+                String karafDefaultRrepository = System.getProperty("karaf.default.repository");
+                if(Strings.isNullOrBlank(karafDefaultRrepository)){
+                    karafDefaultRrepository = "system";
+                }
+                File localRepoPath = new File(System.getProperty("karaf.home"), karafDefaultRrepository);
                 Enumeration<? extends ZipEntry> entries = zipFile.entries();
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
