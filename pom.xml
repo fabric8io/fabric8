@@ -319,6 +319,7 @@
         <servicemix-features-version>4.5.3</servicemix-features-version>
         <servicemix-nmr-version>1.6.1</servicemix-nmr-version>
         <servicemix-specs-version>2.4.0</servicemix-specs-version>
+        <servicemix-tooling-plugin-version>1.2</servicemix-tooling-plugin-version>
         <servicemix-utils-version>1.6.0</servicemix-utils-version>
         <servlet-api-version>2.5</servlet-api-version>
         <servlet30-api-version>3.0.1</servlet30-api-version>
