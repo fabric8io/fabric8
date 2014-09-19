@@ -17,18 +17,13 @@ package io.fabric8.tooling.archetype.commands;
 
 import io.fabric8.tooling.archetype.ArchetypeService;
 import io.fabric8.tooling.archetype.catalog.Archetype;
+import io.fabric8.utils.TablePrinter;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
 @Command(name = ArchetypeList.FUNCTION_VALUE, scope = ArchetypeList.SCOPE_VALUE, description = ArchetypeList.DESCRIPTION)
 public class ArchetypeListAction extends AbstractAction {
-
-    static final String FORMAT = "%-50s %s";
-    static final String[] HEADERS = {"[artifactId]", "[description]"};
-
-    static final String VERBOSE_FORMAT = "%-30s %-50s %-20s %s";
-    static final String[] VERBOSE_HEADERS = {"[groupId]", "[artifactId]", "[version]", "[description]"};
 
     @Option(name = "-v", aliases = "--verbose", description = "Flag for verbose output", multiValued = false, required = false)
     private boolean verbose;
@@ -41,22 +36,23 @@ public class ArchetypeListAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
+
+        TablePrinter table = new TablePrinter();
         if (verbose) {
-            System.out.println(String.format(VERBOSE_FORMAT, (Object[]) VERBOSE_HEADERS));
+            table.columns("groupId", "artifactId", "version", "description");
         } else {
-            System.out.println(String.format(FORMAT, (Object[]) HEADERS));
+            table.columns("artifactId", "description");
         }
 
         for (Archetype archetype : archetypeService.listArchetypes()) {
-            String nextLine;
             if (verbose) {
-                nextLine = String.format(VERBOSE_FORMAT, archetype.groupId, archetype.artifactId, archetype.version, archetype.description);
+                table.row(archetype.groupId, archetype.artifactId, archetype.version, archetype.description);
             } else {
                 // only list artifact id in short format
-                nextLine = String.format(FORMAT, archetype.artifactId, archetype.description);
+                table.row(archetype.artifactId, archetype.description);
             }
-            System.out.println(nextLine);
         }
+        table.print();
 
         return null;
     }
