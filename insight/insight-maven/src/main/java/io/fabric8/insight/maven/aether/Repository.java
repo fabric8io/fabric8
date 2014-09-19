@@ -15,8 +15,8 @@
  */
 package io.fabric8.insight.maven.aether;
 
-import org.eclipse.aether.repository.Authentication;
-import org.eclipse.aether.repository.RemoteRepository;
+import org.sonatype.aether.repository.Authentication;
+import org.sonatype.aether.repository.RemoteRepository;
 
 public class Repository {
 
@@ -41,11 +41,11 @@ public class Repository {
     }
 
     public RemoteRepository toRemoteRepository() {
-        RemoteRepository.Builder remoteRepository = new RemoteRepository.Builder(this.id, this.repoType, this.url);
+        RemoteRepository remoteRepository = new RemoteRepository(this.id, this.repoType, this.url);
         if (this.authentication != null) {
             remoteRepository.setAuthentication(this.authentication);
         }
-        return remoteRepository.build();
+        return remoteRepository;
     }
 
 }

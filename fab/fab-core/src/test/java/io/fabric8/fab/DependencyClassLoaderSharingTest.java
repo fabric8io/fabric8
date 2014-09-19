@@ -15,7 +15,6 @@
  */
 package io.fabric8.fab;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -24,7 +23,6 @@ import org.junit.Test;
 public class DependencyClassLoaderSharingTest extends DependencyTestSupport {
 
     @Test
-    @Ignore // TODO -- FIXME
     public void testShareCommonClasses() throws Exception {
         // should be using the same camel and clogging dependencies
 

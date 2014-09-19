@@ -15,8 +15,8 @@
  */
 package io.fabric8.fab;
 
-import org.eclipse.aether.RepositoryException;
-import org.eclipse.aether.graph.Dependency;
+import org.sonatype.aether.RepositoryException;
+import org.sonatype.aether.graph.Dependency;
 
 /**
  * An exception thrown if a dependency cannot resolve its dependents

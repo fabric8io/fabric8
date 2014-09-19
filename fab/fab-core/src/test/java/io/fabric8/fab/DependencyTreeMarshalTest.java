@@ -15,14 +15,15 @@
  */
 package io.fabric8.fab;
 
-import java.util.logging.Logger;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class DependencyTreeMarshalTest extends DependencyTestSupport {
-    private static final transient Logger LOG = Logger.getLogger(DependencyTreeMarshalTest.class.getName());
+    private static final transient Log LOG = LogFactory.getLog(DependencyTreeMarshalTest.class);
 
     @Test
     public void testRoundTrip() throws Exception {
@@ -36,7 +37,7 @@ public class DependencyTreeMarshalTest extends DependencyTestSupport {
 
         String text = expected.marshal();
 
-        LOG.fine("Generated: " + text);
+        LOG.debug("Generated: " + text);
 
         DependencyTree actual = DependencyTree.unmarshal(text);
 

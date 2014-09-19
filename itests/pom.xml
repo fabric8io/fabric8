@@ -61,7 +61,6 @@
             </activation>
             <modules>
 		        <module>basic</module>
-                <!-- module>extra</module -->
                 <module>paxexam</module>
             </modules>
         </profile>
@@ -74,29 +73,6 @@
             </activation>
             <modules>
 		        <module>basic</module>
-                <module>paxexam</module>
-            </modules>
-        </profile>
-        <!-- profile>
-            <id>tomcat</id>
-            <modules>
-                <module>extra</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>wildfly</id>
-            <modules>
-                <module>extra</module>
-            </modules>
-        </profile -->
-        <profile>
-            <id>all</id>
-            <activation>
-                <property>
-                    <name>all</name>
-                </property>
-            </activation>
-            <modules>
                 <module>paxexam</module>
             </modules>
         </profile>

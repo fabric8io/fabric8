@@ -15,14 +15,15 @@
  */
 package io.fabric8.fab;
 
-import java.util.logging.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class PathHelper {
-    private static final transient Logger LOG = Logger.getLogger(PathHelper.class.getName());
+    private static final transient Log LOG = LogFactory.getLog(PathHelper.class);
 
     public static String getUserMavenRepository() {
         String dir = System.getProperty("user.home", "~") + "/.m2/repository";
-        LOG.fine("Using user repository: " + dir);
+        LOG.debug("Using user repository: " + dir);
         return dir;
     }
 }
