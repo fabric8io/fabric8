@@ -202,6 +202,7 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-maven-plugin</artifactId>
+        <version>${fabric.version}</version>
       </plugin>
 
       <!-- allows the route to be ran via 'mvn camel:run' -->
