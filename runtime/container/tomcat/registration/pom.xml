@@ -19,26 +19,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
     <parent>
-        <artifactId>fabric-runtime-container-tomcat</artifactId>
         <groupId>io.fabric8.runtime</groupId>
+        <artifactId>fabric-runtime-container-tomcat</artifactId>
         <version>1.2.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fabric-runtime-container-tomcat-registration</artifactId>
     <name>Fabric8 :: Runtime :: Container :: Tomcat :: Registration</name>
     <packaging>bundle</packaging>
-
-    <properties>
-        <fuse.osgi.import>*</fuse.osgi.import>
-        <fuse.osgi.export>
-        </fuse.osgi.export>
-        <fuse.osgi.private.pkg>
-            io.fabric8.runtime.container.tomcat.registration,
-            io.fabric8.utils;-split-package:=first
-        </fuse.osgi.private.pkg>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -57,13 +48,14 @@
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
         </dependency>
+
+        <!-- Provided Dependencies -->
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina</artifactId>
             <version>${tomcat-version}</version>
+            <scope>provided</scope>
         </dependency>
-
-        <!-- Provided Dependencies -->
         <dependency>
             <groupId>org.jboss.gravia</groupId>
             <artifactId>gravia-runtime-api</artifactId>

@@ -20,69 +20,62 @@ import io.fabric8.api.Version;
 import io.fabric8.api.VersionBuilder;
 
 import java.beans.ConstructorProperties;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * An immutable Version state
  */
-public final class VersionState implements Version {
+public final class VersionState {
 
     private final Version delegate;
     
-    @ConstructorProperties({"id", "revision", "attributes", "profiles"})
-    public VersionState(String versionId, String revision, Map<String, String> attributes, List<Profile> profiles) {
+    @ConstructorProperties({"id", "revision", "attributes", "profileStates"})
+    public VersionState(String versionId, String revision, Map<String, String> attributes, Map<String, ProfileState> profileStates) {
         VersionBuilder builder = VersionBuilder.Factory.create(versionId);
-        delegate = builder.setRevision(revision).setAttributes(attributes).addProfiles(profiles).getVersion();
+        builder.setRevision(revision).setAttributes(attributes);
+        for(ProfileState ps : profileStates.values()) {
+            builder.addProfile(ps.toProfile());
+        }
+        delegate = builder.getVersion();
     }
 
     public VersionState(Version Version) {
         this.delegate = Version;
     }
 
-    @Override
+    public Version toVersion() {
+        return delegate;
+    }
+    
     public String getId() {
         return delegate.getId();
     }
 
-    @Override
     public String getRevision() {
         return delegate.getRevision();
     }
 
-    @Override
     public Map<String, String> getAttributes() {
         return delegate.getAttributes();
     }
 
-    @Override
     public List<String> getProfileIds() {
         return delegate.getProfileIds();
     }
 
-    @Override
-    public List<Profile> getProfiles() {
-        return delegate.getProfiles();
+    public Map<String, ProfileState> getProfileStates() {
+        Map<String, ProfileState> result = new LinkedHashMap<>();
+        for (Profile prf : delegate.getProfiles()) {
+            result.put(prf.getId(), new ProfileState(prf));
+        }
+        return result;
     }
 
-    @Override
-    public Profile getProfile(String profileId) {
-        return delegate.getProfile(profileId);
-    }
-
-    @Override
-    public Profile getRequiredProfile(String profileId) {
-        return delegate.getRequiredProfile(profileId);
-    }
-
-    @Override
-    public boolean hasProfile(String profileId) {
-        return delegate.hasProfile(profileId);
-    }
-
-    @Override
-    public int compareTo(Version other) {
-        return delegate.compareTo(other);
+    public ProfileState getProfileState(String profileId) {
+        Profile prf = delegate.getProfile(profileId);
+        return new ProfileState(prf);
     }
 
     @Override
@@ -92,7 +85,10 @@ public final class VersionState implements Version {
 
     @Override
     public boolean equals(Object obj) {
-        return delegate.equals(obj);
+        if (this == obj) return true;
+        if (!(obj instanceof VersionState)) return false;
+        VersionState other = (VersionState) obj;
+        return delegate.equals(other.delegate);
     }
 
     @Override

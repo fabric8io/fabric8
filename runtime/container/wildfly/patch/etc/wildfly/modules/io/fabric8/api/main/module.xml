@@ -33,8 +33,9 @@
     
     <dependencies>
         <module name="javax.api"/>
-        <module name="org.jboss.gravia"/>
         <module name="org.osgi.core"/>
+        <module name="com.google.guava"/>
+        <module name="org.jboss.gravia"/>
         <module name="org.slf4j"/>
     </dependencies>
 

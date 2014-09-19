@@ -106,7 +106,7 @@ public class ZooKeeperServerFactory extends AbstractComponent {
         // Remove the dependency on the current dir from dataDir
         String dataDir = props.getProperty("dataDir");
         if (dataDir != null && !Paths.get(dataDir).isAbsolute()) {
-            dataDir = runtimeProperties.get().getHomePath().resolve(dataDir).toFile().getAbsolutePath();
+            dataDir = runtimeProperties.get().getDataPath().resolve(dataDir).toFile().getAbsolutePath();
             props.setProperty("dataDir", dataDir);
         }
         props.put("clientPortAddress", bootstrapConfiguration.get().getBindAddress());

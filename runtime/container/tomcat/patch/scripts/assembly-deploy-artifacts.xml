@@ -34,9 +34,9 @@
             <useStrictFiltering>true</useStrictFiltering>
             <includes>
                 <include>*:fabric-api:jar</include>
+                <include>*:fabric8-profiles:zip</include>
                 <include>*:fabric-runtime-container-tomcat-webapp:war</include>
                 <include>*:fabric-runtime-container-console-webapp:war</include>
-                <include>*:fabric8-profiles:zip</include>
                 <include>*:org.apache.felix.gogo.runtime:jar</include>
                 <include>*:org.apache.karaf.shell.console:jar</include>
                 <include>org.slf4j:slf4j-api:*</include>

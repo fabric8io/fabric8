@@ -41,28 +41,22 @@
     </properties>
 
     <dependencies>
-
-        <!-- Provided Dependencies -->
         <dependency>
             <groupId>org.jboss.gravia</groupId>
             <artifactId>gravia-runtime-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric8-karaf</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>io.fabric8.itests</groupId>
             <artifactId>fabric-itests-common</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
-
+        
         <!-- Test Dependencies -->
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-core</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>io.fabric8.runtime</groupId>
             <artifactId>fabric-runtime-container-karaf-managed</artifactId>

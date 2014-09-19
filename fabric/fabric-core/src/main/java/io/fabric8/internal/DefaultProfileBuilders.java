@@ -20,13 +20,6 @@ import io.fabric8.api.ProfileBuilder;
 import io.fabric8.api.ProfileBuilders;
 import io.fabric8.api.Version;
 import io.fabric8.api.VersionBuilder;
-import io.fabric8.api.scr.AbstractComponent;
-
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Service;
 
 /**
  * A provider service for the {@link ProfileBuilders}
@@ -34,54 +27,40 @@ import org.apache.felix.scr.annotations.Service;
  * @author thomas.diesler@jboss.com
  * @since 18-Mar-2014
  */
-@Component(policy = ConfigurationPolicy.IGNORE, immediate = true)
-@Service(ProfileBuilders.class)
-public final class ProfileBuildersImpl extends AbstractComponent implements ProfileBuilders {
+public final class DefaultProfileBuilders implements ProfileBuilders {
 
-    private ProfileBuilders delegate = new DefaultProfileBuilders();
-
-    @Activate
-    void activate() {
-        activateComponent();
+    @Override
+    public VersionBuilder profileVersionBuilder() {
+        return new DefaultVersionBuilder();
     }
 
-    @Deactivate
-    void deactivate() {
-        deactivateComponent();
+    @Override
+    public VersionBuilder profileVersionBuilder(String versionId) {
+        return new DefaultVersionBuilder().identity(versionId);
+    }
+
+    @Override
+    public VersionBuilder profileVersionBuilderFrom(Version version) {
+        return new DefaultVersionBuilder().from(version);
     }
     
-    public VersionBuilder profileVersionBuilder() {
-        assertValid();
-        return delegate.profileVersionBuilder();
-    }
-
-    public VersionBuilder profileVersionBuilder(String versionId) {
-        assertValid();
-        return delegate.profileVersionBuilder(versionId);
-    }
-
+    @Override
     public ProfileBuilder profileBuilder() {
-        assertValid();
-        return delegate.profileBuilder();
+        return new DefaultProfileBuilder();
     }
 
+    @Override
     public ProfileBuilder profileBuilder(String profileId) {
-        assertValid();
-        return delegate.profileBuilder(profileId);
+        return new DefaultProfileBuilder().identity(profileId);
     }
 
+    @Override
     public ProfileBuilder profileBuilder(String versionId, String profileId) {
-        assertValid();
-        return delegate.profileBuilder(versionId, profileId);
+        return new DefaultProfileBuilder().version(versionId).identity(profileId);
     }
 
+    @Override
     public ProfileBuilder profileBuilderFrom(Profile profile) {
-        assertValid();
-        return delegate.profileBuilderFrom(profile);
-    }
-
-    public VersionBuilder profileVersionBuilderFrom(Version version) {
-        assertValid();
-        return delegate.profileVersionBuilderFrom(version);
+        return new DefaultProfileBuilder().from(profile);
     }
 }

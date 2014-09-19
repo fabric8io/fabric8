@@ -48,7 +48,7 @@ public class ProfileManagerTest {
     }
     
     @Test
-    public void testFabricCreate() throws Exception {
+    public void testProfileManager() throws Exception {
         
         ProfileManager profileManager = ProfileManagerLocator.getProfileManager();
         
