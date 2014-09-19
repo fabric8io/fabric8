@@ -237,9 +237,19 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
                             if (!container.isAlive()) {
                                 container.setAlive(true);
                             }
-                            if (status != null && status.toLowerCase().startsWith("running")) {
-                                keepAliveCheck(service, status, container, currentState, item);
-
+                            if (status != null) {
+                                String statusLowerCase = status.toLowerCase();
+                                if (statusLowerCase.startsWith("running")) {
+                                    keepAliveCheck(service, status, container, currentState, item);
+                                } else {
+                                    String result = Container.PROVISION_FAILED;
+                                    if (statusLowerCase.startsWith("wait")) {
+                                        result = "downloading";
+                                    }
+                                    if (!result.equals(container.getProvisionResult())) {
+                                        container.setProvisionResult(result);
+                                    }
+                                }
                             } else {
                                 if (container.isAlive()) {
                                     container.setAlive(false);
@@ -261,7 +271,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
                         if (container.isAlive()) {
                             container.setAlive(false);
                         }
-                        String status = "stopped";
+                        String status = Container.PROVISION_STOPPED;
                         if (!status.equals(container.getProvisionResult())) {
                             container.setProvisionResult(status);
                         }

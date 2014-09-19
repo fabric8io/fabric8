@@ -233,7 +233,7 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
     }
 
     protected Map<String, File> downloadProfileArtifacts(FabricService fabric, Profile profile) throws Exception {
-        updateStatus("downloading", null, null);
+        updateStatus(Container.PROVISION_DOWNLOADING, null, null);
         Set<String> bundles = new LinkedHashSet<String>();
         Set<Feature> features = new LinkedHashSet<Feature>();
         bundles.addAll(profile.getBundles());
@@ -309,7 +309,7 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
         Set<Map.Entry<String, File>> entries = artifacts.entrySet();
         List<Resource> resourcesToInstall = new ArrayList<Resource>();
         List<String> resourceUrisInstalled = new ArrayList<String>();
-        updateStatus("installing", null, null);
+        updateStatus(Container.PROVISION_INSTALLING, null, null);
         for (Map.Entry<String, File> entry : entries) {
             String name = entry.getKey();
             File file = entry.getValue();

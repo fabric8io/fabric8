@@ -25,6 +25,9 @@ public interface Container extends HasId {
     String PROVISION_ERROR = "error";
     String PROVISION_FAILED = "failed";
     String PROVISION_STOPPED = "stopped";
+    String PROVISION_DOWNLOADING = "downloading";
+    String PROVISION_FINALIZING = "finalizing";
+    String PROVISION_INSTALLING = "installing";
 
     String getType();
 
