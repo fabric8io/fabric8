@@ -1,6 +1,7 @@
 package io.fabric8.insight.elasticsearch.plugin;
 
 import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.common.component.LifecycleComponent;
 import org.elasticsearch.common.inject.Module;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.plugins.AbstractPlugin;
@@ -26,9 +27,9 @@ public class InsightPlugin extends AbstractPlugin {
     }
 
     @Override
-    public Collection<Class<? extends Module>> modules() {
-        Collection<Class<? extends Module>> modules = Lists.newArrayList();
-        modules.add(InsightIndicesModule.class);
-        return modules;
+    public Collection<Class<? extends LifecycleComponent>> services() {
+        Collection<Class<? extends LifecycleComponent>> services = Lists.newArrayList();
+        services.add(InsightIndicesHousekeeperService.class);
+        return services;
     }
 }
