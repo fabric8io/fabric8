@@ -434,7 +434,7 @@
                <plugin>
                    <groupId>org.fusesource.mvnplugins</groupId>
                    <artifactId>maven-bundle-summary-plugin</artifactId>
-                   <version>1.34</version>
+                   <version>${maven-bundle-summary-plugin-version}</version>
                    <executions>
                        <execution>
                            <id>bundle-summary</id>
