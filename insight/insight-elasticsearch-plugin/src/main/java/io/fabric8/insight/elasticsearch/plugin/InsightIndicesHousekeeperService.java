@@ -11,12 +11,10 @@ import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.component.AbstractLifecycleComponent;
 import org.elasticsearch.common.hppc.cursors.ObjectObjectCursor;
 import org.elasticsearch.common.inject.Inject;
-import org.elasticsearch.common.inject.Injector;
 import org.elasticsearch.common.joda.time.Days;
 import org.elasticsearch.common.joda.time.LocalDate;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.indices.IndicesService;
 import org.elasticsearch.threadpool.ThreadPool;
 
 import java.util.HashSet;
@@ -31,7 +29,7 @@ public class InsightIndicesHousekeeperService extends AbstractLifecycleComponent
 
     private final ThreadPool threadPool;
 
-    private final Injector injector;
+    private AdminClient adminClient;
 
     private final String indicesPrefix;
 
@@ -46,11 +44,11 @@ public class InsightIndicesHousekeeperService extends AbstractLifecycleComponent
     private ScheduledFuture<?> future;
 
     @Inject
-    protected InsightIndicesHousekeeperService(Settings settings, ThreadPool threadPool, Injector injector) {
+    protected InsightIndicesHousekeeperService(Settings settings, ThreadPool threadPool, AdminClient adminClient) {
         super(settings);
 
         this.threadPool = threadPool;
-        this.injector = injector;
+        this.adminClient = adminClient;
 
         this.settings = settings.getByPrefix("insight.indices.management.");
         indicesPrefix = this.settings.get("prefix", "insight");
@@ -95,7 +93,6 @@ public class InsightIndicesHousekeeperService extends AbstractLifecycleComponent
         public void run() {
             boolean reschedule = true;
             try {
-                AdminClient adminClient = injector.getInstance(AdminClient.class);
                 ClusterAdminClient clusterAdminClient = adminClient.cluster();
 
                 ClusterStateResponse state = clusterAdminClient.state(clusterAdminClient.prepareState().request()).actionGet();
