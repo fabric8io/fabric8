@@ -15,16 +15,17 @@
  */
 package io.fabric8.fab;
 
-import java.util.List;
-import java.util.logging.Logger;
-
 import junit.framework.Assert;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+
+import java.util.List;
 
 import static io.fabric8.fab.DependencyTree.newBuilder;
 
 public class DuplicateDependencyTest {
-    private static final transient Logger LOG = Logger.getLogger(DuplicateDependencyTest.class.getName());
+    private static final transient Log LOG = LogFactory.getLog(DuplicateDependencyTest.class);
 
     DependencyTree clogging11 = newBuilder("commons-logging", "commons-logging-api", "1.1").build();
     DependencyTree clogging104 = newBuilder("commons-logging", "commons-logging-api", "1.04").build();
@@ -45,7 +46,7 @@ public class DuplicateDependencyTest {
 
     protected void assertDuplicates(DependencyTree tree, int expectedDuplicateCount) {
         List<DependencyTree.DuplicateDependency> duplicateDependencies = tree.checkForDuplicateDependencies();
-        LOG.info(String.valueOf(duplicateDependencies));
+        LOG.info(duplicateDependencies);
         Assert.assertEquals("Expected duplicate dependencies: " + duplicateDependencies, expectedDuplicateCount, duplicateDependencies.size());
     }
 }
