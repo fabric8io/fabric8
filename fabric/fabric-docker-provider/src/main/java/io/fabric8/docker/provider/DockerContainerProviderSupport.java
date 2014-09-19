@@ -400,8 +400,13 @@ public abstract class DockerContainerProviderSupport extends AbstractComponent {
                         authConfig.setEmail("person@fabric8.io");
                         authConfig.setUsername(service.getZooKeeperUser());
                         authConfig.setPassword(service.getZookeeperPassword());
-                        docker.imagePush(newImageName, "latest", authConfig);
-                        LOG.info("Image pushed to repository " + newImageName);
+                        try {
+                            docker.imagePush(newImageName, "latest", authConfig);
+                            LOG.info("Image pushed to repository " + newImageName);
+                        } catch (Exception e) {
+                            LOG.info("Failed to push image " + newImageName + ": " + e + Dockers.dockerErrorMessage(e), e);
+                            throw e;
+                        }
                     }
                 }
             }
