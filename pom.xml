@@ -338,6 +338,7 @@
         <swagger-scala-version>2.10.2</swagger-scala-version>
         <tinybundles-version>2.0.0</tinybundles-version>
         <tomcat-version>7.0.54</tomcat-version>
+        <tomcat-plugin-version>2.2</tomcat-plugin-version>
         <tomee-version>1.7.0</tomee-version>
         <validation-api-version>1.1.0.Final</validation-api-version>
         <vertx-version>2.1.2</vertx-version>

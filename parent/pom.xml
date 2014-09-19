@@ -38,6 +38,7 @@
         <maven-bundle-plugin-version>2.5.0</maven-bundle-plugin-version>
         <maven-javadoc-plugin-version>2.9.1</maven-javadoc-plugin-version>
         <maven-notices-plugin-version>1.32</maven-notices-plugin-version>
+        <maven-bundle-summary-plugin-version>1.34</maven-bundle-summary-plugin-version>
         <maven-surefire-plugin-version>2.17</maven-surefire-plugin-version>
         <maven-deploy-plugin-version>2.8.1</maven-deploy-plugin-version>
         <maven-shade-plugin-version>2.3</maven-shade-plugin-version>
