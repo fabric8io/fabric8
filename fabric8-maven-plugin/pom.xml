@@ -102,6 +102,11 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.enterprise</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
         <groupId>org.jolokia</groupId>
         <artifactId>jolokia-client-java</artifactId>
         <version>${jolokia-version}</version>

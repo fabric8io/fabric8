@@ -480,6 +480,13 @@
                                <additionalMetadata>${basedir}/src/main/verification/metadata.properties</additionalMetadata>
                            </configuration>
                        </execution>
+                       <execution>
+                           <id>copy-metatype</id>
+                           <phase>package</phase>
+                           <goals>
+                               <goal>copy-metatype</goal>
+                           </goals>
+                       </execution>
                    </executions>
                </plugin>
                <plugin>
@@ -702,20 +709,6 @@
                        </replacements>
                    </configuration>
                </plugin>
-               <plugin>
-               <groupId>io.fabric8</groupId>
-               <artifactId>fabric8-maven-plugin</artifactId>
-               <version>${project.version}</version>
-               <executions>
-                 <execution>
-                   <id>copy-metatype</id>
-                   <phase>package</phase>
-                   <goals>
-                     <goal>copy-metatype</goal>
-                   </goals>
-                 </execution>
-               </executions>
-             </plugin>
                <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-assembly-plugin</artifactId>
