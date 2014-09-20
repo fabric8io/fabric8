@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.6" data-basepath="." data-revision="1411068397281">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.6" data-basepath="." data-revision="1411206920700">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -898,6 +898,13 @@ export FABRIC8_PROFILES=docker
 <p>Once you&apos;ve created a container, it should appear if you type the following on the command line:</p>
 <pre><code>docker ps
 </code></pre><p>Other than that; the container should appear like any other container (e.g. like a child/ssh/openshift/cloud container).</p>
+<h3 id="docker-image-for-java-containers"><a name="docker-image-for-java-containers" class="anchor" href="#docker-image-for-java-containers"><span class="fa fa-link"></span></a>Docker image for Java containers</h3>
+<p>Fabric8 uses <code>fabric8/fabric8-java</code> image to create dockerized Java containers. You can start an empty Java container using 
+the following shell command:</p>
+<pre><code>docker run -P -i -t fabric8/fabric8-java /bin/bash
+</code></pre><p>After the application is deployed into the Dockerized Java container, the latter contains the main jar of that application 
+together with all its transitive dependencies. Mentioned jars are kept in the <code>/home/fabric8/lib</code> directory. Application
+is started using the <code>/home/fabric8/startup.sh</code> script.</p>
 <h3 id="how-to-ssh-into-a-docker-container"><a name="how-to-ssh-into-a-docker-container" class="anchor" href="#how-to-ssh-into-a-docker-container"><span class="fa fa-link"></span></a>how to ssh into a docker container</h3>
 <p>If your docker based container doesn&apos;t start up you probably want to ssh into it and have a look around. Luckily the <a href="https://index.docker.io/u/fabric8/fabric8/" target="_blank">fabric8/fabric8</a> container comes with sshd enabled by default.</p>
 <p>If you type:</p>
