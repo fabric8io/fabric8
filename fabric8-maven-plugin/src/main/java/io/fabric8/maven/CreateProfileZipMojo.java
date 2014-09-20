@@ -50,6 +50,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
@@ -285,7 +286,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         }
     }
 
-    protected void generateZip() throws DependencyTreeBuilderException, MojoExecutionException, IOException {
+    protected void generateZip() throws DependencyTreeBuilderException, MojoExecutionException, IOException, DependencyGraphBuilderException {
         ProjectRequirements requirements = new ProjectRequirements();
 
         DependencyDTO rootDependency = null;

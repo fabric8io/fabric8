@@ -46,12 +46,12 @@
     <maven.compiler.target>1.7</maven.compiler.target>
     <maven.compiler.source>1.7</maven.compiler.source>
 
+    <spring-version>4.0.7.RELEASE</spring-version>
+    <spring4-version>4.0.7.RELEASE</spring4-version>
+
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
     <fabric.version>1.2.0-SNAPSHOT</fabric.version>
-
-    <spring-version>4.0.6.RELEASE</spring-version>
-    <spring-boot-version>1.1.5.RELEASE</spring-boot-version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-spring.boot-activemq</fabric8.profile>
@@ -125,78 +125,87 @@
     </dependencyManagement>
     
     <dependencies>
+        
+        <!-- we need to use Spring 4 -->
         <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-client</artifactId>
-            <version>${activemq-version}</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring4-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-jms-pool</artifactId>
-            <version>${activemq-version}</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring4-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring4-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>${spring-version}</version>
+            <version>${spring4-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jms</artifactId>
-            <version>${spring-version}</version>
+            <version>${spring4-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-            <version>${spring-boot-version}</version>
-        </dependency>
-
-        <!-- TODO this runtime dependency should be inherited in the base profile -->
-        <dependency>
-          <groupId>io.fabric8</groupId>
-          <artifactId>process-spring-boot-container</artifactId>
-          <version>${fabric.version}</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring4-version}</version>
         </dependency>
         <dependency>
-          <groupId>io.fabric8</groupId>
-          <artifactId>process-spring-boot-starter-activemq</artifactId>
-          <version>${fabric.version}</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring4-version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-broker</artifactId>
-<!--
-            <version>${activemq-version}</version>
--->
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-jms-pool</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>process-spring-boot-container</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>process-spring-boot-starter-activemq</artifactId>
+        </dependency>
+        <dependency>
+             <groupId>io.fabric8.mq</groupId>
+            <artifactId>mq-fabric</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8.mq</groupId>
-            <artifactId>mq-fabric</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-<!--
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>process-spring-boot-container</artifactId>
             <scope>test</scope>
         </dependency>
--->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <version>${spring-boot-version}</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
   <build>

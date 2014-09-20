@@ -577,12 +577,17 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             DependencyDTO answer = new DependencyDTO();
             answer.setGroupId(artifact.getGroupId());
             answer.setArtifactId(artifact.getArtifactId());
-            answer.setVersion(artifact.getVersion());
+            // we should favor premanaged version, eg spring-aop 4.0.x over 3.2.x
+            if (node.getPremanagedVersion() != null) {
+                answer.setVersion(node.getPremanagedVersion());
+            } else {
+                answer.setVersion(artifact.getVersion());
+            }
             answer.setClassifier(artifact.getClassifier());
             String scope = artifact.getScope();
             answer.setScope(scope);
             answer.setType(artifact.getType());
-            // there is a bug if we try to resolve the current projects artiffact for a "jar" packaging
+            // there is a bug if we try to resolve the current projects artifact for a "jar" packaging
             // before we've installed it then this operation will force the jar not be installed
             // so lets ignore this for the maven project's artifact
             if (artifact.getClassifier() == null && "jar".equals(artifact.getType())) {
