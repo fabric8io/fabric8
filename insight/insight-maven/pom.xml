@@ -35,6 +35,15 @@
         <fuse.osgi.export>
             io.fabric8.insight.maven*;version=${project.version}
         </fuse.osgi.export>
+
+        <!-- version info -->
+        <!-- versions aligned to dependencies of Maven 3.0.5 (present in M2/lib directory) -->
+        <aether-version>1.13.1</aether-version>
+        <maven-aether-provider-version>3.0.5</maven-aether-provider-version>
+        <plexus-container-default-version>1.5.5</plexus-container-default-version>
+        <plexus-utils-version>2.0.6</plexus-utils-version>
+        <wagon-version>2.4</wagon-version>
+        <sisu-inject-plexus-version>2.3.0</sisu-inject-plexus-version>
     </properties>
 
     <dependencies>
@@ -47,51 +56,66 @@
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
 
-        <!-- aether stuff -->
+        <!-- aether -->
         <dependency>
-            <groupId>org.eclipse.aether</groupId>
+            <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-api</artifactId>
+            <version>${aether-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.aether</groupId>
+            <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-spi</artifactId>
+            <version>${aether-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.aether</groupId>
+            <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-util</artifactId>
+            <version>${aether-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.aether</groupId>
+            <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-impl</artifactId>
+            <version>${aether-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.aether</groupId>
+            <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-connector-wagon</artifactId>
-            <!-- clashes with guava -->
+            <version>${aether-version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>com.google.collections</groupId>
-                    <artifactId>google-collections</artifactId>
+                    <artifactId>wagon-provider-api</artifactId>
+                    <groupId>org.apache.maven.wagon</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>plexus-utils</artifactId>
+                    <groupId>org.codehaus.plexus</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>sisu-inject-plexus</artifactId>
+                    <groupId>org.sonatype.sisu</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>org.sonatype.sisu</groupId>
             <artifactId>sisu-inject-plexus</artifactId>
+            <version>${sisu-inject-plexus-version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.codehaus.plexus</groupId>
                     <artifactId>plexus-utils</artifactId>
+                    <groupId>org.codehaus.plexus</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-aether-provider</artifactId>
+            <version>${maven-aether-provider-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-provider-api</artifactId>
+            <version>${wagon-version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.codehaus.plexus</groupId>
@@ -102,10 +126,12 @@
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-file</artifactId>
+            <version>${wagon-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-http-lightweight</artifactId>
+            <version>${wagon-version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>nekohtml</groupId>
@@ -143,10 +169,12 @@
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
+            <version>${plexus-utils-version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-classworlds</artifactId>
+            <version>2.4</version>
         </dependency>
     </dependencies>
 

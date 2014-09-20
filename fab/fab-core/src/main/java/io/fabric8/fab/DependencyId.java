@@ -16,9 +16,9 @@
 package io.fabric8.fab;
 
 import io.fabric8.common.util.Objects;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.graph.Dependency;
-import org.eclipse.aether.graph.DependencyNode;
+import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.graph.Dependency;
+import org.sonatype.aether.graph.DependencyNode;
 
 import static io.fabric8.common.util.Objects.compare;
 import static io.fabric8.common.util.Objects.equal;
@@ -37,8 +37,7 @@ public class DependencyId implements Comparable<DependencyId> {
 
 
     public static DependencyId newInstance(DependencyNode node) {
-        Dependency dependency = node.getDependency();
-        return (dependency != null) ? newInstance(dependency) : newInstance(node.getArtifact());
+        return newInstance(node.getDependency());
     }
 
     public static DependencyId newInstance(Dependency dependency) {
