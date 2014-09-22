@@ -24,7 +24,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("[FABRIC-1109] Camel tests fail with immutable version/profile ")
 public class OrderTest extends CamelBlueprintTestSupport {
 
     private boolean canTest = true;
