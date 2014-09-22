@@ -40,6 +40,7 @@ import javax.ws.rs.Produces;
  */
 @Path("api/v1beta1")
 @Produces("application/json")
+@Consumes("application/json")
 public interface Kubernetes {
 
     /**
