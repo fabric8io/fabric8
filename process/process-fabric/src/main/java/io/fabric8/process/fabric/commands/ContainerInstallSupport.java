@@ -34,9 +34,6 @@ public abstract class ContainerInstallSupport extends ContainerProcessCommandSup
         } else if (controllerKind != null) {
             String name = controllerKind + ".json";
             controllerUrl = new URL("profile:" + name);
-            if (controllerUrl == null) {
-                throw new IllegalStateException("Cannot find controller kind: " + name + " on the classpath");
-            }
         }
         return controllerUrl;
     }

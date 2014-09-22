@@ -28,8 +28,6 @@ import org.apache.felix.gogo.commands.Option;
 @Command(name = "application-create", scope = "openshift", description = "Creates an application")
 public class ApplicationCreateAction extends OpenshiftCommandSupport {
 
-    static final String FORMAT = "%-30s %s";
-
     @Option(name = "--domain", required = false, description = "Create applications on that domain.")
     String domainId;
 

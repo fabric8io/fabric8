@@ -42,7 +42,6 @@ public abstract class ContainerProcessCommandSupport extends OsgiCommandSupport 
     @Argument(index = 0, required = true, name = "container", description = "The container to manage the process")
     protected String container;
 
-
     private ContainerProcessManager containerProcessManager;
 
     abstract void doWithAuthentication(String jmxUser, String jmxPassword) throws Exception;
@@ -50,7 +49,6 @@ public abstract class ContainerProcessCommandSupport extends OsgiCommandSupport 
     protected void checkRequirements() {
         Preconditions.checkNotNull(containerProcessManager, "containerProcessManager");
     }
-
 
     @Override
     protected Object doExecute() throws Exception {

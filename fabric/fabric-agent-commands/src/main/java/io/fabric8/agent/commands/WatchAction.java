@@ -21,6 +21,7 @@ import java.util.Set;
 
 import io.fabric8.agent.commands.support.ProfileVersionKey;
 import io.fabric8.agent.mvn.Parser;
+import io.fabric8.utils.TablePrinter;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -91,11 +92,11 @@ public class WatchAction extends OsgiCommandSupport {
             watcher.start();
         }
 
-        if (list) { //List the watched bundles.
-            String format = "%-40s %-30s %-8s %-80s";
-            System.out.println(String.format(format, "URL", "Profile", "Version", "Bundle"));
+        if (list) {
+            // list the watched bundles.
+            TablePrinter printer = new TablePrinter();
+            printer.columns("url", "profile", "version", "bundle");
             for (String url : watcher.getWatchURLs()) {
-
                 Map<ProfileVersionKey, Map<String, Parser>> profileArtifacts = watcher.getProfileArtifacts();
                 if (profileArtifacts.size() > 0) {
                     Set<Map.Entry<ProfileVersionKey, Map<String, Parser>>> entries = profileArtifacts.entrySet();
@@ -107,14 +108,15 @@ public class WatchAction extends OsgiCommandSupport {
                             String location = artifactMapEntry.getKey();
                             Parser parser = artifactMapEntry.getValue();
                             if (isSnapshot(parser) || watcher.wildCardMatch(location, url)) {
-                                System.out.println(String.format(format, url, key.getProfileId(), key.getVersion(), location));
+                                printer.row(url, key.getProfileId(), key.getVersion(), location);
                             }
                         }
                     }
                 } else {
-                    System.out.println(String.format(format, url, "", "", ""));
+                    printer.row(url, "", "", "");
                 }
             }
+            printer.print();
         } else {
             List<String> urls = watcher.getWatchURLs();
             if (urls != null && urls.size() > 0) {

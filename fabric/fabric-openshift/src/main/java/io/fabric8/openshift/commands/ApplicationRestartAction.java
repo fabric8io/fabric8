@@ -25,8 +25,6 @@ import org.apache.felix.gogo.commands.Option;
 @Command(name = "application-restart", scope = "openshift", description = "Restarts the target application")
 public class ApplicationRestartAction extends OpenshiftCommandSupport {
 
-    static final String FORMAT = "%-30s %s";
-
     @Option(name = "--domain", required = false, description = "Use only applications of that domain.")
     String domainId;
 

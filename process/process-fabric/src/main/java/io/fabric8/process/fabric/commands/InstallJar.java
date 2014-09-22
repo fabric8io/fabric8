@@ -67,6 +67,7 @@ public class InstallJar extends ContainerInstallSupport {
                 .mainClass(mainClass)
                 .controllerUrl(getControllerURL())
                 .build();
+
         // allow a post install step to be specified - e.g. specifying jars/wars?
         InstallTask postInstall = null;
 

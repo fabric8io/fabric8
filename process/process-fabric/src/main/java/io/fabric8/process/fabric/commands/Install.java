@@ -22,7 +22,6 @@ import io.fabric8.process.fabric.ContainerInstallOptions;
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.Installation;
 
-
 /**
  * Installs a new process
  */
