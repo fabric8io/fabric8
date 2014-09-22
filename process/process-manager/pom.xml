@@ -31,9 +31,6 @@
   <name>Fabric8 :: Process :: Manager</name>
 
   <properties>
-    <!--
-            <fuse.osgi.embed.dependency>*;groupId=io.fabric8.process;path-</fuse.osgi.embed.dependency>
-    -->
     <fuse.osgi.resource>${basedir}/target/classes/process-launcher.tar.gz,{maven-resources}</fuse.osgi.resource>
     <fuse.osgi.export>
       io.fabric8.process.manager*;version=${project.version};-noimport:=true,
@@ -47,13 +44,10 @@
     <fuse.osgi.private.pkg>
       io.fabric8.process.manager.utils,
     </fuse.osgi.private.pkg>
-    <!--
-            <fuse.osgi.activator>io.fabric8.process.manager.Activator</fuse.osgi.activator>
-    -->
-      <fuse.osgi.capabilities.provide>
-          osgi.service;effective:=active;objectClass:List&lt;String&gt;="io.fabric8.process.manager.commands.support.ProcessNumberCompleter,org.apache.karaf.shell.console.Completer",
-          osgi.service;effective:=active;objectClass:List&lt;String&gt;="io.fabric8.process.manager.commands.support.MainClassCompleter,org.apache.karaf.shell.console.Completer"
-      </fuse.osgi.capabilities.provide>
+    <fuse.osgi.capabilities.provide>
+        osgi.service;effective:=active;objectClass:List&lt;String&gt;="io.fabric8.process.manager.commands.support.ProcessNumberCompleter,org.apache.karaf.shell.console.Completer",
+        osgi.service;effective:=active;objectClass:List&lt;String&gt;="io.fabric8.process.manager.commands.support.MainClassCompleter,org.apache.karaf.shell.console.Completer"
+    </fuse.osgi.capabilities.provide>
   </properties>
 
   <dependencies>

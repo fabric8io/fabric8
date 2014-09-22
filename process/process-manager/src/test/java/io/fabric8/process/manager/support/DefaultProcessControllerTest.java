@@ -40,7 +40,7 @@ public class DefaultProcessControllerTest {
 
         InstallOptions installOptions = new InstallOptions.InstallOptionsBuilder().build();
         String processId = new ProcessManagerService(installDir).installJar(installOptions, postInstall).getId();
-        controller = new DefaultProcessController(processId, new ProcessConfig(), new File(installDir, processId));
+        controller = new DefaultProcessController(processId, new ProcessConfig(), installDir, new File(installDir, processId));
     }
 
     @Test(expected = CommandFailedException.class)

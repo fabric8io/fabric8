@@ -431,7 +431,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
     }
 
     protected ProcessController createController(String id, ProcessConfig config, File rootDir, File installDir) {
-        return new DefaultProcessController(id, config, installDir);
+        return new DefaultProcessController(id, config, rootDir, installDir);
     }
 
     // TODO. This is been ripped from io.fabric8.container.process.JolokiaAgentHelper.substituteEnvironmentVariableExpressions()

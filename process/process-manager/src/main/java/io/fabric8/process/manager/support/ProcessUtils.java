@@ -15,34 +15,21 @@
  */
 package io.fabric8.process.manager.support;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.collect.Maps;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileService;
-import io.fabric8.common.util.Closeables;
-import io.fabric8.common.util.Filter;
-import io.fabric8.common.util.Filters;
-import io.fabric8.common.util.Function;
-import io.fabric8.common.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
-import static java.lang.String.format;
-
 public class ProcessUtils {
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(ProcessUtils.class);
 
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(ProcessUtils.class);
 
     /**
      * Lets find the install dir, which may be the root dir or could be a child directory (as typically untarring will create a new child directory)
@@ -63,6 +50,10 @@ public class ProcessUtils {
     }
 
     public static boolean installExists(File file) {
+        // skip hidden files
+        if (file.getName().startsWith(".")) {
+            return false;
+        }
         if (file.isDirectory()) {
             File binDir = new File(file, "bin");
             return binDir.exists() && binDir.isDirectory();

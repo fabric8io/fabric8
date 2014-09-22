@@ -16,10 +16,10 @@
 package io.fabric8.process.manager.support;
 
 import com.google.common.base.Strings;
-import com.google.common.io.Files;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import io.fabric8.common.util.ExecParseUtils;
+import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Processes;
 import io.fabric8.process.manager.ProcessController;
 import io.fabric8.process.manager.config.ProcessConfig;
@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -57,6 +56,7 @@ public class DefaultProcessController implements ProcessController {
      */
     private final String id;
 
+    private final File rootDir;
     private final File baseDir;
     private final ProcessConfig config;
     private transient Executor executor;
@@ -65,9 +65,10 @@ public class DefaultProcessController implements ProcessController {
     /**
      * @param id identifier of the controlled process. Usually PID.
      */
-    public DefaultProcessController(String id, ProcessConfig config, File baseDir) {
+    public DefaultProcessController(String id, ProcessConfig config, File rootDir, File baseDir) {
         this.id = id;
         this.config = config;
+        this.rootDir = rootDir;
         this.baseDir = baseDir;
     }
 
@@ -94,9 +95,13 @@ public class DefaultProcessController implements ProcessController {
     public int uninstall() {
         String name = baseDir.getName();
         if (name.startsWith(".")) {
-            throw new IllegalArgumentException("baseDir is already deleted for " + baseDir);
+            // silently ignore this
         } else {
-            baseDir.renameTo(new File(baseDir.getParentFile(), "." + name));
+            File newName = new File(baseDir.getParentFile(), "." + name);
+            // delete any existing directory first
+            Files.recursiveDelete(newName);
+            // and then rename
+            baseDir.renameTo(newName);
         }
         return 0;
     }
@@ -236,7 +241,7 @@ public class DefaultProcessController implements ProcessController {
     }
 
     private Long extractPidFromFile(File file) throws IOException {
-        List<String> lines = Files.readLines(file, Charset.defaultCharset());
+        List<String> lines = Files.readLines(file);
         for (String line : lines) {
             String text = line.trim();
             if (text.matches("\\d+")) {
