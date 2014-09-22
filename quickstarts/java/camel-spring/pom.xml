@@ -36,14 +36,10 @@
   <description>Camel route using Spring XML in a standalone Java container</description>
 
   <properties>
-    <!-- Explicitly declaring the source encoding eliminates the following message: -->
-    <!-- [WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent! -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <version.compiler.plugin>2.3.1</version.compiler.plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
-
-    <!-- maven-compiler-plugin -->
     <maven.compiler.target>1.7</maven.compiler.target>
     <maven.compiler.source>1.7</maven.compiler.source>
 
@@ -54,83 +50,6 @@
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-java-camel.spring</fabric8.profile>
   </properties>
-
-  <repositories>
-    <repository>
-      <id>fusesource</id>
-      <name>FuseSource Release Repository</name>
-      <url>https://repo.fusesource.com/nexus/content/groups/public/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-    <repository>
-      <id>fusesource.ea</id>
-      <name>FuseSource Community Early Access Release Repository</name>
-      <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-    <repository>
-      <id>jboss-public-repository-group</id>
-      <name>JBoss Public Repository Group</name>
-      <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-      <layout>default</layout>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>daily</updatePolicy>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>JBoss Releases</id>
-      <name>JBoss Releases Repository Group</name>
-      <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>daily</updatePolicy>
-      </snapshots>
-    </repository>
-  </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>fusesource</id>
-      <name>FuseSource Release Repository</name>
-      <url>https://repo.fusesource.com/nexus/content/groups/public/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </pluginRepository>
-    <pluginRepository>
-      <id>fusesource.ea</id>
-      <name>FuseSource Community Early Access Release Repository</name>
-      <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </pluginRepository>
-  </pluginRepositories>
 
   <dependencyManagement>
     <dependencies>
@@ -145,6 +64,7 @@
   </dependencyManagement>
 
   <dependencies>
+
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
@@ -154,7 +74,6 @@
       <artifactId>camel-spring</artifactId>
     </dependency>
 
-    <!-- logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -162,13 +81,13 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
+      <scope>test</scope>
     </dependency>
-
-    <!-- testing -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test-spring</artifactId>
@@ -209,8 +128,63 @@
       <plugin>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-maven-plugin</artifactId>
-        <version>${camel-version}</version>
       </plugin>
     </plugins>
+
   </build>
+
+  <repositories>
+    <repository>
+      <id>fusesource.m2</id>
+      <name>FuseSource Community Release Repository</name>
+      <url>https://repo.fusesource.com/nexus/content/groups/public</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </repository>
+    <repository>
+      <id>fusesource.ea</id>
+      <name>FuseSource Community Early Access Release Repository</name>
+      <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>fusesource.m2</id>
+      <name>FuseSource Community Release Repository</name>
+      <url>https://repo.fusesource.com/nexus/content/groups/public</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </pluginRepository>
+    <pluginRepository>
+      <id>fusesource.ea</id>
+      <name>FuseSource Community Early Access Release Repository</name>
+      <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </pluginRepository>
+  </pluginRepositories>
+
 </project>

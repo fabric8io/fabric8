@@ -30,7 +30,7 @@
   <artifactId>fabric8-quickstarts-karaf-parent</artifactId>
   <version>1.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-   <name>Fabric8 :: Quickstarts :: Karaf :: Parent</name>
+  <name>Fabric8 :: Quickstarts :: Karaf :: Parent</name>
 
   <modules>
     <module>beginner</module>

@@ -16,61 +16,29 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-      <groupId>io.fabric8.quickstarts</groupId>
-      <artifactId>fabric8-quickstarts-karaf-parent</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
-    </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <artifactId>fabric8-quickstarts-karaf-cxf-parent</artifactId>
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.fabric8.quickstarts</groupId>
+    <artifactId>fabric8-quickstarts-karaf-parent</artifactId>
     <version>1.2.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>Fabric8 :: Quickstarts :: Karaf :: CXF :: Parent</name>
-    <url>http://www.jboss.org/products/fuse</url>
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <distribution>repo</distribution>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-        </license>
-    </licenses>
-    <properties>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <maven.compiler.source>1.7</maven.compiler.source>
-    </properties>
-    <repositories>
-        <repository>
-            <id>fusesource.m2</id>
-            <name>FuseSource Community Release Repository</name>
-            <url>https://repo.fusesource.com/nexus/content/groups/public</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>fusesource.ea</id>
-            <name>FuseSource Community Early Access Release Repository</name>
-            <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
+  </parent>
 
-    <modules>
-        <module>camel-cxf-code-first</module>
-        <module>camel-cxf-contract-first</module>
-        <module>rest</module>
-        <module>secure-rest</module>
-        <module>secure-soap</module>
-        <module>soap</module>
-    </modules>
+  <artifactId>fabric8-quickstarts-karaf-cxf-parent</artifactId>
+  <version>1.2.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Fabric8 :: Quickstarts :: Karaf :: CXF :: Parent</name>
+
+  <modules>
+    <module>camel-cxf-code-first</module>
+    <module>camel-cxf-contract-first</module>
+    <module>rest</module>
+    <module>secure-rest</module>
+    <module>secure-soap</module>
+    <module>soap</module>
+  </modules>
+
 </project>

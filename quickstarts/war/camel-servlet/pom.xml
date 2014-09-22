@@ -39,19 +39,13 @@
   <description>Camel route using Servlet deployed as WAR</description>
 
   <properties>
-    <!--
-      Explicitly declaring the source encoding eliminates the following message:
-      [WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
-    -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
     <version.compiler.plugin>2.3.1</version.compiler.plugin>
-    <skipTests>true</skipTests>
-    <!-- maven-compiler-plugin -->
     <maven.compiler.target>1.7</maven.compiler.target>
     <maven.compiler.source>1.7</maven.compiler.source>
     <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
+    <skipTests>true</skipTests>
 
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
@@ -100,23 +94,11 @@
       <artifactId>camel-servlet</artifactId>
     </dependency>
 
-    <!--
-        For logging, we will use SLF4J, which is also available in the container by default.
-      -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-
-    <!-- Test Dependencies -->
-    <dependency>
+     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-    <!--
-      Add the slf4j-log4j12 dependency jar for testing
-    -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
@@ -182,7 +164,6 @@
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>
-      <!-- Compiler plugin enforces Java 1.7 compatibility and activates annotation processors -->
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${version.compiler.plugin}</version>

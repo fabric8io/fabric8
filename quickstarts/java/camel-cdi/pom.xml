@@ -36,18 +36,15 @@
   <description>Camel route using CDI in a standalone Java Container</description>
 
   <properties>
-    <!-- Explicitly declaring the source encoding eliminates the following
-               message: -->
-    <!-- [WARNING] Using platform encoding (UTF-8 actually) to copy filtered
-        resources, i.e. build is platform dependent! -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
     <version.compiler.plugin>2.3.1</version.compiler.plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
-
-    <!-- maven-compiler-plugin -->
     <maven.compiler.target>1.7</maven.compiler.target>
     <maven.compiler.source>1.7</maven.compiler.source>
+
+    <geronimo-ejb-3-1-spec-version>1.0.2</geronimo-ejb-3-1-spec-version>
+    <shrinkwrap-resolver-version>2.0.0-alpha-4</shrinkwrap-resolver-version>
+    <weld2-version>2.1.2.Final</weld2-version>
 
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
@@ -56,7 +53,6 @@
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-java-camel.cdi</fabric8.profile>
   </properties>
-
 
   <licenses>
     <license>
@@ -94,26 +90,16 @@
     </dependency>
 
     <!-- lets use weld for CDI -->
-    <!--
-    TODO when this issue is fixed: https://github.com/fabric8io/fabric8/issues/1235
-
-    we could move this transitive dependency tree into the containers-weld profile
-    so we keep our project independent of the CDI implementation?
-    -->
     <dependency>
       <groupId>org.jboss.weld.se</groupId>
       <artifactId>weld-se</artifactId>
       <version>${weld2-version}</version>
     </dependency>
 
-
-    <!-- logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
     </dependency>
-
-    <!-- for testing -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -122,16 +108,50 @@
     <dependency>
       <groupId>org.jboss.arquillian.junit</groupId>
       <artifactId>arquillian-junit-container</artifactId>
-      <version>${arquillian-junit-container-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.shrinkwrap.resolver</groupId>
       <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
-      <version>2.0.0-alpha-4</version>
+      <version>${shrinkwrap-resolver-version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+
+  <build>
+    <finalName>${project.artifactId}</finalName>
+    <plugins>
+      <!-- Compiler plugin enforces Java 1.7 compatibility and activates annotation processors -->
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${version.compiler.plugin}</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <!--
+          this plugin will use the fabric.* properties to configure its behaviour
+          see the Properties section here: http://fabric8.io/gitbook/mavenPlugin.html
+        -->
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-maven-plugin</artifactId>
+        <version>${fabric.version}</version>
+      </plugin>
+
+      <!-- allows the routes to be run via 'mvn camel:run' -->
+      <plugin>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-maven-plugin</artifactId>
+        <configuration>
+          <useCDI>true</useCDI>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
   <repositories>
     <repository>
@@ -187,37 +207,4 @@
     </pluginRepository>
   </pluginRepositories>
 
-  <build>
-    <finalName>${project.artifactId}</finalName>
-    <plugins>
-      <!-- Compiler plugin enforces Java 1.7 compatibility and activates annotation processors -->
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${version.compiler.plugin}</version>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-        </configuration>
-      </plugin>
-
-      <plugin>
-          <!--
-            this plugin will use the fabric.* properties to configure its behaviour
-            see the Properties section here: http://fabric8.io/gitbook/mavenPlugin.html
-          -->
-          <groupId>io.fabric8</groupId>
-          <artifactId>fabric8-maven-plugin</artifactId>
-          <version>${fabric.version}</version>
-      </plugin>
-
-      <!-- allows the routes to be run via 'mvn camel:run' -->
-      <plugin>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-maven-plugin</artifactId>
-        <configuration>
-          <useCDI>true</useCDI>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
