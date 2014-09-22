@@ -40,6 +40,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
+import static io.fabric8.common.util.Strings.isNotBlank;
 import static io.fabric8.common.util.Strings.isNullOrBlank;
 
 @Command(name = ArchetypeGenerate.FUNCTION_VALUE, scope = ArchetypeGenerate.SCOPE_VALUE, description = ArchetypeGenerate.DESCRIPTION, detailedDescription = "classpath:archetypeGenerate.txt")
@@ -155,6 +156,8 @@ public class ArchetypeGenerateAction extends AbstractAction {
         String defaultGroupId = "io.fabric8";
         String defaultArtifactId = archetype.artifactId + "-example";
         String defaultVersion = "1.0-SNAPSHOT";
+        String defaultName = archetype.name;
+        String defaultDescription = isNotBlank(archetype.description) ? archetype.description : "";
 
         System.out.println("----- Configure archetype -----");
         String groupId = ShellUtils.readLine(session, String.format("Define value for property 'groupId' (%s): ", defaultGroupId), false);
@@ -174,9 +177,15 @@ public class ArchetypeGenerateAction extends AbstractAction {
         packageName = isNullOrBlank(packageName) ? defaultPackageName : packageName;
         directory = isNullOrBlank(directory) ? artifactId : directory;
 
+        String name = ShellUtils.readLine(session,  String.format("Define value for property 'name' (%s): ", defaultName), false);
+        String description = ShellUtils.readLine(session,  String.format("Define value for property 'description' (%s): ", defaultDescription), false);
+        // use null to indicate we want out of the box description
+        name = isNullOrBlank(name) ? null : name;
+        description = isNullOrBlank(description) ? null : description;
+
         File childDir = new File(target, directory);
 
-        ArchetypeHelper helper = new ArchetypeHelper(archetypeFile, childDir, groupId, artifactId, version);
+        ArchetypeHelper helper = new ArchetypeHelper(archetypeFile, childDir, groupId, artifactId, version, name, description);
         helper.setPackageName(packageName);
 
         Map<String, String> properties = helper.parseProperties();
