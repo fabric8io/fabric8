@@ -32,8 +32,6 @@ import org.apache.karaf.shell.console.AbstractAction;
 @Command(name = VersionList.FUNCTION_VALUE, scope = VersionList.SCOPE_VALUE, description = VersionList.DESCRIPTION)
 public class VersionListAction extends AbstractAction {
 
-    private static final String CONSOLE_FORMAT="%-15s %-9s %-14s %s";
-
     private final ProfileService profileService;
     private final FabricService fabricService;
 

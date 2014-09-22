@@ -25,8 +25,6 @@ import org.apache.felix.gogo.commands.Option;
 @Command(name = "application-destroy", scope = "openshift", description = "Destroys the target application")
 public class ApplicationDestroyAction extends OpenshiftCommandSupport {
 
-    static final String FORMAT = "%-30s %s";
-
     @Option(name = "--domain", required = false, description = "Use only applications of that domain.")
     String domainId;
 

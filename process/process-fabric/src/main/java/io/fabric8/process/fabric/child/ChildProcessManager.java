@@ -46,8 +46,6 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- */
 public class ChildProcessManager {
     private static final transient Logger LOG = LoggerFactory.getLogger(ChildProcessManager.class);
 

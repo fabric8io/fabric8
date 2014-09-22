@@ -25,8 +25,6 @@ import org.apache.felix.gogo.commands.Option;
 @Command(name = "application-stop", scope = "openshift", description = "Stops the target application")
 public class ApplicationStopAction extends OpenshiftCommandSupport {
 
-    static final String FORMAT = "%-30s %s";
-
     @Option(name = "--domain", required = false, description = "Use only applications of that domain.")
     String domainId;
 

@@ -15,11 +15,10 @@
  */
 package io.fabric8.commands;
 
-import io.fabric8.api.ZooKeeperClusterService;
-
-import java.io.PrintStream;
 import java.util.List;
 
+import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.utils.TablePrinter;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
@@ -34,14 +33,17 @@ public class EnsembleListAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        PrintStream out = System.out;
+        TablePrinter printer = new TablePrinter();
+        printer.column("id");
+
         List<String> containers = clusterService.getEnsembleContainers();
         if (containers != null) {
-            out.println("[id]");
             for (String container : containers) {
-                out.println(container);
+                printer.row(container);
             }
         }
+        printer.print();
+
         return null;
     }
 

@@ -19,9 +19,11 @@ import org.apache.felix.gogo.commands.Command;
 import io.fabric8.process.manager.Installation;
 
 /**
+ * Stops a process
  */
 @Command(name = "process-stop", scope = "fabric", description = "Stops a managed process")
 public class Stop extends ContainerProcessControllerSupport {
+
     @Override
     protected void doControlCommand(Installation installation) throws Exception {
         installation.getController().stop();

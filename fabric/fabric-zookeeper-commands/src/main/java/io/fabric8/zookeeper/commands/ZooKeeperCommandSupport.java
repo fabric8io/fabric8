@@ -69,13 +69,11 @@ public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
             int firstColon = a.indexOf(':');
             int lastColon = a.lastIndexOf(':');
             if (firstColon == -1 || lastColon == -1 || firstColon == lastColon) {
-                System.err
-                        .println(a + " does not have the form scheme:id:perm");
+                System.err.println(a + " does not have the form scheme:id:perm");
                 continue;
             }
             ACL newAcl = new ACL();
-            newAcl.setId(new Id(a.substring(0, firstColon), a.substring(
-                    firstColon + 1, lastColon)));
+            newAcl.setId(new Id(a.substring(0, firstColon), a.substring(firstColon + 1, lastColon)));
             newAcl.setPerms(getPermFromString(a.substring(lastColon + 1)));
             acl.add(newAcl);
         }
@@ -102,8 +100,7 @@ public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
                     perm |= ZooDefs.Perms.ADMIN;
                     break;
                 default:
-                    System.err
-                            .println("Unknown perm type: " + permString.charAt(i));
+                    System.err.println("Unknown perm type: " + permString.charAt(i));
             }
         }
         return perm;

@@ -19,9 +19,11 @@ import org.apache.felix.gogo.commands.Command;
 import io.fabric8.process.manager.Installation;
 
 /**
+ * Uninstall a process
  */
 @Command(name = "process-unstall", scope = "fabric", description = "Uninstalls a managed process from this container.")
 public class Uninstall extends ContainerProcessControllerSupport {
+
     @Override
     protected void doControlCommand(Installation installation) throws Exception {
         installation.getController().uninstall();

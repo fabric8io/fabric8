@@ -19,6 +19,7 @@ import org.apache.felix.gogo.commands.Command;
 import io.fabric8.process.manager.Installation;
 
 /**
+ * Kills a process
  */
 @Command(name = "process-kill", scope = "fabric", description = "Kills a managed process")
 public class Kill extends ContainerProcessControllerSupport {

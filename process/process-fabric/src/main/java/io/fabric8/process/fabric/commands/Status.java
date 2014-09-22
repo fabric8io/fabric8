@@ -19,6 +19,7 @@ import org.apache.felix.gogo.commands.Command;
 import io.fabric8.process.manager.Installation;
 
 /**
+ * Process status
  */
 @Command(name = "process-status", scope = "fabric", description = "Status report of a managed process")
 public class Status extends ContainerProcessControllerSupport {

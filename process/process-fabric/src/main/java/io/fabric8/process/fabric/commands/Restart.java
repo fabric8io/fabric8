@@ -19,9 +19,11 @@ import org.apache.felix.gogo.commands.Command;
 import io.fabric8.process.manager.Installation;
 
 /**
+ * Restarts a process
  */
 @Command(name = "restart", scope = "process", description = "Restarts a managed process")
 public class Restart extends ContainerProcessControllerSupport {
+
     @Override
     protected void doControlCommand(Installation installation) throws Exception {
         installation.getController().restart();

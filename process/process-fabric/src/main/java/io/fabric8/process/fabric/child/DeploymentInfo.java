@@ -15,7 +15,5 @@
  */
 package io.fabric8.process.fabric.child;
 
-/**
- */
 public interface DeploymentInfo {
 }

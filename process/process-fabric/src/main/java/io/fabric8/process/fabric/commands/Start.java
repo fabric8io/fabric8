@@ -19,9 +19,11 @@ import org.apache.felix.gogo.commands.Command;
 import io.fabric8.process.manager.Installation;
 
 /**
+ * Start a process
  */
 @Command(name = "process-start", scope = "fabric", description = "Starts a managed process")
 public class Start extends ContainerProcessControllerSupport {
+
     @Override
     protected void doControlCommand(Installation installation) throws Exception {
         installation.getController().start();

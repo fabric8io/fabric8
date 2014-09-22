@@ -16,12 +16,9 @@
 package io.fabric8.process.fabric.commands;
 
 import com.google.common.collect.ImmutableMap;
-import io.fabric8.api.Container;
-import org.apache.felix.gogo.commands.Argument;
 import io.fabric8.process.fabric.ContainerInstallOptions;
 import io.fabric8.process.manager.Installation;
-
-import java.util.Map;
+import org.apache.felix.gogo.commands.Argument;
 
 public abstract class ContainerProcessControllerSupport extends ContainerProcessCommandSupport {
 
@@ -31,21 +28,19 @@ public abstract class ContainerProcessControllerSupport extends ContainerProcess
     protected abstract void doControlCommand(Installation installation) throws Exception;
 
     void doWithAuthentication(String jmxUser, String jmxPassword) throws Exception {
-        {
-            ContainerInstallOptions options = ContainerInstallOptions.builder()
-                    .container(getContainerObject())
-                    .user(jmxUser)
-                    .password(jmxPassword)
-                    .build();
+        ContainerInstallOptions options = ContainerInstallOptions.builder()
+                .container(getContainerObject())
+                .user(jmxUser)
+                .password(jmxPassword)
+                .build();
 
-            ImmutableMap<String, Installation> map = getContainerProcessManager().listInstallationMap(options);
-            for (String id : ids) {
-                Installation installation = map.get(id);
-                if (installation == null) {
-                    System.out.println("No such process number: " + id);
-                } else {
-                    doControlCommand(installation);
-                }
+        ImmutableMap<String, Installation> map = getContainerProcessManager().listInstallationMap(options);
+        for (String id : ids) {
+            Installation installation = map.get(id);
+            if (installation == null) {
+                System.out.println("No such process number: " + id);
+            } else {
+                doControlCommand(installation);
             }
         }
     }
