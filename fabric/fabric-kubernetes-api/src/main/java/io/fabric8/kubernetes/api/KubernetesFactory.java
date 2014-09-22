@@ -27,6 +27,7 @@ import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import javax.ws.rs.client.Client;
+import javax.ws.rs.core.MediaType;
 
 /**
  * A simple helper class for creating instances of Kubernetes
@@ -65,6 +66,8 @@ public class KubernetesFactory {
     public Kubernetes createKubernetes() {
         ResteasyProviderFactory providerFactory = ResteasyProviderFactory.getInstance();
         providerFactory.register(ResteasyJackson2Provider.class);
+        // handle JSON coming back as text/plain
+        providerFactory.register(PlainTextJacksonProvider.class);
         providerFactory.register(Jackson2JsonpInterceptor.class);
         providerFactory.register(StringTextStar.class);
         providerFactory.register(DefaultTextPlain.class);
@@ -83,6 +86,29 @@ public class KubernetesFactory {
         providers.add(new JacksonJaxbJsonProvider());
         return JAXRSClientFactory.create(address, Kubernetes.class, providers);
 */
+    }
+
+    /**
+     * Lets accept plain text too as if its JSON to work around some issues with the REST API and remote kube....
+     */
+    @javax.ws.rs.ext.Provider
+    @javax.ws.rs.Consumes({"text/plain"})
+    @javax.ws.rs.Produces({"text/plain"})
+    public static class PlainTextJacksonProvider extends ResteasyJackson2Provider {
+        public PlainTextJacksonProvider() {
+        }
+
+        @Override
+        protected boolean hasMatchingMediaType(MediaType mediaType) {
+            boolean answer = super.hasMatchingMediaType(mediaType);
+            String type = mediaType.getType();
+            String subtype = mediaType.getSubtype();
+            if (!answer && type.equals("text")) {
+                answer = super.hasMatchingMediaType(MediaType.APPLICATION_JSON_TYPE);
+            }
+            System.out.println("PlainTextJacksonProvider called with type " + type + " subtype" + subtype + " and answer: " + answer);
+            return answer;
+        }
     }
 
     public String getKubernetesMaster() {
