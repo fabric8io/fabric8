@@ -114,10 +114,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- BOMs -->
             <dependency>
-                <groupId>io.fabric8.bom</groupId>
-                <artifactId>fabric8-bom</artifactId>
-                <version>${fabric8.bom.version}</version>
+                <groupId>io.fabric8</groupId>
+                <artifactId>process-spring-boot-bom</artifactId>
+                <version>${fabric.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -125,6 +126,18 @@
     </dependencyManagement>
     
     <dependencies>
+
+        <!-- Fabric8 -->
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>process-spring-boot-container</artifactId>
+            <version>${fabric.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>process-spring-boot-registry</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-client</artifactId>
@@ -151,12 +164,6 @@
             <version>${spring-boot-version}</version>
         </dependency>
 
-        <!-- TODO this runtime dependency should be inherited in the base profile -->
-        <dependency>
-          <groupId>io.fabric8</groupId>
-          <artifactId>process-spring-boot-container</artifactId>
-          <version>${fabric.version}</version>
-        </dependency>
         <dependency>
           <groupId>io.fabric8</groupId>
           <artifactId>process-spring-boot-starter-activemq</artifactId>
@@ -184,13 +191,6 @@
             <optional>true</optional>
         </dependency>
 
-<!--
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>process-spring-boot-container</artifactId>
-            <scope>test</scope>
-        </dependency>
--->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

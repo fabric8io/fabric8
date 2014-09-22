@@ -62,9 +62,9 @@
         <dependencies>
             <!-- BOMs -->
             <dependency>
-                <groupId>io.fabric8.bom</groupId>
-                <artifactId>fabric8-bom</artifactId>
-                <version>${fabric8.bom.version}</version>
+                <groupId>io.fabric8</groupId>
+                <artifactId>process-spring-boot-bom</artifactId>
+                <version>${fabric.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -80,6 +80,22 @@
 
   <dependencies>
 
+      <!-- Fabric8 -->
+      <dependency>
+          <groupId>io.fabric8</groupId>
+          <artifactId>process-spring-boot-container</artifactId>
+          <version>${fabric.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>io.fabric8</groupId>
+          <artifactId>process-spring-boot-registry</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>io.fabric8</groupId>
+          <artifactId>process-spring-boot-starter-camel</artifactId>
+          <version>${fabric.version}</version>
+      </dependency>
+
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring</artifactId>
@@ -87,18 +103,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-    </dependency>
-
-    <!-- TODO this runtime dependency should be inherited in the base profile -->
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>process-spring-boot-container</artifactId>
-      <version>${fabric.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>process-spring-boot-starter-camel</artifactId>
-      <version>${fabric.version}</version>
     </dependency>
 
     <dependency>
