@@ -27,7 +27,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistries.ZK_CONNECTION_TIMEOUT_MS_PROPERTY;
+import static io.fabric8.process.spring.boot.registry.ProcessRegistryPropertySourceApplicationContextInitializer.IS_ENABLED_PROPERTY;
 import static java.lang.System.setProperty;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -43,12 +43,12 @@ public class ProcessRegistryAutoConfigurationTest extends Assert {
 
     @BeforeClass
     public static void beforeClass() {
-        setProperty(ZK_CONNECTION_TIMEOUT_MS_PROPERTY, 1 + "");
+        setProperty(IS_ENABLED_PROPERTY, false + "");
     }
 
     @AfterClass
     public static void afterClass() {
-        setProperty(ZK_CONNECTION_TIMEOUT_MS_PROPERTY, 5000 + "");
+        setProperty(IS_ENABLED_PROPERTY, true + "");
     }
 
     @Test
