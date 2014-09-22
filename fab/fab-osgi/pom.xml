@@ -43,6 +43,7 @@
             !org.codehaus.plexus.*,
             !org.codehaus.classworlds*,
             !org.ops4j.pax.swissbox.bnd,
+            !org.ops4j.pax.swissbox.property,
             !org.ops4j.pax.url.commons,
             !aQute.lib.osgi.*,
             <!-- don't import additional packages required by other class in maven-bundle-plugin -->
@@ -153,12 +154,6 @@
             <groupId>org.ops4j.base</groupId>
             <artifactId>ops4j-base-net</artifactId>
             <version>${ops4j-base.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.swissbox</groupId>
-            <artifactId>pax-swissbox-optional-jcl</artifactId>
-            <version>${ops4j-pax-swissbox-optional-jcl.version}</version>
             <scope>provided</scope>
         </dependency>
         <!--
