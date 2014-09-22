@@ -87,7 +87,6 @@
         	<include name="jackson-core-*"/>
         	<include name="jackson-databind-*"/>
         	<include name="jasypt-*"/>
-        	<include name="org.apache.felix.gogo.runtime-*"/>
         	<include name="org.apache.karaf.admin.management-*"/>
         	<include name="org.apache.karaf.jaas.boot-*"/>
         	<include name="org.apache.karaf.jaas.config-*"/>

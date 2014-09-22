@@ -43,7 +43,6 @@
                 <include>*:jackson-core:jar</include>
                 <include>*:jackson-databind:jar</include>
                 <include>*:jasypt:jar</include>
-                <include>*:org.apache.felix.gogo.runtime:jar</include>
                 <include>*:org.apache.karaf.admin.management:jar</include>
                 <include>*:org.apache.karaf.jaas.boot:jar</include>
                 <include>*:org.apache.karaf.jaas.config:jar</include>

@@ -147,10 +147,6 @@
           <artifactId>org.apache.felix.fileinstall</artifactId>
       </dependency>
       <dependency>
-          <groupId>org.apache.felix</groupId>
-          <artifactId>org.apache.felix.gogo.runtime</artifactId>
-      </dependency>
-      <dependency>
           <groupId>org.apache.karaf.assemblies.features</groupId>
           <artifactId>standard</artifactId>
           <type>xml</type>
