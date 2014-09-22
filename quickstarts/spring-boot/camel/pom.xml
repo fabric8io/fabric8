@@ -54,16 +54,16 @@
     <dependencies>
       <!-- BOMs -->
       <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>${spring-boot-version}</version>
+        <groupId>io.fabric8</groupId>
+        <artifactId>process-spring-boot-bom</artifactId>
+        <version>${fabric.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>io.fabric8.bom</groupId>
-        <artifactId>fabric8-bom</artifactId>
-        <version>${fabric8.bom.version}</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>${spring-boot-version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
