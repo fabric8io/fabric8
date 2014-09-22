@@ -24,7 +24,7 @@ import org.jboss.weld.environment.servlet.Listener;
 
 public class ApplicationStarter {
 
-    public static void main( final String[] args ) throws Exception {
+    public static void main(final String[] args) throws Exception {
 
         // use system property first
         String port = System.getProperty("server.port");
@@ -52,6 +52,6 @@ public class ApplicationStarter {
         server.setHandler(context);
         server.start();
         server.join();
-}
+    }
 
 }

@@ -46,6 +46,7 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
+    <maven-resources-plugin-version>2.6</maven-resources-plugin-version>
     <skipTests>true</skipTests>
 
     <cxf-version>3.0.1</cxf-version>
@@ -245,6 +246,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
+        <version>${maven-resources-plugin-version}</version>
         <executions>
           <execution>
             <id>filter</id>

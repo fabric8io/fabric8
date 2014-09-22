@@ -1818,6 +1818,11 @@
                 <artifactId>camel-spring-ws</artifactId>
                 <version>${camel-version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-maven-plugin</artifactId>
+                <version>${camel-version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.camel.karaf</groupId>

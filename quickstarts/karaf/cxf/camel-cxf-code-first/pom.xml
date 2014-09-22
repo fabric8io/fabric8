@@ -119,9 +119,10 @@
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>
+      <!-- Compiler plugin enforces Java 1.7 compatibility and activates annotation processors -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>${version.compiler.plugin}</version>
         <configuration>
           <source>${maven.compiler.source}</source>
           <target>${maven.compiler.target}</target>
@@ -138,11 +139,6 @@
             <Export-Package>camelinaction.order</Export-Package>
           </instructions>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
       </plugin>
 
       <!--

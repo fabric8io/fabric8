@@ -46,6 +46,7 @@
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
     <fabric.version>1.2.0-SNAPSHOT</fabric.version>
+    <cxf.version>2.7.11</cxf.version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-karaf-cxf-secure.rest</fabric8.profile>
@@ -175,6 +176,7 @@
       <plugin>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-java2wadl-plugin</artifactId>
+        <version>${cxf.version}</version>
         <executions>
           <execution>
             <id>process-classes</id>

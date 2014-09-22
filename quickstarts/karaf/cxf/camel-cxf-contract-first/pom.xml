@@ -42,6 +42,7 @@
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
     <fabric.version>1.2.0-SNAPSHOT</fabric.version>
+    <cxf.version>2.7.11</cxf.version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-karaf-cxf-camel.cxf.contract.first</fabric8.profile>
@@ -122,6 +123,7 @@
       <plugin>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-codegen-plugin</artifactId>
+        <version>${cxf.version}</version>
         <executions>
           <execution>
             <id>generate-sources</id>
@@ -146,9 +148,10 @@
         </executions>
       </plugin>
 
+      <!-- Compiler plugin enforces Java 1.7 compatibility and activates annotation processors -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>${version.compiler.plugin}</version>
         <configuration>
           <source>${maven.compiler.source}</source>
           <target>${maven.compiler.target}</target>
@@ -165,11 +168,6 @@
             <Export-Package>camelinaction.order</Export-Package>
           </instructions>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
       </plugin>
 
       <!--
