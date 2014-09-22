@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -854,8 +855,49 @@ public final class FabricManager implements FabricManagerMBean {
     }
 
     public Map<String, Object> getProfile(String versionId, String profileId, List<String> fields) {
-        Profile profile = profileService.getVersion(versionId).getRequiredProfile(profileId);
-        return BeanUtils.convertProfileToMap(fabricService, profile, fields);
+        Version version = profileService.getVersion(versionId);
+        Profile profile = version.getRequiredProfile(profileId);
+        Map<String, Object> answer = BeanUtils.convertProfileToMap(fabricService, profile, fields);
+        String iconURLField = "iconURL";
+        if (fields.contains(iconURLField) && !profile.isOverlay()) {
+            // TODO this could move to Profile.getIconURL() but that would require
+            // introducing profileService into ProfileImpl and the ProfileBuilder stuff
+            String restApi = restApiUrl();
+            if (restApi != null && restApi.length() > 0) {
+                // turn REST into relative URI so it works with docker containers etc (avoids local ports etc)
+                try {
+                    URL url = new URL(restApi);
+                    restApi = url.getPath();
+                } catch (MalformedURLException e) {
+                    // Ignore
+                }
+
+                // lets find the URL of the icon in the parent profiles
+                String relativeIcon = profile.getIconRelativePath();
+                String iconProfileId = profileId;
+                if (relativeIcon == null || relativeIcon.isEmpty()) {
+                    List<String> parentIds = profile.getParentIds();
+                    if (parentIds != null && !parentIds.isEmpty()) {
+                        for (String parentId : parentIds) {
+                            Profile parentProfile = version.getRequiredProfile(parentId);
+                            relativeIcon = parentProfile.getIconRelativePath();
+                            if (relativeIcon != null && relativeIcon.length() > 0) {
+                                iconProfileId = parentId;
+                                break;
+                            }
+                        }
+                    }
+                }
+                // the path is relative to the profile
+                if (relativeIcon == null || relativeIcon.isEmpty()) {
+                    answer.remove(iconURLField);
+                } else {
+                    String icon = restApi + "/version/" + versionId + "/profile/" + iconProfileId + "/overlay/file/" + relativeIcon;
+                    answer.put(iconURLField, icon);
+                }
+            }
+        }
+        return answer;
     }
 
     @Override

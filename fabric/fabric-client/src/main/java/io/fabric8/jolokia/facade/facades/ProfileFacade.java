@@ -282,7 +282,12 @@ public class ProfileFacade implements Profile, HasId {
     public String getIconURL() {
         return getFieldValue("iconURL");
     }
-    
+
+    @Override
+    public String getIconRelativePath() {
+  return getFieldValue("iconRelativePath");
+    }
+
     @Override
     public String getSummaryMarkdown() {
         throw new UnsupportedOperationException();

@@ -250,6 +250,18 @@ final class ProfileImpl implements Profile {
     }
 
     @Override
+    public String getIconRelativePath() {
+        String result = null;
+        Set<String> fileNames = getConfigurationFileNames();
+        for (String fileName : fileNames) {
+            if (fileName.startsWith("icon.")) {
+                return fileName;
+            }
+        }
+        return result;
+    }
+
+    @Override
     public String getSummaryMarkdown() {
         byte[] data = getFileConfiguration("Summary.md");
         if (data != null) {

@@ -114,6 +114,11 @@ public final class ProfileState implements Profile {
     }
 
     @Override
+    public String getIconRelativePath() {
+        return delegate.getIconRelativePath();
+    }
+
+    @Override
     public String getSummaryMarkdown() {
         return delegate.getSummaryMarkdown();
     }
