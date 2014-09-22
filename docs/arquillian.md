@@ -2,7 +2,7 @@
 
 We use [Arquillian](http://arquillian.org/) as the primary container based testing framework; allowing us to write tests once and then reuse them when running embedded or remote containers.
 
-For example the [fabric-itests-common module](https://github.com/fabric8io/fabric8/tree/master/itests/common) defines a bunch of common arquillian based integration tests using fabric8, such as, [FabricCreateCommandTest.java](https://github.com/fabric8io/fabric8/blob/master/itests/common/src/main/java/io/fabric8/runtime/itests/FabricCreateCommandTest.java#L54) which spin up a fabric; they can be tested with an embedded fabric codebase or ran in a karaf, tomcat or wildlfy container etc.
+For example the [fabric-itests-common module](https://github.com/fabric8io/fabric8/tree/master/itests/common) defines a bunch of common arquillian based integration tests using fabric8, such as, [FabricCreateCommandTest.java](https://github.com/fabric8io/fabric8/blob/master/itests/common/src/main/java/io/fabric8/itests/common/FabricCreateCommandTest.java#L61) which spin up a fabric; they can be tested with an embedded fabric codebase or ran in a karaf, tomcat or wildlfy container etc.
 
 ### Remote Auto Scale Tests
 
