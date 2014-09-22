@@ -53,7 +53,6 @@ import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
-@Ignore("[FABRIC-1108] MQProfileTest fails with immutable version/profile")
 public class MQProfileTest extends FabricTestSupport {
 
     @Test
