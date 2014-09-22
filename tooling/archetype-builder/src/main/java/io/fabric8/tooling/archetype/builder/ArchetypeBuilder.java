@@ -581,6 +581,7 @@ public class ArchetypeBuilder {
 
         String groupId = "io.fabric8.archetypes";
         String artifactId = archetypeUtils.firstElementText(root, "artifactId", outputName);
+        String name = archetypeUtils.firstElementText(root, "name", "");
         String description = archetypeUtils.firstElementText(root, "description", "");
         String version = "";
 
@@ -599,8 +600,9 @@ public class ArchetypeBuilder {
             indent + indent + indent + "<artifactId>%s</artifactId>\n" +
             indent + indent + indent + "<version>%s</version>\n" +
             indent + indent + indent + "<repository>%s</repository>\n" +
+            indent + indent + indent + "<name>%s</name>\n" +
             indent + indent + indent + "<description>%s</description>\n" +
-            indent + indent + "</archetype>", groupId, artifactId, version, repo, description));
+            indent + indent + "</archetype>", groupId, artifactId, version, repo, name, description));
     }
 
     /**

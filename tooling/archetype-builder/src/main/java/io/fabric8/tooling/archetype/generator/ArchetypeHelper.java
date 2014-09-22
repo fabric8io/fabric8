@@ -41,6 +41,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import io.fabric8.common.util.IOHelpers;
+import io.fabric8.common.util.Strings;
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -64,6 +65,8 @@ public class ArchetypeHelper {
     private String groupId;
     private String artifactId;
     private String version;
+    private String name;
+    private String description;
 
     /* private properties */
 
@@ -79,16 +82,14 @@ public class ArchetypeHelper {
     protected String webInfResources = "src/main/webapp/WEB-INF/resources";
     protected Pattern sourcePathRegexPattern = Pattern.compile("(src/(main|test)/(java)/)(.*)");
 
-    public ArchetypeHelper(File archetypeFile, File outputDir, String groupId, String artifactId) {
-        this(archetypeFile, outputDir, groupId, artifactId, "1.0-SNAPSHOT");
-    }
-
-    public ArchetypeHelper(File archetypeFile, File outputDir, String groupId, String artifactId, String version) {
+    public ArchetypeHelper(File archetypeFile, File outputDir, String groupId, String artifactId, String version, String name, String description) {
         this.archetypeFile = archetypeFile;
         this.outputDir = outputDir;
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
+        this.name = name;
+        this.description = description;
     }
 
     private void info(String s) {
@@ -199,6 +200,14 @@ public class ArchetypeHelper {
             IOUtils.closeQuietly(reader);
             for (Map.Entry<String, String> e : replaceProperties.entrySet()) {
                 text = replaceVariable(text, e.getKey(), e.getValue());
+            }
+            // replace name if we have a custom name
+            if (Strings.isNotBlank(name)) {
+                text = text.replaceFirst("<name>(.*)</name>", "<name>" + name + "</name>");
+            }
+            // replace description if we have a custom description
+            if (Strings.isNotBlank(description)) {
+                text = text.replaceFirst("<description>(.*)</description>", "<description>" + description + "</description>");
             }
             FileWriter writer = new FileWriter(pom);
             IOUtils.write(text, writer);

@@ -32,6 +32,7 @@ import javax.xml.bind.annotation.XmlValue;
     "artifactId",
     "version",
     "repository",
+    "name",
     "description"
 })
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -46,15 +47,18 @@ public class Archetype {
     @XmlElement
     public String repository = "";
     @XmlElement
+    public String name = "";
+    @XmlElement
     public String description = "";
 
     public Archetype() {
     }
 
-    public Archetype(String groupId, String artifactId, String version, String description) {
+    public Archetype(String groupId, String artifactId, String version, String name, String description) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
+        this.name = name;
         this.description = description;
     }
 

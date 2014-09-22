@@ -32,8 +32,8 @@ public class ArchetypeXmlTest {
     @Test
     public void testMarshalArchetypes() throws JAXBException {
         Archetypes archetypes = new Archetypes();
-        archetypes.add(new Archetype("foo", "bar", "1.1", "Some description"));
-        archetypes.add(new Archetype("xyz", "whatever", "2.3", "Docs..."));
+        archetypes.add(new Archetype("foo", "bar", "1.1", "Some name", "Some description"));
+        archetypes.add(new Archetype("xyz", "whatever", "2.3", "Some other name", "Docs..."));
 
         StringWriter buffer = new StringWriter();
         Archetypes.newMarshaller().marshal(archetypes, buffer);
