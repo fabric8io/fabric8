@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.5" data-basepath="." data-revision="1411327442505">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.5" data-basepath="." data-revision="1411413896147">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -1318,6 +1318,9 @@ system property to the customized list of hosts:</p>
 will be resolved as the <code>foo/bar</code> ZNode path.</p>
 <pre><code>@Value(&quot;${foo.bar}&quot;) // try to read foo/bar ZNode from the ZooKeeper
 String bar;
+</code></pre><p>If for some reasons you would like to explicitly disable the ZooKeeper process registry, use the 
+<code>fabric8.process.registry.zk.enabled</code> system property:</p>
+<pre><code>    java -Dfabric8.process.registry.zk.hosts=host1:5555,host2:6666 -D-Dfabric8.process.registry.zk.enabled=false -jar my-service.jar
 </code></pre>
                     
                     </section>
