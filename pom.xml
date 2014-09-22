@@ -188,9 +188,9 @@
         <elasticsearch-smx4-bundle.version>${elasticsearch-version}_1</elasticsearch-smx4-bundle.version>
         <elasticsearch-zookeeper-version>1.3.2_1</elasticsearch-zookeeper-version>
         <exec-maven-plugin-version>1.2.1</exec-maven-plugin-version>
-        <felix-configadmin-version>1.6.0</felix-configadmin-version>
+        <felix-configadmin-version>1.8.0</felix-configadmin-version>
         <felix-eventadmin-version>1.3.2</felix-eventadmin-version>
-        <felix-fileinstall-version>3.4.0</felix-fileinstall-version>
+        <felix-fileinstall-version>3.4.2</felix-fileinstall-version>
         <felix-framework-security-version>2.4.0</felix-framework-security-version>
         <felix-framework-version>4.4.1</felix-framework-version>
         <felix-gogo-version>0.12.1</felix-gogo-version>
@@ -262,7 +262,7 @@
         <jsch-smx-version>0.1.49_1</jsch-smx-version>
         <json4s-version>3.2.4_1</json4s-version>
         <junit-version>4.11</junit-version>
-        <karaf-version>2.4.0.redhat-620004</karaf-version>
+        <karaf-version>2.4.0</karaf-version>
         <libvirt-bundle-version>1.1</libvirt-bundle-version>
         <libvirt-version>0.4.7</libvirt-version>
         <log4j-version>1.2.17</log4j-version>
@@ -280,10 +280,11 @@
         <openshift.client.version>2.5.0.Final</openshift.client.version>
         <ops4j-base.version>1.4.0</ops4j-base.version>
         <ops4j-pax-exam-version>3.4.0</ops4j-pax-exam-version>
-        <ops4j-pax-swissbox-bnd.version>1.7.0</ops4j-pax-swissbox-bnd.version>
-        <ops4j-pax-swissbox-optional-jcl.version>1.7.0</ops4j-pax-swissbox-optional-jcl.version>
-        <ops4j-pax-swissbox-property.version>1.7.0</ops4j-pax-swissbox-property.version>
-        <ops4j-pax-web-version>3.0.5</ops4j-pax-web-version>
+        <ops4j-pax-swissbox-bnd.version>1.7.1</ops4j-pax-swissbox-bnd.version>
+        <ops4j-pax-swissbox-optional-jcl.version>1.7.1</ops4j-pax-swissbox-optional-jcl.version>
+        <ops4j-pax-swissbox-property.version>1.7.1</ops4j-pax-swissbox-property.version>
+        <ops4j-pax-url-commons-version>3.4.0</ops4j-pax-url-commons-version>
+        <ops4j-pax-web-version>3.1.2</ops4j-pax-web-version>
         <org.apache.servicemix.bundles.jzlib.version>1.1.3_2</org.apache.servicemix.bundles.jzlib.version>
         <org.apache.servicemix.bundles.dnsjava.version>2.1.1_1</org.apache.servicemix.bundles.dnsjava.version>
         <osgi-compendium-version>4.3.1</osgi-compendium-version>
@@ -291,7 +292,7 @@
         <osgi-metadata-version>4.0.0.CR1</osgi-metadata-version>
         <osgi-version>5.0.0</osgi-version>
         <pax-runner-version>1.7.6</pax-runner-version>
-        <pax.logging.version>1.7.3</pax.logging.version>
+        <pax.logging.version>1.7.4</pax.logging.version>
         <pax.url.mvn.commons.version>${pax.url.version}</pax.url.mvn.commons.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
         <pax.url.version>2.1.0</pax.url.version>
@@ -2196,11 +2197,6 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.framework.security</artifactId>
                 <version>${felix-framework-security-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.gogo.runtime</artifactId>
-                <version>${felix-gogo-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>

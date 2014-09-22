@@ -75,6 +75,7 @@ import io.fabric8.fab.osgi.internal.FabResolverFactoryImpl;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
+import org.apache.karaf.features.ConfigInfo;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.FeaturesServiceImpl;
 import org.osgi.framework.Bundle;
@@ -1287,11 +1288,10 @@ public class DeploymentAgent implements ManagedService {
         if (configAdminServiceReference != null) {
             ConfigurationAdmin configAdmin = (ConfigurationAdmin) bundleContext.getService(configAdminServiceReference);
             for (FeatureResource resource : filterFeatureResources(resources)) {
-                Map<String, Map<String, String>> configs = resource.getFeature().getConfigurations();
-                for (Map.Entry<String, Map<String, String>> entry : configs.entrySet()) {
-                    String pid = entry.getKey();
+                for (ConfigInfo ci : resource.getFeature().getConfigurations()) {
+                    String pid = ci.getName();
                     if (!isConfigurationManaged(configAdmin, pid)) {
-                        applyConfiguration(configAdmin, pid, entry.getValue());
+                        applyConfiguration(configAdmin, pid, ci.getProperties());
                     }
                 }
             }

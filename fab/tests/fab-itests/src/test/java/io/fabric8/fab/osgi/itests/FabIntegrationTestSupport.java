@@ -96,7 +96,6 @@ public abstract class FabIntegrationTestSupport {
 
             mavenBundle("org.apache.felix", "org.apache.felix.fileinstall").versionAsInProject(),
             mavenBundle("org.apache.felix", "org.apache.felix.configadmin").versionAsInProject(),
-            mavenBundle("org.apache.felix", "org.apache.felix.gogo.runtime").versionAsInProject(),
 
             mavenBundle("org.apache.karaf.jaas", "org.apache.karaf.jaas.boot").versionAsInProject(),
             mavenBundle("org.apache.karaf.jaas", "org.apache.karaf.jaas.config").versionAsInProject(),

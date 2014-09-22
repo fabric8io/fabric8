@@ -47,7 +47,6 @@
                 <include>*:fabric-runtime-container-wildfly-registration:jar</include>
                 <include>*:fabric-runtime-container-wildfly-webapp:war</include>
                 <include>*:jasypt:jar</include>
-                <include>*:org.apache.felix.gogo.runtime:jar</include>
                 <include>*:org.apache.karaf.admin.core:jar</include>
                 <include>*:org.apache.karaf.admin.management:jar</include>
                 <include>*:org.apache.karaf.jaas.boot:jar</include>

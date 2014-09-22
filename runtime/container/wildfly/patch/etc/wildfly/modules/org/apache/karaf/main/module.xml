@@ -24,7 +24,6 @@
     </properties>
 
     <resources>
-        <resource-root path="org.apache.felix.gogo.runtime-@gogo.version@.jar"/>
         <resource-root path="org.apache.karaf.admin.core-@karaf.version@.jar"/>
         <resource-root path="org.apache.karaf.admin.management-@karaf.version@.jar"/>
         <resource-root path="org.apache.karaf.jaas.boot-@karaf.version@.jar"/>
