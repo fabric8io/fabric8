@@ -93,15 +93,18 @@ public class DefaultProcessController implements ProcessController {
 
     @Override
     public int uninstall() {
-        String name = baseDir.getName();
+        // we should uninstall from the root dir, so we uninstall it all
+        String name = rootDir.getName();
+
         if (name.startsWith(".")) {
+            LOG.debug("Uninstalling " + rootDir + " has already been done.");
             // silently ignore this
         } else {
-            File newName = new File(baseDir.getParentFile(), "." + name);
+            File newName = new File(rootDir.getParentFile(), "." + name);
             // delete any existing directory first
             Files.recursiveDelete(newName);
             // and then rename
-            baseDir.renameTo(newName);
+            rootDir.renameTo(newName);
         }
         return 0;
     }
