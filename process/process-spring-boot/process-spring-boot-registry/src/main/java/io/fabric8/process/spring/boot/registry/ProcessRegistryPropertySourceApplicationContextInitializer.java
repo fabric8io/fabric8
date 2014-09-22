@@ -16,7 +16,6 @@
 package io.fabric8.process.spring.boot.registry;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.Ordered;
@@ -26,6 +25,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistry.autodetectZooKeeperProcessRegistry;
+import static java.lang.Boolean.parseBoolean;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -56,12 +56,15 @@ public class ProcessRegistryPropertySourceApplicationContextInitializer implemen
 
     private static final Logger LOG = getLogger(ProcessRegistryPropertySourceApplicationContextInitializer.class);
 
+    public static final String IS_ENABLED_PROPERTY = "fabric8.process.registry.zk.enabled";
+
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         List<ProcessRegistry> registries = newArrayList(new InMemoryProcessRegistry(), new ClassPathProcessRegistry());
 
         LOG.debug("Looking for ZooKeeperProcessRegistry...");
-        if (ClassUtils.isPresent("org.apache.curator.framework.CuratorFramework", getClass().getClassLoader())) {
+        if (isZooKeeperRegistryEnabled() &&
+                ClassUtils.isPresent("org.apache.curator.framework.CuratorFramework", getClass().getClassLoader())) {
             LOG.info("Apache Curator jar found. Creating ZooKeeperProcessRegistry.");
             registries.add(autodetectZooKeeperProcessRegistry());
         }
@@ -75,6 +78,12 @@ public class ProcessRegistryPropertySourceApplicationContextInitializer implemen
     @Override
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 1000;
+    }
+
+    // Public helper methods
+
+    public static boolean isZooKeeperRegistryEnabled() {
+        return parseBoolean(System.getProperty(IS_ENABLED_PROPERTY, "true"));
     }
 
 }

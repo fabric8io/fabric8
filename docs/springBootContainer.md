@@ -571,3 +571,9 @@ will be resolved as the `foo/bar` ZNode path.
 
     @Value("${foo.bar}") // try to read foo/bar ZNode from the ZooKeeper
     String bar;
+
+If for some reasons you would like to explicitly disable the ZooKeeper process registry, use the 
+`fabric8.process.registry.zk.enabled` system property:
+
+        java -Dfabric8.process.registry.zk.hosts=host1:5555,host2:6666 -D-Dfabric8.process.registry.zk.enabled=false -jar my-service.jar
+

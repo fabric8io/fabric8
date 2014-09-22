@@ -21,7 +21,6 @@ import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.google.common.base.Objects.firstNonNull;
 import static io.fabric8.process.spring.boot.registry.ZooKeeperProcessRegistries.newCurator;
 import static org.apache.zookeeper.KeeperException.NoNodeException;
 
@@ -46,10 +45,19 @@ import static org.apache.zookeeper.KeeperException.NoNodeException;
  *   {@literal @}Value("${foo.bar}") // try to read foo/bar ZNode from the ZooKeeper
  *   String bar;
  * </pre>
+ * <br><br>
+ * If for some reasons you would like to explicitly disable the ZooKeeper process registry, use the
+ * {@code fabric8.process.registry.zk.enabled} system property:
+ * <br><br>
+ * <pre>
+ *  java -Dfabric8.process.registry.zk.hosts=host1:5555,host2:6666 -D-Dfabric8.process.registry.zk.enabled=false -jar my-service.jar
+ * </pre>
  */
 public class ZooKeeperProcessRegistry implements ProcessRegistry {
 
     private final static Logger LOG = LoggerFactory.getLogger(ZooKeeperProcessRegistry.class);
+
+    public static final String HOSTS = "fabric8.process.registry.zk.hosts";
 
     private final String hosts;
 
@@ -61,13 +69,15 @@ public class ZooKeeperProcessRegistry implements ProcessRegistry {
     }
 
     public static ZooKeeperProcessRegistry autodetectZooKeeperProcessRegistry() {
-        String hosts = firstNonNull(System.getProperty("fabric8.process.registry.zk.hosts"), "localhost:2181");
+        String hosts = System.getProperty(HOSTS, "localhost:2181");
         return new ZooKeeperProcessRegistry(hosts);
     }
 
     public String hosts() {
         return hosts;
     }
+
+    // Overridden operations
 
     @Override
     public String readProperty(String key) {
@@ -88,8 +98,12 @@ public class ZooKeeperProcessRegistry implements ProcessRegistry {
         }
     }
 
+    // Private helper methods
+
     protected String convertPropertiesKeyToPath(String key) {
-        return "/" + key.replace('.', '/');
+        String path = "/" + key.replace('.', '/');
+        LOG.debug("Converted key {} to ZK path {}.", key, path);
+        return path;
     }
 
 }
