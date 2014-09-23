@@ -259,7 +259,14 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, Callable {
                     } catch (Exception e) {
                         // ignore, we'll use unresolved value
                     }
-                    activeServices.add(resolved);
+
+                    // Lets only discover openwire service URLs
+                    if( resolved.startsWith("tcp:")
+                            || resolved.startsWith("ssl:")
+                            || resolved.startsWith("nio:")
+                            || resolved.startsWith("nio+ssl:")) {
+                        activeServices.add(resolved);
+                    }
                 }
             }
             // If there is error talking the the central server, then activeServices == null
