@@ -291,6 +291,9 @@ public class JolokiaAgentHelper {
                 String expression = answer.substring(startEndIdx, endIdx);
                 String value = EnvPlaceholderResolver.resolveExpression(expression, environmentVariables, preserveUnresolved);
                 if (!Objects.equal(expression, value)) {
+                    if (value == null) {
+                        value = "";
+                    }
                     answer = answer.substring(0, idx) + value + answer.substring(endIdx + 1);
                 } else {
                     // ignore this expression
