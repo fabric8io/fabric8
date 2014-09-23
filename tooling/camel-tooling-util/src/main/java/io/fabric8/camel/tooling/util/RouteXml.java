@@ -450,6 +450,12 @@ public class RouteXml {
         dbf.setCoalescing(false);
         dbf.setNamespaceAware(true);
         try {
+            dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        } catch (Exception e) { /* Ignore errors */ }
+
+        try {
             return dbf.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
             throw new RuntimeException(e.getMessage(), e);

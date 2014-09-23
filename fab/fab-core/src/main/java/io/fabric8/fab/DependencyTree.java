@@ -75,6 +75,12 @@ public class DependencyTree implements Comparable<DependencyTree> {
     private DependencyTree parent;
 
     public static Builder newBuilder() {
+	try {
+            documentBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            documentBuilderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            documentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        } catch (Exception e) { /* Ignore errors */ }
+
         return new Builder();
     }
 

@@ -57,6 +57,9 @@ public class XmlUtils {
         try {
             BufferedInputStream in = new BufferedInputStream(is);
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             DocumentBuilder builder = factory.newDocumentBuilder();
             InputSource source = new InputSource(in);
             return builder.parse(source);
