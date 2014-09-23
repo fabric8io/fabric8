@@ -16,29 +16,31 @@
 package io.fabric8.quickstarts.camel;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.RoutesBuilder;
-import org.apache.camel.builder.RouteBuilder;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@Configuration
-public class CamelConfiguration {
 
-    @Bean
-    RoutesBuilder routeBuilder() {
-        return new RouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-                from("timer://foo?fixedRate=true&period=5000").
-                        setBody().constant("<hello>world!</hello>").
-                        log(">>> ${body}");
-            }
-        };
-    }
+@RunWith(SpringJUnit4ClassRunner.class)
+@EnableAutoConfiguration
+@SpringApplicationConfiguration(classes = {CamelConfiguration.class, CamelConfigurationTest.class})
+public class CamelConfigurationTest extends Assert {
 
-    // Collaborators fixtures
     @Autowired
     CamelContext camelContext;
+
+    @Test
+    public void shouldInjectCamelContext() {
+        assertNotNull(camelContext);
+    }
+
+    @Test
+    public void shouldLoadRoute() {
+        assertEquals(1, camelContext.getRoutes().size());
+    }
 
 }
