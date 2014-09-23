@@ -24,12 +24,12 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -435,6 +435,9 @@ public class ArchetypeBuilder {
         }
         archetypePom.getParentFile().mkdirs();
 
+        // remove copyright header which is the first comment, as we do not want that in the archetypes
+        removeCommentNodes(doc);
+
         archetypeUtils.writeXmlDocument(doc, archetypePom);
 
         // lets update the archetype-metadata.xml file
@@ -505,6 +508,25 @@ public class ArchetypeBuilder {
             description.setTextContent("Creates a new " + originalDescription);
 
             archetypeUtils.writeXmlDocument(pomDocument, archetypeProjectPom);
+        }
+    }
+
+    /**
+     * Remove any comment nodes from the doc (only top level).
+     * <p/>
+     * This is used to remove copyright headers embedded as comment in the pom.xml files etc.
+     */
+    private void removeCommentNodes(Document doc) {
+        List<Node> toRemove = new ArrayList<>();
+        NodeList children = doc.getChildNodes();
+        for (int cn = 0; cn < children.getLength(); cn++) {
+            Node child = children.item(cn);
+            if (Node.COMMENT_NODE == child.getNodeType()) {
+                toRemove.add(child);
+            }
+        }
+        for (Node child : toRemove) {
+            doc.removeChild(child);
         }
     }
 
