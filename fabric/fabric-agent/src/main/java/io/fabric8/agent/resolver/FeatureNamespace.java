@@ -23,7 +23,7 @@ public final class FeatureNamespace extends Namespace {
 
     public static final String FEATURE_NAMESPACE = "karaf.feature";
 
-    public static final String	CAPABILITY_VERSION_ATTRIBUTE	= "version";
+    public static final String	CAPABILITY_VERSION_ATTRIBUTE = "version";
 
     /**
      * The attribute value identifying the resource

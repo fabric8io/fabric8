@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,12 +47,12 @@ import io.fabric8.agent.resolver.Slf4jResolverLog;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.common.util.Manifests;
 import io.fabric8.common.util.MultiException;
+import io.fabric8.common.util.Strings;
 import io.fabric8.fab.DependencyTree;
 import io.fabric8.fab.osgi.FabBundleInfo;
 import io.fabric8.fab.osgi.FabResolver;
 import io.fabric8.fab.osgi.FabResolverFactory;
 import org.apache.felix.resolver.ResolverImpl;
-import org.apache.felix.resolver.Util;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
 import org.apache.karaf.features.BundleInfo;
@@ -240,7 +241,30 @@ public class DeploymentBuilder {
                 new AggregateRepository(repos),
                 resolveOptionalImports);
 
-        wiring = resolver.resolve(context);
+        try {
+            wiring = resolver.resolve(context);
+        } catch (ResolutionException e) {
+            // if its missing feature(s) then build a better error response the end user better understands
+            // as today its a bit confusing with dummy/0.0.0 etc
+            List<String> missing = new ArrayList<>();
+
+            Collection<Requirement> reqs = e.getUnresolvedRequirements();
+            Iterator<Requirement> it = reqs.iterator();
+            while (it.hasNext()) {
+                Requirement req = it.next();
+                String type = (String) req.getAttributes().get(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE);
+                boolean isFeature = type != null && FeatureNamespace.TYPE_FEATURE.equals(type);
+                String name = (String) req.getAttributes().get(IdentityNamespace.IDENTITY_NAMESPACE);
+                if (isFeature && name != null) {
+                    missing.add(name);
+                }
+            }
+
+            if (!missing.isEmpty()) {
+                throw new ResolutionException("The following feature(s) may not exist or cannot be resolved: [" + Strings.join(missing, ", ") + "]", e, reqs);
+            }
+        }
+
         Map<String, Resource> deploy = new TreeMap<String, Resource>();
         for (Resource res : wiring.keySet()) {
             String uri = getUri(res);
