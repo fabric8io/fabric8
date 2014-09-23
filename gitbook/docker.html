@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.6" data-basepath="." data-revision="1411413896147">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.6" data-basepath="." data-revision="1411500260670">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -868,18 +868,20 @@
                     <section class="normal" id="section-gitbook_22">
                     
                         <h2 id="docker-containers"><a name="docker-containers" class="anchor" href="#docker-containers"><span class="fa fa-link"></span></a>Docker Containers</h2>
-<p>Fabric8 can use <a href="http://docker.io/" target="_blank">docker</a> to create new containers; allowing you to reuse the power or docker.</p>
-<p>Docker has all the benefits of virtualisation but without any of the costs (in IO / CPU / memory); it basically reuses a single host linux installation and lets you run separate docker containers in what appears to be a sandboxed virtual machine; when in reality its using various Linux technologies like lightweight containers, namespaces, process groups and copy-on-write file systems to simulate virtualiastion.</p>
+<p>Fabric8 can use <a href="http://docker.io/" target="_blank">docker</a> to create new containers; allowing you to reuse the power of docker.</p>
+<p>Docker has all the benefits of virtualisation but without any of the I/O, CPU or memory performance costs. It basically re-uses a single host Linux installation and lets you run separate docker containers in what appears to be a sandboxed virtual machine; when in reality it&apos;s using various Linux technologies like lightweight containers, namespaces, process groups and copy-on-write file systems to simulate virtualiastion.</p>
 <p>So Docker makes it super easy to distribute containers and create them quickly.</p>
 <h3 id="requirements"><a name="requirements" class="anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h3>
 <p>To be able to try Docker with Fabric8 you need to <a href="https://www.docker.io/gettingstarted/#h_installation" target="_blank">install docker</a> on the machine you are running a fabric8 container.</p>
 <p>The <strong>DOCKER_HOST</strong> environment variable should point to the URL to connect to docker. From docker 1.0 or later this is usually something like:</p>
 <pre><code>export DOCKER_HOST=tcp://$(boot2docker ip 2&gt;/dev/null):2375
 </code></pre><p>e.g. on a Mac the value of DOCKER_HOST is often something like tcp://192.168.59.103:2375. Fabric8 uses the DOCKER_HOST environment variable to know where the Docker Remote API is located.</p>
+<h4 id="security-warning"><a name="security-warning" class="anchor" href="#security-warning"><span class="fa fa-link"></span></a>Security Warning</h4>
+<p>Binding the Docker service to a public-facing network interface is a major security risk. Anyone with access to the Docker Remote API effectively has complete control of the Docker host.</p>
 <p>Once installed you should be able to run commands like:</p>
 <pre><code>docker ps
 </code></pre><p>The default docker container image for fabric8 is <a href="https://index.docker.io/u/fabric8/fabric8/" target="_blank">fabric8/fabric8</a></p>
-<p>To install locally the main 3 docker images for fabric8 type this:</p>
+<p>To locally install the main 3 docker images for fabric8 type this:</p>
 <pre><code>docker pull fabric8/fabric8
 docker pull fabric8/fabric8-java
 docker pull fabric8/fabric8-tomcat
