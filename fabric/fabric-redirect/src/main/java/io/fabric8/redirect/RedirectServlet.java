@@ -38,7 +38,7 @@ public class RedirectServlet extends HttpServlet implements ManagedService {
     public static final String REDIRECT = "redirect";
 
     private String redirect = "/hawtio";
-    private String[] validRedirectRequests = { "/", "/index.html" };
+    private String[] validRedirectRequests = {"/", "/index.html"};
     private Set<String> validRedirectRequestSet;
 
     public RedirectServlet() {
@@ -119,27 +119,35 @@ public class RedirectServlet extends HttpServlet implements ManagedService {
     public void updated(Dictionary props) throws ConfigurationException {
         if (props != null) {
             Object value = props.get(REDIRECT);
-            if (value instanceof String) { {
-                String text = value.toString();
-                if (Strings.isNotBlank(text)) {
-                    redirect = text;
+            if (value instanceof String) {
+                {
+                    String text = value.toString();
+                    if (Strings.isNotBlank(text)) {
+                        redirect = text;
+                    }
                 }
-            }}
+            }
         }
 
         // force recreation of the set
         recreateValidRedirectRequestSet();
     }
 
-
     protected void doRedirect(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String requestURI = req.getRequestURI();
         if (Strings.isNullOrBlank(requestURI) || getValidRedirectRequestSet().contains(requestURI)) {
-            resp.sendRedirect(getRedirect());
+            String url = getRedirect();
+            LOGGER.debug("Redirect: {} to: {}", requestURI, url);
+            resp.sendRedirect(url);
         } else {
-            // ignore dummy request
+            LOGGER.debug("Resource not found: {} returning status code: 404", requestURI);
+            // must response with status and flush as Jetty may report org.eclipse.jetty.server.Response Committed before 404 null
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.setContentLength(0);
+            resp.flushBuffer();
         }
     }
+
     protected void recreateValidRedirectRequestSet() {
         validRedirectRequestSet = null;
         // force lazy create
