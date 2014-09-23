@@ -658,6 +658,11 @@
                                   <property name="quickstart.src" value="${basedir}/../../quickstarts"/>
                                   <copy file="${quickstart.src}/target/profile.zip"
                                     tofile="target/features-repo/io/fabric8/quickstarts/fabric8-quickstarts-parent/${project.version}/fabric8-quickstarts-parent-${project.version}-profile.zip"/>
+
+                                  <!-- .gitattributes -->
+                                  <echo message="Copying .gitattributes"/>
+                                  <copy file="${basedir}/src/main/resources/distro/fabric/import/fabric/profiles/.gitattributes"
+                                    todir="${dest.profiles}"/>
                                </target>
                            </configuration>
                        </execution>
