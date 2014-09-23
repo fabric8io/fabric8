@@ -38,8 +38,7 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
 
-    <spring-version>4.0.7.RELEASE</spring-version>
-    <spring-boot-version>1.1.6.RELEASE</spring-boot-version>
+    <spring-boot-plugin-version>1.1.6.RELEASE</spring-boot-plugin-version>
 
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
@@ -57,13 +56,6 @@
         <groupId>io.fabric8</groupId>
         <artifactId>process-spring-boot-bom</artifactId>
         <version>${fabric.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>${spring-boot-version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -125,7 +117,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${spring-boot-version}</version>
+        <version>${spring-boot-plugin-version}</version>
         <configuration>
           <mainClass>io.fabric8.process.spring.boot.container.FabricSpringApplication</mainClass>
         </configuration>
