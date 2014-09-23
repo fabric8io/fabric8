@@ -361,4 +361,24 @@ If you really want to you can specify the properties (without the **fabric8.** p
 
 ### Generating Karaf shell scripts for each profile
 
-You can also use the **fabric8:script** goal using the same configuration above to auto-generate a profile create karaf script.
+You can also use the **fabric8:script** goal using the same configuration above to auto-generate a profile create karaf script. The script can then be used from the Karaf shell to create the profile. 
+
+From the Karaf shell you can use the `shell:source` command to run the script, eg:
+
+    shell:source file:somepath\target\profile.karaf
+
+The **fabric:script** creates the script file by default as `target\profile.karaf`. The name of the output file can be configured using the following options:
+
+### Property Reference
+
+<table class="table table-striped">
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>outputFile</td>
+<td>The name of the script file. Is by default <tt>target\profile.karaf</tt></td>
+</tr>
+<tr>
+

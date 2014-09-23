@@ -51,7 +51,6 @@ public class CreateScriptMojo extends AbstractProfileMojo {
     @Component
     private MavenProjectHelper projectHelper;
 
-
     /**
      * The artifact type for attaching the generated script to the project
      */
@@ -103,17 +102,17 @@ public class CreateScriptMojo extends AbstractProfileMojo {
             List<String> repos = notNullList(requirements.getFeatureRepositories());
             for (String bundle : bundles) {
                 if (Strings.isNotBlank(bundle)) {
-                    writer.println("profile-edit --bundles " + bundle);
+                    writer.println("profile-edit --bundles " + bundle + " " + profileId);
                 }
             }
             for (String feature : features) {
                 if (Strings.isNotBlank(feature)) {
-                    writer.println("profile-edit --features " + feature);
+                    writer.println("profile-edit --features " + feature + " " + profileId);
                 }
             }
             for (String repo : repos) {
                 if (Strings.isNotBlank(repo)) {
-                    writer.println("profile-edit --repositories " + repo);
+                    writer.println("profile-edit --repositories " + repo + " " + profileId);
                 }
             }
         } finally {
