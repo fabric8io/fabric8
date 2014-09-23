@@ -38,8 +38,7 @@
     <maven.compiler.target>1.7</maven.compiler.target>
     <maven.compiler.source>1.7</maven.compiler.source>
 
-    <spring-version>4.0.7.RELEASE</spring-version>
-    <spring-boot-version>1.1.6.RELEASE</spring-boot-version>
+    <spring-boot-plugin-version>1.1.6.RELEASE</spring-boot-plugin-version>
 
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
@@ -60,13 +59,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>${spring-boot-version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -74,7 +66,6 @@
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>process-spring-boot-container</artifactId>
-      <version>${fabric.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
@@ -83,7 +74,6 @@
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>process-spring-boot-starter-camel</artifactId>
-      <version>${fabric.version}</version>
     </dependency>
 
     <dependency>
@@ -104,7 +94,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>${spring-version}</version>
     </dependency>
 
     <dependency>
@@ -115,13 +104,11 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>${spring-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
-      <version>${spring-boot-version}</version>
       <scope>test</scope>
     </dependency>
 
