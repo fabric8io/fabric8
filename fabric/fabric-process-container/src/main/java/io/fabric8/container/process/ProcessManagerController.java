@@ -256,28 +256,37 @@ public class ProcessManagerController implements ChildContainerController {
     }
 
     protected void updateInstallation(Container container, final Installation installation, InstallOptions parameters, InstallTask postInstall) throws Exception {
-        boolean requiresRestart = false;
         ProcessConfig processConfig = processManager.loadProcessConfig(parameters);
         processConfig.setName(parameters.getName());
         ProcessConfig oldConfig = getProcessConfig(installation);
+
         String id = installation.getId();
         File installDir = installation.getInstallDir();
         InstallContext installContext = new InstallContext(parameters.getContainer(), installDir, true);
+
         if (processConfig != null && !oldConfig.equals(processConfig)) {
             installContext.addRestartReason("Environment Variables");
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Requires restart as config has changed: OLD: " + JsonHelper.toJson(oldConfig) + " and NEW: " + JsonHelper.toJson(processConfig));
             }
+            // need to resolve the environment variables first
+            resolveEnvironmentVariables(processConfig.getEnvironment());
+            // make sure to update the process config
+            JsonHelper.saveProcessConfig(processConfig, installDir);
+            // need to update environment on the controller also, so it uses the updated environments when restarting
+            installation.getController().getConfig().setEnvironment(processConfig.getEnvironment());
         }
+
         if (postInstall != null) {
             postInstall.install(installContext, processConfig, id, installDir);
-            JsonHelper.saveProcessConfig(processConfig, installDir);
         } else {
             // lets do the Jar thing...
             JarInstaller installer = new JarInstaller(parameters, processManager.getExecutor());
             installer.install(installContext, processConfig, id, installDir);
         }
+
         installContext.updateContainerChecksums();
+
         if (installContext.isRestartRequired()) {
             LOG.info("Restarting " + container.getId() + " due to profile changes: " + installContext.getRestartReasons());
             ProcessController controller = installation.getController();
@@ -285,6 +294,13 @@ public class ProcessManagerController implements ChildContainerController {
                 controller.restart();
             }
         }
+    }
+
+    protected void resolveEnvironmentVariables(Map<String, String> environmentVariables) {
+        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables, fabricService, curator, true);
+        // in case there's any current system environment variables to replace
+        // such as the operating system PATH or FABRIC8_JAVA8_HOME when not using docker containers
+        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, System.getenv(), null, null, true);
     }
 
     protected static ProcessConfig getProcessConfig(Installation installation) {
@@ -307,10 +323,7 @@ public class ProcessManagerController implements ChildContainerController {
         if (container != null) {
             registerPorts(options, processConfig, container, environmentVariables);
         }
-        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, environmentVariables, fabricService, curator, true);
-        // in case there's any current system environment variables to replace
-        // such as the operating system PATH or FABRIC8_JAVA8_HOME when not using docker containers
-        JolokiaAgentHelper.substituteEnvironmentVariableExpressions(environmentVariables, System.getenv(), null, null, true);
+        resolveEnvironmentVariables(environmentVariables);
         publishZooKeeperValues(options, processConfig, container, environmentVariables);
 
         if (container != null) {
