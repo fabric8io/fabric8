@@ -70,7 +70,7 @@ public class JolokiaAgentHelperSubstituteTest {
         String expression = "http://${env:FABRIC8_LISTEN_ADDRESS}:${env:FABRIC8_HTTP_PROXY_PORT}/";
         assertExpression(expression, expression, true, envVars, curator);
 
-        assertExpression(expression, "http://null:null/", false, envVars, curator);
+        assertExpression(expression, "http://:/", false, envVars, curator);
 
         envVars.put("FABRIC8_LISTEN_ADDRESS", "localhost");
         envVars.put("FABRIC8_HTTP_PROXY_PORT", "8181");
