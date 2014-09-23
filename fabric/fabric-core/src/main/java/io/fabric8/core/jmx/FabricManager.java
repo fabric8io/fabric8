@@ -871,33 +871,51 @@ public final class FabricManager implements FabricManagerMBean {
                 } catch (MalformedURLException e) {
                     // Ignore
                 }
+                String icon = getIconURL(version, versionId, profile, profileId, restApi);
 
-                // lets find the URL of the icon in the parent profiles
-                String relativeIcon = profile.getIconRelativePath();
-                String iconProfileId = profileId;
-                if (relativeIcon == null || relativeIcon.isEmpty()) {
-                    List<String> parentIds = profile.getParentIds();
-                    if (parentIds != null && !parentIds.isEmpty()) {
-                        for (String parentId : parentIds) {
-                            Profile parentProfile = version.getRequiredProfile(parentId);
-                            relativeIcon = parentProfile.getIconRelativePath();
-                            if (relativeIcon != null && relativeIcon.length() > 0) {
-                                iconProfileId = parentId;
-                                break;
-                            }
-                        }
-                    }
-                }
-                // the path is relative to the profile
-                if (relativeIcon == null || relativeIcon.isEmpty()) {
-                    answer.remove(iconURLField);
-                } else {
-                    String icon = restApi + "/version/" + versionId + "/profile/" + iconProfileId + "/overlay/file/" + relativeIcon;
-                    answer.put(iconURLField, icon);
-                }
+
+                answer.put(iconURLField, icon);
             }
         }
         return answer;
+    }
+
+    /**
+     * Returns the URL relative to the rest api for the icon
+     */
+    protected String getIconURL(Version version, String versionId, Profile profile, String profileId, String restApi) {
+        // lets find the URL of the icon in the parent profiles
+        String relativeIcon = profile.getIconRelativePath();
+        String iconProfileId = profileId;
+        if (isNullOrEmpty(relativeIcon)) {
+            List<String> parentIds = profile.getParentIds();
+            if (parentIds != null && !parentIds.isEmpty()) {
+                for (String parentId : parentIds) {
+                    Profile parentProfile = version.getRequiredProfile(parentId);
+                    relativeIcon = parentProfile.getIconRelativePath();
+                    if (isNullOrEmpty(relativeIcon)) {
+                        String answer = getIconURL(version, versionId, parentProfile, parentId, restApi);
+                        if (!isNullOrEmpty(answer)) {
+                            return answer;
+                        }
+                    }
+                    if (!isNullOrEmpty(relativeIcon)) {
+                        iconProfileId = parentId;
+                        break;
+                    }
+                }
+            }
+        }
+        // the path is relative to the profile
+        String icon = null;
+        if (!isNullOrEmpty(relativeIcon)) {
+            icon = restApi + "/version/" + versionId + "/profile/" + iconProfileId + "/overlay/file/" + relativeIcon;
+        }
+        return icon;
+    }
+
+    public static boolean isNullOrEmpty(String text) {
+        return text == null || text.isEmpty();
     }
 
     @Override
