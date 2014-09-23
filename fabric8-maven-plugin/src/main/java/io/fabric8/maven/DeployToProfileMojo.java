@@ -18,6 +18,8 @@ package io.fabric8.maven;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -126,11 +128,13 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     @VisibleForTesting
     Server fabricServer;
 
+    private boolean customUsernameAndPassword;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        try {
-            if (isIgnoreProject()) return;
+        if (isIgnoreProject()) return;
 
+        try {
             ProjectRequirements requirements = new ProjectRequirements();
             if (isIncludeArtifact()) {
                 DependencyDTO rootDependency = loadRootDependency();
@@ -141,6 +145,33 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             boolean newUserAdded = false;
 
             fabricServer = mavenSettings.getServer(serverId);
+
+            // we may have username and password from jolokiaUrl
+            String jolokiaUsername = null;
+            String jolokiaPassword = null;
+            try {
+                URL url = new URL(jolokiaUrl);
+                String s = url.getUserInfo();
+                if (Strings.isNotBlank(s) && s.indexOf(':') > 0) {
+                    int idx = s.indexOf(':');
+                    jolokiaUsername = s.substring(0, idx);
+                    jolokiaPassword = s.substring(idx + 1);
+                    customUsernameAndPassword = true;
+                }
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException("Option jolokiaUrl is invalid due " + e.getMessage());
+            }
+
+            // jolokia url overrides username/password configured in maven settings
+            if (jolokiaUsername != null) {
+                if (fabricServer == null) {
+                    fabricServer = new Server();
+                }
+                getLog().info("Using username: " + jolokiaUsername + " and password from provided jolokiaUrl option");
+                fabricServer.setUsername(jolokiaUsername);
+                fabricServer.setPassword(jolokiaPassword);
+            }
+
             if (fabricServer == null) {
                 boolean create = false;
                 if (mavenSettings.isInteractiveMode() && mavenSettingsWriter != null) {
@@ -397,15 +428,31 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
         } catch (J4pRemoteException e) {
             int status = e.getStatus();
             if (status == 401) {
-                String message = "Unauthorized to access to: " + jolokiaUrl + " using user: " + fabricServer.getUsername() + ".\nHave you created a Fabric?\nHave you setup your ~/.m2/settings.xml with the correct user and password for server ID: " + serverId + " and do the user/password match the server " + jolokiaUrl + "?";
+                String message = "Status 401: Unauthorized to access: " + jolokiaUrl + " using user: " + fabricServer.getUsername();
+                if (!customUsernameAndPassword) {
+                    message += ".\nHave you created a Fabric?\nHave you setup your ~/.m2/settings.xml with the correct user and password for server ID: " + serverId + " and do the user/password match the server " + jolokiaUrl + "?";
+                }
+                getLog().error(message);
+                throw new MojoExecutionException(message, e);
+            } else if (status == 404) {
+                String message = "Status 404: Resource not found: " + jolokiaUrl + ".\nHave you created a Fabric?";
                 getLog().error(message);
                 throw new MojoExecutionException(message, e);
             } else {
                 exception = e;
             }
-        } catch (Exception e) {
-            exception = e;
+        } catch (J4pException e) {
+            // it may be an empty response which is like a 404
+            boolean is404 = "Could not parse answer: Unexpected token END OF FILE at position 0.".equals(e.getMessage());
+            if (is404) {
+                String message = "Status 404: Resource not found: " + jolokiaUrl + ".\nHave you created a Fabric?";
+                getLog().error(message);
+                throw new MojoExecutionException(message, e);
+            } else {
+                exception = e;
+            }
         }
+
         if (exception != null) {
             getLog().error("Failed to get maven repository URI from " + jolokiaUrl + ". " + exception, exception);
             throw new MojoExecutionException("Could not find the Maven Upload Repository URI");

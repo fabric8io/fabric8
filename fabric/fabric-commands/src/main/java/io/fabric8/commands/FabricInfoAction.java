@@ -42,6 +42,9 @@ public class FabricInfoAction extends AbstractAction {
         System.out.println(String.format(FORMAT, "Web Console:", emptyIfNull(fabricService.getWebConsoleUrl())));
         System.out.println(String.format(FORMAT, "Rest API:", emptyIfNull(fabricService.getRestAPI())));
         System.out.println(String.format(FORMAT, "Git URL:", emptyIfNull(fabricService.getGitUrl())));
+        if (fabricService.getCurrentContainer() != null) {
+            System.out.println(String.format(FORMAT, "Jolokia URL:", emptyIfNull(fabricService.getCurrentContainer().getJolokiaUrl())));
+        }
         System.out.println(String.format(FORMAT, "ZooKeeper URI:", emptyIfNull(fabricService.getZookeeperUrl())));
 		System.out.println(String.format(FORMAT, "Maven Download URI:", fabricService.getMavenRepoURI()));
 		System.out.println(String.format(FORMAT, "Maven Upload URI:", fabricService.getMavenRepoUploadURI()));

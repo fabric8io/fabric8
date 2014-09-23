@@ -291,7 +291,7 @@ If you really want to you can specify the properties (without the **fabric8.** p
 </tr>
 <tr>
 <td>jolokiaUrl</td>
-<td>The Jolokia URL of the Fabric console. Defaults to <b>http://localhost:8181/jolokia</b></td>
+<td>The Jolokia URL of the Fabric console. Defaults to <b>http://localhost:8181/jolokia</b>. Username and password can also be specified in the jolokiaUrl which allows to use a custom credentials, or in cases where storing login information in the Maven <tt>settings.xml</tt> file is not desired. See further below for more details.</td>
 </tr>
 <tr>
 <td>profileVersion</td>
@@ -358,6 +358,14 @@ If you really want to you can specify the properties (without the **fabric8.** p
 <td>Whether or not the created profile should be locked (so its read only). Defaults to false.</td>
 </tr>
 </table>
+
+### Specifying credentials from command line
+
+The **fabric8:deploy** goal will by default read the username and password from the local Maven `settings.xml` file. This may not be desired to store password as plain-text. The option `jolokiaUrl` can be used to specify the url for the remote fabric server including username and password. For example to use username `scott` and password `tiger` then type:
+
+     fabric8:deploy -Dfabric8.jolokiaUrl=http://scott:tiger@localhost:8181/jolokia
+
+Tip: You can get the jolokia url using `fabric:info` from the fabric shell.
 
 ### Generating Karaf shell scripts for each profile
 
