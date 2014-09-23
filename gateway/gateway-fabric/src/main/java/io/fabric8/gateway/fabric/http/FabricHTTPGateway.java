@@ -54,6 +54,8 @@ import io.fabric8.gateway.handlers.http.HttpGatewayServer;
 import io.fabric8.gateway.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.handlers.http.MappedServices;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
 
 /**
@@ -65,6 +67,7 @@ import org.vertx.java.core.Vertx;
         description = "Provides a discovery and load balancing HTTP gateway (or reverse proxy) between HTTP clients and HTTP servers such as web applications, REST APIs and web applications")
 @Service(FabricHTTPGateway.class)
 public final class FabricHTTPGateway extends AbstractComponent implements HttpGateway {
+    private static final transient Logger LOG = LoggerFactory.getLogger(FabricHTTPGateway.class);
 
     @Property(name = "host", label = "Host name", description = "The host name used when listening for HTTP traffic")
     private String host;
@@ -237,6 +240,7 @@ public final class FabricHTTPGateway extends AbstractComponent implements HttpGa
 
     void bindFabricDetectingGatewayService(FabricDetectingGatewayService fabricDetectingGatewayService) {
         this.fabricDetectingGatewayService.bind(fabricDetectingGatewayService);
+        LOG.info("Detecting Gateway address is: " + fabricDetectingGatewayService.getDetectingGateway().getHttpGateway());
         websocketHandler.setGateway(fabricDetectingGatewayService.getDetectingGateway());
     }
 

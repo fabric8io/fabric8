@@ -53,6 +53,7 @@ public class HttpGatewayServer {
         server = vertx.createHttpServer();
         server.requestHandler(handler);
         if( websocketHandler!=null ) {
+            server.setWebSocketSubProtocols("v10.stomp", "v11.stomp", "v12.stomp", "mqttv3.1", "mqttv3.1.1");
             server.websocketHandler(websocketHandler);
         }
         if (host != null) {

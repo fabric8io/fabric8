@@ -53,6 +53,7 @@ import java.util.Map;
 @Component(name = "io.fabric8.gateway.detecting", immediate = true, metatype = true, policy = ConfigurationPolicy.REQUIRE,
         label = "Fabric8 Detecting Gateway",
         description = "Provides a discovery and load balancing gateway between clients using various messaging protocols and the available message brokers in the fabric")
+@Service(FabricDetectingGatewayService.class)
 public class FabricDetectingGateway extends AbstractComponent implements FabricDetectingGatewayService {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricDetectingGateway.class);
 
@@ -182,6 +183,9 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
 
         detectingGateway = createDetectingGateway();
         if( detectingGateway!=null ) {
+            if( httpGateway!=null ) {
+                detectingGateway.setHttpGateway(httpGateway.getLocalAddress());
+            }
             cache = new GatewayServiceTreeCache(getCurator(), getZooKeeperPath(), serviceMap);
             cache.init();
             detectingGateway.init();
@@ -371,11 +375,15 @@ public class FabricDetectingGateway extends AbstractComponent implements FabricD
     public void setHttpGateway(FabricHTTPGateway httpGateway) {
         this.httpGateway = httpGateway;
         LOG.info("HTTP Gateway address is: "+httpGateway.getLocalAddress());
-        detectingGateway.setHttpGateway(httpGateway.getLocalAddress());
+        if( detectingGateway!=null ) {
+            detectingGateway.setHttpGateway(httpGateway.getLocalAddress());
+        }
     }
     public void unsetHttpGateway(FabricHTTPGateway httpGateway) {
         this.httpGateway = null;
-        detectingGateway.setHttpGateway(null);
+        if( detectingGateway!=null ) {
+            detectingGateway.setHttpGateway(null);
+        }
     }
 
     public boolean isSslEnabled() {
