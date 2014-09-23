@@ -24,7 +24,8 @@
     CXF 3 version of JAXRS 2.0 client for fabric-docker-api
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-3-version}/xml/features</repository>
 -->
-    <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
+    <!--repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository-->
+    <repository>mvn:io.fabric8/fabric-camel/${project.version}/xml/features</repository>
     <repository>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features-core</repository>
     <repository>mvn:org.apache.jclouds.karaf/jclouds-karaf/${jclouds-karaf-version}/xml/features</repository>
     <repository>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</repository>
@@ -782,7 +783,7 @@
         <bundle>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2-version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.swagger-annotations/${swagger-version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.swagger-core/${swagger-version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.swagger-jaxrs/${swagger-version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.swagger-jaxrs/${swagger-jaxrs-version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.reflections/${reflections-version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.json4s/${json4s-version}</bundle>
     </feature>
