@@ -1,8 +1,8 @@
 ## Docker Containers
 
-Fabric8 can use [docker](http://docker.io/) to create new containers; allowing you to reuse the power or docker.
+Fabric8 can use [docker](http://docker.io/) to create new containers; allowing you to reuse the power of docker.
 
-Docker has all the benefits of virtualisation but without any of the costs (in IO / CPU / memory); it basically reuses a single host linux installation and lets you run separate docker containers in what appears to be a sandboxed virtual machine; when in reality its using various Linux technologies like lightweight containers, namespaces, process groups and copy-on-write file systems to simulate virtualiastion.
+Docker has all the benefits of virtualisation but without any of the I/O, CPU or memory performance costs. It basically re-uses a single host Linux installation and lets you run separate docker containers in what appears to be a sandboxed virtual machine; when in reality it's using various Linux technologies like lightweight containers, namespaces, process groups and copy-on-write file systems to simulate virtualiastion.
 
 So Docker makes it super easy to distribute containers and create them quickly.
 
@@ -16,13 +16,17 @@ The **DOCKER_HOST** environment variable should point to the URL to connect to d
 
 e.g. on a Mac the value of DOCKER_HOST is often something like tcp://192.168.59.103:2375. Fabric8 uses the DOCKER_HOST environment variable to know where the Docker Remote API is located.
 
+#### Security Warning
+
+Binding the Docker service to a public-facing network interface is a major security risk. Anyone with access to the Docker Remote API effectively has complete control of the Docker host.
+
 Once installed you should be able to run commands like:
 
     docker ps
 
 The default docker container image for fabric8 is [fabric8/fabric8](https://index.docker.io/u/fabric8/fabric8/)
 
-To install locally the main 3 docker images for fabric8 type this:
+To locally install the main 3 docker images for fabric8 type this:
 
     docker pull fabric8/fabric8
     docker pull fabric8/fabric8-java
