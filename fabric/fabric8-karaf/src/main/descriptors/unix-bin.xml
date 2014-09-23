@@ -95,6 +95,25 @@
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
             <directoryMode>0775</directoryMode>
+            <excludes>
+              <exclude>**/*.png</exclude>
+              <exclude>**/*.jpg</exclude>
+              <exclude>**/*.jpeg</exclude>
+              <exclude>**/*.gif</exclude>
+            </excludes>
+        </fileSet>
+
+        <fileSet>
+            <directory>target/classes/distro</directory>
+            <outputDirectory>/</outputDirectory>
+            <fileMode>0644</fileMode>
+            <directoryMode>0775</directoryMode>
+            <includes>
+              <include>**/*.png</include>
+              <include>**/*.jpg</include>
+              <include>**/*.jpeg</include>
+              <include>**/*.gif</include>
+            </includes>
         </fileSet>
 
         <fileSet>
@@ -199,6 +218,13 @@
             <source>${basedir}/target/META-INF/DEPENDENCIES</source>
             <outputDirectory>/</outputDirectory>
             <destName>fabric_dependencies.txt</destName>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>target/classes/distro/fabric/import/fabric/profiles/.gitattributes</source>
+            <outputDirectory>/fabric/import/fabric/profiles</outputDirectory>
+            <destName>.gitattributes</destName>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
         </file>
