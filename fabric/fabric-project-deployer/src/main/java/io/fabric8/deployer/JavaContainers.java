@@ -17,7 +17,6 @@ package io.fabric8.deployer;
 
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
-import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
@@ -30,6 +29,7 @@ import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
 
+import io.fabric8.maven.util.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,7 +1,0 @@
-#
-Id=org.apache.activemq:apollo-jdbm2:1.0-SNAPSHOT
-Name=apollo-jdbm2
-Description=JDBM2 based message storage
-Long-Description=
-Extension=true
-Extends=org.apache.activemq:apollo-broker:1.0-SNAPSHOT

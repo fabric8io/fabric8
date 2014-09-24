@@ -128,7 +128,7 @@
         <servicemix.legal.version>1.0</servicemix.legal.version>
 
         <activemq-version>5.10.0</activemq-version>
-        <aether-version>1.11</aether-version>
+        <aether-version>0.9.0.M2</aether-version>
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <antlr-version>3.3</antlr-version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
@@ -157,6 +157,8 @@
         <camel-version-range>[2.14,3)</camel-version-range>
         <camel-version>2.14.0</camel-version>
         <cassandra-version>2.0.7</cassandra-version>
+        <codehaus-plexus-interpolation-version>1.4</codehaus-plexus-interpolation-version>
+        <codehaus-plexus-version>1.5.5</codehaus-plexus-version>
         <codahale-metrics-version>3.0.2</codahale-metrics-version>
         <commons-beanutils-version>1.8.3</commons-beanutils-version>
         <commons-codec-version>1.6</commons-codec-version>
@@ -273,7 +275,8 @@
         <logback-version>1.1.2</logback-version>
         <lombok.version>1.14.4</lombok.version>
         <maven-fab-plugin-version>1.32</maven-fab-plugin-version>
-        <maven-version>3.0.4</maven-version>
+        <maven-version>3.2.1</maven-version>
+        <maven-shared-version>2.1.1</maven-shared-version>
         <maven-dependency-plugin-version>2.8</maven-dependency-plugin-version>
         <mina-version>2.0.7</mina-version>
         <mockserver-version>3.4</mockserver-version>
@@ -282,7 +285,7 @@
         <netty.version>4.0.23.Final</netty.version>
         <openshift.client.groupId>com.openshift</openshift.client.groupId>
         <openshift.client.version>2.5.0.Final</openshift.client.version>
-        <ops4j-base.version>1.4.0</ops4j-base.version>
+        <ops4j-base.version>1.5.0</ops4j-base.version>
         <ops4j-pax-exam-version>3.4.0</ops4j-pax-exam-version>
         <ops4j-pax-swissbox-bnd.version>1.7.1</ops4j-pax-swissbox-bnd.version>
         <ops4j-pax-swissbox-property.version>1.7.1</ops4j-pax-swissbox-property.version>
@@ -299,6 +302,8 @@
         <pax.url.mvn.commons.version>${pax.url.version}</pax.url.mvn.commons.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
         <pax.url.version>2.1.0</pax.url.version>
+        <plexus-utils-version>3.0.17</plexus-utils-version>
+        <plexus-classworlds-version>2.4</plexus-classworlds-version>
         <qpid-jms-version>0.28</qpid-jms-version>
         <reflections-version>0.9.8_1</reflections-version>
         <rhq-metrics-version>0.2.2.20140726-M3</rhq-metrics-version>
@@ -316,10 +321,14 @@
         <servicemix-utils-version>1.6.0</servicemix-utils-version>
         <servlet-api-version>2.5</servlet-api-version>
         <servlet30-api-version>3.0.1</servlet30-api-version>
+        <sisu-guice-version>3.1.10</sisu-guice-version>
+        <sisu-inject-plexus-version>2.3.0</sisu-inject-plexus-version>
         <shrinkwrap-resolver-version>2.0.0</shrinkwrap-resolver-version>
         <shrinkwrap-version>1.1.2</shrinkwrap-version>
         <slf4j-api-version>1.7.5</slf4j-api-version>
         <slf4j-version>1.7.5</slf4j-version>
+        <sonatype-plexus-sec-version>1.3</sonatype-plexus-sec-version>
+        <sonatype-plexus-cipher-version>1.7</sonatype-plexus-cipher-version>
         <spring-bundle-version>3.2.9.RELEASE_1</spring-bundle-version>
         <spring-data-rest-version>2.0.2.RELEASE</spring-data-rest-version>
         <spring-osgi-version>1.2.1</spring-osgi-version>
@@ -608,6 +617,11 @@
             <!-- Fabric -->
             <dependency>
                 <groupId>io.fabric8</groupId>
+                <artifactId>fabric-maven</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
                 <artifactId>fabric-utils</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -882,11 +896,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.fabric8.fab</groupId>
-                <artifactId>fab-osgi</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-camel</artifactId>
                 <version>${project.version}</version>
@@ -1070,13 +1079,6 @@
             <dependency>
                 <groupId>io.fabric8.runtime</groupId>
                 <artifactId>fabric-runtime-container-karaf-registration</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <!-- Utils -->
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>maven-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -2298,6 +2300,11 @@
             <dependency>
                 <groupId>org.ops4j.pax.url</groupId>
                 <artifactId>pax-url-wrap</artifactId>
+                <version>${pax.url.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.url</groupId>
+                <artifactId>pax-url-commons</artifactId>
                 <version>${pax.url.version}</version>
             </dependency>
 
@@ -3528,6 +3535,192 @@
                 <artifactId>jolokia-core</artifactId>
                 <version>${jolokia-version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-connector-wagon</artifactId>
+                <version>${aether-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-settings-builder</artifactId>
+                <version>${maven-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-file</artifactId>
+                <version>${wagon-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-http-lightweight</artifactId>
+                <version>${wagon-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>nekohtml</groupId>
+                        <artifactId>nekohtml</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>nekohtml</groupId>
+                        <artifactId>xercesMinimal</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-aether-provider</artifactId>
+                <version>${maven-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-embedder</artifactId>
+                <version>${maven-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.eclipse.sisu</groupId>
+                        <artifactId>org.eclipse.sisu.plexus</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-utils</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.sonatype.plexus</groupId>
+                        <artifactId>plexus-cipher</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.shared</groupId>
+                <artifactId>maven-invoker</artifactId>
+                <version>${maven-shared-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-utils</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.sonatype.sisu</groupId>
+                <artifactId>sisu-guice</artifactId>
+                <version>${sisu-guice-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>${plexus-utils-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-classworlds</artifactId>
+                <version>${plexus-classworlds-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bndlib</artifactId>
+                <version>${bndlib-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.sonatype.plexus</groupId>
+                <artifactId>plexus-sec-dispatcher</artifactId>
+                <version>${sonatype-plexus-sec-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.sonatype.plexus</groupId>
+                <artifactId>plexus-cipher</artifactId>
+                <version>${sonatype-plexus-cipher-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-container-default</artifactId>
+                <version>${codehaus-plexus-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-annotations</artifactId>
+                <version>${codehaus-plexus-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-interpolation</artifactId>
+                <version>${codehaus-plexus-interpolation-version}</version>
+            </dependency>
+
+            <!-- OPS4J -->
+
+            <dependency>
+                <groupId>org.ops4j.base</groupId>
+                <artifactId>ops4j-base-net</artifactId>
+                <version>${ops4j-base.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ops4j.pax.tinybundles</groupId>
+                <artifactId>tinybundles</artifactId>
+                <version>${tinybundles-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ops4j.pax.swissbox</groupId>
+                <artifactId>pax-swissbox-property</artifactId>
+                <version>${ops4j-pax-swissbox-property.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.sonatype.sisu</groupId>
+                <artifactId>sisu-inject-plexus</artifactId>
+                <version>${sisu-inject-plexus-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>plexus-utils</artifactId>
+                        <groupId>org.codehaus.plexus</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- Quickstarts -->
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-ejb_3.1_spec</artifactId>
+                <version>${geronimo-ejb-3-1-spec-version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.weld.se</groupId>
+                <artifactId>weld-se</artifactId>
+                <version>${weld2-version}</version>
+            </dependency>
+
+            <!-- CDI -->
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-interceptor_1.1_spec</artifactId>
+                <version>${geronimo-interceptor-api-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jcdi_1.0_spec</artifactId>
+                <version>${geronimo-cdi-api-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-el_2.2_spec</artifactId>
+                <version>${geronimo-el-api-version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -3539,12 +3732,10 @@
 
         <module>apm</module>
         <module>common-util</module>
-        <module>fab</module>
         <module>fabric</module>
         <module>fabric8-maven-plugin</module>
         <module>gateway</module>
         <module>insight</module>
-        <module>maven-util</module>
         <module>mq</module>
         <module>patch</module>
         <module>process</module>

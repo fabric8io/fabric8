@@ -16,6 +16,8 @@
 package io.fabric8.agent.mvn;
 
 import java.net.MalformedURLException;
+
+import io.fabric8.maven.util.MavenRepositoryURL;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,7 +29,7 @@ public class MavenRepositoryURLTest {
         MavenRepositoryURL repo = new MavenRepositoryURL(spec);
         Assert.assertTrue(repo.isReleasesEnabled());
         Assert.assertFalse(repo.isSnapshotsEnabled());
-        Assert.assertEquals(String.valueOf("http://repo1.maven.org/maven2/".hashCode()), repo.getId() );
+        Assert.assertEquals("repo_" + String.valueOf("http://repo1.maven.org/maven2/".hashCode()), repo.getId() );
     }
 
     @Test
@@ -36,7 +38,7 @@ public class MavenRepositoryURLTest {
         MavenRepositoryURL repo = new MavenRepositoryURL(spec);
         Assert.assertTrue(repo.isReleasesEnabled());
         Assert.assertTrue(repo.isSnapshotsEnabled());
-        Assert.assertEquals(String.valueOf("http://repo1.maven.org/maven2/".hashCode()), repo.getId() );
+        Assert.assertEquals("repo_" + String.valueOf("http://repo1.maven.org/maven2/".hashCode()), repo.getId() );
     }
 
     @Test
@@ -45,7 +47,7 @@ public class MavenRepositoryURLTest {
         MavenRepositoryURL repo = new MavenRepositoryURL(spec);
         Assert.assertFalse(repo.isReleasesEnabled());
         Assert.assertFalse(repo.isSnapshotsEnabled());
-        Assert.assertEquals(String.valueOf("http://repo1.maven.org/maven2/".hashCode()), repo.getId() );
+        Assert.assertEquals("repo_" + String.valueOf("http://repo1.maven.org/maven2/".hashCode()), repo.getId() );
     }
 
     @Test

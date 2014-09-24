@@ -31,6 +31,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -136,6 +137,13 @@ public final class Files {
             throw new IOException("Failed to create tmp dir:" + tmpDir.getAbsolutePath());
         }
         return File.createTempFile(String.valueOf(lastTmpFileId.incrementAndGet()), ".tmp", tmpDir);
+    }
+
+    /**
+     * Creates a temporary file.
+     */
+    public static File createTempFile(Path basePath) throws IOException {
+        return createTempFile(basePath.toFile().getAbsolutePath());
     }
 
     /**

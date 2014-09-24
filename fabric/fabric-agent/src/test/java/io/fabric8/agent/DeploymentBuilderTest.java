@@ -15,7 +15,6 @@
  */
 package io.fabric8.agent;
 
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,8 +24,6 @@ import java.io.IOException;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -39,7 +36,7 @@ public class DeploymentBuilderTest {
 
     @Before
     public void setUp() {
-        this.builder = new DeploymentBuilder(null, null, null, 0l);
+        this.builder = new DeploymentBuilder(null, null, 0l);
     }
 
     @Test

@@ -31,41 +31,21 @@
 
     <properties>
         <fuse.osgi.export>
-            io.fabric8.maven*;version=${project.version},
+            io.fabric8.maven.proxy;version=${project.version},
         </fuse.osgi.export>
         <fuse.osgi.import>
-            !org.cyberneko.html*,
-            !junit*,
-            !org.apache.xerces.xni*,
-            !org.codehaus.classworlds*,
-            !org.apache.xbean*,
-            !org.apache.commons.logging,
             org.slf4j*,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-            com.google.common.collect;-split-package:=first,
-            com.google.common.base;-split-package:=first,
-            io.fabric8.utils;-split-package:=first,
-            io.fabric8.maven.util,
-            org.apache.commons.codec*,
-            org.apache.commons.httpclient*,
-            org.apache.commons.io*,
-            org.apache.commons.lang*,
-            org.jsoup.*,
-            org.apache.maven.*;-split-package:=merge-first,
-            org.sonatype.aether*,
-            org.sonatype.plexus*,
-            org.codehaus.plexus*
+            io.fabric8.utils;
+            io.fabric8.maven.proxy.impl;
+                -split-package:=first,
         </fuse.osgi.private.pkg>
     </properties>
 
 	<dependencies>
 
-		<dependency>
-			<groupId>io.fabric8</groupId>
-			<artifactId>maven-util</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>io.fabric8</groupId>
 			<artifactId>fabric-zookeeper</artifactId>
@@ -92,6 +72,10 @@
                 </exclusion>
             </exclusions>
 		</dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-maven</artifactId>
+        </dependency>
 
 		<!-- Provided Dependencies -->
 		<dependency>

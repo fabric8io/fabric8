@@ -26,13 +26,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
-import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Version;
 import io.fabric8.common.util.Files;
+import io.fabric8.maven.util.Parser;
 import io.fabric8.service.VersionPropertyPointerResolver;
 
 import org.apache.karaf.features.Feature;

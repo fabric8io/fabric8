@@ -54,6 +54,12 @@
             <version>${project.version}</version>
             <scope>provided</scope>
             <type>pom</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.fabric8.itests</groupId>
@@ -63,6 +69,11 @@
         </dependency>
         
         <!-- Test Dependencies -->
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>io.fabric8.runtime</groupId>
             <artifactId>fabric-runtime-container-karaf-managed</artifactId>
@@ -88,6 +99,16 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-aether-provider</artifactId>
+            <version>3.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-settings-builder</artifactId>
+            <version>3.0.5</version>
         </dependency>
     </dependencies>
 

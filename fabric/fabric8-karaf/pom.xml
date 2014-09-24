@@ -245,10 +245,6 @@
                <artifactId>fabric-zookeeper</artifactId>
            </dependency>
            <dependency>
-               <groupId>io.fabric8.fab</groupId>
-               <artifactId>fab-osgi</artifactId>
-           </dependency>
-           <dependency>
                 <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-elasticsearch-factory</artifactId>
            </dependency>
@@ -533,7 +529,6 @@
                                    <feature>fabric-archetype-commands</feature>
                                    <feature>fabric-autoscale</feature>
                                    <feature>fabric-boot-commands</feature>
-                                   <feature>fabric-bundle</feature>
                                    <feature>fabric-core</feature>
                                    <feature>fabric-camel</feature>
                                    <feature>fabric-camel-autotest</feature>
