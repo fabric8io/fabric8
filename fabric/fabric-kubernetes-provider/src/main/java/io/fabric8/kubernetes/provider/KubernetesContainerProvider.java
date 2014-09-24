@@ -253,25 +253,31 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                                 String kind = kindNode.asText();
                                 if (Objects.equal("Pod", kind)) {
                                     PodSchema podSchema = objectMapper.reader(PodSchema.class).readValue(json);
+                                    configurePod(podSchema, service, options, config);
                                     LOG.info("Creating a pod from " + definition);
                                     try {
-                                        kubernetes.createPod(podSchema);
+                                        Object answer = kubernetes.createPod(podSchema);
+                                        LOG.info("Created pod result: " + answer);
                                     } catch (Exception e) {
                                         LOG.error("Failed to create pod from " + definition + ". " + e + ". " + podSchema, e);
                                     }
                                 } else if (Objects.equal("ReplicationController", kind)) {
                                     ReplicationControllerSchema replicationControllerSchema = objectMapper.reader(ReplicationControllerSchema.class).readValue(json);
+                                    configureReplicationController(replicationControllerSchema, service, options, config);
                                     LOG.info("Creating a controller from " + definition);
                                     try {
-                                        kubernetes.createReplicationController(replicationControllerSchema);
+                                        Object answer = kubernetes.createReplicationController(replicationControllerSchema);
+                                        LOG.info("Created replication controller: " + answer);
                                     } catch (Exception e) {
                                         LOG.error("Failed to create controller from " + definition + ". " + e + ". " + replicationControllerSchema, e);
                                     }
                                 } else if (Objects.equal("Service", kind)) {
                                     ServiceSchema serviceSchema = objectMapper.reader(ServiceSchema.class).readValue(json);
+                                    configureService(serviceSchema, service, options, config);
                                     LOG.info("Creating a service from " + definition);
                                     try {
-                                        kubernetes.createService(serviceSchema);
+                                        Object answer = kubernetes.createService(serviceSchema);
+                                        LOG.info("Created service: " + answer);
                                     } catch (Exception e) {
                                         LOG.error("Failed to create controller from " + definition + ". " + e + ". " + serviceSchema, e);
                                     }
@@ -288,11 +294,30 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         }
         String status = "TODO";
         List<String> warnings = new ArrayList<>();
-        CreateKubernetesContainerMetadata metadata = createKubernetesContainerMetadata(containerId, "kubelet", status, warnings);
+        CreateKubernetesContainerMetadata metadata = createKubernetesContainerMetadata(options, containerId, "kubelet", status, warnings);
+
         // TODO
         // publishZooKeeperValues(options, environmentVariables);
         return metadata;
+    }
 
+    protected void configurePod(PodSchema podSchema, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config) {
+        podSchema.setLabels(configureLabels(podSchema.getLabels(), service, options, config));
+    }
+
+    protected void configureReplicationController(ReplicationControllerSchema replicationControllerSchema, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config) {
+        replicationControllerSchema.setLabels(configureLabels(replicationControllerSchema.getLabels(), service, options, config));
+    }
+
+    protected void configureService(ServiceSchema serviceSchema, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config) {
+        serviceSchema.setLabels(configureLabels(serviceSchema.getLabels(), service, options, config));
+    }
+
+    protected Map<String, String> configureLabels(Map<String, String> labels, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config) {
+        String name = options.getName();
+        Set<String> profileIds = options.getProfiles();
+        String versionId = options.getVersion();
+        return updateLabels(labels, service, name, profileIds, versionId);
     }
 
     @Override
@@ -331,16 +356,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         PodSchema pod = new PodSchema();
         pod.setId(KubernetesHelpers.containerNameToPodId(name));
 
-        Map<String, String> labels = new HashMap<>();
-        labels.put(LABELS.FABRIC8, "true");
-        labels.put(LABELS.CONTAINER, name);
-        String profileString = Strings.join(profileIds, ",");
-        labels.put(LABELS.PROFILE, profileString);
-        labels.put(LABELS.VERSION, versionId);
-        Map<String, String> labelConfiguration = Profiles.getOverlayConfiguration(service, profileIds, versionId, KubernetesConstants.LABELS_PID, "kubernetes");
-        if (labelConfiguration != null) {
-            labels.putAll(labelConfiguration);
-        }
+        Map<String, String> labels = updateLabels(null, service, name, profileIds, versionId);
 
         pod.setLabels(labels);
         DesiredState desiredState = new DesiredState();
@@ -411,7 +427,6 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
             LOG.info("About to create pod with image " + image + " on " + getKubernetesAddress() + " with " + pod);
             Object answer = kubernetes.createPod(pod);
             LOG.info("Go answer: " + answer);
-
         } catch (Exception e) {
             LOG.info("Failed to create pod " + name + " from config " + pod
                     + ": " + e + Dockers.dockerErrorMessage(e), e);
@@ -419,8 +434,33 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         }
     }
 
+    protected Map<String, String> updateLabels(Map<String, String> initialLabels, FabricService service, String containerName, Set<String> profileIds, String versionId) {
+        Map<String, String> labels = new HashMap<>();
+        if (initialLabels != null) {
+            labels.putAll(initialLabels);
+        }
+        if (!labels.containsKey(LABELS.FABRIC8)) {
+            labels.put(LABELS.FABRIC8, "true");
+        }
+        if (!labels.containsKey(LABELS.NAME)) {
+            labels.put(LABELS.NAME, containerName);
+        }
+        if (!labels.containsKey(LABELS.PROFILE)) {
+            String profileString = Strings.join(profileIds, ",");
+            labels.put(LABELS.PROFILE, profileString);
+        }
+        if (!labels.containsKey(LABELS.VERSION)) {
+            labels.put(LABELS.VERSION, versionId);
+        }
+        Map<String, String> labelConfiguration = Profiles.getOverlayConfiguration(service, profileIds, versionId, KubernetesConstants.LABELS_PID, "kubernetes");
+        if (labelConfiguration != null) {
+            labels.putAll(labelConfiguration);
+        }
+        return labels;
+    }
 
-    public static CreateKubernetesContainerMetadata createKubernetesContainerMetadata(DockerCreateOptions options, ContainerCreateStatus status, String containerType) {
+
+    public static CreateKubernetesContainerMetadata createKubernetesContainerMetadata(CreateKubernetesContainerOptions options, ContainerCreateStatus status, String containerType) {
         String containerId = options.getName();
         List<String> warnings = new ArrayList<String>();
         String statusId = "unknown";
@@ -431,13 +471,12 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                 Collections.addAll(warnings, warningArray);
             }
         }
-        CreateKubernetesContainerMetadata metadata = createKubernetesContainerMetadata(containerId, containerType, statusId, warnings);
-        metadata.setCreateOptions(options);
-        return metadata;
+        return createKubernetesContainerMetadata(options, containerId, containerType, statusId, warnings);
     }
 
-    public static CreateKubernetesContainerMetadata createKubernetesContainerMetadata(String containerId, String containerType, String statusId, List<String> warnings) {
+    public static CreateKubernetesContainerMetadata createKubernetesContainerMetadata(CreateKubernetesContainerOptions options, String containerId, String containerType, String statusId, List<String> warnings) {
         CreateKubernetesContainerMetadata metadata = new CreateKubernetesContainerMetadata(statusId, warnings);
+        metadata.setCreateOptions(options);
         metadata.setContainerName(containerId);
         metadata.setContainerType(containerType);
         metadata.setOverridenResolver(ZkDefs.MANUAL_IP);

@@ -35,7 +35,7 @@ public class KubernetesConstants {
 
     public static class LABELS {
         public static final String FABRIC8 = "fabric8";
-        public static final String CONTAINER = "container";
+        public static final String NAME = "name";
         public static final String PROFILE = "profile";
         public static final String VERSION = "version";
     }
