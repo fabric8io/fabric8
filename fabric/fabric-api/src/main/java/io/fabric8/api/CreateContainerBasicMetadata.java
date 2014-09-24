@@ -98,8 +98,9 @@ public class CreateContainerBasicMetadata<O extends CreateContainerOptions> impl
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Container: ").append(containerName).append(".");
-        if (getCreateOptions().isEnsembleServer() && getCreateOptions().getZookeeperPassword() != null) {
-            sb.append("Registry Password: ").append(getCreateOptions().getZookeeperPassword());
+        O createOptions = getCreateOptions();
+        if (createOptions != null && createOptions.isEnsembleServer() && createOptions.getZookeeperPassword() != null) {
+            sb.append("Registry Password: ").append(createOptions.getZookeeperPassword());
         }
         return  sb.toString();
     }
