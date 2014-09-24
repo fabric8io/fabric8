@@ -54,8 +54,10 @@ public class ProfileRenameAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        FabricValidations.validateProfileName(profileName);
+        // do not validate the old name in case a profile was created somehow with invalid name
+        // but validate the new name
         FabricValidations.validateProfileName(newName);
+
         Version version;
         if (versionId != null) {
             version = profileService.getRequiredVersion(versionId);

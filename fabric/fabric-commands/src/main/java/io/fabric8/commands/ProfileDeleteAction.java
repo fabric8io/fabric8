@@ -18,10 +18,8 @@ package io.fabric8.commands;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileService;
-import io.fabric8.api.Profiles;
 import io.fabric8.api.Version;
-import io.fabric8.utils.FabricValidations;
-
+import io.fabric8.common.util.Strings;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
@@ -51,15 +49,22 @@ public class ProfileDeleteAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        FabricValidations.validateProfileName(name);
+        // do not validate the name in case a profile was created somehow with invalid name
+
         ProfileService profileService = fabricService.adapt(ProfileService.class);
         Version version = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getRequiredDefaultVersion();
+        boolean deleted = false;
         for (Profile profile : version.getProfiles()) {
-        	String versionId = profile.getVersion();
+            String versionId = profile.getVersion();
             String profileId = profile.getId();
-			if (name.equals(profileId)) {
-			    profileService.deleteProfile(fabricService, versionId, profileId, force);
+            if (name.equals(profileId)) {
+                profileService.deleteProfile(fabricService, versionId, profileId, force);
+                deleted = true;
             }
+        }
+
+        if (!deleted) {
+            System.out.println("Profile " + name + " not found.");
         }
         return null;
     }

@@ -44,11 +44,14 @@ public class ProfileRefreshAction extends AbstractAction {
 
 	@Override
 	protected Object doExecute() throws Exception {
-		FabricValidations.validateProfileName(profileName);
         ProfileService profileService = fabricService.adapt(ProfileService.class);
 		Version version = versionId != null ? profileService.getRequiredVersion(versionId) : fabricService.getRequiredDefaultVersion();
-		Profile profile = version.getRequiredProfile(profileName);
-        Profiles.refreshProfile(fabricService, profile);
+		Profile profile = version.getProfile(profileName);
+        if (profile != null) {
+            Profiles.refreshProfile(fabricService, profile);
+        } else {
+            System.out.println("Profile " + profileName + " not found.");
+        }
 		return null;
 	}
 }
