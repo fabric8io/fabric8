@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Test client side {@link ProfileManagement} via jolokia
+ * Test client side {@link ProfileManagement} test via jolokia
  *
  * @since 15-Sep-2014
  */
