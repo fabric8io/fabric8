@@ -61,8 +61,6 @@
             <artifactId>karaf-camel-amq-archetype</artifactId>
             <version>${project.version}</version>
         </dependency>
-<!--
-     These are commented out in archtypes build so can't test them
         <dependency>
             <groupId>io.fabric8.archetypes</groupId>
             <artifactId>karaf-camel-cbr-archetype</artifactId>
@@ -73,12 +71,13 @@
             <artifactId>karaf-camel-cxf-code-first-archetype</artifactId>
             <version>${project.version}</version>
         </dependency>
--->
         <dependency>
             <groupId>io.fabric8.archetypes</groupId>
             <artifactId>karaf-camel-cxf-contract-first-archetype</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- These are commented out in archtypes build so can't test them -->
+        <!--
         <dependency>
             <groupId>io.fabric8.archetypes</groupId>
             <artifactId>karaf-camel-dozer-wiki-archetype</artifactId>
@@ -89,6 +88,7 @@
             <artifactId>karaf-camel-drools-archetype</artifactId>
             <version>${project.version}</version>
         </dependency>
+        -->
         <dependency>
             <groupId>io.fabric8.archetypes</groupId>
             <artifactId>karaf-camel-eips-archetype</artifactId>
@@ -218,6 +218,12 @@
     </dependencies>
 
     <build>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
