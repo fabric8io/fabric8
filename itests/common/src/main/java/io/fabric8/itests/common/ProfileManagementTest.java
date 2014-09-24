@@ -15,7 +15,9 @@
  */
 package io.fabric8.itests.common;
 
+import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
+import io.fabric8.api.VersionBuilder;
 import io.fabric8.api.mxbean.ManagementUtils;
 import io.fabric8.api.mxbean.ProfileManagement;
 import io.fabric8.api.mxbean.ProfileState;
@@ -38,12 +40,11 @@ import org.jboss.gravia.utils.IOUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Test client side {@link ProfileManagement} via jolokia
+ * Test client side {@link ProfileManagement} test
  *
  * @since 15-Sep-2014
  */
@@ -93,62 +94,77 @@ public class ProfileManagementTest {
     public void testGetVersions() throws Exception {
         List<String> versions = new ArrayList<>(proxy.getVersionIds());
         versions.remove("master");
-        Assert.assertEquals(1, versions.size());
+        Assert.assertEquals("Expected 1, but was" + versions, 1, versions.size());
         Assert.assertEquals("1.0", versions.get(0));
     }
 
     @Test
     public void testGetVersion() throws Exception {
-        VersionState version = proxy.getVersion("1.0");
-        Map<String, String> attributes = version.getAttributes();
-        Assert.assertTrue(attributes.isEmpty());
-        List<String> profiles = new ArrayList<>(version.getProfileIds());
+        VersionState v10 = proxy.getVersion("1.0");
+        Assert.assertEquals("1.0", v10.getId());
+        Assert.assertTrue("Expected empty, but was" + v10.getAttributes(), v10.getAttributes().isEmpty());
+        List<String> profiles = v10.getProfileIds();
         Assert.assertTrue(profiles.contains("default"));
         Assert.assertTrue(profiles.contains("fabric"));
     }
 
     @Test
-    @Ignore
-    public void testProfileCreateUpdateDelete() throws Exception {
-        
-        // fabric:profile-create prfA
-        ProfileBuilder pbA10 = ProfileBuilder.Factory.create("1.0", "prfA")
-                .addConfiguration("pidA", Collections.singletonMap("keyA", "valA"));
-        ProfileState prfA10 = proxy.createProfile(new ProfileState(pbA10.getProfile()));
-        Assert.assertEquals("1.0", prfA10.getVersion());
-        Assert.assertEquals("prfA", prfA10.getId());
-        Assert.assertEquals("valA", prfA10.getConfiguration("pidA").get("keyA"));
-        
-        // Verify access to original profile
-        Assert.assertNotNull(proxy.getVersion("1.0").getProfileState("prfA"));
-        
-        // fabric:version-create --parent 1.0 1.1
-        VersionState v11 = proxy.createVersion("1.0", "1.1", null);
-        ProfileState prfA11a = v11.getProfileState("prfA");
-        Assert.assertEquals("1.1", prfA11a.getVersion());
-        Assert.assertEquals("prfA", prfA11a.getId());
-        Assert.assertEquals("valA", prfA11a.getConfiguration("pidA").get("keyA"));
-        
-        // Verify access to original profile
-        Assert.assertNotNull(proxy.getVersion("1.0").getProfileState("prfA"));
-        Assert.assertNotNull(proxy.getVersion("1.1").getProfileState("prfA"));
-        
-        ProfileBuilder pbA11 = ProfileBuilder.Factory.createFrom(prfA11a.toProfile())
-                .addConfiguration("pidA", Collections.singletonMap("keyB", "valB"));
-        ProfileState prfA11b = proxy.createProfile(new ProfileState(pbA11.getProfile()));
-        Assert.assertEquals("1.1", prfA11b.getVersion());
-        Assert.assertEquals("prfA", prfA11b.getId());
-        Assert.assertEquals("valB", prfA11b.getConfiguration("pidA").get("keyB"));
-        
-        Assert.assertNotEquals(prfA11a, prfA11b);
-        // System.out.println(Profiles.getProfileDifference(prfA11a, prfA11b));
-        
-        // Verify access to original profile
-        Assert.assertNotNull(proxy.getVersion("1.0").getProfileState("prfA"));
-        Assert.assertNotNull(proxy.getVersion("1.1").getProfileState("prfA"));
-        
-        // Delete the profile/version that were added
-        proxy.deleteProfile(prfA10.getVersion(), prfA10.getId(), true);
-        proxy.deleteVersion(v11.getId());
+    public void testCreateVersion() throws Exception {
+        ProfileBuilder pbA11 = ProfileBuilder.Factory.create("1.1", "prfA");
+        Profile prfA = pbA11.addConfiguration("pidA", Collections.singletonMap("keyA", "valA")).getProfile();
+        VersionBuilder vb11 = VersionBuilder.Factory.create("1.1").addProfile(prfA);
+        VersionState v11 = proxy.createVersion(new VersionState(vb11.getVersion()));
+        try {
+            Assert.assertEquals("1.1", v11.getId());
+            Assert.assertTrue(v11.getAttributes().isEmpty());
+            Assert.assertEquals("valA", v11.getProfileState("prfA").getConfiguration("pidA").get("keyA"));
+        } finally {
+            proxy.deleteVersion("1.1");
+        }
+    }
+
+    @Test
+    public void testCreateVersionFrom() throws Exception {
+        // [FABRIC-1169] Profile version attributes leak to other versions
+        // VersionState v12 = proxy.createVersion("1.0", "1.2", Collections.singletonMap("keyA", "valA"));
+        VersionState v12 = proxy.createVersion("1.0", "1.2", null);
+        try {
+            Assert.assertEquals("1.2", v12.getId());
+            //Assert.assertEquals("valA", v12.getAttributes().get("keyA"));
+            List<String> profiles = v12.getProfileIds();
+            Assert.assertTrue(profiles.contains("default"));
+            Assert.assertTrue(profiles.contains("fabric"));
+        } finally {
+            proxy.deleteVersion("1.2");
+        }
+    }
+
+    @Test
+    public void testCreateUpdateDeleteProfile() throws Exception {
+        ProfileBuilder pbA10 = ProfileBuilder.Factory.create("1.0", "prfA");
+        pbA10.addConfiguration("pidA", Collections.singletonMap("keyA", "valA"));
+        ProfileState prfA = proxy.createProfile(new ProfileState(pbA10.getProfile()));
+        try {
+            Assert.assertEquals("prfA", prfA.getId());
+            Assert.assertEquals("1.0", prfA.getVersion());
+            Assert.assertTrue(prfA.getAttributes().isEmpty());
+            Assert.assertEquals("valA", prfA.getConfiguration("pidA").get("keyA"));
+            
+            // getProfile
+            Assert.assertEquals(prfA, proxy.getProfile("1.0", "prfA"));
+
+            // updateProfile
+            prfA = proxy.getProfile("1.0", "prfA");
+            pbA10 = ProfileBuilder.Factory.createFrom(prfA.toProfile());
+            pbA10.addConfiguration("pidB", "keyB", "valB");
+            prfA = proxy.updateProfile(new ProfileState(pbA10.getProfile()));
+            Assert.assertEquals("prfA", prfA.getId());
+            Assert.assertEquals("1.0", prfA.getVersion());
+            Assert.assertTrue(prfA.getAttributes().isEmpty());
+            Assert.assertEquals("valA", prfA.getConfiguration("pidA").get("keyA"));
+            Assert.assertEquals("valB", prfA.getConfiguration("pidB").get("keyB"));
+        } finally {
+            proxy.deleteProfile("1.0", "prfA", false);
+        }
     }
 }
