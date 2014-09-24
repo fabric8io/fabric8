@@ -18,30 +18,22 @@ package io.fabric8.agent.download;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 
+import io.fabric8.maven.MavenResolver;
 import io.fabric8.maven.url.internal.AetherBasedResolver;
 import io.fabric8.maven.util.MavenConfiguration;
 import io.fabric8.maven.util.Parser;
 
 public class MavenDownloadTask extends AbstractDownloadTask implements Runnable {
 
-    private final MavenConfiguration configuration;
+    private final MavenResolver resolver;
 
-    public MavenDownloadTask(String url, MavenConfiguration configuration, ExecutorService executor) {
+    public MavenDownloadTask(String url, MavenResolver resolver, ExecutorService executor) {
         super(url, executor);
-        this.configuration = configuration;
+        this.resolver = resolver;
     }
 
     protected File download() throws Exception {
-        Parser parser = Parser.parsePathWithSchemePrefix(url);
-
-        return new AetherBasedResolver( configuration ).resolveFile(
-                parser.getGroup(),
-                parser.getArtifact(),
-                parser.getClassifier(),
-                parser.getType(),
-                parser.getVersion(),
-                parser.getRepositoryURL()
-        );
+        return resolver.download(url);
     }
 
 }

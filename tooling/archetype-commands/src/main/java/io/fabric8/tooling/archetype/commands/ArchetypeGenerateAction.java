@@ -28,6 +28,8 @@ import io.fabric8.agent.download.DownloadFuture;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.FutureListener;
 import io.fabric8.common.util.Strings;
+import io.fabric8.maven.MavenResolver;
+import io.fabric8.maven.url.internal.AetherBasedResolver;
 import io.fabric8.maven.util.MavenConfigurationImpl;
 import io.fabric8.tooling.archetype.ArchetypeService;
 import io.fabric8.tooling.archetype.catalog.Archetype;
@@ -282,7 +284,8 @@ public class ArchetypeGenerateAction extends AbstractAction {
      */
     private File fetchArchetype(Archetype archetype) throws IOException {
         MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn");
-        DownloadManager dm = new DownloadManager(config, Executors.newSingleThreadExecutor());
+        MavenResolver resolver = new AetherBasedResolver(config);
+        DownloadManager dm = new DownloadManager(resolver, Executors.newSingleThreadExecutor());
 
         final CountDownLatch latch = new CountDownLatch(1);
         final DownloadFuture df = dm.download(String.format("mvn:%s/%s/%s", archetype.groupId, archetype.artifactId, archetype.version));

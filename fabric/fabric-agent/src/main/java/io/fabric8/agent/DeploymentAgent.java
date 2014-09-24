@@ -61,6 +61,8 @@ import io.fabric8.common.util.Files;
 import io.fabric8.common.util.MultiException;
 import io.fabric8.common.util.Strings;
 
+import io.fabric8.maven.MavenResolver;
+import io.fabric8.maven.url.internal.AetherBasedResolver;
 import io.fabric8.maven.util.MavenConfigurationImpl;
 import io.fabric8.maven.util.Parser;
 import org.apache.felix.utils.properties.Properties;
@@ -177,7 +179,6 @@ public class DeploymentAgent implements ManagedService {
         this.managedEtcs = new Properties(bundleContext.getDataFile("etc.properties"));
         this.downloadExecutor = createDownloadExecutor();
 
-        MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn");
         fabricService = new ServiceTracker<FabricService, FabricService>(systemBundleContext, FabricService.class, new ServiceTrackerCustomizer<FabricService, FabricService>() {
             @Override
             public FabricService addingService(ServiceReference<FabricService> reference) {
@@ -203,6 +204,8 @@ public class DeploymentAgent implements ManagedService {
     }
 
     protected ExecutorService createDownloadExecutor() {
+        // TODO: this should not be loaded from a static file
+        // TODO: or at least from the bundle context, but preferably from the config
         String size = DEFAULT_DOWNLOAD_THREADS;
         try {
             Properties customProps = new Properties(new File(KARAF_BASE + File.separator + "etc" + File.separator + "custom.properties"));
@@ -401,8 +404,9 @@ public class DeploymentAgent implements ManagedService {
         // Building configuration
         PropertiesPropertyResolver syspropsResolver = new PropertiesPropertyResolver(System.getProperties());
         DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(props, syspropsResolver);
-        final MavenConfigurationImpl config = new MavenConfigurationImpl(propertyResolver, "org.ops4j.pax.url.mvn");
-        DownloadManager manager = new DownloadManager(config, getDownloadExecutor());
+        MavenConfigurationImpl config = new MavenConfigurationImpl(propertyResolver, "org.ops4j.pax.url.mvn");
+        MavenResolver resolver = new AetherBasedResolver(config);
+        DownloadManager manager = new DownloadManager(resolver, getDownloadExecutor());
         Map<String, String> properties = new HashMap<String, String>();
         for (Enumeration e = props.keys(); e.hasMoreElements();) {
             Object key = e.nextElement();

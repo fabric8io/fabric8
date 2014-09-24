@@ -30,14 +30,34 @@ import org.eclipse.aether.repository.RemoteRepository;
 
 public interface MavenResolver {
 
-    File resolveFile(Artifact artifact) throws IOException;
-
-    DependencyNode collectDependenciesForJar(File artifactFile, Filter<Dependency> excludeFilter) throws IOException, RepositoryException;
-
+    /**
+     * Access to the RepositorySystem
+     */
     RepositorySystem getRepositorySystem();
 
+    /**
+     * Create a new session
+     */
     RepositorySystemSession createSession();
 
+    /**
+     * Retrieve the list of configured repositories
+     */
     List<RemoteRepository> getRepositories();
+
+    /**
+     * Resolve and download a maven based url
+     */
+    File download(String url) throws IOException;
+
+    /**
+     * Resolve and download an artifact
+     */
+    File resolveFile(Artifact artifact) throws IOException;
+
+    /**
+     * Build a tree of dependencies for the specified jar file
+     */
+    DependencyNode collectDependenciesForJar(File artifactFile, Filter<Dependency> excludeFilter) throws IOException, RepositoryException;
 
 }

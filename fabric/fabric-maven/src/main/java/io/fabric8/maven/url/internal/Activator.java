@@ -21,6 +21,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import io.fabric8.maven.MavenResolver;
 import io.fabric8.maven.url.ServiceConstants;
 import io.fabric8.maven.util.MavenConfiguration;
 import io.fabric8.maven.util.MavenConfigurationImpl;
@@ -33,7 +34,7 @@ import org.osgi.framework.BundleContext;
  * Bundle activator for mvn: protocol handler
  */
 public final class Activator
-    extends HandlerActivator<MavenConfiguration>
+    extends HandlerActivator<MavenResolver>
 {
 
     /**
@@ -44,7 +45,7 @@ public final class Activator
         super(
             new String[]{ ServiceConstants.PROTOCOL },
             ServiceConstants.PID,
-            new ConnectionFactory<MavenConfiguration>()
+            new ConnectionFactory<MavenResolver>()
             {
 
                 /**
@@ -52,16 +53,16 @@ public final class Activator
                  */
                 public URLConnection createConection( final BundleContext bundleContext,
                                                       final URL url,
-                                                      final MavenConfiguration config )
+                                                      final MavenResolver resolver )
                     throws MalformedURLException
                 {
-                    return new Connection( url, config );
+                    return new Connection( url, resolver );
                 }
 
                 /**
                  * @see ConnectionFactory#createConfiguration(org.ops4j.util.property.PropertyResolver)
                  */
-                public MavenConfiguration createConfiguration( final PropertyResolver propertyResolver )
+                public MavenResolver createConfiguration( final PropertyResolver propertyResolver )
                 {
                     final MavenConfigurationImpl config =
                         new MavenConfigurationImpl( propertyResolver, ServiceConstants.PID );
@@ -69,7 +70,7 @@ public final class Activator
                     {
                         return null;
                     }
-                    return config;
+                    return new AetherBasedResolver(config);
                 }
             }
         );

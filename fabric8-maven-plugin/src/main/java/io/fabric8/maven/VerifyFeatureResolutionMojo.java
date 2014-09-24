@@ -53,6 +53,7 @@ import io.fabric8.agent.repository.HttpMetadataProvider;
 import io.fabric8.agent.repository.MetadataRepository;
 import io.fabric8.agent.resolver.ResourceBuilder;
 import io.fabric8.common.util.MultiException;
+import io.fabric8.maven.url.internal.AetherBasedResolver;
 import io.fabric8.maven.util.MavenConfigurationImpl;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.karaf.deployer.blueprint.BlueprintTransformer;
@@ -148,7 +149,8 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
         try {
             DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(properties);
             MavenConfigurationImpl config = new MavenConfigurationImpl(propertyResolver, "org.ops4j.pax.url.mvn");
-            manager = new DownloadManager(config, executor);
+            MavenResolver resolver = new AetherBasedResolver(config);
+            manager = new DownloadManager(resolver, executor);
             repositories = loadRepositories(manager, descriptors);
             for (String repoUri : repositories.keySet()) {
                 Feature[] features = repositories.get(repoUri).getFeatures();
