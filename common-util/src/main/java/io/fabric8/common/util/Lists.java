@@ -18,6 +18,7 @@
 package io.fabric8.common.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,11 +27,22 @@ public class Lists {
     /**
      * Creates a mutable list from a potentially null or immutable list
      */
-    public static List<String> mutableList(List<String> optionalList) {
+    public static <T> List<T> mutableList(List<T> optionalList) {
         if (optionalList == null) {
             return new ArrayList<>();
         } else {
             return new ArrayList<>(optionalList);
+        }
+    }
+
+    /**
+     * Returns an empty list if the given list is null
+     */
+    public static <T> List<T> notNullList(List<T> list) {
+        if (list == null) {
+            return Collections.EMPTY_LIST;
+        } else {
+            return list;
         }
     }
 }

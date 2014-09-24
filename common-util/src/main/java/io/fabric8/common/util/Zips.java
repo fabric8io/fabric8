@@ -148,11 +148,4 @@ public class Zips {
         }
     }
 
-    public static List<String> notNullList(List<String> list) {
-        if (list == null) {
-            return Collections.EMPTY_LIST;
-        } else {
-            return list;
-        }
-    }
 }
