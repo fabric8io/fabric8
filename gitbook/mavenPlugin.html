@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.2" data-basepath="." data-revision="1411500260670">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.2" data-basepath="." data-revision="1411586698565">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -1073,7 +1073,7 @@ PID: my.pid
 </tr>
 <tr>
 <td>jolokiaUrl</td>
-<td>The Jolokia URL of the Fabric console. Defaults to <b><a href="http://localhost:8181/jolokia" target="_blank">http://localhost:8181/jolokia</a></b></td>
+<td>The Jolokia URL of the Fabric console. Defaults to <b><a href="http://localhost:8181/jolokia" target="_blank">http://localhost:8181/jolokia</a></b>. Username and password can also be specified in the jolokiaUrl which allows to use a custom credentials, or in cases where storing login information in the Maven <tt>settings.xml</tt> file is not desired. See further below for more details.</td>
 </tr>
 <tr>
 <td>profileVersion</td>
@@ -1141,9 +1141,28 @@ PID: my.pid
 </tr>
 </table>
 
+<h3 id="specifying-credentials-from-command-line"><a name="specifying-credentials-from-command-line" class="anchor" href="#specifying-credentials-from-command-line"><span class="fa fa-link"></span></a>Specifying credentials from command line</h3>
+<p>The <strong>fabric8:deploy</strong> goal will by default read the username and password from the local Maven <code>settings.xml</code> file. This may not be desired to store password as plain-text. The option <code>jolokiaUrl</code> can be used to specify the url for the remote fabric server including username and password. For example to use username <code>scott</code> and password <code>tiger</code> then type:</p>
+<pre><code> fabric8:deploy -Dfabric8.jolokiaUrl=http://scott:tiger@localhost:8181/jolokia
+</code></pre><p>Tip: You can get the jolokia url using <code>fabric:info</code> from the fabric shell.</p>
 <h3 id="generating-karaf-shell-scripts-for-each-profile"><a name="generating-karaf-shell-scripts-for-each-profile" class="anchor" href="#generating-karaf-shell-scripts-for-each-profile"><span class="fa fa-link"></span></a>Generating Karaf shell scripts for each profile</h3>
-<p>You can also use the <strong>fabric8:script</strong> goal using the same configuration above to auto-generate a profile create karaf script.</p>
+<p>You can also use the <strong>fabric8:script</strong> goal using the same configuration above to auto-generate a profile create karaf script. The script can then be used from the Karaf shell to create the profile. </p>
+<p>From the Karaf shell you can use the <code>shell:source</code> command to run the script, eg:</p>
+<pre><code>shell:source file:somepath\target\profile.karaf
+</code></pre><p>The <strong>fabric:script</strong> creates the script file by default as <code>target\profile.karaf</code>. The name of the output file can be configured using the following options:</p>
+<h3 id="property-reference"><a name="property-reference" class="anchor" href="#property-reference"><span class="fa fa-link"></span></a>Property Reference</h3>
+<p><table class="table table-striped"></table></p>
+<p><tr></tr></p>
+<p><th>Parameter</th></p>
+<p><th>Description</th>
+</p>
+<p><tr></tr></p>
+<p><td>outputFile</td></p>
+<p><td>The name of the script file. Is by default <tt>target\profile.karaf</tt></td>
+</p>
+<tr>
 
+</tr>
                     
                     </section>
                 
