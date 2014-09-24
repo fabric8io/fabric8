@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import io.fabric8.agent.download.DownloadFuture;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.FutureListener;
-import io.fabric8.agent.mvn.Parser;
+import io.fabric8.maven.util.Parser;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileService;
@@ -59,7 +59,6 @@ public class AgentUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentUtils.class);
 
-    public static final String FAB_PROTOCOL = "fab:";
     public static final String REQ_PROTOCOL = "req:";
 
 
@@ -287,7 +286,7 @@ public class AgentUtils {
                         sb.append(",");
                     }
                     sb.append(mavenRepo);
-                    sb.append("@snapshots");
+                    sb.append("@snapshots@snapshotsUpdate=always");
                 }
                 String existingRepos = (String) props.get("org.ops4j.pax.url.mvn.repositories");
                 if (existingRepos != null) {

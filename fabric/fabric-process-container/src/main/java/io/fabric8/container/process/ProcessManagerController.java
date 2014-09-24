@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import io.fabric8.agent.download.DownloadFuture;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
-import io.fabric8.agent.mvn.Parser;
+import io.fabric8.maven.util.Parser;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;

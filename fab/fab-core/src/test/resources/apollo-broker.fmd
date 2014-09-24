@@ -1,8 +1,0 @@
-#
-Id=org.apache.activemq:apollo-broker:1.0-SNAPSHOT
-Name=apollo
-Description=The Apollo Broker
-Long-Description=ActiveMQ Apollo is a faster, more reliable, easier to maintain messaging broker built from the foundations of the original ActiveMQ. It accomplishes this using a radically different threading and message dispatching architecture.
-Extension=false
-Default-Extensions=bdb stomp
-Endorsed-Extensions=org.apache.activemq:apollo-bdb:1.0-SNAPSHOT org.apache.activemq:apollo-stomp:1.0-SNAPSHOT org.apache.activemq:apollo-jdbm2:1.0-SNAPSHOT

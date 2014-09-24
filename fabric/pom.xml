@@ -43,6 +43,7 @@
 
     <modules>
         <module>dynamic-jaxb</module>
+        <module>fabric-maven</module>
         <module>fabric-agent</module>
         <module>fabric-agent-commands</module>
         <module>fabric-autoscale</module>

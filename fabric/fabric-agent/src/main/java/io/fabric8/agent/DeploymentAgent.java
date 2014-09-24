@@ -49,12 +49,6 @@ import java.util.regex.Pattern;
 import aQute.bnd.osgi.Macro;
 import aQute.bnd.osgi.Processor;
 import io.fabric8.agent.download.DownloadManager;
-import io.fabric8.agent.mvn.DictionaryPropertyResolver;
-import io.fabric8.agent.mvn.MavenConfigurationImpl;
-import io.fabric8.agent.mvn.MavenRepositoryURL;
-import io.fabric8.agent.mvn.MavenSettingsImpl;
-import io.fabric8.agent.mvn.PropertiesPropertyResolver;
-import io.fabric8.agent.mvn.PropertyStore;
 import io.fabric8.agent.repository.HttpMetadataProvider;
 import io.fabric8.agent.repository.MetadataRepository;
 import io.fabric8.agent.resolver.FeatureResource;
@@ -66,17 +60,16 @@ import io.fabric8.common.util.ChecksumUtils;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.MultiException;
 import io.fabric8.common.util.Strings;
-import io.fabric8.fab.MavenResolver;
-import io.fabric8.fab.MavenResolverImpl;
-import io.fabric8.fab.osgi.ServiceConstants;
-import io.fabric8.fab.osgi.internal.Configuration;
-import io.fabric8.fab.osgi.internal.FabResolverFactoryImpl;
+
+import io.fabric8.maven.util.MavenConfigurationImpl;
+import io.fabric8.maven.util.Parser;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
 import org.apache.karaf.features.ConfigInfo;
 import org.apache.karaf.features.Repository;
-import org.apache.karaf.features.internal.FeaturesServiceImpl;
+import org.ops4j.util.property.DictionaryPropertyResolver;
+import org.ops4j.util.property.PropertiesPropertyResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -146,7 +139,6 @@ public class DeploymentAgent implements ManagedService {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-agent"));
     private final ExecutorService downloadExecutor;
-    private DownloadManager manager;
     private boolean resolveOptionalImports = false;
     private long urlHandlersTimeout = TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES);
 
@@ -186,8 +178,6 @@ public class DeploymentAgent implements ManagedService {
         this.downloadExecutor = createDownloadExecutor();
 
         MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn");
-        config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
-        manager = new DownloadManager(config, getDownloadExecutor());
         fabricService = new ServiceTracker<FabricService, FabricService>(systemBundleContext, FabricService.class, new ServiceTrackerCustomizer<FabricService, FabricService>() {
             @Override
             public FabricService addingService(ServiceReference<FabricService> reference) {
@@ -256,7 +246,6 @@ public class DeploymentAgent implements ManagedService {
         // update itself and this would cause a deadlock
         executor.shutdownNow();
         downloadExecutor.shutdownNow();
-        manager.shutdown();
         fabricService.close();
     }
 
@@ -265,7 +254,7 @@ public class DeploymentAgent implements ManagedService {
             try {
                 if (isUpdateable(bundle)) {
                     // TODO: what if the bundle location is not maven based ?
-                    io.fabric8.agent.mvn.Parser parser = new io.fabric8.agent.mvn.Parser(bundle.getLocation());
+                    Parser parser = new Parser(bundle.getLocation());
                     String systemPath = SYSTEM_PATH + File.separator + parser.getArtifactPath().substring(4);
                     String agentDownloadsPath = AGENT_DOWNLOAD_PATH + File.separator + parser.getArtifactPath().substring(4);
                     long systemChecksum = 0;
@@ -413,8 +402,7 @@ public class DeploymentAgent implements ManagedService {
         PropertiesPropertyResolver syspropsResolver = new PropertiesPropertyResolver(System.getProperties());
         DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(props, syspropsResolver);
         final MavenConfigurationImpl config = new MavenConfigurationImpl(propertyResolver, "org.ops4j.pax.url.mvn");
-        config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
-        manager = new DownloadManager(config, getDownloadExecutor());
+        DownloadManager manager = new DownloadManager(config, getDownloadExecutor());
         Map<String, String> properties = new HashMap<String, String>();
         for (Enumeration e = props.keys(); e.hasMoreElements();) {
             Object key = e.nextElement();
@@ -441,7 +429,7 @@ public class DeploymentAgent implements ManagedService {
         for (String key : properties.keySet()) {
             if (key.equals("framework")) {
                 String url = properties.get(key);
-                restart |= updateFramework(configProps, url);
+                restart |= updateFramework(manager, configProps, url);
             } else if (key.startsWith("config.")) {
                 String k = key.substring("config.".length());
                 String v = properties.get(key);
@@ -574,28 +562,18 @@ public class DeploymentAgent implements ManagedService {
         // Compute deployment
         final Map<String, Repository> repositories = loadRepositories(manager, getPrefixedProperties(properties, "repository."));
 
-        // Update bundles
-        FabResolverFactoryImpl fabResolverFactory = new FabResolverFactoryImpl();
-        fabResolverFactory.setConfiguration(new FabricFabConfiguration(config, propertyResolver));
-        fabResolverFactory.setBundleContext(bundleContext);
-        fabResolverFactory.setFeaturesService(new FeaturesServiceImpl() {
-            @Override
-            public Repository[] listRepositories() {
-                return repositories.values().toArray(new Repository[repositories.size()]);
-            }
-        });
-
         DeploymentBuilder builder = new DeploymentBuilder(
                 manager,
-                fabResolverFactory,
                 repositories.values(),
                 urlHandlersTimeout
         );
         updateStatus("downloading", null);
+        if (!getPrefixedProperties(properties, "fab.").isEmpty()) {
+            LOGGER.warn("Fabric bundles are not supported anymore, those requirements will be ignored.");
+        }
         Map<String, Resource> downloadedResources = builder.download(
                 getPrefixedProperties(properties, "feature."),
                 getPrefixedProperties(properties, "bundle."),
-                getPrefixedProperties(properties, "fab."),
                 getPrefixedProperties(properties, "req."),
                 getPrefixedProperties(properties, "override."),
                 getPrefixedProperties(properties, "optional."),
@@ -616,7 +594,7 @@ public class DeploymentAgent implements ManagedService {
         Set<String> ignoredBundles = getPrefixedProperties(properties, "ignore.");
         Map<String, StreamProvider> providers = builder.getProviders();
         Map<Resource, List<Wire>> wiring = builder.getWiring();
-        install(allResources, ignoredBundles, providers, wiring);
+        install(manager, allResources, ignoredBundles, providers, wiring);
         installFeatureConfigs(bundleContext, downloadedResources);
         return true;
     }
@@ -705,7 +683,7 @@ public class DeploymentAgent implements ManagedService {
         return result;
     }
 
-    private void install(Collection<Resource> allResources, Collection<String> ignoredBundles, Map<String, StreamProvider> providers, Map<Resource, List<Wire>> wiring) throws Exception {
+    private void install(DownloadManager manager, Collection<Resource> allResources, Collection<String> ignoredBundles, Map<String, StreamProvider> providers, Map<Resource, List<Wire>> wiring) throws Exception {
         updateStatus("installing", null, allResources, false);
         Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
 
@@ -738,7 +716,7 @@ public class DeploymentAgent implements ManagedService {
                                 // if the checksum are different
                                 InputStream is = null;
                                 try {
-                                    is = getBundleInputStream(res, providers);
+                                    is = getBundleInputStream(manager, res, providers);
                                     long newCrc = ChecksumUtils.checksum(is);
                                     long oldCrc = bundleChecksums.containsKey(bundle.getLocation()) ? Long.parseLong(bundleChecksums.get(bundle.getLocation())) : 0l;
                                     if (newCrc != oldCrc) {
@@ -795,7 +773,7 @@ public class DeploymentAgent implements ManagedService {
         if (agentResource != null) {
             LOGGER.info("Updating agent");
             LOGGER.info("  " + getUri(agentResource));
-            InputStream is = getBundleInputStream(agentResource, providers);
+            InputStream is = getBundleInputStream(manager, agentResource, providers);
             Bundle bundle = bundleContext.getBundle();
             //We need to store the agent checksum and save before we update the agent.
             if (newCheckums.containsKey(bundle.getLocation())) {
@@ -850,20 +828,20 @@ public class DeploymentAgent implements ManagedService {
             Bundle bundle = entry.getKey();
             Resource resource = entry.getValue();
             LOGGER.info("  " + getUri(resource));
-            InputStream is = getBundleInputStream(resource, providers);
+            InputStream is = getBundleInputStream(manager, resource, providers);
             bundle.update(is);
             toRefresh.add(bundle);
         }
         LOGGER.info("Installing bundles:");
         for (Resource resource : toInstall) {
             LOGGER.info("  " + getUri(resource));
-            InputStream is = getBundleInputStream(resource, providers);
+            InputStream is = getBundleInputStream(manager, resource, providers);
             Bundle bundle = systemBundleContext.installBundle(getUri(resource), is);
             toRefresh.add(bundle);
             resToBnd.put(resource, bundle);
             // save a checksum of installed snapshot bundle
             if (bundle.getVersion().getQualifier().endsWith(SNAPSHOT) && !newCheckums.containsKey(bundle.getLocation())) {
-                newCheckums.put(bundle.getLocation(), Long.toString(ChecksumUtils.checksum(getBundleInputStream(resource, providers))));
+                newCheckums.put(bundle.getLocation(), Long.toString(ChecksumUtils.checksum(getBundleInputStream(manager, resource, providers))));
             }
         }
 
@@ -1061,7 +1039,7 @@ public class DeploymentAgent implements ManagedService {
         sorted.add(resource);
     }
 
-    protected InputStream getBundleInputStream(Resource resource, Map<String, StreamProvider> providers) throws IOException {
+    protected InputStream getBundleInputStream(DownloadManager manager, Resource resource, Map<String, StreamProvider> providers) throws IOException {
         String uri = getUri(resource);
         if (uri == null) {
             throw new IllegalStateException("Resource has no uri");
@@ -1240,7 +1218,7 @@ public class DeploymentAgent implements ManagedService {
         }
     }
 
-    protected boolean updateFramework(Properties properties, String url) throws Exception {
+    protected boolean updateFramework(DownloadManager manager, Properties properties, String url) throws Exception {
         if (!url.startsWith("mvn:")) {
             throw new IllegalArgumentException("Framework url must use the mvn: protocol");
         }
@@ -1365,65 +1343,4 @@ public class DeploymentAgent implements ManagedService {
 
     }
 
-    public static class FabricFabConfiguration extends PropertyStore implements Configuration {
-
-        final DictionaryPropertyResolver propertyResolver;
-        final MavenConfigurationImpl config;
-
-        public FabricFabConfiguration(MavenConfigurationImpl config, DictionaryPropertyResolver propertyResolver) {
-            this.propertyResolver = propertyResolver;
-            this.config = config;
-        }
-
-        @Override
-        public String[] getSharedResourcePaths() {
-            if (!contains(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS)) {
-                String text = propertyResolver.get(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS);
-                String[] repositories;
-                if (text == null || text.length() == 0) {
-                    repositories = ServiceConstants.DEFAULT_PROPERTY_SHARED_RESOURCE_PATHS;
-                } else {
-                    repositories = toArray(text);
-                }
-                return set(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS, repositories);
-            }
-            return get(ServiceConstants.PROPERTY_SHARED_RESOURCE_PATHS);
-        }
-
-        @Override
-        public boolean getCertificateCheck() {
-            return config.getCertificateCheck();
-        }
-
-        @Override
-        public boolean isInstallMissingDependencies() {
-            return false;
-        }
-
-        @Override
-        public MavenResolver getResolver() {
-            try {
-                MavenResolverImpl resolver = new MavenResolverImpl();
-                List<String> repos = new ArrayList<String>();
-                for (MavenRepositoryURL url : config.getRepositories()) {
-                    repos.add(url.getURL().toURI().toString());
-                }
-                resolver.setRepositories(repos.toArray(new String[repos.size()]));
-                //The aether local repository is expecting a directory as a String and not a URI/URL.
-                resolver.setLocalRepo(new File(config.getLocalRepository().getURL().toURI()).getAbsolutePath());
-                return resolver;
-            } catch (Exception e) {
-                throw new IllegalStateException(e);
-            }
-        }
-
-        protected String[] toArray(String text) {
-            String[] answer = null;
-            if (text != null) {
-                answer = text.split(",");
-            }
-            return answer;
-        }
-
-    }
 }

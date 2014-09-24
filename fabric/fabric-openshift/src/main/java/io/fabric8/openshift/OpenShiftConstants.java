@@ -34,7 +34,7 @@ public class OpenShiftConstants {
     /**
      * A list of repository URL strings in the same format as the 'org.ops4j.pax.url.mvn.repositories' property
      * in the PID "io.fabric8.agent", namely using the PAX repo URL format as defined
-     * by the parser {@link io.fabric8.agent.mvn.MavenRepositoryURL} a comma & whitespace
+     * by the parser {@link io.fabric8.maven.util.MavenRepositoryURL} a comma & whitespace
      * separated list of URLs of the form "URL@key=value" such as "https://repo.fusesource.com/nexus/content/groups/ea@id=fuseearlyaccess, http://repository.jboss.org/nexus/content/groups/public@id=jboss-public"
      */
     public static final String PROPERTY_REPOSITORIES = "repositories";

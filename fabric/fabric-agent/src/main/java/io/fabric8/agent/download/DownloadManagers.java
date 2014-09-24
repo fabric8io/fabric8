@@ -15,16 +15,15 @@
  */
 package io.fabric8.agent.download;
 
-import io.fabric8.agent.mvn.DictionaryPropertyResolver;
-import io.fabric8.agent.mvn.MavenConfiguration;
-import io.fabric8.agent.mvn.MavenConfigurationImpl;
-import io.fabric8.agent.mvn.MavenSettingsImpl;
-import io.fabric8.agent.mvn.PropertiesPropertyResolver;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Constants;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
+import io.fabric8.maven.util.MavenConfiguration;
+import io.fabric8.maven.util.MavenConfigurationImpl;
+import org.ops4j.util.property.DictionaryPropertyResolver;
+import org.ops4j.util.property.PropertiesPropertyResolver;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
@@ -39,14 +38,13 @@ import java.util.concurrent.ExecutorService;
 public class DownloadManagers {
     
     /**
-     * Creates a {@link io.fabric8.agent.mvn.MavenConfiguration} based on the specified {@link java.util.Properties}.
+     * Creates a {@link MavenConfiguration} based on the specified {@link java.util.Properties}.
      */
     public static MavenConfiguration createMavenConfiguration(FabricService fabricService, Properties properties) {
         AgentUtils.addMavenProxies(properties, fabricService);
         PropertiesPropertyResolver propertiesPropertyResolver = new PropertiesPropertyResolver(System.getProperties());
         DictionaryPropertyResolver dictionaryPropertyResolver = new DictionaryPropertyResolver(properties, propertiesPropertyResolver);
         MavenConfigurationImpl config = new MavenConfigurationImpl(dictionaryPropertyResolver, "org.ops4j.pax.url.mvn");
-        config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
         return config;
     }
 

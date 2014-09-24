@@ -34,7 +34,6 @@
             io.fabric8.runtime.agent
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
-            io.fabric8.agent.mvn,
             io.fabric8.agent.download,
             io.fabric8.agent.utils,
             io.fabric8.boot.commands.support,

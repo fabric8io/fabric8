@@ -40,7 +40,6 @@
     <module>insight-log</module>
     <module>insight-log-storage</module>
     <module>insight-log4j</module>
-    <module>insight-maven</module>
     <module>insight-metrics</module>
     <module>insight-metrics-model</module>
     <module>insight-metrics-mvel</module>

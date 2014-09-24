@@ -48,10 +48,6 @@ import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.common.util.Manifests;
 import io.fabric8.common.util.MultiException;
 import io.fabric8.common.util.Strings;
-import io.fabric8.fab.DependencyTree;
-import io.fabric8.fab.osgi.FabBundleInfo;
-import io.fabric8.fab.osgi.FabResolver;
-import io.fabric8.fab.osgi.FabResolverFactory;
 import org.apache.felix.resolver.ResolverImpl;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
@@ -77,7 +73,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.fabric8.agent.resolver.UriNamespace.getUri;
-import static io.fabric8.agent.utils.AgentUtils.FAB_PROTOCOL;
 import static io.fabric8.agent.utils.AgentUtils.REQ_PROTOCOL;
 import static io.fabric8.utils.PatchUtils.extractUrl;
 import static io.fabric8.utils.PatchUtils.extractVersionRange;
@@ -99,7 +94,6 @@ public class DeploymentBuilder {
     private static final String[] PROTOCOLS = { "blueprint", "spring", "profile", "wrap", "war" };
 
     private final DownloadManager manager;
-    private final FabResolverFactory fabResolverFactory;
     private final Collection<Repository> repositories;
 
     private final List<org.osgi.service.repository.Repository> resourceRepos;
@@ -122,11 +116,9 @@ public class DeploymentBuilder {
     }
 
     public DeploymentBuilder(DownloadManager manager,
-                             FabResolverFactory fabResolverFactory,
                              Collection<Repository> repositories,
                              long urlHandlersTimeout) {
         this.manager = manager;
-        this.fabResolverFactory = fabResolverFactory;
         this.repositories = repositories;
         this.resourceRepos = new ArrayList<org.osgi.service.repository.Repository>();
         this.urlHandlersTimeout = urlHandlersTimeout;
@@ -142,7 +134,6 @@ public class DeploymentBuilder {
 
     public Map<String, Resource> download(Set<String> features,
                          Set<String> bundles,
-                         Set<String> fabs,
                          Set<String> reqs,
                          Set<String> overrides,
                          Set<String> optionals,
@@ -159,9 +150,6 @@ public class DeploymentBuilder {
         }
         for (String bundle : bundles) {
             downloadAndBuildResource(bundle, listener);
-        }
-        for (String fab : fabs) {
-            downloadAndBuildResource(FAB_PROTOCOL + fab, listener);
         }
         for (String req : reqs) {
             downloadAndBuildResource(REQ_PROTOCOL + req, listener);
@@ -223,9 +211,6 @@ public class DeploymentBuilder {
         }
         for (String req : reqs) {
             requireResource(REQ_PROTOCOL + req);
-        }
-        for (String fab : fabs) {
-            requireResource(FAB_PROTOCOL + fab);
         }
         return resources;
     }
@@ -387,32 +372,7 @@ public class DeploymentBuilder {
     }
 
     public void downloadAndBuildResource(final String location, final DeploymentDownloadListener listener) throws IOException {
-        if (location.startsWith(FAB_PROTOCOL)) {
-            String url = location.substring(FAB_PROTOCOL.length());
-            downloader.download(url, new AgentUtils.DownloadCallback() {
-                @Override
-                public void downloaded(File file, int pendings) throws Exception {
-                    if (listener != null) {
-                        listener.onDownload(file, pendings);
-                    }
-                    FabResolver resolver = fabResolverFactory.getResolver(file.toURI().toURL());
-                    FabBundleInfo fabInfo = resolver.getInfo();
-
-                    ResourceImpl resource = (ResourceImpl) manageResource(location, fabInfo.getManifest(), new StreamProvider.Fab(fabInfo));
-                    for (String name : fabInfo.getFeatures()) {
-                        registerMatchingFeatures(name);
-                        requireFeature(name, resource);
-                    }
-                    for (DependencyTree dep : fabInfo.getBundles()) {
-                        File depFile = dep.getJarFile();
-                        Attributes attrs = getAttributes(dep.getJarURL().toString(), depFile);
-                        if (attrs.getValue(Constants.BUNDLE_SYMBOLICNAME) != null) {
-                            manageResource(getMvnUrl(dep), attrs, new StreamProvider.File(depFile));
-                        }
-                    }
-                }
-            });
-        } else if (location.startsWith(REQ_PROTOCOL)) {
+        if (location.startsWith(REQ_PROTOCOL)) {
             try {
                 ResourceImpl resource = new ResourceImpl(location, "dummy", Version.emptyVersion);
                 for (Requirement req : ResourceBuilder.parseRequirement(resource, location.substring(REQ_PROTOCOL.length()))) {
@@ -479,30 +439,6 @@ public class DeploymentBuilder {
                 }
             });
         }
-    }
-
-    private String getMvnUrl(DependencyTree dep) {
-        String groupId = dep.getGroupId();
-        String artifactId = dep.getArtifactId();
-        String version = dep.getVersion();
-        String classifier = dep.getClassifier();
-        String extension = dep.getExtension();
-        StringBuilder sb = new StringBuilder();
-        sb.append("mvn:");
-        sb.append(groupId);
-        sb.append("/");
-        sb.append(artifactId);
-        sb.append("/");
-        sb.append(version);
-        if (!"".equals(classifier) || !"jar".equals(extension)) {
-            sb.append("/");
-            sb.append(extension);
-        }
-        if (!"".equals(classifier)) {
-            sb.append("/");
-            sb.append(classifier);
-        }
-        return sb.toString();
     }
 
     private Resource manageResource(String location, File file) throws Exception {
