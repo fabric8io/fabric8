@@ -35,6 +35,7 @@ import io.fabric8.deployer.dto.DeployResults;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.utils.Base64Encoder;
+import io.fabric8.utils.FabricValidations;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.deployer.ArtifactDeployer;
 import org.apache.maven.artifact.deployer.ArtifactDeploymentException;
@@ -137,6 +138,12 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
                 requirements.setRootDependency(rootDependency);
             }
             configureRequirements(requirements);
+
+            // validate requirements
+            if (requirements.getProfileId() != null) {
+                // make sure the profile id is a valid name
+                FabricValidations.validateProfileName(requirements.getProfileId());
+            }
 
             boolean newUserAdded = false;
 

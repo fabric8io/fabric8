@@ -69,6 +69,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import io.fabric8.utils.FabricValidations;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -516,6 +517,9 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
         if (Strings.isEmpty(profileId)) {
             throw new IllegalArgumentException("No profile ID could be deduced for requirements: " + requirements);
         }
+        // make sure the profileId is valid
+        FabricValidations.validateProfileName(profileId);
+
         Profile profile;
         if (!version.hasProfile(profileId)) {
             LOG.info("Creating new profile " + profileId + " version " + version + " for requirements: " + requirements);
