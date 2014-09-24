@@ -77,6 +77,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -173,12 +174,9 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
     @Override
     public CreateKubernetesContainerMetadata create(CreateKubernetesContainerOptions options, CreationStateListener listener) throws Exception {
         FabricService service = getFabricService();
-        KubernetesConfig config = getKubernetesConfig(service, options);
-        if (config != null) {
-            List<String> definitions = config.getDefinitions();
-            if (definitions != null && definitions.size() > 0) {
-                return doCreateKubernetesPodsControllersServices(service, options, config);
-            }
+        List<String> kubelets = getKubeletFileNames(service, options);
+        if (kubelets.size() > 0) {
+            return doCreateKubernetesPodsControllersServices(service, options, kubelets);
         }
 
         DockerCreateContainerParameters parameters = new DockerCreateContainerParameters(options).invoke();
@@ -214,23 +212,38 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
     }
 
     /**
+     * Returns the file names of the kubelets in the profiles
+     */
+    protected List<String> getKubeletFileNames(FabricService service, CreateKubernetesContainerOptions options) throws Exception {
+        Collection<Profile> profiles = Profiles.getProfiles(service, options.getProfiles(), options.getVersion());
+        Set<String> allConfigFiles = Profiles.getConfigurationFileNames(profiles);
+        List<String> answer = new ArrayList<>();
+        for (String fileName : allConfigFiles) {
+            if (fileName.startsWith("kubelet/")) {
+                answer.add(fileName);
+            }
+        }
+        return answer;
+    }
+
+    /**
      * Loads all the kubelet objects from the profiles and returns then in a map indexed by the file name
      */
-    protected Map<String, Object> loadKubelets(FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config, CreateKubernetesContainerMetadata metadata) {
+    protected Map<String, Object> loadKubelets(FabricService service, CreateKubernetesContainerOptions options, List<String> definitions, CreateKubernetesContainerMetadata metadata) {
         Map<String, Object> answer = new HashMap<>();
-        List<String> definitions = config.getDefinitions();
         String containerId = options.getName();
         byte[] json = null;
         Kubernetes kubernetes = getKubernetes();
         Objects.notNull(kubernetes, "kubernetes");
 
+        Set<String> profileIds = options.getProfiles();
+        String versionId = options.getVersion();
+        List<Profile> profiles = Profiles.getProfiles(service, profileIds, versionId);
+
         for (String definition : definitions) {
             definition = definition.trim();
             if (!definition.contains(":")) {
                 // lets assume its a file in the profile
-                Set<String> profileIds = options.getProfiles();
-                String versionId = options.getVersion();
-                List<Profile> profiles = Profiles.getProfiles(service, profileIds, versionId);
                 json = Profiles.getFileConfiguration(profiles, definition);
             }
             if (json == null) {
@@ -264,15 +277,15 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                                 String kind = kindNode.asText();
                                 if (Objects.equal("Pod", kind)) {
                                     PodSchema podSchema = objectMapper.reader(PodSchema.class).readValue(json);
-                                    configurePod(podSchema, service, options, config, metadata);
+                                    configurePod(podSchema, service, options, metadata);
                                     answer.put(definition, podSchema);
                                 } else if (Objects.equal("ReplicationController", kind)) {
                                     ReplicationControllerSchema replicationControllerSchema = objectMapper.reader(ReplicationControllerSchema.class).readValue(json);
-                                    configureReplicationController(replicationControllerSchema, service, options, config, metadata);
+                                    configureReplicationController(replicationControllerSchema, service, options, metadata);
                                     answer.put(definition, replicationControllerSchema);
                                 } else if (Objects.equal("Service", kind)) {
                                     ServiceSchema serviceSchema = objectMapper.reader(ServiceSchema.class).readValue(json);
-                                    configureService(serviceSchema, service, options, config, metadata);
+                                    configureService(serviceSchema, service, options, metadata);
                                     answer.put(definition, serviceSchema);
                                 } else {
                                     LOG.warn("Unknown JSON from " + definition + ". JSON: " + tree);
@@ -291,13 +304,13 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
     /**
      * Creates all the controllers, pods and services from the profile metadata
      */
-    protected CreateKubernetesContainerMetadata doCreateKubernetesPodsControllersServices(FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config) {
+    protected CreateKubernetesContainerMetadata doCreateKubernetesPodsControllersServices(FabricService service, CreateKubernetesContainerOptions options, List<String> kubeletFileNames) {
         String containerId = options.getName();
         String status = "TODO";
         List<String> warnings = new ArrayList<>();
         CreateKubernetesContainerMetadata metadata = createKubernetesContainerMetadata(options, containerId, "kubelet", status, warnings);
 
-        startKubletPodsReplicationControllersServices(service, options, config, metadata);
+        startKubletPodsReplicationControllersServices(service, options, kubeletFileNames, metadata);
 
         // TODO
         // publishZooKeeperValues(options, environmentVariables);
@@ -307,7 +320,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
     /**
      * Starts any kublets from the profiles which are not already running
      */
-    protected void startKubletPodsReplicationControllersServices(FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config, CreateKubernetesContainerMetadata metadata) {
+    protected void startKubletPodsReplicationControllersServices(FabricService service, CreateKubernetesContainerOptions options, List<String> kubeletFileNames, CreateKubernetesContainerMetadata metadata) {
         Kubernetes kubernetes = getKubernetes();
         Objects.notNull(kubernetes, "kubernetes");
 
@@ -315,7 +328,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         Map<String, ReplicationControllerSchema> replicationControllerMap = null;
         Map<String, ServiceSchema> serviceMap = null;
 
-        Map<String, Object> kubelets = loadKubelets(service, options, config, metadata);
+        Map<String, Object> kubelets = loadKubelets(service, options, kubeletFileNames, metadata);
         Set<Map.Entry<String, Object>> entries = kubelets.entrySet();
         for (Map.Entry<String, Object> entry : entries) {
             String definition = entry.getKey();
@@ -383,7 +396,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
     /**
      * Stops any kublets from the profiles
      */
-    protected void stopKubletPodsReplicationControllersServices(FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config, CreateKubernetesContainerMetadata metadata) {
+    protected void stopKubletPodsReplicationControllersServices(FabricService service, CreateKubernetesContainerOptions options, List<String> kubeletFileNames, CreateKubernetesContainerMetadata metadata) {
         Kubernetes kubernetes = getKubernetes();
         Objects.notNull(kubernetes, "kubernetes");
 
@@ -391,7 +404,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         Map<String, ReplicationControllerSchema> replicationControllerMap = null;
         Map<String, ServiceSchema> serviceMap = null;
 
-        Map<String, Object> kubelets = loadKubelets(service, options, config, metadata);
+        Map<String, Object> kubelets = loadKubelets(service, options, kubeletFileNames, metadata);
         Set<Map.Entry<String, Object>> entries = kubelets.entrySet();
         for (Map.Entry<String, Object> entry : entries) {
             String definition = entry.getKey();
@@ -459,31 +472,31 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         return entity != null;
     }
 
-    protected void configurePod(PodSchema podSchema, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config, CreateKubernetesContainerMetadata metadata) {
-        podSchema.setLabels(configureLabels(podSchema.getLabels(), service, options, config));
+    protected void configurePod(PodSchema podSchema, FabricService service, CreateKubernetesContainerOptions options, CreateKubernetesContainerMetadata metadata) {
+        podSchema.setLabels(configureLabels(podSchema.getLabels(), service, options));
         String id = podSchema.getId();
         if (Strings.isNotBlank(id)) {
             metadata.addPodId(id);
         }
     }
 
-    protected void configureReplicationController(ReplicationControllerSchema replicationControllerSchema, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config, CreateKubernetesContainerMetadata metadata) {
-        replicationControllerSchema.setLabels(configureLabels(replicationControllerSchema.getLabels(), service, options, config));
+    protected void configureReplicationController(ReplicationControllerSchema replicationControllerSchema, FabricService service, CreateKubernetesContainerOptions options, CreateKubernetesContainerMetadata metadata) {
+        replicationControllerSchema.setLabels(configureLabels(replicationControllerSchema.getLabels(), service, options));
         String id = replicationControllerSchema.getId();
         if (Strings.isNotBlank(id)) {
             metadata.addReplicationControllerId(id);
         }
     }
 
-    protected void configureService(ServiceSchema serviceSchema, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config, CreateKubernetesContainerMetadata metadata) {
-        serviceSchema.setLabels(configureLabels(serviceSchema.getLabels(), service, options, config));
+    protected void configureService(ServiceSchema serviceSchema, FabricService service, CreateKubernetesContainerOptions options, CreateKubernetesContainerMetadata metadata) {
+        serviceSchema.setLabels(configureLabels(serviceSchema.getLabels(), service, options));
         String id = serviceSchema.getId();
         if (Strings.isNotBlank(id)) {
             metadata.addServiceId(id);
         }
     }
 
-    protected Map<String, String> configureLabels(Map<String, String> labels, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config) {
+    protected Map<String, String> configureLabels(Map<String, String> labels, FabricService service, CreateKubernetesContainerOptions options) {
         String name = options.getName();
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
@@ -498,9 +511,9 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         if (containerMetadata != null && containerMetadata.isKubelet()) {
             try {
                 FabricService service = getFabricService();
-                KubernetesConfig config = getKubernetesConfig(service, options);
-                if (config != null) {
-                    startKubletPodsReplicationControllersServices(service, options, config, containerMetadata);
+                List<String> kubelets = getKubeletFileNames(service, options);
+                if (kubelets.size() > 0) {
+                    startKubletPodsReplicationControllersServices(service, options, kubelets, containerMetadata);
                 }
             } catch (Exception e) {
                 String message = "Could not start kubelet for container: " + container.getId() + ": " + e + Dockers.dockerErrorMessage(e);
@@ -527,9 +540,9 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         if (containerMetadata != null && containerMetadata.isKubelet()) {
             try {
                 FabricService service = getFabricService();
-                KubernetesConfig config = getKubernetesConfig(service, options);
-                if (config != null) {
-                    stopKubletPodsReplicationControllersServices(service, options, config, containerMetadata);
+                List<String> kubelets = getKubeletFileNames(service, options);
+                if (kubelets.size() > 0) {
+                    stopKubletPodsReplicationControllersServices(service, options, kubelets, containerMetadata);
                 }
             } catch (Exception e) {
                 String message = "Could not start kubelet for container: " + container.getId() + ": " + e + Dockers.dockerErrorMessage(e);
