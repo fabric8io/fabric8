@@ -209,10 +209,15 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
      */
     protected CreateKubernetesContainerMetadata doCreateKubernetesPodsControllersServices(FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config) {
         List<String> definitions = config.getDefinitions();
-        String containerId = "TODO";
+        String containerId = options.getName();
         byte[] json = null;
         Kubernetes kubernetes = getKubernetes();
         Objects.notNull(kubernetes, "kubernetes");
+
+        String status = "TODO";
+        List<String> warnings = new ArrayList<>();
+        CreateKubernetesContainerMetadata metadata = createKubernetesContainerMetadata(options, containerId, "kubelet", status, warnings);
+
         for (String definition : definitions) {
             definition = definition.trim();
             if (!definition.contains(":")) {
@@ -253,7 +258,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                                 String kind = kindNode.asText();
                                 if (Objects.equal("Pod", kind)) {
                                     PodSchema podSchema = objectMapper.reader(PodSchema.class).readValue(json);
-                                    configurePod(podSchema, service, options, config);
+                                    configurePod(podSchema, service, options, config, metadata);
                                     LOG.info("Creating a pod from " + definition);
                                     try {
                                         Object answer = kubernetes.createPod(podSchema);
@@ -263,7 +268,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                                     }
                                 } else if (Objects.equal("ReplicationController", kind)) {
                                     ReplicationControllerSchema replicationControllerSchema = objectMapper.reader(ReplicationControllerSchema.class).readValue(json);
-                                    configureReplicationController(replicationControllerSchema, service, options, config);
+                                    configureReplicationController(replicationControllerSchema, service, options, config, metadata);
                                     LOG.info("Creating a controller from " + definition);
                                     try {
                                         Object answer = kubernetes.createReplicationController(replicationControllerSchema);
@@ -273,7 +278,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                                     }
                                 } else if (Objects.equal("Service", kind)) {
                                     ServiceSchema serviceSchema = objectMapper.reader(ServiceSchema.class).readValue(json);
-                                    configureService(serviceSchema, service, options, config);
+                                    configureService(serviceSchema, service, options, config, metadata);
                                     LOG.info("Creating a service from " + definition);
                                     try {
                                         Object answer = kubernetes.createService(serviceSchema);
@@ -292,25 +297,34 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                 }
             }
         }
-        String status = "TODO";
-        List<String> warnings = new ArrayList<>();
-        CreateKubernetesContainerMetadata metadata = createKubernetesContainerMetadata(options, containerId, "kubelet", status, warnings);
 
         // TODO
         // publishZooKeeperValues(options, environmentVariables);
         return metadata;
     }
 
-    protected void configurePod(PodSchema podSchema, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config) {
+    protected void configurePod(PodSchema podSchema, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config, CreateKubernetesContainerMetadata metadata) {
         podSchema.setLabels(configureLabels(podSchema.getLabels(), service, options, config));
+        String id = podSchema.getId();
+        if (Strings.isNotBlank(id)) {
+            metadata.getPodIds().add(id);
+        }
     }
 
-    protected void configureReplicationController(ReplicationControllerSchema replicationControllerSchema, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config) {
+    protected void configureReplicationController(ReplicationControllerSchema replicationControllerSchema, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config, CreateKubernetesContainerMetadata metadata) {
         replicationControllerSchema.setLabels(configureLabels(replicationControllerSchema.getLabels(), service, options, config));
+        String id = replicationControllerSchema.getId();
+        if (Strings.isNotBlank(id)) {
+            metadata.getReplicationControllerIds().add(id);
+        }
     }
 
-    protected void configureService(ServiceSchema serviceSchema, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config) {
+    protected void configureService(ServiceSchema serviceSchema, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config, CreateKubernetesContainerMetadata metadata) {
         serviceSchema.setLabels(configureLabels(serviceSchema.getLabels(), service, options, config));
+        String id = serviceSchema.getId();
+        if (Strings.isNotBlank(id)) {
+            metadata.getServiceIds().add(id);
+        }
     }
 
     protected Map<String, String> configureLabels(Map<String, String> labels, FabricService service, CreateKubernetesContainerOptions options, KubernetesConfig config) {
@@ -476,6 +490,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
 
     public static CreateKubernetesContainerMetadata createKubernetesContainerMetadata(CreateKubernetesContainerOptions options, String containerId, String containerType, String statusId, List<String> warnings) {
         CreateKubernetesContainerMetadata metadata = new CreateKubernetesContainerMetadata(statusId, warnings);
+        metadata.setFailure(null);
         metadata.setCreateOptions(options);
         metadata.setContainerName(containerId);
         metadata.setContainerType(containerType);

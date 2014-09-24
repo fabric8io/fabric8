@@ -17,12 +17,17 @@ package io.fabric8.kubernetes.provider;
 
 import io.fabric8.api.CreateContainerBasicMetadata;
 
+import javax.management.AttributeList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CreateKubernetesContainerMetadata extends CreateContainerBasicMetadata<CreateKubernetesContainerOptions> {
     private final String id;
     private final List<String> warnings;
     private String jolokiaUrl;
+    private List<String> podIds = new ArrayList<>();
+    private List<String> replicationControllerIds = new ArrayList<>();
+    private List<String> serviceIds = new ArrayList<>();
 
     public CreateKubernetesContainerMetadata(String id, List<String> warnings) {
         this.id = id;
@@ -43,6 +48,37 @@ public class CreateKubernetesContainerMetadata extends CreateContainerBasicMetad
 
     public void setJolokiaUrl(String jolokiaUrl) {
         this.jolokiaUrl = jolokiaUrl;
+    }
+
+    public List<String> getPodIds() {
+        return podIds;
+    }
+
+    public void setPodIds(List<String> podIds) {
+        this.podIds = podIds;
+    }
+
+    public List<String> getReplicationControllerIds() {
+        return replicationControllerIds;
+    }
+
+    public void setReplicationControllerIds(List<String> replicationControllerIds) {
+        this.replicationControllerIds = replicationControllerIds;
+    }
+
+    public List<String> getServiceIds() {
+        return serviceIds;
+    }
+
+    public void setServiceIds(List<String> serviceIds) {
+        this.serviceIds = serviceIds;
+    }
+
+    /**
+     * Returns true if this container represents a kubelet; namely it creates/manages at least one pod, replicationController or service
+     */
+    public boolean isKubelet() {
+        return podIds.size() > 0 || replicationControllerIds.size() > 0 || serviceIds.size() > 0;
     }
 }
 

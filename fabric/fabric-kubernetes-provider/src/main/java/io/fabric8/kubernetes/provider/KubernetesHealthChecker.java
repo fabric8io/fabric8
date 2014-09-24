@@ -34,6 +34,8 @@ import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.internal.ZooKeeperGroup;
 import io.fabric8.kubernetes.api.Kubernetes;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.ControllerCurrentState;
 import io.fabric8.kubernetes.api.model.CurrentState;
 import io.fabric8.kubernetes.api.model.DesiredState;
 import io.fabric8.kubernetes.api.model.Env;
@@ -41,6 +43,10 @@ import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.ManifestSchema;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.ServiceListSchema;
+import io.fabric8.kubernetes.api.model.ServiceSchema;
 import io.fabric8.service.ContainerPlaceholderResolver;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.zookeeper.ZkPath;
@@ -55,6 +61,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +71,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static io.fabric8.common.util.Lists.notNullList;
 import static io.fabric8.kubernetes.provider.KubernetesHelpers.containerNameToPodId;
 
 /**
@@ -120,12 +128,14 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
 
     @Deactivate
     void deactivate() {
+        deactivateComponent();
+        if (group != null) {
+            group.remove(this);
+            Closeables.closeQuitely(group);
+        }
+        group = null;
         disableMasterZkCache();
         disableTimer();
-        deactivateComponent();
-        group.remove(this);
-        Closeables.closeQuitely(group);
-        group = null;
     }
 
     @Override
@@ -191,9 +201,11 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
     }
 
     protected void disableTimer() {
-        Timer oldValue = timer.getAndSet(null);
-        if (oldValue != null) {
-            oldValue.cancel();
+        if (timer != null) {
+            Timer oldValue = timer.getAndSet(null);
+            if (oldValue != null) {
+                oldValue.cancel();
+            }
         }
     }
 
@@ -207,78 +219,193 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
         FabricService service = fabricService.get();
         Kubernetes kubernetes = getKubernetes();
         if (kubernetes != null && service != null) {
+            try {
+                PodListSchema podSchema = kubernetes.getPods();
+                List<PodSchema> pods = podSchema.getItems();
+                Container[] containerArray = service.getContainers();
+                if (pods != null) {
+                    Map<String, Container> containerMap = createPodIdToContainerMap(containerArray);
 
-            PodListSchema pods = kubernetes.getPods();
-            List<PodSchema> items = pods.getItems();
-            if (items != null) {
-                Map<String, Container> containerMap = createPodIdToContainerMap(service.getContainers());
+                    for (PodSchema item : pods) {
+                        String podId = item.getId();
+                        CurrentState currentState = item.getCurrentState();
+                        if (currentState != null) {
+                            String host = currentState.getHost();
+                            String hostIp = currentState.getHost();
+                            String status = currentState.getStatus();
 
-                for (PodSchema item : items) {
-                    String podId = item.getId();
-                    CurrentState currentState = item.getCurrentState();
-                    if (currentState != null) {
-                        String host = currentState.getHost();
-                        String hostIp = currentState.getHost();
-                        String status = currentState.getStatus();
-
-                        Container container = containerMap.remove(podId);
-                        if (container != null) {
-                            DesiredState desiredState = item.getDesiredState();
-                            if (desiredState != null) {
-                                ManifestSchema manifest = desiredState.getManifest();
-                                if (manifest != null) {
-                                    List<ManifestContainer> containers = manifest.getContainers();
-                                    for (ManifestContainer manifestContainer : containers) {
-                                        // TODO
+                            Container container = containerMap.remove(podId);
+                            if (container != null) {
+                                DesiredState desiredState = item.getDesiredState();
+                                if (desiredState != null) {
+                                    ManifestSchema manifest = desiredState.getManifest();
+                                    if (manifest != null) {
+                                        List<ManifestContainer> containers = manifest.getContainers();
+                                        for (ManifestContainer manifestContainer : containers) {
+                                            // TODO
+                                        }
                                     }
                                 }
-                            }
 
-                            if (!container.isAlive()) {
-                                container.setAlive(true);
-                            }
-                            if (status != null) {
-                                String statusLowerCase = status.toLowerCase();
-                                if (statusLowerCase.startsWith("running")) {
-                                    keepAliveCheck(service, status, container, currentState, item);
+                                if (!container.isAlive()) {
+                                    container.setAlive(true);
+                                }
+                                if (status != null) {
+                                    String result = currentStatusStringToContainerProvisionResult(status);
+                                    if (isProvisionSuccess(result)) {
+                                        keepAliveCheck(service, status, container, currentState, item);
+                                    } else {
+                                        if (!result.equals(container.getProvisionResult())) {
+                                            container.setProvisionResult(result);
+                                        }
+                                    }
                                 } else {
-                                    String result = Container.PROVISION_FAILED;
-                                    if (statusLowerCase.startsWith("wait")) {
-                                        result = "downloading";
+                                    if (container.isAlive()) {
+                                        container.setAlive(false);
                                     }
-                                    if (!result.equals(container.getProvisionResult())) {
-                                        container.setProvisionResult(result);
+                                    if (!status.equals(container.getProvisionResult())) {
+                                        container.setProvisionResult(status);
                                     }
-                                }
-                            } else {
-                                if (container.isAlive()) {
-                                    container.setAlive(false);
-                                }
-                                if (!status.equals(container.getProvisionResult())) {
-                                    container.setProvisionResult(status);
                                 }
                             }
                         }
                     }
-                }
 
-                // TODO now lets remove any containers which are not even running....
-                Collection<Container> deadContainers = containerMap.values();
-                for (Container container : deadContainers) {
-                    CreateContainerMetadata<?> metadata = container.getMetadata();
-                    // lets only update the kube created container status
-                    if (metadata instanceof CreateKubernetesContainerMetadata) {
-                        if (container.isAlive()) {
-                            container.setAlive(false);
+                    // TODO now lets remove any containers which are not even running....
+                    Collection<Container> deadContainers = containerMap.values();
+                    for (Container container : deadContainers) {
+                        CreateContainerMetadata<?> metadata = container.getMetadata();
+                        // lets only update the kube created container status
+                        if (metadata instanceof CreateKubernetesContainerMetadata) {
+                            if (container.isAlive()) {
+                                container.setAlive(false);
+                            }
+                            String status = Container.PROVISION_STOPPED;
+                            if (!status.equals(container.getProvisionResult())) {
+                                container.setProvisionResult(status);
+                            }
                         }
-                        String status = Container.PROVISION_STOPPED;
-                        if (!status.equals(container.getProvisionResult())) {
-                            container.setProvisionResult(status);
+                    }
+                }
+                Map<String, PodSchema> podMap = KubernetesHelper.toPodMap(pods);
+                Map<String, ReplicationControllerSchema> replicationMap = KubernetesHelper.toReplicationControllerMap(kubernetes.getReplicationControllers());
+                Map<String, ServiceSchema> serviceMap = KubernetesHelper.toServiceMap(kubernetes.getServices());
+                checkKubeletContainers(service, containerArray, podMap, replicationMap, serviceMap);
+            } catch (Exception e) {
+                LOGGER.warn("Health Check Caught: " + e, e);
+            }
+        } else {
+            LOGGER.warn("Cannot perform kubernetes health check. kubernetes: " + kubernetes + " fabricService: " + service);
+        }
+    }
+
+    protected void checkKubeletContainers(FabricService fabricService, Container[] containerArray, Map<String, PodSchema> podMap, Map<String, ReplicationControllerSchema> replicationControllerMap, Map<String, ServiceSchema> serviceMap) {
+        if (containerArray != null) {
+            for (Container container : containerArray) {
+                CreateContainerMetadata<?> metadata = container.getMetadata();
+                if (metadata instanceof CreateKubernetesContainerMetadata) {
+                    CreateKubernetesContainerMetadata kubernetesContainerMetadata = (CreateKubernetesContainerMetadata) metadata;
+                    String status = Container.PROVISION_SUCCESS;
+                    List<String> podIds = notNullList(kubernetesContainerMetadata.getPodIds());
+                    List<String> errors = new ArrayList<>();
+                    for (String id : podIds) {
+                        PodSchema pod = podMap.get(id);
+                        String kubeletStatus = checkStatus(id, pod, errors);
+                        if (!isProvisionSuccess(kubeletStatus)) {
+                            status = kubeletStatus;
                         }
+                    }
+                    if (isProvisionSuccess(status)) {
+                        List<String> ids = notNullList(kubernetesContainerMetadata.getReplicationControllerIds());
+                        for (String id : ids) {
+                            ReplicationControllerSchema replicationController = replicationControllerMap.get(id);
+                            status = checkStatus(id, replicationController, errors);
+                            if (!isProvisionSuccess(status)) {
+                                break;
+                            }
+                        }
+                    }
+                    if (isProvisionSuccess(status)) {
+                        List<String> ids = notNullList(kubernetesContainerMetadata.getServiceIds());
+                        for (String id : ids) {
+                            ServiceSchema service = serviceMap.get(id);
+                            status = checkStatus(id, service, errors);
+                            if (!isProvisionSuccess(status)) {
+                                break;
+                            }
+                        }
+                    }
+                    if (!status.equals(container.getProvisionResult())) {
+                        container.setProvisionResult(status);
+                    }
+                    String exception = null;
+                    if (!errors.isEmpty()) {
+                        exception = Strings.join(errors, "\n");
+                    }
+                    if (!Objects.equal(exception, container.getProvisionException())) {
+                        container.setProvisionException(exception);
+                    }
+                    boolean alive = isProvisionSuccess(status);
+                    if (alive != container.isAlive()) {
+                        container.setAlive(alive);
                     }
                 }
             }
         }
+    }
+
+    public static boolean isProvisionSuccess(String status) {
+        return Objects.equal(status, Container.PROVISION_SUCCESS);
+    }
+
+    protected String checkStatus(String id, ServiceSchema service, List<String> errors) {
+        if (service != null) {
+            return Container.PROVISION_SUCCESS;
+        } else {
+            errors.add("missing service: " + id);
+            return Container.PROVISION_STOPPED;
+        }
+    }
+
+    protected String checkStatus(String id, PodSchema pod, List<String> errors) {
+        if (pod != null) {
+           return checkStatus(pod.getCurrentState());
+        }  else {
+            errors.add("missing pod: " + id);
+            return Container.PROVISION_STOPPED;
+        }
+    }
+
+    protected String checkStatus(String id, ReplicationControllerSchema replicationController, List<String> errors) {
+        if (replicationController != null) {
+            return Container.PROVISION_SUCCESS;
+        } else {
+            errors.add("missing replicationController: " + id);
+            return Container.PROVISION_STOPPED;
+        }
+    }
+
+    protected String checkStatus(CurrentState currentState) {
+        if (currentState != null) {
+            return currentStatusStringToContainerProvisionResult(currentState.getStatus());
+        }
+        return Container.PROVISION_STOPPED;
+    }
+
+    public static String currentStatusStringToContainerProvisionResult(String status) {
+        if (status != null) {
+            status = status.toLowerCase();
+            if (status.startsWith("waiting")) {
+                return Container.PROVISION_INSTALLING;
+            } else if (status.startsWith("downloading")) {
+                return Container.PROVISION_DOWNLOADING;
+            } else if (status.startsWith("running")) {
+                return Container.PROVISION_SUCCESS;
+            } else {
+                return Container.PROVISION_FAILED;
+            }
+        }
+        return Container.PROVISION_STOPPED;
     }
 
     protected void keepAliveCheck(FabricService service, String status, Container container, CurrentState currentState, PodSchema item) {
@@ -392,11 +519,22 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
         if (containers != null) {
             for (Container container : containers) {
                 String containerId = container.getId();
-                String podId = containerNameToPodId(containerId);
-                answer.put(podId, container);
+                if (!isKubeletContainer(container)) {
+                    String podId = containerNameToPodId(containerId);
+                    answer.put(podId, container);
+                }
             }
         }
         return answer;
+    }
+
+    public static boolean isKubeletContainer(Container container) {
+        CreateContainerMetadata<?> metadata = container.getMetadata();
+        if (metadata instanceof CreateKubernetesContainerMetadata) {
+            CreateKubernetesContainerMetadata kubernetesContainerMetadata = (CreateKubernetesContainerMetadata) metadata;
+            return kubernetesContainerMetadata.isKubelet();
+        }
+        return false;
     }
 
     public Kubernetes getKubernetes() {

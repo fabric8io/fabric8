@@ -17,12 +17,22 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.common.util.Strings;
 import io.fabric8.kubernetes.api.model.Env;
+import io.fabric8.kubernetes.api.model.PodListSchema;
+import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.ServiceListSchema;
+import io.fabric8.kubernetes.api.model.ServiceSchema;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static io.fabric8.common.util.Lists.notNullList;
 
 /**
  */
@@ -42,4 +52,71 @@ public class KubernetesHelper {
         }
         return answer;
     }
+
+    /**
+     * Returns a map indexed by pod id of the pods
+     */
+    public static Map<String, PodSchema> toPodMap(PodListSchema podSchema) {
+        return toPodMap(podSchema != null ? podSchema.getItems() : null);
+    }
+
+    /**
+     * Returns a map indexed by pod id of the pods
+     */
+    public static Map<String, PodSchema> toPodMap(List<PodSchema> pods) {
+        List<PodSchema> list = notNullList(pods);
+        Map<String, PodSchema> answer = new HashMap<>();
+        for (PodSchema podSchema : list) {
+            String id = podSchema.getId();
+            if (Strings.isNotBlank(id)) {
+                answer.put(id, podSchema);
+            }
+        }
+        return answer;
+    }
+
+    /**
+     * Returns a map indexed by service id of the services
+     */
+    public static Map<String, ServiceSchema> toServiceMap(ServiceListSchema serviceSchema) {
+        return toServiceMap(serviceSchema != null ? serviceSchema.getItems() : null);
+    }
+
+    /**
+     * Returns a map indexed by service id of the services
+     */
+    public static Map<String, ServiceSchema> toServiceMap(List<ServiceSchema> services) {
+        List<ServiceSchema> list = notNullList(services);
+        Map<String, ServiceSchema> answer = new HashMap<>();
+        for (ServiceSchema serviceSchema : list) {
+            String id = serviceSchema.getId();
+            if (Strings.isNotBlank(id)) {
+                answer.put(id, serviceSchema);
+            }
+        }
+        return answer;
+    }
+
+    /**
+     * Returns a map indexed by replicationController id of the replicationControllers
+     */
+    public static Map<String, ReplicationControllerSchema> toReplicationControllerMap(ReplicationControllerListSchema replicationControllerSchema) {
+        return toReplicationControllerMap(replicationControllerSchema != null ? replicationControllerSchema.getItems() : null);
+    }
+
+    /**
+     * Returns a map indexed by replicationController id of the replicationControllers
+     */
+    public static Map<String, ReplicationControllerSchema> toReplicationControllerMap(List<ReplicationControllerSchema> replicationControllers) {
+        List<ReplicationControllerSchema> list = notNullList(replicationControllers);
+        Map<String, ReplicationControllerSchema> answer = new HashMap<>();
+        for (ReplicationControllerSchema replicationControllerSchema : list) {
+            String id = replicationControllerSchema.getId();
+            if (Strings.isNotBlank(id)) {
+                answer.put(id, replicationControllerSchema);
+            }
+        }
+        return answer;
+    }
+
 }
