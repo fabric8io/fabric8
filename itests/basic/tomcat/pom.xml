@@ -133,6 +133,10 @@
                         <log4j.configuration>file://${basedir}/src/test/resources/logging.properties</log4j.configuration>
                         <target.container>tomcat</target.container>
                     </systemPropertyVariables>
+                    <excludes>
+                        <exclude>**/ProfileManagementJolokiaTest.java</exclude>
+                        <exclude>**/ProfileManagementTest.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
