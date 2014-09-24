@@ -34,27 +34,8 @@
         <module>agent</module>
         <module>common</module>
         <module>karaf</module>
+        <module>tomcat</module>
+        <module>wildfly</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>all</id>
-            <modules>
-                <module>tomcat</module>
-                <module>wildfly</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>tomcat</id>
-            <modules>
-                <module>tomcat</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>wildfly</id>
-            <modules>
-                <module>wildfly</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>

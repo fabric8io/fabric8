@@ -30,16 +30,36 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>console</module>
-        <module>managed</module>
-        <module>patch</module>
-        <module>registration</module>
-        <module>webapp</module>
-        <module>fabric8-tomcat</module>
-        
-        <!-- [FABRIC-1152] Restore TomEE container
-        <module>fabric8-tomee</module>
-        -->
+        <!-- no child modules by default -->
     </modules>
+    
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>console</module>
+                <module>managed</module>
+                <module>patch</module>
+                <module>registration</module>
+                <module>webapp</module>
+                <module>fabric8-tomcat</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>tomcat</id>
+            <modules>
+                <module>console</module>
+                <module>managed</module>
+                <module>patch</module>
+                <module>registration</module>
+                <module>webapp</module>
+                <module>fabric8-tomcat</module>
+            </modules>
+        </profile>
+    </profiles>
+
+    <!-- [FABRIC-1152] Restore TomEE container
+    <module>fabric8-tomee</module>
+    -->
 
 </project>

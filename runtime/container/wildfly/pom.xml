@@ -31,11 +31,28 @@
 
     <modules>
         <module>connector</module>
-        <module>extension</module>
-        <module>registration</module>
-        <module>managed</module>
-        <module>patch</module>
-        <module>webapp</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>extension</module>
+                <module>registration</module>
+                <module>managed</module>
+                <module>patch</module>
+                <module>webapp</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>wildfly</id>
+            <modules>
+                <module>extension</module>
+                <module>registration</module>
+                <module>managed</module>
+                <module>patch</module>
+                <module>webapp</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>
