@@ -119,4 +119,16 @@ public class KubernetesHelper {
         return answer;
     }
 
+    public static Map<String, PodSchema> getPodMap(Kubernetes kubernetes) {
+        PodListSchema podSchema = kubernetes.getPods();
+        return toPodMap(podSchema);
+    }
+
+    public static Map<String, ServiceSchema> getServiceMap(Kubernetes kubernetes) {
+        return toServiceMap(kubernetes.getServices());
+    }
+
+    public static Map<String, ReplicationControllerSchema> getReplicationControllerMap(Kubernetes kubernetes) {
+        return toReplicationControllerMap(kubernetes.getReplicationControllers());
+    }
 }

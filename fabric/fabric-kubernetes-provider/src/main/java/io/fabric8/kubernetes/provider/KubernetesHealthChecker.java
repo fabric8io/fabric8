@@ -35,17 +35,13 @@ import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.internal.ZooKeeperGroup;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.ControllerCurrentState;
 import io.fabric8.kubernetes.api.model.CurrentState;
 import io.fabric8.kubernetes.api.model.DesiredState;
 import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.ManifestSchema;
-import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-import io.fabric8.kubernetes.api.model.ServiceListSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
 import io.fabric8.service.ContainerPlaceholderResolver;
 import io.fabric8.service.child.ChildContainers;
@@ -220,10 +216,10 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
         Kubernetes kubernetes = getKubernetes();
         if (kubernetes != null && service != null) {
             try {
-                PodListSchema podSchema = kubernetes.getPods();
-                List<PodSchema> pods = podSchema.getItems();
+                Map<String, PodSchema> podMap = KubernetesHelper.getPodMap(kubernetes);
                 Container[] containerArray = service.getContainers();
-                if (pods != null) {
+                Collection<PodSchema> pods = podMap.values();
+                if (!pods.isEmpty()) {
                     Map<String, Container> containerMap = createPodIdToContainerMap(containerArray);
 
                     for (PodSchema item : pods) {
@@ -287,9 +283,8 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
                         }
                     }
                 }
-                Map<String, PodSchema> podMap = KubernetesHelper.toPodMap(pods);
-                Map<String, ReplicationControllerSchema> replicationMap = KubernetesHelper.toReplicationControllerMap(kubernetes.getReplicationControllers());
-                Map<String, ServiceSchema> serviceMap = KubernetesHelper.toServiceMap(kubernetes.getServices());
+                Map<String, ReplicationControllerSchema> replicationMap = KubernetesHelper.getReplicationControllerMap(kubernetes);
+                Map<String, ServiceSchema> serviceMap = KubernetesHelper.getServiceMap(kubernetes);
                 checkKubeletContainers(service, containerArray, podMap, replicationMap, serviceMap);
             } catch (Exception e) {
                 LOGGER.warn("Health Check Caught: " + e, e);

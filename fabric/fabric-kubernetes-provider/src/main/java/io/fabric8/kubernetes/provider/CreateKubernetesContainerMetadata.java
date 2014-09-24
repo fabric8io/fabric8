@@ -80,6 +80,27 @@ public class CreateKubernetesContainerMetadata extends CreateContainerBasicMetad
     public boolean isKubelet() {
         return podIds.size() > 0 || replicationControllerIds.size() > 0 || serviceIds.size() > 0;
     }
+
+    public boolean addPodId(String id) {
+        return addIfNotContained(podIds, id);
+    }
+
+    public boolean addReplicationControllerId(String id) {
+        return addIfNotContained(replicationControllerIds, id);
+    }
+
+    public boolean addServiceId(String id) {
+        return addIfNotContained(serviceIds, id);
+    }
+
+    protected static boolean addIfNotContained(List<String> list, String id) {
+        if (list.contains(id)) {
+            return false;
+        } else {
+            list.add(id);
+            return true;
+        }
+    }
 }
 
 
