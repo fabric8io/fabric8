@@ -20,6 +20,8 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
+import io.fabric8.maven.MavenResolver;
+import io.fabric8.maven.url.internal.AetherBasedResolver;
 import io.fabric8.maven.util.MavenConfiguration;
 import io.fabric8.maven.util.MavenConfigurationImpl;
 import org.ops4j.util.property.DictionaryPropertyResolver;
@@ -75,7 +77,8 @@ public class DownloadManagers {
             configuration = new HashMap<String, String>();
         }
         MavenConfiguration mavenConfiguration = createMavenConfiguration(fabricService, mapToProperties(configuration));
-        return new DownloadManager(mavenConfiguration, downloadExecutor);
+        MavenResolver resolver = new AetherBasedResolver(mavenConfiguration);
+        return new DownloadManager(resolver, downloadExecutor);
     }
 
     /**

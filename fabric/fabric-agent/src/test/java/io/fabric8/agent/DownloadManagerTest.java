@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 import io.fabric8.agent.download.DownloadFuture;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.FutureListener;
+import io.fabric8.maven.MavenResolver;
+import io.fabric8.maven.url.internal.AetherBasedResolver;
 import io.fabric8.maven.util.MavenConfigurationImpl;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -209,7 +211,8 @@ public class DownloadManagerTest {
         properties.setProperty("org.ops4j.pax.url.mvn.settings", mavenSettings.toURI().toString());
         PropertiesPropertyResolver propertyResolver = new PropertiesPropertyResolver(properties);
         MavenConfigurationImpl mavenConfiguration = new MavenConfigurationImpl(propertyResolver, "org.ops4j.pax.url.mvn");
-        return new DownloadManager(mavenConfiguration, Executors.newSingleThreadExecutor());
+        MavenResolver resolver = new AetherBasedResolver(mavenConfiguration);
+        return new DownloadManager(resolver, Executors.newSingleThreadExecutor());
     }
 
     /**

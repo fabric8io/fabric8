@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import io.fabric8.maven.MavenResolver;
 import io.fabric8.maven.util.MavenConfiguration;
 import io.fabric8.maven.util.Parser;
 import org.ops4j.lang.NullArgumentException;
@@ -78,25 +79,25 @@ public class Connection
      * Parsed url.
      */
     private Parser m_parser;
-    private AetherBasedResolver m_aetherBasedResolver;
+    private MavenResolver m_resolver;
 
     /**
      * Creates a new connection.
      *
      * @param url           the url; cannot be null.
-     * @param configuration service configuration; cannot be null
+     * @param resolver      resolver service; cannot be null
      *
      * @throws java.net.MalformedURLException in case of a malformed url
      */
-    public Connection( final URL url, final MavenConfiguration configuration )
+    public Connection( final URL url, final MavenResolver resolver )
         throws MalformedURLException
     {
         super( url );
         NullArgumentException.validateNotNull( url, "URL cannot be null" );
-        NullArgumentException.validateNotNull( configuration, "Service configuration" );
+        NullArgumentException.validateNotNull( resolver, "Service configuration" );
 
         m_parser = new Parser( url.getPath() );
-        m_aetherBasedResolver = new AetherBasedResolver( configuration );
+        m_resolver = resolver;
     }
 
 
@@ -121,13 +122,7 @@ public class Connection
     {
         connect();
         LOG.debug( "Resolving [" + url.toExternalForm() + "]" );
-        File file = m_aetherBasedResolver.resolveFile(
-                m_parser.getGroup(),
-                m_parser.getArtifact(),
-                m_parser.getClassifier(),
-                m_parser.getType(),
-                m_parser.getVersion(),
-                m_parser.getRepositoryURL() );
+        File file = m_resolver.download( url.toExternalForm() );
         return new FileInputStream( file );
     }
 }

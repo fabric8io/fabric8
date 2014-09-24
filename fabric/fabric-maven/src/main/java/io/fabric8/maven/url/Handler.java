@@ -22,6 +22,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
+import io.fabric8.maven.MavenResolver;
+import io.fabric8.maven.url.internal.AetherBasedResolver;
 import io.fabric8.maven.url.internal.Connection;
 import io.fabric8.maven.util.MavenConfigurationImpl;
 import org.ops4j.util.property.PropertiesPropertyResolver;
@@ -46,7 +48,8 @@ public class Handler
         throws IOException
     {
         PropertiesPropertyResolver propertyResolver = new PropertiesPropertyResolver( System.getProperties() );
-        final MavenConfigurationImpl config = new MavenConfigurationImpl( propertyResolver, ServiceConstants.PID);
-        return new Connection( url, config );
+        MavenConfigurationImpl config = new MavenConfigurationImpl( propertyResolver, ServiceConstants.PID);
+        MavenResolver resolver = new AetherBasedResolver(config);
+        return new Connection( url, resolver );
     }    
 }

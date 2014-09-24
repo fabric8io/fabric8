@@ -28,6 +28,8 @@ import java.util.concurrent.Executors;
 
 import aQute.bnd.osgi.Macro;
 import aQute.bnd.osgi.Processor;
+import io.fabric8.maven.MavenResolver;
+import io.fabric8.maven.url.internal.AetherBasedResolver;
 import org.apache.felix.framework.Felix;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.karaf.features.Repository;
@@ -59,8 +61,9 @@ public class ResolverTest {
         properties.setProperty("mvn.settings", getClass().getResource("/maven-default-settings.xml").toExternalForm());
         PropertiesPropertyResolver propertyResolver = new PropertiesPropertyResolver(properties);
         MavenConfigurationImpl mavenConfiguration = new MavenConfigurationImpl(propertyResolver, "mvn");
+        MavenResolver resolver = new AetherBasedResolver(mavenConfiguration);
 
-        DownloadManager manager = new DownloadManager(mavenConfiguration, Executors.newFixedThreadPool(2));
+        DownloadManager manager = new DownloadManager(resolver, Executors.newFixedThreadPool(2));
 
         Map<URI, Repository> repositories = new HashMap<URI, Repository>();
         AgentUtils.addRepository(manager, repositories, URI.create("mvn:org.apache.karaf.assemblies.features/standard/" + System.getProperty("karaf-version") + "/xml/features"));

@@ -20,8 +20,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.concurrent.ExecutorService;
 
-import io.fabric8.maven.util.MavenConfiguration;
-import io.fabric8.maven.util.MavenRepositoryURL;
+import io.fabric8.maven.MavenResolver;
 
 import static io.fabric8.agent.download.DownloadManagerHelper.stripUrl;
 
@@ -35,16 +34,16 @@ public class DownloadManager {
     /**
      * Service configuration.
      */
-    private final MavenConfiguration configuration;
+    private final MavenResolver mavenResolver;
     private boolean downloadFilesFromProfile = true;
     private File tmpPath;
 
-    public DownloadManager(MavenConfiguration configuration) throws MalformedURLException {
-        this(configuration, null);
+    public DownloadManager(MavenResolver resolver) throws MalformedURLException {
+        this(resolver, null);
     }
 
-    public DownloadManager(MavenConfiguration configuration, ExecutorService executor) throws MalformedURLException {
-        this.configuration = configuration;
+    public DownloadManager(MavenResolver resolver, ExecutorService executor) throws MalformedURLException {
+        this.mavenResolver = resolver;
         this.executor = executor;
         String karafRoot = System.getProperty("karaf.home", "karaf");
         String karafData = System.getProperty("karaf.data", karafRoot + "/data");
@@ -71,15 +70,7 @@ public class DownloadManager {
         String mvnUrl = stripUrl(url);
 
         if (mvnUrl.startsWith("mvn:")) {
-            MavenRepositoryURL inlined = null;
-
-//            final String inlinedMavenRepoUrl = stripInlinedMavenRepositoryUrl(mvnUrl);
-//            if (inlinedMavenRepoUrl != null) {
-//                inlined = new MavenRepositoryURL(inlinedMavenRepoUrl);
-//                mvnUrl = removeInlinedMavenRepositoryUrl(mvnUrl);
-//            }
-
-            MavenDownloadTask task = new MavenDownloadTask(mvnUrl, configuration, executor);
+            MavenDownloadTask task = new MavenDownloadTask(mvnUrl, mavenResolver, executor);
             executor.submit(task);
             if (!mvnUrl.equals(url)) {
                 final DummyDownloadTask download = new DummyDownloadTask(url, executor);
@@ -90,10 +81,6 @@ public class DownloadManager {
                             final String mvn = future.getUrl();
                             String file = future.getFile().toURI().toURL().toString();
                             String real = url.replace(mvn, file);
-                            // if we used an inlined maven repo, then we need to strip that off the real url
-//                            if (inlinedMavenRepoUrl != null) {
-//                                real = removeInlinedMavenRepositoryUrl(real);
-//                            }
                             SimpleDownloadTask task = new SimpleDownloadTask(real, executor, tmpPath);
                             executor.submit(task);
                             task.addListener(new FutureListener<DownloadFuture>() {
