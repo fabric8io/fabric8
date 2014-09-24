@@ -23,6 +23,7 @@ import java.io.FilenameFilter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +35,7 @@ import io.fabric8.insight.maven.aether.AetherResult;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.cli.MavenCli;
 import org.junit.AfterClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -57,12 +59,18 @@ public class ArchetypeTest {
 
     private static List<String> outDirs = new ArrayList<String>();
 
+    private static Set<String> EXCLUDED_ARCHETYPES = new HashSet<String>(Arrays.asList(new String[] {
+            "karaf-camel-dozer-wiki-archetype",
+            "karaf-camel-drools-archetype",
+            "karaf-camel-webservice-archetype",
+    }));
+
     @Test
     public void testGenerateQuickstartArchetypes() throws Exception {
         String[] dirs = new File(basedir, "../archetypes").list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return new File(dir, name).isDirectory()/* && !name.contains("springboot")*/;
+                return new File(dir, name).isDirectory() && !EXCLUDED_ARCHETYPES.contains(name);
             }
         });
         for (String dir : dirs) {
@@ -96,6 +104,7 @@ public class ArchetypeTest {
     }
 
     @Test
+    @Ignore
     public void testGenerateDroolsArchetype() throws Exception {
         String artifactId = "karaf-camel-drools-archetype";
         assertArchetypeCreated(artifactId, "io.fabric8", projectVersion,
@@ -125,10 +134,10 @@ public class ArchetypeTest {
         File outDir = new File(basedir, "target/" + artifactId + "-output");
 
         System.out.println("Creating Archetype " + groupId + ":" + artifactId + ":" + version);
-        Map<String, String> properties = new ArchetypeHelper(archetypejar, outDir, groupId, artifactId, version).parseProperties();
+        Map<String, String> properties = new ArchetypeHelper(archetypejar, outDir, groupId, artifactId, version, null, null).parseProperties();
         System.out.println("Has preferred properties: " + properties);
 
-        ArchetypeHelper helper = new ArchetypeHelper(archetypejar, outDir, groupId, artifactId, version);
+        ArchetypeHelper helper = new ArchetypeHelper(archetypejar, outDir, groupId, artifactId, version, null, null);
         helper.setPackageName(packageName);
 
         // lets override some properties
