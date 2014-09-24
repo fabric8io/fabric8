@@ -402,6 +402,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         Exception providerException = null;
         LOGGER.info("Destroying container {}", containerId);
         boolean destroyed = false;
+        boolean invalidContainer = false;
         try {
             ContainerProvider provider = getProvider(container, true);
             if (provider != null) {
@@ -418,12 +419,13 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 provider.destroy(container);
                 destroyed = true;
             } else {
+                invalidContainer = true;
                 throw new FabricException("Container's lifecycle not managed by Fabric8 (the container was not created by Fabric8).");
             }
 
         } finally {
             try {
-                if (destroyed || force) {
+                if (destroyed || force || invalidContainer) {
                     try {
                         portService.get().unregisterPort(container);
                     } catch (Exception e) {
