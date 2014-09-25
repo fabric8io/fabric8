@@ -206,6 +206,8 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                 }
             }
 
+        } catch (MojoFailureException e) {
+            throw e;
         } catch (MojoExecutionException e) {
             throw e;
         } catch (Exception e) {
@@ -285,7 +287,8 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         }
     }
 
-    protected void generateZip() throws DependencyTreeBuilderException, MojoExecutionException, IOException {
+    protected void generateZip() throws DependencyTreeBuilderException, MojoExecutionException, IOException,
+            MojoFailureException {
         ProjectRequirements requirements = new ProjectRequirements();
 
         DependencyDTO rootDependency = null;

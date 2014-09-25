@@ -24,7 +24,7 @@
     <groupId>io.fabric8.maven.test</groupId>
     <artifactId>zip-test</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>mule</packaging>
     <name>Test Packaging Override</name>
     <description>
         The POM file tests whether the artifact bundle type can be overridden
@@ -51,7 +51,7 @@
                 <configuration>
                     <includeArtifact>true</includeArtifact>
                     <profileConfigDir>${basedir}/src/main/fabric8</profileConfigDir>
-                    <project implementation="io.fabric8.maven.stubs.CreateProfileZipProjectStub"/>
+                    <project implementation="io.fabric8.maven.stubs.CreateProfileZipJarProjectStub"/>
                 </configuration>
             </plugin>
         </plugins>

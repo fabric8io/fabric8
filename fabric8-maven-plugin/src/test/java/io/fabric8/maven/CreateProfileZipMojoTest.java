@@ -16,7 +16,12 @@
 package io.fabric8.maven;
 
 
+import io.fabric8.maven.stubs.CreateProfileZipBundleProjectStub;
+import io.fabric8.maven.stubs.CreateProfileZipJarProjectStub;
+import io.fabric8.maven.stubs.CreateProfileZipMuleProjectStub;
 import io.fabric8.maven.stubs.CreateProfileZipProjectStub;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.junit.Assert;
 
@@ -34,16 +39,21 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
     private CreateProfileZipProjectStub projectStub;
 
+    public static final String EXPECTED_EXCEPTION_MESSAGE =
+            "The property artifactBundleClassifier " +
+                    "was specified as '%s' without also specifying artifactBundleType";
+
+    public static final String TEST_CLASSIFIER = "foo";
+
     protected void setUp() throws Exception {
         super.setUp();
-        projectStub = new CreateProfileZipProjectStub();
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
     }
 
-    public void testOverrideClassifier() throws Exception {
+    public void testAttemptOverrideClassifier() throws Exception {
 
         // GIVEN
 
@@ -53,16 +63,17 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
         // WHEN
 
-        artifactBundleClassifierIsOverridden(mojo);
-
-        mojo.execute();
+        artifactBundleClassifierIsOverridden(mojo, TEST_CLASSIFIER);
 
         // THEN
 
-        bundleReferencesHaveJarWithFooClassifier();
+        expectExceptionWhenExecuting(mojo,
+                String.format(EXPECTED_EXCEPTION_MESSAGE,TEST_CLASSIFIER));
+
     }
 
-    public void testOverrideType() throws Exception {
+
+    public void testOverrideWithZipType() throws Exception {
 
         // GIVEN
 
@@ -72,7 +83,7 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
         // WHEN
 
-        artifactBundleTypeIsOverridden(mojo);
+        artifactBundleTypeIsOverridden(mojo, "zip");
 
         mojo.execute();
 
@@ -82,7 +93,7 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
     }
 
-    public void testDefaultType() throws Exception {
+    public void testDefaultJarType() throws Exception {
 
         // GIVEN
 
@@ -94,8 +105,75 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
         // THEN
 
+        bundleReferencesHaveNoExtension();
+
+    }
+
+    public void testDefaultBundleType() throws Exception {
+
+        // GIVEN
+
+        pomWithBundlePackaging();
+
+        // WHEN
+
+        createProfileZipMojoWithBasicConfig().execute();
+
+        // THEN
+
+        bundleReferencesHaveNoExtension();
+
+    }
+
+    public void testMuleOverrideType() throws Exception {
+
+        // GIVEN
+
+        pomWithMulePackaging();
+
+        // WHEN
+
+        CreateProfileZipMojo mojo = createProfileZipMojoWithBasicConfig();
+
+        artifactBundleTypeIsOverridden(mojo, "zip");
+
+        mojo.execute();
+
+        // THEN
+
+        bundleReferencesHaveZipExtension();
+
+    }
+
+    public void testExplicitJarType() throws Exception {
+
+        // GIVEN
+
+        pomWithJarPackaging();
+
+        CreateProfileZipMojo mojo = createProfileZipMojoWithBasicConfig();
+
+        // WHEN
+
+        artifactBundleTypeIsOverridden(mojo, "jar");
+
+        mojo.execute();
+
+        // THEN
+
         bundleReferencesHaveJarExtension();
 
+    }
+
+    private void expectExceptionWhenExecuting(CreateProfileZipMojo mojo, String message) throws MojoExecutionException {
+        try {
+            mojo.execute();
+            Assert.fail("Expected MojoFailureException not thrown");
+        } catch (MojoFailureException e) {
+            Assert.assertEquals(
+                    message,
+                    e.getMessage());
+        }
     }
 
     private void bundleReferencesHaveJarExtension() throws IOException {
@@ -104,6 +182,14 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         assertPropertiesKeyExists(props, getArtifactBundleKey("jar"));
         assertPropertyValue(props, getArtifactBundleKey("jar"),
                 getExpectedArtifactBundleValue("jar"));
+    }
+
+    private void bundleReferencesHaveNoExtension() throws IOException {
+        Properties props = loadProperties(getFabricAgentPropertiesFile(getGeneratedProfilesDir()));
+
+        assertPropertiesKeyExists(props, getArtifactBundleKey());
+        assertPropertyValue(props, getArtifactBundleKey(),
+                getExpectedArtifactBundleValue());
     }
 
     private void bundleReferencesHaveJarWithFooClassifier() throws IOException {
@@ -134,19 +220,38 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         return profileZipMojo;
     }
 
-    private void artifactBundleTypeIsOverridden(CreateProfileZipMojo mojo) throws IllegalAccessException {
-        setVariableValueToObject(mojo, "artifactBundleType", "zip");
+    private void artifactBundleTypeIsOverridden(CreateProfileZipMojo mojo, String override) throws IllegalAccessException {
+        setVariableValueToObject(mojo, "artifactBundleType", override);
     }
 
-    private void artifactBundleClassifierIsOverridden(CreateProfileZipMojo mojo) throws IllegalAccessException {
-        setVariableValueToObject(mojo, "artifactBundleClassifier", "foo");
+    private void artifactBundleClassifierIsOverridden(CreateProfileZipMojo mojo, String classifier) throws IllegalAccessException {
+        setVariableValueToObject(mojo, "artifactBundleClassifier", classifier);
     }
 
     private void pomWithJarPackaging() {
+        projectStub = new CreateProfileZipJarProjectStub();
+
         Assert.assertEquals("jar", getPackaging());
 
         Assert.assertEquals("jar", getArtifactType());
     }
+
+    private void pomWithBundlePackaging() {
+        projectStub = new CreateProfileZipBundleProjectStub();
+
+        Assert.assertEquals("bundle", getPackaging());
+
+        Assert.assertEquals("bundle", getArtifactType());
+    }
+
+    private void pomWithMulePackaging() {
+        projectStub = new CreateProfileZipMuleProjectStub();
+
+        Assert.assertEquals("mule", getPackaging());
+
+        Assert.assertEquals("mule", getArtifactType());
+    }
+
 
     // helpers...
 
@@ -166,16 +271,29 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         return new File(getBasedir() + "/target/generated-profiles");
     }
 
+
+    private String getExpectedArtifactBundleValue() {
+        return "fab:mvn:" + getBundleGavSpec();
+    }
+
     private String getExpectedArtifactBundleValue(String type) {
-        return "fab:mvn:" + getBundleSpec(type);
+        return getExpectedArtifactBundleValue() + getTypeSpec(type);
+    }
+
+    private String getArtifactBundleKey() {
+        return "bundle.fab:mvn:" + getBundleGavSpec();
     }
 
     private String getArtifactBundleKey(String type) {
-        return "bundle.fab:mvn:" + getBundleSpec(type);
+        return getArtifactBundleKey() + getTypeSpec(type);
     }
 
-    private String getBundleSpec(String type) {
-        return getGroupId() + "/" + getArtifactId() + "/" + getVersion() + "/" +type;
+    private String getTypeSpec(String type) {
+        return "/" +type;
+    }
+
+    private String getBundleGavSpec() {
+        return getGroupId() + "/" + getArtifactId() + "/" + getVersion();
     }
 
     private String getProfilePathComponent() {
