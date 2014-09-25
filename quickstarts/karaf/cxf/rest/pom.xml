@@ -43,9 +43,9 @@
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
     <maven-resources-plugin-version>2.6</maven-resources-plugin-version>
     <build-helper-maven-plugin-version>1.9.1</build-helper-maven-plugin-version>
+    <cxf-version>3.0.2-SNAPSHOT</cxf-version>
     <skipTests>true</skipTests>
 
-    <cxf-version-range>[2.7,3)</cxf-version-range>
 
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
@@ -71,12 +71,12 @@
 
   <dependencies>
     <!--
-        For coding the example, we don't actually depend on any CXF classes - we only use the JAX-RS (JSR-311)
+        For coding the example, we don't actually depend on any CXF classes - we only use the JAX-RS (JSR-339)
         standard annotations and API
     -->
     <dependency>
       <groupId>org.apache.servicemix.specs</groupId>
-      <artifactId>org.apache.servicemix.specs.jsr311-api-1.1.1</artifactId>
+      <artifactId>org.apache.servicemix.specs.jsr339-api-2.0</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -178,7 +178,9 @@
               com.fasterxml.jackson.annotation, com.fasterxml.jackson.core, com.fasterxml.jackson.databind,
               com.fasterxml.jackson.jaxrs.json, javax.ws.rs.ext,*
             </Import-Package>
-            <Import-Service>org.apache.cxf.transport.http.DestinationRegistry</Import-Service>
+            <Import-Service>org.apache.aries.blueprint.NamespaceHandler;
+                osgi.service.blueprint.namespace=http://cxf.apache.org/transports/http/configuration
+            </Import-Service>
             <Export-Package>
               io.fabric8.quickstarts.rest
             </Export-Package>
@@ -225,7 +227,7 @@
       <plugin>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-java2wadl-plugin</artifactId>
-        <version>3.0.1</version>
+        <version>${cxf-version}</version>
         <executions>
           <execution>
             <id>parsejavadoc</id>
@@ -308,6 +310,18 @@
         <updatePolicy>never</updatePolicy>
       </releases>
     </repository>
+    <repository>
+      <id>apache.snapshot</id>
+      <name>Apache SNAPSHOT Repository</name>
+      <url>http://repository.apache.org/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -332,6 +346,18 @@
       </snapshots>
       <releases>
         <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </pluginRepository>
+    <pluginRepository>
+      <id>apache.snapshot</id>
+      <name>Apache SNAPSHOT Repository</name>
+      <url>http://repository.apache.org/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
         <updatePolicy>never</updatePolicy>
       </releases>
     </pluginRepository>

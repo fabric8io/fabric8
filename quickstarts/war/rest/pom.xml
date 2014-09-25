@@ -42,14 +42,13 @@
     <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
     <skipTests>true</skipTests>
-
+    <cxf-version>3.0.2-SNAPSHOT</cxf-version>
     <swagger-jaxrs-version>1.3.10</swagger-jaxrs-version>
     <tomcat-plugin-version>2.2</tomcat-plugin-version>
 
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
     <fabric.version>1.2.0-SNAPSHOT</fabric.version>
-    <cxf.version>2.7.11</cxf.version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-war-rest</fabric8.profile>
@@ -80,13 +79,13 @@
 
   <dependencies>
     <!--
-        For coding the example, we don't actually depend on any CXF classes - we only use the JAX-RS (JSR-311)
+        For coding the example, we don't actually depend on any CXF classes - we only use the JAX-RS (JSR-399)
         standard annotations and API
     -->
     <!--
         <dependency>
           <groupId>org.apache.servicemix.specs</groupId>
-          <artifactId>org.apache.servicemix.specs.jsr311-api-1.1.1</artifactId>
+          <artifactId>org.apache.servicemix.specs.jsr399-api-2.0</artifactId>
         </dependency>
     -->
 
@@ -196,7 +195,7 @@
       <plugin>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-java2wadl-plugin</artifactId>
-        <version>${cxf.version}</version>
+        <version>${cxf-version}</version>
         <executions>
           <execution>
             <id>process-classes</id>
@@ -299,6 +298,18 @@
         <updatePolicy>never</updatePolicy>
       </releases>
     </repository>
+    <repository>
+      <id>apache.snapshot</id>
+      <name>Apache SNAPSHOT Repository</name>
+      <url>http://repository.apache.org/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -323,6 +334,18 @@
       </snapshots>
       <releases>
         <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </pluginRepository>
+    <pluginRepository>
+      <id>apache.snapshot</id>
+      <name>Apache SNAPSHOT Repository</name>
+      <url>http://repository.apache.org/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
         <updatePolicy>never</updatePolicy>
       </releases>
     </pluginRepository>
