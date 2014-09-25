@@ -341,7 +341,8 @@ Normally the type is set to the project POM's packaging value.</td>
 <tr>
 <td>artifactBundleClassifier</td>
 <td>Overrides the classifier of the project artifact bundle to include in the profile (see includeArtifact).
-Normally the classifier is empty.</td>
+Normally the classifier is empty. The artifactBundleType parameter must always be specified explicitly
+when using the artifactBundleClassifier parameter.</td>
 </tr>
 <tr>
 <td>profileConfigDir</td>
