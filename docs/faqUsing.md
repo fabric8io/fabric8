@@ -35,10 +35,4 @@ Fabric8 has awesome support for Spring 4 with the [Spring Boot Container]((http:
 
 If you've been previously using OSGi or [Apache Karaf](http://karaf.apache.org/) as your application server then Spring 4 poses a challenge as its not currently available as valid OSGi bundles. So to use Spring 4 we recommend you consider moving to the [Java Container]((http://fabric8.io/gitbook/javaContainer.html) in particular the [Spring Boot Container]((http://fabric8.io/gitbook/springBootContainer.html)
 
-#### I cannot start fabric8 on Windows
 
-There is a known issue with Java and Windows when using IP6 capable network. You may see errors such as ``java.net.SocketException: Permission denied: no further information``. To resolve this set the ``KARAF_OPTS`` to the following in the ``bin/setenv.bat`` file.
-
-    KARAF_OPTS="-Djava.net.preferIPv4Stack=true"
-
-For more details see the [IP6 Java network guide](http://docs.oracle.com/javase/7/docs/technotes/guides/net/ipv6_guide/) and this [knowledgebase solution](https://access.redhat.com/site/solutions/757533).
