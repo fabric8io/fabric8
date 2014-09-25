@@ -23,6 +23,7 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 import io.fabric8.internal.ProfileImpl.ConfigListType;
 import io.fabric8.utils.DataStoreUtils;
+import io.fabric8.utils.FabricValidations;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -328,6 +329,7 @@ public final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder>
 		super.validate();
 		IllegalStateAssertion.assertNotNull(profileId, "Profile must have an identity");
 		IllegalStateAssertion.assertNotNull(versionId, "Version must be specified");
+        FabricValidations.validateProfileName(versionId);
 	}
 
 	@Override
