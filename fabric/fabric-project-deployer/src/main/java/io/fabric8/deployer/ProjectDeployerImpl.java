@@ -542,7 +542,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
             baseId = getVersionOrDefaultVersion(fabricService.get(), baseId);
             Version baseVersion = findVersion(fabricService.get(), baseId);
             if (baseVersion != null) {
-                version = profileService.createVersion(baseVersion.getId(), versionId, null);
+                version = profileService.createVersionFrom(baseVersion.getId(), versionId, null);
             } else {
                 version = VersionBuilder.Factory.create(versionId).getVersion();
                 version = profileService.createVersion(version);

@@ -50,6 +50,7 @@ public interface Version extends Comparable<Version>, HasId {
     
     /**
      * Get the list of available profiles
+     * [TODO] remove
      */
     List<Profile> getProfiles();
 

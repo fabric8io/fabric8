@@ -64,7 +64,7 @@ public class ProfileManagerTest {
         profileManager.getRequiredVersion("1.0").getRequiredProfile("prfA");
         
         // fabric:version-create --parent 1.0 1.1
-        Version v11 = profileManager.createVersion("1.0", "1.1", null);
+        Version v11 = profileManager.createVersionFrom("1.0", "1.1", null);
         Profile prfA11a = v11.getRequiredProfile("prfA");
         Assert.assertEquals("1.1", prfA11a.getVersion());
         Assert.assertEquals("prfA", prfA11a.getId());

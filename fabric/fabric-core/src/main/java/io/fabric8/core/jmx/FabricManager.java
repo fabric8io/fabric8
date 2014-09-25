@@ -318,7 +318,7 @@ public final class FabricManager implements FabricManagerMBean {
 
     @Override
     public Map<String, Object> createVersion(String sourceId, String targetId) {
-        Version version = profileService.createVersion(sourceId, targetId, null);
+        Version version = profileService.createVersionFrom(sourceId, targetId, null);
         return BeanUtils.convertVersionToMap(fabricService, version, BeanUtils.getFields(Version.class));
     }
 
@@ -1339,7 +1339,7 @@ public final class FabricManager implements FabricManagerMBean {
             targetId = sequence.next().getName();
         }
         
-        Version targetVersion = profileService.createVersion(sourceId, targetId, null);
+        Version targetVersion = profileService.createVersionFrom(sourceId, targetId, null);
 
         File currentPatchFile = null;
         try {

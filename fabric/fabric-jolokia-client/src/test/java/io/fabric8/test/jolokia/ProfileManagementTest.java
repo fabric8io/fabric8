@@ -22,6 +22,7 @@ import io.fabric8.api.VersionBuilder;
 import io.fabric8.api.mxbean.ProfileManagement;
 import io.fabric8.api.mxbean.ProfileState;
 import io.fabric8.api.mxbean.VersionState;
+import io.fabric8.jolokia.client.JSONTypeGenerator;
 import io.fabric8.jolokia.client.OpenTypeGenerator;
 
 import java.lang.management.ManagementFactory;
@@ -64,7 +65,7 @@ public class ProfileManagementTest {
         version10 = VersionBuilder.Factory.create("1.0").addProfiles(Arrays.asList(prfA, prfB)).getVersion();
 
         ProfileManagement impl = Mockito.mock(ProfileManagement.class);
-        Mockito.when(impl.getVersionIds()).thenReturn(Arrays.asList("1.0"));
+        Mockito.when(impl.getVersions()).thenReturn(Arrays.asList("1.0"));
         Mockito.when(impl.getVersion("1.0")).thenReturn(new VersionState(version10));
         Mockito.when(impl.getProfile("1.0", "prfA")).thenReturn(new ProfileState(prfA));
         Mockito.when(impl.getProfile("1.0", "prfB")).thenReturn(new ProfileState(prfB));
@@ -82,7 +83,7 @@ public class ProfileManagementTest {
     
     @Test
     public void testProxyGetVersions() throws Exception {
-        List<String> versions = proxy.getVersionIds();
+        List<String> versions = proxy.getVersions();
         Assert.assertEquals(1, versions.size());
         Assert.assertEquals("1.0", versions.get(0));
     }
@@ -90,7 +91,7 @@ public class ProfileManagementTest {
     @Test
     public void testProxyGetVersion() throws Exception {
         VersionState ver10 = proxy.getVersion("1.0");
-        List<String> profiles = ver10.getProfileIds();
+        List<String> profiles = ver10.getProfiles();
         Assert.assertEquals(2, profiles.size());
         Assert.assertEquals("prfA", ver10.getProfileState("prfA").getId());
         Assert.assertEquals("prfB", ver10.getProfileState("prfB").getId());
@@ -113,6 +114,11 @@ public class ProfileManagementTest {
         CompositeData cdata = (CompositeData) OpenTypeGenerator.toOpenData(ctype, prfB);
         ProfileState result = (ProfileState) OpenTypeGenerator.fromOpenData(ctype, classLoader, cdata);
         Assert.assertEquals(prfB, result);
+        
+        Object json = JSONTypeGenerator.toJSON(cdata);
+        cdata = (CompositeData) JSONTypeGenerator.toOpenData(ctype, classLoader, json);
+        result = (ProfileState) OpenTypeGenerator.fromOpenData(ctype, classLoader, cdata);
+        Assert.assertEquals(prfB, result);
     }
 
     @Test
@@ -122,6 +128,11 @@ public class ProfileManagementTest {
         ClassLoader classLoader = ver10.getClass().getClassLoader();
         CompositeData cdata = (CompositeData) OpenTypeGenerator.toOpenData(ctype, ver10);
         VersionState result = (VersionState) OpenTypeGenerator.fromOpenData(ctype, classLoader, cdata);
+        Assert.assertEquals(ver10, result);
+        
+        Object json = JSONTypeGenerator.toJSON(cdata);
+        cdata = (CompositeData) JSONTypeGenerator.toOpenData(ctype, classLoader, json);
+        result = (VersionState) OpenTypeGenerator.fromOpenData(ctype, classLoader, cdata);
         Assert.assertEquals(ver10, result);
     }
 

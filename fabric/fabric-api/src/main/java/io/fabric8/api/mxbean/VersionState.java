@@ -34,9 +34,14 @@ public final class VersionState {
     @ConstructorProperties({"id", "revision", "attributes", "profileStates"})
     public VersionState(String versionId, String revision, Map<String, String> attributes, List<ProfileState> profileStates) {
         VersionBuilder builder = VersionBuilder.Factory.create(versionId);
-        builder.setRevision(revision).setAttributes(attributes);
-        for(ProfileState ps : profileStates) {
-            builder.addProfile(ps.toProfile());
+        builder.setRevision(revision);
+        if (attributes != null) {
+            builder.setAttributes(attributes);
+        }
+        if (profileStates != null) {
+            for (ProfileState ps : profileStates) {
+                builder.addProfile(ps.toProfile());
+            }
         }
         delegate = builder.getVersion();
     }
@@ -61,7 +66,7 @@ public final class VersionState {
         return delegate.getAttributes();
     }
 
-    public List<String> getProfileIds() {
+    public List<String> getProfiles() {
         return delegate.getProfileIds();
     }
 

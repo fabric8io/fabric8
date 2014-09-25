@@ -97,7 +97,7 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
     }
 
     @Override
-    public Version createVersion(String sourceId, String targetId, Map<String, String> attributes) {
+    public Version createVersionFrom(String sourceId, String targetId, Map<String, String> attributes) {
         assertValid();
         LOGGER.info("createVersion: {} => {}", sourceId, targetId);
         profileRegistry.get().createVersion(sourceId, targetId, attributes);
