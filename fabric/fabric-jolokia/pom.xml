@@ -57,6 +57,10 @@
     <dependencies>
         <dependency>
             <groupId>org.jolokia</groupId>
+            <artifactId>jolokia-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jolokia</groupId>
             <artifactId>jolokia-osgi</artifactId>
             <version>${jolokia-version}</version>
         </dependency>

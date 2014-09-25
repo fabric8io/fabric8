@@ -26,7 +26,7 @@ public interface ProfileManager {
 
     Version createVersion(Version version);
     
-    Version createVersion(String sourceId, String targetId, Map<String, String> attributes);
+    Version createVersionFrom(String sourceId, String targetId, Map<String, String> attributes);
     
     List<String> getVersions();
     

@@ -19,8 +19,11 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileBuilder;
 
 import java.beans.ConstructorProperties;
+import java.lang.reflect.Array;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -30,10 +33,15 @@ public final class ProfileState {
 
     private final Profile delegate;
     
-    @ConstructorProperties({"version", "id", "parentIds", "fileConfigurations", "profileHash", "overlay"})
-    public ProfileState(String versionId, String profileId, List<String> parents, Map<String, byte[]> fileConfigs, String lastModified, boolean isOverlay) {
+    @ConstructorProperties({"version", "id", "fileConfigurations", "profileHash", "overlay"})
+    public ProfileState(String versionId, String profileId, Map<String, Byte[]> fileConfigs, String lastModified, boolean isOverlay) {
         ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
-        builder.setFileConfigurations(fileConfigs).setLastModified(lastModified).setOverlay(isOverlay);
+        builder.setLastModified(lastModified).setOverlay(isOverlay);
+        if (fileConfigs != null) {
+            for (Entry<String, Byte[]> entry : fileConfigs.entrySet()) {
+                builder.addFileConfiguration(entry.getKey(), toPrimitiveArray(entry.getValue()));
+            }
+        }
         delegate = builder.getProfile();
     }
 
@@ -117,12 +125,17 @@ public final class ProfileState {
         return delegate.getConfigurationFileNames();
     }
 
-    public Map<String, byte[]> getFileConfigurations() {
-        return delegate.getFileConfigurations();
+    public Map<String, Byte[]> getFileConfigurations() {
+        Map<String, Byte[]> result = new LinkedHashMap<>();
+        for(Entry<String, byte[]> entry : delegate.getFileConfigurations().entrySet()) {
+            result.put(entry.getKey(), fromPrimitiveArray(entry.getValue()));
+        }
+        return result;
     }
 
-    public byte[] getFileConfiguration(String fileName) {
-        return delegate.getFileConfiguration(fileName);
+    public Byte[] getFileConfiguration(String fileName) {
+        byte[] array = delegate.getFileConfiguration(fileName);
+        return fromPrimitiveArray(array);
     }
 
     public Map<String, Map<String, String>> getConfigurations() {
@@ -170,5 +183,27 @@ public final class ProfileState {
     @Override
     public String toString() {
         return delegate.toString();
+    }
+
+    private Byte[] fromPrimitiveArray(byte[] array) {
+        if (array == null) {
+            return null;
+        }
+        Byte[] result = new Byte[array.length];
+        for (int i = 0; i < array.length; i++) {
+            Array.set(result, i, array[i]);
+        }
+        return result;
+    }
+
+    private byte[] toPrimitiveArray(Byte[] array) {
+        if (array == null) {
+            return null;
+        }
+        byte[] result = new byte[array.length];
+        for (int i = 0; i < array.length; i++) {
+            Array.set(result, i, array[i]);
+        }
+        return result;
     }
 }

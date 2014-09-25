@@ -25,26 +25,29 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
 import javax.management.MBeanOperationInfo;
+import javax.management.MBeanParameterInfo;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
-import javax.management.openmbean.ArrayType;
 import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.OpenMBeanAttributeInfo;
 import javax.management.openmbean.OpenMBeanOperationInfo;
 import javax.management.openmbean.OpenMBeanParameterInfo;
 import javax.management.openmbean.OpenType;
 
+import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pReadRequest;
 import org.jolokia.client.request.J4pWriteRequest;
-import org.json.simple.JSONArray;
+import org.json.simple.JSONAware;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,8 +105,8 @@ public final class JolokiaMXBeanProxy {
 
     private static class MXBeanInvocationHandler implements InvocationHandler {
 
-        private final Map<String, MBeanAttributeInfo> attributeMapping = new HashMap<>();
-        private final Map<String, MBeanOperationInfo> operationMapping = new HashMap<>();
+        private final Map<String, MBeanAttributeInfo> attributes = new HashMap<>();
+        private final Set<MBeanOperationInfo> operations = new HashSet<>();
         private final ClassLoader classLoader;
         private final ObjectName objectName;
         private final J4pClient client;
@@ -113,10 +116,10 @@ public final class JolokiaMXBeanProxy {
             this.classLoader = classLoader;
             this.objectName = objectName;
             for (MBeanAttributeInfo info : mbeanInfo.getAttributes()) {
-                attributeMapping.put(info.getName(), info);
+                attributes.put(info.getName(), info);
             }
             for (MBeanOperationInfo info : mbeanInfo.getOperations()) {
-                operationMapping.put(info.getName(), info);
+                operations.add(info);
             }
         }
 
@@ -137,7 +140,8 @@ public final class JolokiaMXBeanProxy {
                     return null;
                 } else {
                     Object[] params = marshalParameters(method, args);
-                    J4pExecRequest execReq = new J4pExecRequest(objectName, method.getName(), params);
+                    String operation = getOperationInfo(method).getName();
+                    J4pExecRequest execReq = new J4pExecRequest(objectName, operation, params);
                     execReq.setPreferredHttpMethod("POST");
                     Object result = client.execute(execReq).getValue();
                     return unmarshalResult(method, result);
@@ -152,47 +156,80 @@ public final class JolokiaMXBeanProxy {
             Object[] result = new Object[params.length];
             if (isSetter(method)) {
                 String attname = getAttributeName(method);
-                OpenMBeanAttributeInfo attinfo = (OpenMBeanAttributeInfo) attributeMapping.get(attname);
-                OpenType<?> openType = attinfo.getOpenType();
-                result[0] = OpenTypeGenerator.toOpenData(openType, params[0]);
+                MBeanAttributeInfo attInfo = attributes.get(attname);
+                if (attInfo instanceof OpenMBeanAttributeInfo) {
+                    OpenType<?> openType = ((OpenMBeanAttributeInfo) attInfo).getOpenType();
+                    Object openData = OpenTypeGenerator.toOpenData(openType, params[0]);
+                    Object jsonAware = JSONTypeGenerator.toJSON(openData);
+                    result[0] = jsonAware;
+                } else {
+                    Object jsonAware = JSONTypeGenerator.toJSON(params[0]);
+                    result[0] = jsonAware;
+                }
             } else {
-                OpenMBeanOperationInfo opinfo = (OpenMBeanOperationInfo) operationMapping.get(method.getName());
-                OpenMBeanParameterInfo[] signature = (OpenMBeanParameterInfo[]) opinfo.getSignature();
+                MBeanOperationInfo opinfo = getOperationInfo(method);
+                MBeanParameterInfo[] signature = opinfo.getSignature();
                 for (int i = 0; i < params.length; i++) {
-                    OpenType<?> openType = signature[i].getOpenType();
-                    result[i] = OpenTypeGenerator.toOpenData(openType, params[i]);
+                    MBeanParameterInfo paramInfo = signature[i];
+                    if (paramInfo instanceof OpenMBeanParameterInfo) {
+                        OpenType<?> openType = ((OpenMBeanParameterInfo) paramInfo).getOpenType();
+                        Object openData = OpenTypeGenerator.toOpenData(openType, params[i]);
+                        Object jsonAware = JSONTypeGenerator.toJSON(openData);
+                        result[i] = jsonAware;
+                    } else {
+                        Object jsonAware = JSONTypeGenerator.toJSON(params[i]);
+                        result[i] = jsonAware;
+                    }
                 }
             }
             return result;
         }
 
+        private MBeanOperationInfo getOperationInfo(Method method) {
+            MBeanOperationInfo result = null;
+            for (MBeanOperationInfo opinfo : operations) {
+                MBeanParameterInfo[] signature = opinfo.getSignature();
+                if (opinfo.getName().equals(method.getName()) && signature.length == method.getParameterTypes().length) {
+                    result = opinfo;
+                    break;
+                }
+            }
+            IllegalStateAssertion.assertNotNull(result, "Cannot find MBeanOperationInfo for: " + method);
+            return result;
+        }
+
         private Object unmarshalResult(Method method, Object value) throws OpenDataException {
-            OpenType<?> openType;
+
+            if (value == null) 
+                return null;
+            
+            OpenType<?> openType = null;
             if (isGetter(method)) {
                 String attname = getAttributeName(method);
-                OpenMBeanAttributeInfo attinfo = (OpenMBeanAttributeInfo) attributeMapping.get(attname);
-                openType = attinfo.getOpenType();
-            } else {
-                OpenMBeanOperationInfo opinfo = (OpenMBeanOperationInfo) operationMapping.get(method.getName());
-                openType = opinfo.getReturnOpenType();
-            }
-            
-            // Convert a JSONArray to a Java array
-            // [TODO] this should be handles by jolokia internally for openmbean results
-            if (openType instanceof ArrayType && value instanceof JSONArray) {
-                JSONArray jsonArray = (JSONArray) value;
-                ArrayType<?> arrayType = (ArrayType<?>) openType;
-                OpenType<?> elementType = arrayType.getElementOpenType();
-                Object[] targetArray = OpenTypeGenerator.getJavaTypeArray(elementType, classLoader, jsonArray.size());
-                for (int i = 0; i < jsonArray.size(); i++) {
-                    Object element = jsonArray.get(i);
-                    targetArray[i] = element;
+                MBeanAttributeInfo attInfo = attributes.get(attname);
+                if (attInfo instanceof OpenMBeanAttributeInfo) {
+                    openType = ((OpenMBeanAttributeInfo) attInfo).getOpenType();
                 }
-                value = targetArray;
+            } else {
+                MBeanOperationInfo opinfo = getOperationInfo(method);
+                if (opinfo instanceof OpenMBeanOperationInfo) {
+                    openType = ((OpenMBeanOperationInfo) opinfo).getReturnOpenType();
+                }
             }
             
-            Object result = OpenTypeGenerator.fromOpenData(openType, classLoader, value);
-            return OpenTypeGenerator.toTargetType(method.getReturnType(), result);
+            // Convert a JSON return values to openmbean types
+            // [TODO] this should be handles by jolokia internally for openmbean results
+            if (value instanceof JSONAware) {
+                value = JSONTypeGenerator.toOpenData(openType, classLoader, (JSONAware) value);
+            }
+            
+            // Convert open type to java type
+            if (openType != null) {
+                value = OpenTypeGenerator.fromOpenData(openType, classLoader, value);
+            }
+            
+            // Convert to actual method return type
+            return OpenTypeGenerator.toTargetType(method.getReturnType(), value);
         }
 
         private boolean isGetter(Method method) {

@@ -81,7 +81,7 @@ public class VersionCreateAction extends AbstractAction {
         Version targetVersion;
         if (sourceId != null) {
             Map<String, String> attributes = description != null ? Collections.singletonMap(Version.DESCRIPTION, description) : null;
-            targetVersion = profileService.createVersion(sourceId, versionId, attributes);
+            targetVersion = profileService.createVersionFrom(sourceId, versionId, attributes);
             System.out.println("Created version: " + versionId + " as copy of: " + sourceId);
         } else {
             VersionBuilder builder = VersionBuilder.Factory.create(versionId);

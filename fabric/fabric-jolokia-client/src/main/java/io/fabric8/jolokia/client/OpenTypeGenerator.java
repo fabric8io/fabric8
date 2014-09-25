@@ -48,7 +48,7 @@ import javax.management.openmbean.TabularType;
 import org.jboss.gravia.utils.IllegalStateAssertion;
 
 /**
- * A utility that can marshal an MXBean compliant type into an open data type and vise versa.
+ * A utility that can marshal an MXBean compliant java type into an opendata type and vise versa.
  *
  * @author thomas.diesler@jboss.com
  * @since 23-Jun-2014
@@ -59,40 +59,26 @@ public final class OpenTypeGenerator {
     private OpenTypeGenerator() {
     }
 
-    public static Object toOpenData(OpenType<?> type, Object value) throws OpenDataException {
+    public static Object toOpenData(OpenType<?> otype, Object value) throws OpenDataException {
         Object result;
-        if (value != null && !type.isValue(value)) {
-            if (type instanceof CompositeType) {
-                result = toCompositeData((CompositeType) type, value); 
-            } else if (type instanceof TabularType) {
-                result = toTabularData((TabularType) type, (Map<?, ?>) value); 
-            } else if (type instanceof ArrayType) {
-                result = toArrayData((ArrayType<?>) type, value); 
+        if (value != null && !otype.isValue(value)) {
+            if (otype instanceof CompositeType) {
+                result = toCompositeData((CompositeType) otype, value); 
+            } else if (otype instanceof TabularType) {
+                result = toTabularData((TabularType) otype, (Map<?, ?>) value); 
+            } else if (otype instanceof ArrayType) {
+                result = toArrayData((ArrayType<?>) otype, value); 
+            } else if (otype == SimpleType.BYTE && value instanceof Number) {
+                result = Byte.parseByte(value.toString()); 
             } else {
-                throw new OpenDataException("Unsupported open type: " + type);
+                throw new OpenDataException("Unsupported open type: " + otype);
             }
         } else {
             result = value;
         }
-        boolean isAssignable = result == null || type.isValue(result);
-        IllegalStateAssertion.assertTrue(isAssignable, "Value " + result + " is not a value of: " + type);
+        boolean isAssignable = result == null || otype.isValue(result);
+        IllegalStateAssertion.assertTrue(isAssignable, "Value " + result + " is not a value of: " + otype);
         return result;
-    }
-
-    private static CompositeData toCompositeData(CompositeType ctype, Object value) throws OpenDataException {
-        Map<String, Object> items = new HashMap<>();
-        for(String key : ctype.keySet()) {
-            OpenType<?> itemType = ctype.getType(key);
-            Object rawValue;
-            if (value instanceof Map) {
-                rawValue = ((Map<?, ?>) value).get(key);
-            } else {
-                rawValue = getterValue(value, itemType, key);
-            }
-            Object openValue = toOpenData(itemType, rawValue);
-            items.put(key, openValue);
-        }
-        return new CompositeDataSupport(ctype, items);
     }
 
     private static TabularData toTabularData(TabularType ttype, Map<?, ?> value) throws OpenDataException {
@@ -111,21 +97,18 @@ public final class OpenTypeGenerator {
         return tdata;
     }
 
-    private static Object toArrayData(ArrayType<?> atype, Object value) throws OpenDataException {
-        if (atype.isPrimitiveArray() && value.getClass().isArray()) {
-            return value;
-        }
+    static Object toArrayData(ArrayType<?> atype, Object value) throws OpenDataException {
         List<?> items;
         if (value instanceof Collection) {
             items = new ArrayList<Object>((Collection<?>) value);
         } else {
             items = Arrays.asList(value);
         }
+        Object array = getOpenTypeArray(atype, ClassLoader.getSystemClassLoader(), items.size());
         OpenType<?> elementType = atype.getElementOpenType();
-        Object[] array = getOpenTypeArray(elementType, items.size());
         for (int i = 0; i < items.size(); i++) {
-            Object openValue = toOpenData(elementType, items.get(i));
-            array[i] = openValue;
+            Object val = toOpenData(elementType, items.get(i));
+            Array.set(array, i, val);
         }
         return array;
     }
@@ -142,7 +125,7 @@ public final class OpenTypeGenerator {
                     break;
                 }
             }
-            IllegalStateAssertion.assertNotNull(method, "Cannot find getter: " + methodName);
+            IllegalStateAssertion.assertNotNull(method, "Cannot find getter: " + beanClass.getName() + "." + methodName);
             return method.invoke(bean, (Object[]) null);
         } catch (Exception ex) {
             OpenDataException odex = new OpenDataException("Cannot invoke getter for: " + itemName);
@@ -151,23 +134,30 @@ public final class OpenTypeGenerator {
         }
     }
 
-    public static Object fromOpenData(OpenType<?> type, ClassLoader classLoader, Object value) throws OpenDataException {
+    public static Object fromOpenData(OpenType<?> otype, ClassLoader classLoader, Object value) throws OpenDataException {
+        if (value == null) {
+            return null;
+        }
         Object result;
-        if (type instanceof CompositeType) {
+        if (otype instanceof CompositeType) {
             result = fromCompositeData(classLoader, (CompositeData) value); 
-        } else if (type instanceof TabularType) {
+        } else if (otype instanceof TabularType) {
             result = fromTabularData(classLoader, (TabularData) value); 
-        } else if (type instanceof ArrayType) { 
-            result = fromArrayData((ArrayType<?>) type, classLoader, value); 
-        } else if (type instanceof SimpleType) {
+        } else if (otype instanceof ArrayType) { 
+            result = fromArrayData((ArrayType<?>) otype, classLoader, value); 
+        } else if (otype instanceof SimpleType) {
             result = value;
         } else {
-            throw new OpenDataException("Unsupported open type: " + type);
+            throw new OpenDataException("Unsupported open type: " + otype);
         }
         return result;
     }
     
     private static Object fromCompositeData(ClassLoader classLoader, CompositeData cdata) throws OpenDataException {
+        if (cdata == null)
+            return null;
+        
+        Object result;
         CompositeType ctype = cdata.getCompositeType();
         String typeName = ctype.getTypeName();
         if (typeName.startsWith("java.util.Map")) {
@@ -177,62 +167,62 @@ public final class OpenTypeGenerator {
             OpenType<?> valType = ctype.getType("value");
             Object key = fromOpenData(keyType, classLoader, openKey);
             Object value = fromOpenData(valType, classLoader, openVal);
-            return Collections.singletonMap(key, value);
-        }
-        Class<?> targetType;
-        try {
-            targetType = classLoader.loadClass(typeName);
-        } catch (ClassNotFoundException ex) {
-            OpenDataException odex = new OpenDataException("Cannot load target type: " + typeName);
-            odex.initCause(ex);
-            throw odex;
-        }
-        Constructor<?> ctor = null;
-        boolean isDefaultCtor = false;
-        for (Constructor<?> aux : targetType.getConstructors()) {
-            isDefaultCtor = aux.getParameterTypes().length == 0;
-            if (isDefaultCtor) {
-                ctor = aux;
-                break;
-            } else if (aux.getAnnotation(ConstructorProperties.class) != null) {
-                ctor = aux;
+            result = Collections.singletonMap(key, value);
+        } else {
+            Class<?> targetType;
+            try {
+                targetType = classLoader.loadClass(typeName);
+            } catch (ClassNotFoundException ex) {
+                OpenDataException odex = new OpenDataException("Cannot load target type: " + typeName);
+                odex.initCause(ex);
+                throw odex;
             }
-        }
-        IllegalStateAssertion.assertNotNull(ctor, "Cannot mxbean compliant constructor for: " + targetType.getName());
-        Object result;
-        try {
-            if (isDefaultCtor) {
-                result = ctor.newInstance((Object[]) null);
-                for (String key : ctype.keySet()) {
-                    OpenType<?> itemType = ctype.getType(key);
-                    Object itemValue = cdata.get(key);
-                    Object javaValue = fromOpenData(itemType, classLoader, itemValue);
-                    invokeSetter(result, key, javaValue);
+            Constructor<?> ctor = null;
+            boolean isDefaultCtor = false;
+            for (Constructor<?> aux : targetType.getConstructors()) {
+                isDefaultCtor = aux.getParameterTypes().length == 0;
+                if (isDefaultCtor) {
+                    ctor = aux;
+                    break;
+                } else if (aux.getAnnotation(ConstructorProperties.class) != null) {
+                    ctor = aux;
                 }
-            } else {
-                List<Object> params = new ArrayList<>();
-                ConstructorProperties props = ctor.getAnnotation(ConstructorProperties.class);
-                for (String key : props.value()) {
-                    OpenType<?> itemType = ctype.getType(key);
-                    Object itemValue = cdata.get(key);
-                    Object javaValue = fromOpenData(itemType, classLoader, itemValue);
-                    params.add(javaValue);
-                }
-                Class<?>[] paramTypes = ctor.getParameterTypes();
-                for (Object param : params) {
-                    int index = params.indexOf(param);
-                    Class<?> paramType = paramTypes[index];
-                    param = toTargetType(paramType, param);
-                    if (param != params.get(index)) {
-                        params.set(index, param);
+            }
+            IllegalStateAssertion.assertNotNull(ctor, "Cannot mxbean compliant constructor for: " + targetType.getName());
+            try {
+                if (isDefaultCtor) {
+                    result = ctor.newInstance((Object[]) null);
+                    for (String key : ctype.keySet()) {
+                        OpenType<?> itemType = ctype.getType(key);
+                        Object itemValue = cdata.get(key);
+                        Object javaValue = fromOpenData(itemType, classLoader, itemValue);
+                        invokeSetter(result, key, javaValue);
                     }
+                } else {
+                    List<Object> params = new ArrayList<>();
+                    ConstructorProperties props = ctor.getAnnotation(ConstructorProperties.class);
+                    for (String key : props.value()) {
+                        OpenType<?> itemType = ctype.getType(key);
+                        Object itemValue = cdata.get(key);
+                        Object javaValue = fromOpenData(itemType, classLoader, itemValue);
+                        params.add(javaValue);
+                    }
+                    Class<?>[] paramTypes = ctor.getParameterTypes();
+                    for (Object param : params) {
+                        int index = params.indexOf(param);
+                        Class<?> paramType = paramTypes[index];
+                        param = toTargetType(paramType, param);
+                        if (param != params.get(index)) {
+                            params.set(index, param);
+                        }
+                    }
+                    result = ctor.newInstance(params.toArray());
                 }
-                result = ctor.newInstance(params.toArray());
+            } catch (Exception ex) {
+                OpenDataException odex = new OpenDataException("Cannot construct object from: " + cdata);
+                odex.initCause(ex);
+                throw odex;
             }
-        } catch (Exception ex) {
-            OpenDataException odex = new OpenDataException("Cannot construct object from: " + cdata);
-            odex.initCause(ex);
-            throw odex;
         }
         return result;
     }
@@ -240,23 +230,38 @@ public final class OpenTypeGenerator {
     @SuppressWarnings("unchecked")
     private static Map<?, ?> fromTabularData(ClassLoader classLoader, TabularData tdata) throws OpenDataException {
         Map<Object, Object> result = new LinkedHashMap<>();
-        for (CompositeData cdata : (Collection<CompositeData>)tdata.values()) {
-            Map<Object, Object> rowValue = (Map<Object, Object>) fromCompositeData(classLoader, cdata);
-            result.putAll(rowValue);
+        if (tdata != null) {
+            for (CompositeData cdata : (Collection<CompositeData>)tdata.values()) {
+                Map<Object, Object> rowValue = (Map<Object, Object>) fromCompositeData(classLoader, cdata);
+                result.putAll(rowValue);
+            }
         }
         return result;
     }
 
     private static Object fromArrayData(ArrayType<?> atype, ClassLoader classLoader, Object value) throws OpenDataException {
-        if (atype.isPrimitiveArray() && value.getClass().isArray()) {
-            return value;
-        }
-        Object[] elements = (Object[]) value;
         OpenType<?> elementType = atype.getElementOpenType();
-        Object[] array = getJavaTypeArray(elementType, classLoader, elements.length);
-        for (int i = 0; i < elements.length; i++) {
-            Object javaValue = fromOpenData(elementType, classLoader, elements[i]);
-            array[i] = javaValue;
+        Object array;
+        if (value == null) {
+            array = getJavaTypeArray(atype, classLoader, 0);
+        } else if (value.getClass().isArray()) {
+            int length = Array.getLength(value);
+            array = getJavaTypeArray(atype, classLoader, length);
+            for (int i = 0; i < length; i++) {
+                Object val = Array.get(value, i);
+                val = fromOpenData(elementType, classLoader, val);
+                Array.set(array, i, val);
+            }
+        } else if (value instanceof Collection<?>) {
+            List<?> list = new ArrayList<Object>((Collection<?>) value);
+            array = getJavaTypeArray(atype, classLoader, list.size());
+            for (int i = 0; i < list.size(); i++) {
+                Object val = list.get(i);
+                val = fromOpenData(elementType, classLoader, val);
+                Array.set(array, i, val);
+            }
+        } else {
+            throw new IllegalArgumentException("Unsupported value type: " + value);
         }
         return array;
     }
@@ -272,7 +277,7 @@ public final class OpenTypeGenerator {
                     break;
                 }
             }
-            IllegalStateAssertion.assertNotNull(method, "Cannot find setter: " + methodName);
+            IllegalStateAssertion.assertNotNull(method, "Cannot find setter: " + beanClass.getName() + "." + methodName);
             Class<?> paramType = method.getParameterTypes()[0];
             value = toTargetType(paramType, value);
             method.invoke(target, value);
@@ -283,35 +288,58 @@ public final class OpenTypeGenerator {
         }
     }
     
-    static Object[] getOpenTypeArray(OpenType<?> elementType, int dimension) throws OpenDataException {
-        Class<?> compType;
-        try {
-            compType = Class.forName(elementType.getClassName());
-        } catch (ClassNotFoundException ex) {
-            OpenDataException odex = new OpenDataException("Cannot load array type: " + elementType.getClassName());
-            odex.initCause(ex);
-            throw odex;
+    static CompositeData toCompositeData(CompositeType ctype, Object value) throws OpenDataException {
+        Map<String, Object> items = new HashMap<>();
+        for(String key : ctype.keySet()) {
+            OpenType<?> itemType = ctype.getType(key);
+            Object rawValue;
+            if (value instanceof Map) {
+                rawValue = ((Map<?, ?>) value).get(key);
+            } else {
+                rawValue = getterValue(value, itemType, key);
+            }
+            Object openValue = toOpenData(itemType, rawValue);
+            items.put(key, openValue);
         }
-        return (Object[]) Array.newInstance(compType, dimension);
+        return new CompositeDataSupport(ctype, items);
     }
 
-    static Object[] getJavaTypeArray(OpenType<?> elementType, ClassLoader classLoader, int dimension) throws OpenDataException {
+    static Object getOpenTypeArray(ArrayType<?> atype, ClassLoader classLoader, int dimension) throws OpenDataException {
         Class<?> compType;
+        OpenType<?> elementType = atype.getElementOpenType();
         try {
-            if (elementType instanceof CompositeType) {
-                CompositeType ctype = (CompositeType) elementType;
-                compType = classLoader.loadClass(ctype.getTypeName());
-            } else if (elementType instanceof SimpleType) {
-                compType = Class.forName(elementType.getClassName());
+            if (atype.isPrimitiveArray()) {
+                compType = Class.forName(atype.getTypeName()).getComponentType();
+            } else if (elementType instanceof CompositeType) {
+                compType = CompositeData.class;
+            } else if (elementType instanceof TabularType) {
+                compType = TabularData.class;
             } else {
-                throw new IllegalArgumentException("Element type not supported: " + elementType);
+                compType = classLoader.loadClass(elementType.getTypeName());
             }
         } catch (ClassNotFoundException ex) {
-            OpenDataException odex = new OpenDataException("Cannot load array type: " + elementType.getClassName());
+            OpenDataException odex = new OpenDataException("Cannot load array type: " + atype);
             odex.initCause(ex);
             throw odex;
         }
-        return (Object[]) Array.newInstance(compType, dimension);
+        return Array.newInstance(compType, dimension);
+    }
+
+    static Object getJavaTypeArray(ArrayType<?> atype, ClassLoader classLoader, int dimension) throws OpenDataException {
+        Class<?> compType;
+        OpenType<?> elementType = atype.getElementOpenType();
+        try {
+            if (atype.isPrimitiveArray()) {
+                compType = Class.forName(atype.getTypeName()).getComponentType();
+            } else {
+                compType = classLoader.loadClass(elementType.getTypeName());
+            }
+        } catch (ClassNotFoundException ex) {
+            OpenDataException odex = new OpenDataException("Cannot load array type: " + atype);
+            odex.initCause(ex);
+            throw odex;
+        }
+        return Array.newInstance(compType, dimension);
     }
 
     static Object toTargetType(Class<?> targetType, Object value) {

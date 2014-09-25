@@ -63,11 +63,11 @@ public final class ProfileManagerImpl extends AbstractComponent implements Profi
     }
 
     @Override
-    public Version createVersion(String sourceId, String targetId, Map<String, String> attributes) {
+    public Version createVersionFrom(String sourceId, String targetId, Map<String, String> attributes) {
         Permit<ProfileService> permit = permitManager.get().aquirePermit(ProfileService.PERMIT, false);
         try {
             ProfileService service = permit.getInstance();
-            return service.createVersion(sourceId, targetId, attributes);
+            return service.createVersionFrom(sourceId, targetId, attributes);
         } finally {
             permit.release();
         }

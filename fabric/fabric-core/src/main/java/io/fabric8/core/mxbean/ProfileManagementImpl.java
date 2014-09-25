@@ -38,13 +38,13 @@ public final class ProfileManagementImpl implements ProfileManagement {
     }
 
     @Override
-    public VersionState createVersion(String sourceId, String targetId, Map<String, String> attributes) {
-        Version version = getProfileManager().createVersion(sourceId, targetId, attributes);
+    public VersionState createVersionFrom(String sourceId, String targetId, Map<String, String> attributes) {
+        Version version = getProfileManager().createVersionFrom(sourceId, targetId, attributes);
         return new VersionState(version);
     }
 
     @Override
-    public List<String> getVersionIds() {
+    public List<String> getVersions() {
         return getProfileManager().getVersions();
     }
 

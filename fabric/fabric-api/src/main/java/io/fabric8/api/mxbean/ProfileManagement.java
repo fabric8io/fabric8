@@ -30,13 +30,13 @@ public interface ProfileManagement {
 
     ObjectName OBJECT_NAME = ObjectNameFactory.create(Constants.MANAGEMENT_DOMAIN + ":type=" + ProfileManagement.class.getSimpleName());
 
-    VersionState createVersion(VersionState version);
-    
-    VersionState createVersion(String sourceId, String targetId, Map<String, String> attributes);
-    
-    List<String> getVersionIds();
+    List<String> getVersions();
     
     VersionState getVersion(String versionId);
+    
+    VersionState createVersion(VersionState version);
+    
+    VersionState createVersionFrom(String sourceId, String targetId, Map<String, String> attributes);
     
     void deleteVersion(String versionId);
     
