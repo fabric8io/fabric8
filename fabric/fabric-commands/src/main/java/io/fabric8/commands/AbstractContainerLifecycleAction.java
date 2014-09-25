@@ -90,7 +90,7 @@ public abstract class AbstractContainerLifecycleAction extends AbstractAction {
     protected Collection<String> expandGlobNames(List<String> containerNames) {
         Collection<String> expandedNames = new LinkedHashSet<String>();
         if (containerNames == null) {
-            this.session.getConsole().println("Please specify container name(s).");
+            System.out.println("Please specify container name(s).");
             return expandedNames;
         }
         boolean globUsed = false;
@@ -104,12 +104,12 @@ public abstract class AbstractContainerLifecycleAction extends AbstractAction {
         }
         if (expandedNames.size() == 0) {
             if (globUsed) {
-                this.session.getConsole().println("Please specify container name(s). Your pattern didn't match any container name.");
+                System.out.println("Please specify container name(s). Your pattern didn't match any container name.");
             } else {
-                this.session.getConsole().println("Please specify container name(s).");
+                System.out.println("Please specify container name(s).");
             }
         } else {
-            this.session.getConsole().println("The list of container names: " + expandedNames.toString());
+            System.out.println("The list of container names: " + expandedNames.toString());
         }
 
         return expandedNames;

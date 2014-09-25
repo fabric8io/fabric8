@@ -120,7 +120,7 @@ public class ShowCommand extends CommandSupport {
                         ModuleRegistry.VersionedModule extension = entry.getValue();
                         table.add( extension.getName(), extension.getId().getVersion(), extension.getDescription());
                     }
-                    table.print(session.getConsole());
+                    table.print(System.out);
                 }
 
             }

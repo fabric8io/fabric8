@@ -24,7 +24,7 @@ public class UpdateCommand extends CommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        getModuleRegistry().update(session.getConsole());
+        getModuleRegistry().update(System.out);
         return null;
     }
 

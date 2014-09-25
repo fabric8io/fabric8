@@ -101,11 +101,11 @@ public abstract class CommandSupport extends OsgiCommandSupport {
     }
 
     protected void println() {
-        session.getConsole().println();
+        System.out.println();
     }
 
     protected void println(String msg, Object... args) {
-        session.getConsole().println(String.format(msg, args));
+        System.out.println(String.format(msg, args));
     }
 
     protected FabClassPathResolver createFabResolver(Bundle bundle) throws RepositoryException, IOException, XmlPullParserException, BundleException {

@@ -44,7 +44,7 @@ public class SearchCommand extends CommandSupport {
                 table.add(module.getName(), latest.getId().getVersion(), latest.getDescription());
             }
         }
-        table.print(session.getConsole());
+        table.print(System.out);
 
         return null;
     }
