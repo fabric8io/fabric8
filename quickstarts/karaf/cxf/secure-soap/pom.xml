@@ -41,12 +41,12 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
+    <cxf-version>3.0.2-SNAPSHOT</cxf-version>
     <skipTests>true</skipTests>
 
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
     <fabric.version>1.2.0-SNAPSHOT</fabric.version>
-    <cxf.version>2.7.11</cxf.version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-karaf-cxf-secure.soap</fabric8.profile>
@@ -69,10 +69,14 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-bundle</artifactId>
+      <artifactId>cxf-rt-frontend-jaxws</artifactId>
     </dependency>
 
-    <!--
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-ws-security</artifactId>
+    </dependency>
+       <!--
          For logging, we will use SLF4J, which is also available in the container by default.
        -->
     <dependency>
@@ -141,7 +145,9 @@
               org.apache.cxf, org.apache.cxf.endpoint, org.apache.cxf.frontend, org.apache.cxf.interceptor,
               org.apache.cxf.jaxws, org.apache.cxf.message, org.apache.cxf.phase
             </Import-Package>
-            <Import-Service>org.apache.cxf.transport.http.DestinationRegistry</Import-Service>
+            <Import-Service>org.apache.aries.blueprint.NamespaceHandler;
+                osgi.service.blueprint.namespace=http://cxf.apache.org/transports/http/configuration
+            </Import-Service>
             <Export-Package>io.fabric8.quickstarts.soap.secure</Export-Package>
           </instructions>
         </configuration>
@@ -149,7 +155,7 @@
       <plugin>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-java2ws-plugin</artifactId>
-        <version>${cxf.version}</version>
+        <version>${cxf-version}</version>
         <executions>
           <execution>
             <id>process-classes</id>
@@ -203,6 +209,18 @@
         <updatePolicy>never</updatePolicy>
       </releases>
     </repository>
+    <repository>
+      <id>apache.snapshot</id>
+      <name>Apache SNAPSHOT Repository</name>
+      <url>http://repository.apache.org/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -227,6 +245,18 @@
       </snapshots>
       <releases>
         <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </pluginRepository>
+    <pluginRepository>
+      <id>apache.snapshot</id>
+      <name>Apache SNAPSHOT Repository</name>
+      <url>http://repository.apache.org/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
         <updatePolicy>never</updatePolicy>
       </releases>
     </pluginRepository>
