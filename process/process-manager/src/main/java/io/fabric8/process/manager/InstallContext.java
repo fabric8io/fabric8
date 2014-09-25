@@ -38,6 +38,7 @@ public class InstallContext {
     private final File installDir;
     private final boolean updateMode;
     private List<String> restartReasons = new ArrayList<String>();
+    private List<String> redeployReasons = new ArrayList<String>();
     private Properties containerChecksums;
 
     public InstallContext(Container container, File installDir, boolean updateMode) {
@@ -69,6 +70,12 @@ public class InstallContext {
         addRestartReason(path);
     }
 
+    /**
+     * Adds a change description as a reason for redeploying an installation
+     */
+    public void addRedeployReason(String message) {
+        redeployReasons.add(message);
+    }
 
     public File getInstallDir() {
         return installDir;
@@ -78,12 +85,20 @@ public class InstallContext {
         return restartReasons;
     }
 
+    public List<String> getRedeployReasons() {
+        return redeployReasons;
+    }
+
     public boolean isUpdateMode() {
         return updateMode;
     }
 
     public boolean isRestartRequired() {
         return restartReasons.size() > 0;
+    }
+
+    public boolean isRedeployRequired() {
+        return redeployReasons.size() > 0;
     }
 
     /**
