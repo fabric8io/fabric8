@@ -219,7 +219,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         Set<String> allConfigFiles = Profiles.getConfigurationFileNames(profiles);
         List<String> answer = new ArrayList<>();
         for (String fileName : allConfigFiles) {
-            if (fileName.startsWith("kubelet/")) {
+            if (fileName.startsWith("kubelet/") && fileName.endsWith(".json")) {
                 answer.add(fileName);
             }
         }
