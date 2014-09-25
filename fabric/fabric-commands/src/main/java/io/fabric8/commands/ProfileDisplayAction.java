@@ -92,7 +92,7 @@ public class ProfileDisplayAction extends AbstractAction {
     }
 
     private void displayProfile(Profile profile) {
-        PrintStream output = session.getConsole();
+        PrintStream output = System.out;
 
         output.println("Profile id: " + profile.getId());
         output.println("Version   : " + profile.getVersion());
