@@ -1,3 +1,6 @@
+### 1.2.0.Beta5
+
+* Profile name must be in lower-case letters
 
 ### 1.2.0.Beta4
 
