@@ -80,13 +80,13 @@
 
   <dependencies>
     <!--
-        For coding the example, we don't actually depend on any CXF classes - we only use the JAX-RS (JSR-311)
+        For coding the example, we don't actually depend on any CXF classes - we only use the JAX-RS (JSR-399)
         standard annotations and API
     -->
     <!--
         <dependency>
           <groupId>org.apache.servicemix.specs</groupId>
-          <artifactId>org.apache.servicemix.specs.jsr311-api-1.1.1</artifactId>
+          <artifactId>org.apache.servicemix.specs.jsr399-api-2.0</artifactId>
         </dependency>
     -->
 

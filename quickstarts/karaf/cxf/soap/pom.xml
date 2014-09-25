@@ -139,7 +139,9 @@
               io.fabric8.cxf.endpoint,
               org.apache.cxf.transport.http
             </Import-Package>
-            <Import-Service>org.apache.cxf.transport.http.DestinationRegistry</Import-Service>
+            <Import-Service>org.apache.aries.blueprint.NamespaceHandler;
+                osgi.service.blueprint.namespace=http://cxf.apache.org/transports/http/configuration
+            </Import-Service>
             <Export-Package>
               io.fabric8.quickstarts.soap
             </Export-Package>

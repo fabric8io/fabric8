@@ -44,8 +44,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-api</artifactId>
-            <version>${cxf-version}</version>
+            <artifactId>cxf-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
