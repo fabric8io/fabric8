@@ -205,8 +205,8 @@ public class BookStore {
     @Path("/emptyform")
     @Produces("text/plain")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public String postEmptyForm(org.apache.cxf.jaxrs.ext.form.Form form) {
-        if (!form.getData().isEmpty()) {
+    public String postEmptyForm(javax.ws.rs.core.Form form) {
+        if (!form.asMap().isEmpty()) {
             throw new WebApplicationException(400);
         }
         return "empty form";
