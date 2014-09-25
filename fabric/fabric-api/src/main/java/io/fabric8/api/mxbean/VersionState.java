@@ -61,7 +61,7 @@ public final class VersionState {
         return delegate.getAttributes();
     }
 
-    public List<String> getProfileIds() {
+    public List<String> getProfiles() {
         return delegate.getProfileIds();
     }
 

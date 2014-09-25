@@ -44,7 +44,7 @@ public final class ProfileManagementImpl implements ProfileManagement {
     }
 
     @Override
-    public List<String> getVersionIds() {
+    public List<String> getVersions() {
         return getProfileManager().getVersions();
     }
 

@@ -30,10 +30,10 @@ import java.util.Map;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
 import javax.management.MBeanOperationInfo;
+import javax.management.MBeanParameterInfo;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
-import javax.management.openmbean.ArrayType;
 import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.OpenMBeanAttributeInfo;
 import javax.management.openmbean.OpenMBeanOperationInfo;
@@ -44,7 +44,7 @@ import org.jolokia.client.J4pClient;
 import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pReadRequest;
 import org.jolokia.client.request.J4pWriteRequest;
-import org.json.simple.JSONArray;
+import org.json.simple.JSONAware;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,15 +152,24 @@ public final class JolokiaMXBeanProxy {
             Object[] result = new Object[params.length];
             if (isSetter(method)) {
                 String attname = getAttributeName(method);
-                OpenMBeanAttributeInfo attinfo = (OpenMBeanAttributeInfo) attributeMapping.get(attname);
-                OpenType<?> openType = attinfo.getOpenType();
-                result[0] = OpenTypeGenerator.toOpenData(openType, params[0]);
+                MBeanAttributeInfo attInfo = attributeMapping.get(attname);
+                if (attInfo instanceof OpenMBeanAttributeInfo) {
+                    OpenType<?> openType = ((OpenMBeanAttributeInfo) attInfo).getOpenType();
+                    result[0] = OpenTypeGenerator.toOpenData(openType, params[0]);
+                } else {
+                    throw new IllegalStateException("Unsupported attribute: " + attInfo);
+                }
             } else {
-                OpenMBeanOperationInfo opinfo = (OpenMBeanOperationInfo) operationMapping.get(method.getName());
-                OpenMBeanParameterInfo[] signature = (OpenMBeanParameterInfo[]) opinfo.getSignature();
+                MBeanOperationInfo opinfo = operationMapping.get(method.getName());
+                MBeanParameterInfo[] signature = opinfo.getSignature();
                 for (int i = 0; i < params.length; i++) {
-                    OpenType<?> openType = signature[i].getOpenType();
-                    result[i] = OpenTypeGenerator.toOpenData(openType, params[i]);
+                    MBeanParameterInfo paramInfo = signature[i];
+                    if (paramInfo instanceof OpenMBeanParameterInfo) {
+                        OpenType<?> openType = ((OpenMBeanParameterInfo) paramInfo).getOpenType();
+                        result[i] = OpenTypeGenerator.toOpenData(openType, params[i]);
+                    } else {
+                        throw new IllegalStateException("Unsupported parameter: " + paramInfo);
+                    }
                 }
             }
             return result;
@@ -170,26 +179,26 @@ public final class JolokiaMXBeanProxy {
             OpenType<?> openType;
             if (isGetter(method)) {
                 String attname = getAttributeName(method);
-                OpenMBeanAttributeInfo attinfo = (OpenMBeanAttributeInfo) attributeMapping.get(attname);
-                openType = attinfo.getOpenType();
+                MBeanAttributeInfo attInfo = attributeMapping.get(attname);
+                if (attInfo instanceof OpenMBeanAttributeInfo) {
+                    openType = ((OpenMBeanAttributeInfo) attInfo).getOpenType();
+                } else {
+                    throw new IllegalStateException("Unsupported attribute: " + attInfo);
+                }
             } else {
-                OpenMBeanOperationInfo opinfo = (OpenMBeanOperationInfo) operationMapping.get(method.getName());
-                openType = opinfo.getReturnOpenType();
+                MBeanOperationInfo opInfo = operationMapping.get(method.getName());
+                if (opInfo instanceof OpenMBeanOperationInfo) {
+                    openType = ((OpenMBeanOperationInfo) opInfo).getReturnOpenType();
+                } else {
+                    throw new IllegalStateException("Unsupported operation: " + opInfo);
+                }
             }
             
-            // Convert a JSONArray to a Java array
+            // Convert a JSON return values to openmbean types
             // [TODO] this should be handles by jolokia internally for openmbean results
-            if (openType instanceof ArrayType && value instanceof JSONArray) {
-                JSONArray jsonArray = (JSONArray) value;
-                ArrayType<?> arrayType = (ArrayType<?>) openType;
-                OpenType<?> elementType = arrayType.getElementOpenType();
-                Object[] targetArray = OpenTypeGenerator.getJavaTypeArray(elementType, classLoader, jsonArray.size());
-                for (int i = 0; i < jsonArray.size(); i++) {
-                    Object element = jsonArray.get(i);
-                    targetArray[i] = element;
-                }
-                value = targetArray;
-            }
+            if (value instanceof JSONAware) {
+                value = JSONTypeGenerator.toOpenData(openType, classLoader, (JSONAware) value);
+            } 
             
             Object result = OpenTypeGenerator.fromOpenData(openType, classLoader, value);
             return OpenTypeGenerator.toTargetType(method.getReturnType(), result);
