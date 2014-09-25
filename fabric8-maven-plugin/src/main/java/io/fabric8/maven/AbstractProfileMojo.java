@@ -46,6 +46,7 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.ImmutableSet;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
@@ -61,6 +62,7 @@ import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -183,6 +185,15 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
      */
     @Parameter(property = "fabric8.includeArtifact", defaultValue = "true")
     private boolean includeArtifact;
+
+    /**
+     * The set of packaging types that should be ommitted from the bundle spec
+     * <ul>
+     * <li>'jar' - because the resolve implicitly searches for jars when no type is specified</li>
+     * <li>'bundle' - because a bundle is a jar, but the resolver doesn't account for this</li>
+     * </ul>
+     */
+    private static final ImmutableSet<String> OMMITTED_BUNDLE_TYPES = ImmutableSet.of("jar","bundle");
 
     /**
      * Type to use for the project artifact bundle reference
@@ -568,14 +579,24 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         }
     }
 
-    protected void addProjectArtifactBundle(ProjectRequirements requirements) {
+
+
+    protected void addProjectArtifactBundle(ProjectRequirements requirements) throws MojoFailureException {
         DependencyDTO rootDependency = requirements.getRootDependency();
         if (rootDependency != null) {
             // we need url with type, so when we deploy war files the mvn url is correct
             StringBuilder urlBuffer = new StringBuilder(rootDependency.toBundleUrl());
 
-            appendTypeToArtifactBundle(urlBuffer, rootDependency);
-            appendClassifierToArtifactBundle(urlBuffer, rootDependency);
+            String apparentType = rootDependency.getType();
+            String apparentClassifier = rootDependency.getClassifier();
+
+            if (OMMITTED_BUNDLE_TYPES.contains(apparentType)) {
+                apparentType = null;
+            }
+
+            handleArtifactBundleType(urlBuffer, apparentType);
+
+            handleArtifactBundleClassifier(urlBuffer, apparentClassifier);
 
             String urlString = urlBuffer.toString();
             if (!requirements.getBundles().contains(urlString)) {
@@ -584,24 +605,32 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
         }
     }
 
-    private void appendTypeToArtifactBundle(StringBuilder bundleUrl, DependencyDTO rootDependency) {
+    private void handleArtifactBundleType(StringBuilder urlBuffer, String apparentType) {
         if (artifactBundleType != null) {
-            bundleUrl.append("/" + artifactBundleType);
+            urlBuffer.append("/" + artifactBundleType);
         } else {
-            bundleUrl.append("/" + rootDependency.getType());
+            if (apparentType != null) {
+                urlBuffer.append("/" + apparentType);
+            }
         }
     }
 
-    private void appendClassifierToArtifactBundle(StringBuilder bundleUrl, DependencyDTO rootDependency) {
-        if (artifactBundleClassifier != null) {
-            bundleUrl.append("/" + artifactBundleClassifier);
-        } else {
-            String mavenClassifier = rootDependency.getClassifier();
+    private void handleArtifactBundleClassifier(StringBuilder urlBuffer, String apparentClassifier) throws MojoFailureException {
+        String nextUrlComponent = "";
+        if (apparentClassifier != null) {
+            nextUrlComponent = "/" + apparentClassifier;
+        }
 
-            if (mavenClassifier != null) {
-                bundleUrl.append("/" + rootDependency.getClassifier());
+        if (artifactBundleClassifier != null) {
+            if (artifactBundleType != null) {
+                nextUrlComponent = "/" + artifactBundleClassifier;
+            } else {
+                throw new MojoFailureException(
+                        "The property artifactBundleClassifier was specified as '" + artifactBundleClassifier
+                                +"' without also specifying artifactBundleType");
             }
         }
+        urlBuffer.append(nextUrlComponent);
     }
 
     protected DependencyDTO loadRootDependency() throws DependencyTreeBuilderException {
