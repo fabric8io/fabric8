@@ -38,7 +38,7 @@ And then store this information in the local Maven settings file. You can find m
 
 ## How to run this example
 
-The following information is divded into two sections, whether you are using the command line shell in fabric, or using the web console
+The following information is divided into two sections, whether you are using the command line shell in fabric, or using the web console
 
 ### Using the command line shell
 
