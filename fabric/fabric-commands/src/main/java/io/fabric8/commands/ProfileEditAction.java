@@ -43,6 +43,7 @@ import org.apache.karaf.shell.console.AbstractAction;
 import org.jledit.ConsoleEditor;
 import org.jledit.ContentManager;
 import org.jledit.EditorFactory;
+import org.jledit.simple.SimpleConsoleEditor;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -142,6 +143,8 @@ public class ProfileEditAction extends AbstractAction {
         this.fabricService = fabricService;
         this.configurationAdmin = configurationAdmin;
         this.editorFactory = editorFactory;
+        // TODO: Karaf 2.4 has a bug to lookup this class, so we bind it manually - Karaf 2.4.1 should have this fixed
+        this.editorFactory.bind("simple", SimpleConsoleEditor.class);
     }
 
     @Override
@@ -458,9 +461,6 @@ public class ProfileEditAction extends AbstractAction {
         builder.addConfiguration(Constants.AGENT_PID, conf);
     }
 
-
-
-
     private void openInEditor(Profile profile, String resource) throws Exception {
         String id = profile.getId();
         String version = profile.getVersion();
@@ -473,7 +473,6 @@ public class ProfileEditAction extends AbstractAction {
         editor.open(location, id + " " + version);
         editor.start();
     }
-
 
     public void updatedDelimitedList(Map<String, String> map, String key, String value, String delimiter, boolean set, boolean delete, boolean append, boolean remove) {
         if (append || remove) {
