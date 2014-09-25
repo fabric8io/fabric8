@@ -275,6 +275,11 @@ public class ProcessManagerController implements ChildContainerController {
             JsonHelper.saveProcessConfig(processConfig, installDir);
             // need to update environment on the controller also, so it uses the updated environments when restarting
             installation.getController().getConfig().setEnvironment(processConfig.getEnvironment());
+
+            // is it a product version change, which the deploy path will indicate
+            if (!processConfig.getDeployPath().equals(oldConfig.getDeployPath())) {
+                installContext.addRedeployReason("Container Changed");
+            }
         }
 
         if (postInstall != null) {
@@ -287,7 +292,24 @@ public class ProcessManagerController implements ChildContainerController {
 
         installContext.updateContainerChecksums();
 
-        if (installContext.isRestartRequired()) {
+        if (installContext.isRedeployRequired()) {
+            LOG.info("Redeploying " + container.getId() + " due to profile changes: " + installContext.getRedeployReasons());
+            ProcessController controller = installation.getController();
+            if (controller != null && container != null && container.isAlive()) {
+                controller.stop();
+                if (container.isAlive()) {
+                    controller.kill();
+                }
+            }
+            if (controller != null && container != null) {
+                LOG.info("Unininstalling " + container.getId());
+                controller.uninstall();
+                LOG.info("Ininstalling " + container.getId());
+                controller.install();
+                LOG.info("Starting " + container.getId());
+                controller.start();
+            }
+        } else if (installContext.isRestartRequired()) {
             LOG.info("Restarting " + container.getId() + " due to profile changes: " + installContext.getRestartReasons());
             ProcessController controller = installation.getController();
             if (controller != null && container != null && container.isAlive()) {
