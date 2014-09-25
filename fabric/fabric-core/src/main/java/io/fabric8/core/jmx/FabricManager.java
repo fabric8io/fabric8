@@ -72,7 +72,6 @@ import io.fabric8.common.util.PublicPortMapper;
 import io.fabric8.common.util.ShutdownTracker;
 import io.fabric8.insight.log.support.Strings;
 import io.fabric8.service.FabricServiceImpl;
-import io.fabric8.utils.FabricValidations;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.curator.framework.CuratorFramework;
 import org.jboss.gravia.utils.IllegalStateAssertion;
@@ -287,8 +286,6 @@ public final class FabricManager implements FabricManagerMBean {
     @Override
     @Deprecated // Creates a profile with empty content. Is this meaningful? 
     public Map<String, Object> createProfile(String versionId, String profileId) {
-        FabricValidations.validateProfileName(profileId);
-
         ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId);
         Profile profile = profileService.createProfile(builder.getProfile());
         return getProfile(versionId, profile.getId());
@@ -296,8 +293,6 @@ public final class FabricManager implements FabricManagerMBean {
 
     @Override
     public Map<String, Object> createProfile(String versionId, String profileId, List<String> parents) {
-        FabricValidations.validateProfileName(profileId);
-
         ProfileBuilder builder = ProfileBuilder.Factory.create(versionId, profileId).addParents(parents);
         Profile profile = profileService.createProfile(builder.getProfile());
         return getProfile(versionId, profile.getId());
