@@ -33,6 +33,7 @@
   <name>Fabric8 :: Quickstarts :: Java :: Parent</name>
 
   <modules>
+    <module>simple</module>
     <module>camel-cdi</module>
     <module>camel-spring</module>
     <module>cxf-cdi</module>
