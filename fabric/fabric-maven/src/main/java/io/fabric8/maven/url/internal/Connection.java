@@ -27,10 +27,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import io.fabric8.common.util.NullArgumentException;
 import io.fabric8.maven.MavenResolver;
-import io.fabric8.maven.util.MavenConfiguration;
 import io.fabric8.maven.util.Parser;
-import org.ops4j.lang.NullArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,9 +75,8 @@ public class Connection
      */
     private static final Logger LOG = LoggerFactory.getLogger(Connection.class);
     /**
-     * Parsed url.
+     * Maven resolver
      */
-    private Parser m_parser;
     private MavenResolver m_resolver;
 
     /**
@@ -93,11 +91,12 @@ public class Connection
         throws MalformedURLException
     {
         super( url );
-        NullArgumentException.validateNotNull( url, "URL cannot be null" );
+        NullArgumentException.validateNotNull(url, "URL cannot be null");
         NullArgumentException.validateNotNull( resolver, "Service configuration" );
 
-        m_parser = new Parser( url.getPath() );
         m_resolver = resolver;
+        // Verify the url syntax, will throw an exception when invalid
+        new Parser( url.getPath() );
     }
 
 

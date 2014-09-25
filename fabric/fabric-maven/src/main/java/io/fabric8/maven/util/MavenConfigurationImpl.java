@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.fabric8.common.util.NullArgumentException;
 import io.fabric8.maven.url.ServiceConstants;
 import org.apache.maven.settings.Profile;
 import org.apache.maven.settings.Repository;
@@ -39,7 +40,6 @@ import org.apache.maven.settings.building.DefaultSettingsBuildingRequest;
 import org.apache.maven.settings.building.SettingsBuildingException;
 import org.apache.maven.settings.building.SettingsBuildingRequest;
 import org.apache.maven.settings.building.SettingsBuildingResult;
-import org.ops4j.lang.NullArgumentException;
 import org.ops4j.util.property.PropertyResolver;
 import org.ops4j.util.property.PropertyStore;
 import org.slf4j.Logger;

@@ -93,6 +93,8 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
     @Reference(referenceInterface = ProjectDeployer.class)
     private final ValidatingReference<ProjectDeployer> projectDeployer = new ValidatingReference<ProjectDeployer>();
+    @Reference(referenceInterface = MavenResolver.class)
+    private final ValidatingReference<MavenResolver> mavenResolver = new ValidatingReference<>();
 
     private final Map<String, Set<String>> registeredProxies;
 
@@ -125,14 +127,9 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     void init(Map<String, ?> configuration) throws Exception {
         configurer.configure(configuration, this);
 
-        Properties props = new Properties();
-        props.putAll(configuration);
-        MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(props), null);
-        MavenResolver resolver = new AetherBasedResolver( config );
-
-        this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(resolver, runtimeProperties.get(), projectDeployer.get(), threadMaximumPoolSize);
+        this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(mavenResolver.get(), runtimeProperties.get(), projectDeployer.get(), threadMaximumPoolSize);
         this.mavenDownloadProxyServlet.start();
-        this.mavenUploadProxyServlet = new MavenUploadProxyServlet(resolver, runtimeProperties.get(), projectDeployer.get());
+        this.mavenUploadProxyServlet = new MavenUploadProxyServlet(mavenResolver.get(), runtimeProperties.get(), projectDeployer.get());
         this.mavenUploadProxyServlet.start();
         try {
             HttpContext base = httpService.get().createDefaultHttpContext();
@@ -251,5 +248,13 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
 
     void unbindProjectDeployer(ProjectDeployer projectDeployer) {
         this.projectDeployer.unbind(projectDeployer);
+    }
+
+    void bindMavenResolver(MavenResolver mavenResolver) {
+        this.mavenResolver.bind(mavenResolver);
+    }
+
+    void unbindMavenResolver(MavenResolver mavenResolver) {
+        this.mavenResolver.unbind(mavenResolver);
     }
 }

@@ -127,11 +127,7 @@ public class AetherBasedResolver implements MavenResolver {
     /**
      * Create a AetherBasedResolver
      * 
-     * @param configuration
-     *            (must be not null)
-     * 
-     * @throws java.net.MalformedURLException
-     *             in case of url problems in configuration.
+     * @param configuration (must be not null)
      */
     public AetherBasedResolver( final MavenConfiguration configuration ) {
         m_config = configuration;
@@ -140,14 +136,6 @@ public class AetherBasedResolver implements MavenResolver {
         decryptSettings();
         m_proxySelector = selectProxies();
         m_mirrorSelector = selectMirrors();
-    }
-
-    private void decryptSettings()
-    {
-        SettingsDecryptionRequest request = new DefaultSettingsDecryptionRequest( m_settings );
-        SettingsDecryptionResult result = decrypter.decrypt( request );
-        m_settings.setProxies( result.getProxies() );
-        m_settings.setServers( result.getServers() );
     }
 
     private RepositorySystem newRepositorySystem() {
@@ -159,6 +147,14 @@ public class AetherBasedResolver implements MavenResolver {
         decrypter = new MavenSettingsDecrypter( m_config.getSecuritySettings() );
         locator.setServices( SettingsDecrypter.class, decrypter );
         return locator.getService(RepositorySystem.class);
+    }
+
+    private void decryptSettings()
+    {
+        SettingsDecryptionRequest request = new DefaultSettingsDecryptionRequest( m_settings );
+        SettingsDecryptionResult result = decrypter.decrypt( request );
+        m_settings.setProxies( result.getProxies() );
+        m_settings.setServers( result.getServers() );
     }
 
     private ProxySelector selectProxies() {
