@@ -277,6 +277,7 @@ public class ProcessManagerController implements ChildContainerController {
             installation.getController().getConfig().setEnvironment(processConfig.getEnvironment());
 
             // it is a new version of the product as the url has changed, such as a version upgrade etc
+            // TODO: use basePath to see if thats different
             if (installation.getUrl() != parameters.getUrl()) {
                 installContext.addRedeployReason("Process URL Changed to " + parameters.getUrl());
             }

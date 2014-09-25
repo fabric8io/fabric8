@@ -48,6 +48,9 @@ public class ProcessContainerConfig {
     @Property(label = "Process name", description = "The descriptive name to refer to this process when listing the processes on this machine.")
     private String processName;
 
+    @Property(label = "Process version", description = "The descriptive version to refer to the version of this process.")
+    private String processVersion;
+
     @Property(label = "Distribution URL", cardinality = 1,
             description = "The URL (usually using maven coordinates) for the distribution to download and unpack.")
     private String url;
@@ -136,6 +139,14 @@ public class ProcessContainerConfig {
 
     public void setProcessName(String processName) {
         this.processName = processName;
+    }
+
+    public String getProcessVersion() {
+        return processVersion;
+    }
+
+    public void setProcessVersion(String processVersion) {
+        this.processVersion = processVersion;
     }
 
     public String getUrl() {
