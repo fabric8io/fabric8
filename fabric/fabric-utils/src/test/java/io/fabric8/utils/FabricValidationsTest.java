@@ -21,7 +21,6 @@ import static io.fabric8.utils.FabricValidations.isValidContainerName;
 import static io.fabric8.utils.FabricValidations.isValidProfileName;
 import static io.fabric8.utils.FabricValidations.validateProfileName;
 import static org.junit.Assert.assertTrue;
-import static io.fabric8.utils.FabricValidations.isValidName;
 import static io.fabric8.utils.FabricValidations.validateContainerName;
 
 public class FabricValidationsTest {
@@ -61,6 +60,11 @@ public class FabricValidationsTest {
         validateProfileName("_profile");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testProfileWithUpperCase() {
+        validateProfileName("MyProfile");
+    }
+
     @Test
     public void testValidProfileNames() {
         assertTrue(isValidProfileName("c"));
@@ -70,15 +74,15 @@ public class FabricValidationsTest {
         assertTrue(isValidProfileName("1container"));
         assertTrue(isValidProfileName("container1"));
 
-        assertTrue(isValidProfileName("C"));
-        assertTrue(isValidProfileName("C1"));
-        assertTrue(isValidProfileName("C-1"));
-        assertTrue(isValidProfileName("C_1"));
-        assertTrue(isValidProfileName("1Container"));
-        assertTrue(isValidProfileName("Container1"));
+        assertTrue(isValidProfileName("c"));
+        assertTrue(isValidProfileName("c1"));
+        assertTrue(isValidProfileName("c-1"));
+        assertTrue(isValidProfileName("c_1"));
+        assertTrue(isValidProfileName("1container"));
+        assertTrue(isValidProfileName("container1"));
 
         // we also allow dots
         assertTrue(isValidProfileName("my.container.name"));
-        assertTrue(isValidProfileName("My.Container123.Name"));
+        assertTrue(isValidProfileName("my.container123.name"));
     }
 }

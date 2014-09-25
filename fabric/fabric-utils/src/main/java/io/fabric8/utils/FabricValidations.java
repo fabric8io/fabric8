@@ -25,7 +25,7 @@ public final class FabricValidations {
     private static final Pattern ALLOWED_CONTAINER_NAMES_PATTERN = Pattern.compile("^[a-z0-9]+[a-z0-9_-]*$");
 
     // we allow using dot in profile names, and also mixed case
-    private static final Pattern ALLOWED_PROFILE_NAMES_PATTERN = Pattern.compile("^[a-zA-Z0-9]+[\\.a-zA-Z0-9_-]*$");
+    private static final Pattern ALLOWED_PROFILE_NAMES_PATTERN = Pattern.compile("^[a-z0-9]+[\\.a-z0-9_-]*$");
 
     private FabricValidations() {
         //Utility Class
@@ -40,7 +40,7 @@ public final class FabricValidations {
 
     public static void validateProfileName(String profileName) {
         if (!isValidProfileName(profileName)) {
-            throw new IllegalArgumentException("Profile name '" + profileName + "' is invalid. Profile name must be: letters, numbers, and . _ or - characters");
+            throw new IllegalArgumentException("Profile name '" + profileName + "' is invalid. Profile name must be: lower-case letters, numbers, and . _ or - characters");
         }
     }
 
