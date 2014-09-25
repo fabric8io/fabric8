@@ -142,9 +142,10 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                             // should never happen :)
                         }
                     }
-                    // String url = "TODO";
+                    // TODO: we do not have the url this installation was created from
+                    URL url = null;
                     ProcessConfig config = JsonHelper.loadProcessConfig(file);
-                    createInstallation(name, findInstallDir(file), config);
+                    createInstallation(url, name, findInstallDir(file), config);
                 }
             }
         }
@@ -356,7 +357,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         JsonHelper.saveProcessConfig(config, installDir);
         installContext.updateContainerChecksums();
 
-        Installation installation = createInstallation(id, installDir, config);
+        Installation installation = createInstallation(options.getUrl(), id, installDir, config);
         installation.getController().install();
         return installation;
     }
@@ -417,7 +418,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
     }
 
 
-    protected Installation createInstallation(String id, File rootDir, ProcessConfig config) {
+    protected Installation createInstallation(URL url, String id, File rootDir, ProcessConfig config) {
         // TODO we should support different kinds of controller based on the kind of installation
         // we could maybe discover a descriptor file to describe how to control the process?
         // or generate this file on installation time?
@@ -425,7 +426,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         File installDir = findInstallDir(rootDir);
         ProcessController controller = createController(id, config, rootDir, installDir);
         // TODO need to read the URL from somewhere...
-        Installation installation = new Installation(id, installDir, controller, config);
+        Installation installation = new Installation(url, id, installDir, controller, config);
         installations.put(id, installation);
         return installation;
     }

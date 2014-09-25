@@ -21,6 +21,7 @@ import io.fabric8.process.manager.config.ProcessConfig;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.Map;
 
 /**
@@ -30,12 +31,14 @@ public class Installation implements Serializable {
 
     private static final long serialVersionUID = 5127636210465637719L;
 
+    private final URL url;
     private final String id;
     private final File installDir;
     private final ProcessController controller;
     private final ProcessConfig config;
 
-    public Installation(String id, File installDir, ProcessController controller, ProcessConfig config) {
+    public Installation(URL url, String id, File installDir, ProcessController controller, ProcessConfig config) {
+        this.url = url;
         this.id = id;
         this.installDir = installDir;
         this.controller = controller;
@@ -49,6 +52,10 @@ public class Installation implements Serializable {
 
     public ProcessController getController() {
         return controller;
+    }
+
+    public URL getUrl() {
+        return url;
     }
 
     public String getId() {
