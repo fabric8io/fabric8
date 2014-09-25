@@ -48,7 +48,13 @@ public class ProfileScaleAction extends AbstractAction {
 
     @Override
     protected Object doExecute() throws Exception {
-        FabricValidations.validateProfileName(name);
+        try {
+            FabricValidations.validateProfileName(name);
+        } catch (IllegalArgumentException e) {
+            // we do not want exception in the server log, so print the error message to the console
+            System.out.println(e.getMessage());
+            return null;
+        }
 
         fabricService.scaleProfile(name, count);
         ProfileRequirements profileRequirements = fabricService.getRequirements().getOrCreateProfileRequirement(name);

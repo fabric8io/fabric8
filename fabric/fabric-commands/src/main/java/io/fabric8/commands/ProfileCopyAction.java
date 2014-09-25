@@ -56,7 +56,13 @@ public class ProfileCopyAction extends AbstractAction {
     protected Object doExecute() throws Exception {
         // do not validate the old name in case a profile was created somehow with invalid name
         // but validate the target name
-        FabricValidations.validateProfileName(target);
+        try {
+            FabricValidations.validateProfileName(target);
+        } catch (IllegalArgumentException e) {
+            // we do not want exception in the server log, so print the error message to the console
+            System.out.println(e.getMessage());
+            return null;
+        }
 
         Version version = versionParam != null ? profileService.getRequiredVersion(versionParam) : fabricService.getRequiredDefaultVersion();
         String versionId = version.getId();

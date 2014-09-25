@@ -56,7 +56,13 @@ public class ProfileRenameAction extends AbstractAction {
     protected Object doExecute() throws Exception {
         // do not validate the old name in case a profile was created somehow with invalid name
         // but validate the new name
-        FabricValidations.validateProfileName(newName);
+        try {
+            FabricValidations.validateProfileName(newName);
+        } catch (IllegalArgumentException e) {
+            // we do not want exception in the server log, so print the error message to the console
+            System.out.println(e.getMessage());
+            return null;
+        }
 
         Version version;
         if (versionId != null) {
