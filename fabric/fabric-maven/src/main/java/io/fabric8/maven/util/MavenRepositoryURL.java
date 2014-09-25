@@ -23,8 +23,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import io.fabric8.common.util.NullArgumentException;
 import io.fabric8.maven.url.ServiceConstants;
-import org.ops4j.lang.NullArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

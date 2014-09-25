@@ -98,6 +98,11 @@
             <artifactId>pax-url-commons</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -117,17 +122,14 @@
                 <configuration>
                     <instructions>
                         <Import-Package>
-                            javax.jmdns.*;
                             javax.inject.*;
                             javax.enterprise.inject.*;
-                            javax.jms.*;
-                            javax.mail.*;
-                            javax.swing.*;
                                 resolution:=optional,
                             javax.*,
+                            io.fabric8.common.util.*,
+                            org.osgi.*,
                             org.slf4j.*,
-                            biz.aQute.*,
-                            org.ops4j.*
+                            org.ops4j.util.property.*,
                         </Import-Package>
                         <Export-Package>
                             io.fabric8.maven*;version=${project.version},
@@ -136,13 +138,15 @@
                             org.codehaus.*,
                             org.sonatype.*
                             org.apache.maven*;version=${maven-version},
-                            org.codehaus.*;version=${codehaus-plexus-version},
                         </Export-Package>
                         <Private-Package>
                             org.sonatype.plexus.components.cipher.*,
                             org.sonatype.plexus.components.sec.*
                         </Private-Package>
-                        <Conditional-Package>org.eclipse.aether</Conditional-Package>
+                        <Provide-Capability>
+                            osgi.service;effective:=active;objectClass="io.fabric8.maven.MavenResolver",
+                            osgi.service;effective:=active;objectClass="org.osgi.service.url.URLStreamHandlerService";url.handler.protocol=mvn
+                        </Provide-Capability>
                         <Bundle-Activator>io.fabric8.maven.url.internal.Activator</Bundle-Activator>
                     </instructions>
                 </configuration>
