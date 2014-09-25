@@ -39,7 +39,7 @@ public class TreeCommand extends CommandSupport {
             FabClassPathResolver resolver = impl.getClassPathResolver();
 
             if (resolver != null) {
-                TreeHelper.write(session.getConsole(), resolver);
+                TreeHelper.write(System.out, resolver);
             }
         }
         return null;

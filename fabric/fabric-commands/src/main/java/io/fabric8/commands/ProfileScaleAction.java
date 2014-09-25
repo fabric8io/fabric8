@@ -54,7 +54,7 @@ public class ProfileScaleAction extends AbstractAction {
         ProfileRequirements profileRequirements = fabricService.getRequirements().getOrCreateProfileRequirement(name);
         Integer minimumInstances = profileRequirements.getMinimumInstances();
         int size = Containers.containersForProfile(fabricService.getContainers(), name).size();
-        PrintStream output = session.getConsole();
+        PrintStream output = System.out;
         output.println("Profile " + name + " " + (minimumInstances != null
                 ? "now requires " + minimumInstances + " container(s)"
                 : "does not require any containers") + " currently has " + size + " container(s) running");

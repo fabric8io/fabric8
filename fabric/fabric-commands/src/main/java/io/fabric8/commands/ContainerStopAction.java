@@ -44,7 +44,7 @@ public final class ContainerStopAction extends AbstractContainerLifecycleAction 
             applyUpdatedCredentials(found);
             if (found.isAlive()) {
                 found.stop(force);
-                this.session.getConsole().println("Container '" + found.getId() + "' stopped successfully.");
+                System.out.println("Container '" + found.getId() + "' stopped successfully.");
             } else {
                 System.err.println("Container '" + found.getId() + "' already stopped.");
             }

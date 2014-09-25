@@ -55,7 +55,7 @@ public class ListCommand extends CommandSupport {
                 table.add(Strings.join(bundles, ", "), module.getName(), latest.getId().getVersion(), latest.getDescription());
             }
         }
-        table.print(session.getConsole());
+        table.print(System.out);
 
         return null;
     }

@@ -47,7 +47,7 @@ public class InfoCommand extends CommandSupport {
         if (fab != null) {
             FabBundleInfo info = resolver.getInfo();
 
-            PrintStream console = session.getConsole();
+            PrintStream console = System.out;
             console.printf("URL: %s%n", info.getUrl());
             printEmbedded(console, getClassPathElements(info.getManifest().getValue(Constants.BUNDLE_CLASSPATH)));
             printBundles(console, info.getBundles());
