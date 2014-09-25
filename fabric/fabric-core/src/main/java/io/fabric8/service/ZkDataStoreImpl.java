@@ -61,7 +61,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
@@ -137,7 +137,21 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
     @Override
     public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
         if (isValid()) {
-            String path = event.getData().getPath();
+
+            // guard against events with null data or path
+            String path;
+            ChildData childData = event.getData();
+            if (childData != null) {
+                path = childData.getPath();
+            } else {
+                path = null;
+            }
+
+            byte[] data = null;
+            if (childData != null) {
+                data = childData.getData();
+            }
+
             PathChildrenCacheEvent.Type type = event.getType();
             switch (type) {
                 case CHILD_ADDED:
@@ -145,7 +159,8 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
                 case CHILD_UPDATED:
                 case INITIALIZED:
                     if (shouldRunCallbacks(type, path)) {
-                        LOGGER.info("Event {} detected on {} with data {}. Sending notification.", type.name(), path, new String(event.getData().getData(), "UTF-8"));
+                        String s = data != null ? new String(data, "UTF-8") : "";
+                        LOGGER.info("Event {} detected on {} with data {}. Sending notification.", type.name(), path, s);
                         fireChangeNotifications();
                     }
                     break;
@@ -157,16 +172,18 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
      * Checks if the container should react to a change in the specified path.
      */
     private boolean shouldRunCallbacks(PathChildrenCacheEvent.Type type, String path) {
+        if (path == null) {
+            return false;
+        }
+
         String runtimeIdentity = runtimeProperties.get().getRuntimeIdentity();
         String currentVersion = getContainerVersion(runtimeIdentity);
-        return
-            (path.startsWith(ZkPath.CONTAINERS.getPath()) && type.equals(PathChildrenCacheEvent.Type.CHILD_UPDATED)) ||
-            path.equals(ZkPath.CONFIG_ENSEMBLES.getPath()) ||
-            path.equals(ZkPath.CONFIG_ENSEMBLE_URL.getPath()) ||
-            path.equals(ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath()) ||
-            path.equals(ZkPath.CONFIG_CONTAINER.getPath(runtimeIdentity)) ||
-                (currentVersion != null && path.equals(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(currentVersion, runtimeIdentity)));
-
+        return (path.startsWith(ZkPath.CONTAINERS.getPath()) && type.equals(PathChildrenCacheEvent.Type.CHILD_UPDATED)) ||
+                        path.equals(ZkPath.CONFIG_ENSEMBLES.getPath()) ||
+                        path.equals(ZkPath.CONFIG_ENSEMBLE_URL.getPath()) ||
+                        path.equals(ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath()) ||
+                        path.equals(ZkPath.CONFIG_CONTAINER.getPath(runtimeIdentity)) ||
+                        (currentVersion != null && path.equals(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(currentVersion, runtimeIdentity)));
     }
     
     @Override
