@@ -62,7 +62,7 @@ public class FabricTestSupport extends FabricKarafTestSupport {
     static final String KARAF_GROUP_ID = "org.apache.karaf";
     static final String KARAF_ARTIFACT_ID = "apache-karaf";
 
-    static final String KARAF_VERSION = "2.4.0.redhat-620004";
+    static final String KARAF_VERSION = "2.4.0";
 
     private Container createChildContainer(FabricService fabricService, String name, String parent, String profileName, String jvmOpts) throws Exception {
 
