@@ -50,6 +50,7 @@
         <module>karaf-secure-rest-archetype</module>
         <module>karaf-secure-soap-archetype</module>
         <module>karaf-soap-archetype</module>
+        <module>mule-mule-helloworld-archetype</module>
         <module>springboot-activemq-archetype</module>
         <module>springboot-camel-archetype</module>
         <module>springboot-webmvc-archetype</module>
