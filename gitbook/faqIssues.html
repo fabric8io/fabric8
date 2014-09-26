@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="8.4" data-basepath="." data-revision="1411673050897">
+    <div class="book" data-github="fabric8io/fabric8" data-level="8.4" data-basepath="." data-revision="1411759441309">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -868,10 +868,12 @@
                     <section class="normal" id="section-gitbook_26">
                     
                         <h3 id="known-issues-about-using-fabric8"><a name="known-issues-about-using-fabric8" class="anchor" href="#known-issues-about-using-fabric8"><span class="fa fa-link"></span></a>Known issues about using fabric8</h3>
-<h4 id="why-does-the-welcome-screen-print-two-times-"><a name="why-does-the-welcome-screen-print-two-times-" class="anchor" href="#why-does-the-welcome-screen-print-two-times-"><span class="fa fa-link"></span></a>Why does the welcome screen print two times?</h4>
-<p>When starting fabric8 using <code>bin\fabric8</code> the welcome screen may be printed two times. This will be resolved in a future release of fabric8, by upgrading to Apache Karaf 2.4.0 when it becomes available.</p>
 <h3 id="using-captial-letters-in-karaf-container-name"><a name="using-captial-letters-in-karaf-container-name" class="anchor" href="#using-captial-letters-in-karaf-container-name"><span class="fa fa-link"></span></a>Using captial letters in Karaf container name</h3>
 <p>Fabric8 does not support using captial letters in the <code>karaf.name</code> property in the <code>etc\system.properties</code>. If you change the value, then only use lower case letters.</p>
+<h4 id="i-cannot-start-fabric8-on-windows"><a name="i-cannot-start-fabric8-on-windows" class="anchor" href="#i-cannot-start-fabric8-on-windows"><span class="fa fa-link"></span></a>I cannot start fabric8 on Windows</h4>
+<p>There is a known issue with Java and Windows when using IP6 capable network. You may see errors such as <code>java.net.SocketException: Permission denied: no further information</code>. To resolve this set the <code>KARAF_OPTS</code> to the following in the <code>bin/setenv.bat</code> file.</p>
+<pre><code>KARAF_OPTS=&quot;-Djava.net.preferIPv4Stack=true&quot;
+</code></pre><p>For more details see the <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/net/ipv6_guide/" target="_blank">IP6 Java network guide</a> and this <a href="https://access.redhat.com/site/solutions/757533" target="_blank">knowledgebase solution</a>.</p>
 
                     
                     </section>

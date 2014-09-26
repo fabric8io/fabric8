@@ -120,11 +120,11 @@
 
 <h4 id = "What_Java_versions_is_supported_">What Java versions is supported?</h4>
 
-<p>Currently fabric8 only runs on Java 7. Support for Java 8 is planned and will be available later as part of needed upgrades to Apache Karaf (which is not ready yet).</p>
+<p>fabric8 runs on Java 7 and 8. </p>
 
 <h4 id = "Deprecations">Deprecations</h4>
 
-<p>FAB (Fuse Application Bundles) has been deprecated for the 1.1 release, and is scheduled to be removed in the following release.</p>
+<p>FAB (Fuse Application Bundles) has been deprecated for the 1.1 release, and will be removed in the 1.2 release.</p>
 
 <p>The long term replacement is the <a href="http://fabric8.io/gitbook/osgiResolver.html">OSGi Resolver</a> or if you wish to work with jars rather than bundles then use the <a href="(http://fabric8.io/gitbook/javaContainer.html">Java Container</a></p>
 
@@ -168,14 +168,6 @@
 <p>Fabric8 has awesome support for Spring 4 with the <a href="(http://fabric8.io/gitbook/springBootContainer.html">Spring Boot Container</a>.</p>
 
 <p>If you've been previously using OSGi or <a href="http://karaf.apache.org/">Apache Karaf</a> as your application server then Spring 4 poses a challenge as its not currently available as valid OSGi bundles. So to use Spring 4 we recommend you consider moving to the <a href="(http://fabric8.io/gitbook/javaContainer.html">Java Container</a> in particular the <a href="(http://fabric8.io/gitbook/springBootContainer.html">Spring Boot Container</a></p>
-
-<h4 id = "I_cannot_start_fabric8_on_Windows">I cannot start fabric8 on Windows</h4>
-
-<p>There is a known issue with Java and Windows when using IP6 capable network. You may see errors such as <code>java.net.SocketException: Permission denied: no further information</code>. To resolve this set the <code>KARAF_OPTS</code> to the following in the <code>bin/setenv.bat</code> file.</p>
-
-<pre><code>KARAF_OPTS="-Djava.net.preferIPv4Stack=true"</code></pre>
-
-<p>For more details see the <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/net/ipv6&#95;guide/">IP6 Java network guide</a> and this <a href="https://access.redhat.com/site/solutions/757533">knowledgebase solution</a>.</p>
 
 <p>  ### Questions On OSGi and Fabric8</p>
 
@@ -234,13 +226,17 @@
 <p>Similarly if you enable <a href="http://fabric8.io/gitbook/kubernetes.html">kubernetes</a> or <a href="http://fabric8.io/gitbook/openshift.html">OpenShift</a> container providers (or provision fabric8 within kubernetes/openshift) then fabric8 automatically disables <strong>docker</strong> and <strong>child</strong> container providers because if you are using kubernetes/OpenShift then its better we use that to start/stop containers than relying on local processes on a single machine.
   ### Known issues about using fabric8</p>
 
-<h4 id = "Why_does_the_welcome_screen_print_two_times_">Why does the welcome screen print two times?</h4>
-
-<p>When starting fabric8 using <code>bin\fabric8</code> the welcome screen may be printed two times. This will be resolved in a future release of fabric8, by upgrading to Apache Karaf 2.4.0 when it becomes available.</p>
-
 <h3 id = "Using_captial_letters_in_Karaf_container_name">Using captial letters in Karaf container name</h3>
 
 <p>Fabric8 does not support using captial letters in the <code>karaf.name</code> property in the <code>etc\system.properties</code>. If you change the value, then only use lower case letters.</p>
+
+<h4 id = "I_cannot_start_fabric8_on_Windows">I cannot start fabric8 on Windows</h4>
+
+<p>There is a known issue with Java and Windows when using IP6 capable network. You may see errors such as <code>java.net.SocketException: Permission denied: no further information</code>. To resolve this set the <code>KARAF_OPTS</code> to the following in the <code>bin/setenv.bat</code> file.</p>
+
+<pre><code>KARAF_OPTS="-Djava.net.preferIPv4Stack=true"</code></pre>
+
+<p>For more details see the <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/net/ipv6&#95;guide/">IP6 Java network guide</a> and this <a href="https://access.redhat.com/site/solutions/757533">knowledgebase solution</a>.</p>
 
 <p>  </div>
     </div>

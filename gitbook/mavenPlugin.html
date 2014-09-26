@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.2" data-basepath="." data-revision="1411673050897">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.2" data-basepath="." data-revision="1411759441309">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -1114,6 +1114,17 @@ PID: my.pid
 <tr>
 <td>includeArtifact</td>
 <td>If set to false then the maven artifact of the project is ignored; its not uploaded and not added/updated in the profile. Defaults to true.</td>
+</tr>
+<tr>
+<td>artifactBundleType</td>
+<td>Overrides the type (file extension) of the project artifact bundle to include in the profile (see includeArtifact).
+Normally the type is set to the project POM&apos;s packaging value.</td>
+</tr>
+<tr>
+<td>artifactBundleClassifier</td>
+<td>Overrides the classifier of the project artifact bundle to include in the profile (see includeArtifact).
+Normally the classifier is empty. The artifactBundleType parameter must always be specified explicitly
+when using the artifactBundleClassifier parameter.</td>
 </tr>
 <tr>
 <td>profileConfigDir</td>
