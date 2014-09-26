@@ -48,7 +48,7 @@ public class ProcessContainerConfig {
     @Property(label = "Process name", description = "The descriptive name to refer to this process when listing the processes on this machine.")
     private String processName;
 
-    @Property(label = "Process version", description = "The descriptive version to refer to the version of this process.")
+    @Property(label = "Process version", description = "The descriptive version to refer to the version of the distribution.")
     private String processVersion;
 
     @Property(label = "Distribution URL", cardinality = 1,
