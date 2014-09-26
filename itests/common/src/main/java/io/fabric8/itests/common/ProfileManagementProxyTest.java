@@ -31,6 +31,7 @@ import org.jboss.gravia.runtime.RuntimeType;
 import org.jboss.gravia.utils.IOUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 /**
@@ -40,6 +41,7 @@ import org.junit.runner.RunWith;
  */
 @RunAsClient
 @RunWith(Arquillian.class)
+@Ignore("[FABRIC-1173] Cannot reliably delete profile version")
 public class ProfileManagementProxyTest extends AbstractProfileManagementTest {
 
     static final String[] credentials = new String[] { "admin", "admin" };
