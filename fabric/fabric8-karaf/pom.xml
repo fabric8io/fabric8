@@ -262,6 +262,14 @@
            </dependency>
            <dependency>
                 <groupId>io.fabric8.insight</groupId>
+                <artifactId>insight-elasticsearch-log-storage</artifactId>
+           </dependency>
+           <dependency>
+                <groupId>io.fabric8.insight</groupId>
+                <artifactId>insight-elasticsearch-metrics-storage</artifactId>
+           </dependency>
+           <dependency>
+                <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-rhq-metrics</artifactId>
            </dependency>
            <dependency>

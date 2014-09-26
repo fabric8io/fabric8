@@ -1028,6 +1028,16 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.fabric8.insight</groupId>
+                <artifactId>insight-elasticsearch-log-storage</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8.insight</groupId>
+                <artifactId>insight-elasticsearch-metrics-storage</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.fabric8.patch</groupId>
                 <artifactId>patch-core</artifactId>
                 <version>${project.version}</version>
