@@ -33,9 +33,10 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.nio.entity.FileNIOEntity;
+import org.apache.http.nio.entity.NFileEntity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -87,9 +88,10 @@ public class FabricMavenProxyTest extends FabricTestSupport {
                 HttpPut put = new HttpPut(uploadUrl);
                 client.getCredentialsProvider().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("admin", "admin"));
 
-                FileNIOEntity entity = new FileNIOEntity(new File(featureLocation), "text/xml");
+                NFileEntity entity = new NFileEntity(new File(featureLocation), "text/xml");
                 put.setEntity(entity);
-                HttpResponse response = client.execute(put);
+                HttpClient c = client;
+                HttpResponse response = c.execute(put);
                 System.out.println("Response:" + response.getStatusLine());
                 Assert.assertTrue(response.getStatusLine().getStatusCode() == 200 || response.getStatusLine().getStatusCode() == 202);
 
@@ -110,6 +112,7 @@ public class FabricMavenProxyTest extends FabricTestSupport {
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
                 mavenBundle("org.apache.httpcomponents", "httpcore-osgi").versionAsInProject(),
                 mavenBundle("org.apache.httpcomponents", "httpclient-osgi").versionAsInProject(),
+                mavenBundle("io.fabric8", "fabric-project-deployer").versionAsInProject(),
                 mavenBundle("io.fabric8", "fabric-maven-proxy").versionAsInProject(),
                 KarafDistributionOption.editConfigurationFilePut("etc/system.properties", "feature.location",
                         FabricMavenProxyTest.class.getResource("/test-features.xml").getFile()), KarafDistributionOption.debugConfiguration("5005", false) };
