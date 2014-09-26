@@ -137,7 +137,11 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
     @Override
     public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
         if (isValid()) {
-            String path = event.getData().getPath();
+            String path = null;
+            if(event.getData() != null){
+                path = event.getData().getPath();
+            }
+
             PathChildrenCacheEvent.Type type = event.getType();
             switch (type) {
                 case CHILD_ADDED:
