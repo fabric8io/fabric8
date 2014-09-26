@@ -29,7 +29,6 @@ import java.util.List;
 import org.jboss.gravia.runtime.RuntimeType;
 import org.junit.Assert;
 import org.junit.Assume;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -45,9 +44,7 @@ public abstract class AbstractProfileManagementTest {
     @Test
     public void testGetVersions() throws Exception {
         List<String> versions = new ArrayList<>(getProxy().getVersions());
-        versions.remove("master");
-        Assert.assertEquals("Expected 1, but was" + versions, 1, versions.size());
-        Assert.assertEquals("1.0", versions.get(0));
+        Assert.assertTrue("Contains 1.0 - " + versions, versions.contains("1.0"));
     }
 
     @Test
