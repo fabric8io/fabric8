@@ -23,13 +23,20 @@ discovery.zen.ping.multicast.enabled: false
 plugin.mandatory: fabric8-insight, fabric8-discovery
 
 # By default, no nodes contain data
-node.data = false
+node.data = true
 
 # Use the known IP as the host
 network.host = ${container:ip}
 
 http.port = ${env:FABRIC8_ES_HTTP_PORT}
 transport.tcp.port  = ${env:FABRIC8_ES_TCP_PORT}
+
+# lets use the correct bind address
+network.host=${container:bindaddress}
+
+# lets publish the correct address
+discovery.publish.host = ${container:ip}
+discovery.publish.port = ${env:FABRIC8_ES_TCP_PROXY_PORT}
 
 # Enable HTTP
 http.enabled = true

@@ -25,39 +25,25 @@
     <version>1.2.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>insight-elasticsearch-factory</artifactId>
+  <artifactId>insight-elasticsearch-log-storage</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: Insight :: Elastic Search Factory</name>
+  <name>Fabric8 :: Insight :: Elastic Search Log Storage</name>
 
   <properties>
+    <fuse.osgi.export>io.fabric8.insight.elasticsearch.storage.log.impl</fuse.osgi.export>
     <fuse.osgi.import.additional>
       *;resolution:=optional
     </fuse.osgi.import.additional>
     <fuse.osgi.capabilities.provide>
-      osgi.service;effective:=active;cluster.name=elasticsearch;objectClass=org.elasticsearch.node.Node,
-      osgi.service;effective:=active;cluster.name=insight;objectClass=org.elasticsearch.node.Node
+      osgi.service;effective:=active;objectClass=io.fabric8.insight.storage.StorageService
     </fuse.osgi.capabilities.provide>
-    <fuse.osgi.export>io.fabric8.insight.elasticsearch</fuse.osgi.export>
-    <fuse.osgi.require.bundle>org.apache.servicemix.bundles.elasticsearch</fuse.osgi.require.bundle>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>fabric-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>io.fabric8.insight</groupId>
-      <artifactId>insight-storage</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8.insight</groupId>
-      <artifactId>insight-metrics-mvel</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
+      <artifactId>insight-elasticsearch-factory</artifactId>
     </dependency>
   </dependencies>
 

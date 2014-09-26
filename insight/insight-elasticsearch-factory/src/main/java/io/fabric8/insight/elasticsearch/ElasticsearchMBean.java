@@ -16,11 +16,14 @@
 package io.fabric8.insight.elasticsearch;
 
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 
 public interface ElasticsearchMBean {
 
-    NodesInfoResponse getNodeInfo(String clusterName);
+    String getRestUrl(String clusterName);
+
+    NodeInfo[] getNodeInfo(String clusterName);
 
     ClusterHealthResponse getClusterHealth(String clusterName);
 

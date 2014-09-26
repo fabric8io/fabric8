@@ -358,6 +358,11 @@
         <bundle>mvn:io.fabric8/fabric-zeroconf/${project.version}</bundle>
     </feature>
 
+    <!--<feature name="insight-kibana" version="${project.version}" resolver="(obr)">
+        <feature>war</feature>
+        <bundle>war:mvn:io.hawt.kibana/hawtio-kibana/${hawtio-kibana-version}/war</bundle>
+    </feature>-->
+
     <feature name="insight-log" version="${project.version}" resolver="(obr)">
         <feature>karaf</feature>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
@@ -376,11 +381,6 @@
         <bundle>mvn:io.fabric8.insight/insight-storage/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-metrics-model/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-metrics-mvel/${project.version}</bundle>
-    </feature>
-
-    <feature name="insight-elasticsearch-metrics" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">insight-elasticsearch</feature>
-        <bundle>mvn:io.fabric8.insight/insight-metrics/${project.version}</bundle>
     </feature>
 
     <feature name="insight-rhq-metrics" version="${project.version}" resolver="(obr)">
@@ -423,12 +423,25 @@
         <feature version="${project.version}">insight-metrics</feature>
         <feature>fabric-zookeeper</feature>
         <feature>fabric-groups</feature>
+        <!--<feature>insight-kibana</feature>-->
         <bundle dependency="true">mvn:com.google.guava/guava/${guava-version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-storage/${project.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.elasticsearch/${elasticsearch-smx4-bundle.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-elasticsearch-plugin/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-elasticsearch-discovery/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-elasticsearch-factory/${project.version}</bundle>
+    </feature>
+
+    <feature name="insight-elasticsearch-log-storage" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">insight-elasticsearch</feature>
+        <bundle>mvn:io.fabric8.insight/insight-elasticsearch-log-storage/${project.version}</bundle>
+    </feature>
+
+    <feature name="insight-elasticsearch-metrics-storage" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">insight-elasticsearch</feature>
+        <feature version="${project.version}">insight-metrics</feature>
+        <bundle>mvn:io.fabric8.insight/insight-metrics/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-elasticsearch-metrics-storage/${project.version}</bundle>
     </feature>
 
     <feature name="insight-log-storage" version="${project.version}" resolver="(obr)">
@@ -457,7 +470,7 @@
         </config>
         <feature>eventadmin</feature>
         <feature>insight-log</feature>
-        <feature>insight-elasticsearch</feature>
+        <bundle>mvn:io.fabric8.insight/insight-storage/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-log-storage/${project.version}</bundle>
     </feature>
 

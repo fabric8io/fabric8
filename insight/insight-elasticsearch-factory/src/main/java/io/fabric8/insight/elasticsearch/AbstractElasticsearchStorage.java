@@ -13,14 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.insight.elasticsearch.impl;
+package io.fabric8.insight.elasticsearch;
 
-import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.insight.metrics.model.MetricsStorageService;
 import io.fabric8.insight.metrics.model.QueryResult;
 import io.fabric8.insight.metrics.mvel.MetricsStorageServiceImpl;
 import io.fabric8.insight.storage.StorageService;
-import org.apache.felix.scr.annotations.*;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -35,41 +33,21 @@ import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-@Component(immediate = true, name = "io.fabric8.insight.elasticsearch")
-@Service({StorageService.class, MetricsStorageService.class})
-public class ElasticsearchStorageImpl implements StorageService, MetricsStorageService, Runnable {
+public abstract class AbstractElasticsearchStorage implements StorageService, MetricsStorageService, Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchStorageImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractElasticsearchStorage.class);
 
     private static final SimpleDateFormat indexFormat = new SimpleDateFormat("yyyy.MM.dd");
 
-    @Reference(name = "node", referenceInterface = org.elasticsearch.node.Node.class, target = "(cluster.name=insight)")
-    private final ValidatingReference<Node> node = new ValidatingReference<>();
-
     private int max = 1000;
 
-    private Thread thread;
+    protected Thread thread;
 
-    private volatile boolean running;
+    protected volatile boolean running;
 
     private BlockingQueue<ActionRequest> queue = new LinkedBlockingQueue<ActionRequest>();
 
     private MetricsStorageService metricsStorage = new MetricsStorageServiceImpl(this);
-
-    @Activate
-    public void activate() {
-        running = true;
-        thread = new Thread(this, "ElasticStorage");
-        thread.start();
-    }
-
-    @Deactivate
-    public void deactivate() {
-        running = false;
-        if (thread != null) {
-            thread.interrupt();
-        }
-    }
 
     @Override
     public void store(String type, long timestamp, QueryResult queryResult) {
@@ -101,7 +79,7 @@ public class ElasticsearchStorageImpl implements StorageService, MetricsStorageS
                     req = queue.poll();
                 }
                 if (bulk.numberOfActions() > 0) {
-                    BulkResponse rep = node.get().client().bulk(bulk).actionGet();
+                    BulkResponse rep = getNode().client().bulk(bulk).actionGet();
                     for (BulkItemResponse bir : rep.getItems()) {
                         if (bir.isFailed()) {
                             LOGGER.warn("Error executing request: {}", bir.getFailureMessage());
@@ -116,12 +94,5 @@ public class ElasticsearchStorageImpl implements StorageService, MetricsStorageS
         }
     }
 
-    private void bindNode(Node node) {
-        this.node.bind(node);
-    }
-
-    private void unbindNode(Node node) {
-        this.node.unbind(node);
-    }
-
+    public abstract Node getNode();
 }
