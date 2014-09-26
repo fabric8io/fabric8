@@ -219,6 +219,7 @@
         <geronimo-atinject.version>1.0</geronimo-atinject.version>
         <gitective-version>0.9.9</gitective-version>
         <gravia-version>1.1.0.Beta41</gravia-version>
+        <gson-version>2.3</gson-version>
         <groovy-version>2.3.6</groovy-version>
         <guava-version>15.0</guava-version>
         <guava.osgi.version.clean>15.0</guava.osgi.version.clean>
@@ -229,6 +230,7 @@
         <hawtio-kibana-version>3.1.0-SNAPSHOT</hawtio-kibana-version>
         <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
         <hawtio-version>1.4.20</hawtio-version>
+        <influxdb-version>1.2</influxdb-version>
         <jackson-version>1.9.2</jackson-version>
         <jackson2-version>2.4.1</jackson2-version>
         <jackson-module-scala-version>2.1.5_2</jackson-module-scala-version>
@@ -635,6 +637,11 @@
             <dependency>
                 <groupId>io.fabric8.insight</groupId>
                 <artifactId>insight-rhq-metrics</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8.insight</groupId>
+                <artifactId>insight-influxdb-metrics</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

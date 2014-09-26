@@ -399,6 +399,15 @@
         <bundle>war:mvn:org.rhq.metrics/metrics-console/${rhq-metrics-version}/war</bundle>
     </feature>
 
+    <feature name="insight-influxdb-metrics" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-zookeeper</feature>
+        <feature version="${project.version}">fabric-groups</feature>
+        <feature version="${project.version}">insight-metrics</feature>
+        <bundle dependency="true">mvn:io.fabric8.insight/insight-metrics/${project.version}</bundle>
+        <bundle dependency="true">mvn:com.google.code.gson/gson/${gson-version}</bundle>
+        <bundle>mvn:io.fabric8.insight/insight-influxdb-metrics/${project.version}</bundle>
+    </feature>
+
     <feature name="insight-elasticsearch" version="${project.version}" resolver="(obr)">
         <config name="io.fabric8.elasticsearch-insight">
             #
@@ -743,7 +752,6 @@
         <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle>mvn:io.fabric8/fabric-dns/${project.version}</bundle>
     </feature>
-
 
     <feature name="jolokia" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-core</feature>

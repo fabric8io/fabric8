@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2005-2014 Red Hat, Inc.
+  ~
+  ~ Red Hat licenses this file to you under the Apache License, version
+  ~ 2.0 (the "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+  ~ implied.  See the License for the specific language governing
+  ~ permissions and limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>insight-project</artifactId>
+        <groupId>io.fabric8.insight</groupId>
+        <version>1.2.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.fabric8.insight</groupId>
+    <artifactId>insight-influxdb-metrics</artifactId>
+    <packaging>bundle</packaging>
+
+    <name>Fabric8 :: Insight :: InfluxDB Metrics</name>
+
+    <properties>
+        <fuse.osgi.export>
+            io.fabric8.influxdb;version=${project.version};-noimport:=true,
+            org.influxdb*;version=${influxdb-version}
+        </fuse.osgi.export>
+        <fuse.osgi.import>
+            !android*,
+            !retrofit.android*,
+            !retrofit.appengine*,
+            !com.google.appengine*,
+            !org.apache.http*,
+            !rx*,
+            javax.management,
+            *
+        </fuse.osgi.import>
+        <fuse.osgi.private.pkg>
+            com.squareup*,
+            okio*,
+            retrofit*
+        </fuse.osgi.private.pkg>
+        <fuse.osgi.capabilities.provide><![CDATA[
+            osgi.service;effective:=active;objectClass=org.influxdb.InfluxDB
+        ]]></fuse.osgi.capabilities.provide>
+
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-groups</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8.insight</groupId>
+            <artifactId>insight-storage</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8.insight</groupId>
+            <artifactId>insight-metrics-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8.insight</groupId>
+            <artifactId>insight-metrics</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.influxdb</groupId>
+            <artifactId>influxdb-java</artifactId>
+            <version>${influxdb-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>scr</goal>
+                        </goals>
+                        <configuration>
+                            <specVersion>1.1</specVersion>
+                            <strictMode>false</strictMode>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
