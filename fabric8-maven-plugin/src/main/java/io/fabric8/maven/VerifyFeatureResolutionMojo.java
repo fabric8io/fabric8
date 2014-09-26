@@ -276,7 +276,7 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
                 // TODO: find unused resources ?
             } catch (Exception e) {
                 throw new MojoExecutionException("Feature resolution failed for " + feature
-                        + "\nMessage: " + e.getMessage()
+                        + "\nMessage: " + e.getMessage() + (e.getCause() != null ? "\n" + e.getCause().getMessage() : "")
                         + "\nRepositories: " + toString(new TreeSet<>(repositories.keySet()))
                         + "\nResources: " + toString(new TreeSet<>(downloadedResources.keySet())), e);
             }
