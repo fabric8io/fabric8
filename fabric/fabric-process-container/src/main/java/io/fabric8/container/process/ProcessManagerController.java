@@ -186,53 +186,75 @@ public class ProcessManagerController implements ChildContainerController {
             CreateContainerOptions createOptions = metadata.getCreateOptions();
             if (createOptions instanceof CreateChildContainerOptions) {
                 CreateChildContainerOptions options = (CreateChildContainerOptions) createOptions;
-                ProcessManager procManager = new ProcessManager() {
-                    @Override
-                    public Installation install(InstallOptions parameters, InstallTask postInstall) throws Exception {
-                        updateInstallation(container, installation, parameters, postInstall);
-                        return null;
+
+                // is this an update of existing container or do we need re-installation the container because its version changed?
+                // to know that we need to create the container config, and compare with existing
+                ProcessContainerConfig config = createProcessContainerConfig(options, initialEnvironmentVariables);
+
+                if (!installation.getUrl().toString().equals(config.getUrl())) {
+                    // the url has changed so its a full re-installation
+                    LOG.info("Re-installing " + container.getId() + " due container distribution url changed to: " + config.getUrl());
+                    destroy(container);
+
+                    Installation newInstallation = createInstallation(processManager, container, options, metadata, initialEnvironmentVariables);
+                    try {
+                        newInstallation.getController().install();
+                        start(container);
+                    } catch (Exception e) {
+                        handleException("Error installing container " + container.getId(), e);
                     }
 
-                    @Override
-                    public Installation installJar(InstallOptions parameters, InstallTask postInstall) throws Exception {
-                        updateInstallation(container, installation, parameters, null);
-                        return null;
-                    }
+                } else {
 
-                    @Override
-                    public void uninstall(Installation installation) {
-                        processManager.uninstall(installation);
-                    }
+                    LOG.info("Updating container " + container.getId());
 
-                    @Override
-                    public Executor getExecutor() {
-                        return processManager.getExecutor();
-                    }
+                    // need to use a process manager that updates instead of installing
+                    ProcessManager procManager = new ProcessManager() {
+                        @Override
+                        public Installation install(InstallOptions parameters, InstallTask postInstall) throws Exception {
+                            updateInstallation(container, installation, parameters, postInstall);
+                            return null;
+                        }
 
-                    @Override
-                    public List<Installation> listInstallations() {
-                        return processManager.listInstallations();
-                    }
+                        @Override
+                        public Installation installJar(InstallOptions parameters, InstallTask postInstall) throws Exception {
+                            updateInstallation(container, installation, parameters, null);
+                            return null;
+                        }
 
-                    @Override
-                    public ImmutableMap<String, Installation> listInstallationMap() {
-                        return processManager.listInstallationMap();
-                    }
+                        @Override
+                        public void uninstall(Installation installation) {
+                            processManager.uninstall(installation);
+                        }
 
-                    @Override
-                    public Installation getInstallation(String id) {
-                        return processManager.getInstallation(id);
-                    }
+                        @Override
+                        public Executor getExecutor() {
+                            return processManager.getExecutor();
+                        }
 
-                    @Override
-                    public ProcessConfig loadProcessConfig(InstallOptions options) throws IOException {
-                        return processManager.loadProcessConfig(options);
-                    }
-                };
-                Installation newInstallation = createInstallation(procManager, container, options, metadata, initialEnvironmentVariables);
-                if (newInstallation != null) {
-                    // lets see if anything significant changed
-                    // meaning we need to restart - e.g. env vars
+                        @Override
+                        public List<Installation> listInstallations() {
+                            return processManager.listInstallations();
+                        }
+
+                        @Override
+                        public ImmutableMap<String, Installation> listInstallationMap() {
+                            return processManager.listInstallationMap();
+                        }
+
+                        @Override
+                        public Installation getInstallation(String id) {
+                            return processManager.getInstallation(id);
+                        }
+
+                        @Override
+                        public ProcessConfig loadProcessConfig(InstallOptions options) throws IOException {
+                            return processManager.loadProcessConfig(options);
+                        }
+                    };
+
+                    // reuse create installation with our procManager to do the update
+                    createInstallation(procManager, container, options, metadata, initialEnvironmentVariables);
                 }
             }
         }
@@ -275,12 +297,6 @@ public class ProcessManagerController implements ChildContainerController {
             JsonHelper.saveProcessConfig(processConfig, installDir);
             // need to update environment on the controller also, so it uses the updated environments when restarting
             installation.getController().getConfig().setEnvironment(processConfig.getEnvironment());
-
-            // it is a new version of the product as the url has changed, such as a version upgrade etc
-            // TODO: use basePath to see if thats different
-            if (installation.getUrl() != parameters.getUrl()) {
-                installContext.addRedeployReason("Process URL Changed to " + parameters.getUrl());
-            }
         }
 
         if (postInstall != null) {
@@ -293,24 +309,7 @@ public class ProcessManagerController implements ChildContainerController {
 
         installContext.updateContainerChecksums();
 
-        if (installContext.isRedeployRequired()) {
-            LOG.info("Redeploying " + container.getId() + " due to profile changes: " + installContext.getRedeployReasons());
-            ProcessController controller = installation.getController();
-            if (controller != null && container != null && container.isAlive()) {
-                controller.stop();
-                if (container.isAlive()) {
-                    controller.kill();
-                }
-            }
-            if (controller != null && container != null) {
-                LOG.info("Unininstalling " + container.getId());
-                controller.uninstall();
-                LOG.info("Ininstalling " + container.getId());
-                controller.install();
-                LOG.info("Starting " + container.getId());
-                controller.start();
-            }
-        } else if (installContext.isRestartRequired()) {
+        if (installContext.isRestartRequired()) {
             LOG.info("Restarting " + container.getId() + " due to profile changes: " + installContext.getRestartReasons());
             ProcessController controller = installation.getController();
             if (controller != null && container != null && container.isAlive()) {
@@ -329,6 +328,22 @@ public class ProcessManagerController implements ChildContainerController {
     protected static ProcessConfig getProcessConfig(Installation installation) {
         ProcessController controller = installation.getController();
         return controller.getConfig();
+    }
+
+    protected ProcessContainerConfig createProcessContainerConfig(CreateChildContainerOptions options, Map<String, String> initialEnvironmentVariables) throws Exception {
+        Map<String, String> environmentVariables = ChildContainers.getEnvironmentVariables(fabricService, options);
+        Set<Map.Entry<String, String>> initialEntries = initialEnvironmentVariables.entrySet();
+        for (Map.Entry<String, String> entry : initialEntries) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (!environmentVariables.containsKey(key)) {
+                environmentVariables.put(key, value);
+            }
+        }
+        ProcessContainerConfig processConfig = doCreateProcessContainerConfig(options, environmentVariables);
+        resolveEnvironmentVariables(environmentVariables);
+
+        return processConfig;
     }
 
     protected Installation createInstallation(ProcessManager procManager, Container container, CreateChildContainerOptions options, CreateChildContainerMetadata metadata, Map<String, String> initialEnvironmentVariables) throws Exception {
@@ -355,6 +370,7 @@ public class ProcessManagerController implements ChildContainerController {
                 container.setType(type);
             }
         }
+
         Installation installation = null;
         try {
             if (ChildContainers.isJavaContainer(fabricService, options)) {
@@ -499,7 +515,7 @@ public class ProcessManagerController implements ChildContainerController {
         return configObject.createProcessInstallOptions(fabricService, container, metadata, options, environmentVariables, createDownloadStrategy());
     }
 
-    private ProcessContainerConfig createProcessContainerConfig(CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
+    private ProcessContainerConfig doCreateProcessContainerConfig(CreateChildContainerOptions options, Map<String, String> environmentVariables) throws Exception {
         Set<String> profileIds = options.getProfiles();
         String versionId = options.getVersion();
         Map<String, String> configuration = Profiles.getOverlayConfiguration(fabricService, profileIds, versionId, Constants.PROCESS_CONTAINER_PID);
