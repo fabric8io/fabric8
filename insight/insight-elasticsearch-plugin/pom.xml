@@ -35,6 +35,9 @@
       !org.elasticsearch*,
       *;resolution:=optional
     </fuse.osgi.import.additional>
+    <fuse.osgi.private.pkg>
+      io.fabric8.insight.elasticsearch.plugin.*
+    </fuse.osgi.private.pkg>
     <fuse.osgi.fragment.host>io.fabric8.insight.insight-elasticsearch-factory</fuse.osgi.fragment.host>
   </properties>
 

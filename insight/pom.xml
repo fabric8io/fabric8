@@ -32,10 +32,6 @@
 
   <name>Fabric8 :: Insight</name>
 
-  <properties>
-    <fuse.osgi.export>io.fabric8.insight.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
-  </properties>
-
   <modules>
     <module>insight-activemq</module>
     <module>insight-camel</module>
@@ -53,6 +49,8 @@
     <module>insight-elasticsearch-factory</module>
     <module>insight-elasticsearch-plugin</module>
     <module>insight-elasticsearch-discovery</module>
+    <module>insight-elasticsearch-log-storage</module>
+    <module>insight-elasticsearch-metrics-storage</module>
   </modules>
 
   <dependencies>

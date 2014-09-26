@@ -18,6 +18,7 @@ package io.fabric8.insight.elasticsearch;
 import io.fabric8.common.util.JMXUtils;
 import org.apache.felix.scr.annotations.*;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.client.ClusterAdminClient;
@@ -51,14 +52,24 @@ public class Elasticsearch implements ElasticsearchMBean {
     }
 
     @Override
-    public NodesInfoResponse getNodeInfo(String clusterName) {
+    public NodeInfo[] getNodeInfo(String clusterName) {
         Set<Node> nodeSet = nodesClusterMap.get(clusterName);
         if (nodeSet != null) {
             for (Node node : nodeSet) {
                 ClusterAdminClient client = node.client().admin().cluster();
                 NodesInfoResponse response = client.prepareNodesInfo().all().execute().actionGet();
-                return response;
+                return response.getNodes();
             }
+        }
+        return null;
+    }
+
+    @Override
+    public String getRestUrl(String clusterName) {
+        NodeInfo[] nodes = getNodeInfo(clusterName);
+        if (nodes != null && nodes.length > 0) {
+            String publishAddress = nodes[0].getHttp().address().publishAddress().toString().substring(0);
+            return publishAddress.substring(0, publishAddress.lastIndexOf(']')).replaceFirst("inet\\[\\/", "http://");
         }
         return null;
     }
