@@ -24,6 +24,7 @@ import io.fabric8.process.manager.ProcessManager;
 import io.fabric8.process.manager.commands.support.ProcessCommandSupport;
 import io.fabric8.utils.TablePrinter;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 
 @Command(name = "ps", scope = "process", description = "Lists the currently installed managed processes.")
 public class ProcessListAction extends ProcessCommandSupport {
@@ -31,6 +32,9 @@ public class ProcessListAction extends ProcessCommandSupport {
     public ProcessListAction(ProcessManager processManager) {
         super(processManager);
     }
+
+    @Option(name="-v", aliases={"--verbose"}, required = false, description = "Verbose option")
+    protected boolean verbose;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -42,17 +46,43 @@ public class ProcessListAction extends ProcessCommandSupport {
 
     protected void printInstallations(List<Installation> installations, PrintStream out) {
         TablePrinter printer = new TablePrinter();
-        printer.columns("id", "pid", "name");
+        if (verbose) {
+            printer.columns("id", "pid", "connected", "type", "directory");
+        } else {
+            printer.columns("id", "pid", "connected", "type");
+        }
 
         for (Installation installation : installations) {
+
             String id = installation.getId();
             String pid = "";
+            String connected = "no";
+            String path = installation.getInstallDir() != null ? installation.getInstallDir().getPath() : "";
+
+            String type = installation.getName();
+            if (!verbose) {
+                if (type.startsWith("java ")) {
+                    // skip middle package name as that is too verbose
+                    int idx = type.lastIndexOf('.');
+                    if (idx > 0) {
+                        type = "java " + type.substring(idx + 1);
+                    }
+                }
+            }
             try {
-                pid = "" + installation.getActivePid();
+                Long aid = installation.getActivePid();
+                if (aid != null) {
+                    pid = "" + aid;
+                    connected = "yes";
+                }
             } catch (IOException e) {
                 // ignore
             }
-            printer.row(id, pid, installation.getName());
+            if (verbose) {
+                printer.row(id, pid, connected, type, path);
+            } else {
+                printer.row(id, pid, connected, type);
+            }
         }
 
         printer.print(out);
