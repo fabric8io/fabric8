@@ -42,6 +42,7 @@
       *
     </fuse.osgi.import>
     <fuse.osgi.private.pkg>
+      io.fabric8.utils;-split-package:=first,
       io.fabric8.process.manager.utils,
     </fuse.osgi.private.pkg>
     <fuse.osgi.capabilities.provide>

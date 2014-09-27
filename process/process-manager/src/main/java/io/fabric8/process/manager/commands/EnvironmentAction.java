@@ -15,23 +15,18 @@
  */
 package io.fabric8.process.manager.commands;
 
+import java.io.PrintStream;
+
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.ProcessManager;
 import io.fabric8.process.manager.commands.support.ProcessControlCommandSupport;
+import io.fabric8.utils.TablePrinter;
 import org.apache.felix.gogo.commands.Command;
-
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.List;
 
 /**
  */
 @Command(name = "environment", scope = "process", description = "Environment variables of a managed process")
 public class EnvironmentAction extends ProcessControlCommandSupport {
-
-    static final String[] HEADERS = {"[Variable]", "[Value]"};
-
-    static final String FORMAT = "%-45s %s";
 
     protected EnvironmentAction(ProcessManager processManager) {
         super(processManager);
@@ -43,11 +38,15 @@ public class EnvironmentAction extends ProcessControlCommandSupport {
     }
 
     protected void printEnvironment(Installation installation, PrintStream out) {
-        out.println(String.format(FORMAT, HEADERS));
+        TablePrinter printer = new TablePrinter();
+        printer.columns("variable", "value");
+
         for (String variable : installation.getEnvironment().keySet()) {
             String value = installation.getEnvironment().get(variable);
-            out.println(String.format(FORMAT, variable, value));
+            printer.row(variable, value);
         }
+
+        printer.print(out);
     }
 
 }

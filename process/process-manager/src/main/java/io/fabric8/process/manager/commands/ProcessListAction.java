@@ -15,19 +15,18 @@
  */
 package io.fabric8.process.manager.commands;
 
-import io.fabric8.process.manager.Installation;
-import io.fabric8.process.manager.ProcessManager;
-import org.apache.felix.gogo.commands.Command;
-import io.fabric8.process.manager.commands.support.ProcessCommandSupport;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 
+import io.fabric8.process.manager.Installation;
+import io.fabric8.process.manager.ProcessManager;
+import io.fabric8.process.manager.commands.support.ProcessCommandSupport;
+import io.fabric8.utils.TablePrinter;
+import org.apache.felix.gogo.commands.Command;
+
 @Command(name = "ps", scope = "process", description = "Lists the currently installed managed processes.")
 public class ProcessListAction extends ProcessCommandSupport {
-    static final String[] HEADERS = {"[id]", "[pid]", "[name]"};
-    static final String FORMAT = "%-20s %9s %s";
 
     public ProcessListAction(ProcessManager processManager) {
         super(processManager);
@@ -42,16 +41,20 @@ public class ProcessListAction extends ProcessCommandSupport {
     }
 
     protected void printInstallations(List<Installation> installations, PrintStream out) {
-        out.println(String.format(FORMAT, HEADERS));
+        TablePrinter printer = new TablePrinter();
+        printer.columns("id", "pid", "name");
+
         for (Installation installation : installations) {
             String id = installation.getId();
-            Long pid = null;
+            String pid = "";
             try {
-                pid = installation.getActivePid();
+                pid = "" + installation.getActivePid();
             } catch (IOException e) {
-                System.err.println("Failed to find pid for id: " + id + ". " + e);
+                // ignore
             }
-            out.println(String.format(FORMAT, "" + id, (pid != null) ? pid.toString() : "", installation.getName()));
+            printer.row(id, pid, installation.getName());
         }
+
+        printer.print(out);
     }
 }
