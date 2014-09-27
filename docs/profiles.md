@@ -18,13 +18,13 @@ Each profile may also define none, one or more dependents. This allows a profile
 a MongoDB container is active so that a profile can use it as a database.
 
 ### Profile hierarchies
-It is quite often that multiple profiles share similar bits of configuration. Its quite common for different applications to use common frameworks libraries etc. Defining everything from group up for each profile can be a real pain and is not that easy to maintain.
-To avoid having duplicate configuration across profiles and reduce the required maintenance, Fabric uses a hierarchical model for profiles, which allows you to build a generic profile which contains common configuration and then inherit the common bits.
+It is quite often that multiple profiles share similar bits of configuration. Its quite common for different applications to use common frameworks libraries etc. Defining everything from the ground up for each profile can be a real pain and is not that easy to maintain.
+To avoid having to duplicate configuration across profiles and reduce the required maintenance, Fabric uses a hierarchical model for profiles, which allows you to build a generic profile which contains common configuration and then inherit the common bits.
 
 The section below describes the profiles that are shipped with Fabric out of the box and are a good example of how profile hierarchies work.
 
 ### Out of the box profiles
-Fabric provides a rich set of profiles *"out of the box" that can be used as the basic building blocks for definining your own profiles. The most important profiles are:
+Fabric provides a rich set of profiles *"out of the box"* that can be used as the basic building blocks for defining your own profiles. The most important profiles are:
 
 * **default** The default profile defines all the basic stuff that fabric needs to run. For example it defines the *fabric-agent* feature, the fabric registry url & the list of maven repositories that can be used to download artifacts from.
 * **karaf** It is a child of **default** (so it doesn't need to define the same things again. It also defines the karaf feature repositories, that can be used for defining any karaf feature.
@@ -139,7 +139,7 @@ As soon as the profile is created you can modify the profile, using the commands
 #### Adding or removing a feature to a profile
 In order to edit one of the existing profile you can use the [fabric:profile-edit](commands/fabric-profile-edit.html) command.
 
-In this example I will use the command to add the *camel-jclouds* feature to the **camel** profile.
+In this example I will use the profile-edit command to add the *camel-jclouds* feature to the **camel** profile.
 
         fabric:profile-edit --features camel-jclouds camel
 
@@ -151,12 +151,12 @@ After the command I can display again the profile and see how the camel profile 
         	camel-core/2.13.0
         	fabric-camel/1.1.0
 
-If you want to remove a feature from the profile you can make use of the **--delete** option. So, if gor example you need to remove the *camel-jclouds* feature:
+If you want to remove a feature from the profile you can make use of the **--delete** option. So, if for example you need to remove the *camel-jclouds* feature:
 
         fabric:profile-edit --delete --features camel-jclouds camel
 
 #### Modifying a configuration pid in a profile
-A more complex example is when you need to modify the a configuration pid of a profile. A configuration pid is actually a list of key value pairs. So to edit or add a new key value pair to a specific pid you can use the **-pid** and specify the pid and key value in the following format *pid/key=value*.
+A more complex example is when you need to modify a configuration pid of a profile. A configuration pid is actually a list of key value pairs. So to edit or add a new key value pair to a specific pid you can use the **-pid** and specify the pid and key value in the following format *pid/key=value*.
 In the following example, I will modify the *io.fabric8.agent* pid and change the maven repository list. The default profile should contain a section like this:
 
         Agent Properties :
@@ -181,7 +181,7 @@ Now the [fabric:profile-edit](commands/fabric-profile-edit.html) command for the
 
 ### Profile Editor
 
-The profile edit command is quite flexible, however in some cases, you would really prefer a more traditional way of editing. Mainly becasue:
+The profile edit command is quite flexible, however in some cases, you would really prefer a more traditional way of editing. Mainly because:
 
 * You want to perform many changes at once
 * It feels more natural
@@ -199,7 +199,7 @@ But you can use it to also edit any other pid or resource in your profile. For e
 
 ![Editing a pid](/images/fabric/profile-edit-pid.png)
 
-A pretty similar approach applies to any resouce under the profile. For example, to edit the broker.xml of the mq-base profile:
+A pretty similar approach applies to any resource under the profile. For example, to edit the broker.xml of the mq-base profile:
 
       fabric:profile-edit --resource broker.xml mq-base
 
@@ -256,11 +256,11 @@ It describe how to modify profiles and explains how to perform single and rollin
 
 #### Importing and exporting profiles
 
-There are cases where you have put quite a lot of effort in creating the profiles that much your needs and you want to store them somewhere.
+There are cases where you have put quite a lot of effort in creating the profiles, so much that you want to package them up so that they can be stored or shared.
 A good example is when you move from the development environment to the staging or the production environment. You simply just don't want to go over the process of creating the profiles again.
 For such cases Fabric allows you export your profiles in text and also import them back. So you can safely store them or even import them to a version control system.
 
-To export the Fabric profiles you can use the [fabric:export](commands/fabric-export.html)
+To export the Fabric profiles you can use the [fabric:profile-export](commands/fabric-export.html)
 
          fabric:profile-export
 
@@ -276,7 +276,7 @@ to specify an other folder for importing to the registry you can simply use the 
 
         fabric:create --import-dir /path/to/my/import/location
 
-Of course there are cases where you need to import profiles after fabric has been created. You can use the the [fabric:export](commands/fabric-import-profile.html) as described below:
+Of course there are cases where you need to import profiles after fabric has been created. You can use the the [fabric:profile-import](commands/fabric-import-profile.html) as described below:
 
         fabric:profile-import /path/to/my/profiles.zip
 
@@ -303,7 +303,7 @@ In the .properties files, you specify url locations for .zip files to be importe
 
 The url above is using the [environment property resolver](http://fabric8.io/gitbook/propertyResolver.html#env) to either load urls from the given environment variable, or if not provided, then use the default value which is `mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${version:fabric}/zip/profile`. Notice how the url uses the `?:` elvis operator so we can lookup the environment variable, and if not given, then fallback and use the default value. The value `${version:fabric}` will get replaced with the version of fabric8. 
 
-The environment variable `FABRIC8_IMPORT_PROFILE_URLS` can be used to define custom profiles to be loaded instead of the quickstarts. Multiple urls can be separated bt comma. For example to load two custom profiles instead of the quickstarts, then the environment can be configured with:
+The environment variable `FABRIC8_IMPORT_PROFILE_URLS` can be used to define custom profiles to be loaded instead of the quickstarts. Multiple urls are separated by a comma. For example to load two custom profiles instead of the quickstarts, then the environment can be configured with:
 
     export FABRIC8_IMPORT_PROFILE_URLS="mvn:com.foo/myprofiles/1.0,mvn:com.foo/myotherprofiles/1.0"
 
@@ -313,7 +313,7 @@ If for some reason you want to skip importing some folders (profiles) from a .zi
 
 ##### Disabling quickstarts
 
-This allows easily to disable importing the quickstarts, by either deleting the `io.fabric8.import.profiles.properties` file, or disable the above line,  by prefixing the line with the `#` character, or setting the environment variable `FABRIC8_IMPORT_PROFILE_URLS` to the value `false`. 
+The import of the quickstart profiles is easily disabled, by either deleting the `io.fabric8.import.profiles.properties` file, or disable the above line,  by prefixing the line with the `#` character, or setting the environment variable `FABRIC8_IMPORT_PROFILE_URLS` to the value `false`. 
 
 #### Documenting profiles
 
