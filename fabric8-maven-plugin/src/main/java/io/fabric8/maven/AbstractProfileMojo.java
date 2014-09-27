@@ -46,7 +46,6 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.common.collect.ImmutableSet;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
@@ -77,6 +76,16 @@ import org.osgi.framework.Constants;
  * Abstract base class for Profile based mojos
  */
 public abstract class AbstractProfileMojo extends AbstractMojo {
+
+    /**
+     * The set of packaging types that should be ommitted from the bundle spec
+     * <ul>
+     * <li>'jar' - because the resolve implicitly searches for jars when no type is specified</li>
+     * <li>'bundle' - because a bundle is a jar, but the resolver doesn't account for this</li>
+     * </ul>
+     */
+    private static final String[] OMMITTED_BUNDLE_TYPES = new String[]{"bar", "bundle"};
+
     /**
      * The folder used for defining project specific files
      */
@@ -187,20 +196,10 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     private boolean includeArtifact;
 
     /**
-     * The set of packaging types that should be ommitted from the bundle spec
-     * <ul>
-     * <li>'jar' - because the resolve implicitly searches for jars when no type is specified</li>
-     * <li>'bundle' - because a bundle is a jar, but the resolver doesn't account for this</li>
-     * </ul>
-     */
-    private static final ImmutableSet<String> OMMITTED_BUNDLE_TYPES = ImmutableSet.of("jar","bundle");
-
-    /**
      * Type to use for the project artifact bundle reference
      */
     @Parameter(property = "fabric8.artifactBundleType")
     private String artifactBundleType;
-
 
     /**
      * Classifier to use for the project artifact bundle reference
@@ -590,8 +589,11 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             String apparentType = rootDependency.getType();
             String apparentClassifier = rootDependency.getClassifier();
 
-            if (OMMITTED_BUNDLE_TYPES.contains(apparentType)) {
-                apparentType = null;
+            for (String omit : OMMITTED_BUNDLE_TYPES) {
+                if (omit.equals(apparentType)) {
+                    apparentType = null;
+                    break;
+                }
             }
 
             handleArtifactBundleType(urlBuffer, apparentType);
