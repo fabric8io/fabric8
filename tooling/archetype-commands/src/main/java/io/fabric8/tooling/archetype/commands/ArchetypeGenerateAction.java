@@ -193,8 +193,8 @@ public class ArchetypeGenerateAction extends AbstractAction {
         // if we have fabric8.profile as a property then lets configured it now, as its mandatory
         // and use artifactId as its default suggested value
         String profile = null;
-        if (properties.containsKey("fabric8.profile")) {
-            profile = properties.remove("fabric8.profile");
+        if (properties.containsKey("fabric8-profile")) {
+            profile = properties.remove("fabric8-profile");
             String defaultProfile = isNullOrBlank(profile) ? artifactId : profile;
             String p = ShellUtils.readLine(session, String.format("Define value for property 'fabric8.profile' (%s): ", defaultProfile), false);
             profile = isNullOrBlank(p) ? defaultProfile : p;
@@ -252,7 +252,7 @@ public class ArchetypeGenerateAction extends AbstractAction {
 
         // remover to include the profile back into properties
         if (profile != null) {
-            properties.put("fabric8.profile", profile);
+            properties.put("fabric8-profile", profile);
         }
 
         if (!properties.isEmpty()) {

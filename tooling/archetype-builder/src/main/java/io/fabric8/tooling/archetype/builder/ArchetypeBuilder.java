@@ -421,14 +421,15 @@ public class ArchetypeBuilder {
                 }
             }
 
-            String profile = replaceNodeValue(doc, root, "fabric8.profile", "${fabric8.profile}");
+            String profile = replaceNodeValue(doc, root, "fabric8.profile", "${fabric8-profile}");
             if (profile != null) {
                 // we do not want a default name for the profile as the end user should be able to set that value
-                propertyNameSet.put("fabric8.profile", null);
+                // and use fabric8-profile as key as there is a problem when using fabric8.profile
+                propertyNameSet.put("fabric8-profile", null);
             }
 
             // now lets replace the contents of some elements (adding new elements if they are not present)
-            List<String> beforeNames = Arrays.asList("artifactId", "version", "packaging", "name", "properties", "fabric8.profile");
+            List<String> beforeNames = Arrays.asList("artifactId", "version", "packaging", "name", "properties", "fabric8-profile");
             replaceOrAddElementText(doc, root, "version", "${version}", beforeNames);
             replaceOrAddElementText(doc, root, "artifactId", "${artifactId}", beforeNames);
             replaceOrAddElementText(doc, root, "groupId", "${groupId}", beforeNames);

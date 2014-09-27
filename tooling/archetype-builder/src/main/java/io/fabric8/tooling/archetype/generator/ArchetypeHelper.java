@@ -321,7 +321,7 @@ public class ArchetypeHelper {
                     line = line.replaceAll("\\$\\{D\\}", "\\$");
                 }
                 answer = answer.concat(line);
-                answer = answer.concat("\n"); // TODO: maybe "line.separator"?
+                answer = answer.concat(System.lineSeparator());
             }
         }
         return answer;
@@ -337,7 +337,7 @@ public class ArchetypeHelper {
 
     protected String replaceVariable(String text, String name, String value) {
         if (value.contains("}")) {
-            debug("Ignoring dodgy value '" + value + "'");
+            debug("Ignoring unknown value '" + value + "'");
             return text;
         } else {
             return text.replaceAll(Pattern.quote("${" + name + "}"), value);

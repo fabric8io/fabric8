@@ -59,14 +59,6 @@
     <fabric8.profile>quickstarts-java-cxf.cdi</fabric8.profile>
   </properties>
 
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <distribution>repo</distribution>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-    </license>
-  </licenses>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
