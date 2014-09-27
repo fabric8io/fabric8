@@ -34,10 +34,10 @@ The following information is divided into three sections, whether you are using 
 You can deploy and run this example at the console command line, as follows:
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
-1. Create a new child container and deploy the `quickstarts-mule-mule.helloworld` profile in a single step, by entering the
+1. Create a new child container and deploy the `quickstarts-mule-helloworld` profile in a single step, by entering the
  following command at the console:
 
-        fabric:container-create-child --profile quickstarts-mule-mule.helloworld root mychild
+        fabric:container-create-child --profile quickstarts-mule-helloworld root mychild
 
 1. Wait for the new child container, `mychild`, to start up. Use the `fabric:container-list` command to check the status of the `mychild` container and wait until the `[provision status]` is shown as `success`.
 
@@ -49,7 +49,7 @@ You can deploy and run this example from the web console, as follows
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
 1. Login the web console
 1. Click the Wiki button in the navigation bar
-1. Select `quickstarts` --> `mule` --> `mule.helloworld`
+1. Select `quickstarts` --> `mule` --> `helloworld`
 1. Click the `New` button in the top right corner
 1. In the Create New Container page, enter `mychild` in the Container Name field, and click the *Create and start container* button
 
