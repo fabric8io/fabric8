@@ -1,9 +1,9 @@
 Mule Quickstarts
 ================
 
-This is the quickstarts for using Mule ESB.
+This is the quickstarts folder for examples using MuleESB containers.
 
-The following quickstarts is provided out of the box:
+The following quickstarts are provided out of the box:
 
-* [helloworld](helloworld) - a beginner example that runs in Mule ESB.
+* [helloworld](helloworld) - a beginner example that shows how to start a basic web server in a MuleESB container.
 
