@@ -80,11 +80,11 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     /**
      * The set of packaging types that should be ommitted from the bundle spec
      * <ul>
-     * <li>'jar' - because the resolve implicitly searches for jars when no type is specified</li>
-     * <li>'bundle' - because a bundle is a jar, but the resolver doesn't account for this</li>
+     *   <li>'jar' - because the resolve implicitly searches for jars when no type is specified</li>
+     *   <li>'bundle' - because a bundle is a jar, but the resolver doesn't account for this</li>
      * </ul>
      */
-    private static final String[] OMMITTED_BUNDLE_TYPES = new String[]{"bar", "bundle"};
+    private static final String[] OMMITTED_BUNDLE_TYPES = new String[]{"jar", "bundle"};
 
     /**
      * The folder used for defining project specific files
