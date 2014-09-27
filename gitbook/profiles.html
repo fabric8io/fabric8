@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="4.2" data-basepath="." data-revision="1411759441309">
+    <div class="book" data-github="fabric8io/fabric8" data-level="4.2" data-basepath="." data-revision="1411845767423">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -883,11 +883,11 @@ Profiles are also versioned, which allows you to keep different versions of each
 <p>Each profile may also define none, one or more dependents. This allows a profile to specify any containers that must be active for it to start, an example would be requiring that
 a MongoDB container is active so that a profile can use it as a database.</p>
 <h3 id="profile-hierarchies"><a name="profile-hierarchies" class="anchor" href="#profile-hierarchies"><span class="fa fa-link"></span></a>Profile hierarchies</h3>
-<p>It is quite often that multiple profiles share similar bits of configuration. Its quite common for different applications to use common frameworks libraries etc. Defining everything from group up for each profile can be a real pain and is not that easy to maintain.
-To avoid having duplicate configuration across profiles and reduce the required maintenance, Fabric uses a hierarchical model for profiles, which allows you to build a generic profile which contains common configuration and then inherit the common bits.</p>
+<p>It is quite often that multiple profiles share similar bits of configuration. Its quite common for different applications to use common frameworks libraries etc. Defining everything from the ground up for each profile can be a real pain and is not that easy to maintain.
+To avoid having to duplicate configuration across profiles and reduce the required maintenance, Fabric uses a hierarchical model for profiles, which allows you to build a generic profile which contains common configuration and then inherit the common bits.</p>
 <p>The section below describes the profiles that are shipped with Fabric out of the box and are a good example of how profile hierarchies work.</p>
 <h3 id="out-of-the-box-profiles"><a name="out-of-the-box-profiles" class="anchor" href="#out-of-the-box-profiles"><span class="fa fa-link"></span></a>Out of the box profiles</h3>
-<p>Fabric provides a rich set of profiles *&quot;out of the box&quot; that can be used as the basic building blocks for definining your own profiles. The most important profiles are:</p>
+<p>Fabric provides a rich set of profiles <em>&quot;out of the box&quot;</em> that can be used as the basic building blocks for defining your own profiles. The most important profiles are:</p>
 <ul>
 <li><strong>default</strong> The default profile defines all the basic stuff that fabric needs to run. For example it defines the <em>fabric-agent</em> feature, the fabric registry url &amp; the list of maven repositories that can be used to download artifacts from.</li>
 <li><strong>karaf</strong> It is a child of <strong>default</strong> (so it doesn&apos;t need to define the same things again. It also defines the karaf feature repositories, that can be used for defining any karaf feature.</li>
@@ -973,7 +973,7 @@ profileWildcards = mongodb
 </code></pre><p>As soon as the profile is created you can modify the profile, using the commands that are described in the following sections of the document.</p>
 <h4 id="adding-or-removing-a-feature-to-a-profile"><a name="adding-or-removing-a-feature-to-a-profile" class="anchor" href="#adding-or-removing-a-feature-to-a-profile"><span class="fa fa-link"></span></a>Adding or removing a feature to a profile</h4>
 <p>In order to edit one of the existing profile you can use the <a href="commands/fabric-profile-edit.html">fabric:profile-edit</a> command.</p>
-<p>In this example I will use the command to add the <em>camel-jclouds</em> feature to the <strong>camel</strong> profile.</p>
+<p>In this example I will use the profile-edit command to add the <em>camel-jclouds</em> feature to the <strong>camel</strong> profile.</p>
 <pre><code>    fabric:profile-edit --features camel-jclouds camel
 </code></pre><p>After the command I can display again the profile and see how the camel profile looks like now. You should now be able to see the <em>camel-jclouds</em> feature in the list of features of the <strong>camel</strong> profile.</p>
 <pre><code>    Features :
@@ -981,10 +981,10 @@ profileWildcards = mongodb
         camel-blueprint/2.13.0
         camel-core/2.13.0
         fabric-camel/1.1.0
-</code></pre><p>If you want to remove a feature from the profile you can make use of the <strong>--delete</strong> option. So, if gor example you need to remove the <em>camel-jclouds</em> feature:</p>
+</code></pre><p>If you want to remove a feature from the profile you can make use of the <strong>--delete</strong> option. So, if for example you need to remove the <em>camel-jclouds</em> feature:</p>
 <pre><code>    fabric:profile-edit --delete --features camel-jclouds camel
 </code></pre><h4 id="modifying-a-configuration-pid-in-a-profile"><a name="modifying-a-configuration-pid-in-a-profile" class="anchor" href="#modifying-a-configuration-pid-in-a-profile"><span class="fa fa-link"></span></a>Modifying a configuration pid in a profile</h4>
-<p>A more complex example is when you need to modify the a configuration pid of a profile. A configuration pid is actually a list of key value pairs. So to edit or add a new key value pair to a specific pid you can use the <strong>-pid</strong> and specify the pid and key value in the following format <em>pid/key=value</em>.
+<p>A more complex example is when you need to modify a configuration pid of a profile. A configuration pid is actually a list of key value pairs. So to edit or add a new key value pair to a specific pid you can use the <strong>-pid</strong> and specify the pid and key value in the following format <em>pid/key=value</em>.
 In the following example, I will modify the <em>io.fabric8.agent</em> pid and change the maven repository list. The default profile should contain a section like this:</p>
 <pre><code>    Agent Properties :
           org.ops4j.pax.url.mvn.repositories= \
@@ -1002,7 +1002,7 @@ In the following example, I will modify the <em>io.fabric8.agent</em> pid and ch
 <pre><code>             Agent Properties :
                    org.ops4j.pax.url.mvn.repositories = http://repositorymanager.mylocalnetwork.net
 </code></pre><h3 id="profile-editor"><a name="profile-editor" class="anchor" href="#profile-editor"><span class="fa fa-link"></span></a>Profile Editor</h3>
-<p>The profile edit command is quite flexible, however in some cases, you would really prefer a more traditional way of editing. Mainly becasue:</p>
+<p>The profile edit command is quite flexible, however in some cases, you would really prefer a more traditional way of editing. Mainly because:</p>
 <ul>
 <li>You want to perform many changes at once</li>
 <li>It feels more natural</li>
@@ -1014,7 +1014,7 @@ In the following example, I will modify the <em>io.fabric8.agent</em> pid and ch
 But you can use it to also edit any other pid or resource in your profile. For example to edit the io.fabric8.maven pid of the fabric profile, you can simply:</p>
 <pre><code>  fabric:profile-edit --pid io.fabric8.maven fabric
 </code></pre><p><img src="/images/fabric/profile-edit-pid.png" alt="Editing a pid"></p>
-<p>A pretty similar approach applies to any resouce under the profile. For example, to edit the broker.xml of the mq-base profile:</p>
+<p>A pretty similar approach applies to any resource under the profile. For example, to edit the broker.xml of the mq-base profile:</p>
 <pre><code>  fabric:profile-edit --resource broker.xml mq-base
 </code></pre><p><img src="/images/fabric/profile-edit-resource.png" alt="Editing a pid"></p>
 <h3 id="profile-versions"><a name="profile-versions" class="anchor" href="#profile-versions"><span class="fa fa-link"></span></a>Profile versions</h3>
@@ -1046,10 +1046,10 @@ It describe how to modify profiles and explains how to perform single and rollin
 <object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/-2W5NwC2oAo?version=3&amp;hl=en_US&amp;rel=0"><param name="allowFullScreen" value="true"><param name="allowscriptaccess" value="always"><embed src="http://www.youtube.com/v/-2W5NwC2oAo?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></object>
 
 <h4 id="importing-and-exporting-profiles"><a name="importing-and-exporting-profiles" class="anchor" href="#importing-and-exporting-profiles"><span class="fa fa-link"></span></a>Importing and exporting profiles</h4>
-<p>There are cases where you have put quite a lot of effort in creating the profiles that much your needs and you want to store them somewhere.
+<p>There are cases where you have put quite a lot of effort in creating the profiles, so much that you want to package them up so that they can be stored or shared.
 A good example is when you move from the development environment to the staging or the production environment. You simply just don&apos;t want to go over the process of creating the profiles again.
 For such cases Fabric allows you export your profiles in text and also import them back. So you can safely store them or even import them to a version control system.</p>
-<p>To export the Fabric profiles you can use the <a href="commands/fabric-export.html">fabric:export</a></p>
+<p>To export the Fabric profiles you can use the <a href="commands/fabric-export.html">fabric:profile-export</a></p>
 <pre><code>     fabric:profile-export
 </code></pre><p>This command will export all the profiles to files. The default export location is the fabric/export folder under the karaf home directory. To change the default location you just need to specify the path as an argument:</p>
 <pre><code>     fabric:profile-export /path/to/my/export/location
@@ -1057,7 +1057,7 @@ For such cases Fabric allows you export your profiles in text and also import th
 <pre><code>    fabric:create
 </code></pre><p>to specify an other folder for importing to the registry you can simply use the <strong>--import-dir</strong> option. For example:</p>
 <pre><code>    fabric:create --import-dir /path/to/my/import/location
-</code></pre><p>Of course there are cases where you need to import profiles after fabric has been created. You can use the the <a href="commands/fabric-import-profile.html">fabric:export</a> as described below:</p>
+</code></pre><p>Of course there are cases where you need to import profiles after fabric has been created. You can use the the <a href="commands/fabric-import-profile.html">fabric:profile-import</a> as described below:</p>
 <pre><code>    fabric:profile-import /path/to/my/profiles.zip
 </code></pre><p>The <code>profile-import</code> command import profiles stored as zip files from url locations. You can also import using maven coordinates such as:</p>
 <pre><code>    fabric:profile-import mvn:com.foo/mystuff/1.0/zip/profile
@@ -1073,12 +1073,12 @@ For such cases Fabric allows you export your profiles in text and also import th
 <p>In the .properties files, you specify url locations for .zip files to be imported. For example fabric uses this to import additional profiles such as the quickstarts, by having a <code>io.fabric8.import.profiles.properties</code> file with the following content</p>
 <pre><code>importProfileURLs = ${env:FABRIC8_IMPORT_PROFILE_URLS?:mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${version:fabric}/zip/profile}
 </code></pre><p>The url above is using the <a href="http://fabric8.io/gitbook/propertyResolver.html#env" target="_blank">environment property resolver</a> to either load urls from the given environment variable, or if not provided, then use the default value which is <code>mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${version:fabric}/zip/profile</code>. Notice how the url uses the <code>?:</code> elvis operator so we can lookup the environment variable, and if not given, then fallback and use the default value. The value <code>${version:fabric}</code> will get replaced with the version of fabric8. </p>
-<p>The environment variable <code>FABRIC8_IMPORT_PROFILE_URLS</code> can be used to define custom profiles to be loaded instead of the quickstarts. Multiple urls can be separated bt comma. For example to load two custom profiles instead of the quickstarts, then the environment can be configured with:</p>
+<p>The environment variable <code>FABRIC8_IMPORT_PROFILE_URLS</code> can be used to define custom profiles to be loaded instead of the quickstarts. Multiple urls are separated by a comma. For example to load two custom profiles instead of the quickstarts, then the environment can be configured with:</p>
 <pre><code>export FABRIC8_IMPORT_PROFILE_URLS=&quot;mvn:com.foo/myprofiles/1.0,mvn:com.foo/myotherprofiles/1.0&quot;
 </code></pre><h5 id="skipping-importing-some-folders"><a name="skipping-importing-some-folders" class="anchor" href="#skipping-importing-some-folders"><span class="fa fa-link"></span></a>Skipping importing some folders</h5>
 <p>If for some reason you want to skip importing some folders (profiles) from a .zip file, you can include an empty <code>.skipimport</code> file in the folder to skip. </p>
 <h5 id="disabling-quickstarts"><a name="disabling-quickstarts" class="anchor" href="#disabling-quickstarts"><span class="fa fa-link"></span></a>Disabling quickstarts</h5>
-<p>This allows easily to disable importing the quickstarts, by either deleting the <code>io.fabric8.import.profiles.properties</code> file, or disable the above line,  by prefixing the line with the <code>#</code> character, or setting the environment variable <code>FABRIC8_IMPORT_PROFILE_URLS</code> to the value <code>false</code>. </p>
+<p>The import of the quickstart profiles is easily disabled, by either deleting the <code>io.fabric8.import.profiles.properties</code> file, or disable the above line,  by prefixing the line with the <code>#</code> character, or setting the environment variable <code>FABRIC8_IMPORT_PROFILE_URLS</code> to the value <code>false</code>. </p>
 <h4 id="documenting-profiles"><a name="documenting-profiles" class="anchor" href="#documenting-profiles"><span class="fa fa-link"></span></a>Documenting profiles</h4>
 <p>A profile can include documentation by including the following files</p>
 <ol>
