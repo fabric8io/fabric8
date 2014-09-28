@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="4.2" data-basepath="." data-revision="1411845767423">
+    <div class="book" data-github="fabric8io/fabric8" data-level="4.2" data-basepath="." data-revision="1411932177142">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -1009,14 +1009,14 @@ In the following example, I will modify the <em>io.fabric8.agent</em> pid and ch
 </ul>
 <p>This is why fabric provides a profile editor embedded to your shell. You can use it, like:</p>
 <pre><code>  fabric:profile-edit default (with no options)
-</code></pre><p><img src="/images/fabric/profile-edit.png" alt="Opening the profile inside the editor"></p>
+</code></pre><p><img src="/images/profile-edit.png" alt="Opening the profile inside the editor"></p>
 <p>The editor supports the basic editor functionality like undo, redo, forward/backward search, highlighting etc. What you are actually editing is the content of the io.fabric8.agent pid.
 But you can use it to also edit any other pid or resource in your profile. For example to edit the io.fabric8.maven pid of the fabric profile, you can simply:</p>
 <pre><code>  fabric:profile-edit --pid io.fabric8.maven fabric
-</code></pre><p><img src="/images/fabric/profile-edit-pid.png" alt="Editing a pid"></p>
+</code></pre><p><img src="/images/profile-edit-pid.png" alt="Editing a pid"></p>
 <p>A pretty similar approach applies to any resource under the profile. For example, to edit the broker.xml of the mq-base profile:</p>
 <pre><code>  fabric:profile-edit --resource broker.xml mq-base
-</code></pre><p><img src="/images/fabric/profile-edit-resource.png" alt="Editing a pid"></p>
+</code></pre><p><img src="/images/profile-edit-resource.png" alt="Editing a pid"></p>
 <h3 id="profile-versions"><a name="profile-versions" class="anchor" href="#profile-versions"><span class="fa fa-link"></span></a>Profile versions</h3>
 <p>Every profile has at least one version. When assigning a profile to a container, you actually assign both the profile and the version. The <a href="fabric-agent.html">fabric-agent</a>, will choose the defined version and retrieve all the information provided by the specific version of the profile.</p>
 <p>Any change to a profile, will take immediate effect. This means that if there are containers that are assigned the version of a profile that was just modify will pick up the change immediately.

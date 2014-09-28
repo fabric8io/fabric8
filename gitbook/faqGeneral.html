@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="8.1" data-basepath="." data-revision="1411845767423">
+    <div class="book" data-github="fabric8io/fabric8" data-level="8.1" data-basepath="." data-revision="1411932177142">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -879,6 +879,12 @@
 <p>Try reading the <a href="http://fabric8.io/gitbook/overview.html" target="_blank">overview</a> to see if that helps give you an idea what fabric8 is.</p>
 <h4 id="what-java-versions-is-supported-"><a name="what-java-versions-is-supported-" class="anchor" href="#what-java-versions-is-supported-"><span class="fa fa-link"></span></a>What Java versions is supported?</h4>
 <p>fabric8 runs on Java 7 and 8. </p>
+<h4 id="is-windows-supported"><a name="is-windows-supported" class="anchor" href="#is-windows-supported"><span class="fa fa-link"></span></a>Is Windows supported</h4>
+<p>Windows is only partially supported. </p>
+<p>For example the <a href="http://fabric8.io/gitbook/processManager.html#process-management" target="_blank">process manager</a> does not yet support windows; as it relies on running scripts which currently only supports linux systems. Likewise creaitng containers using <a href="http://fabric8.io/gitbook/sshContainers.html" target="_blank">SSH</a> is not supported by Windows. Neither is <a href="http://fabric8.io/gitbook/docker.html#docker-containers" target="_blank">docker</a> supported by Windows. </p>
+<p>We recommend using a linux based system for production. </p>
+<p>For development using Windows can be used but there are these known limitations.
+Windows users may consider using a VM with a linux distribution for development.</p>
 <h4 id="deprecations"><a name="deprecations" class="anchor" href="#deprecations"><span class="fa fa-link"></span></a>Deprecations</h4>
 <p>FAB (Fuse Application Bundles) has been deprecated for the 1.1 release, and will be removed in the 1.2 release.</p>
 <p>The long term replacement is the <a href="http://fabric8.io/gitbook/osgiResolver.html" target="_blank">OSGi Resolver</a> or if you wish to work with jars rather than bundles then use the <a href="(http://fabric8.io/gitbook/javaContainer.html">Java Container</a></p>
