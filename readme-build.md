@@ -104,7 +104,13 @@ The documentation is compiled into a book using [GitBook](https://github.com/Git
 
 First install gitbook using npm
 
-    npm install gitbook -g
+    npm install -g gitbook
+
+And then install the anchor plugin
+
+    sudo npm install -g gitbook-plugin-anchors    
+
+Note on osx you may need to run these commands with `sudo`
 
 And then build the book locally using
 
