@@ -126,6 +126,19 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     @Parameter(property = "retryFailedDeploymentCount", defaultValue = "1")
     private int retryFailedDeploymentCount;
 
+
+    /**
+     * Type to use for the project artifact bundle reference
+     */
+    @Parameter(property = "fabric8.artifactBundleType")
+    private String artifactBundleType;
+
+    /**
+     * Classifier to use for the project artifact bundle reference
+     */
+    @Parameter(property = "fabric8.artifactBundleClassifier")
+    private String artifactBundleClassifier;
+
     @VisibleForTesting
     Server fabricServer;
 
@@ -139,6 +152,21 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             ProjectRequirements requirements = new ProjectRequirements();
             if (isIncludeArtifact()) {
                 DependencyDTO rootDependency = loadRootDependency();
+
+                if(artifactBundleType != null) {
+                    rootDependency.setType(artifactBundleType);
+                }
+
+                if(artifactBundleClassifier != null) {
+                    if (artifactBundleType != null) {
+                        rootDependency.setClassifier(artifactBundleClassifier);
+                    } else {
+                        throw new MojoFailureException(
+                                "The property artifactBundleClassifier was specified as '" + artifactBundleClassifier
+                                        +"' without also specifying artifactBundleType");
+                    }
+                }
+
                 requirements.setRootDependency(rootDependency);
             }
             configureRequirements(requirements);
