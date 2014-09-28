@@ -207,6 +207,7 @@ public class ArchetypeTest {
                 "--settings",
                 mavenSettingsFile.getCanonicalPath(),
                 "clean",
+                "install",
                 "fabric8:deploy",
                 property("fabric8.profile", profileId),
                 property("fabric8.minInstanceCount", "0")
