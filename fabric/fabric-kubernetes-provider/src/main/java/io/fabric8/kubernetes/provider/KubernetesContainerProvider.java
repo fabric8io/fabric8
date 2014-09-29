@@ -102,7 +102,7 @@ import static io.fabric8.kubernetes.provider.KubernetesConstants.LABELS;
 @Properties(
         @Property(name = "fabric.container.protocol", value = KubernetesConstants.SCHEME)
 )
-public class KubernetesContainerProvider extends DockerContainerProviderSupport implements ContainerProvider<CreateKubernetesContainerOptions, CreateKubernetesContainerMetadata>, ContainerAutoScalerFactory {
+public class KubernetesContainerProvider extends DockerContainerProviderSupport implements ContainerProvider<CreateKubernetesContainerOptions, CreateKubernetesContainerMetadata> {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesContainerProvider.class);
 
@@ -821,12 +821,6 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
             return null;
         }
     }
-
-    @Override
-    public ContainerAutoScaler createAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
-        return new KubernetesAutoScaler(this);
-    }
-
 
     protected FabricService getFabricService() {
         return fabricService.get();

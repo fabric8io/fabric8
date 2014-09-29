@@ -17,8 +17,11 @@
  */
 package io.fabric8.internal.autoscale;
 
+import io.fabric8.api.AutoScaleStatus;
 import io.fabric8.api.Container;
+import io.fabric8.api.Containers;
 import io.fabric8.api.FabricRequirements;
+import io.fabric8.api.FabricService;
 import io.fabric8.api.HostConfiguration;
 import io.fabric8.api.HostScalingRequirements;
 import io.fabric8.api.ProfileRequirements;
@@ -154,5 +157,29 @@ public class AutoScalers {
             }
         }
         return answer;
+    }
+
+    /**
+     * Returns true if the requirements are satisfied for the given profile requirements; updating the auto scale status
+     * accordingly
+     */
+    public static boolean requirementsSatisfied(FabricService service, FabricRequirements requirements, ProfileRequirements profileRequirement, AutoScaleStatus status) {
+        String profile = profileRequirement.getProfile();
+        List<String> dependentProfiles = profileRequirement.getDependentProfiles();
+        if (dependentProfiles != null) {
+            for (String dependentProfile : dependentProfiles) {
+                ProfileRequirements dependentProfileRequirements = requirements.getOrCreateProfileRequirement(dependentProfile);
+                Integer minimumInstances = dependentProfileRequirements.getMinimumInstances();
+                if (minimumInstances != null) {
+                    List<Container> containers = Containers.aliveAndSuccessfulContainersForProfile(dependentProfile, service);
+                    int dependentSize = containers.size();
+                    if (minimumInstances > dependentSize) {
+                        status.profileStatus(profile).missingDependency(dependentProfile, dependentSize, minimumInstances);
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 }

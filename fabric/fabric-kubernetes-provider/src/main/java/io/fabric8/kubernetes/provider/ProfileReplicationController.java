@@ -13,14 +13,10 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.autoscale;
+package io.fabric8.kubernetes.provider;
 
-import io.fabric8.api.AutoScaleProfileStatus;
-import io.fabric8.api.AutoScaleRequest;
 import io.fabric8.api.AutoScaleStatus;
-import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
-import io.fabric8.api.Containers;
 import io.fabric8.api.DataStore;
 import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.FabricService;
@@ -30,12 +26,11 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.Closeables;
-import io.fabric8.common.util.Strings;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.internal.ZooKeeperGroup;
 import io.fabric8.internal.RequirementsJson;
-import io.fabric8.internal.autoscale.AutoScalers;
+import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
 import org.apache.curator.framework.CuratorFramework;
@@ -49,28 +44,28 @@ import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * A Fabric auto-scaler which when it becomes the master auto-scales
- * profiles according to their requirements defined via
- * {@link FabricService#setRequirements(io.fabric8.api.FabricRequirements)}
+ * Maps any requirements defined via
+ * {@link io.fabric8.api.FabricService#setRequirements(io.fabric8.api.FabricRequirements)}
+ * to kubernetes replication controllers
  */
 @ThreadSafe
-@Component(name = "io.fabric8.autoscale", label = "Fabric8 auto scaler", immediate = true,
+@Component(name = "io.fabric8.kubernetes.ProfileReplicationController", label = "Fabric8 profile replication controller", immediate = true,
         policy = ConfigurationPolicy.OPTIONAL, metatype = true)
-public final class AutoScaleController extends AbstractComponent implements GroupListener<AutoScalerNode> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AutoScaleController.class);
+public final class ProfileReplicationController extends AbstractComponent implements GroupListener<ProfileReplicationControllerNode> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProfileReplicationController.class);
 
     @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = FabricService.class, bind = "bindFabricService", unbind = "unbindFabricService")
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = KubernetesService.class, bind = "bindKubernetesService", unbind = "unbindKubernetesService")
+    private final ValidatingReference<KubernetesService> kubernetesService = new ValidatingReference<KubernetesService>();
 
     @Property(name = "pollTime", longValue = 10000,
             label = "Poll period",
@@ -80,7 +75,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
     private AtomicReference<Timer> timer = new AtomicReference<Timer>();
 
     @GuardedBy("volatile")
-    private volatile Group<AutoScalerNode> group;
+    private volatile Group<ProfileReplicationControllerNode> group;
 
     private Runnable runnable = new Runnable() {
         @Override
@@ -94,7 +89,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
     void activate() {
         CuratorFramework curator = this.curator.get();
         enableMasterZkCache(curator);
-        group = new ZooKeeperGroup<AutoScalerNode>(curator, ZkPath.AUTO_SCALE_CLUSTER.getPath(), AutoScalerNode.class);
+        group = new ZooKeeperGroup<ProfileReplicationControllerNode>(curator, ZkPath.AUTO_SCALE_CLUSTER.getPath(), ProfileReplicationControllerNode.class);
         group.add(this);
         group.update(createState());
         group.start();
@@ -113,23 +108,23 @@ public final class AutoScaleController extends AbstractComponent implements Grou
     }
 
     @Override
-    public void groupEvent(Group<AutoScalerNode> group, GroupEvent event) {
+    public void groupEvent(Group<ProfileReplicationControllerNode> group, GroupEvent event) {
         DataStore dataStore = fabricService.get().adapt(DataStore.class);
         switch (event) {
             case CONNECTED:
             case CHANGED:
                 if (isValid()) {
-                    AutoScalerNode state = createState();
+                    ProfileReplicationControllerNode state = createState();
                     try {
                         if (group.isMaster()) {
                             enableMasterZkCache(curator.get());
-                            LOGGER.info("AutoScaleController is the master");
+                            LOGGER.info("ProfileReplicationController is the master");
                             group.update(state);
                             dataStore.trackConfiguration(runnable);
                             enableTimer();
                             onConfigurationChanged();
                         } else {
-                            LOGGER.info("AutoScaleController is not the master");
+                            LOGGER.info("ProfileReplicationController is not the master");
                             group.update(state);
                             disableTimer();
                             dataStore.untrackConfiguration(runnable);
@@ -161,18 +156,23 @@ public final class AutoScaleController extends AbstractComponent implements Grou
     }
 
     protected void enableTimer() {
-        Timer newTimer = new Timer("fabric8-autoscaler");
+        Timer newTimer = new Timer("fabric8-profile-replicationController");
         if (timer.compareAndSet(null, newTimer)) {
             TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
-                    LOGGER.debug("autoscale timer");
+                    LOGGER.debug("fabric8-profile-replicationController timer");
                     autoScale();
                 }
             };
             newTimer.schedule(timerTask, pollTime, pollTime);
         }
     }
+
+    public Kubernetes getKubernetes() {
+        return KubernetesService.getKubernetes(kubernetesService.getOptional());
+    }
+
 
     protected void disableTimer() {
         Timer oldValue = timer.getAndSet(null);
@@ -194,12 +194,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
         if (profileRequirements != null && !profileRequirements.isEmpty()) {
             AutoScaleStatus status = new AutoScaleStatus();
             for (ProfileRequirements profileRequirement : profileRequirements) {
-                ContainerAutoScaler autoScaler = createAutoScaler(requirements, profileRequirement);
-                if (autoScaler != null) {
-                    autoScaleProfile(service, autoScaler, requirements, profileRequirement, status);
-                } else {
-                    LOGGER.warn("No ContainerAutoScaler available for profile " + profileRequirement.getProfile());
-                }
+                autoScaleProfile(service, requirements, profileRequirement, status);
             }
             if (zkMasterCache != null) {
                 try {
@@ -225,82 +220,18 @@ public final class AutoScaleController extends AbstractComponent implements Grou
         }
     }
 
-    private void autoScaleProfile(FabricService service, final ContainerAutoScaler autoScaler, FabricRequirements requirements, ProfileRequirements profileRequirement, AutoScaleStatus status) {
+    private void autoScaleProfile(FabricService service, FabricRequirements requirements, ProfileRequirements profileRequirement, AutoScaleStatus status) {
         final String profile = profileRequirement.getProfile();
         Integer minimumInstances = profileRequirement.getMinimumInstances();
         Integer maximumInstances = profileRequirement.getMaximumInstances();
         if (maximumInstances != null || minimumInstances != null) {
-            if (maximumInstances != null) {
-                List<Container> containers = Containers.aliveAndSuccessfulContainersForProfile(profile, service);
-                int count = containers.size();
-                int delta = count - maximumInstances;
-                if (delta > 0) {
-                    stopContainers(containers, autoScaler, requirements, profileRequirement, status, delta);
-                }
-            }
-            if (minimumInstances != null) {
-                // lets check if we need to provision more
-                List<Container> containers = Containers.aliveOrPendingContainersForProfile(profile, service);
-                int count = containers.size();
-                int delta = minimumInstances - count;
-                try {
-                    AutoScaleProfileStatus profileStatus = status.profileStatus(profile);
-                    if (delta < 0) {
-                        profileStatus.destroyingContainer();
-                        autoScaler.destroyContainers(profile, -delta, containers);
-                    } else if (delta > 0) {
-                        if (AutoScalers.requirementsSatisfied(service, requirements, profileRequirement, status)) {
-                            profileStatus.creatingContainer();
-                            String requirementsVersion = requirements.getVersion();
-                            final String version = Strings.isNotBlank(requirementsVersion) ? requirementsVersion : service.getDefaultVersionId();
-                            final AutoScaleRequest command = new AutoScaleRequest(service, version, profile, delta, requirements, profileRequirement, status);
-                            new Thread("Creating container for " + command.getProfile()) {
-                                @Override
-                                public void run() {
-                                    try {
-                                        autoScaler.createContainers(command);
-                                    } catch (Exception e) {
-                                        LOGGER.error("Failed to create container of profile: " + profile + ". Caught: " + e, e);
-                                    }
-                                }
-                            }.start();
-                        }
-                    } else {
-                        profileStatus.provisioned();
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("Failed to auto-scale " + profile + ". Caught: " + e, e);
-                }
-            }
-        }
-    }
-
-    protected void stopContainers(List<Container> containers, ContainerAutoScaler autoScaler, FabricRequirements requirements, ProfileRequirements profileRequirement, AutoScaleStatus status, int delta) {
-        final String profile = profileRequirement.getProfile();
-        AutoScaleProfileStatus profileStatus = status.profileStatus(profile);
-
-        // TODO sort the containers using some kind of requirements sorting order
-        List<Container> sorted = new ArrayList<>(containers);
-
-        // lets stop the ones at the end of the list by default
-        Collections.reverse(sorted);
-
-        List<String> stoppingContainerIds = new ArrayList<>();
-        for (int i = 0; i < delta; i++) {
-            if (i >= sorted.size()) {
-                break;
-            }
-            Container container = sorted.get(i);
-            stoppingContainerIds.add(container.getId());
-            profileStatus.stoppingContainers(stoppingContainerIds);
-            container.stop(true);
-
+            // TODO check for a replicationController; create one if not already created etc
         }
     }
 
 
-    private AutoScalerNode createState() {
-        AutoScalerNode state = new AutoScalerNode();
+    private ProfileReplicationControllerNode createState() {
+        ProfileReplicationControllerNode state = new ProfileReplicationControllerNode();
         return state;
     }
 
@@ -318,5 +249,13 @@ public final class AutoScaleController extends AbstractComponent implements Grou
 
     void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
+    }
+
+    void bindKubernetesService(KubernetesService kubernetesService) {
+        this.kubernetesService.bind(kubernetesService);
+    }
+
+    void unbindKubernetesService(KubernetesService kubernetesService) {
+        this.kubernetesService.unbind(kubernetesService);
     }
 }
