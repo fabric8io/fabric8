@@ -229,7 +229,7 @@
         <hawtio-dockerui-version>1.0.4</hawtio-dockerui-version>
         <hawtio-kibana-version>3.1.0-SNAPSHOT</hawtio-kibana-version>
         <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
-        <hawtio-version>1.4.20</hawtio-version>
+        <hawtio-version>1.4.21</hawtio-version>
         <influxdb-version>1.2</influxdb-version>
         <jackson-version>1.9.2</jackson-version>
         <jackson2-version>2.4.1</jackson2-version>
