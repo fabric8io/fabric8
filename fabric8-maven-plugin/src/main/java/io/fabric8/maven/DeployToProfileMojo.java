@@ -56,6 +56,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.artifact.ProjectArtifactMetadata;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
@@ -73,7 +74,8 @@ import org.jolokia.client.request.J4pSearchResponse;
 /**
  * Generates the dependency configuration for the current project so we can HTTP POST the JSON into the fabric8 profile
  */
-@Mojo(name = "deploy", defaultPhase = LifecyclePhase.INSTALL, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "deploy", defaultPhase = LifecyclePhase.INSTALL,
+        requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 @Execute(phase = LifecyclePhase.INSTALL)
 public class DeployToProfileMojo extends AbstractProfileMojo {
 
@@ -99,6 +101,9 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
 
     @Component
     ArtifactDeployer deployer;
+
+    @Parameter(defaultValue = "${executedProject}")
+    MavenProject executedProject;
 
     /**
      * The server ID in ~/.m2/settings/xml used for the username and password to login to
@@ -126,19 +131,6 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
     @Parameter(property = "retryFailedDeploymentCount", defaultValue = "1")
     private int retryFailedDeploymentCount;
 
-
-    /**
-     * Type to use for the project artifact bundle reference
-     */
-    @Parameter(property = "fabric8.artifactBundleType")
-    private String artifactBundleType;
-
-    /**
-     * Classifier to use for the project artifact bundle reference
-     */
-    @Parameter(property = "fabric8.artifactBundleClassifier")
-    private String artifactBundleClassifier;
-
     @VisibleForTesting
     Server fabricServer;
 
@@ -153,16 +145,16 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             if (isIncludeArtifact()) {
                 DependencyDTO rootDependency = loadRootDependency();
 
-                if(artifactBundleType != null) {
-                    rootDependency.setType(artifactBundleType);
+                if(getArtifactBundleType() != null) {
+                    rootDependency.setType(getArtifactBundleType());
                 }
 
-                if(artifactBundleClassifier != null) {
-                    if (artifactBundleType != null) {
-                        rootDependency.setClassifier(artifactBundleClassifier);
+                if(getArtifactBundleClassifier() != null) {
+                    if (getArtifactBundleClassifier() != null) {
+                        rootDependency.setClassifier(getArtifactBundleClassifier());
                     } else {
                         throw new MojoFailureException(
-                                "The property artifactBundleClassifier was specified as '" + artifactBundleClassifier
+                                "The property artifactBundleClassifier was specified as '" + getArtifactBundleClassifier()
                                         +"' without also specifying artifactBundleType");
                     }
                 }
@@ -318,8 +310,7 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
         String packaging = project.getPackaging();
         File pomFile = project.getFile();
 
-        @SuppressWarnings("unchecked")
-        List<Artifact> attachedArtifacts = project.getAttachedArtifacts();
+        List<Artifact> attachedArtifacts = executedProject.getAttachedArtifacts();
 
         DefaultRepositoryLayout layout = new DefaultRepositoryLayout();
         ArtifactRepository repo = new DefaultArtifactRepository(serverId, uri, layout);
