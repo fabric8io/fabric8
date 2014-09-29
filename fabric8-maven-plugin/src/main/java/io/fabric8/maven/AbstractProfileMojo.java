@@ -237,6 +237,14 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     @Parameter(property = "fabric8.replaceReadmeLinksPrefix")
     protected String replaceReadmeLinksPrefix;
 
+    public String getArtifactBundleType() {
+        return artifactBundleType;
+    }
+
+    public String getArtifactBundleClassifier() {
+        return artifactBundleClassifier;
+    }
+
     protected static boolean isFile(File file) {
         return file != null && file.exists() && file.isFile();
     }
