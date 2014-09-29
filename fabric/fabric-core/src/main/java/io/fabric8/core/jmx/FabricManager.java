@@ -851,12 +851,31 @@ public final class FabricManager implements FabricManagerMBean {
 
     @Override
     public Map<String, Object> getProfile(String versionId, String profileId) {
-        return getProfile(versionId, profileId, BeanUtils.getFields(Profile.class));
+        return getProfile(versionId, profileId, true);
+    }
+
+    @Override
+    public Map<String, Object> getProfile(String versionId, String profileId, boolean mandatory) {
+        return doGetProfile(versionId, profileId, BeanUtils.getFields(Profile.class), mandatory);
     }
 
     public Map<String, Object> getProfile(String versionId, String profileId, List<String> fields) {
+        return doGetProfile(versionId, profileId, BeanUtils.getFields(Profile.class), true);
+    }
+
+    Map<String, Object> doGetProfile(String versionId, String profileId, List<String> fields, boolean mandatory) {
         Version version = profileService.getVersion(versionId);
-        Profile profile = version.getRequiredProfile(profileId);
+
+        Profile profile;
+        if (mandatory) {
+            profile = version.getRequiredProfile(profileId);
+        } else {
+            profile = version.getProfile(profileId);
+        }
+        if (profile == null) {
+            return null;
+        }
+
         Map<String, Object> answer = BeanUtils.convertProfileToMap(fabricService, profile, fields);
         String iconURLField = "iconURL";
         if (fields.contains(iconURLField) && !profile.isOverlay()) {
