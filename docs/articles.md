@@ -12,4 +12,5 @@
 
 ### Videos
 
-There are various demos of fabric8 in the [JBoss Fuse demo video album](https://vimeo.com/album/2635012)
+* [JBoss Fuse demo video album](https://vimeo.com/album/2635012) has various demos of fabric8
+
