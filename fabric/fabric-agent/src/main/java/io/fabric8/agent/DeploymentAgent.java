@@ -244,6 +244,8 @@ public class DeploymentAgent implements ManagedService {
 
     public void start() throws IOException {
         LOGGER.info("Starting DeploymentAgent");
+        updateStatus("starting", null);
+
         loadBundleChecksums();
         loadLibChecksums(LIB_PATH, libChecksums);
         loadLibChecksums(LIB_ENDORSED_PATH, endorsedChecksums);
@@ -252,6 +254,8 @@ public class DeploymentAgent implements ManagedService {
     }
 
     public void stop() throws InterruptedException {
+        updateStatus("stopping", null);
+
         LOGGER.info("Stopping DeploymentAgent");
         // We can't wait for the threads to finish because the agent needs to be able to
         // update itself and this would cause a deadlock
@@ -898,6 +902,7 @@ public class DeploymentAgent implements ManagedService {
         }
 
         if (!toRefresh.isEmpty()) {
+            updateStatus("finalizing (refreshing)", null);
             refreshPackages(toRefresh);
         }
 
@@ -912,6 +917,9 @@ public class DeploymentAgent implements ManagedService {
                     toResolve.add(bundle);
                 }
             }
+        }
+        if (!toResolve.isEmpty()) {
+            updateStatus("finalizing (resolving)", null);
         }
         systemBundleContext.getBundle().adapt(FrameworkWiring.class).resolveBundles(toResolve);
 
@@ -946,6 +954,9 @@ public class DeploymentAgent implements ManagedService {
         // make sure those important bundles are started first and minimize the problem.
         List<Throwable> exceptions = new ArrayList<Throwable>();
         LOGGER.info("Starting bundles:");
+        if (!firstSetToStart.isEmpty()) {
+            updateStatus("finalizing (starting)", null);
+        }
         // TODO: use wiring here instead of sorting
         for (Resource resource : firstSetToStart) {
             Bundle bundle = resToBnd.get(resource);
