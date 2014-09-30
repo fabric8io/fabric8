@@ -15,14 +15,7 @@
  */
 package io.fabric8.boot.commands;
 
-import io.fabric8.api.ContainerOptions;
-import io.fabric8.api.CreateEnsembleOptions;
-import io.fabric8.api.FabricService;
-import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.ServiceProxy;
-import io.fabric8.api.ZkDefs;
-import io.fabric8.api.ZooKeeperClusterBootstrap;
-import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.api.*;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.utils.Ports;
 import io.fabric8.utils.shell.ShellUtils;
@@ -52,7 +45,7 @@ import com.google.common.base.Strings;
 @Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble)", detailedDescription = "classpath:create.txt")
 class CreateAction extends AbstractAction {
 
-    private static final String GIT_REMOTE_URL = "gitRemoteUrl";
+    private static final String GIT_REMOTE_URL = Constants.GIT_REMOTE_URL;
     private static final String GIT_REMOTE_USER = "gitRemoteUser";
     private static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
 

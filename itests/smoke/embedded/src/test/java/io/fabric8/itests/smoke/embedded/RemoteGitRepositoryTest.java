@@ -115,13 +115,13 @@ public class RemoteGitRepositoryTest {
         ConfigurationAdmin configAdmin = ServiceLocator.getRequiredService(ConfigurationAdmin.class);
         Configuration config = configAdmin.getConfiguration(Constants.DATASTORE_PID);
         Dictionary<String, Object> properties = config.getProperties();
-        properties.put("configuredUrl", remoteUrl.toExternalForm());
+        properties.put(Constants.GIT_REMOTE_URL, remoteUrl.toExternalForm());
         config.update(properties);
         
         // Wait for the configuredUrl to show up the {@link ProfileRegistry}
         ProfileRegistry profileRegistry = ServiceLocator.awaitService(ProfileRegistry.class);
         Map<String, String> dsprops = profileRegistry.getDataStoreProperties();
-        while (!dsprops.containsKey("configuredUrl")) {
+        while (!dsprops.containsKey(Constants.GIT_REMOTE_URL)) {
             Thread.sleep(200);
             profileRegistry = ServiceLocator.awaitService(ProfileRegistry.class);
             dsprops = profileRegistry.getDataStoreProperties();
@@ -133,13 +133,13 @@ public class RemoteGitRepositoryTest {
         ConfigurationAdmin configAdmin = ServiceLocator.getRequiredService(ConfigurationAdmin.class);
         Configuration config = configAdmin.getConfiguration(Constants.DATASTORE_PID);
         Dictionary<String, Object> properties = config.getProperties();
-        properties.remove("configuredUrl");
+        properties.remove(Constants.GIT_REMOTE_URL);
         config.update(properties);
         
         // Wait for the configuredUrl to be removed from the {@link ProfileRegistry}
         ProfileRegistry profileRegistry = ServiceLocator.awaitService(ProfileRegistry.class);
         Map<String, String> dsprops = profileRegistry.getDataStoreProperties();
-        while (dsprops.containsKey("configuredUrl")) {
+        while (dsprops.containsKey(Constants.GIT_REMOTE_URL)) {
             Thread.sleep(200);
             profileRegistry = ServiceLocator.awaitService(ProfileRegistry.class);
             dsprops = profileRegistry.getDataStoreProperties();
