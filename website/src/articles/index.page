@@ -7,7 +7,7 @@ title: fabric8 articles and videos
 
 ${unescape(loadText(new FileInputStream("../docs/articles.md")))}
 
-      </div>
-    </div>
   </div>
+    </div>
+      </div>
 
