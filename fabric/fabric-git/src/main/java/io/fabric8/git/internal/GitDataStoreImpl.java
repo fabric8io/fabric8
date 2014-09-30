@@ -512,6 +512,10 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             GitOperation<List<String>> gitop = new GitOperation<List<String>>() {
                 public List<String> call(Git git, GitContext context) throws Exception {
                     List<String> result = new ArrayList<>(versions);
+                    // we do not want to expose master branch as a version
+                    if (result.contains(GitHelpers.MASTER_BRANCH)) {
+                        result.remove(GitHelpers.MASTER_BRANCH);
+                    }
                     Collections.sort(result, VersionSequence.getComparator());
                     return Collections.unmodifiableList(result);
                 }
