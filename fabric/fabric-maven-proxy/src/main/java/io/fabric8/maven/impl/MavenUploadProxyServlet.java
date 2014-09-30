@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 public class MavenUploadProxyServlet extends MavenDownloadProxyServlet {
 
     public MavenUploadProxyServlet(RuntimeProperties runtimeProperties, String localRepository, List<String> remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts, ProjectDeployer projectDeployer) {
-        super(runtimeProperties, localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, proxyNonProxyHosts, projectDeployer);
+        super(runtimeProperties, localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, proxyNonProxyHosts, projectDeployer, 0);
     }
 
     @Override

@@ -15,6 +15,17 @@
  */
 package io.fabric8.maven.impl;
 
+import java.io.File;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
@@ -27,16 +38,19 @@ import io.fabric8.zookeeper.ZkPath;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
-import org.apache.felix.scr.annotations.*;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.PropertyOption;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.create;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.deleteSafe;
@@ -108,6 +122,8 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     private String nonProxyHosts;
     @Property(name = "name", label = "Container Name", description = "The name of the container", value = "${runtime.id}")
     private String name;
+    @Property(name = "threadMaximumPoolSize", label = "Thread pool maximum size", description = "Maximum number of concurrent threads used for the DownloadMavenProxy servlet", intValue = 5)
+    private int threadMaximumPoolSize;
 
     @GuardedBy("AtomicBoolean") private final AtomicBoolean connected = new AtomicBoolean(false);
 
@@ -122,7 +138,7 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     @Activate
     void init(Map<String, ?> configuration) throws Exception {
         configurer.configure(configuration, this);
-        this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(runtimeProperties.get(), localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts, projectDeployer.get());
+        this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(runtimeProperties.get(), localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts, projectDeployer.get(), threadMaximumPoolSize);
         this.mavenDownloadProxyServlet.start();
         this.mavenUploadProxyServlet = new MavenUploadProxyServlet(runtimeProperties.get(), localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts, projectDeployer.get());
         this.mavenUploadProxyServlet.start();

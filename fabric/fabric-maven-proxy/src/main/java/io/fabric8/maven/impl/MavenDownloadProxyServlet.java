@@ -15,7 +15,6 @@
  */
 package io.fabric8.maven.impl;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -25,9 +24,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import javax.servlet.ServletException;
@@ -39,18 +40,44 @@ import io.fabric8.api.RuntimeProperties;
 import io.fabric8.common.util.Closeables;
 import io.fabric8.common.util.Files;
 import io.fabric8.deployer.ProjectDeployer;
-
+import io.fabric8.utils.ThreadFactory;
 
 public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
 
     private final RuntimeProperties runtimeProperties;
     private final ConcurrentMap<String, ArtifactDownloadFuture> requestMap = new ConcurrentHashMap<String, ArtifactDownloadFuture>();
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final int threadMaximumPoolSize;
+    private ThreadPoolExecutor executorService;
 
-
-    public MavenDownloadProxyServlet(RuntimeProperties runtimeProperties, String localRepository, List<String> remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts, ProjectDeployer projectDeployer) {
+    public MavenDownloadProxyServlet(RuntimeProperties runtimeProperties, String localRepository, List<String> remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy,
+                                     String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts,
+                                     ProjectDeployer projectDeployer, int threadMaximumPoolSize) {
         super(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, proxyNonProxyHosts, projectDeployer);
         this.runtimeProperties = runtimeProperties;
+        this.threadMaximumPoolSize = threadMaximumPoolSize;
+    }
+
+    @Override
+    public synchronized void start() throws IOException {
+        // only the download servlet has a thread pool
+        if (threadMaximumPoolSize > 0) {
+            // lets use a synchronous queue so it waits for the other threads to be available before handing over
+            // we are waiting for the task to be done anyway in doGet so there is no point in having a worker queue
+            executorService = new ThreadPoolExecutor(1, threadMaximumPoolSize, 60, TimeUnit.SECONDS,
+                    new SynchronousQueue<Runnable>(), new ThreadFactory("MavenDownloadProxyServlet"));
+            // lets allow core threads to timeout also, so if there is no download for a while then no threads is wasted
+            executorService.allowCoreThreadTimeOut(true);
+        }
+
+        super.start();
+    }
+
+    @Override
+    public synchronized void stop() {
+        if (executorService != null) {
+            executorService.shutdownNow();
+        }
+        super.stop();
     }
 
     @Override
@@ -66,7 +93,6 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         InputStream is = null;
-        BufferedInputStream bis = null;
         File artifactFile = null;
         ArtifactDownloadFuture masterFuture = null;
 
@@ -107,6 +133,10 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
                     resp.getOutputStream().write(buffer, 0, length);
                 }
                 resp.getOutputStream().flush();
+            } catch (RejectedExecutionException ex) {
+                // we cannot accept the download request currently as we are overloaded
+                resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+                LOGGER.warning("DownloadProxyServlet cannot process request as we are overloaded, returning HTTP Status: 503");
             } catch (Exception ex) {
                 LOGGER.warning("Error while downloading artifact:" + ex.getMessage());
             } finally {
@@ -153,9 +183,9 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
         public File call() throws Exception {
             File download = download(path);
             if (download != null)  {
-            File tmpFile = io.fabric8.utils.Files.createTempFile(runtimeProperties.getDataPath());
-            Files.copy(download, tmpFile);
-            return tmpFile;
+                File tmpFile = io.fabric8.utils.Files.createTempFile(runtimeProperties.getDataPath());
+                Files.copy(download, tmpFile);
+                return tmpFile;
             } else {
                 return null;
             }
