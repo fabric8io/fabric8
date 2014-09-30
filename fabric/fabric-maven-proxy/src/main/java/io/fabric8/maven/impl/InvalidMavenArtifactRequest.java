@@ -16,6 +16,7 @@
 package io.fabric8.maven.impl;
 
 public class InvalidMavenArtifactRequest extends Exception {
+
     public InvalidMavenArtifactRequest() {
     }
 
