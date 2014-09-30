@@ -283,7 +283,6 @@
         <ops4j-base.version>1.4.0</ops4j-base.version>
         <ops4j-pax-exam-version>3.4.0</ops4j-pax-exam-version>
         <ops4j-pax-swissbox-bnd.version>1.7.1</ops4j-pax-swissbox-bnd.version>
-        <ops4j-pax-swissbox-optional-jcl.version>1.7.1</ops4j-pax-swissbox-optional-jcl.version>
         <ops4j-pax-swissbox-property.version>1.7.1</ops4j-pax-swissbox-property.version>
         <ops4j-pax-url-commons-version>3.4.0</ops4j-pax-url-commons-version>
         <ops4j-pax-web-version>3.1.2</ops4j-pax-web-version>

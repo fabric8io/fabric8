@@ -45,7 +45,7 @@ public class SourceTest {
         assertSourceContains(mavenCoords, "org.apache.camel.CamelContext", "", expectedContent);
 
         // now lets try a space separated version
-        String paxCoords = "org.ops4j.base:ops4j-base-lang:1.2.3 org.ops4j.base:ops4j-base-util-collections:1.2.3 org.ops4j.base:ops4j-base-util-property:1.2.3 org.ops4j.base:ops4j-base-util-xml:1.2.3 org.ops4j.pax.swissbox:pax-swissbox-core:1.4.0 org.ops4j.pax.swissbox:pax-swissbox-lifecycle:1.4.0 org.ops4j.pax.swissbox:pax-swissbox-optional-jcl:1.4.0 org.ops4j.pax.swissbox:pax-swissbox-property:1.4.0 org.ops4j.pax.web:pax-web-api:1.1.11 org.ops4j.pax.web:pax-web-runtime:1.1.11 org.ops4j.pax.web:pax-web-spi:1.1.11";
+        String paxCoords = "org.ops4j.base:ops4j-base-lang:1.2.3 org.ops4j.base:ops4j-base-util-collections:1.2.3 org.ops4j.base:ops4j-base-util-property:1.2.3 org.ops4j.base:ops4j-base-util-xml:1.2.3 org.ops4j.pax.swissbox:pax-swissbox-core:1.4.0 org.ops4j.pax.swissbox:pax-swissbox-lifecycle:1.4.0 org.ops4j.pax.swissbox:pax-swissbox-property:1.4.0 org.ops4j.pax.web:pax-web-api:1.1.11 org.ops4j.pax.web:pax-web-runtime:1.1.11 org.ops4j.pax.web:pax-web-spi:1.1.11";
 
         String content = assertSourceContains(paxCoords, "org.ops4j.pax.web.service.internal.HttpServiceFactoryImpl", "HttpServiceFactoryImpl.java", "HttpServiceFactoryImpl");
         //System.out.println(content);

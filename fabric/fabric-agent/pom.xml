@@ -410,12 +410,6 @@
             <version>${ops4j-base.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.swissbox</groupId>
-            <artifactId>pax-swissbox-optional-jcl</artifactId>
-            <version>${ops4j-pax-swissbox-optional-jcl.version}</version>
-            <scope>provided</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
