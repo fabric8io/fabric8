@@ -129,7 +129,8 @@ import com.google.common.cache.LoadingCache;
 public final class GitDataStoreImpl extends AbstractComponent implements GitDataStore, ProfileRegistry {
 
     private static final transient Logger LOGGER = LoggerFactory.getLogger(GitDataStoreImpl.class);
-    
+
+
     private static final String GIT_REMOTE_USER = "gitRemoteUser";
     private static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
     private static final int GIT_COMMIT_SHORT_LENGTH = 7;
@@ -167,12 +168,14 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private SharedCount counter;
     private String remoteUrl;
 
-    @Property(name = "configuredUrl", label = "External Git Repository URL", description = "The URL to a fixed external git repository")
-    private String configuredUrl;
+    @Property(name = Constants.GIT_REMOTE_URL, label = "External Git Repository URL", description = "The URL to a fixed external git repository")
+    private String gitRemoteUrl;
     @Property(name = "gitTimeout", label = "Timeout", description = "Timeout connecting to remote git server (value in seconds)")
     private int gitTimeout = 5;
     @Property(name = "importDir", label = "Import Directory", description = "Directory to import additional profiles", value = "fabric")
     private String importDir = "fabric";
+    @Property(name = "gitRemotePollInterval", label = "Remote poll Interval", description = "The interval between remote repo polling operations")
+    private long gitRemotePollInterval = 60 * 1000L;
 
     private final LoadingCache<String, Version> versionCache = CacheBuilder.newBuilder().build(new VersionCacheLoader());
     private final Set<String> versions = new HashSet<String>();
@@ -239,9 +242,9 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         ProxySelector.setDefault(fabricProxySelector);
         LOGGER.debug("Setting up FabricProxySelector: {}", fabricProxySelector);
 
-        if (configuredUrl != null) {
-            gitListener.runRemoteUrlChanged(configuredUrl);
-            remoteUrl = configuredUrl;
+        if (gitRemoteUrl != null) {
+            gitListener.runRemoteUrlChanged(gitRemoteUrl);
+            remoteUrl = gitRemoteUrl;
         } else {
             gitService.get().addGitListener(gitListener);
             remoteUrl = gitService.get().getRemoteUrl();
@@ -252,6 +255,33 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
         // Get initial versions
         getInitialVersions();
+
+        // poll logic in case of remote git repo
+        if(gitRemoteUrl != null) {
+            // i need this old logic in case of remote repos
+            LOGGER.info("Starting to pull from remote git repository every {} millis", gitRemotePollInterval);
+            threadPool.scheduleWithFixedDelay(new Runnable() {
+                @Override
+                public void run() {
+                    LockHandle writeLock = aquireWriteLock();
+                    try {
+                        LOGGER.trace("Performing timed pull");
+                        doPullInternal();
+                        LOGGER.debug("Performed timed pull from external git repo");
+                    } catch (Throwable e) {
+                        LOGGER.debug("Error during performed timed pull/push due " + e.getMessage(), e);
+                        LOGGER.warn("Error during performed timed pull/push due " + e.getMessage() + ". This exception is ignored.");
+                    } finally {
+                        writeLock.unlock();
+                    }
+                }
+
+                @Override
+                public String toString() {
+                    return "TimedPushTask";
+                }
+            }, 1000, gitRemotePollInterval, TimeUnit.MILLISECONDS);
+        }
 
         LOGGER.info("Using ZooKeeper SharedCount to react when master git repo is changed, so we can do a git pull to the local git repo.");
         counter = new SharedCount(curator.get(), ZkPath.GIT_TRIGGER.getPath(), 0);
@@ -1201,7 +1231,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
         @Override
         public void onRemoteUrlChanged(final String updatedUrl) {
-            final String actualUrl = configuredUrl != null ? configuredUrl : updatedUrl;
+            final String actualUrl = gitRemoteUrl != null ? gitRemoteUrl : updatedUrl;
             threadPool.submit(new Runnable() {
                 @Override
                 public void run() {

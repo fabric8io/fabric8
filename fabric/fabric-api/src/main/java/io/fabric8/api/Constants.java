@@ -25,6 +25,7 @@ public interface Constants {
     String DATASTORE_PID = "io.fabric8.datastore";
     String ZOOKEEPER_CLIENT_PID = "io.fabric8.zookeeper";
     String ZOOKEEPER_SERVER_PID = "io.fabric8.zookeeper.server";
+    String GIT_REMOTE_URL = "gitRemoteUrl";
 
     /**
      * The PID of the system properties used for the Java Container
