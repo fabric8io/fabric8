@@ -262,7 +262,7 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
                     getPrefixedProperties(properties, "req."),
                     getPrefixedProperties(properties, "override."),
                     getPrefixedProperties(properties, "optional."),
-                    getMetadata(properties, "metadata#")
+                    getMetadata(properties, "metadata#"), null
             );
 
             for (String uri : getPrefixedProperties(properties, "resources.")) {

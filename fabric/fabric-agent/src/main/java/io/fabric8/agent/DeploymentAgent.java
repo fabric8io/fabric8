@@ -71,7 +71,6 @@ import io.fabric8.fab.MavenResolverImpl;
 import io.fabric8.fab.osgi.ServiceConstants;
 import io.fabric8.fab.osgi.internal.Configuration;
 import io.fabric8.fab.osgi.internal.FabResolverFactoryImpl;
-
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
@@ -244,8 +243,6 @@ public class DeploymentAgent implements ManagedService {
 
     public void start() throws IOException {
         LOGGER.info("Starting DeploymentAgent");
-        updateStatus("starting", null);
-
         loadBundleChecksums();
         loadLibChecksums(LIB_PATH, libChecksums);
         loadLibChecksums(LIB_ENDORSED_PATH, endorsedChecksums);
@@ -254,8 +251,6 @@ public class DeploymentAgent implements ManagedService {
     }
 
     public void stop() throws InterruptedException {
-        updateStatus("stopping", null);
-
         LOGGER.info("Stopping DeploymentAgent");
         // We can't wait for the threads to finish because the agent needs to be able to
         // update itself and this would cause a deadlock
@@ -604,7 +599,7 @@ public class DeploymentAgent implements ManagedService {
                 getPrefixedProperties(properties, "req."),
                 getPrefixedProperties(properties, "override."),
                 getPrefixedProperties(properties, "optional."),
-                getMetadata(properties, "metadata#")
+                getMetadata(properties, "metadata#"), new DownloadProgressListener()
         );
 
         // TODO: handle default range policy on feature requirements
@@ -624,6 +619,16 @@ public class DeploymentAgent implements ManagedService {
         install(allResources, ignoredBundles, providers, wiring);
         installFeatureConfigs(bundleContext, downloadedResources);
         return true;
+    }
+
+    private final class DownloadProgressListener implements DeploymentBuilder.DeploymentDownloadListener {
+
+        @Override
+        public void onDownload(File file, int pending) {
+            if (pending > 0) {
+                updateStatus("downloading (" + pending + " pending)", null);
+            }
+        }
     }
 
     public static boolean getResolveOptionalImports(Map<String, String> config) {
