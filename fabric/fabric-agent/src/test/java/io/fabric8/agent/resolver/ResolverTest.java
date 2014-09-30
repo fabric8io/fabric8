@@ -75,7 +75,7 @@ public class ResolverTest {
                          Collections.<String>emptySet(),
                          Collections.<String>emptySet(),
                          Collections.<String>emptySet(),
-                         Collections.<String, Map<VersionRange, Map<String, String>>>emptyMap());
+                         Collections.<String, Map<VersionRange, Map<String, String>>>emptyMap(), null);
 
         properties = new Properties();
         properties.setProperty("org.osgi.framework.system.packages.extra", "org.apache.karaf.jaas.boot;version=\"2.4.0.SNAPSHOT\",org.apache.karaf.jaas.boot.principal;version=\"2.4.0.SNAPSHOT\",org.apache.karaf.management.boot;version=\"2.4.0.SNAPSHOT\"");

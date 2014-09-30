@@ -117,6 +117,10 @@ public class DeploymentBuilder {
 
     Map<String, Map<VersionRange, Map<String, String>>> metadata;
 
+    public interface DeploymentDownloadListener {
+        void onDownload(File file, int pending);
+    }
+
     public DeploymentBuilder(DownloadManager manager,
                              FabResolverFactory fabResolverFactory,
                              Collection<Repository> repositories,
@@ -142,7 +146,8 @@ public class DeploymentBuilder {
                          Set<String> reqs,
                          Set<String> overrides,
                          Set<String> optionals,
-                         Map<String, Map<VersionRange, Map<String, String>>> metadata) throws IOException, MultiException, InterruptedException, ResolutionException {
+                         Map<String, Map<VersionRange, Map<String, String>>> metadata,
+                         DeploymentDownloadListener listener) throws IOException, MultiException, InterruptedException, ResolutionException {
         this.downloader = new AgentUtils.FileDownloader(manager);
         this.resources = new ConcurrentHashMap<String, Resource>();
         this.providers = new ConcurrentHashMap<String, StreamProvider>();
@@ -153,20 +158,20 @@ public class DeploymentBuilder {
             registerMatchingFeatures(feature);
         }
         for (String bundle : bundles) {
-            downloadAndBuildResource(bundle);
+            downloadAndBuildResource(bundle, listener);
         }
         for (String fab : fabs) {
-            downloadAndBuildResource(FAB_PROTOCOL + fab);
+            downloadAndBuildResource(FAB_PROTOCOL + fab, listener);
         }
         for (String req : reqs) {
-            downloadAndBuildResource(REQ_PROTOCOL + req);
+            downloadAndBuildResource(REQ_PROTOCOL + req, listener);
         }
         for (String override : overrides) {
             // TODO: ignore download failures for overrides
-            downloadAndBuildResource(extractUrl(override));
+            downloadAndBuildResource(extractUrl(override), listener);
         }
         for (String optional : optionals) {
-            downloadAndBuildResource(optional);
+            downloadAndBuildResource(optional, listener);
         }
         // Wait for all resources to be created
         downloader.await();
@@ -365,14 +370,14 @@ public class DeploymentBuilder {
                             registerMatchingFeatures(dep);
                         }
                         for (BundleInfo bundle : f.getBundles()) {
-                            downloadAndBuildResource(bundle.getLocation());
+                            downloadAndBuildResource(bundle.getLocation(), null);
                         }
                         for (Conditional cond : f.getConditional()) {
                             for (Feature dep : cond.getDependencies()) {
                                 registerMatchingFeatures(dep);
                             }
                             for (BundleInfo bundle : cond.getBundles()) {
-                                downloadAndBuildResource(bundle.getLocation());
+                                downloadAndBuildResource(bundle.getLocation(), null);
                             }
                         }
                     }
@@ -381,12 +386,15 @@ public class DeploymentBuilder {
         }
     }
 
-    public void downloadAndBuildResource(final String location) throws IOException {
+    public void downloadAndBuildResource(final String location, final DeploymentDownloadListener listener) throws IOException {
         if (location.startsWith(FAB_PROTOCOL)) {
             String url = location.substring(FAB_PROTOCOL.length());
             downloader.download(url, new AgentUtils.DownloadCallback() {
                 @Override
-                public void downloaded(File file) throws Exception {
+                public void downloaded(File file, int pendings) throws Exception {
+                    if (listener != null) {
+                        listener.onDownload(file, pendings);
+                    }
                     FabResolver resolver = fabResolverFactory.getResolver(file.toURI().toURL());
                     FabBundleInfo fabInfo = resolver.getInfo();
 
@@ -463,7 +471,10 @@ public class DeploymentBuilder {
             }
             downloader.download(location, new AgentUtils.DownloadCallback() {
                 @Override
-                public void downloaded(File file) throws Exception {
+                public void downloaded(File file, int pendings) throws Exception {
+                    if (listener != null) {
+                        listener.onDownload(file, pendings);
+                    }
                     manageResource(location, file);
                 }
             });
