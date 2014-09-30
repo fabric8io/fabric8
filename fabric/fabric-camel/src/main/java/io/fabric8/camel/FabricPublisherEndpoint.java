@@ -15,6 +15,8 @@
  */
 package io.fabric8.camel;
 
+import io.fabric8.common.util.PublicPortMapper;
+import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
@@ -26,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import io.fabric8.groups.Group;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 /**
@@ -69,7 +72,11 @@ public class FabricPublisherEndpoint extends DefaultEndpoint {
             consumer = child;
         }
         LOG.info("Child: " + child);
-        LOG.info("Consumer: " + consumer);
+        LOG.info("Consumer (internal): " + consumer);
+        // let's make the consumer URI public (important inside OpenShift)
+        consumer = toPublicAddress(consumer);
+        LOG.info("Consumer (public): " + consumer);
+
         this.child = child;
         this.consumer = consumer;
 
@@ -108,6 +115,59 @@ public class FabricPublisherEndpoint extends DefaultEndpoint {
     public void doStop() throws Exception {
         group.close();
         super.doStop();
+    }
+
+
+    /**
+     * Uses a port mapper to correctly convert to public address:port (e.g. in OpenShift environment)
+     *
+     * @param address
+     * @return
+     */
+    protected String toPublicAddress(String address) {
+        try {
+            String containerId = System.getProperty("karaf.name");
+            if (containerId == null || containerId.trim().equals("")) {
+                return address;
+            }
+            URI uri = new URI(address);
+            StringBuilder schemes = new StringBuilder();
+            String answer;
+            while (uri.getSchemeSpecificPart().contains("://")) {
+                schemes.append(uri.getScheme()).append(":");
+                uri = new URI(uri.getSchemeSpecificPart());
+            }
+            int port = publicPort(uri);
+            String path = uri.getPath();
+            if (uri.getQuery() != null) {
+                path += "?" + uri.getQuery();
+            }
+            while (path.startsWith("/")) {
+                path = path.substring(1);
+            }
+            if (!path.trim().equals("")) {
+                path = "/" + path;
+            }
+            if (getComponent().getCurator() != null) {
+                String hostname = "${zk:" + containerId + "/ip}";
+                answer =  schemes.toString() + uri.getScheme() + "://" + hostname + ":" + port + path;
+                getComponent().getCurator().getZookeeperClient().blockUntilConnectedOrTimedOut();
+                answer = ZooKeeperUtils.getSubstitutedData(getComponent().getCurator(), answer);
+            } else {
+                answer =  schemes.toString() + uri.getScheme() + "://" + uri.getHost() + ":" + port + path;
+            }
+            return answer;
+        } catch (InterruptedException e) {
+            LOG.warn("Could not connect to Zookeeper to get public container address");
+            return address;
+        } catch (URISyntaxException e) {
+            LOG.warn("Could not map URL to a public address: " + address);
+            return address;
+        }
+    }
+
+    protected int publicPort(URI uri) {
+        return PublicPortMapper.getPublicPort(uri.getPort());
     }
 
     // Properties

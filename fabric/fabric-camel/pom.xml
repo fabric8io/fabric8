@@ -52,6 +52,10 @@
 
         <dependency>
             <groupId>io.fabric8</groupId>
+            <artifactId>fabric-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
         <dependency>
