@@ -221,11 +221,6 @@
       </dependency>
       <dependency>
           <groupId>org.ops4j.pax.swissbox</groupId>
-          <artifactId>pax-swissbox-optional-jcl</artifactId>
-          <version>${ops4j-pax-swissbox-optional-jcl.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.ops4j.pax.swissbox</groupId>
           <artifactId>pax-swissbox-property</artifactId>
           <version>${ops4j-pax-swissbox-property.version}</version>
       </dependency>

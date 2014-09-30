@@ -117,7 +117,6 @@ public abstract class FabIntegrationTestSupport {
             mavenBundle("org.ops4j.base", "ops4j-base-lang").versionAsInProject(),
             mavenBundle("org.ops4j.base", "ops4j-base-net").versionAsInProject(),
             mavenBundle("org.ops4j.base", "ops4j-base-util-property").versionAsInProject(),
-            mavenBundle("org.ops4j.pax.swissbox", "pax-swissbox-optional-jcl").versionAsInProject(),
             mavenBundle("org.ops4j.pax.swissbox", "pax-swissbox-property").versionAsInProject(),
 
             mavenBundle("io.fabric8", "common-util").versionAsInProject(),
