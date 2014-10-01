@@ -17,7 +17,7 @@ package io.fabric8.maven.stubs;
 
 import java.io.File;
 
-public class CreateProfileZipBundleProjectStub extends CreateProfileZipProjectStub {
+public class CreateProfileZipBundleProjectStub extends AbstractProjectStub {
 
     @Override
     public File getBasedir()
