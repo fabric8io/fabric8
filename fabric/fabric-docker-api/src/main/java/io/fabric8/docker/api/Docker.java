@@ -83,7 +83,7 @@ public interface Docker {
 
 
     @GET
-    @Path("/containers/{id}/json")
+    @Path("/container/{id}/json")
     ContainerInfo containerInspect(@PathParam(ID) String id);
 
     /**
@@ -93,35 +93,35 @@ public interface Docker {
      * @return
      */
     @POST
-    @Path("/containers/create")
+    @Path("/container/create")
     ContainerCreateStatus containerCreate(ContainerConfig config, @QueryParam("name") String name);
 
     @GET
-    @Path("/containers/{id}/top")
+    @Path("/container/{id}/top")
     Top containerTop(@PathParam(ID) String id);
 
     @GET
-    @Path("/containers/{id}/changes")
+    @Path("/container/{id}/changes")
     List<Change> containerChanges(@PathParam(ID) String id);
 
     @GET
-    @Path("/containers/{id}/export")
+    @Path("/container/{id}/export")
     byte[] containerExport(@PathParam(ID) String id);
 
     @POST
-    @Path("/containers/{id}/start")
+    @Path("/container/{id}/start")
     void containerStart(@PathParam(ID) String id, HostConfig hostHostConfig);
 
     @POST
-    @Path("/containers/{id}/stop")
+    @Path("/container/{id}/stop")
     void containerStop(@PathParam(ID) String id, @QueryParam("t") Integer timeToWait);
 
     @POST
-    @Path("/containers/{id}/restart")
+    @Path("/container/{id}/restart")
     void containerRestart(@PathParam(ID) String id, @QueryParam("t") Integer timeToWait);
 
     @POST
-    @Path("/containers/{id}/kill")
+    @Path("/container/{id}/kill")
     void containerKill(@PathParam(ID) String id);
 
     /**
@@ -134,12 +134,12 @@ public interface Docker {
      * @param id
      */
     @POST
-    @Path("/containers/{id}/attach")
+    @Path("/container/{id}/attach")
     byte[] containerRestart(@PathParam(ID) String id, @QueryParam("logs") Integer logs, @QueryParam("stream") Integer stream, @QueryParam("stdin") Integer stdin, @QueryParam("stdout") Integer stdout, @QueryParam("stderr") Integer stderr);
 
 
     @POST
-    @Path("/containers/{id}/wait")
+    @Path("/container/{id}/wait")
     Status containerWait(@PathParam(ID) String id);
 
     /**
@@ -150,12 +150,12 @@ public interface Docker {
      * @return
      */
     @DELETE
-    @Path("/containers/{id}")
+    @Path("/container/{id}")
     void containerRemove(@PathParam(ID) String id, @QueryParam("v") Integer v);
 
 
     @POST
-    @Path("/containers/{id}/copy")
+    @Path("/container/{id}/copy")
     byte[] containerCopy(@PathParam(ID) String id, CopySource resource);
 
     /**
