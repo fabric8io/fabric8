@@ -246,21 +246,21 @@ public class BootstrapConfiguration extends AbstractComponent {
 
     public void createOrUpdateDataStoreConfig(CreateEnsembleOptions options) throws IOException {
         Configuration config = configAdmin.get().getConfiguration(Constants.DATASTORE_PID, null);
-        Dictionary<String, Object> properties = config.getProperties();
-        if (properties == null || properties.isEmpty()) {
-            boolean updateConfig = false;
-            properties = new Hashtable<String, Object>();
-            Map<String, String> dataStoreProperties = options.getDataStoreProperties();
-            for (Map.Entry<String, String> entry : dataStoreProperties.entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                Object oldval = properties.put(key, value);
-                updateConfig = updateConfig || !value.equals(oldval);
-            }
-            if (updateConfig) {
-                config.update(properties);
-            }
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+
+        boolean updateConfig = false;
+
+        Map<String, String> dataStoreProperties = options.getDataStoreProperties();
+        for (Map.Entry<String, String> entry : dataStoreProperties.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            Object oldval = properties.put(key, value);
+            updateConfig = updateConfig || !value.equals(oldval);
         }
+        if (updateConfig) {
+            config.update(properties);
+        }
+
     }
 
     /**
