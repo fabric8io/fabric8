@@ -429,7 +429,19 @@
             </dependency>
 
        </dependencies>
-
+       <repositories>
+          <repository>
+            <id>servicemix.m2-repo</id>
+            <name>ServiceMix Maven 2 repository</name>
+            <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+          </repository>
+       </repositories>
        <build>
            <resources>
              <resource>
