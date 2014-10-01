@@ -16,10 +16,12 @@
 package io.fabric8.maven;
 
 
+import io.fabric8.maven.stubs.AbstractProjectStub;
 import io.fabric8.maven.stubs.CreateProfileZipBundleProjectStub;
 import io.fabric8.maven.stubs.CreateProfileZipJarProjectStub;
 import io.fabric8.maven.stubs.CreateProfileZipMuleProjectStub;
-import io.fabric8.maven.stubs.CreateProfileZipProjectStub;
+import org.apache.commons.collections4.map.UnmodifiableMap;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
@@ -28,6 +30,7 @@ import org.junit.Assert;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -37,13 +40,19 @@ import java.util.Properties;
  */
 public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
-    private CreateProfileZipProjectStub projectStub;
+    private AbstractProjectStub projectStub;
 
     public static final String EXPECTED_EXCEPTION_MESSAGE =
             "The property artifactBundleClassifier " +
                     "was specified as '%s' without also specifying artifactBundleType";
 
     public static final String TEST_CLASSIFIER = "foo";
+
+    public static final Map<Object, Object> SPECIAL_KEY_PREFIX_TYPES =
+            UnmodifiableMap.unmodifiableMap(ArrayUtils.toMap(new String[][]{{"jar", "fab:"}}));
+
+    public static final Map<Object,Object> SPECIAL_VALUE_PREFIX_TYPES =
+            UnmodifiableMap.unmodifiableMap(ArrayUtils.toMap(new String[][]{{"jar", "fab:"}}));
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -105,7 +114,7 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
         // THEN
 
-        bundleReferencesHaveNoExtension();
+        bundleReferencesHaveNoExtension("jar");
 
     }
 
@@ -121,7 +130,7 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
         // THEN
 
-        bundleReferencesHaveNoExtension();
+        bundleReferencesHaveNoExtension("bundle");
 
     }
 
@@ -184,12 +193,12 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
                 getExpectedArtifactBundleValue("jar"));
     }
 
-    private void bundleReferencesHaveNoExtension() throws IOException {
+    private void bundleReferencesHaveNoExtension(String type) throws IOException {
         Properties props = loadProperties(getFabricAgentPropertiesFile(getGeneratedProfilesDir()));
 
-        assertPropertiesKeyExists(props, getArtifactBundleKey());
-        assertPropertyValue(props, getArtifactBundleKey(),
-                getExpectedArtifactBundleValue());
+        assertPropertiesKeyExists(props, getArtifactBundleKeyNoType());
+        assertPropertyValue(props, getArtifactBundleKeyNoType(),
+                getExpectedArtifactBundleValueNoType(type));
     }
 
     private void bundleReferencesHaveJarWithFooClassifier() throws IOException {
@@ -271,21 +280,30 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         return new File(getBasedir() + "/target/generated-profiles");
     }
 
+    public String getExpectedAritfactBundleValuePrefix() {
+        String packagingType = projectStub.getArtifact().getType();
+        return (SPECIAL_VALUE_PREFIX_TYPES.containsKey(packagingType) ? SPECIAL_VALUE_PREFIX_TYPES.get(packagingType) : "") + "mvn:";
+    }
 
-    private String getExpectedArtifactBundleValue() {
-        return "fab:mvn:" + getBundleGavSpec();
+    private String getExpectedArtifactBundleValueNoType(String type) {
+        return getExpectedAritfactBundleValuePrefix() + getBundleGavSpec();
     }
 
     private String getExpectedArtifactBundleValue(String type) {
-        return getExpectedArtifactBundleValue() + getTypeSpec(type);
+        return getExpectedArtifactBundleValueNoType(type) + getTypeSpec(type);
     }
 
-    private String getArtifactBundleKey() {
-        return "bundle.fab:mvn:" + getBundleGavSpec();
+    public String getArtfactBundleKeyPrefix() {
+        String packagingType = projectStub.getArtifact().getType();
+        return ( SPECIAL_KEY_PREFIX_TYPES.containsKey(packagingType) ? SPECIAL_KEY_PREFIX_TYPES.get(packagingType) : "") + "mvn:";
+    }
+
+    private String getArtifactBundleKeyNoType() {
+        return "bundle."+getArtfactBundleKeyPrefix() + getBundleGavSpec();
     }
 
     private String getArtifactBundleKey(String type) {
-        return getArtifactBundleKey() + getTypeSpec(type);
+        return getArtifactBundleKeyNoType() + getTypeSpec(type);
     }
 
     private String getTypeSpec(String type) {
