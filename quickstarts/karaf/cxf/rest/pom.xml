@@ -43,7 +43,7 @@
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
     <maven-resources-plugin-version>2.6</maven-resources-plugin-version>
     <build-helper-maven-plugin-version>1.9.1</build-helper-maven-plugin-version>
-    <cxf-version>3.0.2-SNAPSHOT</cxf-version>
+    <cxf-version>3.0.2.redhat-620028</cxf-version>
     <skipTests>true</skipTests>
 
 
