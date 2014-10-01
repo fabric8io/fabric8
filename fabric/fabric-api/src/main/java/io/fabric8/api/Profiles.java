@@ -314,10 +314,10 @@ public final class Profiles {
                     if (configuration != null) {
                         Map<String, String> oldConfig = answer.get(pid);
                         if (oldConfig == null) {
-                            answer.put(pid, configuration);
-                        } else {
-                            oldConfig.putAll(configuration);
+                            oldConfig = new HashMap<>();
+                            answer.put(pid, oldConfig);
                         }
+                        oldConfig.putAll(configuration);
                     }
                 }
             }
