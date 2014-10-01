@@ -27,10 +27,8 @@
     <packaging>bundle</packaging>
     <name>Test Packaging Override</name>
     <description>
-        The POM file tests whether the artifact bundle type can be overridden
-        from the default of the POM packaging type.
-
-        So in this case we want the bundle type to be 'zip' and not 'mule'.
+        Test that type is omitted from pax url spec, since a bundle is a jar and
+        a jar is assumed by pax url by default.
     </description>
 
     <build>
