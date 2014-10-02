@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="8.3" data-basepath="." data-revision="1412193294434">
+    <div class="book" data-github="fabric8io/fabric8" data-level="8.3" data-basepath="." data-revision="1412277830950">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -879,6 +879,14 @@
 <h4 id="where-did-the-child-container-provider-go-"><a name="where-did-the-child-container-provider-go-" class="anchor" href="#where-did-the-child-container-provider-go-"><span class="fa fa-link"></span></a>Where did the child container provider go?</h4>
 <p>if you enable the <a href="http://fabric8.io/gitbook/docker.html" target="_blank">docker</a> profile or run fabric8 via the <a href="https://registry.hub.docker.com/u/fabric8/fabric8/" target="_blank">docker image</a> then fabric8 disables the <strong>child</strong> container provider by deafult. This is because if docker is available it is better that you use that to manage starting and stopping containers than the child container provider (which is suited for environments which don&apos;t support docker yet).</p>
 <p>Similarly if you enable <a href="http://fabric8.io/gitbook/kubernetes.html" target="_blank">kubernetes</a> or <a href="http://fabric8.io/gitbook/openshift.html" target="_blank">OpenShift</a> container providers (or provision fabric8 within kubernetes/openshift) then fabric8 automatically disables <strong>docker</strong> and <strong>child</strong> container providers because if you are using kubernetes/OpenShift then its better we use that to start/stop containers than relying on local processes on a single machine.</p>
+<h4 id="how-do-i-access-files-from-the-profile-inside-a-java-container-"><a name="how-do-i-access-files-from-the-profile-inside-a-java-container-" class="anchor" href="#how-do-i-access-files-from-the-profile-inside-a-java-container-"><span class="fa fa-link"></span></a>How do I access files from the profile inside a Java Container?</h4>
+<p>Java Containers don&apos;t by default have access to the Java code from fabric8 to resolve URL handlers to reference files in a profile; unless you explicitly add that as a dependency.</p>
+<p>However an easy way to access files while keeping your Java Container code lean and mean; and just access profile files from the classpath or within the file system of the process; by putting the relevant files you need to access in an overlay folder.</p>
+<p>e.g. if you put files in the <strong>overlayFiles/classes</strong> folder within the profile, it&apos;ll get copied into the classes folder inside the folder:</p>
+<pre><code>&lt;fabric_root&gt;/processes/&lt;container&gt;/classes
+</code></pre><p>and so be on the CLASSPATH so you can access it that way (or you could access it relative to the current working directory if you prefer).</p>
+<p>Thats how the log4j.properties file gets added from the profile to the classpath:
+<a href="https://github.com/jstrachan/fabric8/tree/kube/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.profile/overlayFiles/classes" target="_blank">https://github.com/jstrachan/fabric8/tree/kube/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.profile/overlayFiles/classes</a></p>
 
                     
                     </section>
