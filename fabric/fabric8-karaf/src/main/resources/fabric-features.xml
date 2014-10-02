@@ -358,10 +358,10 @@
         <bundle>mvn:io.fabric8/fabric-zeroconf/${project.version}</bundle>
     </feature>
 
-    <!--<feature name="insight-kibana" version="${project.version}" resolver="(obr)">
+    <feature name="insight-kibana" version="${project.version}" resolver="(obr)">
         <feature>war</feature>
-        <bundle>war:mvn:io.hawt.kibana/hawtio-kibana/${hawtio-kibana-version}/war</bundle>
-    </feature>-->
+        <bundle>mvn:io.hawt.kibana/hawtio-kibana/${hawtio-kibana-version}/war</bundle>
+    </feature>
 
     <feature name="insight-log" version="${project.version}" resolver="(obr)">
         <feature>karaf</feature>
