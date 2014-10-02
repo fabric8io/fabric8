@@ -24,8 +24,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
+import io.fabric8.agent.model.Feature;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
@@ -34,8 +35,6 @@ import io.fabric8.api.Version;
 import io.fabric8.common.util.Files;
 import io.fabric8.maven.util.Parser;
 import io.fabric8.service.VersionPropertyPointerResolver;
-
-import org.apache.karaf.features.Feature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,14 +47,14 @@ public class ProfileDownloader {
     private final FabricService fabricService;
     private final File target;
     private final boolean force;
-    private final ExecutorService executorService;
+    private final ScheduledExecutorService executorService;
     private final Set<File> processedFiles = new HashSet<File>();
     private boolean stopOnFailure;
     private boolean downloadFilesFromProfile = true;
     private ProfileDownloaderListener listener;
     private final Map<String,Exception> errors = new HashMap<String, Exception>();
 
-    public ProfileDownloader(FabricService fabricService, File target, boolean force, ExecutorService executorService) {
+    public ProfileDownloader(FabricService fabricService, File target, boolean force, ScheduledExecutorService executorService) {
         this.fabricService = fabricService;
         this.target = target;
         this.force = force;
@@ -130,7 +129,6 @@ public class ProfileDownloader {
         }
 
         DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, executorService);
-        downloadManager.setDownloadFilesFromProfile(isDownloadFilesFromProfile());
 
         Set<String> bundles = new LinkedHashSet<String>();
         Set<Feature> features = new LinkedHashSet<Feature>();
@@ -139,7 +137,7 @@ public class ProfileDownloader {
         AgentUtils.addFeatures(features, fabricService, downloadManager, profile);
 
         Map<String, File> files = AgentUtils.downloadBundles(downloadManager, features, bundles,
-                Collections.<String>emptySet());
+                Collections.<String>emptySet(), !isDownloadFilesFromProfile());
         Set<Map.Entry<String, File>> entries = files.entrySet();
         for (Map.Entry<String, File> entry : entries) {
             String name = entry.getKey();

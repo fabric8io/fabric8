@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -53,6 +54,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.ops4j.util.property.DictionaryPropertyResolver;
 import org.ops4j.util.property.PropertiesPropertyResolver;
 
 import static io.fabric8.common.util.Strings.join;
@@ -82,12 +84,12 @@ public class MavenProxyServletSupportTest {
     }
 
     private MavenResolver createResolver(String localRepo, List<String> remoteRepos, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts) {
-        Properties props = new Properties();
-        props.setProperty("localRepository", localRepo);
+        Hashtable<String, String> props = new Hashtable<>();
+        props.put("localRepository", localRepo);
         if (remoteRepos != null) {
-            props.setProperty("repositories", join(remoteRepos, ","));
+            props.put("repositories", join(remoteRepos, ","));
         }
-        MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(props), null);
+        MavenConfigurationImpl config = new MavenConfigurationImpl(new DictionaryPropertyResolver(props), null);
         if (proxyProtocol != null) {
             Proxy proxy = new Proxy();
             proxy.setProtocol(proxyProtocol);

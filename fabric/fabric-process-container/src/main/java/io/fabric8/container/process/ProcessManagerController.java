@@ -16,7 +16,6 @@
 package io.fabric8.container.process;
 
 import com.google.common.collect.ImmutableMap;
-import io.fabric8.agent.download.DownloadFuture;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.maven.util.Parser;
@@ -75,8 +74,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static io.fabric8.deployer.JavaContainers.registerJolokiaUrl;
 
@@ -92,7 +91,7 @@ public class ProcessManagerController implements ChildContainerController {
     private final Configurer configurer;
     private final ProcessManager processManager;
     private final FabricService fabricService;
-    private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
+    private final ScheduledExecutorService downloadExecutor = Executors.newSingleThreadScheduledExecutor();
     private final CuratorFramework curator;
 
 
@@ -457,8 +456,14 @@ public class ProcessManagerController implements ChildContainerController {
                 return new DownloadStrategy() {
                     @Override
                     public File downloadContent(URL sourceUrl, File installDir) throws IOException {
-                        DownloadFuture future = downloadManager.download(sourceUrl.toString());
-                        File file = AgentUtils.waitForFileDownload(future);
+                        File file;
+                        try {
+                            String url = sourceUrl.toString();
+                            Map<String, File> files = AgentUtils.downloadLocations(downloadManager, Collections.singleton(url));
+                            file = files.get(url);
+                        } catch (Exception e) {
+                            throw new IOException("Could not download " + sourceUrl, e);
+                        }
                         if (file != null && file.exists() && file.isFile()) {
                             // now lest copy it to the install dir
                             File newFile = new File(installDir, file.getName());

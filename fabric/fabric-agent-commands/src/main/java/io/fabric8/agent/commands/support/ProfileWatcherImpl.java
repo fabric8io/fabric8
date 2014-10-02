@@ -65,8 +65,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -110,7 +110,7 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
             counter.incrementAndGet();
         }
     };
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private boolean upload;
     private Set<String> missingChecksums = new HashSet<String>();
 

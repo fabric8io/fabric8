@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -41,8 +42,17 @@ public class ChecksumUtils {
     }
 
     /**
-     * Compute a checksum for the file or directory that consists of the name, length and the last modified date
-     * for a file and its children in case of a directory
+     * Compute a checksum for the given file
+     *
+     * @param file the input file
+     * @return a checksum identifying any change
+     */
+    public static long checksum(File file) throws IOException {
+        return checksum(new FileInputStream(file));
+    }
+
+    /**
+     * Compute a checksum for the given stream
      *
      * @param is the input stream
      * @return a checksum identifying any change
@@ -64,6 +74,38 @@ public class ChecksumUtils {
                     // Ignore
                 }
             }
+        }
+    }
+
+    /**
+     * InputStream computing the checksum
+     */
+    public static class CRCInputStream extends FilterInputStream {
+
+        private final CRC32 crc = new CRC32();
+
+        public CRCInputStream(InputStream in) {
+            super(in);
+        }
+
+        public long getCRC() {
+            return crc.getValue();
+        }
+
+        @Override
+        public int read() throws IOException {
+            byte[] b = new byte[1];
+            int nb = read(b, 0, 1);
+            return nb == 1 ? b[0] : -1;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            int nb = super.read(b, off, len);
+            if (nb > 0) {
+                crc.update(b, off, nb);
+            }
+            return nb;
         }
     }
 

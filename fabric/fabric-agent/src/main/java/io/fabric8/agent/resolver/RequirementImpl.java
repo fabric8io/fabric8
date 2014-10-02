@@ -15,12 +15,12 @@
  */
 package io.fabric8.agent.resolver;
 
+import java.util.Map;
+
 import org.osgi.framework.Constants;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
-
-import java.util.Map;
 
 public class RequirementImpl extends BaseClause implements Requirement {
     private final Resource m_resource;

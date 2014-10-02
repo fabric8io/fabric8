@@ -42,14 +42,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  */
 public class JavaContainers {
     private static final transient Logger LOGGER = LoggerFactory.getLogger(JavaContainers.class);
     
-    public static Map<String, Parser> getJavaContainerArtifacts(FabricService fabric, List<Profile> profileList, ExecutorService downloadExecutor) throws Exception {
+    public static Map<String, Parser> getJavaContainerArtifacts(FabricService fabric, List<Profile> profileList, ScheduledExecutorService downloadExecutor) throws Exception {
         DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabric, downloadExecutor);
         return getJavaContainerArtifacts(fabric, profileList, downloadManager);
     }
@@ -64,7 +64,7 @@ public class JavaContainers {
         return artifacts;
     }
 
-    public static Map<String, File> getJavaContainerArtifactsFiles(FabricService fabricService, List<Profile> profileList, ExecutorService downloadExecutor) throws Exception {
+    public static Map<String, File> getJavaContainerArtifactsFiles(FabricService fabricService, List<Profile> profileList, ScheduledExecutorService downloadExecutor) throws Exception {
         DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, downloadExecutor);
         return getJavaContainerArtifactsFiles(fabricService, profileList, downloadManager);
     }

@@ -15,12 +15,12 @@
  */
 package io.fabric8.openshift.agent;
 
+import io.fabric8.agent.model.Feature;
 import io.fabric8.api.FabricService;
 import io.fabric8.common.util.Files;
 
 import io.fabric8.maven.util.MavenRepositoryURL;
 import io.fabric8.maven.util.Parser;
-import org.apache.karaf.features.Feature;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.CredentialsProvider;

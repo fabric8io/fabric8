@@ -27,9 +27,8 @@ import io.fabric8.common.util.Pair;
 import io.fabric8.common.util.Strings;
 import io.fabric8.maven.DependencyFilters;
 import io.fabric8.maven.MavenResolver;
+import io.fabric8.maven.MavenResolvers;
 import io.fabric8.maven.url.ServiceConstants;
-import io.fabric8.maven.url.internal.AetherBasedResolver;
-import io.fabric8.maven.util.MavenConfigurationImpl;
 import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.InstallOptions;
 import io.fabric8.process.manager.InstallTask;
@@ -39,7 +38,6 @@ import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.ops4j.util.property.PropertiesPropertyResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +48,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,13 +68,13 @@ public class JarInstaller implements InstallTask {
     private final Executor executor;
 
     public JarInstaller(InstallOptions parameters, Executor executor) {
-        MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn");
+        Hashtable<String, String> props = new Hashtable<>();
         if (parameters.isOffline()) {
-            config.set("org.ops4j.pax.url.mvn" + ServiceConstants.PROPERTY_OFFLINE, "true");
+            props.put("org.ops4j.pax.url.mvn." + ServiceConstants.PROPERTY_OFFLINE, "true");
         }
         this.parameters = parameters;
-        this.mavenResolver = new AetherBasedResolver( config );
         this.executor = executor;
+        this.mavenResolver = MavenResolvers.createMavenResolver(props, "org.ops4j.pax.url.mvn");
     }
 
     @Override

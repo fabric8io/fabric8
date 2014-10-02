@@ -33,6 +33,7 @@ import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -42,24 +43,21 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.jar.Attributes;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.regex.Pattern;
 
-import io.fabric8.agent.DeploymentBuilder;
 import io.fabric8.agent.download.DownloadManager;
-import io.fabric8.agent.repository.HttpMetadataProvider;
-import io.fabric8.agent.repository.MetadataRepository;
-import io.fabric8.agent.resolver.ResourceBuilder;
+import io.fabric8.agent.download.DownloadManagers;
+import io.fabric8.agent.model.BundleInfo;
+import io.fabric8.agent.model.ConfigFile;
+import io.fabric8.agent.model.Feature;
+import io.fabric8.agent.model.Repository;
+import io.fabric8.agent.service.Agent;
+import io.fabric8.agent.service.MetadataBuilder;
 import io.fabric8.common.util.MultiException;
-import io.fabric8.maven.url.internal.AetherBasedResolver;
-import io.fabric8.maven.util.MavenConfigurationImpl;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.karaf.deployer.blueprint.BlueprintTransformer;
-import org.apache.karaf.features.ConfigFileInfo;
-import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.Repository;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -68,14 +66,11 @@ import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.ops4j.util.property.DictionaryPropertyResolver;
 import org.osgi.framework.Constants;
-import org.osgi.resource.Resource;
 
 import static io.fabric8.agent.DeploymentAgent.getMetadata;
 import static io.fabric8.agent.DeploymentAgent.getPrefixedProperties;
-import static io.fabric8.agent.DeploymentAgent.getResolveOptionalImports;
-import static io.fabric8.agent.utils.AgentUtils.loadRepositories;
+import static io.fabric8.agent.utils.AgentUtils.downloadRepositories;
 
 @Mojo(name = "verify-features")
 public class VerifyFeatureResolutionMojo extends AbstractMojo {
@@ -125,9 +120,9 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
         System.setProperty("karaf.data", "target/karaf/data");
 
 
-        ExecutorService executor = Executors.newFixedThreadPool(8);
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(8);
 
-        Hashtable<String, String> properties = new Hashtable<String, String>();
+        Hashtable<String, String> properties = new Hashtable<>();
 
         if (additionalMetadata != null) {
             try (Reader reader = new FileReader(additionalMetadata)) {
@@ -144,23 +139,23 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
         }
 
         DownloadManager manager;
+        MavenResolver resolver;
         final Map<String, Repository> repositories;
-        Map<String, Feature[]> allFeatures = new HashMap<>();
+        Map<String, Feature[]> repos = new HashMap<>();
+        Map<String, Feature> allFeatures = new HashMap<>();
         try {
-            DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(properties);
-            MavenConfigurationImpl config = new MavenConfigurationImpl(propertyResolver, "org.ops4j.pax.url.mvn");
-            MavenResolver resolver = new AetherBasedResolver(config);
-            manager = new DownloadManager(resolver, executor);
-            repositories = loadRepositories(manager, descriptors);
+            resolver = MavenResolvers.createMavenResolver(properties, "org.ops4j.pax.url.mvn");
+            manager = DownloadManagers.createDownloadManager(resolver, executor);
+            repositories = downloadRepositories(manager, descriptors).call();
             for (String repoUri : repositories.keySet()) {
                 Feature[] features = repositories.get(repoUri).getFeatures();
                 // Ack features to inline configuration files urls
                 for (Feature feature : features) {
-                    for (org.apache.karaf.features.BundleInfo bi : feature.getBundles()) {
+                    for (BundleInfo bi : feature.getBundles()) {
                         String loc = bi.getLocation();
                         String nloc = null;
                         if (loc.contains("file:")) {
-                            for (ConfigFileInfo cfi : feature.getConfigurationFiles()) {
+                            for (ConfigFile cfi : feature.getConfigurationFiles()) {
                                 if (cfi.getFinalname().substring(1)
                                         .equals(loc.substring(loc.indexOf("file:") + "file:".length()))) {
                                     nloc = cfi.getLocation();
@@ -168,13 +163,12 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
                             }
                         }
                         if (nloc != null) {
-                            Field field = bi.getClass().getDeclaredField("location");
-                            field.setAccessible(true);
-                            field.set(bi, loc.substring(0, loc.indexOf("file:")) + nloc);
+                            bi.setLocation(loc.substring(0, loc.indexOf("file:")) + nloc);
                         }
                     }
+                    allFeatures.put(feature.getId(), feature);
                 }
-                allFeatures.put(repoUri, features);
+                repos.put(repoUri, features);
             }
         } catch (Exception e) {
             throw new MojoExecutionException("Unable to load features descriptors", e);
@@ -182,12 +176,12 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
 
         List<Feature> featuresToTest = new ArrayList<>();
         if (verifyTransitive) {
-            for (Feature[] features : allFeatures.values()) {
+            for (Feature[] features : repos.values()) {
                 featuresToTest.addAll(Arrays.asList(features));
             }
         } else {
             for (String uri : descriptors) {
-                featuresToTest.addAll(Arrays.asList(allFeatures.get(uri)));
+                featuresToTest.addAll(Arrays.asList(repos.get(uri)));
             }
         }
         if (features != null && !features.isEmpty()) {
@@ -212,14 +206,15 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
             }
         }
 
-       for (String fmk : framework) {
+        for (String fmk : framework) {
             properties.put("feature.framework." + fmk, fmk);
-       }
-       List<Throwable> failures = new ArrayList<>();
-       for (Feature feature : featuresToTest) {
+        }
+        List<Throwable> failures = new ArrayList<>();
+        for (Feature feature : featuresToTest) {
             try {
                 String id = feature.getName() + "/" + feature.getVersion();
-                verifyResolution(manager, repositories, id, properties);
+                manager = DownloadManagers.createDownloadManager(resolver, executor);
+                verifyResolution(manager, allFeatures, id, properties);
                 getLog().info("Verification of feature " + id + " succeeded");
             } catch (Exception e) {
                 getLog().warn(e.getMessage());
@@ -234,40 +229,33 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
         }
     }
 
-    private void verifyResolution(DownloadManager manager, final Map<String, Repository> repositories, String feature, Hashtable<String, String> properties) throws MojoExecutionException {
+    private void verifyResolution(DownloadManager manager, Map<String, Feature> allFeatures, String feature, Hashtable<String, String> properties) throws MojoExecutionException {
         try {
             properties.put("feature.totest", feature);
 
-            boolean resolveOptionalImports = getResolveOptionalImports(properties);
+            FakeSystemBundle systemBundle = getSystemBundleResource(getMetadata(properties, "metadata#"));
 
-            DeploymentBuilder builder = new DeploymentBuilder(
-                    manager,
-                    repositories.values(),
-                    -1 // Disable url handlers
-            );
-            Map<String, Resource> downloadedResources = builder.download(
-                    getPrefixedProperties(properties, "feature."),
-                    getPrefixedProperties(properties, "bundle."),
-                    getPrefixedProperties(properties, "req."),
-                    getPrefixedProperties(properties, "override."),
-                    getPrefixedProperties(properties, "optional."),
-                    getMetadata(properties, "metadata#"), null
-            );
-
-            for (String uri : getPrefixedProperties(properties, "resources.")) {
-                builder.addResourceRepository(new MetadataRepository(new HttpMetadataProvider(uri)));
-            }
-
-            Resource systemBundle = getSystemBundleResource(getMetadata(properties, "metadata#"));
+            Agent agent = new Agent(null, systemBundle, manager);
+            agent.setOptions(EnumSet.of(
+                    io.fabric8.agent.service.Constants.Option.Simulate,
+                    io.fabric8.agent.service.Constants.Option.Silent
+            ));
 
             try {
-                Collection<Resource> resources = builder.resolve(systemBundle, resolveOptionalImports);
-                // TODO: find unused resources ?
+                agent.provision(
+                        allFeatures,
+                        getPrefixedProperties(properties, "feature."),
+                        getPrefixedProperties(properties, "bundle."),
+                        getPrefixedProperties(properties, "req."),
+                        getPrefixedProperties(properties, "override."),
+                        getPrefixedProperties(properties, "optional."),
+                        getMetadata(properties, "metadata#")
+                );
             } catch (Exception e) {
+                Set<String> resources = new TreeSet<>(manager.getProviders().keySet());
                 throw new MojoExecutionException("Feature resolution failed for " + feature
-                        + "\nMessage: " + e.getMessage() + (e.getCause() != null ? "\n" + e.getCause().getMessage() : "")
-                        + "\nRepositories: " + toString(new TreeSet<>(repositories.keySet()))
-                        + "\nResources: " + toString(new TreeSet<>(downloadedResources.keySet())), e);
+                        + "\nMessage: " + e.toString()
+                        + "\nResources: " + toString(resources), e);
             }
 
 
@@ -288,7 +276,7 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
         return sb.toString();
     }
 
-    private Resource getSystemBundleResource(Map<String, Map<VersionRange, Map<String, String>>> metadata) throws Exception {
+    private FakeSystemBundle getSystemBundleResource(Map<String, Map<VersionRange, Map<String, String>>> metadata) throws Exception {
         Artifact karafDistro = pluginDescriptor.getArtifactMap().get(distribution);
         String dir = distDir;
         if (dir == null) {
@@ -304,29 +292,23 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
         }
         configProps.substitute();
 
-        Attributes attributes = new Attributes();
-        attributes.putValue(Constants.BUNDLE_MANIFESTVERSION, "2");
-        attributes.putValue(Constants.BUNDLE_SYMBOLICNAME, "system-bundle");
-        attributes.putValue(Constants.BUNDLE_VERSION, "0.0.0");
+        Hashtable<String, String> headers = new Hashtable<>();
+        headers.put(Constants.BUNDLE_MANIFESTVERSION, "2");
+        headers.put(Constants.BUNDLE_SYMBOLICNAME, "system-bundle");
+        headers.put(Constants.BUNDLE_VERSION, "0.0.0");
 
         String exportPackages = configProps.getProperty("org.osgi.framework.system.packages");
         if (configProps.containsKey("org.osgi.framework.system.packages.extra")) {
             exportPackages += "," + configProps.getProperty("org.osgi.framework.system.packages.extra");
         }
-        attributes.putValue(Constants.EXPORT_PACKAGE, exportPackages);
+        headers.put(Constants.EXPORT_PACKAGE, exportPackages);
 
         String systemCaps = configProps.getProperty("org.osgi.framework.system.capabilities");
-        attributes.putValue(Constants.PROVIDE_CAPABILITY, systemCaps);
+        headers.put(Constants.PROVIDE_CAPABILITY, systemCaps);
 
-        attributes = DeploymentBuilder.overrideAttributes(attributes, metadata);
+        new MetadataBuilder(metadata).overrideHeaders(headers);
 
-        Map<String, String> headers = new HashMap<String, String>();
-        for (Map.Entry attr : attributes.entrySet()) {
-            headers.put(attr.getKey().toString(), attr.getValue().toString());
-        }
-        Resource resource = ResourceBuilder.build("system-bundle", headers);
-
-        return resource;
+        return new FakeSystemBundle(headers);
     }
 
     public static class CustomBundleURLStreamHandlerFactory implements URLStreamHandlerFactory {

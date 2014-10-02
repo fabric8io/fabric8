@@ -17,6 +17,7 @@ package io.fabric8.runtime.agent;
 
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
+import io.fabric8.agent.model.Feature;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
@@ -46,6 +47,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -64,7 +66,6 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.karaf.features.Feature;
 import org.jboss.gravia.container.tomcat.WebAppContextListener;
 import org.jboss.gravia.provision.Provisioner;
 import org.jboss.gravia.provision.ResourceHandle;
@@ -113,7 +114,7 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
     };
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric8-agent"));
-    private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric8-agent-downloader"));
+    private final ScheduledExecutorService downloadExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("fabric8-agent-downloader"));
     private ObjectName objectName;
     private Map<ResourceIdentity, ResourceHandle> resourcehandleMap = new ConcurrentHashMap<ResourceIdentity, ResourceHandle>();
 

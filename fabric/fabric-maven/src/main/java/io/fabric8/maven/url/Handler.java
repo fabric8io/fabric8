@@ -23,6 +23,7 @@ import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
 import io.fabric8.maven.MavenResolver;
+import io.fabric8.maven.MavenResolvers;
 import io.fabric8.maven.url.internal.AetherBasedResolver;
 import io.fabric8.maven.url.internal.Connection;
 import io.fabric8.maven.util.MavenConfigurationImpl;
@@ -47,9 +48,7 @@ public class Handler
     protected URLConnection openConnection( final URL url )
         throws IOException
     {
-        PropertiesPropertyResolver propertyResolver = new PropertiesPropertyResolver( System.getProperties() );
-        MavenConfigurationImpl config = new MavenConfigurationImpl( propertyResolver, ServiceConstants.PID);
-        MavenResolver resolver = new AetherBasedResolver(config);
+        MavenResolver resolver = MavenResolvers.createMavenResolver(null, ServiceConstants.PID);
         return new Connection( url, resolver );
     }    
 }

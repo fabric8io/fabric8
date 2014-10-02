@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Creates a docker image, adding deployment units, overlays and environment vairables from the profile metadata.
@@ -55,7 +56,7 @@ import java.util.concurrent.ExecutorService;
 public class CustomDockerContainerImageBuilder {
     private static final transient Logger LOGGER = LoggerFactory.getLogger(CustomDockerContainerImageBuilder.class);
 
-    public String generateContainerImage(FabricService fabric, Container container, List<Profile> profileList, Docker docker, CustomDockerContainerImageOptions options, DockerCreateOptions containerOptions, ExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
+    public String generateContainerImage(FabricService fabric, Container container, List<Profile> profileList, Docker docker, CustomDockerContainerImageOptions options, DockerCreateOptions containerOptions, ScheduledExecutorService downloadExecutor, Map<String, String> envVars) throws Exception {
         String libDirAndSeparator = ensureEndsWithFileSeparator(options.getJavaLibraryPath());
         String deployDirAndSeparator = ensureEndsWithFileSeparator(options.getJavaDeployPath());
         String homeDirAndSeparator = ensureEndsWithFileSeparator(options.getHomePath());

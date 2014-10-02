@@ -63,6 +63,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -78,9 +79,12 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.apache.karaf.features.BundleInfo;
-import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.internal.RepositoryImpl;
+import io.fabric8.agent.model.BundleInfo;
+import io.fabric8.agent.model.Feature;
+import io.fabric8.agent.model.Dependency;
+import io.fabric8.agent.model.Repository;
+import org.apache.felix.utils.version.VersionTable;
+import org.apache.felix.utils.version.VersionRange;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,7 +119,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
     private BundleContext bundleContext;
     private Map<String, String> servicemixBundles;
@@ -422,7 +426,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     protected void addAvailableFeaturesFromProfile(Collection<Feature> allFeatures, FabricService fabric, Profile overlay) throws Exception {
         for (String repoUriWithExpressions : overlay.getRepositories()) {
             String repoUri = VersionPropertyPointerResolver.replaceVersions(fabric, overlay.getConfigurations(), repoUriWithExpressions);
-            RepositoryImpl repo = new RepositoryImpl(URI.create(repoUri));
+            Repository repo = new Repository(URI.create(repoUri));
             repo.load();
             allFeatures.addAll(Arrays.asList(repo.getFeatures()));
         }
@@ -439,7 +443,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
 
     protected Feature findFeatureWithBundleLocationPrefix(Iterable<Feature> allFeatures, String prefix, boolean includeDependencies) {
         for (Feature feature : allFeatures) {
-            Feature matchedFeature = featureMatchesBundleLocationPrefix(feature, prefix, feature, includeDependencies);
+            Feature matchedFeature = featureMatchesBundleLocationPrefix(allFeatures, feature, prefix, feature, includeDependencies);
             if (matchedFeature != null) {
                 return matchedFeature;
             }
@@ -450,17 +454,22 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     /**
      * Returns the owningFeature if this feature or any of its dependent features contains a bundle matching the prefix location or null if there is no match
      */
-    protected Feature featureMatchesBundleLocationPrefix(Feature feature, String prefix, Feature owningFeature, boolean includeDependencies) {
+    protected Feature featureMatchesBundleLocationPrefix(Iterable<Feature> allFeatures, Feature feature, String prefix, Feature owningFeature, boolean includeDependencies) {
         for (BundleInfo bi : feature.getBundles()) {
             if (!bi.isDependency() && bi.getLocation().startsWith(prefix)) {
                 return owningFeature;
             }
         }
         if (includeDependencies) {
-            for (Feature dependency: feature.getDependencies()) {
-                Feature answer = featureMatchesBundleLocationPrefix(dependency, prefix, owningFeature, true);
-                if (answer != null) {
-                    return answer;
+            for (Dependency dependency: feature.getDependencies()) {
+                for (Feature f : allFeatures) {
+                    if (f.getName().equals(dependency.getName())
+                            && new VersionRange(dependency.getVersion()).contains(VersionTable.getVersion(f.getVersion()))) {
+                        Feature answer = featureMatchesBundleLocationPrefix(allFeatures, f, prefix, owningFeature, true);
+                        if (answer != null) {
+                            return answer;
+                        }
+                    }
                 }
             }
         }

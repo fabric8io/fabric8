@@ -1,152 +1,33 @@
-/**
- *  Copyright 2005-2014 Red Hat, Inc.
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.fabric8.agent.download;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.concurrent.ExecutorService;
+import java.util.Map;
 
-import io.fabric8.maven.MavenResolver;
+public interface DownloadManager {
 
-import static io.fabric8.agent.download.DownloadManagerHelper.stripUrl;
+    int pending();
 
-public class DownloadManager {
+    Downloader createDownloader();
 
-    /**
-     * Thread pool for downloads
-     */
-    private ExecutorService executor;
+    Map<String, StreamProvider> getProviders();
 
-    /**
-     * Service configuration.
-     */
-    private final MavenResolver mavenResolver;
-    private boolean downloadFilesFromProfile = true;
-    private File tmpPath;
+    void addListener(DownloadCallback listener);
 
-    public DownloadManager(MavenResolver resolver) throws MalformedURLException {
-        this(resolver, null);
-    }
-
-    public DownloadManager(MavenResolver resolver, ExecutorService executor) throws MalformedURLException {
-        this.mavenResolver = resolver;
-        this.executor = executor;
-        String karafRoot = System.getProperty("karaf.home", "karaf");
-        String karafData = System.getProperty("karaf.data", karafRoot + "/data");
-        this.tmpPath = new File(karafData, "tmp");
-    }
-
-    public boolean isDownloadFilesFromProfile() {
-        return downloadFilesFromProfile;
-    }
-
-    public void setDownloadFilesFromProfile(boolean downloadFilesFromProfile) {
-        this.downloadFilesFromProfile = downloadFilesFromProfile;
-    }
-
-    public ExecutorService getExecutor() {
-        return executor;
-    }
-
-    public void shutdown() {
-        // noop
-    }
-
-    public DownloadFuture download(final String url) throws MalformedURLException {
-        String mvnUrl = stripUrl(url);
-
-        if (mvnUrl.startsWith("mvn:")) {
-            MavenDownloadTask task = new MavenDownloadTask(mvnUrl, mavenResolver, executor);
-            executor.submit(task);
-            if (!mvnUrl.equals(url)) {
-                final DummyDownloadTask download = new DummyDownloadTask(url, executor);
-                task.addListener(new FutureListener<DownloadFuture>() {
-                    @Override
-                    public void operationComplete(DownloadFuture future) {
-                        try {
-                            final String mvn = future.getUrl();
-                            String file = future.getFile().toURI().toURL().toString();
-                            String real = url.replace(mvn, file);
-                            SimpleDownloadTask task = new SimpleDownloadTask(real, executor, tmpPath);
-                            executor.submit(task);
-                            task.addListener(new FutureListener<DownloadFuture>() {
-                                @Override
-                                public void operationComplete(DownloadFuture future) {
-                                    try {
-                                        download.setFile(future.getFile());
-                                    } catch (IOException e) {
-                                        download.setException(e);
-                                    }
-                                }
-                            });
-                        } catch (IOException e) {
-                            download.setException(e);
-                        }
-                    }
-                });
-                return download;
-            } else {
-                return task;
-            }
-        } else if (mvnUrl.startsWith("profile:")) {
-            if (!isDownloadFilesFromProfile()) {
-                NoDownloadTask task = new NoDownloadTask(url, executor);
-                executor.submit(task);
-                return task;
-            }
-        }
-
-        // fallback to download the url as-is
-        final SimpleDownloadTask download = new SimpleDownloadTask(url, executor, tmpPath);
-        executor.submit(download);
-        return download;
-    }
-
-
-    static class DummyDownloadTask extends AbstractDownloadTask {
-        DummyDownloadTask(String url, ExecutorService executor) {
-            super(url, executor);
-        }
-
-        @Override
-        protected File download() throws Exception {
-            return getFile();
-        }
-    }
-
-    static class NoDownloadTask extends AbstractDownloadTask {
-        NoDownloadTask(String url, ExecutorService executor) {
-            super(url, executor);
-        }
-
-        @Override
-        public File getFile() throws IOException {
-            return null;
-        }
-
-        @Override
-        public void setFile(File file) {
-            setValue(null);
-        }
-
-        @Override
-        protected File download() throws Exception {
-            return getFile();
-        }
-    }
+    void removeListener(DownloadCallback listener);
 
 }

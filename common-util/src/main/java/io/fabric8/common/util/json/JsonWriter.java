@@ -16,11 +16,22 @@
 package io.fabric8.common.util.json;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.Map;
 
 public class JsonWriter {
+
+    private JsonWriter() {
+    }
+
+    public static void write(OutputStream stream, Object value) throws IOException {
+        Writer writer = new OutputStreamWriter(stream);
+        write(writer, value);
+        writer.flush();
+    }
 
     public static void write(Writer writer, Object value) throws IOException {
         if (value instanceof Map) {

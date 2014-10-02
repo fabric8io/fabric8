@@ -43,6 +43,13 @@ public class BaseRepository implements Repository {
         this.capSets = new HashMap<String, CapabilitySet>();
     }
 
+    public BaseRepository(Collection<Resource> resources) {
+        this();
+        for (Resource resource : resources) {
+            addResource(resource);
+        }
+    }
+
     protected void addResource(Resource resource) {
         for (Capability cap : resource.getCapabilities(null)) {
             String ns = cap.getNamespace();

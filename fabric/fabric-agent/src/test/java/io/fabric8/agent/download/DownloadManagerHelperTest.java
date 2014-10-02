@@ -15,6 +15,7 @@
  */
 package io.fabric8.agent.download;
 
+import io.fabric8.agent.download.impl.DownloadManagerHelper;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 

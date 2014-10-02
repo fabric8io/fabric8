@@ -18,103 +18,68 @@ package io.fabric8.agent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import aQute.bnd.osgi.Macro;
 import aQute.bnd.osgi.Processor;
+import io.fabric8.agent.download.DownloadCallback;
 import io.fabric8.agent.download.DownloadManager;
-import io.fabric8.agent.repository.HttpMetadataProvider;
-import io.fabric8.agent.repository.MetadataRepository;
-import io.fabric8.agent.resolver.FeatureResource;
-import io.fabric8.agent.resolver.ServiceNamespace;
-import io.fabric8.agent.sort.RequirementSort;
+import io.fabric8.agent.download.DownloadManagers;
+import io.fabric8.agent.download.Downloader;
+import io.fabric8.agent.download.StreamProvider;
+import io.fabric8.agent.service.Agent;
+import io.fabric8.agent.service.FeatureConfigInstaller;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.common.util.ChecksumUtils;
 import io.fabric8.common.util.Files;
-import io.fabric8.common.util.MultiException;
-import io.fabric8.common.util.Strings;
-
 import io.fabric8.maven.MavenResolver;
-import io.fabric8.maven.url.internal.AetherBasedResolver;
-import io.fabric8.maven.util.MavenConfigurationImpl;
+import io.fabric8.maven.MavenResolvers;
 import io.fabric8.maven.util.Parser;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
-import org.apache.karaf.features.ConfigInfo;
-import org.apache.karaf.features.Repository;
-import org.ops4j.util.property.DictionaryPropertyResolver;
-import org.ops4j.util.property.PropertiesPropertyResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
-import org.osgi.framework.FrameworkEvent;
-import org.osgi.framework.FrameworkListener;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.Version;
-import org.osgi.framework.namespace.PackageNamespace;
-import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.wiring.BundleRequirement;
-import org.osgi.framework.wiring.BundleRevision;
-import org.osgi.framework.wiring.BundleWire;
-import org.osgi.framework.wiring.BundleWiring;
-import org.osgi.framework.wiring.FrameworkWiring;
-import org.osgi.resource.Capability;
 import org.osgi.resource.Resource;
-import org.osgi.resource.Wire;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
-import org.osgi.service.url.URLStreamHandlerService;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.fabric8.agent.resolver.UriNamespace.getUri;
+import static io.fabric8.agent.resolver.ResourceUtils.getUri;
+import static io.fabric8.agent.service.Constants.DEFAULT_BUNDLE_UPDATE_RANGE;
+import static io.fabric8.agent.service.Constants.DEFAULT_FEATURE_RESOLUTION_RANGE;
+import static io.fabric8.agent.service.Constants.DEFAULT_UPDATE_SNAPSHOTS;
 import static io.fabric8.agent.utils.AgentUtils.addMavenProxies;
-import static io.fabric8.agent.utils.AgentUtils.loadRepositories;
-import static org.apache.felix.resolver.Util.getSymbolicName;
-import static org.apache.felix.resolver.Util.getVersion;
-import static org.osgi.framework.Bundle.RESOLVED;
-import static org.osgi.framework.Bundle.STOPPING;
-import static org.osgi.framework.Bundle.UNINSTALLED;
 
 public class DeploymentAgent implements ManagedService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentAgent.class);
 
-    public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.pid";
-
-    private static final String SNAPSHOT = "SNAPSHOT";
     private static final String BLUEPRINT_PREFIX = "blueprint:";
     private static final String SPRING_PREFIX = "spring:";
 
@@ -137,14 +102,15 @@ public class DeploymentAgent implements ManagedService {
 
     private static final Pattern SNAPSHOT_PATTERN = Pattern.compile(".*-SNAPSHOT((\\.\\w{3})?|\\$.*|\\?.*|\\#.*|\\&.*)");
 
+    private static final String STATE_FILE = "state.json";
+
     private ServiceTracker<FabricService, FabricService> fabricService;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-agent"));
-    private final ExecutorService downloadExecutor;
+    private final ScheduledExecutorService downloadExecutor;
     private boolean resolveOptionalImports = false;
     private long urlHandlersTimeout = TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES);
 
-    private final RequirementSort requirementSort = new RequirementSort();
     private final BundleContext bundleContext;
     private final BundleContext systemBundleContext;
     private final Properties bundleChecksums;
@@ -179,7 +145,7 @@ public class DeploymentAgent implements ManagedService {
         this.managedEtcs = new Properties(bundleContext.getDataFile("etc.properties"));
         this.downloadExecutor = createDownloadExecutor();
 
-        fabricService = new ServiceTracker<FabricService, FabricService>(systemBundleContext, FabricService.class, new ServiceTrackerCustomizer<FabricService, FabricService>() {
+        fabricService = new ServiceTracker<>(systemBundleContext, FabricService.class, new ServiceTrackerCustomizer<FabricService, FabricService>() {
             @Override
             public FabricService addingService(ServiceReference<FabricService> reference) {
                 FabricService service = systemBundleContext.getService(reference);
@@ -203,7 +169,7 @@ public class DeploymentAgent implements ManagedService {
         fabricService.open();
     }
 
-    protected ExecutorService createDownloadExecutor() {
+    protected ScheduledExecutorService createDownloadExecutor() {
         // TODO: this should not be loaded from a static file
         // TODO: or at least from the bundle context, but preferably from the config
         String size = DEFAULT_DOWNLOAD_THREADS;
@@ -215,7 +181,7 @@ public class DeploymentAgent implements ManagedService {
         }
         int num = Integer.parseInt(size);
         LOGGER.info("Creating fabric-agent-download thread pool with size: {}", num);
-        return Executors.newFixedThreadPool(num, new NamedThreadFactory("fabric-agent-download"));
+        return Executors.newScheduledThreadPool(num, new NamedThreadFactory("fabric-agent-download"));
     }
 
     public boolean isResolveOptionalImports() {
@@ -356,7 +322,7 @@ public class DeploymentAgent implements ManagedService {
                     e = sw.toString();
                 }
                 if (resources != null) {
-                    List<String> uris = new ArrayList<String>();
+                    List<String> uris = new ArrayList<>();
                     for (Resource res : resources) {
                         uris.add(getUri(res));
                     }
@@ -392,123 +358,189 @@ public class DeploymentAgent implements ManagedService {
         if (props == null || Boolean.parseBoolean((String) props.get("disabled"))) {
             return false;
         }
-        if (props.get("disabled") != null && "true".equalsIgnoreCase(props.get("disabled").toString())) {
-            return false;
+
+        final Hashtable<String, String> properties = new Hashtable<>();
+        for (Enumeration e = props.keys(); e.hasMoreElements();) {
+            Object key = e.nextElement();
+            Object val = props.get(key);
+            if (!"service.pid".equals(key) && !FeatureConfigInstaller.FABRIC_ZOOKEEPER_PID.equals(key)) {
+                properties.put(key.toString(), val.toString());
+            }
         }
 
         // Adding the maven proxy URL to the list of repositories.
-        addMavenProxies(props, fabricService.getService());
+        addMavenProxies(properties, fabricService.getService());
 
         updateStatus("analyzing", null);
 
         // Building configuration
-        PropertiesPropertyResolver syspropsResolver = new PropertiesPropertyResolver(System.getProperties());
-        DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(props, syspropsResolver);
-        MavenConfigurationImpl config = new MavenConfigurationImpl(propertyResolver, "org.ops4j.pax.url.mvn");
-        MavenResolver resolver = new AetherBasedResolver(config);
-        DownloadManager manager = new DownloadManager(resolver, getDownloadExecutor());
-        Map<String, String> properties = new HashMap<String, String>();
-        for (Enumeration e = props.keys(); e.hasMoreElements();) {
-            Object key = e.nextElement();
-            Object val = props.get(key);
-            if (!"service.pid".equals(key) && !FABRIC_ZOOKEEPER_PID.equals(key)) {
-                properties.put(key.toString(), val.toString());
+        MavenResolver resolver = MavenResolvers.createMavenResolver(properties, "org.ops4j.pax.url.mvn");
+        final DownloadManager manager = DownloadManagers.createDownloadManager(resolver, getDownloadExecutor());
+        manager.addListener(new DownloadCallback() {
+            @Override
+            public void downloaded(StreamProvider provider) throws Exception {
+                int pending = manager.pending();
+                updateStatus(pending > 0 ? "downloading (" + pending + " pending)" : "downloading", null);
             }
-        }
+        });
+
 
         // Update deployment agent configuration
         setResolveOptionalImports(getResolveOptionalImports(properties));
         setUrlHandlersTimeout(getUrlHandlersTimeout(properties));
 
         // Update framework, libs, system and config props
-        boolean restart = false;
-        Set<String> libsToRemove = new HashSet<String>(managedLibs.keySet());
-        Set<String> endorsedLibsToRemove = new HashSet<String>(managedEndorsedLibs.keySet());
-        Set<String> extensionLibsToRemove = new HashSet<String>(managedExtensionLibs.keySet());
-        Set<String> sysPropsToRemove = new HashSet<String>(managedSysProps.keySet());
-        Set<String> configPropsToRemove = new HashSet<String>(managedConfigProps.keySet());
-        Set<String> etcsToRemove = new HashSet<String>(managedEtcs.keySet());
-        Properties configProps = new Properties(new File(KARAF_BASE + File.separator + "etc" + File.separator + "config.properties"));
-        Properties systemProps = new Properties(new File(KARAF_BASE + File.separator + "etc" + File.separator + "system.properties"));
+        final Object lock = new Object();
+        final AtomicBoolean restart = new AtomicBoolean();
+        final Set<String> libsToRemove = new HashSet<>(managedLibs.keySet());
+        final Set<String> endorsedLibsToRemove = new HashSet<>(managedEndorsedLibs.keySet());
+        final Set<String> extensionLibsToRemove = new HashSet<>(managedExtensionLibs.keySet());
+        final Set<String> sysPropsToRemove = new HashSet<>(managedSysProps.keySet());
+        final Set<String> configPropsToRemove = new HashSet<>(managedConfigProps.keySet());
+        final Set<String> etcsToRemove = new HashSet<>(managedEtcs.keySet());
+        final Properties configProps = new Properties(new File(KARAF_BASE + File.separator + "etc" + File.separator + "config.properties"));
+        final Properties systemProps = new Properties(new File(KARAF_BASE + File.separator + "etc" + File.separator + "system.properties"));
+
+        Downloader downloader = manager.createDownloader();
         for (String key : properties.keySet()) {
             if (key.equals("framework")) {
                 String url = properties.get(key);
-                restart |= updateFramework(manager, configProps, url);
+                if (!url.startsWith("mvn:")) {
+                    throw new IllegalArgumentException("Framework url must use the mvn: protocol");
+                }
+                downloader.download(url, new DownloadCallback() {
+                    @Override
+                    public void downloaded(StreamProvider provider) throws Exception {
+                        File file = provider.getFile();
+                        String path = file.getPath();
+                        if (path.startsWith(KARAF_HOME)) {
+                            path = path.substring(KARAF_HOME.length() + 1);
+                        }
+                        synchronized (lock) {
+                            if (!path.equals(configProps.get("karaf.framework.felix"))) {
+                                configProps.put("karaf.framework", "felix");
+                                configProps.put("karaf.framework.felix", path);
+                                restart.set(true);
+                            }
+                        }
+                    }
+                });
             } else if (key.startsWith("config.")) {
                 String k = key.substring("config.".length());
                 String v = properties.get(key);
-                managedConfigProps.put(k, v);
-                configPropsToRemove.remove(k);
-                if (!v.equals(configProps.get(k))) {
-                    configProps.put(k, v);
-                    restart = true;
+                synchronized (lock) {
+                    managedConfigProps.put(k, v);
+                    configPropsToRemove.remove(k);
+                    if (!v.equals(configProps.get(k))) {
+                        configProps.put(k, v);
+                        restart.set(true);
+                    }
                 }
             } else if (key.startsWith("system.")) {
                 String k = key.substring("system.".length());
-                String v = properties.get(key);
-                managedSysProps.put(k,v);
-                sysPropsToRemove.remove(k);
-                if (!v.equals(systemProps.get(k))) {
-                    systemProps.put(k, v);
-                    restart = true;
+                synchronized (lock) {
+                    String v = properties.get(key);
+                    managedSysProps.put(k, v);
+                    sysPropsToRemove.remove(k);
+                    if (!v.equals(systemProps.get(k))) {
+                        systemProps.put(k, v);
+                        restart.set(true);
+                    }
                 }
             } else if (key.startsWith("lib.")) {
                 String value = properties.get(key);
-                File libFile = manager.download(value).await().getFile();
-                String libName = libFile.getName();
-                Long checksum = ChecksumUtils.checksum(new FileInputStream(libFile));
-                managedLibs.put(libName, "true");
-                libsToRemove.remove(libName);
-                if (!Long.toString(checksum).equals(libChecksums.getProperty(libName))) {
-                    Files.copy(libFile, new File(LIB_PATH, libName));
-                    restart = true;
-                }
+                downloader.download(value, new DownloadCallback() {
+                    @Override
+                    public void downloaded(StreamProvider provider) throws Exception {
+                        File libFile = provider.getFile();
+                        String libName = libFile.getName();
+                        Long checksum = ChecksumUtils.checksum(libFile);
+                        boolean update;
+                        synchronized (lock) {
+                            managedLibs.put(libName, "true");
+                            libsToRemove.remove(libName);
+                            update = !Long.toString(checksum).equals(libChecksums.getProperty(libName));
+                        }
+                        if (update) {
+                            Files.copy(libFile, new File(LIB_PATH, libName));
+                            restart.set(true);
+                        }
+                    }
+                });
             } else if (key.startsWith("endorsed.")) {
                 String value = properties.get(key);
-                File libFile = manager.download(value).await().getFile();
-                String libName = libFile.getName();
-                Long checksum = ChecksumUtils.checksum(new FileInputStream(libFile));
-                managedEndorsedLibs.put(libName, "true");
-                endorsedLibsToRemove.remove(libName);
-                if (!Long.toString(checksum).equals(endorsedChecksums.getProperty(libName))) {
-                    Files.copy(libFile, new File(LIB_ENDORSED_PATH, libName));
-                    restart = true;
-                }
+                downloader.download(value, new DownloadCallback() {
+                    @Override
+                    public void downloaded(StreamProvider provider) throws Exception {
+                        File libFile = provider.getFile();
+                        String libName = libFile.getName();
+                        Long checksum = ChecksumUtils.checksum(new FileInputStream(libFile));
+                        boolean update;
+                        synchronized (lock) {
+                            managedEndorsedLibs.put(libName, "true");
+                            endorsedLibsToRemove.remove(libName);
+                            update = !Long.toString(checksum).equals(endorsedChecksums.getProperty(libName));
+                        }
+                        if (update) {
+                            Files.copy(libFile, new File(LIB_ENDORSED_PATH, libName));
+                            restart.set(true);
+                        }
+                    }
+                });
             } else if (key.startsWith("extension.")) {
                 String value = properties.get(key);
-                File libFile = manager.download(value).await().getFile();
-                String libName = libFile.getName();
-                Long checksum = ChecksumUtils.checksum(new FileInputStream(libFile));
-                managedExtensionLibs.put(libName, "true");
-                extensionLibsToRemove.remove(libName);
-                if (!Long.toString(checksum).equals(extensionChecksums.getProperty(libName))) {
-                    Files.copy(libFile, new File(LIB_EXT_PATH, libName));
-                    restart = true;
-                }
+                downloader.download(value, new DownloadCallback() {
+                    @Override
+                    public void downloaded(StreamProvider provider) throws Exception {
+                        File libFile = provider.getFile();
+                        String libName = libFile.getName();
+                        Long checksum = ChecksumUtils.checksum(libFile);
+                        boolean update;
+                        synchronized (lock) {
+                            managedExtensionLibs.put(libName, "true");
+                            extensionLibsToRemove.remove(libName);
+                            update = !Long.toString(checksum).equals(extensionChecksums.getProperty(libName));
+                        }
+                        if (update) {
+                            Files.copy(libFile, new File(LIB_EXT_PATH, libName));
+                            restart.set(true);
+                        }
+                    }
+                });
             } else if (key.startsWith("etc.")) {
                 String value = properties.get(key);
-                File etcFile = manager.download(value).await().getFile();
-                String etcName = etcFile.getName();
-                Long checksum = ChecksumUtils.checksum(new FileInputStream(etcFile));
-                managedEtcs.put(etcName, "true");
-                etcsToRemove.remove(etcName);
-                if (!Long.toString(checksum).equals(etcChecksums.getProperty(etcName))) {
-                    Files.copy(etcFile, new File(KARAF_ETC, etcName));
-                }
+                downloader.download(value, new DownloadCallback() {
+                    @Override
+                    public void downloaded(StreamProvider provider) throws Exception {
+                        File etcFile = provider.getFile();
+                        String etcName = etcFile.getName();
+                        Long checksum = ChecksumUtils.checksum(new FileInputStream(etcFile));
+                        boolean update;
+                        synchronized (lock) {
+                            managedEtcs.put(etcName, "true");
+                            etcsToRemove.remove(etcName);
+                            update = !Long.toString(checksum).equals(etcChecksums.getProperty(etcName));
+                        }
+                        if (update) {
+                            Files.copy(etcFile, new File(KARAF_ETC, etcName));
+                        }
+                    }
+                });
             }
         }
+        downloader.await();
         //Remove unused libs, system & config properties
         for (String sysProp : sysPropsToRemove) {
             systemProps.remove(sysProp);
             managedSysProps.remove(sysProp);
             System.clearProperty(sysProp);
-            restart = true;
+            restart.set(true);
         }
 
         for (String configProp : configPropsToRemove) {
             configProps.remove(configProp);
             managedConfigProps.remove(configProp);
-            restart = true;
+            restart.set(true);
         }
 
         for (String lib : libsToRemove) {
@@ -516,7 +548,7 @@ public class DeploymentAgent implements ManagedService {
             libFile.delete();
             libChecksums.remove(lib);
             managedLibs.remove(lib);
-            restart = true;
+            restart.set(true);
         }
 
         for (String lib : endorsedLibsToRemove) {
@@ -524,7 +556,7 @@ public class DeploymentAgent implements ManagedService {
             libFile.delete();
             endorsedChecksums.remove(lib);
             managedEndorsedLibs.remove(lib);
-            restart = true;
+            restart.set(true);
         }
 
         for (String lib : extensionLibsToRemove) {
@@ -532,7 +564,7 @@ public class DeploymentAgent implements ManagedService {
             libFile.delete();
             extensionChecksums.remove(lib);
             managedExtensionLibs.remove(lib);
-            restart = true;
+            restart.set(true);
         }
 
         for (String etc : etcsToRemove) {
@@ -554,7 +586,7 @@ public class DeploymentAgent implements ManagedService {
         managedSysProps.save();
         managedEtcs.save();
 
-        if (restart) {
+        if (restart.get()) {
             updateStatus("restarting", null);
             configProps.save();
             systemProps.save();
@@ -563,54 +595,39 @@ public class DeploymentAgent implements ManagedService {
             return false;
         }
 
-        // Compute deployment
-        final Map<String, Repository> repositories = loadRepositories(manager, getPrefixedProperties(properties, "repository."));
-
-        DeploymentBuilder builder = new DeploymentBuilder(
-                manager,
-                repositories.values(),
-                urlHandlersTimeout
-        );
-        updateStatus("downloading", null);
-        if (!getPrefixedProperties(properties, "fab.").isEmpty()) {
-            LOGGER.warn("Fabric bundles are not supported anymore, those requirements will be ignored.");
+        FeatureConfigInstaller configInstaller = null;
+        ServiceReference configAdminServiceReference = bundleContext.getServiceReference(ConfigurationAdmin.class.getName());
+        if (configAdminServiceReference != null) {
+            ConfigurationAdmin configAdmin = (ConfigurationAdmin) bundleContext.getService(configAdminServiceReference);
+            configInstaller = new FeatureConfigInstaller(configAdmin, manager);
         }
-        Map<String, Resource> downloadedResources = builder.download(
+
+        Agent agent = new Agent(
+                bundleContext.getBundle(),
+                systemBundleContext,
+                manager,
+                configInstaller,
+                null,
+                DEFAULT_FEATURE_RESOLUTION_RANGE,
+                DEFAULT_BUNDLE_UPDATE_RANGE,
+                DEFAULT_UPDATE_SNAPSHOTS,
+                bundleContext.getDataFile(STATE_FILE)
+        ) {
+            @Override
+            public void updateStatus(String status) {
+                DeploymentAgent.this.updateStatus(status, null);
+            }
+        };
+        agent.provision(
+                getPrefixedProperties(properties, "repository."),
                 getPrefixedProperties(properties, "feature."),
                 getPrefixedProperties(properties, "bundle."),
                 getPrefixedProperties(properties, "req."),
                 getPrefixedProperties(properties, "override."),
                 getPrefixedProperties(properties, "optional."),
-                getMetadata(properties, "metadata#"), new DownloadProgressListener()
+                getMetadata(properties, "metadata#")
         );
-
-        // TODO: handle default range policy on feature requirements
-        // TODO: handle default range policy on feature dependencies requirements
-
-        for (String uri : getPrefixedProperties(properties, "resources.")) {
-            builder.addResourceRepository(new MetadataRepository(new HttpMetadataProvider(uri)));
-        }
-
-        updateStatus("resolving", null);
-        Resource systemBundle = systemBundleContext.getBundle(0).adapt(BundleRevision.class);
-        Collection<Resource> allResources = builder.resolve(systemBundle, resolveOptionalImports);
-
-        Set<String> ignoredBundles = getPrefixedProperties(properties, "ignore.");
-        Map<String, StreamProvider> providers = builder.getProviders();
-        Map<Resource, List<Wire>> wiring = builder.getWiring();
-        install(manager, allResources, ignoredBundles, providers, wiring);
-        installFeatureConfigs(bundleContext, downloadedResources);
         return true;
-    }
-
-    private final class DownloadProgressListener implements DeploymentBuilder.DeploymentDownloadListener {
-
-        @Override
-        public void onDownload(File file, int pending) {
-            if (pending > 0) {
-                updateStatus("downloading (" + pending + " pending)", null);
-            }
-        }
     }
 
     public static boolean getResolveOptionalImports(Map<String, String> config) {
@@ -628,25 +645,23 @@ public class DeploymentAgent implements ManagedService {
 
     public static long getUrlHandlersTimeout(Map<String, String> config) {
         if (config != null) {
-            Object timeout = config.get(URL_HANDLERS_TIMEOUT);
-            if (timeout instanceof Number) {
-                return ((Number) timeout).longValue();
-            } else if (timeout instanceof String) {
-                return Long.parseLong((String) timeout);
+            String timeout = config.get(URL_HANDLERS_TIMEOUT);
+            if (timeout != null) {
+                return Long.parseLong(timeout);
             }
         }
         return TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES);
     }
 
     public static Set<String> getPrefixedProperties(Map<String, String> properties, String prefix) {
-        Set<String> result = new HashSet<String>();
+        Set<String> result = new HashSet<>();
         for (String key : properties.keySet()) {
             if (key.startsWith(prefix)) {
                 String url = properties.get(key);
                 if (url == null || url.length() == 0) {
                     url = key.substring(prefix.length());
                 }
-                if (url != null && url.length() > 0) {
+                if (url.length() > 0) {
                     result.add(url);
                 }
             }
@@ -655,7 +670,7 @@ public class DeploymentAgent implements ManagedService {
     }
 
     public static Map<String, Map<VersionRange, Map<String, String>>> getMetadata(Map<String, String> properties, String prefix) {
-        Map<String, Map<VersionRange, Map<String, String>>> result = new HashMap<String, Map<VersionRange, Map<String, String>>>();
+        Map<String, Map<VersionRange, Map<String, String>>> result = new HashMap<>();
         for (String key : properties.keySet()) {
             if (key.startsWith(prefix)) {
                 String val = properties.get(key);
@@ -664,7 +679,7 @@ public class DeploymentAgent implements ManagedService {
                 if (parts.length == 3) {
                     Map<VersionRange, Map<String, String>> ranges = result.get(parts[0]);
                     if (ranges == null) {
-                        ranges = new HashMap<VersionRange, Map<String, String>>();
+                        ranges = new HashMap<>();
                         result.put(parts[0], ranges);
                     }
                     String version = parts[1];
@@ -677,7 +692,7 @@ public class DeploymentAgent implements ManagedService {
                     VersionRange range = new VersionRange(version);
                     Map<String, String> hdrs = ranges.get(range);
                     if (hdrs == null) {
-                        hdrs = new HashMap<String, String>();
+                        hdrs = new HashMap<>();
                         ranges.put(range, hdrs);
                     }
                     hdrs.put(parts[2], val);
@@ -687,641 +702,13 @@ public class DeploymentAgent implements ManagedService {
         return result;
     }
 
-    private void install(DownloadManager manager, Collection<Resource> allResources, Collection<String> ignoredBundles, Map<String, StreamProvider> providers, Map<Resource, List<Wire>> wiring) throws Exception {
-        updateStatus("installing", null, allResources, false);
-        Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Configuration changed.  New bundles list:\n");
-        for (Resource bundle : allResources) {
-            sb.append("  ").append(getUri(bundle)).append("\n");
-        }
-        LOGGER.info(sb.toString());
-
-        Map<String, String> newCheckums = new HashMap<String, String>();
-        List<Resource> toDeploy = new ArrayList<Resource>(allResources);
-        List<Resource> toInstall = new ArrayList<Resource>();
-        List<Bundle> toDelete = new ArrayList<Bundle>();
-        Map<Bundle, Resource> toUpdate = new HashMap<Bundle, Resource>();
-
-        // First pass: go through all installed bundles and mark them
-        // as either to ignore or delete
-        File file = bundleContext.getDataFile("bundle-checksums.properties");
-        bundleChecksums.load(file);
-
-        for (Bundle bundle : systemBundleContext.getBundles()) {
-            if (bundle.getSymbolicName() != null && bundle.getBundleId() != 0) {
-                Resource resource = null;
-                boolean update = false;
-                for (Resource res : toDeploy) {
-                    if (bundle.getSymbolicName().equals(getSymbolicName(res))) {
-                        if (bundle.getVersion().equals(getVersion(res))) {
-                            if (isUpdateable(res)) {
-                                // if the checksum are different
-                                InputStream is = null;
-                                try {
-                                    is = getBundleInputStream(manager, res, providers);
-                                    long newCrc = ChecksumUtils.checksum(is);
-                                    long oldCrc = bundleChecksums.containsKey(bundle.getLocation()) ? Long.parseLong(bundleChecksums.get(bundle.getLocation())) : 0l;
-                                    if (newCrc != oldCrc) {
-                                        LOGGER.debug("New snapshot available for " + bundle.getLocation());
-                                        update = true;
-                                        newCheckums.put(bundle.getLocation(), Long.toString(newCrc));
-                                    }
-                                } finally {
-                                    if (is != null) {
-                                        is.close();
-                                    }
-                                }
-                            }
-                            resource = res;
-                            break;
-                        }
-                    }
-                }
-                if (resource != null) {
-                    toDeploy.remove(resource);
-                    resToBnd.put(resource, bundle);
-                    if (update) {
-                        toUpdate.put(bundle, resource);
-                    }
-                } else if (bundleSymbolicNameMatches(bundle, ignoredBundles)) {
-                    //Do nothing and ignore the bundle.
-                } else {
-                    toDelete.add(bundle);
-                }
-            }
-        }
-
-        // Second pass on remaining resources
-        for (Resource resource : toDeploy) {
-            TreeMap<Version, Bundle> matching = new TreeMap<Version, Bundle>();
-            VersionRange range = getMicroVersionRange(getVersion(resource));
-            for (Bundle bundle : toDelete) {
-                if (bundle.getSymbolicName().equals(getSymbolicName(resource)) && range.contains(bundle.getVersion())) {
-                    matching.put(bundle.getVersion(), bundle);
-                }
-            }
-            if (!matching.isEmpty()) {
-                Bundle bundle = matching.lastEntry().getValue();
-                toUpdate.put(bundle, resource);
-                toDelete.remove(bundle);
-                resToBnd.put(resource, bundle);
-            } else {
-                toInstall.add(resource);
-            }
-        }
-
-        // Check if an update of the agent is needed
-        Resource agentResource = toUpdate.get(bundleContext.getBundle());
-        if (agentResource != null) {
-            LOGGER.info("Updating agent");
-            LOGGER.info("  " + getUri(agentResource));
-            InputStream is = getBundleInputStream(manager, agentResource, providers);
-            Bundle bundle = bundleContext.getBundle();
-            //We need to store the agent checksum and save before we update the agent.
-            if (newCheckums.containsKey(bundle.getLocation())) {
-                bundleChecksums.put(bundle.getLocation(), newCheckums.get(bundle.getLocation()));
-            }
-            bundleChecksums.save(); // Force the needed classes to be loaded
-            bundle.update(is);
-            return;
-        }
-
-        // Display
-        LOGGER.info("Changes to perform:");
-        LOGGER.info("  Bundles to uninstall:");
-        for (Bundle bundle : toDelete) {
-            LOGGER.info("    " + bundle.getSymbolicName() + " / " + bundle.getVersion());
-        }
-        LOGGER.info("  Bundles to update:");
-        for (Map.Entry<Bundle, Resource> entry : toUpdate.entrySet()) {
-            LOGGER.info("    " + entry.getKey().getSymbolicName() + " / " + entry.getKey().getVersion() + " with " + getUri(entry.getValue()));
-        }
-        LOGGER.info("  Bundles to install:");
-        for (Resource resource : toInstall) {
-            LOGGER.info("    " + getUri(resource));
-        }
-
-        Set<Bundle> toRefresh = new HashSet<Bundle>();
-
-        // Execute
-        LOGGER.info("Stopping bundles:");
-        List<Bundle> toStop = new ArrayList<Bundle>();
-        toStop.addAll(toUpdate.keySet());
-        toStop.addAll(toDelete);
-        while (!toStop.isEmpty()) {
-            List<Bundle> bs = getBundlesToDestroy(toStop);
-            for (Bundle bundle : bs) {
-                String hostHeader = bundle.getHeaders().get(Constants.FRAGMENT_HOST);
-                if (hostHeader == null && (bundle.getState() == Bundle.ACTIVE || bundle.getState() == Bundle.STARTING)) {
-                    LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
-                    bundle.stop(Bundle.STOP_TRANSIENT);
-                }
-                toStop.remove(bundle);
-            }
-        }
-        LOGGER.info("Uninstalling bundles:");
-        for (Bundle bundle : toDelete) {
-            LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
-            bundle.uninstall();
-            toRefresh.add(bundle);
-        }
-        LOGGER.info("Updating bundles:");
-        for (Map.Entry<Bundle, Resource> entry : toUpdate.entrySet()) {
-            Bundle bundle = entry.getKey();
-            Resource resource = entry.getValue();
-            LOGGER.info("  " + getUri(resource));
-            InputStream is = getBundleInputStream(manager, resource, providers);
-            bundle.update(is);
-            toRefresh.add(bundle);
-        }
-        LOGGER.info("Installing bundles:");
-        for (Resource resource : toInstall) {
-            LOGGER.info("  " + getUri(resource));
-            InputStream is = getBundleInputStream(manager, resource, providers);
-            Bundle bundle = systemBundleContext.installBundle(getUri(resource), is);
-            toRefresh.add(bundle);
-            resToBnd.put(resource, bundle);
-            // save a checksum of installed snapshot bundle
-            if (bundle.getVersion().getQualifier().endsWith(SNAPSHOT) && !newCheckums.containsKey(bundle.getLocation())) {
-                newCheckums.put(bundle.getLocation(), Long.toString(ChecksumUtils.checksum(getBundleInputStream(manager, resource, providers))));
-            }
-        }
-
-        if (!newCheckums.isEmpty()) {
-            for (String key : newCheckums.keySet()) {
-                bundleChecksums.put(key, newCheckums.get(key));
-            }
-            try {
-                bundleChecksums.save();
-            } catch (IOException e) {
-                // this exception is most likely just due to fabric-agent version changes
-                // so the bundle has gone from under our feet so lets just log a warning
-                // so at least the agent can continue to load the new version of fabric-agent
-                LOGGER.warn("We failed to write the agent checksums which is probably due to the fabric-agent bundle being uninstalled so it can be replaced with a different version. Exception: " + e, e);
-            }
-        }
-
-        findBundlesWithOptionalPackagesToRefresh(toRefresh);
-        findBundlesWithFragmentsToRefresh(toRefresh);
-
-        LOGGER.info("Stopping bundles:");
-        toStop = new ArrayList<Bundle>();
-        toStop.addAll(toRefresh);
-        removeFragmentsAndBundlesInState(toStop, UNINSTALLED | RESOLVED | STOPPING);
-        while (!toStop.isEmpty()) {
-            List<Bundle> bs = getBundlesToDestroy(toStop);
-            for (Bundle bundle : bs) {
-                String hostHeader = bundle.getHeaders().get(Constants.FRAGMENT_HOST);
-                if (hostHeader == null && (bundle.getState() == Bundle.ACTIVE || bundle.getState() == Bundle.STARTING)) {
-                    LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
-                    bundle.stop(Bundle.STOP_TRANSIENT);
-                }
-                toStop.remove(bundle);
-            }
-        }
-
-        updateStatus("finalizing", null);
-        LOGGER.info("Refreshing bundles:");
-        for (Bundle bundle : toRefresh) {
-            LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
-        }
-
-        if (!toRefresh.isEmpty()) {
-            updateStatus("finalizing (refreshing)", null);
-            refreshPackages(toRefresh);
-        }
-
-        LOGGER.info("Resolving bundles");
-        List<Bundle> toResolve = new ArrayList<Bundle>();
-        removeFragmentsAndBundlesInState(toResolve, UNINSTALLED);
-        for (Resource resource : allResources) {
-            Bundle bundle = resToBnd.get(resource);
-            if (bundle != null) {
-                String hostHeader = bundle.getHeaders().get(Constants.FRAGMENT_HOST);
-                if (hostHeader == null && bundle.getState() != Bundle.UNINSTALLED) {
-                    toResolve.add(bundle);
-                }
-            }
-        }
-        if (!toResolve.isEmpty()) {
-            updateStatus("finalizing (resolving)", null);
-        }
-        systemBundleContext.getBundle().adapt(FrameworkWiring.class).resolveBundles(toResolve);
-
-        List<Resource> resourcesWithUrlHandlers = new ArrayList<Resource>();
-        for (Resource resource : allResources) {
-            for (Capability cap : resource.getCapabilities(null)) {
-                if (cap.getNamespace().equals(ServiceNamespace.SERVICE_NAMESPACE)) {
-                    String[] itfs = getStrings(cap.getAttributes().get(Constants.OBJECTCLASS));
-                    if (itfs != null) {
-                        for (String itf : itfs) {
-                            if (itf.equals(URLStreamHandlerService.class.getName())) {
-                                if (!resourcesWithUrlHandlers.contains(resource)) {
-                                    resourcesWithUrlHandlers.add(resource);
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        Set<Resource> firstSetToStart = new LinkedHashSet<Resource>();
-        Set<Resource> visited = new LinkedHashSet<Resource>();
-        for (Resource resource : resourcesWithUrlHandlers) {
-            visit(resource, visited, firstSetToStart, wiring);
-        }
-
-        // We hit FELIX-2949 if we don't use the correct order as Felix resolver isn't greedy.
-        // In order to minimize that, we make sure we resolve the bundles in the order they
-        // are given back by the resolution, meaning that all root bundles (i.e. those that were
-        // not flagged as dependencies in features) are started before the others.   This should
-        // make sure those important bundles are started first and minimize the problem.
-        List<Throwable> exceptions = new ArrayList<Throwable>();
-        LOGGER.info("Starting bundles:");
-        if (!firstSetToStart.isEmpty()) {
-            updateStatus("finalizing (starting)", null);
-        }
-        // TODO: use wiring here instead of sorting
-        for (Resource resource : firstSetToStart) {
-            Bundle bundle = resToBnd.get(resource);
-            if (bundle == null) {
-                continue;
-            }
-            String hostHeader = bundle.getHeaders().get(Constants.FRAGMENT_HOST);
-            if (hostHeader == null && bundle.getState() != Bundle.ACTIVE) {
-                LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
-                try {
-                    bundle.start();
-                } catch (BundleException e) {
-                    resourcesWithUrlHandlers.remove(resource);
-                    exceptions.add(e);
-                }
-            }
-        }
-        if (!resourcesWithUrlHandlers.isEmpty()) {
-            LOGGER.info("Waiting for URL handlers...");
-            long t0 = System.currentTimeMillis();
-            while (!resourcesWithUrlHandlers.isEmpty() && t0 - System.currentTimeMillis() < 30 * 1000) {
-                for (Iterator<Resource> it = resourcesWithUrlHandlers.iterator(); it.hasNext(); ) {
-                    Resource resource = it.next();
-                    Bundle bundle = resToBnd.get(resource);
-                    boolean remove = false;
-                    if (bundle.getState() != Bundle.ACTIVE) {
-                        remove = true;
-                    } else {
-                        ServiceReference[] refs = bundle.getRegisteredServices();
-                        if (refs != null) {
-                            for (ServiceReference ref : refs) {
-                                Object val = ref.getProperty(Constants.OBJECTCLASS);
-                                String[] itfs = getStrings(val);
-                                if (itfs != null) {
-                                    for (String itf : itfs) {
-                                        remove |= itf.equals(URLStreamHandlerService.class.getName());
-                                    }
-                                } else {
-                                    remove = true;
-                                }
-                            }
-                        }
-                    }
-                    if (remove) {
-                        it.remove();
-                    }
-                }
-                if (!resourcesWithUrlHandlers.isEmpty()) {
-                    Thread.sleep(100);
-                }
-            }
-            LOGGER.info("Starting bundles:");
-        }
-        for (Resource resource : requirementSort.sort(allResources)) {
-            Bundle bundle = resToBnd.get(resource);
-            String hostHeader = bundle.getHeaders().get(Constants.FRAGMENT_HOST);
-            if (hostHeader == null && bundle.getState() != Bundle.ACTIVE) {
-                LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
-                try {
-                    bundle.start();
-                } catch (BundleException e) {
-                    exceptions.add(e);
-                }
-            }
-        }
-        if (!exceptions.isEmpty()) {
-            throw new MultiException("Error updating agent", exceptions);
-        }
-
-        LOGGER.info("Done.");
-    }
-
-    private String[] getStrings(Object val) {
-        String[] itfs;
-        if (val instanceof String) {
-            itfs = new String[] { (String) val };
-        } else if (val instanceof Collection) {
-            itfs = (String[]) ((Collection) val).toArray(new String[0]);
-        } else if (val instanceof String[]) {
-            itfs = (String[]) val;
-        } else {
-            itfs = null;
-        }
-        return itfs;
-    }
-
-    private static void visit(Resource resource, Set<Resource> visited, Set<Resource> sorted, Map<Resource, List<Wire>> wiring) {
-        if (!visited.add(resource)) {
-            return;
-        }
-        for (Wire w : wiring.get(resource)) {
-            if (w.getCapability().getNamespace().equals(ServiceNamespace.SERVICE_NAMESPACE)
-                    || w.getCapability().getNamespace().equals("osgi.extender")) {
-                visit(w.getProvider(), visited, sorted, wiring);
-            }
-        }
-        sorted.add(resource);
-    }
-
-    protected InputStream getBundleInputStream(DownloadManager manager, Resource resource, Map<String, StreamProvider> providers) throws IOException {
-        String uri = getUri(resource);
-        if (uri == null) {
-            throw new IllegalStateException("Resource has no uri");
-        }
-        StreamProvider provider = providers.get(uri);
-        if (provider == null) {
-            try {
-                return new FileInputStream(manager.download(uri).await().getFile());
-            } catch (InterruptedException e) {
-                throw (IOException) new InterruptedIOException().initCause(e);
-            }
-        }
-        return provider.open();
-    }
-
-    private void removeFragmentsAndBundlesInState(Collection<Bundle> bundles, int state) {
-        for (Iterator<Bundle> iterator = bundles.iterator(); iterator.hasNext();) {
-            Bundle bundle = iterator.next();
-            if ((bundle.getState() & state) != 0
-                    || bundle.getHeaders().get(Constants.FRAGMENT_HOST) != null) {
-                iterator.remove();
-            }
-        }
-    }
-
-    private List<Bundle> getBundlesToDestroy(List<Bundle> bundles) {
-        List<Bundle> bundlesToDestroy = new ArrayList<Bundle>();
-        for (Bundle bundle : bundles) {
-            ServiceReference[] references = bundle.getRegisteredServices();
-            int usage = 0;
-            if (references != null) {
-                for (ServiceReference reference : references) {
-                    usage += getServiceUsage(reference, bundles);
-                }
-            }
-            LOGGER.debug("Usage for bundle {} is {}", bundle, usage);
-            if (usage == 0) {
-                bundlesToDestroy.add(bundle);
-            }
-        }
-        if (!bundlesToDestroy.isEmpty()) {
-            Collections.sort(bundlesToDestroy, new Comparator<Bundle>() {
-                public int compare(Bundle b1, Bundle b2) {
-                    return (int) (b2.getLastModified() - b1.getLastModified());
-                }
-            });
-            LOGGER.debug("Selected bundles {} for destroy (no services in use)", bundlesToDestroy);
-        } else {
-            ServiceReference ref = null;
-            for (Bundle bundle : bundles) {
-                ServiceReference[] references = bundle.getRegisteredServices();
-                for (ServiceReference reference : references) {
-                    if (getServiceUsage(reference, bundles) == 0) {
-                        continue;
-                    }
-                    if (ref == null || reference.compareTo(ref) < 0) {
-                        LOGGER.debug("Currently selecting bundle {} for destroy (with reference {})", bundle, reference);
-                        ref = reference;
-                    }
-                }
-            }
-            if (ref != null) {
-                bundlesToDestroy.add(ref.getBundle());
-            }
-            LOGGER.debug("Selected bundle {} for destroy (lowest ranking service)", bundlesToDestroy);
-        }
-        return bundlesToDestroy;
-    }
-
-    private static int getServiceUsage(ServiceReference ref, List<Bundle> bundles) {
-        Bundle[] usingBundles = ref.getUsingBundles();
-        int nb = 0;
-        if (usingBundles != null) {
-            for (Bundle bundle : usingBundles) {
-                if (bundles.contains(bundle)) {
-                    nb++;
-                }
-            }
-        }
-        return nb;
-    }
-
-    private VersionRange getMicroVersionRange(Version version) {
-        Version floor = new Version(version.getMajor(), version.getMinor(), 0);
-        Version ceil = new Version(version.getMajor(), version.getMinor() + 1, 0);
-        return new VersionRange(false, floor, ceil, true);
-    }
-
-    protected void findBundlesWithFragmentsToRefresh(Set<Bundle> toRefresh) {
-        if (toRefresh.isEmpty()) {
-            return;
-        }
-        Set<Bundle> bundles = new HashSet<Bundle>(Arrays.asList(systemBundleContext.getBundles()));
-        bundles.removeAll(toRefresh);
-        if (bundles.isEmpty()) {
-            return;
-        }
-        for (Bundle bundle : new ArrayList<Bundle>(toRefresh)) {
-            BundleRevision rev = bundle.adapt(BundleRevision.class);
-            if (rev != null) {
-                for (BundleRequirement req : rev.getDeclaredRequirements(null)) {
-                    if (BundleRevision.HOST_NAMESPACE.equals(req.getNamespace())) {
-                        for (Bundle hostBundle : bundles) {
-                            if (!toRefresh.contains(hostBundle)) {
-                                BundleRevision hostRev = hostBundle.adapt(BundleRevision.class);
-                                if (hostRev != null) {
-                                    for (BundleCapability cap : hostRev.getDeclaredCapabilities(null)) {
-                                        if (req.matches(cap)) {
-                                            toRefresh.add(hostBundle);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    protected void findBundlesWithOptionalPackagesToRefresh(Set<Bundle> toRefresh) {
-        // First pass: include all bundles contained in these features
-        if (toRefresh.isEmpty()) {
-            return;
-        }
-        Set<Bundle> bundles = new HashSet<Bundle>(Arrays.asList(systemBundleContext.getBundles()));
-        bundles.removeAll(toRefresh);
-        if (bundles.isEmpty()) {
-            return;
-        }
-        // Second pass: for each bundle, check if there is any unresolved optional package that could be resolved
-        for (Bundle bundle : bundles) {
-            matchBundleWithOptionalImport(bundle, toRefresh);
-        }
-    }
-
-    private void matchBundleWithOptionalImport(Bundle bundle, Set<Bundle> toRefresh) {
-        BundleRevision revision = bundle.adapt(BundleRevision.class);
-        for (BundleRequirement req : revision.getDeclaredRequirements(PackageNamespace.PACKAGE_NAMESPACE)) {
-            if (PackageNamespace.RESOLUTION_OPTIONAL.equals(req.getDirectives().get(PackageNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE))) {
-                
-                // Find the wire for this optional package import
-                BundleWiring wiring = bundle.adapt(BundleWiring.class);
-                BundleWire reqwire = null;
-                if (wiring != null) {
-                    for (BundleWire wire : wiring.getRequiredWires(PackageNamespace.PACKAGE_NAMESPACE)) {
-                        if (req.equals(wire.getRequirement())) {
-                            BundleCapability cap = wire.getCapability();
-                            BundleRevision provider = wire.getProvider();
-                            LOGGER.debug("Optional requirement {} from {} wires to capability {} provided by {}", req, bundle, cap, provider);
-                            reqwire = wire;
-                            break;
-                        }
-                    }
-                } 
-                
-                // If the requirement is already wired we don't need to do anything
-                // the refresh algorithm will compute the transitive graph of refresh candidates
-                if (reqwire == null) {
-                    
-                    // Compute the set of possible providers 
-                    for (Bundle provider : toRefresh) {
-                        BundleRevision providerRev = provider.adapt(BundleRevision.class);
-                        if (providerRev != null) {
-                            for (BundleCapability cap : providerRev.getDeclaredCapabilities(PackageNamespace.PACKAGE_NAMESPACE)) {
-                                if (req.matches(cap)) {
-                                    LOGGER.info("Found possible provider for unwired optional requirement {} from {}: {}", req, bundle, provider);
-                                    toRefresh.add(bundle);
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                } 
-            }
-        }
-    }
-
-    protected boolean updateFramework(DownloadManager manager, Properties properties, String url) throws Exception {
-        if (!url.startsWith("mvn:")) {
-            throw new IllegalArgumentException("Framework url must use the mvn: protocol");
-        }
-        File file = manager.download(url).await().getFile();
-        String path = file.getPath();
-        if (path.startsWith(KARAF_HOME)) {
-            path = path.substring(KARAF_HOME.length() + 1);
-        }
-        if (!path.equals(properties.get("karaf.framework.felix"))) {
-            properties.put("karaf.framework", "felix");
-            properties.put("karaf.framework.felix", path);
-            return true;
-        }
-        return false;
-    }
-
-    protected void refreshPackages(Collection<Bundle> bundles) throws InterruptedException {
-        final CountDownLatch latch = new CountDownLatch(1);
-        FrameworkWiring fw = systemBundleContext.getBundle().adapt(FrameworkWiring.class);
-        fw.refreshBundles(bundles, new FrameworkListener() {
-            @Override
-            public void frameworkEvent(FrameworkEvent event) {
-                if (event.getType() == FrameworkEvent.ERROR) {
-                    LOGGER.error("Framework error", event.getThrowable());
-                }
-                latch.countDown();
-            }
-        });
-        
-        // Block until either FrameworkEvent.ERROR or FrameworkEvent.PACKAGES_REFRESHED is received 
-        latch.await();
-    }
-
-    protected ExecutorService getDownloadExecutor() {
+    protected ScheduledExecutorService getDownloadExecutor() {
         return downloadExecutor;
-    }
-
-    private static boolean bundleSymbolicNameMatches(Bundle bundle, Collection<String> expressions) {
-        for (String regex : expressions) {
-            Pattern p = Pattern.compile(regex);
-            if (p.matcher(bundle.getSymbolicName()).matches()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static boolean isUpdateable(Bundle bundle) {
         return (SNAPSHOT_PATTERN.matcher(bundle.getLocation()).matches() || bundle.getLocation().startsWith(BLUEPRINT_PREFIX) || bundle.getLocation().startsWith(
                 SPRING_PREFIX));
-    }
-
-    private static boolean isUpdateable(Resource resource) {
-        return (getVersion(resource).getQualifier().endsWith(SNAPSHOT) || SNAPSHOT_PATTERN.matcher(getUri(resource)).matches()
-                || getUri(resource).startsWith(BLUEPRINT_PREFIX) || getUri(resource).startsWith(SPRING_PREFIX));
-    }
-
-
-    static void installFeatureConfigs(BundleContext bundleContext, Map<String, Resource> resources) throws IOException {
-        ServiceReference configAdminServiceReference = bundleContext.getServiceReference(ConfigurationAdmin.class.getName());
-        if (configAdminServiceReference != null) {
-            ConfigurationAdmin configAdmin = (ConfigurationAdmin) bundleContext.getService(configAdminServiceReference);
-            for (FeatureResource resource : filterFeatureResources(resources)) {
-                for (ConfigInfo ci : resource.getFeature().getConfigurations()) {
-                    String pid = ci.getName();
-                    if (!isConfigurationManaged(configAdmin, pid)) {
-                        applyConfiguration(configAdmin, pid, ci.getProperties());
-                    }
-                }
-            }
-        }
-    }
-
-    static boolean isConfigurationManaged(ConfigurationAdmin configurationAdmin, String pid) throws IOException {
-        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(pid);
-        Dictionary<String, ?> properties = configuration.getProperties();
-        if (properties == null) {
-            return false;
-        }
-        String fabricManagedPid = (String) properties.get(DeploymentAgent.FABRIC_ZOOKEEPER_PID);
-        return Strings.isNotBlank(fabricManagedPid);
-    }
-
-    static void applyConfiguration(ConfigurationAdmin configurationAdmin, String pid, Map<String, String> config) throws IOException {
-        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(pid);
-        Hashtable properties = new java.util.Properties();
-        properties.putAll(config);
-        configuration.setBundleLocation(null);
-        configuration.update(properties);
-    }
-
-    static Collection<FeatureResource> filterFeatureResources(Map<String, Resource> resources) {
-        Set<FeatureResource> featureResources = new HashSet<FeatureResource>();
-        for (Resource resource : resources.values()) {
-            if (resource instanceof FeatureResource) {
-                featureResources.add((FeatureResource) resource);
-            }
-        }
-        return featureResources;
     }
 
     static class NamedThreadFactory implements ThreadFactory {

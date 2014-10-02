@@ -15,10 +15,6 @@
  */
 package io.fabric8.agent.resolver;
 
-import org.osgi.framework.Constants;
-import org.osgi.resource.Capability;
-import org.osgi.resource.Resource;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,6 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import org.osgi.framework.Constants;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Resource;
 
 public class CapabilityImpl extends BaseClause implements Capability {
 

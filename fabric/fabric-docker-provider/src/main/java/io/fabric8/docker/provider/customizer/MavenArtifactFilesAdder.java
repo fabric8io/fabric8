@@ -41,7 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Adds files from the profiles to the docker image in a flat folder structure; such as a shared lib or deploy directory
@@ -51,14 +51,14 @@ public class MavenArtifactFilesAdder implements ArtifactFilesAdder {
 
     private FabricService fabric;
     private List<Profile> profileList;
-    private ExecutorService downloadExecutor;
+    private ScheduledExecutorService downloadExecutor;
     private File uploadLibDir;
     private File uploadDeployDir;
     private int libFileCount;
     private int deployFileCount;
     private Set<String> artifactKeys;
 
-    public MavenArtifactFilesAdder(FabricService fabric, List<Profile> profileList, ExecutorService downloadExecutor, File uploadLibDir, File uploadDeployDir) {
+    public MavenArtifactFilesAdder(FabricService fabric, List<Profile> profileList, ScheduledExecutorService downloadExecutor, File uploadLibDir, File uploadDeployDir) {
         this.fabric = fabric;
         this.profileList = profileList;
         this.downloadExecutor = downloadExecutor;

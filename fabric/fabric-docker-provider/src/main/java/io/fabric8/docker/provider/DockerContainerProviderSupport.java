@@ -55,6 +55,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Base class for docker centric docker container providers
@@ -63,7 +64,7 @@ public abstract class DockerContainerProviderSupport extends AbstractComponent {
     private static final transient Logger LOG = LoggerFactory.getLogger(DockerContainerProviderSupport.class);
 
 
-    private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
+    private final ScheduledExecutorService downloadExecutor = Executors.newSingleThreadScheduledExecutor();
     protected DockerFactory dockerFactory = new DockerFactory();
     protected Docker docker;
 

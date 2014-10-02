@@ -63,8 +63,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -109,7 +109,7 @@ public class ProfileMetadata extends AbstractComponent implements ProfileMetadat
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
 
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
     @Activate
     void activate(Map<String, ?> configuration) throws Exception {

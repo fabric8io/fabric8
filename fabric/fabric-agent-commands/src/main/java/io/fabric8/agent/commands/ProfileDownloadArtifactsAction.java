@@ -17,8 +17,8 @@ package io.fabric8.agent.commands;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import io.fabric8.agent.download.ProfileDownloader;
 import io.fabric8.agent.download.ProfileDownloaderListener;
@@ -60,7 +60,7 @@ public class ProfileDownloadArtifactsAction extends AbstractAction {
 
     private final FabricService fabricService;
     private final ProfileService profileService;
-    private ExecutorService executorService;
+    private ScheduledExecutorService executorService;
 
     ProfileDownloadArtifactsAction(FabricService fabricService) {
         this.fabricService = fabricService;
@@ -95,9 +95,9 @@ public class ProfileDownloadArtifactsAction extends AbstractAction {
 
         if (executorService == null) {
             if (threadPoolSize > 1) {
-                executorService = Executors.newFixedThreadPool(threadPoolSize);
+                executorService = Executors.newScheduledThreadPool(threadPoolSize);
             } else {
-                executorService = Executors.newSingleThreadExecutor();
+                executorService = Executors.newSingleThreadScheduledExecutor();
             }
         }
 

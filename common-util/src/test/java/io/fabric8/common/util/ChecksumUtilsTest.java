@@ -37,7 +37,7 @@ public class ChecksumUtilsTest {
         Assert.assertEquals(0x0, ChecksumUtils.checksum(stream));
         
         try {
-            ChecksumUtils.checksum(null);
+            ChecksumUtils.checksum((InputStream) null);
             Assert.fail("Expected NullPointerException but nothing happened");
         } catch(NullPointerException e) {
             

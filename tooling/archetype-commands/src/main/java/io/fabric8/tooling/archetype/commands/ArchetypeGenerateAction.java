@@ -17,20 +17,22 @@ package io.fabric8.tooling.archetype.commands;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.Preferences;
 
-import io.fabric8.agent.download.DownloadFuture;
+import io.fabric8.agent.download.DownloadCallback;
 import io.fabric8.agent.download.DownloadManager;
-import io.fabric8.agent.download.FutureListener;
+import io.fabric8.agent.download.DownloadManagers;
+import io.fabric8.agent.download.Downloader;
+import io.fabric8.agent.download.StreamProvider;
 import io.fabric8.common.util.Strings;
 import io.fabric8.maven.MavenResolver;
-import io.fabric8.maven.url.internal.AetherBasedResolver;
-import io.fabric8.maven.util.MavenConfigurationImpl;
+import io.fabric8.maven.MavenResolvers;
 import io.fabric8.tooling.archetype.ArchetypeService;
 import io.fabric8.tooling.archetype.catalog.Archetype;
 import io.fabric8.tooling.archetype.generator.ArchetypeHelper;
@@ -39,7 +41,6 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
-import org.ops4j.util.property.PropertiesPropertyResolver;
 
 import static io.fabric8.common.util.Strings.isNotBlank;
 import static io.fabric8.common.util.Strings.isNullOrBlank;
@@ -283,23 +284,23 @@ public class ArchetypeGenerateAction extends AbstractAction {
      * TODO: make this code available to hawt.io/JMX too
      */
     private File fetchArchetype(Archetype archetype) throws IOException {
-        MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn");
-        MavenResolver resolver = new AetherBasedResolver(config);
-        DownloadManager dm = new DownloadManager(resolver, Executors.newSingleThreadExecutor());
+        MavenResolver resolver = MavenResolvers.createMavenResolver(new Hashtable<String, String>(), "org.ops4j.pax.url.mvn");
+        DownloadManager dm = DownloadManagers.createDownloadManager(resolver, Executors.newSingleThreadScheduledExecutor());
 
-        final CountDownLatch latch = new CountDownLatch(1);
-        final DownloadFuture df = dm.download(String.format("mvn:%s/%s/%s", archetype.groupId, archetype.artifactId, archetype.version));
-        df.addListener(new FutureListener<DownloadFuture>() {
+        final AtomicReference<File> file = new AtomicReference<>();
+        String url = String.format("mvn:%s/%s/%s", archetype.groupId, archetype.artifactId, archetype.version);
+        Downloader downloader = dm.createDownloader();
+        downloader.download(url, new DownloadCallback() {
             @Override
-            public void operationComplete(DownloadFuture future) {
-                latch.countDown();
+            public void downloaded(StreamProvider provider) throws Exception {
+                file.set(provider.getFile());
             }
         });
 
         // wait for download
         try {
             boolean init = false;
-            for (int i = 0; i < 2 * 60 && latch.getCount() > 0; i++) {
+            for (int i = 0; i < 2 * 60 && file.get() == null; i++) {
                 // dont do anything in the first 3 seconds as we likely can download it faster
                 if (i > 3) {
                     if (!init) {
@@ -316,9 +317,10 @@ public class ArchetypeGenerateAction extends AbstractAction {
             throw new IOException(e.getMessage(), e);
         }
 
-        if (latch.getCount() == 0) {
-            return df.getFile();
-        } else {
+        try {
+            downloader.await();
+            return file.get();
+        } catch (Exception e) {
             System.err.println("\nFailed to download archetype within 60 seconds: " + archetype);
             throw new IOException("Failed to download archetype within 60 seconds: " + archetype);
         }

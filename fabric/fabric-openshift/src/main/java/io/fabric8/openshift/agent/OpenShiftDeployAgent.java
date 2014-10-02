@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.openshift.client.IApplication;
@@ -87,7 +88,7 @@ public final class OpenShiftDeployAgent extends AbstractComponent implements Gro
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
+    private final ScheduledExecutorService downloadExecutor = Executors.newSingleThreadScheduledExecutor();
     private final Runnable runnable = new Runnable() {
         @Override
         public void run() {

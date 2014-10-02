@@ -15,17 +15,6 @@
  */
 package io.fabric8.agent.resolver;
 
-import org.apache.felix.utils.version.VersionRange;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
-import org.osgi.framework.Version;
-import org.osgi.framework.namespace.IdentityNamespace;
-import org.osgi.framework.wiring.BundleCapability;
-import org.osgi.framework.wiring.BundleRevision;
-import org.osgi.resource.Capability;
-import org.osgi.resource.Requirement;
-import org.osgi.resource.Resource;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,13 +24,45 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ResourceBuilder {
+import org.apache.felix.utils.version.VersionRange;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
+import org.osgi.framework.namespace.IdentityNamespace;
+import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.namespace.service.ServiceNamespace;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
+import org.osgi.resource.Resource;
+import org.osgi.service.repository.ContentNamespace;
+
+public final class ResourceBuilder {
 
     public static final String RESOLUTION_DYNAMIC = "dynamic";
 
-    public static Resource build(String uri, Map<String, String> headerMap)
-            throws BundleException {
+    private static final char EOF = (char) -1;
 
+    private static final int CLAUSE_START = 0;
+    private static final int PARAMETER_START = 1;
+    private static final int KEY = 2;
+    private static final int DIRECTIVE_OR_TYPEDATTRIBUTE = 4;
+    private static final int ARGUMENT = 8;
+    private static final int VALUE = 16;
+
+    private static final int CHAR = 1;
+    private static final int DELIMITER = 2;
+    private static final int STARTQUOTE = 4;
+    private static final int ENDQUOTE = 8;
+
+
+    private ResourceBuilder() {
+    }
+
+    public static ResourceImpl build(String uri, Map<String, String> headerMap) throws BundleException {
+        return build(new ResourceImpl(), uri, headerMap);
+    }
+
+    public static ResourceImpl build(ResourceImpl resource, String uri, Map<String, String> headerMap) throws BundleException {
         // Verify that only manifest version 2 is specified.
         String manifestVersion = getManifestVersion(headerMap);
         if (manifestVersion == null || !manifestVersion.equals("2")) {
@@ -61,7 +82,7 @@ public class ResourceBuilder {
         // Parse bundle symbolic name.
         //
 
-        String bundleSymbolicName = null;
+        String bundleSymbolicName;
         ParsedHeaderClause bundleCap = parseBundleSymbolicName(headerMap);
         if (bundleCap == null) {
             throw new BundleException("Bundle manifest must include bundle symbolic name");
@@ -70,11 +91,19 @@ public class ResourceBuilder {
 
         // Now that we have symbolic name and version, create the resource
         String type = headerMap.get(Constants.FRAGMENT_HOST) == null ? IdentityNamespace.TYPE_BUNDLE : IdentityNamespace.TYPE_FRAGMENT;
-        ResourceImpl resource = new ResourceImpl(bundleSymbolicName, type, bundleVersion);
+        {
+            Map<String, String> dirs = new HashMap<>();
+            Map<String, Object> attrs = new HashMap<>();
+            attrs.put(IdentityNamespace.IDENTITY_NAMESPACE, bundleSymbolicName);
+            attrs.put(IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE, type);
+            attrs.put(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE, bundleVersion);
+            CapabilityImpl identity = new CapabilityImpl(resource, IdentityNamespace.IDENTITY_NAMESPACE, dirs, attrs);
+            resource.addCapability(identity);
+        }
         if (uri != null) {
-            Map<String, Object> attrs = new HashMap<String, Object>();
-            attrs.put(UriNamespace.URI_NAMESPACE, uri);
-            resource.addCapability(new CapabilityImpl(resource, UriNamespace.URI_NAMESPACE, Collections.<String, String>emptyMap(), attrs));
+            Map<String, Object> attrs = new HashMap<>();
+            attrs.put(ContentNamespace.CAPABILITY_URL_ATTRIBUTE, uri);
+            resource.addCapability(new CapabilityImpl(resource, ContentNamespace.CONTENT_NAMESPACE, Collections.<String, String>emptyMap(), attrs));
         }
 
         // Add a bundle and host capability to all
@@ -90,7 +119,7 @@ public class ResourceBuilder {
             String attachment = bundleCap.dirs.get(Constants.FRAGMENT_ATTACHMENT_DIRECTIVE);
             attachment = (attachment == null) ? Constants.FRAGMENT_ATTACHMENT_RESOLVETIME : attachment;
             if (!attachment.equalsIgnoreCase(Constants.FRAGMENT_ATTACHMENT_NEVER)) {
-                Map<String, Object> hostAttrs = new HashMap<String, Object>(bundleCap.attrs);
+                Map<String, Object> hostAttrs = new HashMap<>(bundleCap.attrs);
                 Object value = hostAttrs.remove(BundleRevision.BUNDLE_NAMESPACE);
                 hostAttrs.put(BundleRevision.HOST_NAMESPACE, value);
                 resource.addCapability(new CapabilityImpl(
@@ -161,7 +190,7 @@ public class ResourceBuilder {
 
         boolean hasServiceReferenceCapability = false;
         for (Capability cap : exportCaps) {
-            hasServiceReferenceCapability |= "osgi.service".equals(cap.getNamespace());
+            hasServiceReferenceCapability |= ServiceNamespace.SERVICE_NAMESPACE.equals(cap.getNamespace());
         }
         if (!hasServiceReferenceCapability) {
             List<ParsedHeaderClause> exportServices = parseStandardHeader(headerMap.get(Constants.EXPORT_SERVICE));
@@ -171,7 +200,7 @@ public class ResourceBuilder {
 
         boolean hasServiceReferenceRequirement = false;
         for (Requirement req : requireReqs) {
-            hasServiceReferenceRequirement |= "osgi.service".equals(req.getNamespace());
+            hasServiceReferenceRequirement |= ServiceNamespace.SERVICE_NAMESPACE.equals(req.getNamespace());
         }
         if (!hasServiceReferenceRequirement) {
             List<ParsedHeaderClause> importServices = parseStandardHeader(headerMap.get(Constants.IMPORT_SERVICE));
@@ -196,38 +225,32 @@ public class ResourceBuilder {
     public static List<Requirement> parseImport(Resource resource, String imports) throws BundleException {
         List<ParsedHeaderClause> importClauses = parseStandardHeader(imports);
         importClauses = normalizeImportClauses(importClauses);
-        List<Requirement> importReqs = convertImports(importClauses, resource);
-        return importReqs;
+        return convertImports(importClauses, resource);
     }
 
     public static List<Requirement> parseRequirement(Resource resource, String requirement) throws BundleException {
         List<ParsedHeaderClause> requireClauses = parseStandardHeader(requirement);
         requireClauses = normalizeRequireCapabilityClauses(requireClauses);
-        List<Requirement> requireReqs = convertRequireCapabilities(requireClauses, resource);
-        return requireReqs;
+        return convertRequireCapabilities(requireClauses, resource);
     }
 
     public static List<Capability> parseExport(Resource resource, String bundleSymbolicName, Version bundleVersion, String exports) throws BundleException {
         List<ParsedHeaderClause> exportClauses = parseStandardHeader(exports);
         exportClauses = normalizeExportClauses(exportClauses, bundleSymbolicName, bundleVersion);
-        List<Capability> exportCaps = convertExports(exportClauses, resource);
-        return exportCaps;
+        return convertExports(exportClauses, resource);
     }
 
     public static List<Capability> parseCapability(Resource resource, String capability) throws BundleException {
         List<ParsedHeaderClause> provideClauses = parseStandardHeader(capability);
         provideClauses = normalizeProvideCapabilityClauses(provideClauses);
-        List<Capability> provideCaps = convertProvideCapabilities(provideClauses, resource);
-        return provideCaps;
+        return convertProvideCapabilities(provideClauses, resource);
     }
 
-    @SuppressWarnings( "deprecation" )
-    private static List<ParsedHeaderClause> normalizeImportClauses(
-            List<ParsedHeaderClause> clauses)
-            throws BundleException {
+    @SuppressWarnings("deprecation")
+    private static List<ParsedHeaderClause> normalizeImportClauses(List<ParsedHeaderClause> clauses) throws BundleException {
         // Verify that the values are equals if the package specifies
         // both version and specification-version attributes.
-        Set<String> dupeSet = new HashSet<String>();
+        Set<String> dupeSet = new HashSet<>();
         for (ParsedHeaderClause clause : clauses) {
             // Check for "version" and "specification-version" attributes
             // and verify they are the same if both are specified.
@@ -261,16 +284,14 @@ public class ResourceBuilder {
                     // Verify that java.* packages are not imported.
                     if (pkgName.startsWith("java.")) {
                         throw new BundleException("Importing java.* packages not allowed: " + pkgName);
-                    }
-                    // The character "." has no meaning in the OSGi spec except
-                    // when placed on the bundle class path. Some people, however,
-                    // mistakenly think it means the default package when imported
-                    // or exported. This is not correct. It is invalid.
-                    else if (pkgName.equals(".")) {
+                        // The character "." has no meaning in the OSGi spec except
+                        // when placed on the bundle class path. Some people, however,
+                        // mistakenly think it means the default package when imported
+                        // or exported. This is not correct. It is invalid.
+                    } else if (pkgName.equals(".")) {
                         throw new BundleException("Importing '.' is invalid.");
-                    }
-                    // Make sure a package name was specified.
-                    else if (pkgName.length() == 0) {
+                        // Make sure a package name was specified.
+                    } else if (pkgName.length() == 0) {
                         throw new BundleException(
                                 "Imported package names cannot be zero length.");
                     }
@@ -285,19 +306,19 @@ public class ResourceBuilder {
     }
 
     private static List<Capability> convertExportService(List<ParsedHeaderClause> clauses, Resource resource) {
-        List<Capability> capList = new ArrayList<Capability>();
+        List<Capability> capList = new ArrayList<>();
         for (ParsedHeaderClause clause : clauses) {
             for (String path : clause.paths) {
-                Map<String, String> dirs = new LinkedHashMap<String, String>();
+                Map<String, String> dirs = new LinkedHashMap<>();
                 dirs.put(ServiceNamespace.CAPABILITY_EFFECTIVE_DIRECTIVE, ServiceNamespace.EFFECTIVE_ACTIVE);
-                Map<String, Object> attrs = new LinkedHashMap<String, Object>();
+                Map<String, Object> attrs = new LinkedHashMap<>();
                 attrs.put(Constants.OBJECTCLASS, path);
                 attrs.putAll(clause.attrs);
                 capList.add(new CapabilityImpl(
-                                resource,
-                                "osgi.service",
-                                dirs,
-                                attrs));
+                        resource,
+                        ServiceNamespace.SERVICE_NAMESPACE,
+                        dirs,
+                        attrs));
             }
         }
         return capList;
@@ -305,13 +326,13 @@ public class ResourceBuilder {
 
     private static List<Requirement> convertImportService(List<ParsedHeaderClause> clauses, Resource resource) throws BundleException {
         try {
-            List<Requirement> reqList = new ArrayList<Requirement>();
+            List<Requirement> reqList = new ArrayList<>();
             for (ParsedHeaderClause clause : clauses) {
                 for (String path : clause.paths) {
                     String multiple = clause.dirs.get("multiple");
-                    String avail    = clause.dirs.get("availability");
-                    String filter   = (String) clause.attrs.get("filter");
-                    Map<String, String> dirs = new LinkedHashMap<String, String>();
+                    String avail = clause.dirs.get("availability");
+                    String filter = (String) clause.attrs.get("filter");
+                    Map<String, String> dirs = new LinkedHashMap<>();
                     dirs.put(ServiceNamespace.REQUIREMENT_EFFECTIVE_DIRECTIVE, ServiceNamespace.EFFECTIVE_ACTIVE);
                     if ("optional".equals(avail)) {
                         dirs.put(ServiceNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE, ServiceNamespace.RESOLUTION_OPTIONAL);
@@ -328,11 +349,11 @@ public class ResourceBuilder {
                     }
                     dirs.put(ServiceNamespace.REQUIREMENT_FILTER_DIRECTIVE, filter);
                     reqList.add(new RequirementImpl(
-                                    resource,
-                                    "osgi.service",
-                                    dirs,
-                                    Collections.<String, Object>emptyMap(),
-                                    SimpleFilter.parse(filter)));
+                            resource,
+                            ServiceNamespace.SERVICE_NAMESPACE,
+                            dirs,
+                            Collections.<String, Object>emptyMap(),
+                            SimpleFilter.parse(filter)));
                 }
             }
             return reqList;
@@ -343,7 +364,7 @@ public class ResourceBuilder {
 
     private static List<Requirement> convertImports(List<ParsedHeaderClause> clauses, Resource resource) {
         // Now convert generic header clauses into requirements.
-        List<Requirement> reqList = new ArrayList<Requirement>();
+        List<Requirement> reqList = new ArrayList<>();
         for (ParsedHeaderClause clause : clauses) {
             for (String path : clause.paths) {
                 // Prepend the package name to the array of attributes.
@@ -351,9 +372,9 @@ public class ResourceBuilder {
                 // Note that we use a linked hash map here to ensure the
                 // package attribute is first, which will make indexing
                 // more efficient.
-    // TODO: OSGi R4.3 - This is ordering is kind of hacky.
+                // TODO: OSGi R4.3 - This is ordering is kind of hacky.
                 // Prepend the package name to the array of attributes.
-                Map<String, Object> newAttrs = new LinkedHashMap<String, Object>(attrs.size() + 1);
+                Map<String, Object> newAttrs = new LinkedHashMap<>(attrs.size() + 1);
                 // We want this first from an indexing perspective.
                 newAttrs.put(BundleRevision.PACKAGE_NAMESPACE, path);
                 newAttrs.putAll(attrs);
@@ -364,9 +385,9 @@ public class ResourceBuilder {
                 SimpleFilter sf = SimpleFilter.convert(newAttrs);
 
                 // Inject filter directive.
-    // TODO: OSGi R4.3 - Can we insert this on demand somehow?
+                // TODO: OSGi R4.3 - Can we insert this on demand somehow?
                 Map<String, String> dirs = clause.dirs;
-                Map<String, String> newDirs = new HashMap<String, String>(dirs.size() + 1);
+                Map<String, String> newDirs = new HashMap<>(dirs.size() + 1);
                 newDirs.putAll(dirs);
                 newDirs.put(Constants.FILTER_DIRECTIVE, sf.toString());
 
@@ -377,17 +398,16 @@ public class ResourceBuilder {
                                 BundleRevision.PACKAGE_NAMESPACE,
                                 newDirs,
                                 Collections.<String, Object>emptyMap(),
-                                sf));
+                                sf)
+                );
             }
         }
 
         return reqList;
     }
 
-    @SuppressWarnings( "deprecation" )
-    private static List<ParsedHeaderClause> normalizeDynamicImportClauses(
-            List<ParsedHeaderClause> clauses)
-            throws BundleException {
+    @SuppressWarnings("deprecation")
+    private static List<ParsedHeaderClause> normalizeDynamicImportClauses(List<ParsedHeaderClause> clauses) throws BundleException {
         // Verify that the values are equals if the package specifies
         // both version and specification-version attributes.
         for (ParsedHeaderClause clause : clauses) {
@@ -436,125 +456,85 @@ public class ResourceBuilder {
     }
 
     private static List<ParsedHeaderClause> normalizeRequireCapabilityClauses(
-            List<ParsedHeaderClause> clauses)
-            throws BundleException {
+            List<ParsedHeaderClause> clauses) throws BundleException {
 
-        // Convert service-reference to osgi.service
-        for (ParsedHeaderClause clause : clauses)
-        {
-            for (int i = 0; i < clause.paths.size(); i++)
-            {
-                if ("service-reference".equals(clause.paths.get(i)))
-                {
-                    clause.paths.set(i, "osgi.service");
-                }
-            }
-        }
         return clauses;
     }
 
     private static List<ParsedHeaderClause> normalizeProvideCapabilityClauses(
-            List<ParsedHeaderClause> clauses)
-            throws BundleException
-    {
-        // Convert service-reference to osgi.service
-        for (ParsedHeaderClause clause : clauses)
-        {
-            for (int i = 0; i < clause.paths.size(); i++)
-            {
-                if ("service-reference".equals(clause.paths.get(i)))
-                {
-                    clause.paths.set(i, "osgi.service");
-                }
-            }
-        }
+            List<ParsedHeaderClause> clauses) throws BundleException {
+
         // Convert attributes into specified types.
-        for (ParsedHeaderClause clause : clauses)
-        {
-            for (Map.Entry<String, String> entry : clause.types.entrySet())
-            {
+        for (ParsedHeaderClause clause : clauses) {
+            for (Map.Entry<String, String> entry : clause.types.entrySet()) {
                 String type = entry.getValue();
-                if (!type.equals("String"))
-                {
-                    if (type.equals("Double"))
-                    {
+                if (!type.equals("String")) {
+                    if (type.equals("Double")) {
                         clause.attrs.put(
                                 entry.getKey(),
                                 new Double(clause.attrs.get(entry.getKey()).toString().trim()));
-                    }
-                    else if (type.equals("Version"))
-                    {
+                    } else if (type.equals("Version")) {
                         clause.attrs.put(
                                 entry.getKey(),
                                 new Version(clause.attrs.get(entry.getKey()).toString().trim()));
-                    }
-                    else if (type.equals("Long"))
-                    {
+                    } else if (type.equals("Long")) {
                         clause.attrs.put(
                                 entry.getKey(),
                                 new Long(clause.attrs.get(entry.getKey()).toString().trim()));
-                    }
-                    else if (type.startsWith("List"))
-                    {
+                    } else if (type.startsWith("List")) {
                         int startIdx = type.indexOf('<');
                         int endIdx = type.indexOf('>');
                         if (((startIdx > 0) && (endIdx <= startIdx))
-                                || ((startIdx < 0) && (endIdx > 0)))
-                        {
+                                || ((startIdx < 0) && (endIdx > 0))) {
                             throw new BundleException(
                                     "Invalid Provide-Capability attribute list type for '"
                                             + entry.getKey()
                                             + "' : "
-                                            + type);
+                                            + type
+                            );
                         }
 
                         String listType = "String";
-                        if (endIdx > startIdx)
-                        {
+                        if (endIdx > startIdx) {
                             listType = type.substring(startIdx + 1, endIdx).trim();
                         }
 
                         List<String> tokens = parseDelimitedString(
                                 clause.attrs.get(entry.getKey()).toString(), ",", false);
-                        List<Object> values = new ArrayList<Object>(tokens.size());
-                        for (String token : tokens)
-                        {
-                            if (listType.equals("String"))
-                            {
+                        List<Object> values = new ArrayList<>(tokens.size());
+                        for (String token : tokens) {
+                            switch (listType) {
+                            case "String":
                                 values.add(token);
-                            }
-                            else if (listType.equals("Double"))
-                            {
+                                break;
+                            case "Double":
                                 values.add(new Double(token.trim()));
-                            }
-                            else if (listType.equals("Version"))
-                            {
+                                break;
+                            case "Version":
                                 values.add(new Version(token.trim()));
-                            }
-                            else if (listType.equals("Long"))
-                            {
+                                break;
+                            case "Long":
                                 values.add(new Long(token.trim()));
-                            }
-                            else
-                            {
+                                break;
+                            default:
                                 throw new BundleException(
                                         "Unknown Provide-Capability attribute list type for '"
                                                 + entry.getKey()
                                                 + "' : "
-                                                + type);
+                                                + type
+                                );
                             }
                         }
                         clause.attrs.put(
                                 entry.getKey(),
                                 values);
-                    }
-                    else
-                    {
+                    } else {
                         throw new BundleException(
                                 "Unknown Provide-Capability attribute type for '"
                                         + entry.getKey()
                                         + "' : "
-                                        + type);
+                                        + type
+                        );
                     }
                 }
             }
@@ -564,10 +544,10 @@ public class ResourceBuilder {
     }
 
     private static List<Requirement> convertRequireCapabilities(
-            List<ParsedHeaderClause> clauses, Resource resource)
-            throws BundleException {
+            List<ParsedHeaderClause> clauses, Resource resource) throws BundleException {
+
         // Now convert generic header clauses into requirements.
-        List<Requirement> reqList = new ArrayList<Requirement>();
+        List<Requirement> reqList = new ArrayList<>();
         for (ParsedHeaderClause clause : clauses) {
             try {
                 String filterStr = clause.dirs.get(Constants.FILTER_DIRECTIVE);
@@ -577,7 +557,7 @@ public class ResourceBuilder {
                 for (String path : clause.paths) {
                     // Create requirement and add to requirement list.
                     reqList.add(new RequirementImpl(
-                                    resource, path, clause.dirs, clause.attrs, sf));
+                            resource, path, clause.dirs, clause.attrs, sf));
                 }
             } catch (Exception ex) {
                 throw new BundleException("Error creating requirement: " + ex, ex);
@@ -588,9 +568,9 @@ public class ResourceBuilder {
     }
 
     private static List<Capability> convertProvideCapabilities(
-            List<ParsedHeaderClause> clauses, Resource resource)
-            throws BundleException {
-        List<Capability> capList = new ArrayList<Capability>();
+            List<ParsedHeaderClause> clauses, Resource resource) throws BundleException {
+
+        List<Capability> capList = new ArrayList<>();
         for (ParsedHeaderClause clause : clauses) {
             for (String path : clause.paths) {
                 if (path.startsWith("osgi.wiring.")) {
@@ -605,11 +585,11 @@ public class ResourceBuilder {
         return capList;
     }
 
-    @SuppressWarnings( "deprecation" )
+    @SuppressWarnings("deprecation")
     private static List<ParsedHeaderClause> normalizeExportClauses(
             List<ParsedHeaderClause> clauses,
-            String bsn, Version bv)
-            throws BundleException {
+            String bsn, Version bv) throws BundleException {
+
         // Verify that "java.*" packages are not exported.
         for (ParsedHeaderClause clause : clauses) {
             // Verify that the named package has not already been declared.
@@ -617,16 +597,14 @@ public class ResourceBuilder {
                 // Verify that java.* packages are not exported.
                 if (pkgName.startsWith("java.")) {
                     throw new BundleException("Exporting java.* packages not allowed: " + pkgName);
-                }
-                // The character "." has no meaning in the OSGi spec except
-                // when placed on the bundle class path. Some people, however,
-                // mistakenly think it means the default package when imported
-                // or exported. This is not correct. It is invalid.
-                else if (pkgName.equals(".")) {
+                    // The character "." has no meaning in the OSGi spec except
+                    // when placed on the bundle class path. Some people, however,
+                    // mistakenly think it means the default package when imported
+                    // or exported. This is not correct. It is invalid.
+                } else if (pkgName.equals(".")) {
                     throw new BundleException("Exporing '.' is invalid.");
-                }
-                // Make sure a package name was specified.
-                else if (pkgName.length() == 0) {
+                    // Make sure a package name was specified.
+                } else if (pkgName.length() == 0) {
                     throw new BundleException("Exported package names cannot be zero length.");
                 }
             }
@@ -671,14 +649,13 @@ public class ResourceBuilder {
         return clauses;
     }
 
-    private static List<Capability> convertExports(
-            List<ParsedHeaderClause> clauses, Resource resource) {
-        List<Capability> capList = new ArrayList<Capability>();
+    private static List<Capability> convertExports(List<ParsedHeaderClause> clauses, Resource resource) {
+        List<Capability> capList = new ArrayList<>();
         for (ParsedHeaderClause clause : clauses) {
             for (String pkgName : clause.paths) {
                 // Prepend the package name to the array of attributes.
                 Map<String, Object> attrs = clause.attrs;
-                Map<String, Object> newAttrs = new HashMap<String, Object>(attrs.size() + 1);
+                Map<String, Object> newAttrs = new HashMap<>(attrs.size() + 1);
                 newAttrs.putAll(attrs);
                 newAttrs.put(BundleRevision.PACKAGE_NAMESPACE, pkgName);
 
@@ -695,69 +672,7 @@ public class ResourceBuilder {
         return (manifestVersion == null) ? "1" : manifestVersion.trim();
     }
 
-    private static List<ParsedHeaderClause> calculateImplicitImports(
-            List<BundleCapability> exports, List<ParsedHeaderClause> imports)
-            throws BundleException {
-        List<ParsedHeaderClause> clauseList = new ArrayList<ParsedHeaderClause>();
-
-        // Since all R3 exports imply an import, add a corresponding
-        // requirement for each existing export capability. Do not
-        // duplicate imports.
-        Map<String, String> map = new HashMap<String, String>();
-        // Add existing imports.
-        for (ParsedHeaderClause anImport : imports) {
-            for (int pathIdx = 0; pathIdx < anImport.paths.size(); pathIdx++) {
-                map.put(anImport.paths.get(pathIdx), anImport.paths.get(pathIdx));
-            }
-        }
-        // Add import requirement for each export capability.
-        for (BundleCapability export : exports) {
-            if (map.get(export.getAttributes().get(BundleRevision.PACKAGE_NAMESPACE).toString()) == null) {
-                // Convert Version to VersionRange.
-                Object version = export.getAttributes().get(Constants.VERSION_ATTRIBUTE);
-                ParsedHeaderClause clause = new ParsedHeaderClause();
-                if (version != null) {
-                    clause.attrs.put(Constants.VERSION_ATTRIBUTE, VersionRange.parseVersionRange(version.toString()));
-                }
-                clause.paths.add((String) export.getAttributes().get(BundleRevision.PACKAGE_NAMESPACE));
-                clauseList.add(clause);
-            }
-        }
-
-        return clauseList;
-    }
-
-    private static List<Capability> calculateImplicitUses(
-            List<Capability> exports, List<ParsedHeaderClause> imports)
-            throws BundleException {
-        // Add a "uses" directive onto each export of R3 bundles
-        // that references every other import (which will include
-        // exports, since export implies import); this is
-        // necessary since R3 bundles assumed a single class space,
-        // but R4 allows for multiple class spaces.
-        String usesValue = "";
-        for (ParsedHeaderClause anImport : imports) {
-            for (int pathIdx = 0; pathIdx < anImport.paths.size(); pathIdx++) {
-                usesValue = usesValue
-                        + ((usesValue.length() > 0) ? "," : "")
-                        + anImport.paths.get(pathIdx);
-            }
-        }
-        for (int i = 0; i < exports.size(); i++) {
-            Map<String, String> dirs = new HashMap<String, String>(1);
-            dirs.put(Constants.USES_DIRECTIVE, usesValue);
-            exports.set(i, new CapabilityImpl(
-                    exports.get(i).getResource(),
-                    BundleRevision.PACKAGE_NAMESPACE,
-                    dirs,
-                    exports.get(i).getAttributes()));
-        }
-
-        return exports;
-    }
-
-    private static ParsedHeaderClause parseBundleSymbolicName(Map<String, String> headerMap)
-            throws BundleException {
+    private static ParsedHeaderClause parseBundleSymbolicName(Map<String, String> headerMap) throws BundleException {
         List<ParsedHeaderClause> clauses = parseStandardHeader(headerMap.get(Constants.BUNDLE_SYMBOLICNAME));
         if (clauses.size() > 0) {
             if (clauses.size() > 1 || clauses.get(0).paths.size() > 1) {
@@ -781,11 +696,8 @@ public class ResourceBuilder {
         return null;
     }
 
-    private static List<RequirementImpl> parseFragmentHost(
-            Resource resource, Map<String, String> headerMap)
-            throws BundleException {
-        List<RequirementImpl> reqs = new ArrayList<RequirementImpl>();
-
+    private static List<RequirementImpl> parseFragmentHost(Resource resource, Map<String, String> headerMap) throws BundleException {
+        List<RequirementImpl> reqs = new ArrayList<>();
         List<ParsedHeaderClause> clauses = parseStandardHeader(headerMap.get(Constants.FRAGMENT_HOST));
         if (clauses.size() > 0) {
             // Make sure that only one fragment host symbolic name is specified.
@@ -802,10 +714,10 @@ public class ResourceBuilder {
             // Note that we use a linked hash map here to ensure the
             // host symbolic name is first, which will make indexing
             // more efficient.
-    // TODO: OSGi R4.3 - This is ordering is kind of hacky.
+            // TODO: OSGi R4.3 - This is ordering is kind of hacky.
             // Prepend the host symbolic name to the map of attributes.
             Map<String, Object> attrs = clauses.get(0).attrs;
-            Map<String, Object> newAttrs = new LinkedHashMap<String, Object>(attrs.size() + 1);
+            Map<String, Object> newAttrs = new LinkedHashMap<>(attrs.size() + 1);
             // We want this first from an indexing perspective.
             newAttrs.put(BundleRevision.HOST_NAMESPACE, clauses.get(0).paths.get(0));
             newAttrs.putAll(attrs);
@@ -816,9 +728,9 @@ public class ResourceBuilder {
             SimpleFilter sf = SimpleFilter.convert(newAttrs);
 
             // Inject filter directive.
-    // TODO: OSGi R4.3 - Can we insert this on demand somehow?
+            // TODO: OSGi R4.3 - Can we insert this on demand somehow?
             Map<String, String> dirs = clauses.get(0).dirs;
-            Map<String, String> newDirs = new HashMap<String, String>(dirs.size() + 1);
+            Map<String, String> newDirs = new HashMap<>(dirs.size() + 1);
             newDirs.putAll(dirs);
             newDirs.put(Constants.FILTER_DIRECTIVE, sf.toString());
 
@@ -844,7 +756,7 @@ public class ResourceBuilder {
     }
 
     private static List<Requirement> convertRequires(List<ParsedHeaderClause> clauses, Resource resource) {
-        List<Requirement> reqList = new ArrayList<Requirement>();
+        List<Requirement> reqList = new ArrayList<>();
         for (ParsedHeaderClause clause : clauses) {
             for (String path : clause.paths) {
                 // Prepend the bundle symbolic name to the array of attributes.
@@ -852,9 +764,9 @@ public class ResourceBuilder {
                 // Note that we use a linked hash map here to ensure the
                 // symbolic name attribute is first, which will make indexing
                 // more efficient.
-    // TODO: OSGi R4.3 - This is ordering is kind of hacky.
+                // TODO: OSGi R4.3 - This is ordering is kind of hacky.
                 // Prepend the symbolic name to the array of attributes.
-                Map<String, Object> newAttrs = new LinkedHashMap<String, Object>(attrs.size() + 1);
+                Map<String, Object> newAttrs = new LinkedHashMap<>(attrs.size() + 1);
                 // We want this first from an indexing perspective.
                 newAttrs.put(BundleRevision.BUNDLE_NAMESPACE, path);
                 newAttrs.putAll(attrs);
@@ -865,9 +777,9 @@ public class ResourceBuilder {
                 SimpleFilter sf = SimpleFilter.convert(newAttrs);
 
                 // Inject filter directive.
-    // TODO: OSGi R4.3 - Can we insert this on demand somehow?
+                // TODO: OSGi R4.3 - Can we insert this on demand somehow?
                 Map<String, String> dirs = clause.dirs;
-                Map<String, String> newDirs = new HashMap<String, String>(dirs.size() + 1);
+                Map<String, String> newDirs = new HashMap<>(dirs.size() + 1);
                 newDirs.putAll(dirs);
                 newDirs.put(Constants.FILTER_DIRECTIVE, sf.toString());
 
@@ -879,30 +791,17 @@ public class ResourceBuilder {
         return reqList;
     }
 
-    private static final char EOF = (char) -1;
-
-    private static char charAt(int pos, String headers, int length)
-    {
-        if (pos >= length)
-        {
+    private static char charAt(int pos, String headers, int length) {
+        if (pos >= length) {
             return EOF;
         }
         return headers.charAt(pos);
     }
 
-    private static final int CLAUSE_START = 0;
-    private static final int PARAMETER_START = 1;
-    private static final int KEY = 2;
-    private static final int DIRECTIVE_OR_TYPEDATTRIBUTE = 4;
-    private static final int ARGUMENT = 8;
-    private static final int VALUE = 16;
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static List<ParsedHeaderClause> parseStandardHeader(String header)
-    {
-        List<ParsedHeaderClause> clauses = new ArrayList<ParsedHeaderClause>();
-        if (header == null)
-        {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static List<ParsedHeaderClause> parseStandardHeader(String header) {
+        List<ParsedHeaderClause> clauses = new ArrayList<>();
+        if (header == null) {
             return clauses;
         }
         ParsedHeaderClause clause = null;
@@ -915,133 +814,110 @@ public class ResourceBuilder {
         boolean quoted = false;
         boolean escaped = false;
 
-        char currentChar = EOF;
-        do
-        {
+        char currentChar;
+        do {
             currentChar = charAt(currentPosition, header, length);
-            switch (state)
-            {
-                case CLAUSE_START:
-                    clause = new ParsedHeaderClause();
-                    clauses.add(clause);
-                    state = PARAMETER_START;
-                case PARAMETER_START:
-                    startPosition = currentPosition;
-                    state = KEY;
-                case KEY:
-                    switch (currentChar)
-                    {
-                        case ':':
-                        case '=':
-                            key = header.substring(startPosition, currentPosition).trim();
-                            startPosition = currentPosition + 1;
-                            targetMap = clause.attrs;
-                            state = currentChar == ':' ? DIRECTIVE_OR_TYPEDATTRIBUTE : ARGUMENT;
-                            break;
-                        case EOF:
-                        case ',':
-                        case ';':
-                            clause.paths.add(header.substring(startPosition, currentPosition).trim());
-                            state = currentChar == ',' ? CLAUSE_START : PARAMETER_START;
-                            break;
-                        default:
-                            break;
-                    }
-                    currentPosition++;
+            switch (state) {
+            case CLAUSE_START:
+                clause = new ParsedHeaderClause();
+                clauses.add(clause);
+                // Fall through
+            case PARAMETER_START:
+                startPosition = currentPosition;
+                state = KEY;
+                // Fall through
+            case KEY:
+                switch (currentChar) {
+                case ':':
+                case '=':
+                    key = header.substring(startPosition, currentPosition).trim();
+                    startPosition = currentPosition + 1;
+                    targetMap = clause.attrs;
+                    state = currentChar == ':' ? DIRECTIVE_OR_TYPEDATTRIBUTE : ARGUMENT;
                     break;
-                case DIRECTIVE_OR_TYPEDATTRIBUTE:
-                    switch(currentChar)
-                    {
-                        case '=':
-                            if (startPosition != currentPosition)
-                            {
-                                clause.types.put(key, header.substring(startPosition, currentPosition).trim());
-                            }
-                            else
-                            {
-                                targetMap = clause.dirs;
-                            }
-                            state = ARGUMENT;
-                            startPosition = currentPosition + 1;
-                            break;
-                        default:
-                            break;
-                    }
-                    currentPosition++;
-                    break;
-                case ARGUMENT:
-                    if (currentChar == '\"')
-                    {
-                        quoted = true;
-                        currentPosition++;
-                    }
-                    else
-                    {
-                        quoted = false;
-                    }
-                    if (!Character.isWhitespace(currentChar)) {
-                        state = VALUE;
-                    }
-                    else {
-                        currentPosition++;
-                    }
-                    break;
-                case VALUE:
-                    if (escaped)
-                    {
-                        escaped = false;
-                    }
-                    else
-                    {
-                        if (currentChar == '\\' )
-                        {
-                            escaped = true;
-                        }
-                        else if (quoted && currentChar == '\"')
-                        {
-                            quoted = false;
-                        }
-                        else if (!quoted)
-                        {
-                            String value = null;
-                            switch(currentChar)
-                            {
-                                case EOF:
-                                case ';':
-                                case ',':
-                                    value = header.substring(startPosition, currentPosition).trim();
-                                    if (value.startsWith("\"") && value.endsWith("\""))
-                                    {
-                                        value = value.substring(1, value.length() - 1);
-                                    }
-                                    if (targetMap.put(key, value) != null)
-                                    {
-                                        throw new IllegalArgumentException(
-                                                "Duplicate '" + key + "' in: " + header);
-                                    }
-                                    state = currentChar == ';' ? PARAMETER_START : CLAUSE_START;
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-                    currentPosition++;
+                case EOF:
+                case ',':
+                case ';':
+                    clause.paths.add(header.substring(startPosition, currentPosition).trim());
+                    state = currentChar == ',' ? CLAUSE_START : PARAMETER_START;
                     break;
                 default:
                     break;
+                }
+                currentPosition++;
+                break;
+            case DIRECTIVE_OR_TYPEDATTRIBUTE:
+                switch (currentChar) {
+                case '=':
+                    if (startPosition != currentPosition) {
+                        clause.types.put(key, header.substring(startPosition, currentPosition).trim());
+                    } else {
+                        targetMap = clause.dirs;
+                    }
+                    state = ARGUMENT;
+                    startPosition = currentPosition + 1;
+                    break;
+                default:
+                    break;
+                }
+                currentPosition++;
+                break;
+            case ARGUMENT:
+                if (currentChar == '\"') {
+                    quoted = true;
+                    currentPosition++;
+                } else {
+                    quoted = false;
+                }
+                if (!Character.isWhitespace(currentChar)) {
+                    state = VALUE;
+                } else {
+                    currentPosition++;
+                }
+                break;
+            case VALUE:
+                if (escaped) {
+                    escaped = false;
+                } else {
+                    if (currentChar == '\\') {
+                        escaped = true;
+                    } else if (quoted && currentChar == '\"') {
+                        quoted = false;
+                    } else if (!quoted) {
+                        String value;
+                        switch (currentChar) {
+                        case EOF:
+                        case ';':
+                        case ',':
+                            value = header.substring(startPosition, currentPosition).trim();
+                            if (value.startsWith("\"") && value.endsWith("\"")) {
+                                value = value.substring(1, value.length() - 1);
+                            }
+                            if (targetMap.put(key, value) != null) {
+                                throw new IllegalArgumentException(
+                                        "Duplicate '" + key + "' in: " + header);
+                            }
+                            state = currentChar == ';' ? PARAMETER_START : CLAUSE_START;
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                }
+                currentPosition++;
+                break;
+            default:
+                break;
             }
-        } while ( currentChar != EOF);
+        } while (currentChar != EOF);
 
-        if (state > PARAMETER_START)
-        {
+        if (state > PARAMETER_START) {
             throw new IllegalArgumentException("Unable to parse header: " + header);
         }
         return clauses;
     }
 
-    public static List<String> parseDelimitedString(String value, String delim)
-    {
+    public static List<String> parseDelimitedString(String value, String delim) {
         return parseDelimitedString(value, delim, true);
     }
 
@@ -1050,88 +926,62 @@ public class ResourceBuilder {
      * parser obeys quotes, so the delimiter character will be ignored if it is
      * inside of a quote. This method assumes that the quote character is not
      * included in the set of delimiter characters.
+     *
      * @param value the delimited string to parse.
      * @param delim the characters delimiting the tokens.
      * @return a list of string or an empty list if there are none.
-     **/
-    public static List<String> parseDelimitedString(String value, String delim, boolean trim)
-    {
-        if (value == null)
-        {
+     */
+    public static List<String> parseDelimitedString(String value, String delim, boolean trim) {
+        if (value == null) {
             value = "";
         }
 
-        List<String> list = new ArrayList();
+        List<String> list = new ArrayList<>();
 
-        int CHAR = 1;
-        int DELIMITER = 2;
-        int STARTQUOTE = 4;
-        int ENDQUOTE = 8;
+        StringBuilder sb = new StringBuilder();
 
-        StringBuffer sb = new StringBuffer();
-
-        int expecting = (CHAR | DELIMITER | STARTQUOTE);
+        int expecting = CHAR | DELIMITER | STARTQUOTE;
 
         boolean isEscaped = false;
-        for (int i = 0; i < value.length(); i++)
-        {
+        for (int i = 0; i < value.length(); i++) {
             char c = value.charAt(i);
 
-            boolean isDelimiter = (delim.indexOf(c) >= 0);
+            boolean isDelimiter = delim.indexOf(c) >= 0;
 
-            if (!isEscaped && (c == '\\'))
-            {
+            if (!isEscaped && c == '\\') {
                 isEscaped = true;
                 continue;
             }
 
-            if (isEscaped)
-            {
+            if (isEscaped) {
                 sb.append(c);
-            }
-            else if (isDelimiter && ((expecting & DELIMITER) > 0))
-            {
-                if (trim)
-                {
+            } else if (isDelimiter && ((expecting & DELIMITER) > 0)) {
+                if (trim) {
                     list.add(sb.toString().trim());
-                }
-                else
-                {
+                } else {
                     list.add(sb.toString());
                 }
                 sb.delete(0, sb.length());
-                expecting = (CHAR | DELIMITER | STARTQUOTE);
-            }
-            else if ((c == '"') && ((expecting & STARTQUOTE) > 0))
-            {
+                expecting = CHAR | DELIMITER | STARTQUOTE;
+            } else if ((c == '"') && (expecting & STARTQUOTE) > 0) {
                 sb.append(c);
                 expecting = CHAR | ENDQUOTE;
-            }
-            else if ((c == '"') && ((expecting & ENDQUOTE) > 0))
-            {
+            } else if ((c == '"') && (expecting & ENDQUOTE) > 0) {
                 sb.append(c);
-                expecting = (CHAR | STARTQUOTE | DELIMITER);
-            }
-            else if ((expecting & CHAR) > 0)
-            {
+                expecting = CHAR | STARTQUOTE | DELIMITER;
+            } else if ((expecting & CHAR) > 0) {
                 sb.append(c);
-            }
-            else
-            {
+            } else {
                 throw new IllegalArgumentException("Invalid delimited string: " + value);
             }
 
             isEscaped = false;
         }
 
-        if (sb.length() > 0)
-        {
-            if (trim)
-            {
+        if (sb.length() > 0) {
+            if (trim) {
                 list.add(sb.toString().trim());
-            }
-            else
-            {
+            } else {
                 list.add(sb.toString());
             }
         }
@@ -1141,9 +991,9 @@ public class ResourceBuilder {
 
 
     static class ParsedHeaderClause {
-        public final List<String> paths = new ArrayList<String>();
-        public final Map<String, String> dirs = new LinkedHashMap<String, String>();
-        public final Map<String, Object> attrs = new LinkedHashMap<String, Object>();
-        public final Map<String, String> types = new LinkedHashMap<String, String>();
+        public final List<String> paths = new ArrayList<>();
+        public final Map<String, String> dirs = new LinkedHashMap<>();
+        public final Map<String, Object> attrs = new LinkedHashMap<>();
+        public final Map<String, String> types = new LinkedHashMap<>();
     }
 }

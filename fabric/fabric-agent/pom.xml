@@ -31,12 +31,15 @@
 
     <properties>
         <fuse.osgi.import>
+            !org.eclipse.osgi.service.resolver,
             org.osgi.service.event;resolution:=optional,
             *
         </fuse.osgi.import>
         <fuse.osgi.export>
             io.fabric8.agent.download;
-            io.fabric8.agent.mvn;
+            io.fabric8.agent.model;
+            io.fabric8.agent.service;
+            io.fabric8.agent.utils;
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
             org.apache.aries.util;
@@ -51,17 +54,26 @@
             org.apache.karaf.features.internal;
             org.apache.karaf.util.collections;
             io.fabric8.agent;
+            io.fabric8.agent.download.impl;
+            io.fabric8.agent.internal;
+            io.fabric8.agent.model;
+            io.fabric8.agent.region;
             io.fabric8.agent.repository;
             io.fabric8.agent.resolver;
+            io.fabric8.agent.service;
             io.fabric8.agent.sort;
             io.fabric8.agent.utils;
             io.fabric8.common.util;
-            io.fabric8.maven.impl;
             io.fabric8.utils;
             io.fabric8.utils.features;
             io.fabric8.utils.json;
             org.osgi.service.resolver;
             org.osgi.service.repository;
+            org.eclipse.equinox.region;
+            org.eclipse.equinox.region.management;
+            org.eclipse.equinox.internal.region;
+            org.eclipse.equinox.internal.region.hook;
+            org.eclipse.equinox.internal.region.management;
                 -split-package:=merge-first
         </fuse.osgi.private.pkg>
         <fuse.osgi.activator>
@@ -79,6 +91,19 @@
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-maven</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.enterprise</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>org.eclipse.equinox.region</artifactId>
+            <version>1.1.0.v20120522-1841</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -100,12 +125,6 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.enterprise</artifactId>
             <scope>provided</scope>
         </dependency>
 

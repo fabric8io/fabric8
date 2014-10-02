@@ -15,10 +15,10 @@
  */
 package io.fabric8.agent.resolver;
 
+import java.util.Map;
+
 import org.osgi.framework.Version;
 import org.osgi.resource.Resource;
-
-import java.util.Map;
 
 /**
  */

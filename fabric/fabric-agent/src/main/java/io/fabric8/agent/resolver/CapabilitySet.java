@@ -15,9 +15,6 @@
  */
 package io.fabric8.agent.resolver;
 
-import org.osgi.framework.Constants;
-import org.osgi.resource.Capability;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -30,6 +27,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+
+import org.osgi.framework.Constants;
+import org.osgi.resource.Capability;
 
 public class CapabilitySet
 {
