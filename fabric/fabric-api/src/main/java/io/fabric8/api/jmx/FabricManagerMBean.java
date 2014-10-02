@@ -251,6 +251,8 @@ public interface FabricManagerMBean {
 
     Map<String, Object> getVersion(String versionId, List<String> fields);
 
+    List<String> versionIds();
+
     List<Map<String, Object>> versions();
 
     List<Map<String, Object>> versions(List<String> fields);

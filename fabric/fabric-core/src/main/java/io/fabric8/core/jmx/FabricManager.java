@@ -1144,6 +1144,11 @@ public final class FabricManager implements FabricManagerMBean {
     }
 
     @Override
+    public List<String> versionIds() {
+        return profileService.getVersions();
+    }
+
+    @Override
     public Map<String, Object> getVersion(String versionId) {
         return getVersion(versionId, BeanUtils.getFields(Version.class));
     }
