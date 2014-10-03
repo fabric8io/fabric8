@@ -193,6 +193,7 @@
                     <systemPropertyVariables>
                         <basedir>${basedir}</basedir>
                         <project.version>${project.version}</project.version>
+                        <camel-version>${camel-version}</camel-version>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

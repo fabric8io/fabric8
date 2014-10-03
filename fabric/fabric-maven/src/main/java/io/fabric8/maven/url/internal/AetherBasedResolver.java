@@ -359,6 +359,16 @@ public class AetherBasedResolver implements MavenResolver {
     public File resolveFile( Artifact artifact,
                              MavenRepositoryURL repositoryURL ) throws IOException {
 
+        if (artifact.getExtension().isEmpty()) {
+            artifact = new DefaultArtifact(
+                    artifact.getGroupId(),
+                    artifact.getArtifactId(),
+                    artifact.getClassifier(),
+                    "jar",
+                    artifact.getVersion()
+            );
+        }
+
         List<RemoteRepository> remoteRepos = selectRepositories();
         if (repositoryURL != null) {
             addRepo(remoteRepos, repositoryURL);
