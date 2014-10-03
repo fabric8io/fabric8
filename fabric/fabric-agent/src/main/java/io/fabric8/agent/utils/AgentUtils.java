@@ -276,9 +276,13 @@ public class AgentUtils {
     public static void addMavenProxies(Dictionary props, FabricService fabricService) {
         try {
             if (fabricService != null) {
+                String httpUrl = fabricService.getCurrentContainer().getHttpUrl();
                 StringBuilder sb = new StringBuilder();
                 for (URI uri : fabricService.getMavenRepoURIs()) {
                     String mavenRepo = uri.toString();
+                    if (mavenRepo.startsWith(httpUrl)) {
+                        continue;
+                    }
                     if (!mavenRepo.endsWith("/")) {
                         mavenRepo += "/";
                     }
