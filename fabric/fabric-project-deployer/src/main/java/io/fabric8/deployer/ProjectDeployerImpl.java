@@ -697,7 +697,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
                                                 } catch (IOException e) {
                                                     // Ignore
                                                 } finally {
-                                                    downloadThreadDone();
+                                                    downloadThreadDone(executor);
                                                 }
                                             }
                                         });
@@ -705,7 +705,7 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
                                 } catch (IOException e) {
                                     // Ignore
                                 } finally {
-                                    downloadThreadDone();
+                                    downloadThreadDone(executor);
                                 }
                             }
                         });
@@ -713,14 +713,15 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
                 } catch (IOException e) {
                     // Ignore
                 } finally {
-                    downloadThreadDone();
+                    downloadThreadDone(executor);
                 }
             }
         });
     }
 
-    private synchronized void downloadThreadDone() {
+    private synchronized void downloadThreadDone(ExecutorService executor) {
         if (--downloadThreads == 0) {
+            executor.shutdown();
             File file = bundleContext.getDataFile("servicemix-bundles.properties");
             Properties props = new Properties();
             props.putAll(servicemixBundles);
