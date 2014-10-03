@@ -48,7 +48,11 @@ public class BaseRepository implements Repository {
             String ns = cap.getNamespace();
             CapabilitySet set = capSets.get(ns);
             if (set == null) {
-                set = new CapabilitySet(Collections.singletonList(ns));
+                if ("service-reference".equals(ns) || "osgi.service".equals(ns)) {
+                    set = new CapabilitySet(Collections.singletonList("objectClass"));
+                } else {
+                    set = new CapabilitySet(Collections.singletonList(ns));
+                }
                 capSets.put(ns, set);
             }
             set.addCapability(cap);
