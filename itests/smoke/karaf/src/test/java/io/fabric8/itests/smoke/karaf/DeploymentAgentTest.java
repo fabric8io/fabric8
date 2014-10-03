@@ -146,7 +146,7 @@ public class DeploymentAgentTest {
             FabricService fabricService = fabricProxy.getService();
             Set<Container> containers = ContainerBuilder.create().withName("smoke_cnt_b").withProfiles("test-profile").assertProvisioningResult().build(fabricService);
             try {
-                String command = "fabric:container-connect -u admin -p admin " + containers.iterator().next().getId() + " osgi:list -s | grep org.apache.servicemix.bundles.struts";
+                String command = "fabric:container-connect -u admin -p admin " + containers.iterator().next().getId() + " osgi:list -t 0 -s | grep org.apache.servicemix.bundles.struts";
                 String result = CommandSupport.executeCommand(command);
                 assertTrue("Result contains struts, but was: " + result, result.contains("org.apache.servicemix.bundles.struts"));
             } finally {

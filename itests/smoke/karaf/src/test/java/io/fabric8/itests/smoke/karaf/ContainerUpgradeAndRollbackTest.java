@@ -116,7 +116,7 @@ public class ContainerUpgradeAndRollbackTest {
                 CommandSupport.executeCommand("fabric:container-list");
                 for (Container container : containers) {
                     Assert.assertEquals("Container should have version 1.1", "1.1", container.getVersion().getId());
-                    String bundles = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list -s | grep camel-hazelcast");
+                    String bundles = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list -t 0 -s | grep camel-hazelcast");
                     Assert.assertNotNull(bundles);
                     System.out.println(bundles);
                     Assert.assertFalse("Expected camel-hazelcast installed on container: " + container.getId(), bundles.isEmpty());
@@ -128,7 +128,7 @@ public class ContainerUpgradeAndRollbackTest {
 
                 for (Container container : containers) {
                     Assert.assertEquals("Container should have version 1.0", "1.0", container.getVersion().getId());
-                    String bundles = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list -s | grep camel-hazelcast");
+                    String bundles = CommandSupport.executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list -t 0 -s | grep camel-hazelcast");
                     Assert.assertNotNull(bundles);
                     System.out.println(bundles);
                     Assert.assertTrue("Expected no camel-hazelcast installed on container: " + container.getId(), bundles.isEmpty());
