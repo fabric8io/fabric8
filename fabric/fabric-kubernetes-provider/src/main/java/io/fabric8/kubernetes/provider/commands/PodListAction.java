@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.provider.commands;
 import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Objects;
 import io.fabric8.kubernetes.api.Kubernetes;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.CurrentState;
 import io.fabric8.kubernetes.api.model.DesiredState;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
@@ -55,7 +56,9 @@ public class PodListAction extends AbstractAction {
         Objects.notNull(kubernetes, "kubernetes");
 
         PodListSchema pods = kubernetes.getPods();
+        KubernetesHelper.removeEmptyPods(pods);
         printContainers(pods, System.out);
+        
         return null;
     }
 

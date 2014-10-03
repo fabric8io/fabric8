@@ -17,6 +17,7 @@
  */
 package io.fabric8.kubernetes.api;
 
+import static io.fabric8.common.util.Lists.notNullList;
 import io.fabric8.common.util.Strings;
 import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.PodListSchema;
@@ -32,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static io.fabric8.common.util.Lists.notNullList;
+import org.apache.commons.lang.StringUtils;
 
 /**
  */
@@ -130,5 +131,22 @@ public class KubernetesHelper {
 
     public static Map<String, ReplicationControllerSchema> getReplicationControllerMap(Kubernetes kubernetes) {
         return toReplicationControllerMap(kubernetes.getReplicationControllers());
+    }
+
+    /**
+     * Removes empty pods returned by Kubernetes
+     */
+    public static void removeEmptyPods(PodListSchema podSchema) {
+        List<PodSchema> list = notNullList(podSchema.getItems());
+
+        List<PodSchema> removeItems = new ArrayList<PodSchema>();
+
+        for (PodSchema serviceSchema : list) {
+            if (StringUtils.isEmpty(serviceSchema.getId())){
+                removeItems.add(serviceSchema);
+
+            }
+        }
+        list.removeAll(removeItems);
     }
 }

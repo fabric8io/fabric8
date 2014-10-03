@@ -8,7 +8,7 @@
       "required": false,
       "description": "The version of the manifest.",
       "enum": [
-        "v1beta1"
+        "v1beta1",""
       ]
     },
     "containers": {
