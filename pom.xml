@@ -559,6 +559,7 @@
         <dependencies>
 
             <!-- Commons -->
+            <!--
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
@@ -590,6 +591,7 @@
                 <artifactId>javax.servlet-api</artifactId>
                 <version>${servlet30-api-version}</version>
             </dependency>
+            -->
 
             <!-- Eclipse -->
             <dependency>
@@ -604,6 +606,7 @@
             </dependency>
 
             <!-- Fabric -->
+            <!--
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-utils</artifactId>
@@ -1070,13 +1073,16 @@
                 <artifactId>fabric-runtime-container-karaf-registration</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            -->
 
             <!-- Utils -->
+            <!--
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>maven-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            -->
 
             <!-- OSGi -->
             <dependency>
@@ -3502,26 +3508,13 @@
     <modules>
         <module>parent</module>
 
-        <!-- hardcoded order - quickstarts violates maven module dependency principals -->
         <module>quickstarts</module>
-
-        <module>apm</module>
-        <module>common-util</module>
-        <module>fab</module>
-        <module>fabric</module>
-        <module>fabric8-maven-plugin</module>
-        <module>gateway</module>
-        <module>insight</module>
-        <module>maven-util</module>
-        <module>mq</module>
-        <module>patch</module>
-        <module>process</module>
-        <module>runtime</module>
-        <module>security</module>
         <module>tooling</module>
 
         <!-- itests should be built last -->
+<!--
         <module>itests</module>
+-->
     </modules>
 
     <build>
