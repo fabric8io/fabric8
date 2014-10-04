@@ -1,7 +1,0 @@
-#
-Id=org.apache.activemq:apollo-bdb:1.0-SNAPSHOT
-Name=bdb
-Description=JBDB based message storage
-Long-Description=
-Extension=true
-Extends=org.apache.activemq:apollo-broker:1.0-SNAPSHOT

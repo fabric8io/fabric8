@@ -1,0 +1,37 @@
+//
+//  Copyright 2005-2014 Red Hat, Inc.
+//
+//  Red Hat licenses this file to you under the Apache License, version
+//  2.0 (the "License"); you may not use this file except in compliance
+//  with the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+//  implied.  See the License for the specific language governing
+//  permissions and limitations under the License.
+//
+exit = { logout }
+
+wait-for-command = {
+  wait-for-service "(&(objectClass=org.apache.felix.service.command.Function)(osgi.command.scope=$1)(osgi.command.function=$2))";
+  sleep -s 1;
+}
+
+wait-for-command-fast = {
+  wait-for-service -t -1 "(&(objectClass=org.apache.felix.service.command.Function)(osgi.command.scope=$1)(osgi.command.function=$2))";
+  sleep -s 1;
+}
+
+if { "true" equals ${ensemble.auto.start} } {
+  // bin/fabric8 mode
+  echo "Waiting for Fabric8 ..."; 
+  wait-for-service "io.fabric8.api.FabricService";
+  wait-for-command fabric wait-for-provisioning;
+  fabric:wait-for-provisioning;
+}
+
+wait-for-command-fast fabric welcome;
+fabric:welcome;  
