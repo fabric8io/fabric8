@@ -28,7 +28,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.xml.transform.stream.StreamSource;
 
-import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.common.util.JMXUtils;
 import io.fabric8.common.util.Strings;
 import io.fabric8.tooling.archetype.catalog.Archetype;
@@ -97,6 +96,10 @@ public class ArchetypeServiceImpl implements ArchetypeService {
         }
 
         return answer;
+    }
+
+    private void assertValid() {
+        // TODO - no longer using core fabric DS component...
     }
 
     @Override

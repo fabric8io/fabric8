@@ -73,12 +73,10 @@
 
   <dependencies>
 
-<!--
-    TODO
-
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-cxf</artifactId>
+      <version>${fabric.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.apache.cxf</groupId>
@@ -86,7 +84,6 @@
         </exclusion>
       </exclusions>
     </dependency>
--->
 
     <dependency>
       <groupId>org.apache.servicemix.specs</groupId>
@@ -269,15 +266,13 @@
           </execution>
         </executions>
       </plugin>
+<!--
       <plugin>
-        <!--
-          this plugin will use the fabric.* properties to configure its behaviour
-          see the Properties section here: http://fabric8.io/gitbook/mavenPlugin.html
-        -->
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-maven-plugin</artifactId>
         <version>${fabric.version}</version>
       </plugin>
+-->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
