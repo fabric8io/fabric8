@@ -1,4 +1,4 @@
-## Differences between 1.x and 2.x
+## Changes since Version 1.x
 
 In fabric8 1.x we assumed only a platform with a JVM and built lots of abstractions that were very similar to [Kubernetes](http://kubernetes.io). In fabric8 2.x we have decided to assume a base of [Docker](http://docker.io/), [Kubernetes](http://kubernetes.io) and the [Kubernetes extensions defined in OpenShift Origin](). For non-linux platforms which don't support docker we have a [Docker Emulation Layer](emulation.html).
 
