@@ -1,14 +1,22 @@
 ## Overview
 
-Fabric8 2.x or later provides an integration platform above [Kubernetes](http://kubernetes.io), [the optional kubernetes extensions defined in OpenShift Origin]() and [Docker](http://docker.io/). (For non-linux platforms which don't support docker we have a [Docker Emulation Layer](emulation.html))
+Fabric8 2.x provides an integration platform above [Docker](http://docker.io/), [Kubernetes](http://kubernetes.io) and the [Kubernetes extensions defined in OpenShift Origin](). For non-linux platforms which don't support docker we have a [Docker Emulation Layer](emulation.html).
 
-The core Kubernetes abstractions are:
+Kubernetes is supported on Google & Microsofts clouds, by OpenShift v3 (on premise and public cloud), by Project Atomic and VMware; so it's increasingly becoming the standard API to PaaS and Container As A Service on the hybrid clouds.
+
+#### How it all fits together
+
+* Docker provides the abstraction for packaging and creating Linux based lightweight containers
+* Kubernetes provides the mechanism for running docker containers on multiple hosts (like a distributed systemd) together with networking them together
+* Kubernetes extensions provides the packaging, templating and building mechanisms
+
+#### Kubernetes model
 
 * [Pods](pods.html)
 * [Replication Controllers](replicationControllers.html)
 * [Services](services.md)
 
-The core Kubernetes extensions defined by OpenShift Origin v3 are:
+#### Kubernetes extensions from OpenShift Origin v3
 
 * [Apps (or Kubernetes Application Templates)](apps.html)
-
+* [Builds](builds.html)
