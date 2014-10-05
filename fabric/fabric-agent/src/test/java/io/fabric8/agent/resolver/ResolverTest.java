@@ -17,7 +17,6 @@ package io.fabric8.agent.resolver;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,16 +28,17 @@ import java.util.concurrent.Executors;
 
 import aQute.bnd.osgi.Macro;
 import aQute.bnd.osgi.Processor;
+import io.fabric8.maven.MavenResolver;
+import io.fabric8.maven.url.internal.AetherBasedResolver;
 import org.apache.felix.framework.Felix;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.karaf.features.Repository;
 import io.fabric8.agent.DeploymentBuilder;
 import io.fabric8.agent.download.DownloadManager;
-import io.fabric8.agent.mvn.MavenConfigurationImpl;
-import io.fabric8.agent.mvn.MavenSettingsImpl;
-import io.fabric8.agent.mvn.PropertiesPropertyResolver;
+import io.fabric8.maven.util.MavenConfigurationImpl;
 import io.fabric8.agent.utils.AgentUtils;
 import org.junit.Test;
+import org.ops4j.util.property.PropertiesPropertyResolver;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.resource.Resource;
@@ -57,25 +57,26 @@ public class ResolverTest {
         String home = System.getProperty("user.home");
         Properties properties = new Properties();
         properties.setProperty("mvn.localRepository", home+"/.m2/repository/@snapshots");
-        properties.setProperty("mvn.repositories", "http://repo1.maven.org/maven2/,http://repository.jboss.org/nexus/content/groups/fs-public/,https://repo.fusesource.com/nexus/content/repositories/ea");
+        properties.setProperty("mvn.repositories", "http://repo1.maven.org/maven2/,http://repository.jboss.org/nexus/content/groups/fs-public/,https://repo.fusesource.com/nexus/content/groups/ea");
+        properties.setProperty("mvn.settings", getClass().getResource("/maven-default-settings.xml").toExternalForm());
         PropertiesPropertyResolver propertyResolver = new PropertiesPropertyResolver(properties);
         MavenConfigurationImpl mavenConfiguration = new MavenConfigurationImpl(propertyResolver, "mvn");
-        mavenConfiguration.setSettings(new MavenSettingsImpl(getClass().getResource("maven-default-settings.xml")));
+        MavenResolver resolver = new AetherBasedResolver(mavenConfiguration);
 
-        DownloadManager manager = new DownloadManager(mavenConfiguration, Executors.newFixedThreadPool(2));
+        DownloadManager manager = new DownloadManager(resolver, Executors.newFixedThreadPool(2));
 
         Map<URI, Repository> repositories = new HashMap<URI, Repository>();
         AgentUtils.addRepository(manager, repositories, URI.create("mvn:org.apache.karaf.assemblies.features/standard/" + System.getProperty("karaf-version") + "/xml/features"));
 
-        DeploymentBuilder builder = new DeploymentBuilder(manager, null, repositories.values(), 0);
+        DeploymentBuilder builder = new DeploymentBuilder(manager, repositories.values(), 0);
 
         builder.download(new HashSet<String>(Arrays.asList("karaf-framework", "ssh")),
                          Collections.<String>emptySet(),
                          Collections.<String>emptySet(),
                          Collections.<String>emptySet(),
                          Collections.<String>emptySet(),
-                         Collections.<String>emptySet(),
-                         Collections.<String, Map<VersionRange, Map<String, String>>>emptyMap(), null);
+                         Collections.<String, Map<VersionRange, Map<String, String>>>emptyMap(),
+                         null);
 
         properties = new Properties();
         properties.setProperty("org.osgi.framework.system.packages.extra", "org.apache.karaf.jaas.boot;version=\"2.4.0.SNAPSHOT\",org.apache.karaf.jaas.boot.principal;version=\"2.4.0.SNAPSHOT\",org.apache.karaf.management.boot;version=\"2.4.0.SNAPSHOT\"");

@@ -16,7 +16,7 @@
 package io.fabric8.agent.commands;
 
 import io.fabric8.agent.commands.support.ProfileVersionKey;
-import io.fabric8.agent.mvn.Parser;
+import io.fabric8.maven.util.Parser;
 
 import java.util.List;
 import java.util.Map;

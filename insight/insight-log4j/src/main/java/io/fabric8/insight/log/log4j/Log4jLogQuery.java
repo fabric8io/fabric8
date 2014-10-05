@@ -15,6 +15,9 @@
  */
 package io.fabric8.insight.log.log4j;
 
+import io.fabric8.maven.url.ServiceConstants;
+import io.fabric8.maven.url.internal.AetherBasedResolver;
+import io.fabric8.maven.util.MavenConfigurationImpl;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Category;
@@ -30,10 +33,6 @@ import io.fabric8.insight.log.LogResults;
 import io.fabric8.insight.log.support.LogQuerySupport;
 import io.fabric8.insight.log.support.LruList;
 import io.fabric8.insight.log.support.Predicate;
-import org.ops4j.pax.url.maven.commons.MavenConfigurationImpl;
-import org.ops4j.pax.url.maven.commons.MavenSettingsImpl;
-import org.ops4j.pax.url.mvn.ServiceConstants;
-import org.ops4j.pax.url.mvn.internal.AetherBasedResolver;
 import org.ops4j.util.property.PropertiesPropertyResolver;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
@@ -337,7 +336,6 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
                         combined.putAll(properties);
                     }
                     config = new MavenConfigurationImpl(new PropertiesPropertyResolver(combined), ServiceConstants.PID);
-                    config.setSettings( new MavenSettingsImpl( config.getSettingsFileUrl(), config.useFallbackRepositories() ) );
                 }
                 resolver = new AetherBasedResolver(config);
             }

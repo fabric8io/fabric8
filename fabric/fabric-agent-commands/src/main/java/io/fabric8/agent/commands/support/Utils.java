@@ -20,11 +20,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import io.fabric8.agent.mvn.Parser;
+import io.fabric8.maven.util.Parser;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
-import io.fabric8.api.ProfileService;
 import io.fabric8.common.util.ChecksumUtils;
 
 import org.slf4j.Logger;

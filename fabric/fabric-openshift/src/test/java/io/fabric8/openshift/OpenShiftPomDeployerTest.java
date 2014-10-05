@@ -21,8 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import javax.xml.xpath.XPathExpressionException;
 
-import io.fabric8.agent.mvn.MavenRepositoryURL;
-import io.fabric8.agent.mvn.Parser;
+import io.fabric8.maven.util.MavenRepositoryURL;
+import io.fabric8.maven.util.Parser;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.XPathBuilder;
 import io.fabric8.common.util.XPathFacade;

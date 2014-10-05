@@ -18,6 +18,8 @@ package io.fabric8.openshift.agent;
 import io.fabric8.api.FabricService;
 import io.fabric8.common.util.Files;
 
+import io.fabric8.maven.util.MavenRepositoryURL;
+import io.fabric8.maven.util.Parser;
 import org.apache.karaf.features.Feature;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -28,8 +30,6 @@ import org.eclipse.jgit.transport.RefSpec;
 import io.fabric8.common.util.LoggingOutputStream;
 import io.fabric8.common.util.Strings;
 import io.fabric8.agent.download.DownloadManager;
-import io.fabric8.agent.mvn.MavenRepositoryURL;
-import io.fabric8.agent.mvn.Parser;
 import io.fabric8.agent.utils.AgentUtils;
 import io.fabric8.api.Container;
 import io.fabric8.api.Profile;

@@ -31,17 +31,18 @@ import javax.servlet.http.HttpServletResponse;
 import io.fabric8.agent.download.DownloadFuture;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.FutureListener;
-import io.fabric8.agent.mvn.MavenConfigurationImpl;
-import io.fabric8.agent.mvn.MavenSettingsImpl;
-import io.fabric8.agent.mvn.PropertiesPropertyResolver;
+import io.fabric8.maven.MavenResolver;
+import io.fabric8.maven.url.internal.AetherBasedResolver;
+import io.fabric8.maven.util.MavenConfigurationImpl;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.ops4j.util.property.PropertiesPropertyResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,10 +208,11 @@ public class DownloadManagerTest {
         properties.setProperty("org.ops4j.pax.url.mvn.localRepository", systemRepoUri);
         properties.setProperty("org.ops4j.pax.url.mvn.repositories", remoteRepo);
         properties.setProperty("org.ops4j.pax.url.mvn.defaultRepositories", systemRepoUri);
+        properties.setProperty("org.ops4j.pax.url.mvn.settings", mavenSettings.toURI().toString());
         PropertiesPropertyResolver propertyResolver = new PropertiesPropertyResolver(properties);
         MavenConfigurationImpl mavenConfiguration = new MavenConfigurationImpl(propertyResolver, "org.ops4j.pax.url.mvn");
-        mavenConfiguration.setSettings(new MavenSettingsImpl(mavenSettings.toURI().toURL()));
-        return new DownloadManager(mavenConfiguration, Executors.newSingleThreadExecutor());
+        MavenResolver resolver = new AetherBasedResolver(mavenConfiguration);
+        return new DownloadManager(resolver, Executors.newSingleThreadExecutor());
     }
 
     /**

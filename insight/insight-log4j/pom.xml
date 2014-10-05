@@ -30,15 +30,10 @@
   
   <name>Fabric8 :: Insight :: Logging Log4j</name>
 
-  <properties>
-    <pax.url.version>1.5.2</pax.url.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>io.fabric8.insight</groupId>
       <artifactId>insight-log-core</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
@@ -53,15 +48,12 @@
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>${commons-codec-version}</version>
       </dependency>
 
     <!-- we shard these classes to remove the embedded code in this jar for apache commons -->
     <dependency>
-      <groupId>org.ops4j.pax.url</groupId>
-      <artifactId>pax-url-aether</artifactId>
-      <version>${pax.url.version}</version>
-      <scope>compile</scope>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric-maven</artifactId>
     </dependency>
 
     <dependency>

@@ -27,10 +27,10 @@ import java.util.prefs.Preferences;
 import io.fabric8.agent.download.DownloadFuture;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.FutureListener;
-import io.fabric8.agent.mvn.MavenConfigurationImpl;
-import io.fabric8.agent.mvn.MavenSettingsImpl;
-import io.fabric8.agent.mvn.PropertiesPropertyResolver;
 import io.fabric8.common.util.Strings;
+import io.fabric8.maven.MavenResolver;
+import io.fabric8.maven.url.internal.AetherBasedResolver;
+import io.fabric8.maven.util.MavenConfigurationImpl;
 import io.fabric8.tooling.archetype.ArchetypeService;
 import io.fabric8.tooling.archetype.catalog.Archetype;
 import io.fabric8.tooling.archetype.generator.ArchetypeHelper;
@@ -39,6 +39,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
+import org.ops4j.util.property.PropertiesPropertyResolver;
 
 import static io.fabric8.common.util.Strings.isNotBlank;
 import static io.fabric8.common.util.Strings.isNullOrBlank;
@@ -283,8 +284,8 @@ public class ArchetypeGenerateAction extends AbstractAction {
      */
     private File fetchArchetype(Archetype archetype) throws IOException {
         MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn");
-        config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
-        DownloadManager dm = new DownloadManager(config, Executors.newSingleThreadExecutor());
+        MavenResolver resolver = new AetherBasedResolver(config);
+        DownloadManager dm = new DownloadManager(resolver, Executors.newSingleThreadExecutor());
 
         final CountDownLatch latch = new CountDownLatch(1);
         final DownloadFuture df = dm.download(String.format("mvn:%s/%s/%s", archetype.groupId, archetype.artifactId, archetype.version));

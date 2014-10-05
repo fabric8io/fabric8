@@ -1,7 +1,0 @@
-#
-Id=org.apache.activemq:apollo-cli:1.0-SNAPSHOT
-Name=apollo-cli
-Description=Apollo Command Line Interface
-Long-Description=
-Extension=true
-Extends=org.apache.activemq:apollo-broker:1.0-SNAPSHOT

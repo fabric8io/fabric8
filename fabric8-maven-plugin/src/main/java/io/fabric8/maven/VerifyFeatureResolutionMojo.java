@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -43,33 +42,24 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.jar.Attributes;
 import java.util.regex.Pattern;
 
-import io.fabric8.agent.DeploymentAgent;
 import io.fabric8.agent.DeploymentBuilder;
 import io.fabric8.agent.download.DownloadManager;
-import io.fabric8.agent.mvn.DictionaryPropertyResolver;
-import io.fabric8.agent.mvn.MavenConfigurationImpl;
-import io.fabric8.agent.mvn.MavenSettingsImpl;
 import io.fabric8.agent.repository.HttpMetadataProvider;
 import io.fabric8.agent.repository.MetadataRepository;
 import io.fabric8.agent.resolver.ResourceBuilder;
-import io.fabric8.api.data.BundleInfo;
 import io.fabric8.common.util.MultiException;
-import io.fabric8.fab.osgi.internal.FabResolverFactoryImpl;
+import io.fabric8.maven.url.internal.AetherBasedResolver;
+import io.fabric8.maven.util.MavenConfigurationImpl;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.karaf.deployer.blueprint.BlueprintTransformer;
-import org.apache.karaf.deployer.blueprint.BlueprintURLHandler;
-import org.apache.karaf.features.Conditional;
 import org.apache.karaf.features.ConfigFileInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
-import org.apache.karaf.features.internal.FeatureImpl;
-import org.apache.karaf.features.internal.FeaturesServiceImpl;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -78,6 +68,7 @@ import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.ops4j.util.property.DictionaryPropertyResolver;
 import org.osgi.framework.Constants;
 import org.osgi.resource.Resource;
 
@@ -158,8 +149,8 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
         try {
             DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(properties);
             MavenConfigurationImpl config = new MavenConfigurationImpl(propertyResolver, "org.ops4j.pax.url.mvn");
-            config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
-            manager = new DownloadManager(config, executor);
+            MavenResolver resolver = new AetherBasedResolver(config);
+            manager = new DownloadManager(resolver, executor);
             repositories = loadRepositories(manager, descriptors);
             for (String repoUri : repositories.keySet()) {
                 Feature[] features = repositories.get(repoUri).getFeatures();
@@ -251,14 +242,12 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
 
             DeploymentBuilder builder = new DeploymentBuilder(
                     manager,
-                    null,
                     repositories.values(),
                     -1 // Disable url handlers
             );
             Map<String, Resource> downloadedResources = builder.download(
                     getPrefixedProperties(properties, "feature."),
                     getPrefixedProperties(properties, "bundle."),
-                    getPrefixedProperties(properties, "fab."),
                     getPrefixedProperties(properties, "req."),
                     getPrefixedProperties(properties, "override."),
                     getPrefixedProperties(properties, "optional."),

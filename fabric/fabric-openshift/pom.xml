@@ -43,7 +43,6 @@
       com.openshift*,
       org.jledit.utils;-split-package:=first,
       io.fabric8.commands*,
-      io.fabric8.agent.mvn,
       io.fabric8.agent.download,
       io.fabric8.agent.utils,
       io.fabric8.commands.support;-split-package:=first,

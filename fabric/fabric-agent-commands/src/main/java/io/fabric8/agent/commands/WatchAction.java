@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.fabric8.agent.commands.support.ProfileVersionKey;
-import io.fabric8.agent.mvn.Parser;
+import io.fabric8.maven.util.Parser;
 import io.fabric8.utils.TablePrinter;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;

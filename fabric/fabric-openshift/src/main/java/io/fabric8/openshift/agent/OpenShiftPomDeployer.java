@@ -24,8 +24,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
-import io.fabric8.agent.mvn.MavenRepositoryURL;
-import io.fabric8.agent.mvn.Parser;
 import io.fabric8.common.util.DomHelper;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Objects;
@@ -33,6 +31,8 @@ import io.fabric8.common.util.Strings;
 import io.fabric8.common.util.XPathBuilder;
 import io.fabric8.common.util.XPathFacade;
 import io.fabric8.common.util.XmlUtils;
+import io.fabric8.maven.util.MavenRepositoryURL;
+import io.fabric8.maven.util.Parser;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;

@@ -33,11 +33,10 @@
     <repository>mvn:org.apache.karaf.assemblies.features/enterprise/${karaf-version}/xml/features</repository>
 
     <feature name="karaf" version="${karaf-version}" resolver="(obr)">
-        <!-- we need 1.2.9-SNAPSHOT as 1.2.8 does not advertise the ConfigurationAdmin service -->
         <bundle>mvn:io.fabric8/fabric-ssl/${project.version}</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/${felix-configadmin-version}</bundle>
 
-        <bundle>mvn:org.ops4j.pax.url/pax-url-aether/${pax.url.version}</bundle>
+        <bundle>mvn:io.fabric8/fabric-maven/${project.version}</bundle>
         <bundle>mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}/jar/uber</bundle>
 
         <bundle>mvn:org.ops4j.pax.logging/pax-logging-api/${pax.logging.version}</bundle>
@@ -100,29 +99,18 @@
         </conditional>
     </feature>
 
-    <feature name="fabric-bundle" version="${project.version}" resolver="(obr)">
-        <feature>features</feature>
-        <feature version="${project.version}">fabric-core</feature>
-        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
-        <bundle>mvn:io.fabric8.fab/fab-osgi/${project.version}</bundle>
-        <bundle>mvn:org.ops4j.base/ops4j-base-net/${ops4j-base.version}</bundle>
-        <bundle>mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
-        <bundle>mvn:org.ops4j.base/ops4j-base-monitors/${ops4j-base.version}</bundle>
-        <bundle>mvn:org.ops4j.base/ops4j-base-util-property/${ops4j-base.version}</bundle>
-    </feature>
-
     <feature name="process-manager" version="${project.version}" resolver="(obr)">
-        <feature>fabric-bundle</feature>
         <feature>fabric-commands</feature>
         <feature>camel-mvel</feature>
         <bundle>mvn:biz.aQute.bnd/bndlib/${bndlib-version}</bundle>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
+        <bundle>mvn:io.fabric8/fabric-maven/${project.version}</bundle>
         <bundle>mvn:io.fabric8/process-manager/${project.version}</bundle>
-        <bundle>mvn:org.ops4j.base/ops4j-base-net/${ops4j-base.version}</bundle>
-        <bundle>mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
-        <bundle>mvn:org.ops4j.base/ops4j-base-monitors/${ops4j-base.version}</bundle>
-        <bundle>mvn:org.ops4j.base/ops4j-base-util-property/${ops4j-base.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava-version}</bundle>
+        <bundle dependency='true'>mvn:org.ops4j.base/ops4j-base-net/${ops4j-base.version}</bundle>
+        <bundle dependency='true'>mvn:org.ops4j.base/ops4j-base-monitors/${ops4j-base.version}</bundle>
+        <bundle dependency='true'>mvn:org.ops4j.base/ops4j-base-util-property/${ops4j-base.version}</bundle>
+        <bundle dependency='true'>mvn:org.ops4j.pax.swissbox/pax-swissbox-property/${ops4j-pax-swissbox-property.version}</bundle>
+        <bundle dependency='true'>mvn:com.google.guava/guava/${guava-version}</bundle>
     </feature>
 
     <feature name="process-fabric" version="${project.version}" resolver="(obr)">
@@ -157,15 +145,16 @@
     <feature name="fabric-archetype-commands" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-boot-commands</feature>
         <bundle dependency="true">mvn:commons-io/commons-io/${commons-io2-version}</bundle>
+        <bundle dependency="true">mvn:org.ops4j.base/ops4j-base-util-property/${ops4j-base.version}</bundle>
         <bundle>mvn:io.fabric8/archetype-builder/${project.version}</bundle>
         <bundle>mvn:io.fabric8/archetype-commands/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-project-deployer" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-agent</feature>
-        <feature version="${project.version}">fabric-bundle</feature>
         <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-aether/${pax.url.version}</bundle>
         <bundle dependency="true">mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}/jar/uber</bundle>
+        <bundle dependency="true">mvn:org.ops4j.base/ops4j-base-util-property/${ops4j-base.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-project-deployer/${project.version}</bundle>
     </feature>
 
@@ -179,6 +168,8 @@
         <feature version="${karaf-version}">http</feature>
         <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-project-deployer</feature>
+        <bundle dependency="true">mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
+        <bundle>mvn:io.fabric8/fabric-maven/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-maven-proxy/${project.version}</bundle>
     </feature>
 
@@ -191,6 +182,7 @@
         <feature version="${project.version}">fabric-rest</feature>
         <feature version="${project.version}">fabric-commands</feature>
         <feature version="${project.version}">fabric-agent</feature>
+        <feature version="${project.version}">fabric-maven-proxy</feature>
 
         <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.command/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.management/${karaf-version}</bundle>
@@ -212,6 +204,11 @@
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle dependency='true'>mvn:com.google.guava/guava/${guava-version}</bundle>
+        <bundle dependency='true'>mvn:biz.aQute.bnd/bndlib/${bndlib-version}</bundle>
+        <bundle dependency='true'>mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
+        <bundle dependency='true'>mvn:org.ops4j.base/ops4j-base-util-property/${ops4j-base.version}</bundle>
+        <bundle dependency='true'>mvn:org.ops4j.pax.swissbox/pax-swissbox-property/${ops4j-pax-swissbox-property.version}</bundle>
+        <bundle dependency='true'>mvn:org.ops4j.pax.url/pax-url-commons/${pax.url.version}</bundle>
 
         <bundle>mvn:org.apache.felix/org.apache.felix.metatype/${felix-metatype-version}</bundle>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
@@ -220,6 +217,7 @@
         <bundle>mvn:io.fabric8/fabric-groups/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-git/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-configadmin/${project.version}</bundle>
+        <bundle>mvn:io.fabric8/fabric-maven/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-agent/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-extender-listener/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-jaas/${project.version}</bundle>
@@ -723,7 +721,6 @@
         <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-project-deployer</feature>
         <feature version="${project.version}">process-manager</feature>
-        <feature version="${project.version}">fabric-bundle</feature>
         <feature version="${project.version}">fabric-groovy</feature>
         <feature version="${project.version}">fabric-commands</feature>
         <bundle>mvn:io.fabric8/fabric-process-container/${project.version}</bundle>
