@@ -559,7 +559,6 @@
         <dependencies>
 
             <!-- Commons -->
-            <!--
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
@@ -591,7 +590,6 @@
                 <artifactId>javax.servlet-api</artifactId>
                 <version>${servlet30-api-version}</version>
             </dependency>
-            -->
 
             <!-- Eclipse -->
             <dependency>
@@ -606,6 +604,12 @@
             </dependency>
 
             <!-- Fabric -->
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>common-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!--
             <dependency>
                 <groupId>io.fabric8</groupId>
@@ -745,11 +749,6 @@
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-groovy</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>common-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -3508,6 +3507,7 @@
     <modules>
         <module>parent</module>
 
+        <module>common-util</module>
         <module>quickstarts</module>
         <module>tooling</module>
 

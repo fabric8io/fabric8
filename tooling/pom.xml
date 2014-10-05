@@ -36,7 +36,10 @@
     <modules>
         <module>archetypes</module>
         <module>archetype-builder</module>
+<!--
+        TODO
         <module>archetype-commands</module>
+-->
         <module>examples</module>
     </modules>
 

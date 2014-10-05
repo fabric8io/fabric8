@@ -26,9 +26,12 @@ import javax.ws.rs.core.Application;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
+/*
 import io.fabric8.cxf.endpoint.EnableJMXFeature;
 import io.fabric8.cxf.endpoint.SwaggerFeature;
+*/
 import org.apache.cxf.feature.LoggingFeature;
+import org.apache.cxf.jaxrs.swagger.SwaggerFeature;
 
 
 @ApplicationPath( "cxfcdi" )
@@ -42,8 +45,12 @@ public class CxfCdiApplication extends Application {
                     Arrays.asList(
                     customerService,
                     jacksonJsonProvider,
+/*
+    TODO
+
                     new SwaggerFeature(),
                     new EnableJMXFeature(),
+*/
                     new LoggingFeature()
                 )
         );

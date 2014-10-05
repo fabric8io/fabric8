@@ -70,7 +70,10 @@
   <modules>
     <module>java</module>
     <module>karaf</module>
+<!--
+    TODO
     <module>spring-boot</module>
+-->
     <module>war</module>
     <module>mule</module>
   </modules>
@@ -78,6 +81,8 @@
   <build>
     <plugins>
       <!-- generate a .zip with all the quickstarts -->
+      <!-- TODO -->
+<!--
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-maven-plugin</artifactId>
@@ -95,6 +100,7 @@
           <replaceReadmeLinksPrefix>/fabric/profiles/quickstarts/</replaceReadmeLinksPrefix>
         </configuration>
       </plugin>
+-->
     </plugins>
     <pluginManagement>
       <plugins>

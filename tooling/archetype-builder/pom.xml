@@ -56,10 +56,13 @@
             <artifactId>org.apache.felix.scr.annotations</artifactId>
             <scope>provided</scope>
         </dependency>
+<!--
+        TODO
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
         </dependency>
+-->
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>common-util</artifactId>

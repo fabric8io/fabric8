@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
     description = "Generates projects from Maven Archetypes.",
     policy = ConfigurationPolicy.OPTIONAL, immediate = true, metatype = true)
 @Service(ArchetypeService.class)
-public class ArchetypeServiceImpl extends AbstractComponent implements ArchetypeService {
+public class ArchetypeServiceImpl implements ArchetypeService {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(ArchetypeServiceImpl.class);
     public static ObjectName OBJECT_NAME;
@@ -73,7 +73,6 @@ public class ArchetypeServiceImpl extends AbstractComponent implements Archetype
         if (mbeanServer != null) {
             JMXUtils.registerMBean(this, mbeanServer, OBJECT_NAME);
         }
-        activateComponent();
 
         URL catalog = componentContext.getBundleContext().getBundle().getResource("archetype-catalog.xml");
         Archetypes archetypes = (Archetypes) Archetypes.newUnmarshaller().unmarshal(new StreamSource(catalog.openStream()));
@@ -87,7 +86,6 @@ public class ArchetypeServiceImpl extends AbstractComponent implements Archetype
         if (mbeanServer != null) {
             JMXUtils.unregisterMBean(mbeanServer, OBJECT_NAME);
         }
-        deactivateComponent();
     }
 
     @Override
