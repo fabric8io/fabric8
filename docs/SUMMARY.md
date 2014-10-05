@@ -8,3 +8,5 @@
 * [QuickStarts](quickstarts.md)
 * [Emulator](emulation.md)
 * [Changes from V1](v2-changes.md)
+* [FAQ](FAQ.md)
+  * [General Questions](faqGeneral.md)
