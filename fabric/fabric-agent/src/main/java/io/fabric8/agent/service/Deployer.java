@@ -59,6 +59,7 @@ import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
+import org.osgi.resource.Namespace;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.service.repository.Repository;
@@ -858,9 +859,18 @@ public class Deployer {
 
     private void computeBundlesToRefresh(Set<Bundle> toRefresh, Collection<Bundle> bundles, Map<Resource, Bundle> resources, Map<Resource, List<Wire>> resolution) {
         int size;
+        Map<Bundle, Resource> bndToRes = new HashMap<>();
+        for (Map.Entry<Resource, Bundle> entry : resources.entrySet()) {
+            bndToRes.put(entry.getValue(), entry.getKey());
+        }
         do {
             size = toRefresh.size();
-            for (Bundle bundle : bundles) {
+            main: for (Bundle bundle : bundles) {
+                Resource resource = bndToRes.get(bundle);
+                // This bundle is not managed
+                if (resource == null) {
+                    continue;
+                }
                 // Continue if we already know about this bundle
                 if (toRefresh.contains(bundle)) {
                     continue;
@@ -870,33 +880,40 @@ public class Deployer {
                 if (wiring == null) {
                     continue;
                 }
-                // Get through the old resolution and flag this bundle
-                // if it was wired to a bundle to be refreshed
-                for (BundleWire wire : wiring.getRequiredWires(null)) {
-                    if (toRefresh.contains(wire.getProvider().getBundle())) {
-                        toRefresh.add(bundle);
-                        break;
-                    }
+                // Ignore bundles that won't be wired
+                List<Wire> newWires = resolution.get(resource);
+                if (newWires == null) {
+                    continue;
                 }
-                // Get through the new resolution and flag this bundle
-                // if it's wired to any new bundle
-                List<Wire> newWires = resolution.get(wiring.getRevision());
-                if (newWires != null) {
-                    for (Wire wire : newWires) {
-                        if (!isBundle(wire.getProvider())) {
-                            continue;
-                        }
-                        Bundle b;
-                        if (wire.getProvider() instanceof BundleRevision) {
-                            b = ((BundleRevision) wire.getProvider()).getBundle();
-                        } else {
-                            b = resources.get(wire.getProvider());
-                        }
-                        if (b == null || toRefresh.contains(b)) {
-                            toRefresh.add(bundle);
-                            break;
-                        }
+                // Compare the old and new resolutions
+                Set<Resource> wiredBundles = new HashSet<>();
+                for (BundleWire wire : wiring.getRequiredWires(null)) {
+                    BundleRevision rev = wire.getProvider();
+                    Bundle b = rev.getBundle();
+                    if (toRefresh.contains(b)) {
+                        // The bundle is wired to a bundle being refreshed,
+                        // so we need to refresh it too
+                        toRefresh.add(bundle);
+                        continue main;
                     }
+                    Resource res = bndToRes.get(b);
+                    wiredBundles.add(res != null ? res : rev);
+                }
+                Set<Resource> wiredResources = new HashSet<>();
+                for (Wire wire : newWires) {
+                    // Ignore non-resolution time requirements
+                    String effective = wire.getRequirement().getDirectives().get(Namespace.CAPABILITY_EFFECTIVE_DIRECTIVE);
+                    if (effective != null && !Namespace.EFFECTIVE_RESOLVE.equals(effective)) {
+                        continue;
+                    }
+                    // Ignore non bundle resources
+                    if (!isBundle(wire.getProvider())) {
+                        continue;
+                    }
+                    wiredResources.add(wire.getProvider());
+                }
+                if (!wiredBundles.containsAll(wiredResources)) {
+                    toRefresh.add(bundle);
                 }
             }
         } while (toRefresh.size() > size);

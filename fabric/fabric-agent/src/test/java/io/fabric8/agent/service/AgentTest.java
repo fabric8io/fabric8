@@ -9,6 +9,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -33,6 +34,8 @@ import org.ops4j.util.property.DictionaryPropertyResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.hooks.resolver.ResolverHookFactory;
 
 import static java.util.jar.JarFile.MANIFEST_NAME;
 import static org.easymock.EasyMock.createMock;
@@ -100,7 +103,11 @@ public class AgentTest {
             expect(systemBundleContext.installBundle(EasyMock.eq(bundleUri), EasyMock.<InputStream>anyObject())).andReturn(bundle);
         }
 
-        replay(systemBundleContext);
+        ServiceRegistration registration = EasyMock.createMock(ServiceRegistration.class);
+        expect(systemBundleContext.registerService(EasyMock.eq(ResolverHookFactory.class), EasyMock.<ResolverHookFactory>anyObject(), EasyMock.<Dictionary>isNull())).andReturn(registration);
+        registration.unregister();
+
+        replay(systemBundleContext, registration);
         for (Bundle bundle : mockBundles) {
             replay(bundle);
         }

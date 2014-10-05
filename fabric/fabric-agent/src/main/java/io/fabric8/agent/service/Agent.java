@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,9 +53,16 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.hooks.resolver.ResolverHook;
+import org.osgi.framework.hooks.resolver.ResolverHookFactory;
 import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.framework.startlevel.FrameworkStartLevel;
+import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.wiring.BundleRequirement;
+import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.FrameworkWiring;
+import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.slf4j.Logger;
@@ -386,9 +394,72 @@ public class Agent {
         }
 
         @Override
-        public void resolveBundles(Set<Bundle> bundles, Map<Resource, List<Wire>> wiring, Map<Resource, Bundle> resToBnd) {
-            // TODO: use wiring to force the framework into the computed state
-            systemBundleContext.getBundle().adapt(FrameworkWiring.class).resolveBundles(bundles);
+        public void resolveBundles(Set<Bundle> bundles, final Map<Resource, List<Wire>> wiring, Map<Resource, Bundle> resToBnd) {
+            // Make sure it's only used for us
+            final Thread thread = Thread.currentThread();
+            // Translate wiring
+            final Map<Bundle, Resource> bndToRes = new HashMap<>();
+            for (Resource res : resToBnd.keySet()) {
+                bndToRes.put(resToBnd.get(res), res);
+            }
+            // Hook
+            final ResolverHook hook = new ResolverHook() {
+                @Override
+                public void filterResolvable(Collection<BundleRevision> candidates) {
+                }
+                @Override
+                public void filterSingletonCollisions(BundleCapability singleton, Collection<BundleCapability> collisionCandidates) {
+                }
+                @Override
+                public void filterMatches(BundleRequirement requirement, Collection<BundleCapability> candidates) {
+                    if (Thread.currentThread() == thread) {
+                        Bundle sourceBundle = requirement.getRevision().getBundle();
+                        Resource sourceResource = bndToRes.get(sourceBundle);
+                        for (Wire wire : wiring.get(sourceResource)) {
+                            Requirement req = wire.getRequirement();
+                            if (req.getNamespace().equals(requirement.getNamespace())
+                                    && req.getAttributes().equals(requirement.getAttributes())
+                                    && req.getDirectives().equals(requirement.getDirectives())) {
+                                for (Iterator<BundleCapability> capIter = candidates.iterator(); capIter.hasNext(); ) {
+                                    BundleCapability cap = capIter.next();
+                                    BundleRevision br = cap.getRevision();
+                                    if (br == wire.getCapability().getResource()) {
+                                        continue;
+                                    }
+                                    Resource res = bndToRes.get(br.getBundle());
+                                    if (res != wire.getCapability().getResource()) {
+                                        capIter.remove();
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+                @Override
+                public void end() {
+                }
+            };
+            ResolverHookFactory factory = new ResolverHookFactory() {
+                @Override
+                public ResolverHook begin(Collection<BundleRevision> triggers) {
+                    return hook;
+                }
+            };
+            ServiceRegistration<ResolverHookFactory> registration = systemBundleContext.registerService(ResolverHookFactory.class, factory, null);
+            try {
+                // Given we already have computed the wiring,
+                // there's no need to resolve the bundles all at the same time.
+                // It's much more efficient to resolve them by small chunks.
+                // We could be even smarter and order the bundles according to the
+                // order given by RequirementSort to minimize the size of needed chunks.
+                FrameworkWiring frameworkWiring = systemBundleContext.getBundle().adapt(FrameworkWiring.class);
+                for (Bundle bundle : bundles) {
+                    frameworkWiring.resolveBundles(Collections.singleton(bundle));
+                }
+            } finally {
+                registration.unregister();
+            }
         }
 
         @Override
