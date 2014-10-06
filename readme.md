@@ -4,8 +4,8 @@ Welcome to [fabric8](http://fabric8.io/), the open source integration platform f
 
 ### Documentation
 
-* [Overview](http://jstrachan.github.io/fabric8/gitbook/overview.html)
-* [Differences in 2.x from 1.x](http://jstrachan.github.io/fabric8/gitbook/v2-changes.html)
+* [Overview](http://fabric8.io/v2/overview.html)
+* [Differences in 2.x from 1.x](http://fabric8.io/v2/v2-changes.html)
 
 ### Demos
 
