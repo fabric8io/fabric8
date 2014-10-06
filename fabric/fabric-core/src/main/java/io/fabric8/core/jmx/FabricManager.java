@@ -860,7 +860,7 @@ public final class FabricManager implements FabricManagerMBean {
     }
 
     public Map<String, Object> getProfile(String versionId, String profileId, List<String> fields) {
-        return doGetProfile(versionId, profileId, BeanUtils.getFields(Profile.class), true);
+        return doGetProfile(versionId, profileId, fields, true);
     }
 
     Map<String, Object> doGetProfile(String versionId, String profileId, List<String> fields, boolean mandatory) {
