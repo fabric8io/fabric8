@@ -16,10 +16,7 @@
 package io.fabric8.maven;
 
 
-import io.fabric8.maven.stubs.AbstractProjectStub;
-import io.fabric8.maven.stubs.CreateProfileZipBundleProjectStub;
-import io.fabric8.maven.stubs.CreateProfileZipJarProjectStub;
-import io.fabric8.maven.stubs.CreateProfileZipMuleProjectStub;
+import io.fabric8.maven.stubs.*;
 import org.apache.commons.collections4.map.UnmodifiableMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -48,11 +45,22 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
     public static final String TEST_CLASSIFIER = "foo";
 
+    /**
+     * Special fabric8 deployment agent key prefix associated with various
+     * packaging types.
+     *
+     * E.g. jar is prefixed by 'fab' for historic reasons
+     */
     public static final Map<Object, Object> SPECIAL_KEY_PREFIX_TYPES =
-            UnmodifiableMap.unmodifiableMap(ArrayUtils.toMap(new String[][]{{"jar", "fab:"}}));
+            UnmodifiableMap.unmodifiableMap(ArrayUtils.toMap(new String[][]{{"jar", "fab:"}, {"war","war:"}}));
 
+    /**
+     * Special pax url prefixes used by the deployer for given packaging types
+     *
+     * E.g. 'fab' is used for 'jar' for historic reasons
+     */
     public static final Map<Object,Object> SPECIAL_VALUE_PREFIX_TYPES =
-            UnmodifiableMap.unmodifiableMap(ArrayUtils.toMap(new String[][]{{"jar", "fab:"}}));
+            UnmodifiableMap.unmodifiableMap(ArrayUtils.toMap(new String[][]{{"jar", "fab:"}, {"war","war:"}}));
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -60,6 +68,23 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
+    }
+
+    public void testDefaultWarType() throws Exception {
+
+        // GIVEN
+
+        pomWithWarPackaging();
+
+        // WHEN
+
+        createProfileZipMojoWithBasicConfig().execute();
+
+        // THEN
+
+        bundleReferencesHaveWarExtension();
+
+
     }
 
     public void testAttemptOverrideClassifier() throws Exception {
@@ -114,7 +139,7 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
         // THEN
 
-        bundleReferencesHaveNoExtension("jar");
+        bundleReferencesHaveNoExtension();
 
     }
 
@@ -130,7 +155,7 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
         // THEN
 
-        bundleReferencesHaveNoExtension("bundle");
+        bundleReferencesHaveNoExtension();
 
     }
 
@@ -174,6 +199,28 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
     }
 
+    public void testExplicitJarTypeAndOverrideClassifier() throws Exception {
+
+        // GIVEN
+
+        pomWithJarPackaging();
+
+        CreateProfileZipMojo mojo = createProfileZipMojoWithBasicConfig();
+
+        // WHEN
+
+        artifactBundleTypeIsOverridden(mojo, "jar");
+
+        artifactBundleClassifierIsOverridden(mojo, "foo");
+
+        mojo.execute();
+
+        // THEN
+
+        bundleReferencesHaveJarWithFooClassifier();
+
+    }
+
     private void expectExceptionWhenExecuting(CreateProfileZipMojo mojo, String message) throws MojoExecutionException {
         try {
             mojo.execute();
@@ -193,12 +240,20 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
                 getExpectedArtifactBundleValue("jar"));
     }
 
-    private void bundleReferencesHaveNoExtension(String type) throws IOException {
+    private void bundleReferencesHaveWarExtension() throws IOException {
+        Properties props = loadProperties(getFabricAgentPropertiesFile(getGeneratedProfilesDir()));
+
+        assertPropertiesKeyExists(props, getArtifactBundleKey("war"));
+        assertPropertyValue(props, getArtifactBundleKey("war"),
+                getExpectedArtifactBundleValue("war"));
+    }
+
+    private void bundleReferencesHaveNoExtension() throws IOException {
         Properties props = loadProperties(getFabricAgentPropertiesFile(getGeneratedProfilesDir()));
 
         assertPropertiesKeyExists(props, getArtifactBundleKeyNoType());
         assertPropertyValue(props, getArtifactBundleKeyNoType(),
-                getExpectedArtifactBundleValueNoType(type));
+                getExpectedArtifactBundleValueNoType());
     }
 
     private void bundleReferencesHaveJarWithFooClassifier() throws IOException {
@@ -245,6 +300,14 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         Assert.assertEquals("jar", getArtifactType());
     }
 
+    private void pomWithWarPackaging() {
+        projectStub = new CreateProfileZipWarProjectStub();
+
+        Assert.assertEquals("war", getPackaging());
+
+        Assert.assertEquals("war", getArtifactType());
+    }
+
     private void pomWithBundlePackaging() {
         projectStub = new CreateProfileZipBundleProjectStub();
 
@@ -285,12 +348,12 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         return (SPECIAL_VALUE_PREFIX_TYPES.containsKey(packagingType) ? SPECIAL_VALUE_PREFIX_TYPES.get(packagingType) : "") + "mvn:";
     }
 
-    private String getExpectedArtifactBundleValueNoType(String type) {
+    private String getExpectedArtifactBundleValueNoType() {
         return getExpectedAritfactBundleValuePrefix() + getBundleGavSpec();
     }
 
     private String getExpectedArtifactBundleValue(String type) {
-        return getExpectedArtifactBundleValueNoType(type) + getTypeSpec(type);
+        return getExpectedArtifactBundleValueNoType() + getTypeSpec(type);
     }
 
     public String getArtfactBundleKeyPrefix() {
