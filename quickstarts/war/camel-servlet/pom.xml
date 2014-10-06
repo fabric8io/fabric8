@@ -168,13 +168,20 @@
           <target>${maven.compiler.target}</target>
         </configuration>
       </plugin>
-<!--
       <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-maven-plugin</artifactId>
-        <version>${fabric.version}</version>
-      </plugin>
+        <groupId>org.jolokia</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>0.9.9</version>
+        <configuration>
+          <image>consol/tomcat-8.0</image>
+          <mergeData>true</mergeData>
+          <assemblyDescriptorRef>artifact</assemblyDescriptorRef>
+<!--
+          <env>
+          </env>
 -->
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

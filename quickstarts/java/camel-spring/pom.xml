@@ -124,6 +124,21 @@
         <artifactId>camel-maven-plugin</artifactId>
         <version>${camel.version}</version>
       </plugin>
+
+      <plugin>
+        <groupId>org.jolokia</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>0.9.9</version>
+        <configuration>
+          <image>fabric8/fabric8-java</image>
+          <mergeData>true</mergeData>
+          <assemblyDescriptorRef>artifact-with-dependencies</assemblyDescriptorRef>
+          <dataExportDir>/home/fabric8/lib</dataExportDir>
+          <env>
+            <JAVA_MAIN>org.apache.camel.spring.Main</JAVA_MAIN>
+          </env>
+        </configuration>
+      </plugin>
     </plugins>
 
   </build>
