@@ -28,7 +28,7 @@ public interface Constants {
     String DEFAULT_FEATURE_RESOLUTION_RANGE = "${range;[====,====]}";
     String DEFAULT_BUNDLE_UPDATE_RANGE = "${range;[==,=+)}";
 
-    String UPDATEABLE_URIS = "mvn:.*SNAPSHOT|(?!mvn:).*";
+    String UPDATEABLE_URIS = "mvn:.*-SNAPSHOT((\\.\\w{3})?|\\$.*|\\?.*|\\#.*|\\&.*)|(?!mvn:).*";
 
     enum Option {
         NoFailOnFeatureNotFound,

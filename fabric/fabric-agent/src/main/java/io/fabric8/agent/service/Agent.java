@@ -21,7 +21,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -42,6 +45,7 @@ import io.fabric8.agent.model.Feature;
 import io.fabric8.agent.model.Repository;
 import io.fabric8.agent.repository.StaticRepository;
 import io.fabric8.agent.resolver.ResourceBuilder;
+import io.fabric8.common.util.ChecksumUtils;
 import io.fabric8.common.util.MultiException;
 import org.apache.felix.utils.version.VersionRange;
 import org.eclipse.equinox.region.Region;
@@ -274,6 +278,31 @@ public class Agent {
                 }
             }
         }
+        // Load bundle checksums if not already done
+        // This is a bit hacky, but we can't get a hold on the real bundle location
+        // in a standard way in OSGi.  Therefore, hack into Felix to obtain the
+        // corresponding jar url and use that one to compute the checksum of the bundle.
+        for (Map.Entry<Long, Bundle> entry : dstate.bundles.entrySet()) {
+            long id = entry.getKey();
+            Bundle bundle = entry.getValue();
+            if (id > 0 && isUpdateable(bundle) && !state.bundleChecksums.containsKey(id)) {
+                try {
+                    URL url = bundle.getResource("META-INF/MANIFEST.MF");
+                    URLConnection con = url.openConnection();
+                    Method method = con.getClass().getDeclaredMethod("getLocalURL");
+                    method.setAccessible(true);
+                    String jarUrl = ((URL) method.invoke(con)).toExternalForm();
+                    if (jarUrl.startsWith("jar:")) {
+                        String jar = jarUrl.substring("jar:".length(), jarUrl.indexOf("!/"));
+                        jar = new URL(jar).getFile();
+                        long checksum = ChecksumUtils.checksumFile(new File(jar));
+                        state.bundleChecksums.put(id, checksum);
+                    }
+                } catch (Throwable t) {
+                    LOGGER.debug("Error calculating checksum for bundle: %s", bundle, t);
+                }
+            }
+        }
         dstate.state = state;
 
         Set<String> prereqs = new HashSet<>();
@@ -288,7 +317,7 @@ public class Agent {
                     public void saveState(State newState) {
                         state.replace(newState);
                         try {
-                            storage.save(newState);
+                            Agent.this.saveState(newState);
                         } catch (IOException e) {
                             LOGGER.warn("Error storing agent state", e);
                         }
@@ -305,6 +334,15 @@ public class Agent {
                 }
             }
         }
+    }
+
+    protected boolean isUpdateable(Bundle bundle) {
+        String uri = bundle.getLocation();
+        return uri.matches(Constants.UPDATEABLE_URIS);
+    }
+
+    protected void saveState(State newState) throws IOException {
+        storage.save(newState);
     }
 
     public void setOptions(EnumSet<Option> options) {

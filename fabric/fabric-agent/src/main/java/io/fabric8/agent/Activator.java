@@ -26,8 +26,6 @@ import java.util.Hashtable;
 
 public class Activator implements BundleActivator {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Activator.class);
-
     private DeploymentAgent agent;
     private ServiceRegistration registration;
 

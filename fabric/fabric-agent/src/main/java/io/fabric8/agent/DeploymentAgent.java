@@ -34,30 +34,26 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 
-import aQute.bnd.osgi.Macro;
-import aQute.bnd.osgi.Processor;
 import io.fabric8.agent.download.DownloadCallback;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.download.Downloader;
 import io.fabric8.agent.download.StreamProvider;
+import io.fabric8.agent.internal.Macro;
 import io.fabric8.agent.service.Agent;
 import io.fabric8.agent.service.FeatureConfigInstaller;
+import io.fabric8.agent.service.State;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.common.util.ChecksumUtils;
 import io.fabric8.common.util.Files;
 import io.fabric8.maven.MavenResolver;
 import io.fabric8.maven.MavenResolvers;
-import io.fabric8.maven.util.Parser;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
-import org.apache.felix.utils.version.VersionTable;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -80,13 +76,7 @@ public class DeploymentAgent implements ManagedService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentAgent.class);
 
-    private static final String BLUEPRINT_PREFIX = "blueprint:";
-    private static final String SPRING_PREFIX = "spring:";
-
-    private static final String OBR_RESOLVE_OPTIONAL_IMPORTS = "obr.resolve.optional.imports";
-    private static final String RESOLVE_OPTIONAL_IMPORTS = "resolve.optional.imports";
-    private static final String URL_HANDLERS_TIMEOUT = "url.handlers.timeout";
-    private static final String DEFAULT_DOWNLOAD_THREADS = "2";
+    private static final String DEFAULT_DOWNLOAD_THREADS = "4";
     private static final String DOWNLOAD_THREADS = "io.fabric8.agent.download.threads";
 
     private static final String KARAF_HOME = System.getProperty("karaf.home");
@@ -98,22 +88,15 @@ public class DeploymentAgent implements ManagedService {
     private static final String LIB_EXT_PATH = LIB_PATH + File.separator + "ext";
     private static final String LIB_ENDORSED_PATH = LIB_PATH + File.separator + "endorsed";
 
-    private static final String AGENT_DOWNLOAD_PATH = KARAF_DATA + File.separator + "maven" + File.separator + "agent";
-
-    private static final Pattern SNAPSHOT_PATTERN = Pattern.compile(".*-SNAPSHOT((\\.\\w{3})?|\\$.*|\\?.*|\\#.*|\\&.*)");
-
     private static final String STATE_FILE = "state.json";
 
     private ServiceTracker<FabricService, FabricService> fabricService;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-agent"));
     private final ScheduledExecutorService downloadExecutor;
-    private boolean resolveOptionalImports = false;
-    private long urlHandlersTimeout = TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES);
 
     private final BundleContext bundleContext;
     private final BundleContext systemBundleContext;
-    private final Properties bundleChecksums;
     private final Properties libChecksums;
     private final Properties endorsedChecksums;
     private final Properties extensionChecksums;
@@ -129,10 +112,11 @@ public class DeploymentAgent implements ManagedService {
     private volatile Throwable provisioningError;
     private volatile Collection<Resource> provisionList;
 
+    private final State state = new State();
+
     public DeploymentAgent(BundleContext bundleContext) throws IOException {
         this.bundleContext = bundleContext;
         this.systemBundleContext = bundleContext.getBundle(0).getBundleContext();
-        this.bundleChecksums = new Properties(bundleContext.getDataFile("bundle-checksums.properties"));
         this.libChecksums = new Properties(bundleContext.getDataFile("lib-checksums.properties"));
         this.endorsedChecksums = new Properties(bundleContext.getDataFile("endorsed-checksums.properties"));
         this.extensionChecksums = new Properties(bundleContext.getDataFile("extension-checksums.properties"));
@@ -150,7 +134,7 @@ public class DeploymentAgent implements ManagedService {
             public FabricService addingService(ServiceReference<FabricService> reference) {
                 FabricService service = systemBundleContext.getService(reference);
                 if (provisioningStatus != null) {
-                    updateStatus(service, provisioningStatus, provisioningError, provisionList, false);
+                    updateStatus(service, provisioningStatus, provisioningError, provisionList);
                 }
                 return service;
             }
@@ -158,7 +142,7 @@ public class DeploymentAgent implements ManagedService {
             @Override
             public void modifiedService(ServiceReference<FabricService> reference, FabricService service) {
                 if (provisioningStatus != null) {
-                    updateStatus(service, provisioningStatus, provisioningError, provisionList, false);
+                    updateStatus(service, provisioningStatus, provisioningError, provisionList);
                 }
             }
 
@@ -184,25 +168,8 @@ public class DeploymentAgent implements ManagedService {
         return Executors.newScheduledThreadPool(num, new NamedThreadFactory("fabric-agent-download"));
     }
 
-    public boolean isResolveOptionalImports() {
-        return resolveOptionalImports;
-    }
-
-    public void setResolveOptionalImports(boolean resolveOptionalImports) {
-        this.resolveOptionalImports = resolveOptionalImports;
-    }
-
-    public long getUrlHandlersTimeout() {
-        return urlHandlersTimeout;
-    }
-
-    public void setUrlHandlersTimeout(long urlHandlersTimeout) {
-        this.urlHandlersTimeout = urlHandlersTimeout;
-    }
-
     public void start() throws IOException {
         LOGGER.info("Starting DeploymentAgent");
-        loadBundleChecksums();
         loadLibChecksums(LIB_PATH, libChecksums);
         loadLibChecksums(LIB_ENDORSED_PATH, endorsedChecksums);
         loadLibChecksums(LIB_EXT_PATH, extensionChecksums);
@@ -218,37 +185,6 @@ public class DeploymentAgent implements ManagedService {
         fabricService.close();
     }
 
-    private void loadBundleChecksums() throws IOException {
-        for (Bundle bundle : systemBundleContext.getBundles()) {
-            try {
-                if (isUpdateable(bundle)) {
-                    // TODO: what if the bundle location is not maven based ?
-                    Parser parser = new Parser(bundle.getLocation());
-                    String systemPath = SYSTEM_PATH + File.separator + parser.getArtifactPath().substring(4);
-                    String agentDownloadsPath = AGENT_DOWNLOAD_PATH + File.separator + parser.getArtifactPath().substring(4);
-                    long systemChecksum = 0;
-                    long agentChecksum = 0;
-                    try {
-                        systemChecksum = ChecksumUtils.checksum(new FileInputStream(systemPath));
-                    } catch (Exception e) {
-                        LOGGER.debug("Error calculating checksum for file: %s", systemPath, e);
-                    }
-                    try {
-                        agentChecksum = ChecksumUtils.checksum(new FileInputStream(agentDownloadsPath));
-                    } catch (Exception e) {
-                        LOGGER.debug("Error calculating checksum for file: %s", agentDownloadsPath, e);
-                    }
-                    long checksum = agentChecksum > 0 ? agentChecksum : systemChecksum;
-                    bundleChecksums.put(bundle.getLocation(), Long.toString(checksum));
-                }
-            } catch (Exception e) {
-                LOGGER.debug("Error creating checksum map.", e);
-            }
-        }
-        bundleChecksums.save();
-    }
-
-
     private void loadLibChecksums(String path, Properties props) throws IOException {
         File dir = new File(path);
         if (!dir.exists() && !dir.mkdirs()) {
@@ -261,7 +197,7 @@ public class DeploymentAgent implements ManagedService {
                 props.put(lib, Long.toString(ChecksumUtils.checksum(new FileInputStream(f))));
             }
         }
-       props.save();
+        props.save();
     }
 
     public void updated(final Dictionary<String, ?> props) throws ConfigurationException {
@@ -299,13 +235,13 @@ public class DeploymentAgent implements ManagedService {
             } else {
                 fs = fabricService.getService();
             }
-            updateStatus(fs, status, result, resources, force);
+            updateStatus(fs, status, result, resources);
         } catch (Throwable e) {
             LOGGER.warn("Unable to set provisioning result");
         }
     }
 
-    private void updateStatus(FabricService fs, String status, Throwable result, Collection<Resource> resources, boolean force) {
+    private void updateStatus(FabricService fs, String status, Throwable result, Collection<Resource> resources) {
         try {
             provisioningStatus = status;
             provisioningError = result;
@@ -332,7 +268,12 @@ public class DeploymentAgent implements ManagedService {
                 container.setProvisionException(e);
 
                 java.util.Properties provisionChecksums = new java.util.Properties();
-                putAllProperties(provisionChecksums, bundleChecksums);
+
+                for (Map.Entry<Long, Long> entry : state.bundleChecksums.entrySet()) {
+                    Bundle bundle = systemBundleContext.getBundle(entry.getKey());
+                    String location = bundle.getLocation();
+                    provisionChecksums.put(location, entry.getValue());
+                }
 /*
                 putAllProperties(provisionChecksums, libChecksums);
                 putAllProperties(provisionChecksums, endorsedChecksums);
@@ -384,10 +325,6 @@ public class DeploymentAgent implements ManagedService {
             }
         });
 
-
-        // Update deployment agent configuration
-        setResolveOptionalImports(getResolveOptionalImports(properties));
-        setUrlHandlersTimeout(getUrlHandlersTimeout(properties));
 
         // Update framework, libs, system and config props
         final Object lock = new Object();
@@ -617,6 +554,12 @@ public class DeploymentAgent implements ManagedService {
             public void updateStatus(String status) {
                 DeploymentAgent.this.updateStatus(status, null);
             }
+
+            @Override
+            protected void saveState(State newState) throws IOException {
+                super.saveState(newState);
+                DeploymentAgent.this.state.replace(newState);
+            }
         };
         agent.provision(
                 getPrefixedProperties(properties, "repository."),
@@ -628,29 +571,6 @@ public class DeploymentAgent implements ManagedService {
                 getMetadata(properties, "metadata#")
         );
         return true;
-    }
-
-    public static boolean getResolveOptionalImports(Map<String, String> config) {
-        if (config != null) {
-            String str = config.get(OBR_RESOLVE_OPTIONAL_IMPORTS);
-            if (str == null) {
-                str = config.get(RESOLVE_OPTIONAL_IMPORTS);
-            }
-            if (str != null) {
-                return Boolean.parseBoolean(str);
-            }
-        }
-        return false;
-    }
-
-    public static long getUrlHandlersTimeout(Map<String, String> config) {
-        if (config != null) {
-            String timeout = config.get(URL_HANDLERS_TIMEOUT);
-            if (timeout != null) {
-                return Long.parseLong(timeout);
-            }
-        }
-        return TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES);
     }
 
     public static Set<String> getPrefixedProperties(Map<String, String> properties, String prefix) {
@@ -684,10 +604,7 @@ public class DeploymentAgent implements ManagedService {
                     }
                     String version = parts[1];
                     if (!version.startsWith("[") && !version.startsWith("(")) {
-                        Processor processor = new Processor();
-                        processor.setProperty("@", VersionTable.getVersion(version).toString());
-                        Macro macro = new Macro(processor);
-                        version = macro.process("${range;[==,=+)}");
+                        version = Macro.transform("${range;[==,=+)}", version);
                     }
                     VersionRange range = new VersionRange(version);
                     Map<String, String> hdrs = ranges.get(range);
@@ -704,11 +621,6 @@ public class DeploymentAgent implements ManagedService {
 
     protected ScheduledExecutorService getDownloadExecutor() {
         return downloadExecutor;
-    }
-
-    private static boolean isUpdateable(Bundle bundle) {
-        return (SNAPSHOT_PATTERN.matcher(bundle.getLocation()).matches() || bundle.getLocation().startsWith(BLUEPRINT_PREFIX) || bundle.getLocation().startsWith(
-                SPRING_PREFIX));
     }
 
     static class NamedThreadFactory implements ThreadFactory {
