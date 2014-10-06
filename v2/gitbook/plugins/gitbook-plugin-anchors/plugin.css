@@ -1,0 +1,14 @@
+
+a.anchor {
+    color: inherit !important;
+}
+
+a.anchor span {
+    margin-left: -25px;
+    font-size: 15px;
+    display: none;
+}
+
+h1:hover span, h2:hover span, h3:hover span, h4:hover span, h5:hover span, h6:hover span {
+    display: inline-block;
+}

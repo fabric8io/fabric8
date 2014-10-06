@@ -1,0 +1,32 @@
+{
+  "name": "gitbook-plugin-anchors",
+  "description": "Add Github style heading anchors to your Gitbook",
+  "main": "index.js",
+  "version": "0.2.0",
+  "license": "Apache 2",
+  "author": {
+    "name": "Bo Marchman",
+    "email": "bo.marchman@gmail.com"
+  },
+  "engines": {
+    "gitbook": "*"
+  },
+  "homepage": "https://github.com/rlmv/gitbook-plugin-anchors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rlmv/gitbook-plugin-anchors.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rlmv/gitbook-plugin-anchors/issues"
+  },
+  "dependencies": {
+    "cheerio": "*",
+    "underscore": "*"
+  },
+  "readme": "Gitbook Anchors Plugin\n==============\n\nA plugin which adds Github style heading anchors to your book.\n\nInstall  using\n\t \n```\n\t$ npm install gitbook-plugin-anchors\n```\n\n",
+  "readmeFilename": "README.md",
+  "_id": "gitbook-plugin-anchors@0.2.0",
+  "_shasum": "349f08e60d8b471f97d621cbf48d7b00265028e7",
+  "_from": "gitbook-plugin-anchors@",
+  "_resolved": "https://registry.npmjs.org/gitbook-plugin-anchors/-/gitbook-plugin-anchors-0.2.0.tgz"
+}
