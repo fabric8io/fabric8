@@ -17,8 +17,6 @@ package io.fabric8.service;
 
 import io.fabric8.api.FabricException;
 
-import io.fabric8.insight.log.service.LogQueryCallback;
-import io.fabric8.insight.log.service.LogQueryMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,16 +41,6 @@ public abstract class JmxTemplateSupport {
     }
 
     public abstract <T> T execute(JmxConnectorCallback<T> callback);
-
-    public <T> T execute(final LogQueryCallback<T> callback) {
-        return execute(new JmxTemplateSupport.JmxConnectorCallback<T>() {
-            public T doWithJmxConnector(JMXConnector connector) throws Exception {
-                String[] bean = new String[]{"type", "LogQuery"};
-                return callback.doWithLogQuery(getMBean(connector, LogQueryMBean.class, "io.fabric8.insight", bean));
-            }
-        });
-    }
-
 
     // MBean specific callbacks
 
