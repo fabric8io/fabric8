@@ -17,8 +17,6 @@ package io.fabric8.maven;
 
 
 import io.fabric8.maven.stubs.*;
-import org.apache.commons.collections4.map.UnmodifiableMap;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
@@ -27,8 +25,7 @@ import org.junit.Assert;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * This test uses JUnit3 API because the Junit4 API for
@@ -49,18 +46,30 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
      * Special fabric8 deployment agent key prefix associated with various
      * packaging types.
      *
-     * E.g. jar is prefixed by 'fab' for historic reasons
+     * E.g. jar is prefixed by 'fab' for historical reasons
      */
-    public static final Map<Object, Object> SPECIAL_KEY_PREFIX_TYPES =
-            UnmodifiableMap.unmodifiableMap(ArrayUtils.toMap(new String[][]{{"jar", "fab:"}, {"war","war:"}}));
+    public static final Map<String, String> SPECIAL_KEY_PREFIX_TYPES =
+            toMap(entry("jar", "fab:"),entry("war","war:"));
 
     /**
      * Special pax url prefixes used by the deployer for given packaging types
      *
-     * E.g. 'fab' is used for 'jar' for historic reasons
+     * E.g. 'fab' is used for 'jar' for historical reasons
      */
-    public static final Map<Object,Object> SPECIAL_VALUE_PREFIX_TYPES =
-            UnmodifiableMap.unmodifiableMap(ArrayUtils.toMap(new String[][]{{"jar", "fab:"}, {"war","war:"}}));
+    public static final Map<String,String> SPECIAL_VALUE_PREFIX_TYPES =
+            toMap(entry("jar", "fab:"),entry("war","war:"));
+
+    private static Map.Entry<String,String> entry(String key, String value) {
+        return new AbstractMap.SimpleImmutableEntry(key,value);
+    }
+
+    private static Map<String,String> toMap(Map.Entry<String,String>... entries) {
+        HashMap<String,String> newMap = new HashMap<>();
+        for (Map.Entry<String,String> e : entries) {
+            newMap.put(e.getKey(),e.getValue());
+        }
+        return Collections.unmodifiableMap(newMap);
+    }
 
     protected void setUp() throws Exception {
         super.setUp();
