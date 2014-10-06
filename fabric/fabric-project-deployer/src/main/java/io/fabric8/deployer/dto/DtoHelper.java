@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import io.fabric8.insight.log.support.Strings;
+import io.fabric8.common.util.Strings;
 
 /**
  * A helper class for working with the DTO marshalling with JSON

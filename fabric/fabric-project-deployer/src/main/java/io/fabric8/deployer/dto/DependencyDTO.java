@@ -15,10 +15,10 @@
  */
 package io.fabric8.deployer.dto;
 
-import io.fabric8.insight.log.support.Strings;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import io.fabric8.common.util.Strings;
 
 /**
  * Represents a dependency tree

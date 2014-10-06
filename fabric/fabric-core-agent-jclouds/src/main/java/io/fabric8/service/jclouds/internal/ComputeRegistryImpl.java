@@ -15,6 +15,7 @@
  */
 package io.fabric8.service.jclouds.internal;
 
+import io.fabric8.common.util.Strings;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -26,7 +27,6 @@ import io.fabric8.api.jcip.GuardedBy;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.service.jclouds.ComputeRegistry;
-import io.fabric8.insight.log.support.Strings;
 import org.jclouds.compute.ComputeService;
 import java.util.ArrayList;
 import java.util.List;

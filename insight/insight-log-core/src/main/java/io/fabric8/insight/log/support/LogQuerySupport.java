@@ -16,6 +16,7 @@
 package io.fabric8.insight.log.support;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.common.util.Strings;
 import io.fabric8.insight.log.LogFilter;
 import io.fabric8.insight.log.LogResults;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * Base class for any {@link io.fabric8.insight.log.service.LogQueryMBean} implementation
+ * Base class for any {@link LogQuerySupportMBean} implementation
  */
 public abstract class LogQuerySupport implements LogQuerySupportMBean {
     private static final transient Logger LOG = LoggerFactory.getLogger(LogQuerySupport.class);

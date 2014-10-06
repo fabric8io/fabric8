@@ -15,8 +15,8 @@
  */
 package io.fabric8.insight.log.log4j;
 
+import io.fabric8.common.util.Strings;
 import io.fabric8.insight.log.support.MavenCoordinates;
-import io.fabric8.insight.log.support.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

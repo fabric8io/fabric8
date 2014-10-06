@@ -15,11 +15,11 @@
  */
 package io.fabric8.insight.log.service;
 
+import io.fabric8.common.util.Strings;
 import io.fabric8.insight.log.service.support.MavenCoordinates;
 import io.fabric8.insight.log.LogEvent;
 import io.fabric8.insight.log.LogFilter;
 import io.fabric8.insight.log.support.Predicate;
-import io.fabric8.insight.log.support.Strings;
 import org.ops4j.pax.logging.spi.PaxLevel;
 import org.ops4j.pax.logging.spi.PaxLocationInfo;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;

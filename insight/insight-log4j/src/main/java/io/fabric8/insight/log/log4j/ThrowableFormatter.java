@@ -22,7 +22,7 @@ import java.security.CodeSource;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.fabric8.insight.log.support.Strings;
+import io.fabric8.common.util.Strings;
 
 /**
  * Code modified from log4j to format exceptions

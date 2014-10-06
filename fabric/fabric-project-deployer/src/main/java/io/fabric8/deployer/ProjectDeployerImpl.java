@@ -37,11 +37,11 @@ import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.IOHelpers;
 import io.fabric8.common.util.JMXUtils;
 import io.fabric8.common.util.Lists;
+import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DeployResults;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
-import io.fabric8.insight.log.support.Strings;
 import io.fabric8.internal.Objects;
 import io.fabric8.service.VersionPropertyPointerResolver;
 

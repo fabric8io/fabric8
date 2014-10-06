@@ -273,4 +273,16 @@ public class Strings {
         return list;
     }
 
+    public static boolean contains(String matchesText, String... values) {
+        for (String v : values) {
+            if (v != null && v.contains(matchesText)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isEmpty(String filePath) {
+        return filePath == null || filePath.trim().length() == 0;
+    }
 }

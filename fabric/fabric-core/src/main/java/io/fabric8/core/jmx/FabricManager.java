@@ -70,7 +70,7 @@ import io.fabric8.api.jmx.FabricStatusDTO;
 import io.fabric8.api.jmx.ServiceStatusDTO;
 import io.fabric8.common.util.PublicPortMapper;
 import io.fabric8.common.util.ShutdownTracker;
-import io.fabric8.insight.log.support.Strings;
+import io.fabric8.common.util.Strings;
 import io.fabric8.service.FabricServiceImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.curator.framework.CuratorFramework;

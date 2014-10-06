@@ -23,7 +23,7 @@ import io.fabric8.api.FabricRequirements;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.SshConfiguration;
 import io.fabric8.api.SshHostConfiguration;
-import io.fabric8.insight.log.support.Strings;
+import io.fabric8.common.util.Strings;
 import io.fabric8.internal.autoscale.HostProfileCounter;
 import io.fabric8.utils.CountingMap;
 import org.junit.Test;
