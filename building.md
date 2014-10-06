@@ -29,14 +29,6 @@ Build Fabric8 and run the associated smoke tests
 
     > mvn clean install
     
-Build Fabric8 Tomcat and run the associated tests
-
-    > mvn clean install -Ptomcat
-    
-Build Fabric8 WildFly and run the associated tests
-
-    > mvn clean install -Pwildfly
-    
 Build Fabric8 using latest hawtio Snapshot and run the associated tests
 
     > mvn -Phawtio-snapshot clean install
