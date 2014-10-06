@@ -619,13 +619,23 @@
                 <artifactId>fabric-cxf-plugins</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
-            <!--
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-docker-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-kubernetes-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-utils</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!--
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric8-maven-plugin</artifactId>
@@ -878,11 +888,6 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>fabric-kubernetes-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
                 <artifactId>fabric-kubernetes-provider</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -904,11 +909,6 @@
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-agent</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric-docker-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
