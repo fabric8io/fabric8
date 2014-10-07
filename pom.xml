@@ -2875,7 +2875,18 @@
                 <artifactId>cxf-tools-wsdlto-frontend-javascript</artifactId>
                 <version>${cxf-version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.jboss.arquillian</groupId>
+                <artifactId>arquillian-bom</artifactId>
+                <version>${arquillian-core-version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.arquillian.container</groupId>
+                <artifactId>arquillian-container-karaf-managed</artifactId>
+                <version>${arquillian-osgi-version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.jboss.arquillian.container</groupId>
                 <artifactId>arquillian-container-karaf-managed</artifactId>
@@ -2885,16 +2896,6 @@
                 <groupId>org.jboss.arquillian.container</groupId>
                 <artifactId>arquillian-tomcat-managed-7</artifactId>
                 <version>${arquillian-tomcat-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.junit</groupId>
-                <artifactId>arquillian-junit-container</artifactId>
-                <version>${arquillian-core-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.junit</groupId>
-                <artifactId>arquillian-junit-standalone</artifactId>
-                <version>${arquillian-core-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.arquillian.osgi</groupId>
@@ -2982,22 +2983,6 @@
                 <artifactId>jbosgi-metadata</artifactId>
                 <version>${osgi-metadata-version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap</groupId>
-                <artifactId>shrinkwrap-api</artifactId>
-                <version>${shrinkwrap-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap</groupId>
-                <artifactId>shrinkwrap-impl-base</artifactId>
-                <version>${shrinkwrap-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-depchain</artifactId>
-                <version>${shrinkwrap-resolver-version}</version>
-                <type>pom</type>
-            </dependency>
 
             <dependency>
                 <groupId>io.hawt</groupId>
@@ -3038,19 +3023,11 @@
             </dependency>
 
             <dependency>
-                <groupId>org.wildfly</groupId>
-                <artifactId>wildfly-arquillian-container-managed</artifactId>
+                <groupId>org.wildfly.bom</groupId>
+                <artifactId>jboss-javaee-7.0-with-tools</artifactId>
                 <version>${wildfly-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wildfly</groupId>
-                <artifactId>wildfly-arquillian-protocol-jmx</artifactId>
-                <version>${wildfly-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wildfly</groupId>
-                <artifactId>wildfly-server</artifactId>
-                <version>${wildfly-version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <!-- JGroups -->
