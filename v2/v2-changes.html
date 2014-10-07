@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="4" data-basepath="." data-revision="1412640205371">
+    <div class="book" data-github="fabric8io/fabric8" data-level="4" data-basepath="." data-revision="1412671452274">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -346,6 +346,27 @@
 <h4 id="ports"><a name="ports" class="anchor" href="#ports"><span class="fa fa-link"></span></a>Ports</h4>
 <p>In <a href="http://kubernetes.io" target="_blank">Kubernetes</a> each pod (or container) gets its own IP address; and the internal container ports and external host ports are then constant; making things much easier to use and wire together.</p>
 <p>This is quite different to using fabric8 1.x where depending on the underlying container provider port allocations were different. e.g. by default host and container ports were dynamically generated; for docker internal container ports were constant but external host ports were dynamic.</p>
+<h3 id="faq-on-v2-changes"><a name="faq-on-v2-changes" class="anchor" href="#faq-on-v2-changes"><span class="fa fa-link"></span></a>FAQ on V2 changes</h3>
+<h4 id="so-does-that-mean-v2-is-a-completely-different-product-"><a name="so-does-that-mean-v2-is-a-completely-different-product-" class="anchor" href="#so-does-that-mean-v2-is-a-completely-different-product-"><span class="fa fa-link"></span></a>So does that mean V2 is a completely different product?</h4>
+<p>From the implementation perspective V2 is a big change but we see this as an evolutionary change for users of fabric8 in V2:</p>
+<ul>
+<li>keeps the same set or runtimes, quickstarts, frameworks, capabilities and console (based on <a href="http://hawt.io/" target="_blank">hawtio</a>)</li>
+<li>delegates the creation of the docker containers down to the Kubernetes REST API (rather than having lots of different container providers and ways to do it that often caused confusion)</li>
+<li>switching from the V1 Gateway to using <a href="services.html">Kubernetes Services</a> via the Kubernetes REST API to provide simpler standard approach to the discovery of services in a more Docker-like way.</li>
+</ul>
+<p>In many ways 1.x of fabric8 was a set of quickstarts, runtimes, libraries, a console and a kubernetes-like layer all combined into a single project (with V1 Gateway being very like <a href="services.html">Kubernetes Services</a>. So to create containers we have a REST API and CLI.</p>
+<p>So in 2.x of fabric8 we use the exact same quickstarts, runtimes, libraries and console. The web console is still <a href="http://hawt.io/" target="_blank">hawtio</a>; its got all the same tooling for ActiveMQ, Camel, CXF, OSGi; its got a wiki based on a git repository. The difference is it uses the Kubernetes REST API to create containers (rather than the fabric8 1.x one) and uses the kubernetes CLI.</p>
+<p>Another side benefit of V2 is that less wiring Java code is required. e.g. any library using ActiveMQ or the camel-activemq component no longer needs to specify a brokerURL or include custom discovery code; it can just set the <strong>AMQ_PORT</strong> environment variable to point to the service port for the broker group (e.g. the regional cluster of ActiveMQ required) so that the code connects to localhost and <a href="services.html">Kubernetes Services</a> does the rest! Note this also works for all programming languages and clients too.</p>
+<p>While the exact details of the <a href="emulation.html">Emulation layer</a> is to be decided; we could move some of the old code from 1.x for creating containers into the emulator (making a pure Java implementation of kubernetes); or we could just reuse kubernetes code ;).</p>
+<h4 id="does-that-mean-there-is-no-need-to-use-etcd-zk-clusters-in-v2-"><a name="does-that-mean-there-is-no-need-to-use-etcd-zk-clusters-in-v2-" class="anchor" href="#does-that-mean-there-is-no-need-to-use-etcd-zk-clusters-in-v2-"><span class="fa fa-link"></span></a>Does that mean there is no need to use etcd / ZK clusters in V2?</h4>
+<p>Kubernetes/OpenShift ships with etcd today and uses that to manage the minions. So a fabric8 cluster may be able to reuse the underlying etcd to do things like master election, partitioning etc.</p>
+<p>Though depending on multi tenant requirements; applications might not be allowed to reuse the same etcd as an Kubernetes/OpenShift  installation. e.g. OpenShift Online with 2 million apps probably isn&apos;t gonna let any user application just read and write lots of data to the global etcd ;).</p>
+<p>So there will still be a need to provision clusters of etcd or ZooKeeper for use inside an application. Given the use of etcd inside Kubernetes/OpenShift then it might be more typical to create sub-clusters (or have a kinda of partitioned etcd cluster).</p>
+<p>Though from the fabric8 project we&apos;re aiming to provide an abstraction layer so when master election / partitionining is required in Java code we can use either etcd or ZK clusters; and can - if allowed - reuse the same underlying etcd cluster.</p>
+<p>Incidentally the V2 way to provision an ensemble of ZooKeeper or etcd cluster is probably going to be via an <a href="apps.html">App</a> which makes it easier to provision; then clients can use <a href="services.html">Services</a> to connect to it. So V2 should make the creation of ensembles easier and more standardised across the hybrid clouds.</p>
+<h4 id="is-my-application-server-or-framework-still-supported-in-v2-"><a name="is-my-application-server-or-framework-still-supported-in-v2-" class="anchor" href="#is-my-application-server-or-framework-still-supported-in-v2-"><span class="fa fa-link"></span></a>Is my application server or framework still supported in V2?</h4>
+<p>Absolutely! :) In many ways the move to V2 makes it much easier to support any language, framework or application server as we can reuse all of the Docker ecosystem of images in V2.</p>
+<p>So nothing is going away. V2 just standardises things to make them easier to consume, describe, support and makes things more reusable. (e.g. you can take your docker container image to anywhere that can run docker and take your <a href="apps.html">App JSON</a> to any Kubernetes environment (like OpenShift Online, OpenShift Enterprise, Google Compute Engine, Azure, VMWare etc). They&apos;d be easy to port to run natively on any place docker runs too really (e.g. EC2).</p>
 
                     
                     </section>
