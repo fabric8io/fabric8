@@ -37,6 +37,7 @@
     * [Security](security.md)
     * [Property Resolver](propertyResolver.md)
     * [URL Handlers](urlHandlers.md)
+    * [Insight](insight.md)
 * [Technologies](technologies.md)
   * [Apache ActiveMQ](activemq.md)
     * [Broker Topology](brokerTopology.md)
