@@ -100,12 +100,11 @@ public class MavenDownloadManager implements DownloadManager {
         @Override
         public void await() throws InterruptedException, MultiException {
             synchronized (lock) {
-                if (pending == 0) {
-                    exception.throwIfCauses();
-                } else {
+                while (pending != 0) {
                     lock.wait();
                 }
             }
+            exception.throwIfCauses();
         }
 
         @Override
