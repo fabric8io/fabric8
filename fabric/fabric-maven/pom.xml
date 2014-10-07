@@ -130,6 +130,7 @@
                             org.osgi.*,
                             org.slf4j.*,
                             org.ops4j.util.property.*,
+							org.apache.commons.lang.*
                         </Import-Package>
                         <Export-Package>
                             io.fabric8.maven*;version=${project.version},
