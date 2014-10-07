@@ -60,7 +60,7 @@ public class TemplateRestRepository<T, ID extends java.io.Serializable> implemen
     // Factory methods
 
     public static <T, ID extends java.io.Serializable> TemplateRestRepository<T, ID> forRegistrySymbol(
-            ProcessRegistry processRegistry, String serviceSymbol, Class<T> entityClass, String entityResource) {
+        ProcessRegistry processRegistry, String serviceSymbol, Class<T> entityClass, String entityResource) {
         String serviceUrl = processRegistry.readProperty(serviceUrlProperty(serviceSymbol));
         try {
             return new TemplateRestRepository<>(entityClass, serviceUrl + "/" + entityResource);
