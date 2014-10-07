@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+     Copyright 2005-2014 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>gateway-project</artifactId>
+        <groupId>io.fabric8</groupId>
+        <version>1.1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>gateway-apiman</artifactId>
+    <packaging>bundle</packaging>
+    
+    <name>Fabric8 :: Gateway :: ApiMan</name>
+
+    <properties>
+        <fuse.osgi.export>
+            io.fabric8.gateway*;version=${project.version};-noimport:=true
+        </fuse.osgi.export>
+        <fuse.osgi.import>
+          META-INF.services.*,
+          com.fasterxml*,
+          !com.hazelcast*,
+          !com.barchart.udt*,
+          !com.google.protobuf*,
+          !com.jcraft.jzlib*,
+          !com.sun.nio.sctp*,
+          !gnu.io*,
+          !javassist*,
+          !org.jboss.marshalling*,
+          !sun.misc*,
+          !sun.nio.ch*,
+          !org.bouncycastle*,
+          !org.fusesource.hawtdispatch*,
+          !org.overlord.apiman.rt.engine*,
+          !org.overlord.apiman.dt.api*,
+          *
+        </fuse.osgi.import>
+        <fuse.osgi.private.pkg>
+          META-INF.services.*;-split-package:=first,
+          org.apache.qpid.proton*;-split-package:=first,
+          org.fusesource.mqtt*;-split-package:=first,
+          io.fabric8.mqtt*;-split-package:=first,
+          org.fusesource.hawtbuf*;-split-package:=first,
+        </fuse.osgi.private.pkg>
+
+        <overlord-version>1.0.0-SNAPSHOT</overlord-version>
+
+        
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>io.vertx</groupId>
+          <artifactId>vertx-core</artifactId>
+          <version>2.1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>gateway-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+	<!--  API Man -->
+        <dependency>
+        	<groupId>org.overlord.apiman</groupId>
+        	<artifactId>apiman-rt-engine-core</artifactId>
+        	<version>${overlord-version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>org.overlord.apiman</groupId>
+        	<artifactId>apiman-rt-engine-beans</artifactId>
+        	<version>${overlord-version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>org.overlord.apiman</groupId>
+        	<artifactId>apiman-rt-engine-mem</artifactId>
+        	<version>${overlord-version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>org.overlord.apiman</groupId>
+        	<artifactId>apiman-rt-engine-policies</artifactId>
+        	<version>${overlord-version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

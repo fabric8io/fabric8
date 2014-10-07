@@ -13,9 +13,10 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.gateway.handlers.http;
+package io.fabric8.gateway.api.handlers.http;
 
-import io.fabric8.gateway.ServiceDetails;
+import io.fabric8.gateway.api.ServiceDetails;
+import io.fabric8.gateway.api.handlers.http.IMappedServices;
 
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ public interface HttpMappingRule {
      * Using the mapping rules add all the mapped services to the given map with the URI prefix as the key of the map and
      * the mapped services as the value
      */
-    void appendMappedServices(Map<String, MappedServices> uriToServicesMap);
+    void appendMappedServices(Map<String, IMappedServices> uriToServicesMap);
 
     void addChangeListener(Runnable listener);
 

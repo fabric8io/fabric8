@@ -95,6 +95,16 @@
             <artifactId>fabric-vertx</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>gateway-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>gateway-apiman</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- for MQTT support -->
         <dependency>
@@ -196,6 +206,40 @@
           <scope>test</scope>
         </dependency>
 
+		<!--  API Man -->
+        <dependency>
+        	<groupId>org.overlord.apiman</groupId>
+        	<artifactId>apiman-rt-engine-core</artifactId>
+        	<version>1.0.0-SNAPSHOT</version>
+        	<scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>org.overlord.apiman</groupId>
+        	<artifactId>apiman-rt-engine-beans</artifactId>
+        	<version>1.0.0-SNAPSHOT</version>
+        	<scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>org.overlord.apiman</groupId>
+        	<artifactId>apiman-rt-engine-mem</artifactId>
+        	<version>1.0.0-SNAPSHOT</version>
+        	<scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>org.overlord.apiman</groupId>
+        	<artifactId>apiman-rt-engine-policies</artifactId>
+        	<version>1.0.0-SNAPSHOT</version>
+        	<scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>io.netty</groupId>
+        	<artifactId>netty-all</artifactId>
+        	<version>4.0.20.Final</version>
+        </dependency>
+        <dependency>
+        	<groupId>commons-httpclient</groupId>
+        	<artifactId>commons-httpclient</artifactId>
+        </dependency>
     </dependencies>
 
   <build>

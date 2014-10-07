@@ -15,7 +15,7 @@
  */
 package io.fabric8.gateway.fabric.haproxy.model;
 
-import io.fabric8.gateway.handlers.http.MappedServices;
+import io.fabric8.gateway.api.handlers.http.IMappedServices;
 
 import java.util.List;
 
@@ -25,10 +25,10 @@ import java.util.List;
 public class FrontEnd {
     private final String id;
     private final String frontUri;
-    private final MappedServices services;
+    private final IMappedServices services;
     private final List<BackEndServer> servers;
 
-    public FrontEnd(String id, String frontUri, MappedServices services, List<BackEndServer> servers) {
+    public FrontEnd(String id, String frontUri, IMappedServices services, List<BackEndServer> servers) {
         this.id = id;
         this.frontUri = frontUri;
         this.services = services;
@@ -43,7 +43,7 @@ public class FrontEnd {
         return frontUri;
     }
 
-    public MappedServices getServices() {
+    public IMappedServices getServices() {
         return services;
     }
 

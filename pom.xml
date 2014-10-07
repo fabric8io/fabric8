@@ -131,6 +131,7 @@
         <aether-version>1.11</aether-version>
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <antlr-version>3.3</antlr-version>
+        <apiman-version>1.0.0-SNAPSHOT</apiman-version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
         <aries-blueprint-api-version>1.0.1</aries-blueprint-api-version>
         <aries-blueprint-cm-version>1.0.4</aries-blueprint-cm-version>
@@ -823,6 +824,16 @@
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-extender-listener</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>gateway-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>gateway-apiman</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

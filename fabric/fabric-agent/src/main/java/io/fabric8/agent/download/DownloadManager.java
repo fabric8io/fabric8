@@ -76,7 +76,7 @@ public class DownloadManager {
     public DownloadFuture download(final String url) throws MalformedURLException {
         String mvnUrl = stripUrl(url);
 
-        if (mvnUrl.startsWith("mvn:")) {
+        if (mvnUrl.startsWith("mvn:") || mvnUrl.startsWith("wrap:mvn:")) {
             MavenRepositoryURL inlined = null;
 
 //            final String inlinedMavenRepoUrl = stripInlinedMavenRepositoryUrl(mvnUrl);

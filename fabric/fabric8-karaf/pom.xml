@@ -318,6 +318,14 @@
            </dependency>
            <dependency>
              <groupId>io.fabric8</groupId>
+             <artifactId>gateway-api</artifactId>
+           </dependency>
+           <dependency>
+             <groupId>io.fabric8</groupId>
+             <artifactId>gateway-apiman</artifactId>
+           </dependency>
+           <dependency>
+             <groupId>io.fabric8</groupId>
              <artifactId>gateway-core</artifactId>
            </dependency>
            <dependency>

@@ -32,6 +32,8 @@
     <name>Fabric8 :: Gateway</name>
 
     <modules>
+        <module>gateway-api</module>
+        <module>gateway-apiman</module>
         <module>gateway-model</module>
         <module>gateway-core</module>
         <module>gateway-fabric-support</module>

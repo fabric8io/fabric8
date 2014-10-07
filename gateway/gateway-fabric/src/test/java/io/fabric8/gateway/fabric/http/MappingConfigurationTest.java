@@ -21,11 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.fabric8.gateway.ServiceDTO;
+import io.fabric8.gateway.api.handlers.http.IMappedServices;
 import io.fabric8.gateway.fabric.support.http.HttpMappingRuleBase;
-import io.fabric8.gateway.handlers.http.MappedServices;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.loadbalancer.RoundRobinLoadBalancer;
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -124,20 +125,20 @@ public class MappingConfigurationTest {
     }
 
     protected void assertMapping(String path, String service) {
-        Map<String, MappedServices> mappingRules = httpGateway.getMappedServices();
+        Map<String, IMappedServices> mappingRules = httpGateway.getMappedServices();
         assertTrue("Should have some mapping rules", mappingRules.size() > 0);
 
-        MappedServices mappedServices = mappingRules.get(path);
+        IMappedServices mappedServices = mappingRules.get(path);
         assertNotNull("Could not find mapping rule for path " + path, mappedServices);
 
         Collection<String> serviceUrls = mappedServices.getServiceUrls();
         assertTrue("Could not find service " + service + " in services " + serviceUrls, serviceUrls.contains(service));
     }
 
-    protected void printMappings(Map<String, MappedServices> mappingRules) {
-        for (Map.Entry<String, MappedServices> entry : mappingRules.entrySet()) {
+    protected void printMappings(Map<String, IMappedServices> mappingRules) {
+        for (Map.Entry<String, IMappedServices> entry : mappingRules.entrySet()) {
             String key = entry.getKey();
-            MappedServices value = entry.getValue();
+            IMappedServices value = entry.getValue();
             System.out.println(key + " => " + value.getServiceUrls());
         }
     }
@@ -147,7 +148,7 @@ public class MappingConfigurationTest {
         addService("rest/CustomerService/crm/1.0/resty", "http://localhost:8182/cxf/crm", oldVersion);
         addService("ws/HelloWorldImplPort/HelloWorld/1.0/soapy", "http://localhost:8183/cxf/HelloWorld", oldVersion);
 
-        Map<String, MappedServices> mappingRules = httpGateway.getMappedServices();
+        Map<String, IMappedServices> mappingRules = httpGateway.getMappedServices();
         printMappings(mappingRules);
     }
 
