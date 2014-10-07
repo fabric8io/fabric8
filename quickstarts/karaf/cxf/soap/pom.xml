@@ -41,12 +41,12 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
+    <cxf-version>3.0.2.redhat-620028</cxf-version>
     <skipTests>true</skipTests>
 
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
     <fabric.version>1.2.0-SNAPSHOT</fabric.version>
-    <cxf.version>2.7.11</cxf.version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-karaf-cxf-soap</fabric8.profile>
@@ -139,7 +139,9 @@
               io.fabric8.cxf.endpoint,
               org.apache.cxf.transport.http
             </Import-Package>
-            <Import-Service>org.apache.cxf.transport.http.DestinationRegistry</Import-Service>
+            <Import-Service>org.apache.aries.blueprint.NamespaceHandler;
+                osgi.service.blueprint.namespace=http://cxf.apache.org/transports/http/configuration
+            </Import-Service>
             <Export-Package>
               io.fabric8.quickstarts.soap
             </Export-Package>
@@ -149,7 +151,7 @@
       <plugin>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-java2ws-plugin</artifactId>
-        <version>${cxf.version}</version>
+        <version>${cxf-version}</version>
         <executions>
           <execution>
             <id>process-classes</id>
@@ -203,6 +205,18 @@
         <updatePolicy>never</updatePolicy>
       </releases>
     </repository>
+    <repository>
+      <id>apache.snapshot</id>
+      <name>Apache SNAPSHOT Repository</name>
+      <url>http://repository.apache.org/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -227,6 +241,18 @@
       </snapshots>
       <releases>
         <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </pluginRepository>
+    <pluginRepository>
+      <id>apache.snapshot</id>
+      <name>Apache SNAPSHOT Repository</name>
+      <url>http://repository.apache.org/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
         <updatePolicy>never</updatePolicy>
       </releases>
     </pluginRepository>
