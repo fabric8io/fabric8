@@ -31,12 +31,6 @@
     <name>Fabric8 :: Tooling :: Archetype Builder</name>
     <packaging>bundle</packaging>
 
-    <properties>
-        <fuse.osgi.export>
-            io.fabric8.tooling.archetype*;version=${project.version};-noimport:=true,
-        </fuse.osgi.export>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>commons-io</groupId>

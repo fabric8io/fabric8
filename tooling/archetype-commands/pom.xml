@@ -31,17 +31,6 @@
     <name>Fabric8 :: Tooling :: Archetype Commands</name>
     <packaging>bundle</packaging>
 
-    <properties>
-        <fuse.osgi.export>
-            io.fabric8.tooling.archetype.commands*;version=${project.version};-noimport:=true,
-        </fuse.osgi.export>
-        <fuse.osgi.private.pkg>
-            io.fabric8.utils;-split-package:=first,
-            io.fabric8.utils.shell;-split-package:=first,
-        </fuse.osgi.private.pkg>
-        <fuse.osgi.import.additional>javax.xml.bind</fuse.osgi.import.additional>
-    </properties>
-
     <build>
         <resources>
             <resource>

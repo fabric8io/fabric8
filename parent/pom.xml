@@ -68,27 +68,9 @@
                     <version>${maven-bundle-plugin-version}</version>
                     <extensions>true</extensions>
                     <configuration>
-                        <excludeDependencies>${fuse.osgi.exclude.dependencies}</excludeDependencies>
                         <instructions>
-                            <Bundle-Name>${fuse.osgi.bundle.name}</Bundle-Name>
-                            <Bundle-SymbolicName>${fuse.osgi.symbolic.name}</Bundle-SymbolicName>
                             <Bundle-DocURL>http://fabric8.io/</Bundle-DocURL>
-                            <Bundle-Activator>${fuse.osgi.activator}</Bundle-Activator>
-                            <Export-Package>${fuse.osgi.export}</Export-Package>
-                            <Import-Package>${fuse.osgi.import}</Import-Package>
-                            <DynamicImport-Package>${fuse.osgi.dynamic}</DynamicImport-Package>
-                            <Private-Package>${fuse.osgi.private.pkg}</Private-Package>
-                            <Implementation-Title>Fabric8</Implementation-Title>
-                            <Implementation-Version>${project.version}</Implementation-Version>
-                            <Include-Resource>${fuse.osgi.resource}</Include-Resource>
-                            <_versionpolicy>${fuse.osgi.import.default.version}</_versionpolicy>
-                            <_failok>${fuse.osgi.failok}</_failok>
-                            <Embed-Dependency>${fuse.osgi.embed.dependency}</Embed-Dependency>
-                            <Embed-Transitive>${fuse.osgi.embed.transitive}</Embed-Transitive>
-                            <Require-Bundle>${fuse.osgi.require.bundle}</Require-Bundle>
-                            <Require-Capability>${fuse.osgi.capabilities.require}</Require-Capability>
-                            <Provide-Capability>${fuse.osgi.capabilities.provide}</Provide-Capability>
-                            <Fragment-Host>${fuse.osgi.fragment.host}</Fragment-Host>
+                            <_include>-osgi.bnd</_include>
                         </instructions>
                     </configuration>
                     <executions>
@@ -257,20 +239,6 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <inherited>true</inherited>
-                <executions>
-                    <execution>
-                        <id>cleanVersions</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>cleanVersions</goal>
-                        </goals>
-                        <configuration>
-                            <versions>
-                                <fuse.osgi.version>${project.version}</fuse.osgi.version>
-                            </versions>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>

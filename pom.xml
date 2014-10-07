@@ -77,50 +77,6 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
 
-        <!-- OSGi bundles properties -->
-        <fuse.osgi.bundle.name>${project.name}</fuse.osgi.bundle.name>
-        <fuse.osgi.import.fabric.version>
-            version="[$(version;==;${fuse.osgi.version}),$(version;=+;${fuse.osgi.version}))"
-        </fuse.osgi.import.fabric.version>
-        <fuse.osgi.import.strict.version>
-            version="[$(version;===;${fuse.osgi.version}),$(version;==+;${fuse.osgi.version}))"
-        </fuse.osgi.import.strict.version>
-        <fuse.osgi.import.default.version>[$(version;==;$(@)),$(version;+;$(@)))</fuse.osgi.import.default.version>
-        <fuse.osgi.import.defaults>
-            org.springframework.osgi.*;version="[1.2,2)",
-            org.springframework.*;version="[3.1,4)",
-            org.apache.commons.logging.*;version="[1.1,2)",
-            org.apache.camel.*;version="[2.13,3)",
-            org.apache.felix.gogo.commands.*;version="[0.10,1)",
-            org.apache.felix.service.command.*;version="[0.10,1)",
-            org.osgi.service.component.*;version="[1.1,2.0)",
-            scala*;version="[2.11,2.12)"
-        </fuse.osgi.import.defaults>
-        <fuse.osgi.import.before.defaults/>
-        <fuse.osgi.import.additional/>
-        <fuse.osgi.import.pkg>
-            io.fabric8.*;${fuse.osgi.import.fabric.version},
-            ${fuse.osgi.import.before.defaults},
-            ${fuse.osgi.import.defaults},
-            ${fuse.osgi.import.additional},
-            *
-        </fuse.osgi.import.pkg>
-        <fuse.osgi.activator/>
-        <fuse.osgi.failok>false</fuse.osgi.failok>
-        <fuse.osgi.private.pkg></fuse.osgi.private.pkg>
-        <fuse.osgi.export>io.fabric8.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
-        <fuse.osgi.split.pkg>-split-package:=first</fuse.osgi.split.pkg>
-        <fuse.osgi.import>${fuse.osgi.import.pkg}</fuse.osgi.import>
-        <fuse.osgi.dynamic/>
-        <fuse.osgi.symbolic.name>${project.groupId}.${project.artifactId}</fuse.osgi.symbolic.name>
-        <fuse.osgi.exclude.dependencies>false</fuse.osgi.exclude.dependencies>
-        <fuse.osgi.resource>{maven-resources}</fuse.osgi.resource>
-        <fuse.osgi.embed.dependency>!*</fuse.osgi.embed.dependency>
-        <fuse.osgi.embed.transitive>false</fuse.osgi.embed.transitive>
-        <fuse.osgi.require.bundle />
-        <fuse.osgi.capabilities.provide />
-        <fuse.osgi.capabilities.require />
-
         <fabric-perfectus-version>7.3.0.redhat-${perfectus-build}</fabric-perfectus-version>
         <full-perfectus-build>610${perfectus-build}</full-perfectus-build>
 

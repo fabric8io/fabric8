@@ -29,20 +29,6 @@
 
   <name>Fabric8 :: Common :: Util</name>
 
-  <properties>
-      <fuse.osgi.export>
-          io.fabric8.common.util.*;version=${project.version}
-      </fuse.osgi.export>
-    <fuse.osgi.import.defaults>
-    </fuse.osgi.import.defaults>
-    <fuse.osgi.import.before.defaults />
-    <fuse.osgi.import.additional />
-    <fuse.osgi.import>
-        *
-    </fuse.osgi.import>
-      <fuse.osgi.private.pkg/>
-  </properties>
-
   <dependencies>
       <dependency>
         <groupId>org.slf4j</groupId>

@@ -29,17 +29,6 @@
 
     <name>Fabric8 :: CXF Component</name>
 
-    <properties>
-        <fuse.osgi.export>
-            io.fabric8.cxf.endpoint;version=${project.version},
-        </fuse.osgi.export>
-        <fuse.osgi.import>
-            org.apache.cxf.management.jmx,                           
-            com.fasterxml.jackson.module.jaxb;resolution:=mandatory,
-            *
-        </fuse.osgi.import>
-    </properties>
-
     <dependencies>
       <dependency>
           <groupId>org.osgi</groupId>
