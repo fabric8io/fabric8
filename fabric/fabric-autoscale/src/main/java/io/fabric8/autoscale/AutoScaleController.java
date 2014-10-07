@@ -35,6 +35,7 @@ import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.internal.ZooKeeperGroup;
 import io.fabric8.internal.RequirementsJson;
+import io.fabric8.internal.autoscale.AutoScalers;
 import io.fabric8.zookeeper.ZkPath;
 import io.fabric8.zookeeper.utils.ZooKeeperMasterCache;
 import org.apache.curator.framework.CuratorFramework;
@@ -248,7 +249,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
                         profileStatus.destroyingContainer();
                         autoScaler.destroyContainers(profile, -delta, containers);
                     } else if (delta > 0) {
-                        if (requirementsSatisfied(service, requirements, profileRequirement, status)) {
+                        if (AutoScalers.requirementsSatisfied(service, requirements, profileRequirement, status)) {
                             profileStatus.creatingContainer();
                             String requirementsVersion = requirements.getVersion();
                             final String version = Strings.isNotBlank(requirementsVersion) ? requirementsVersion : service.getDefaultVersionId();
@@ -297,26 +298,6 @@ public final class AutoScaleController extends AbstractComponent implements Grou
         }
     }
 
-
-    private boolean requirementsSatisfied(FabricService service, FabricRequirements requirements, ProfileRequirements profileRequirement, AutoScaleStatus status) {
-        String profile = profileRequirement.getProfile();
-        List<String> dependentProfiles = profileRequirement.getDependentProfiles();
-        if (dependentProfiles != null) {
-            for (String dependentProfile : dependentProfiles) {
-                ProfileRequirements dependentProfileRequirements = requirements.getOrCreateProfileRequirement(dependentProfile);
-                Integer minimumInstances = dependentProfileRequirements.getMinimumInstances();
-                if (minimumInstances != null) {
-                    List<Container> containers = Containers.aliveAndSuccessfulContainersForProfile(dependentProfile, service);
-                    int dependentSize = containers.size();
-                    if (minimumInstances > dependentSize) {
-                        status.profileStatus(profile).missingDependency(dependentProfile, dependentSize, minimumInstances);
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
 
     private AutoScalerNode createState() {
         AutoScalerNode state = new AutoScalerNode();

@@ -190,20 +190,20 @@ This is why fabric provides a profile editor embedded to your shell. You can use
 
       fabric:profile-edit default (with no options)
 
-![Opening the profile inside the editor](/images/fabric/profile-edit.png)
+![Opening the profile inside the editor](/images/profile-edit.png)
 
 The editor supports the basic editor functionality like undo, redo, forward/backward search, highlighting etc. What you are actually editing is the content of the io.fabric8.agent pid.
 But you can use it to also edit any other pid or resource in your profile. For example to edit the io.fabric8.maven pid of the fabric profile, you can simply:
 
       fabric:profile-edit --pid io.fabric8.maven fabric
 
-![Editing a pid](/images/fabric/profile-edit-pid.png)
+![Editing a pid](/images/profile-edit-pid.png)
 
 A pretty similar approach applies to any resource under the profile. For example, to edit the broker.xml of the mq-base profile:
 
       fabric:profile-edit --resource broker.xml mq-base
 
-![Editing a pid](/images/fabric/profile-edit-resource.png)
+![Editing a pid](/images/profile-edit-resource.png)
 
 
 ### Profile versions

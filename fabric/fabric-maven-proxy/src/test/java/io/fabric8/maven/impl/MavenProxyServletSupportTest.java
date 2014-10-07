@@ -66,7 +66,7 @@ public class MavenProxyServletSupportTest {
     public void setUp() {
         runtimeProperties = EasyMock.createMock(RuntimeProperties.class);
         projectDeployer = EasyMock.createMock(ProjectDeployer.class);
-        servlet = new MavenDownloadProxyServlet(runtimeProperties, null, null, false, null,null,null,null,0,null, null, null, projectDeployer);
+        servlet = new MavenDownloadProxyServlet(runtimeProperties, null, null, false, null,null,null,null,0,null, null, null, projectDeployer, 5);
     }
 
     @After
@@ -191,7 +191,7 @@ public class MavenProxyServletSupportTest {
         String old = System.getProperty("karaf.data");
         System.setProperty("karaf.data", new File("target").getCanonicalPath());
         try {
-            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(runtimeProperties, System.getProperty("java.io.tmpdir"), null, false, null,null,null,null,0,null, null, null, projectDeployer);
+            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(runtimeProperties, System.getProperty("java.io.tmpdir"), null, false, null,null,null,null,0,null, null, null, projectDeployer, 5);
             servlet.start();
         } finally {
             if (old != null) {
@@ -247,7 +247,7 @@ public class MavenProxyServletSupportTest {
             int localPort = server.getConnectors()[0].getLocalPort();
             List<String> remoteRepos = Arrays.asList("http://relevant.not/maven2@id=central");
             RuntimeProperties props = new MockRuntimeProperties();
-            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(props, "target/tmp", remoteRepos, false, "always", "warn", "http", "localhost", localPort, "fuse", "fuse", null, projectDeployer);
+            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(props, "target/tmp", remoteRepos, false, "always", "warn", "http", "localhost", localPort, "fuse", "fuse", null, projectDeployer, 5);
 
             HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
             EasyMock.expect(request.getPathInfo()).andReturn("org.apache.camel/camel-core/2.13.0/camel-core-2.13.0-sources.jar");

@@ -191,7 +191,7 @@ public class ProcessManagerController implements ChildContainerController {
                 // to know that we need to create the container config, and compare with existing
                 ProcessContainerConfig config = createProcessContainerConfig(options, initialEnvironmentVariables);
 
-                if (!installation.getUrl().toString().equals(config.getUrl())) {
+                if (installation.getUrl() != null && !installation.getUrl().toString().equals(config.getUrl())) {
                     // the url has changed so its a full re-installation
                     LOG.info("Re-installing " + container.getId() + " due container distribution url changed to: " + config.getUrl());
                     destroy(container);

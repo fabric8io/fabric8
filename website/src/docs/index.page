@@ -29,6 +29,17 @@ title: read up on fabric8!
       </dl>
       <dl>
         <dt>
+          <a href="http://fabric8.io/v2/index.html">User Guide (2.0 Alpha)</a> (in progress!)
+        </dt><strong></strong>
+        <dd>
+          Read the user guide of the in progress 2.x branch of fabric8 which is based on <a href="http://docker.io/">Docker</a> and <a href="http://kubernetes.io">Kubernetes</a>. You can see the <a href="http://fabric8.io/v2/v2-changes.html">version 2.x differences here</a>.
+          <!--
+          or <a href="http://fabric8.io/fabric8.pdf">download the PDF</a>
+          -->
+        </dd>
+      </dl>
+      <dl>
+        <dt>
           <a href="/gitbook/FAQ.html">FAQ</a>
         </dt>
         <dd>

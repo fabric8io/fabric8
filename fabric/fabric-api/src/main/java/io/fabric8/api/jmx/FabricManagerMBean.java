@@ -150,6 +150,8 @@ public interface FabricManagerMBean {
 
     String getMavenRepoURI();
 
+    Map<String, Object> getProfile(String versionId, String profileId, boolean mandatory);
+
     Map<String, Object> getProfile(String versionId, String profileId);
 
     Map<String, Object> getProfile(String versionId, String profileId, List<String> fields);
@@ -248,6 +250,8 @@ public interface FabricManagerMBean {
     Map<String, Object> getVersion(String versionId);
 
     Map<String, Object> getVersion(String versionId, List<String> fields);
+
+    List<String> versionIds();
 
     List<Map<String, Object>> versions();
 

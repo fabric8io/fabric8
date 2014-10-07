@@ -1,6 +1,8 @@
 ### 1.2.0.Beta5
 
 * Profile name must be in lower-case letters
+* Fixed CPU spike when using hawtio and browsing container or profile details
+* Switched to using Apache Karaf 2.4.0
 
 ### 1.2.0.Beta4
 

@@ -71,7 +71,6 @@ import io.fabric8.fab.MavenResolverImpl;
 import io.fabric8.fab.osgi.ServiceConstants;
 import io.fabric8.fab.osgi.internal.Configuration;
 import io.fabric8.fab.osgi.internal.FabResolverFactoryImpl;
-
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
@@ -600,7 +599,7 @@ public class DeploymentAgent implements ManagedService {
                 getPrefixedProperties(properties, "req."),
                 getPrefixedProperties(properties, "override."),
                 getPrefixedProperties(properties, "optional."),
-                getMetadata(properties, "metadata#")
+                getMetadata(properties, "metadata#"), new DownloadProgressListener()
         );
 
         // TODO: handle default range policy on feature requirements
@@ -620,6 +619,16 @@ public class DeploymentAgent implements ManagedService {
         install(allResources, ignoredBundles, providers, wiring);
         installFeatureConfigs(bundleContext, downloadedResources);
         return true;
+    }
+
+    private final class DownloadProgressListener implements DeploymentBuilder.DeploymentDownloadListener {
+
+        @Override
+        public void onDownload(File file, int pending) {
+            if (pending > 0) {
+                updateStatus("downloading (" + pending + " pending)", null);
+            }
+        }
     }
 
     public static boolean getResolveOptionalImports(Map<String, String> config) {
@@ -898,6 +907,7 @@ public class DeploymentAgent implements ManagedService {
         }
 
         if (!toRefresh.isEmpty()) {
+            updateStatus("finalizing (refreshing)", null);
             refreshPackages(toRefresh);
         }
 
@@ -912,6 +922,9 @@ public class DeploymentAgent implements ManagedService {
                     toResolve.add(bundle);
                 }
             }
+        }
+        if (!toResolve.isEmpty()) {
+            updateStatus("finalizing (resolving)", null);
         }
         systemBundleContext.getBundle().adapt(FrameworkWiring.class).resolveBundles(toResolve);
 
@@ -946,6 +959,9 @@ public class DeploymentAgent implements ManagedService {
         // make sure those important bundles are started first and minimize the problem.
         List<Throwable> exceptions = new ArrayList<Throwable>();
         LOGGER.info("Starting bundles:");
+        if (!firstSetToStart.isEmpty()) {
+            updateStatus("finalizing (starting)", null);
+        }
         // TODO: use wiring here instead of sorting
         for (Resource resource : firstSetToStart) {
             Bundle bundle = resToBnd.get(resource);

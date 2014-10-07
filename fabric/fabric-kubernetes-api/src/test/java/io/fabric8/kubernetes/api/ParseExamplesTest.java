@@ -66,6 +66,19 @@ public class ParseExamplesTest {
         System.out.println("pod1 container1 " + container);
     }
 
+    @Test
+    public void testParsePodListEmptyResults() throws Exception {
+        PodListSchema podList = assertParseExampleFile("pod-list-empty-results.json", PodListSchema.class);
+        List<PodSchema> items = podList.getItems();
+        assertNotEmpty("items", items);
+
+        PodSchema pod = items.get(0);
+        assertNotNull("pod1", pod);
+        assertEquals("127.0.0.1", pod.getDesiredState().getHost());
+        assertEquals("pod1.desiredState.manifest.version", "__EMPTY__",pod.getDesiredState().getManifest().getVersion().name());
+
+
+    }
 
     @Test
     public void testParsePod() throws Exception {

@@ -22,6 +22,17 @@ Try reading the [overview](http://fabric8.io/gitbook/overview.html) to see if th
 
 fabric8 runs on Java 7 and 8. 
 
+#### Is Windows supported
+
+Windows is only partially supported. 
+
+For example the [process manager](http://fabric8.io/gitbook/processManager.html#process-management) does not yet support windows; as it relies on running scripts which currently only supports linux systems. Likewise creaitng containers using [SSH](http://fabric8.io/gitbook/sshContainers.html) is not supported by Windows. Neither is [docker](http://fabric8.io/gitbook/docker.html#docker-containers) supported by Windows. 
+
+We recommend using a linux based system for production. 
+
+For development using Windows can be used but there are these known limitations.
+Windows users may consider using a VM with a linux distribution for development.
+
 #### Deprecations
 
 FAB (Fuse Application Bundles) has been deprecated for the 1.1 release, and will be removed in the 1.2 release.

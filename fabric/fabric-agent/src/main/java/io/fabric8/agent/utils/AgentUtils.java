@@ -305,7 +305,7 @@ public class AgentUtils {
     }
 
     public interface DownloadCallback {
-        public void downloaded(File file) throws Exception;
+        public void downloaded(File file, int pendings) throws Exception;
     }
 
     public static abstract class ArtifactDownloader<T> {
@@ -365,7 +365,7 @@ public class AgentUtils {
                         T t = getArtifact(url, file);
                         artifacts.put(url, t);
                         if (callback != null) {
-                            callback.downloaded(file);
+                            callback.downloaded(file, pendings.get());
                         }
                     }
                 } catch (Throwable t) {

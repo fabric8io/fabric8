@@ -15,32 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.kubernetes.provider;
+package io.fabric8.utils;
 
-import io.fabric8.api.AutoScaleRequest;
-import io.fabric8.api.Container;
-import io.fabric8.api.ContainerAutoScaler;
-
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * A {@link io.fabric8.utils.ThreadFactory} which sets the thread name to an unique name.
+ * <p/>
+ * The thread name uses the following syntax <tt>name #counter</tt>, where counter in an unique counter, starting from 1.
  */
-public class KubernetesAutoScaler implements ContainerAutoScaler {
-    public KubernetesAutoScaler(KubernetesContainerProvider containerProvider) {
+public final class ThreadFactory implements java.util.concurrent.ThreadFactory {
+
+    private static final AtomicInteger counter = new AtomicInteger();
+
+    private final String name;
+
+    /**
+     * Prefix of the thread name
+     */
+    public ThreadFactory(final String name) {
+        this.name = name;
     }
 
     @Override
-    public int getWeight() {
-        return 200;
-    }
-
-    @Override
-    public void createContainers(AutoScaleRequest request) throws Exception {
-        // TODO update the replicatorController metadata
-    }
-
-    @Override
-    public void destroyContainers(String profile, int count, List<Container> containers) throws Exception {
-        // TODO update the replicatorController metadata
+    public Thread newThread(Runnable r) {
+        return new Thread(r, name + " #" + counter.incrementAndGet());
     }
 }

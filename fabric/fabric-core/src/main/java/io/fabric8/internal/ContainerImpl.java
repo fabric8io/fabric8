@@ -238,8 +238,11 @@ public class ContainerImpl implements Container {
         for (String profileId : profileIds) {
             profiles.add(version.getRequiredProfile(profileId));
         }
-        if (profiles.isEmpty()) {
-            profiles.add(version.getRequiredProfile(ZkDefs.DEFAULT_PROFILE));
+        if (profiles.isEmpty() && version != null) {
+            Profile defaultProfile = version.getProfile(ZkDefs.DEFAULT_PROFILE);
+            if (defaultProfile != null) {
+                profiles.add(defaultProfile);
+            }
         }
         return profiles.toArray(new Profile[profiles.size()]);
     }

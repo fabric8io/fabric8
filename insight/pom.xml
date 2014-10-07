@@ -45,6 +45,7 @@
     <module>insight-metrics-model</module>
     <module>insight-metrics-mvel</module>
     <module>insight-rhq-metrics</module>
+    <module>insight-influxdb-metrics</module>
     <module>insight-storage</module>
     <module>insight-elasticsearch-factory</module>
     <module>insight-elasticsearch-plugin</module>

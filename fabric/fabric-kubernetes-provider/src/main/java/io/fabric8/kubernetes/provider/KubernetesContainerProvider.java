@@ -102,7 +102,7 @@ import static io.fabric8.kubernetes.provider.KubernetesConstants.LABELS;
 @Properties(
         @Property(name = "fabric.container.protocol", value = KubernetesConstants.SCHEME)
 )
-public class KubernetesContainerProvider extends DockerContainerProviderSupport implements ContainerProvider<CreateKubernetesContainerOptions, CreateKubernetesContainerMetadata>, ContainerAutoScalerFactory {
+public class KubernetesContainerProvider extends DockerContainerProviderSupport implements ContainerProvider<CreateKubernetesContainerOptions, CreateKubernetesContainerMetadata> {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesContainerProvider.class);
 
@@ -219,7 +219,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         Set<String> allConfigFiles = Profiles.getConfigurationFileNames(profiles);
         List<String> answer = new ArrayList<>();
         for (String fileName : allConfigFiles) {
-            if (fileName.startsWith("kubelet/")) {
+            if (fileName.startsWith("kubelet/") && fileName.endsWith(".json")) {
                 answer.add(fileName);
             }
         }
@@ -821,12 +821,6 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
             return null;
         }
     }
-
-    @Override
-    public ContainerAutoScaler createAutoScaler(FabricRequirements requirements, ProfileRequirements profileRequirements) {
-        return new KubernetesAutoScaler(this);
-    }
-
 
     protected FabricService getFabricService() {
         return fabricService.get();

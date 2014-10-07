@@ -16,6 +16,8 @@ The **DOCKER_HOST** environment variable should point to the URL to connect to d
 
 e.g. on a Mac the value of DOCKER_HOST is often something like tcp://192.168.59.103:2375. Fabric8 uses the DOCKER_HOST environment variable to know where the Docker Remote API is located.
 
+If running on Linux, please refer to [docker documentation](https://docs.docker.com/articles/basics/#bind-docker-to-another-hostport-or-a-unix-socket) on how to bind Docker to a host/port or a Unix socket.
+
 #### Security Warning
 
 Binding the Docker service to a public-facing network interface is a major security risk. Anyone with access to the Docker Remote API effectively has complete control of the Docker host.

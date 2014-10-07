@@ -18,6 +18,7 @@ package io.fabric8.maven;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+
 import io.fabric8.maven.impl.InvalidMavenArtifactRequest;
 
 public interface MavenProxy {
@@ -31,14 +32,16 @@ public interface MavenProxy {
 
     /**
      * Downloads a {@link File} from the {@link MavenProxy}.
+     *
      * @param path The path from which to download the {@link File}.
-     * @return
+     * @return the downloaded file
      */
     File download(String path) throws InvalidMavenArtifactRequest;
 
     /**
      * Upload a {@link File} to the {@link MavenProxy}.
-     * @param is The {@link InputStream} to upload.
+     *
+     * @param is   The {@link InputStream} to upload.
      * @param path The upload path.
      * @return true/false based on the outcome of the upload.
      */

@@ -250,7 +250,7 @@
           <mainClass>org.mule.MuleServer</mainClass>
           <arguments>
             <argument>-config</argument>
-            <argument>src/main/app/mule-config.xml</argument>
+            <argument>src/main/app/helloworld.xml</argument>
           </arguments>
           <classpathScope>compile</classpathScope>
         </configuration>

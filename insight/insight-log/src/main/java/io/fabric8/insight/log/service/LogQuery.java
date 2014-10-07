@@ -117,18 +117,20 @@ public class LogQuery extends LogQuerySupport implements LogQueryMBean, BundleLi
                 if (iterable != null) {
                     int matched = 0;
                     for (PaxLoggingEvent event : iterable) {
-                        long timestamp = event.getTimeStamp();
-                        if (timestamp > to) {
-                            to = timestamp;
-                        }
-                        if (timestamp < from) {
-                            from = timestamp;
-                        }
-                        if (predicate == null || predicate.matches(event)) {
-                            answer.addEvent(Logs.newInstance(event));
-                            matched += 1;
-                            if (count > 0 && matched >= count) {
-                                break;
+                        if (event != null) {
+                            long timestamp = event.getTimeStamp();
+                            if (timestamp > to) {
+                                to = timestamp;
+                            }
+                            if (timestamp < from) {
+                                from = timestamp;
+                            }
+                            if (predicate == null || predicate.matches(event)) {
+                                answer.addEvent(Logs.newInstance(event));
+                                matched += 1;
+                                if (count > 0 && matched >= count) {
+                                    break;
+                                }
                             }
                         }
                     }
