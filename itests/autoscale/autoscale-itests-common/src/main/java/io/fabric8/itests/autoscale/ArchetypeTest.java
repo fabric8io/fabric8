@@ -192,7 +192,7 @@ public class ArchetypeTest {
                 property("artifactId", artifactId),
                 property("version", version),
                 property("package", packageName),
-                property("fabric8.profile", artifactId)
+                property("fabric8-profile", artifactId)
         ));
         assertExecuteCommand(commands, workDir);
         File projectDir = new File(workDir, artifactId);
@@ -207,6 +207,7 @@ public class ArchetypeTest {
                 "--settings",
                 mavenSettingsFile.getCanonicalPath(),
                 "clean",
+                "install",
                 "fabric8:deploy",
                 property("fabric8.profile", profileId),
                 property("fabric8.minInstanceCount", "0")

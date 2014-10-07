@@ -24,11 +24,10 @@
     <groupId>io.fabric8.maven.test</groupId>
     <artifactId>zip-test</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>bundle</packaging>
+    <packaging>war</packaging>
     <name>Test Packaging Override</name>
     <description>
-        Test that type is omitted from pax url spec, since a bundle is a jar and
-        a jar is assumed by pax url by default.
+
     </description>
 
     <build>
@@ -49,7 +48,7 @@
                 <configuration>
                     <includeArtifact>true</includeArtifact>
                     <profileConfigDir>${basedir}/src/main/fabric8</profileConfigDir>
-                    <project implementation="io.fabric8.maven.stubs.CreateProfileZipBundleProjectStub"/>
+                    <project implementation="io.fabric8.maven.stubs.CreateProfileZipWarProjectStub"/>
                 </configuration>
             </plugin>
         </plugins>

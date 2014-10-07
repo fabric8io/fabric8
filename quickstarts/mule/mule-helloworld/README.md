@@ -19,7 +19,7 @@ After building from the source code, you can upload the changes to the fabric co
 
 1. It is assumed that you have already created a fabric and are logged into a container called `root`.
 1. Change your working directory to `quickstarts/mule/mule-helloworld` directory.
-1. Run `mvn fabric8:deploy` to upload the quickstart to the fabric container.
+1. Run `mvn install fabric8:deploy` to upload the quickstart to the fabric container.
 
 If you are running the `fabric:deploy` command for the first time then, it will ask you for the username and password to login the fabric container.
 It will then store this information in the local Maven settings file. You can find more details about this on the fabric8 website about the [Maven Plugin](http://fabric8.io/gitbook/mavenPlugin.html).
