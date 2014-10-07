@@ -128,7 +128,7 @@
       <plugin>
         <groupId>org.jolokia</groupId>
         <artifactId>docker-maven-plugin</artifactId>
-        <version>0.9.9</version>
+        <version>${docker-maven-plugin-version}</version>
         <configuration>
           <image>fabric8/fabric8-java</image>
           <mergeData>true</mergeData>
