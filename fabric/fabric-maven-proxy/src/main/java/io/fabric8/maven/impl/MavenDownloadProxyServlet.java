@@ -133,7 +133,7 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
                 resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
                 LOGGER.warning("DownloadProxyServlet cannot process request as we are overloaded, returning HTTP Status: 503");
             } catch (Exception ex) {
-                LOGGER.warning("Error while downloading artifact:" + ex.getMessage());
+                LOGGER.log(Level.WARNING,"Error while downloading artifact: " + ex.getMessage(), ex);
             } finally {
                 Closeables.closeQuitely(is);
                 if (masterFuture != null && artifactFile != null) {
