@@ -42,19 +42,33 @@ public class TemplateRestRepository<T, ID extends java.io.Serializable> implemen
 
     private final URL url;
 
+    private final String searchByQueryUrlPostfix;
+
+    private final String countByQueryUrlPostfix;
+
+    private final String listByQueryUrlPostfix;
+
     private final RestTemplate restTemplate;
 
     // Constructors
 
-    public TemplateRestRepository(Class<T> entityClass, String url) throws MalformedURLException {
-       this(entityClass, new URL(url));
-    }
-
-    public TemplateRestRepository(Class<T> entityClass, URL url) {
+    public TemplateRestRepository(Class<T> entityClass, URL url,
+                                  String searchByQueryUrlPostfix, String countByQueryUrlPostfix, String listByQueryUrlPostfix) {
         this.entityClass = entityClass;
         this.arrayOfEntityClass = (Class<T[]>) Array.newInstance(entityClass, 0).getClass();
         this.url = url;
+        this.searchByQueryUrlPostfix = searchByQueryUrlPostfix;
+        this.countByQueryUrlPostfix = countByQueryUrlPostfix;
+        this.listByQueryUrlPostfix = listByQueryUrlPostfix;
         restTemplate = new RestTemplate();
+    }
+
+    public TemplateRestRepository(Class<T> entityClass, URL url) {
+        this(entityClass, url, "-ops/searchByQuery", "-ops/countByQuery", "-ops/listByQuery");
+    }
+
+    public TemplateRestRepository(Class<T> entityClass, String url) throws MalformedURLException {
+        this(entityClass, new URL(url));
     }
 
     // Factory methods
@@ -79,18 +93,18 @@ public class TemplateRestRepository<T, ID extends java.io.Serializable> implemen
 
     @Override
     public Iterable<T> findByQuery(AbstractQuery query) {
-        return asList(restTemplate.postForObject(url + "-ops/searchByQuery", query, arrayOfEntityClass));
+        return asList(restTemplate.postForObject(url + searchByQueryUrlPostfix, query, arrayOfEntityClass));
     }
 
     @Override
     public long countByQuery(AbstractQuery query) {
-        return restTemplate.postForObject(url + "-ops/countByQuery", query, Long.class);
+        return restTemplate.postForObject(url + countByQueryUrlPostfix, query, Long.class);
     }
 
     @Override
     public <R> Iterable<R> listByQuery(AbstractQuery query, Class<R> ListingRecordClass) {
         Class<R[]> listingType = (Class<R[]>) Array.newInstance(ListingRecordClass, 0).getClass();
-        return asList(restTemplate.postForObject(url + "-ops/listByQuery", query, listingType));
+        return asList(restTemplate.postForObject(url + listByQueryUrlPostfix, query, listingType));
     }
 
     @Override
