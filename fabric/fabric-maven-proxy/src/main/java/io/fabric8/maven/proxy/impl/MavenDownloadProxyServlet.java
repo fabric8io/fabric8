@@ -19,15 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import javax.servlet.ServletException;
@@ -47,7 +39,7 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
     private final RuntimeProperties runtimeProperties;
     private final ConcurrentMap<String, ArtifactDownloadFuture> requestMap = new ConcurrentHashMap<String, ArtifactDownloadFuture>();
     private final int threadMaximumPoolSize;
-    private ThreadPoolExecutor executorService;
+    private ExecutorService executorService;
 
     public MavenDownloadProxyServlet(MavenResolver resolver, RuntimeProperties runtimeProperties, ProjectDeployer projectDeployer, int threadMaximumPoolSize) {
         super(resolver, projectDeployer);
@@ -61,10 +53,13 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
         if (threadMaximumPoolSize > 0) {
             // lets use a synchronous queue so it waits for the other threads to be available before handing over
             // we are waiting for the task to be done anyway in doGet so there is no point in having a worker queue
-            executorService = new ThreadPoolExecutor(1, threadMaximumPoolSize, 60, TimeUnit.SECONDS,
+            ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, threadMaximumPoolSize, 60, TimeUnit.SECONDS,
                     new SynchronousQueue<Runnable>(), new ThreadFactory("MavenDownloadProxyServlet"));
             // lets allow core threads to timeout also, so if there is no download for a while then no threads is wasted
-            executorService.allowCoreThreadTimeOut(true);
+            threadPoolExecutor.allowCoreThreadTimeOut(true);
+            executorService = threadPoolExecutor;
+        } else {
+            executorService = Executors.newSingleThreadExecutor(new ThreadFactory("MavenDownloadProxyServlet"));
         }
 
         super.start();
