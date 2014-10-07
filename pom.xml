@@ -3063,6 +3063,7 @@
         <module>components</module>
         <module>quickstarts</module>
         <module>tooling</module>
+      <module>forge-addons</module>
 
         <!-- itests should be built last -->
 <!--

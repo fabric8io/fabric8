@@ -17,7 +17,8 @@
  */
 package io.fabric8.kubernetes.api;
 
-import static io.fabric8.common.util.Lists.notNullList;
+import io.fabric8.common.util.Filter;
+import io.fabric8.common.util.Filters;
 import io.fabric8.common.util.Strings;
 import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.PodListSchema;
@@ -26,6 +27,7 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.api.model.ServiceListSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import static io.fabric8.common.util.Lists.notNullList;
 
 /**
  */
@@ -142,11 +144,116 @@ public class KubernetesHelper {
         List<PodSchema> removeItems = new ArrayList<PodSchema>();
 
         for (PodSchema serviceSchema : list) {
-            if (StringUtils.isEmpty(serviceSchema.getId())){
+            if (StringUtils.isEmpty(serviceSchema.getId())) {
                 removeItems.add(serviceSchema);
 
             }
         }
         list.removeAll(removeItems);
+    }
+
+    /**
+     * Returns the pod id for the given container id
+     */
+    public static String containerNameToPodId(String containerName) {
+        // TODO use prefix?
+        return containerName;
+    }
+
+    /**
+     * Returns a string for the labels using "," to separate values
+     */
+    public static String toLabelsString(Map<String, String> labelMap) {
+        StringBuilder buffer = new StringBuilder();
+        if (labelMap != null) {
+            Set<Map.Entry<String, String>> entries = labelMap.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                if (buffer.length() > 0) {
+                    buffer.append(",");
+                }
+                buffer.append(entry.getKey());
+                buffer.append("=");
+                buffer.append(entry.getValue());
+            }
+        }
+        return buffer.toString();
+    }
+
+    /**
+     * Creates a filter on a pod using the given text string
+     */
+    public static Filter<PodSchema> createPodFilter(final String textFilter) {
+        if (Strings.isNullOrBlank(textFilter)) {
+            return Filters.<PodSchema>trueFilter();
+        } else {
+            return new Filter<PodSchema>() {
+                public String toString() {
+                    return "PodFilter(" + textFilter + ")";
+                }
+
+                public boolean matches(PodSchema entity) {
+                    return filterMatchesIdOrLabels(textFilter, entity.getId(), entity.getLabels());
+                }
+            };
+        }
+    }
+
+    /**
+     * Creates a filter on a service using the given text string
+     */
+    public static Filter<ServiceSchema> createServiceFilter(final String textFilter) {
+        if (Strings.isNullOrBlank(textFilter)) {
+            return Filters.<ServiceSchema>trueFilter();
+        } else {
+            return new Filter<ServiceSchema>() {
+                public String toString() {
+                    return "ServiceFilter(" + textFilter + ")";
+                }
+
+                public boolean matches(ServiceSchema entity) {
+                    return filterMatchesIdOrLabels(textFilter, entity.getId(), entity.getLabels());
+                }
+            };
+        }
+    }
+
+    /**
+     * Creates a filter on a replicationController using the given text string
+     */
+    public static Filter<ReplicationControllerSchema> createReplicationControllerFilter(final String textFilter) {
+        if (Strings.isNullOrBlank(textFilter)) {
+            return Filters.<ReplicationControllerSchema>trueFilter();
+        } else {
+            return new Filter<ReplicationControllerSchema>() {
+                public String toString() {
+                    return "ReplicationControllerFilter(" + textFilter + ")";
+                }
+
+                public boolean matches(ReplicationControllerSchema entity) {
+                    return filterMatchesIdOrLabels(textFilter, entity.getId(), entity.getLabels());
+                }
+            };
+        }
+    }
+
+    /**
+     * Returns true if the given textFilter matches either the id or the labels
+     */
+    public static boolean filterMatchesIdOrLabels(String textFilter, String id, Map<String, String> labels) {
+        String text = toLabelsString(labels);
+        return text.contains(textFilter) || id.contains(textFilter);
+    }
+
+    /**
+     * For positive non-zero values return the text of the number or return blank
+     */
+    public static String toPositiveNonZeroText(Integer port) {
+        if (port != null) {
+            int value = port.intValue();
+            if (value > 0) {
+                return "" + value;
+            }
+        }
+        return "";
     }
 }

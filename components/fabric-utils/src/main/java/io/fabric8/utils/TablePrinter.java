@@ -17,6 +17,7 @@
  */
 package io.fabric8.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -97,6 +98,16 @@ public class TablePrinter {
         print(System.out);
     }
 
+
+    /**
+     * Prints the table as a text string
+     */
+    public String asText() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        print(new PrintStream(out));
+        return new String(out.toByteArray());
+    }
+
     public void print(PrintStream out) {
         boolean first = true;
         for (Column column : columns) {
@@ -131,6 +142,7 @@ public class TablePrinter {
             out.println();
         }
     }
+
 
     public static class Column {
         private final String headerText;
