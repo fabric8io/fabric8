@@ -13,8 +13,9 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.mq.fabric;
+package io.fabric8.mq.fabric.discovery;
 
+import org.apache.activemq.transport.discovery.DiscoveryAgent;
 import org.apache.curator.framework.CuratorFramework;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -32,7 +33,8 @@ public class OsgiFabricDiscoveryAgent extends FabricDiscoveryAgent implements Se
 
     public OsgiFabricDiscoveryAgent() {
         if (FrameworkUtil.getBundle(getClass()) != null) {
-            context = FrameworkUtil.getBundle(getClass()).getBundleContext();
+            // Given we're a fragment, we need to use the host bundle context
+            context = FrameworkUtil.getBundle(DiscoveryAgent.class).getBundleContext();
             tracker = new ServiceTracker(context, CuratorFramework.class.getName(), this);
             tracker.open();
         }

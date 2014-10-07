@@ -303,6 +303,7 @@
         <feature version="${activemq-version}">activemq</feature>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:org.apache.xbean/xbean-classloader/${xbean-version}</bundle>
+        <bundle>mvn:io.fabric8.mq/mq-discovery/${project.version}</bundle>
         <bundle>mvn:io.fabric8.mq/mq-fabric/${project.version}</bundle>
     </feature>
 

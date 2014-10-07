@@ -26,21 +26,13 @@
     </parent>
 
     <groupId>io.fabric8.mq</groupId>
-    <artifactId>mq-fabric</artifactId>
+    <artifactId>mq-discovery</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fabric8 :: MQ :: Fabric</name>
+    <name>Fabric8 :: MQ :: Discovery</name>
 
     <properties>
-        <fuse.osgi.export>
-            io.fabric8.mq.fabric;
-            io.fabric8.mq.fabric.cf;
-                version=${fuse.osgi.version};-noimport:=true
-        </fuse.osgi.export>
-        <fuse.osgi.capabilities.provide><![CDATA[
-            osgi.service;effective:=active;objectClass=javax.jms.ConnectionFactory
-        ]]></fuse.osgi.capabilities.provide>
-        <fuse.osgi.activator>io.fabric8.mq.fabric.Activator</fuse.osgi.activator>
+        <fuse.osgi.fragment.host>org.apache.activemq.activemq-osgi</fuse.osgi.fragment.host>
     </properties>
 
     <dependencies>
@@ -103,11 +95,6 @@
             <groupId>io.fabric8</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.fabric8.mq</groupId>
-            <artifactId>mq-discovery</artifactId>
         </dependency>
 
         <dependency>

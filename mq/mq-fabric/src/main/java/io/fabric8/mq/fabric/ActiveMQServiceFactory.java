@@ -42,6 +42,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
+import io.fabric8.mq.fabric.discovery.FabricDiscoveryAgent;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TransportConnector;
@@ -70,7 +71,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.Resource;
 
-import static io.fabric8.mq.fabric.FabricDiscoveryAgent.ActiveMQNode;
+import static io.fabric8.mq.fabric.discovery.FabricDiscoveryAgent.ActiveMQNode;
 
 public class ActiveMQServiceFactory implements ManagedServiceFactory, ServiceTrackerCustomizer<CuratorFramework, CuratorFramework> {
 

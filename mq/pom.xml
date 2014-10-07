@@ -39,6 +39,7 @@
   <modules>
     <module>mq-client</module>
     <module>mq-http-discovery</module>
+    <module>mq-discovery</module>
     <module>mq-fabric</module>
     <module>camel-amq</module>
   </modules>
