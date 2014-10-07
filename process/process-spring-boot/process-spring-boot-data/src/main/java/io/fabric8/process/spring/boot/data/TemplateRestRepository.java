@@ -153,12 +153,12 @@ public class TemplateRestRepository<T, ID extends java.io.Serializable> implemen
 
     @Override
     public void delete(ID id) {
-        throw new UnsupportedOperationException("Not *yet* supported.");
+        restTemplate.delete(url + "/" + id);
     }
 
     @Override
-    public void delete(T t) {
-        throw new UnsupportedOperationException("Not *yet* supported.");
+    public void delete(T entity) {
+        restTemplate.delete(url + "/" + resolveId(entity));
     }
 
     @Override
@@ -178,6 +178,16 @@ public class TemplateRestRepository<T, ID extends java.io.Serializable> implemen
             Field idField = entityClass.getDeclaredField("id");
             idField.setAccessible(true);
             idField.set(entity, id);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected ID resolveId(T entity) {
+        try {
+            Field idField = entityClass.getDeclaredField("id");
+            idField.setAccessible(true);
+            return (ID) idField.get(entity);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }

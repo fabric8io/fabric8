@@ -129,7 +129,7 @@ public class InvoicingRestApiTest extends Assert {
     }
 
     @Test
-    public void shouldListInvoicesRecordsByQuery() throws InterruptedException {
+    public void shouldListInvoicesRecordsByQuery() {
         // Given
         InvoiceQuery query = new InvoiceQuery().invoiceId(invoice.invoiceId());
 
@@ -141,5 +141,24 @@ public class InvoicingRestApiTest extends Assert {
         assertNotNull(receivedInvoices.iterator().next().getListingLabel());
     }
 
+    @Test
+    public void shouldDeleteInvoiceById() {
+        // When
+        restRepository.delete(invoice.getId());
+
+        // Then
+        long count = restRepository.countByQuery(new InvoiceQuery().invoiceId(invoice.invoiceId()));
+        assertEquals(0, count);
+    }
+
+    @Test
+    public void shouldDeleteInvoiceByEntity() {
+        // When
+        restRepository.delete(invoice);
+
+        // Then
+        long count = restRepository.countByQuery(new InvoiceQuery().invoiceId(invoice.invoiceId()));
+        assertEquals(0, count);
+    }
 
 }
