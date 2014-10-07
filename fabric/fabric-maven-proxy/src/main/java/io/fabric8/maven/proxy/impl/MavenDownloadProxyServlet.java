@@ -176,12 +176,20 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
         public File call() throws Exception {
             File download = download(path);
             if (download != null)  {
-                File tmpFile = io.fabric8.utils.Files.createTempFile(runtimeProperties.getDataPath());
+                File tmpFile = createTempFile();
                 Files.copy(download, tmpFile);
                 return tmpFile;
             } else {
                 return null;
             }
+        }
+
+        private File createTempFile() throws IOException {
+            return Files.createTempFile(getAbsolutePath());
+        }
+
+        private String getAbsolutePath() {
+            return runtimeProperties.getDataPath().toFile().getAbsolutePath();
         }
     }
 }
