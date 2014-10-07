@@ -157,7 +157,7 @@
         <camel-version-range>[2.13,3)</camel-version-range>
         <camel-version>2.13.2</camel-version>
         <cassandra-version>2.0.7</cassandra-version>
-        <codahale-metrics-version>3.0.1</codahale-metrics-version>
+        <codahale-metrics-version>3.0.2</codahale-metrics-version>
         <commons-beanutils-version>1.8.3</commons-beanutils-version>
         <commons-codec-version>1.6</commons-codec-version>
         <commons-collections-version>3.2.1</commons-collections-version>
@@ -230,7 +230,7 @@
         <hawtio-dockerui-version>1.0.4</hawtio-dockerui-version>
         <hawtio-kibana-version>3.1.0_1</hawtio-kibana-version>
         <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
-        <hawtio-version>1.4.21</hawtio-version>
+        <hawtio-version>1.4.22</hawtio-version>
         <influxdb-version>1.2</influxdb-version>
         <jackson-version>1.9.2</jackson-version>
         <jackson2-version>2.4.1</jackson2-version>
@@ -239,6 +239,7 @@
         <jasypt-smx-version>1.9.1_2</jasypt-smx-version>
         <jasypt-spring-smx-version>1.9.1_1</jasypt-spring-smx-version>
         <jasypt-version>1.9.1</jasypt-version>
+        <javax.inject.bundle.version>1_2</javax.inject.bundle.version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.2.7</jaxb-version>
         <jboss-javaee-6-version>1.0.0.Final</jboss-javaee-6-version>
