@@ -71,16 +71,6 @@
 
   <dependencies>
     <!--
-        For coding the example, we don't actually depend on any CXF classes - we only use the JAX-RS (JSR-311)
-        standard annotations and API
-    -->
-    <dependency>
-      <groupId>org.apache.servicemix.specs</groupId>
-      <artifactId>org.apache.servicemix.specs.jsr311-api-1.1.1</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <!--
         For logging, we will use SLF4J, which is also available in the container by default.
       -->
     <dependency>
