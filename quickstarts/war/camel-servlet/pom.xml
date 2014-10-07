@@ -173,7 +173,7 @@
         <artifactId>docker-maven-plugin</artifactId>
         <version>${docker-maven-plugin-version}</version>
         <configuration>
-          <image>consol/tomcat-8.0</image>
+          <image>fabric8/tomcat-8.0</image>
           <mergeData>true</mergeData>
           <assemblyDescriptorRef>artifact</assemblyDescriptorRef>
 <!--

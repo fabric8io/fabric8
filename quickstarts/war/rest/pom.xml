@@ -269,6 +269,20 @@
         <version>${fabric.version}</version>
       </plugin>
 -->
+      <plugin>
+        <groupId>org.jolokia</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>${docker-maven-plugin-version}</version>
+        <configuration>
+          <image>fabric8/tomcat-8.0</image>
+          <mergeData>true</mergeData>
+          <assemblyDescriptorRef>artifact</assemblyDescriptorRef>
+<!--
+          <env>
+          </env>
+-->
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
