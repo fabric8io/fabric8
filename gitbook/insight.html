@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="6.11" data-basepath="." data-revision="1412709787391">
+    <div class="book" data-github="fabric8io/fabric8" data-level="6.11" data-basepath="." data-revision="1412796183530">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -908,6 +908,13 @@ by the <code>insight-console</code> profile:</p>
 <pre><code>container-add-profile root insight-console
 </code></pre><p>Hawtio will then have a new perspective available: Fabric8. This will have a tab called <code>Logs</code> which provides a
 Kibana dashboard for you to search all logs across your fabric.</p>
+<h3 id="the-insight-console"><a name="the-insight-console" class="anchor" href="#the-insight-console"><span class="fa fa-link"></span></a>The Insight Console</h3>
+<p>The Insight Console uses the Hawtio Kibana plugin. This provides a very flexible &amp; powerful way to inspect your logs
+&amp; find what you&#x2019;re looking for. The Log dashboard looks like this:</p>
+<p><img src="/images/insight-logs.png" alt="Viewing Insight Logs"></p>
+<p>Each log entry can be expanded to view full details of the log event &amp; stacktraces are formatted nicely, including
+linking to source code for easy fault finding:</p>
+<p><img src="/images/insight-exception-stacktrace.png" alt="Expanding Log Events"></p>
 
                     
                     </section>
