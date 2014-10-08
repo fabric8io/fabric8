@@ -59,6 +59,21 @@ public final class Files {
     }
 
     /**
+     * Returns true if the given file is of type file and exists
+     */
+    public static boolean isFile(File file) {
+        return file != null && file.exists() && file.isFile();
+    }
+
+    /**
+     * Returns true if the given file is of type directory and exists
+     */
+    public static boolean isDirectory(File file) {
+        return file != null && file.exists() && file.isDirectory();
+    }
+
+
+    /**
      * Normalizes the path to cater for Windows and other platforms
      */
     public static String normalizePath(String path) {

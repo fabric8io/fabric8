@@ -1,0 +1,41 @@
+{
+  "id": "quickStartWarRestController",
+  "desiredState": {
+    "replicas": 1,
+    "replicaSelector": {
+      "name": "camelServlet",
+      "container": "tomcat",
+      "group": "quickstart"
+    },
+    "podTemplate": {
+      "desiredState": {
+        "manifest": {
+          "version": "v1beta1",
+          "id": "camelServletQuickStartController",
+          "containers": [
+            {
+              "name": "quickStartWarRest",
+              "image": "${project.groupId}/${project.artifactId}:${project.version}",
+              "ports": [
+                {
+                  "containerPort": 8080,
+                  "hostPort": 8080
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "labels": {
+        "name": "rest",
+        "container": "tomcat",
+        "group": "quickstart"
+      }
+    }
+  },
+  "labels": {
+    "name": "rest",
+    "container": "tomcat",
+    "group": "quickstart"
+  }
+}
