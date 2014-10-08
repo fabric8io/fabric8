@@ -591,7 +591,6 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     protected void addProjectArtifactBundle(ProjectRequirements requirements) throws MojoFailureException {
         DependencyDTO rootDependency = requirements.getRootDependency();
         if (rootDependency != null) {
-            // we need url with type, so when we deploy war files the mvn url is correct
             StringBuilder urlBuffer = new StringBuilder(rootDependency.toBundleUrl());
 
             String apparentType = rootDependency.getType();
