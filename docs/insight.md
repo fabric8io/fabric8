@@ -37,8 +37,20 @@ to Elasticsearch:
 
 Now that you have logs being collected in Elasticsearch, you need something to view & filter them. This is provided
 by the `insight-console` profile:
- 
+
     container-add-profile root insight-console
-    
+
 Hawtio will then have a new perspective available: Fabric8. This will have a tab called `Logs` which provides a
 Kibana dashboard for you to search all logs across your fabric.
+
+### The Insight Console
+
+The Insight Console uses the Hawtio Kibana plugin. This provides a very flexible & powerful way to inspect your logs
+& find what you’re looking for. The Log dashboard looks like this:
+
+![Viewing Insight Logs](/images/insight-logs.png)
+
+Each log entry can be expanded to view full details of the log event & stacktraces are formatted nicely, including
+linking to source code for easy fault finding:
+
+![Expanding Log Events](/images/insight-exception-stacktrace.png)
