@@ -144,21 +144,6 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
             ProjectRequirements requirements = new ProjectRequirements();
             if (isIncludeArtifact()) {
                 DependencyDTO rootDependency = loadRootDependency();
-
-                if(getArtifactBundleType() != null) {
-                    rootDependency.setType(getArtifactBundleType());
-                }
-
-                if(getArtifactBundleClassifier() != null) {
-                    if (getArtifactBundleClassifier() != null) {
-                        rootDependency.setClassifier(getArtifactBundleClassifier());
-                    } else {
-                        throw new MojoFailureException(
-                                "The property artifactBundleClassifier was specified as '" + getArtifactBundleClassifier()
-                                        +"' without also specifying artifactBundleType");
-                    }
-                }
-
                 requirements.setRootDependency(rootDependency);
             }
             configureRequirements(requirements);
