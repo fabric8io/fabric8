@@ -53,7 +53,7 @@ public class Activator extends AbstractURLStreamHandlerService
     /**
      * The PID for this service configuration
      */
-    private static final String PID = "org.ops4j.pax.url.mvn";
+    private static final String PID = "io.fabric8.maven";
 
     private static final String PROTOCOL = "mvn";
 
