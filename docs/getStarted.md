@@ -27,7 +27,14 @@ Then you can start it up:
 
 You can then use the OpenShift command line tool; the REST API, the OpenShift console or hawtio to work with it.
 
+#### Running a local docker registry
 
+If you want to create your own images for your OpenShift environment run
+
+    cd fabric8/apps
+    openshift kube apply -c registry-config.json
+
+You will then get a docker registy running on http://localhost:5000. You can check if its up and working via http://localhost:5000/v1/_ping
 ### Running a local build of hawtio
 
 If you want to hack on the code you can [run a local build of hawtio](https://github.com/hawtio/hawtio/blob/master/BUILDING.md#running-hawtio-against-kubernetes--openshift)
