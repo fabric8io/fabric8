@@ -47,11 +47,9 @@
     <fabric8.bom.version>2.0.0-SNAPSHOT</fabric8.bom.version>
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
 
-    <!-- fabric8 deploy profile configuration -->
-    <fabric8.profile>quickstarts-war-camel.servlet</fabric8.profile>
-    <fabric8.parentProfiles>containers-tomcat</fabric8.parentProfiles>
-    <!-- we can define what the context path should be using a fixed name -->
-    <fabric8.webContextPath>camel-servlet</fabric8.webContextPath>
+    <!-- fabric8 deploy configuration -->
+    <docker.dataImage>mydemo/${project.artifactId}:${project.version}</docker.dataImage>
+    <docker.registry>localhost:5000</docker.registry>
   </properties>
 
   <licenses>

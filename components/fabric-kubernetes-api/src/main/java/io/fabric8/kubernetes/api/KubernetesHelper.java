@@ -17,8 +17,13 @@
  */
 package io.fabric8.kubernetes.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Filters;
+import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.PodListSchema;
@@ -28,7 +33,13 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.api.model.ServiceListSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +51,8 @@ import static io.fabric8.common.util.Lists.notNullList;
 /**
  */
 public class KubernetesHelper {
+    private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesHelper.class);
+    private static ObjectMapper objectMapper = KubernetesFactory.createObjectMapper();
 
     /**
      * Returns a list of {@link Env} objects from an environment variables map
@@ -55,6 +68,64 @@ public class KubernetesHelper {
         }
         return answer;
     }
+
+    /**
+     * Returns the given json data as a DTO such as
+     * {@link PodSchema}, {@link ReplicationControllerSchema} or
+     * {@link io.fabric8.kubernetes.api.model.ServiceSchema}
+     * from the Kubernetes REST API or
+     * {@link JsonNode} if it cannot be recognised.
+     */
+    public static Object loadJson(File file) throws IOException {
+        byte[] data = Files.readBytes(file);
+        return loadJson(data);
+    }
+
+    /**
+     * Returns the given json data as a DTO such as
+     * {@link PodSchema}, {@link ReplicationControllerSchema} or
+     * {@link io.fabric8.kubernetes.api.model.ServiceSchema}
+     * from the Kubernetes REST API or
+     * {@link JsonNode} if it cannot be recognised.
+     */
+    public static Object loadJson(InputStream in) throws IOException {
+        byte[] data = Files.readBytes(in);
+        return loadJson(data);
+    }
+
+    /**
+     * Returns the given json data as a DTO such as
+     * {@link PodSchema}, {@link ReplicationControllerSchema} or
+     * {@link io.fabric8.kubernetes.api.model.ServiceSchema}
+     * from the Kubernetes REST API or
+     * {@link JsonNode} if it cannot be recognised.
+     */
+    public static Object loadJson(byte[] json) throws IOException {
+        if (json != null && json.length > 0) {
+            ObjectReader reader = objectMapper.reader();
+            JsonNode tree = reader.readTree(new ByteArrayInputStream(json));
+            if (tree != null) {
+                JsonNode kindNode = tree.get("kind");
+                if (kindNode != null) {
+                    String kind = kindNode.asText();
+                    if (Objects.equal("Pod", kind)) {
+                        return objectMapper.reader(PodSchema.class).readValue(json);
+                    } else if (Objects.equal("ReplicationController", kind)) {
+                        return objectMapper.reader(ReplicationControllerSchema.class).readValue(json);
+                    } else if (Objects.equal("Service", kind)) {
+                        return objectMapper.reader(ServiceSchema.class).readValue(json);
+                    } else {
+                        LOG.warn("Unknown JSON type " + kindNode + ". JSON: " + tree);
+                    }
+                } else {
+                    LOG.warn("No JSON type for: " + tree);
+                }
+                return tree;
+            }
+        }
+        return null;
+    }
+
 
     /**
      * Returns a map indexed by pod id of the pods

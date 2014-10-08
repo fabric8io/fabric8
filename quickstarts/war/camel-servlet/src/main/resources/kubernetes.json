@@ -1,5 +1,7 @@
 {
   "id": "quickStartWarCamelServletController",
+  "kind": "ReplicationController",
+  "apiVersion": "v1beta1",
   "desiredState": {
     "replicas": 1,
     "replicaSelector": {
@@ -11,15 +13,19 @@
       "desiredState": {
         "manifest": {
           "version": "v1beta1",
-          "id": "camelServletQuickStartController",
+          "id": "quickStartWarCamelServletController",
           "containers": [
             {
-              "name": "quickStartWarCamelServlet",
-              "image": "${project.groupId}/${project.artifactId}:${project.version}",
+              "name": "quickstart-camel-servlet",
+              "image": "${docker.registry}/${docker.dataImage}",
               "ports": [
                 {
                   "containerPort": 8080,
-                  "hostPort": 8080
+                  "hostPort": 9901
+                },
+                {
+                  "containerPort": 8778,
+                  "hostPort": 9902
                 }
               ]
             }

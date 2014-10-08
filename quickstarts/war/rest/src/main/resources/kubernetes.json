@@ -1,9 +1,11 @@
 {
   "id": "quickStartWarRestController",
+  "kind": "ReplicationController",
+  "apiVersion": "v1beta1",
   "desiredState": {
     "replicas": 1,
     "replicaSelector": {
-      "name": "camelServlet",
+      "name": "restWar",
       "container": "tomcat",
       "group": "quickstart"
     },
@@ -11,15 +13,19 @@
       "desiredState": {
         "manifest": {
           "version": "v1beta1",
-          "id": "camelServletQuickStartController",
+          "id": "quickStartWarRestController",
           "containers": [
             {
-              "name": "quickStartWarRest",
-              "image": "${project.groupId}/${project.artifactId}:${project.version}",
+              "name": "quickstart-rest-war",
+              "image": "${docker.registry}/${docker.dataImage}",
               "ports": [
                 {
                   "containerPort": 8080,
-                  "hostPort": 8080
+                  "hostPort": 9903
+                },
+                {
+                  "containerPort": 8778,
+                  "hostPort": 9904
                 }
               ]
             }
@@ -27,14 +33,14 @@
         }
       },
       "labels": {
-        "name": "rest",
+        "name": "restWar",
         "container": "tomcat",
         "group": "quickstart"
       }
     }
   },
   "labels": {
-    "name": "rest",
+    "name": "restWar",
     "container": "tomcat",
     "group": "quickstart"
   }
