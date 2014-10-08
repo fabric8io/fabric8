@@ -4,7 +4,10 @@ The quickest way to get started on your laptop is to run OpenShift V3 locally:
 
 ### Get OpenShift V3
 
-You can download a [distribution of OpenShift V3](https://github.com/openshift/origin/releases) if there is a download for your platform.
+You can download a [distribution of OpenShift V3](https://github.com/openshift/origin/releases) if there is a download 
+for your platform (currently OpenShift runs only on the 64-bit Linux). We recommend to download the [alpha nightly 20141003/e4d4ecf]
+(https://github.com/openshift/origin/releases/download/20141003/openshift-origin-linux64-e4d4ecf.tar.gz) version of the
+OpenShift 3 - Fabric8 has been tested against it.
 
 Or you can build it yourself:
 
