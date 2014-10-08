@@ -18,9 +18,21 @@ fabric8 (pronounced _fabricate_) lets you create and manage fabrics (or clusters
 
 Try reading the [overview](/gitbook/overview.html) to see if that helps give you an idea what fabric8 is.
 
+#### What value does fabric8 add over OpenShift?
+
+* [Kubernetes](http://kubernetes.io) provides a [Docker](http://docker.io/) Container As A Service layer
+* [OpenShift V3](https://github.com/openshift/origin) extends Kubernetes to support a full Platform As A Service
+  * hosting source code in git repositories
+  * performing builds and hosting private docker images
+  * supporting the git-push style model of kicking off new builds
+* Fabric8 is focussed on being a **Java Application Platform As A Service** and an **Integration Platform As A Service** via:
+  * deep and rich tooling to make it easy to develop Java applications on Kubernetes/OpenShift
+  * [hawtio based console](http://hawt.io/) so you can view your entire environment or zoom inside inside any Java container and see exactly whats going on
+  * making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform
+
 #### What Java versions is supported?
 
-fabric8 runs on Java 7 and 8. 
+fabric8 runs on Java 7 and 8.
 
 #### Is Windows supported
 
