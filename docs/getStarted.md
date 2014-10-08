@@ -23,7 +23,7 @@ Then add _output/go/bin to your PATH.
 
 ### Running OpenShift V3
 
-Point your environment at the local kube master:
+Before you start the OpenShift instance, point your environment at the local kube master that will be created by that instance:
 
     export KUBERNETES_MASTER=http://127.0.0.1:8080
 
@@ -31,7 +31,8 @@ Then you can start it up:
 
     $ openshift start
 
-You can then use the OpenShift command line tool; the REST API, the OpenShift console or hawtio to work with it.
+You can then use the OpenShift command line tool; the REST API, the OpenShift console or Hawt.io to work with it. Tools
+like Hawt.io read the KUBERNETES_MASTER environment value in order to find the Kubernetes REST API URL.
 
 #### Running a local docker registry
 
