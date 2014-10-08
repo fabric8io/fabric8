@@ -19,8 +19,8 @@
 <features name="fabric-camel-cxf-${project.version}">
 
   <repository>mvn:io.fabric8/fabric8-karaf/${project.version}/xml/features</repository>
-  <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
-
+  <!--repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository-->
+  <repository>mvn:io.fabric8/fabric-camel/${project.version}/xml/features</repository>
 	<feature name="fabric-camel-cxf" version="${project.version}" resolver="(obr)">
     <feature>fabric-cxf</feature>
 		<feature>camel</feature>

@@ -100,6 +100,10 @@
             <bundle start-level="30">mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.scr/${karaf-version}</bundle>
         </conditional>
     </feature>
+   
+    <feature name="jsr-311" version="${project.version}">
+        <bundle>mvn:javax.ws.rs/jsr311-api/1.1.1</bundle>
+    </feature>
 
     <feature name="fabric-bundle" version="${project.version}" resolver="(obr)">
         <feature>features</feature>
