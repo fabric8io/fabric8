@@ -256,7 +256,7 @@ public final class DefaultProfileBuilder extends AbstractBuilder<ProfileBuilder>
 
 	@Override
 	public ProfileBuilder setRepositories(List<String> values) {
-		addAgentConfiguration(ConfigListType.BUNDLES, values);
+		addAgentConfiguration(ConfigListType.REPOSITORIES, values);
 		return this;
 	}
 
