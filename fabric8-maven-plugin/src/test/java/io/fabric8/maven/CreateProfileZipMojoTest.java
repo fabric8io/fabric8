@@ -16,6 +16,9 @@
 package io.fabric8.maven;
 
 
+import io.fabric8.deployer.dto.DependencyDTO;
+import io.fabric8.deployer.dto.DtoHelper;
+import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.maven.stubs.*;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -25,6 +28,7 @@ import org.junit.Assert;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 
 /**
@@ -93,6 +97,9 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
         bundleReferencesHaveWarExtension();
 
+        requirementsRootDependencyPresentWithGAV();
+        requirementsRootDependencyHasNoClassifierAndHasType("war");
+
 
     }
 
@@ -111,7 +118,7 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         // THEN
 
         expectExceptionWhenExecuting(mojo,
-                String.format(EXPECTED_EXCEPTION_MESSAGE,TEST_CLASSIFIER));
+                String.format(EXPECTED_EXCEPTION_MESSAGE, TEST_CLASSIFIER));
 
     }
 
@@ -134,6 +141,9 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
         bundleReferencesHaveZipExtension();
 
+        requirementsRootDependencyPresentWithGAV();
+        requirementsRootDependencyHasNoClassifierAndHasType("zip");
+
     }
 
     public void testDefaultJarType() throws Exception {
@@ -150,7 +160,33 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
         bundleReferencesHaveNoExtension();
 
+        requirementsRootDependencyPresentWithGAV();
+        requirementsRootDependencyHasNoClassifierAndHasType("jar");
+
     }
+
+    private void requirementsRootDependencyHasNoClassifierAndHasType(String type) throws IOException {
+        Assert.assertEquals(type, getRequirementsRootDependency().getType());
+        Assert.assertNull(getRequirementsRootDependency().getClassifier());
+    }
+
+    private void requirementsRootDependencyHasTypeAndClassifier(String type, String classifier) throws IOException {
+        Assert.assertEquals(type, getRequirementsRootDependency().getType());
+        Assert.assertNull(getRequirementsRootDependency().getClassifier());
+    }
+
+    private void requirementsRootDependencyPresentWithGAV() throws IOException {
+        Assert.assertNotNull(getRequirementsRootDependency());
+        Assert.assertEquals(getGroupId(), getRequirementsRootDependency().getGroupId());
+        Assert.assertEquals(getArtifactId(), getRequirementsRootDependency().getArtifactId());
+        Assert.assertEquals(getVersion(), getRequirementsRootDependency().getVersion());
+    }
+
+    private DependencyDTO getRequirementsRootDependency() throws IOException {
+        ProjectRequirements requirements = readProjectRequirements();
+        return requirements.getRootDependency();
+    }
+
 
     public void testDefaultBundleType() throws Exception {
 
@@ -165,6 +201,9 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         // THEN
 
         bundleReferencesHaveNoExtension();
+
+        requirementsRootDependencyPresentWithGAV();
+        requirementsRootDependencyHasNoClassifierAndHasType("bundle");
 
     }
 
@@ -186,6 +225,9 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
         bundleReferencesHaveZipExtension();
 
+        requirementsRootDependencyPresentWithGAV();
+        requirementsRootDependencyHasNoClassifierAndHasType("zip");
+
     }
 
     public void testExplicitJarType() throws Exception {
@@ -205,6 +247,9 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         // THEN
 
         bundleReferencesHaveJarExtension();
+
+        requirementsRootDependencyPresentWithGAV();
+        requirementsRootDependencyHasNoClassifierAndHasType("jar");
 
     }
 
@@ -227,6 +272,9 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         // THEN
 
         bundleReferencesHaveJarWithFooClassifier();
+
+        requirementsRootDependencyPresentWithGAV();
+        requirementsRootDependencyHasTypeAndClassifier("jar","foo");
 
     }
 
@@ -408,6 +456,12 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         return projectStub.getPackaging();
     }
 
+    private File getProjectRequirementsFile(File generatedProfiles) {
+        return new File(generatedProfiles, getProfilePathComponent() +
+                "/dependencies/" + getGroupId() +
+                "/" + getArtifactId() + "-requirements.json");
+    }
+
     private File getFabricAgentPropertiesFile(File generatedProfiles) {
         return new File(generatedProfiles, getProfilePathComponent() +
                 "/io.fabric8.agent.properties");
@@ -419,6 +473,11 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
     private String getArtifactId() {
         return projectStub.getArtifactId();
+    }
+
+    private ProjectRequirements readProjectRequirements() throws IOException {
+        byte[] data = Files.readAllBytes(getProjectRequirementsFile(getGeneratedProfilesDir()).toPath());
+        return DtoHelper.getMapper().readValue(data, ProjectRequirements.class);
     }
 
     private Properties loadProperties(File fabricAgentPropertiesFile) throws IOException {

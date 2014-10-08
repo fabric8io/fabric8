@@ -656,9 +656,9 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             answer.setGroupId(artifact.getGroupId());
             answer.setArtifactId(artifact.getArtifactId());
             answer.setVersion(artifact.getVersion());
-            answer.setClassifier(artifact.getClassifier());
             String scope = artifact.getScope();
             answer.setScope(scope);
+            answer.setClassifier(artifact.getClassifier());
             answer.setType(artifact.getType());
             // there is a bug if we try to resolve the current projects artifact for a "jar" packaging
             // before we've installed it then this operation will force the jar not be installed
