@@ -237,6 +237,12 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     @Parameter(property = "fabric8.replaceReadmeLinksPrefix")
     protected String replaceReadmeLinksPrefix;
 
+    /**
+     * Allows the user to omit dependencies from the fabric8 profile requirements
+     */
+    @Parameter(property = "fabric8.omitDependenciesFromRequirements", defaultValue = "false")
+    private boolean omitDependenciesFromRequirements;
+
     public String getArtifactBundleType() {
         return artifactBundleType;
     }
@@ -716,12 +722,20 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                 getLog().debug("Ignoring " + node);
                 return null;
             }
+
+            // test for override first, so war logic can be overridden
+            if (omitDependenciesFromRequirements) {
+                getLog().debug("The omitDependenciseFromRequirements flag was enabled node so skipping children");
+                return answer;
+            }
+
             if (isWarProject()) {
                 if (scope != null && !scope.equals("provided")) {
                     getLog().debug("WAR packaging so ignoring non-provided scope " + scope + " for " + node);
                     return null;
                 }
             }
+
             List children = node.getChildren();
             for (Object child : children) {
                 if (child instanceof DependencyNode) {
