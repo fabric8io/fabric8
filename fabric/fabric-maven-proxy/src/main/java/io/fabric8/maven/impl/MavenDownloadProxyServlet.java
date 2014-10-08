@@ -20,15 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import javax.servlet.ServletException;
@@ -47,7 +39,7 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
     private final RuntimeProperties runtimeProperties;
     private final ConcurrentMap<String, ArtifactDownloadFuture> requestMap = new ConcurrentHashMap<String, ArtifactDownloadFuture>();
     private final int threadMaximumPoolSize;
-    private ThreadPoolExecutor executorService;
+    private ExecutorService executorService;
 
     public MavenDownloadProxyServlet(RuntimeProperties runtimeProperties, String localRepository, List<String> remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy,
                                      String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts,
@@ -63,10 +55,13 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
         if (threadMaximumPoolSize > 0) {
             // lets use a synchronous queue so it waits for the other threads to be available before handing over
             // we are waiting for the task to be done anyway in doGet so there is no point in having a worker queue
-            executorService = new ThreadPoolExecutor(1, threadMaximumPoolSize, 60, TimeUnit.SECONDS,
+            ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, threadMaximumPoolSize, 60, TimeUnit.SECONDS,
                     new SynchronousQueue<Runnable>(), new ThreadFactory("MavenDownloadProxyServlet"));
             // lets allow core threads to timeout also, so if there is no download for a while then no threads is wasted
-            executorService.allowCoreThreadTimeOut(true);
+            threadPoolExecutor.allowCoreThreadTimeOut(true);
+            executorService = threadPoolExecutor;
+        } else {
+            executorService = Executors.newSingleThreadExecutor(new ThreadFactory("MavenDownloadProxyServlet"));
         }
 
         super.start();
@@ -138,7 +133,7 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
                 resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
                 LOGGER.warning("DownloadProxyServlet cannot process request as we are overloaded, returning HTTP Status: 503");
             } catch (Exception ex) {
-                LOGGER.warning("Error while downloading artifact:" + ex.getMessage());
+                LOGGER.log(Level.WARNING,"Error while downloading artifact: " + ex.getMessage(), ex);
             } finally {
                 Closeables.closeQuitely(is);
                 if (masterFuture != null && artifactFile != null) {
@@ -152,7 +147,7 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
 
     private class ArtifactDownloadFuture extends FutureTask<File> {
 
-        private final AtomicInteger paritcipans = new AtomicInteger();
+        private final AtomicInteger participants = new AtomicInteger();
 
         public ArtifactDownloadFuture(String path) {
             super(new ArtifactDownloadTask(path));
@@ -160,12 +155,12 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
 
         @Override
         public File get() throws InterruptedException, ExecutionException {
-            paritcipans.incrementAndGet();
+            participants.incrementAndGet();
             return super.get();
         }
 
         public synchronized void release(File f) {
-            if (paritcipans.decrementAndGet() == 0) {
+            if (participants.decrementAndGet() == 0) {
                 f.delete();
             }
         }
@@ -183,12 +178,20 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
         public File call() throws Exception {
             File download = download(path);
             if (download != null)  {
-                File tmpFile = io.fabric8.utils.Files.createTempFile(runtimeProperties.getDataPath());
+                File tmpFile = createTempFile();
                 Files.copy(download, tmpFile);
                 return tmpFile;
             } else {
                 return null;
             }
+        }
+
+        private File createTempFile() throws IOException {
+            return Files.createTempFile(getAbsolutePath());
+        }
+
+        private String getAbsolutePath() {
+            return runtimeProperties.getDataPath().toFile().getAbsolutePath();
         }
     }
 }
