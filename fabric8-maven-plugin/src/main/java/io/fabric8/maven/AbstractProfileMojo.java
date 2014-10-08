@@ -597,10 +597,12 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             String apparentType = rootDependency.getType();
             String apparentClassifier = rootDependency.getClassifier();
 
-            for (String omit : OMITTED_BUNDLE_TYPES) {
-                if (omit.equals(apparentType)) {
-                    apparentType = null;
-                    break;
+            if (artifactBundleType == null) {
+                for (String omit : OMITTED_BUNDLE_TYPES) {
+                    if (omit.equals(apparentType)) {
+                        apparentType = null;
+                        break;
+                    }
                 }
             }
 
@@ -616,12 +618,8 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
     }
 
     private void handleArtifactBundleType(StringBuilder urlBuffer, String apparentType) {
-        if (artifactBundleType != null) {
-            urlBuffer.append("/" + artifactBundleType);
-        } else {
-            if (apparentType != null) {
-                urlBuffer.append("/" + apparentType);
-            }
+        if (apparentType != null) {
+            urlBuffer.append("/" + apparentType);
         }
     }
 
@@ -631,13 +629,6 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             nextUrlComponent = "/" + apparentClassifier;
         }
 
-        if (artifactBundleClassifier != null) {
-            if (artifactBundleType != null) {
-                nextUrlComponent = "/" + artifactBundleClassifier;
-            } else {
-                throwClassifierWithoutTypeException();
-            }
-        }
         urlBuffer.append(nextUrlComponent);
     }
 
