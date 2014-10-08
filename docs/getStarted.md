@@ -23,7 +23,9 @@ Then add _output/go/bin to your PATH.
 
 ### Running OpenShift V3
 
-Before you start the OpenShift instance, point your environment at the local kube master that will be created by that instance:
+<<<<<<< HEAD
+Point your environment at the local kubernetes master (so that hawtio and fabric8 java code can communicate with it over REST):
+>>>>>>> add a bit more reasoning behind the environment variable - thanks @hkonsek
 
     export KUBERNETES_MASTER=http://127.0.0.1:8080
 
