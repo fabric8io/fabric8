@@ -47,7 +47,7 @@
     <weld2-version>2.1.2.Final</weld2-version>
 
     <!-- the version of the BOM, defining all the dependency versions -->
-    <fabric8.bom.version>2.0.0-SNAPSHOT</fabric8.bom.version>
+    <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
 
     <!-- fabric8 deploy profile configuration -->
@@ -57,9 +57,9 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>io.fabric8.bom</groupId>
-        <artifactId>fabric8-bom</artifactId>
-        <version>${fabric8.bom.version}</version>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-project</artifactId>
+        <version>${fabric8.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
