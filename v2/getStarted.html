@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2" data-basepath="." data-revision="1412726627026">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2" data-basepath="." data-revision="1412757201651">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -235,6 +235,15 @@
             
         </li>
     
+        <li class="chapter " data-level="2.2" data-path="mavenPlugin.html">
+            
+            <a href="./mavenPlugin.html">
+                <i class="fa fa-check"></i> <b>2.2.</b> Maven Plugin
+            </a>
+            
+            
+        </li>
+    
 
             </ul>
             
@@ -298,35 +307,37 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 61.53846153846154%;min-width: 53.84615384615385%;"></div>
+        <div class="inner" style="width: 57.142857142857146%;min-width: 50%;"></div>
     </div>
     <div class="chapters">
     
         <a href="./index.html" title="Introduction" class="chapter done new-chapter" data-progress="0" style="left: 0%;"></a>
     
-        <a href="./overview.html" title="Overview" class="chapter done new-chapter" data-progress="1" style="left: 7.6923076923076925%;"></a>
+        <a href="./overview.html" title="Overview" class="chapter done new-chapter" data-progress="1" style="left: 7.142857142857143%;"></a>
     
-        <a href="./pods.html" title="Pods" class="chapter done " data-progress="1.1" style="left: 15.384615384615385%;"></a>
+        <a href="./pods.html" title="Pods" class="chapter done " data-progress="1.1" style="left: 14.285714285714286%;"></a>
     
-        <a href="./replicationControllers.html" title="Replication Controllers" class="chapter done " data-progress="1.2" style="left: 23.076923076923077%;"></a>
+        <a href="./replicationControllers.html" title="Replication Controllers" class="chapter done " data-progress="1.2" style="left: 21.428571428571427%;"></a>
     
-        <a href="./labels.html" title="Labels" class="chapter done " data-progress="1.3" style="left: 30.76923076923077%;"></a>
+        <a href="./labels.html" title="Labels" class="chapter done " data-progress="1.3" style="left: 28.571428571428573%;"></a>
     
-        <a href="./services.html" title="Services" class="chapter done " data-progress="1.4" style="left: 38.46153846153846%;"></a>
+        <a href="./services.html" title="Services" class="chapter done " data-progress="1.4" style="left: 35.714285714285715%;"></a>
     
-        <a href="./apps.html" title="Apps" class="chapter done " data-progress="1.5" style="left: 46.15384615384615%;"></a>
+        <a href="./apps.html" title="Apps" class="chapter done " data-progress="1.5" style="left: 42.857142857142854%;"></a>
     
-        <a href="./builds.html" title="Builds" class="chapter done " data-progress="1.6" style="left: 53.84615384615385%;"></a>
+        <a href="./builds.html" title="Builds" class="chapter done " data-progress="1.6" style="left: 50%;"></a>
     
-        <a href="./getStarted.html" title="Getting Started" class="chapter done new-chapter" data-progress="2" style="left: 61.53846153846154%;"></a>
+        <a href="./getStarted.html" title="Getting Started" class="chapter done new-chapter" data-progress="2" style="left: 57.142857142857146%;"></a>
     
-        <a href="./quickstarts.html" title="QuickStarts" class="chapter  " data-progress="2.1" style="left: 69.23076923076923%;"></a>
+        <a href="./quickstarts.html" title="QuickStarts" class="chapter  " data-progress="2.1" style="left: 64.28571428571429%;"></a>
     
-        <a href="./v2-changes.html" title="Changes from V1" class="chapter  new-chapter" data-progress="3" style="left: 76.92307692307692%;"></a>
+        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter  " data-progress="2.2" style="left: 71.42857142857143%;"></a>
     
-        <a href="./emulation.html" title="Emulator" class="chapter  new-chapter" data-progress="4" style="left: 84.61538461538461%;"></a>
+        <a href="./v2-changes.html" title="Changes from V1" class="chapter  new-chapter" data-progress="3" style="left: 78.57142857142857%;"></a>
     
-        <a href="./FAQ.html" title="FAQ" class="chapter  new-chapter" data-progress="5" style="left: 92.3076923076923%;"></a>
+        <a href="./emulation.html" title="Emulator" class="chapter  new-chapter" data-progress="4" style="left: 85.71428571428571%;"></a>
+    
+        <a href="./FAQ.html" title="FAQ" class="chapter  new-chapter" data-progress="5" style="left: 92.85714285714286%;"></a>
     
         <a href="./faqGeneral.html" title="General Questions" class="chapter  " data-progress="5.1" style="left: 100%;"></a>
     
@@ -355,6 +366,11 @@
 </code></pre><p>Then you can start it up:</p>
 <pre><code>$ openshift start
 </code></pre><p>You can then use the OpenShift command line tool; the REST API, the OpenShift console or hawtio to work with it.</p>
+<h4 id="running-a-local-docker-registry"><a name="running-a-local-docker-registry" class="anchor" href="#running-a-local-docker-registry"><span class="fa fa-link"></span></a>Running a local docker registry</h4>
+<p>If you want to create your own images for your OpenShift environment run</p>
+<pre><code>cd fabric8/apps
+openshift kube apply -c registry-config.json
+</code></pre><p>You will then get a docker registry running on <a href="http://localhost:5000" target="_blank">http://localhost:5000</a>. You can check if its up and working via <a href="http://localhost:5000/v1/_ping" target="_blank">http://localhost:5000/v1/_ping</a></p>
 <h3 id="running-a-local-build-of-hawtio"><a name="running-a-local-build-of-hawtio" class="anchor" href="#running-a-local-build-of-hawtio"><span class="fa fa-link"></span></a>Running a local build of hawtio</h3>
 <p>If you want to hack on the code you can <a href="https://github.com/hawtio/hawtio/blob/master/BUILDING.md#running-hawtio-against-kubernetes--openshift" target="_blank">run a local build of hawtio</a></p>
 <h4 id="if-you-are-on-a-mac"><a name="if-you-are-on-a-mac" class="anchor" href="#if-you-are-on-a-mac"><span class="fa fa-link"></span></a>If you are on a Mac</h4>

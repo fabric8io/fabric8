@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>General Questions | Fabric8 Documentation</title>
+        <title>Maven Plugin | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,11 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
+        <link rel="next" href="./v2-changes.html" />
         
-        <link rel="prev" href="./FAQ.html" />
+        
+        <link rel="prev" href="./quickstarts.html" />
         
 
-        <meta property="og:title" content="General Questions | Fabric8 Documentation">
+        <meta property="og:title" content="Maven Plugin | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -48,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.1" data-basepath="." data-revision="1412757201651">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2" data-basepath="." data-revision="1412757201651">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -305,7 +307,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 100%;min-width: 92.85714285714286%;"></div>
+        <div class="inner" style="width: 71.42857142857143%;min-width: 64.28571428571429%;"></div>
     </div>
     <div class="chapters">
     
@@ -331,38 +333,122 @@
     
         <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter done " data-progress="2.2" style="left: 71.42857142857143%;"></a>
     
-        <a href="./v2-changes.html" title="Changes from V1" class="chapter done new-chapter" data-progress="3" style="left: 78.57142857142857%;"></a>
+        <a href="./v2-changes.html" title="Changes from V1" class="chapter  new-chapter" data-progress="3" style="left: 78.57142857142857%;"></a>
     
-        <a href="./emulation.html" title="Emulator" class="chapter done new-chapter" data-progress="4" style="left: 85.71428571428571%;"></a>
+        <a href="./emulation.html" title="Emulator" class="chapter  new-chapter" data-progress="4" style="left: 85.71428571428571%;"></a>
     
-        <a href="./FAQ.html" title="FAQ" class="chapter done new-chapter" data-progress="5" style="left: 92.85714285714286%;"></a>
+        <a href="./FAQ.html" title="FAQ" class="chapter  new-chapter" data-progress="5" style="left: 92.85714285714286%;"></a>
     
-        <a href="./faqGeneral.html" title="General Questions" class="chapter done " data-progress="5.1" style="left: 100%;"></a>
+        <a href="./faqGeneral.html" title="General Questions" class="chapter  " data-progress="5.1" style="left: 100%;"></a>
     
     </div>
 </div>
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_6">
+                    <section class="normal" id="section-gitbook_9">
                     
-                        <h3 id="general-questions"><a name="general-questions" class="anchor" href="#general-questions"><span class="fa fa-link"></span></a>General Questions</h3>
-<h4 id="what-is-the-license-"><a name="what-is-the-license-" class="anchor" href="#what-is-the-license-"><span class="fa fa-link"></span></a>What is the license?</h4>
-<p>fabric8 uses the <a href="http://www.apache.org/licenses/LICENSE-2.0.txt" target="_blank">Apache 2.0 License</a>.</p>
-<h4 id="what-is-it-"><a name="what-is-it-" class="anchor" href="#what-is-it-"><span class="fa fa-link"></span></a>What is it?</h4>
-<p>fabric8 is an integration platform based on Apache ActiveMQ, Apache Camel, Apache CXF, Hawtio and others.</p>
-<p>It provides automated configuration and deployment management to help make deployments easy, reproducible, and less human-error prone.</p>
-<p>Take a look <a href="http://www.christianposta.com/blog/?p=376" target="_blank">at this blog post</a> to see a more detailed treatment.</p>
-<h4 id="what-does-fabric8-do-"><a name="what-does-fabric8-do-" class="anchor" href="#what-does-fabric8-do-"><span class="fa fa-link"></span></a>What does fabric8 do?</h4>
-<p>fabric8 (pronounced <em>fabricate</em>) lets you create and manage fabrics (or clusters) of applications, integrations and middleware.</p>
-<p>Try reading the <a href="/gitbook/overview.html">overview</a> to see if that helps give you an idea what fabric8 is.</p>
-<h4 id="what-java-versions-is-supported-"><a name="what-java-versions-is-supported-" class="anchor" href="#what-java-versions-is-supported-"><span class="fa fa-link"></span></a>What Java versions is supported?</h4>
-<p>fabric8 runs on Java 7 and 8. </p>
-<h4 id="is-windows-supported"><a name="is-windows-supported" class="anchor" href="#is-windows-supported"><span class="fa fa-link"></span></a>Is Windows supported</h4>
-<p>We recommend using a linux based system for production; preferably if you want a fully managed platform use <a href="http://docker.io/" target="_blank">Docker</a> and <a href="http://kubernetes.io" target="_blank">Kubernetes</a> or <a href="https://github.com/openshift/origin" target="_blank">OpenShift Origin V3</a>.</p>
-<p>Windows is currently only partially supported. Windows users may consider using <a href="http://docker.io/" target="_blank">Docker</a> so that all the fabric8 technologies run inside a linux VM in lightweight containers.</p>
-<h4 id="deprecations"><a name="deprecations" class="anchor" href="#deprecations"><span class="fa fa-link"></span></a>Deprecations</h4>
-<p>FAB (Fuse Application Bundles) has been deprecated for the 1.2 release and removed form 2.x.</p>
+                        <h2 id="fabric8-maven-plugin"><a name="fabric8-maven-plugin" class="anchor" href="#fabric8-maven-plugin"><span class="fa fa-link"></span></a>Fabric8 Maven Plugin</h2>
+<p>This maven plugin makes it easy to create or deploy <a href="apps.html">Apps</a> as part of your maven project.</p>
+<h3 id="specifying-the-location-of-your-local-docker-registry"><a name="specifying-the-location-of-your-local-docker-registry" class="anchor" href="#specifying-the-location-of-your-local-docker-registry"><span class="fa fa-link"></span></a>Specifying the location of your local docker registry</h3>
+<p>When creating new docker images for use in Kubernetes you probably want to run a local docker registry if you do not intend to reuse the public docker registry.</p>
+<p>Its a good idea to define an environment variable to point to your docker registry:</p>
+<pre><code>export DOCKER_REGISTRY=172.17.0.21:5000
+</code></pre><p>Then configure this: edit your <strong>~/.m2/settings.xml</strong> file to define the <strong>docker.registry</strong> value in a profile you can activate by default...</p>
+<p>e.g. add this to the &lt;servers&gt; element:</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;settings&gt;
+
+  &lt;profiles&gt;
+    &lt;profile&gt;
+      &lt;id&gt;docker-host&lt;/id&gt;
+      &lt;properties&gt;
+        &lt;docker.registry&gt;172.17.0.21:5000&lt;/docker.registry&gt;
+        &lt;docker.url&gt;http://192.168.59.103:2375&lt;/docker.url&gt;
+      &lt;/properties&gt;
+    &lt;/profile&gt;
+  &lt;/profiles&gt;
+
+  ...
+
+  &lt;activeProfiles&gt;
+    &lt;activeProfile&gt;docker-host&lt;/activeProfile&gt;
+  &lt;/activeProfiles&gt;
+&lt;/settings&gt;
+</code></pre><h3 id="adding-the-plugin-to-your-project"><a name="adding-the-plugin-to-your-project" class="anchor" href="#adding-the-plugin-to-your-project"><span class="fa fa-link"></span></a>Adding the plugin to your project</h3>
+<p>To enable this maven plugin and to automatically release the <a href="apps.html">App JSON file</a> as part of your build add this to your pom.xml:</p>
+<pre><code>  &lt;plugin&gt;
+    &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+    &lt;artifactId&gt;fabric8-maven-plugin&lt;/artifactId&gt;
+    &lt;version&gt;${fabric.version}&lt;/version&gt;
+    &lt;executions&gt;
+      &lt;execution&gt;
+        &lt;id&gt;attach-json&lt;/id&gt;
+        &lt;goals&gt;
+          &lt;goal&gt;attach-json&lt;/goal&gt;
+        &lt;/goals&gt;
+      &lt;/execution&gt;
+    &lt;/executions&gt;
+  &lt;/plugin&gt;
+</code></pre><h3 id="building-and-pushing-your-docker-image"><a name="building-and-pushing-your-docker-image" class="anchor" href="#building-and-pushing-your-docker-image"><span class="fa fa-link"></span></a>Building and Pushing your docker image</h3>
+<p>To create a container on Kubernetes you need to create a docker image.</p>
+<p>To enable the creation of a docker image use a maven plugin such as the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md" target="_blank">docker-maven-plugin</a></p>
+<p>Then to build the docker image locally its</p>
+<pre><code>mvn install docker:build
+</code></pre><p>Or to push the docker image to your local docker registry</p>
+<pre><code>mvn install docker:push
+</code></pre><p><strong>Note</strong> if the above fails (we have seen it sometimes fail), perform a docker:build instead then use the command line:</p>
+<pre><code>docker push $DOCKER_REGISTRY/mydemo/war-camel-servlet:2.0.0-SNAPSHOT
+</code></pre><h3 id="deploying"><a name="deploying" class="anchor" href="#deploying"><span class="fa fa-link"></span></a>Deploying</h3>
+<p>Before deploying you need to make sure your docker image is available to Kubernetes. See above for how to do this. Any docker registry that is accessible to Kubernetes is supported.</p>
+<p>To deploy your container use the following goal:</p>
+<pre><code>mvn fabric8:deploy
+</code></pre><p>This defaults to using the <a href="apps.html">App JSON file</a> file located at <strong>src/main/resources/kubernetes.json</strong> so that it can be filtered like most maven resources are; to substitute docker image name and version etc.</p>
+<h3 id="example"><a name="example" class="anchor" href="#example"><span class="fa fa-link"></span></a>Example</h3>
+<p>The following example shows you how to build and push a docker image to Kubernetes and deploy it and then use it.</p>
+<p>First make sure you&apos;ve defined an environment variable to point to your docker registry:</p>
+<pre><code>export DOCKER_REGISTRY=172.17.0.21:5000
+</code></pre><p>Make sure you are running the registry. e.g. to create one on OpenShift type:</p>
+<pre><code>cd fabric8/apps
+openshift kube apply -c registry-config.json
+</code></pre><p>You should be able to check if the registry is running OK via this command (which should return &apos;true&apos;):</p>
+<pre><code>curl $DOCKER_REGISTRY/v1/_ping
+</code></pre><p>Now you are ready to build your container.</p>
+<p>From the distribution or source code perform these commands to push the docker image:</p>
+<pre><code>cd quickstarts/war/camel-servlet
+mvn clean install docker:build
+docker push $DOCKER_REGISTRY/mydemo/war-camel-servlet:2.0.0-SNAPSHOT
+</code></pre><p>Now lets deploy the image into the Kubernetes environment:</p>
+<pre><code>mvn fabric8:deploy
+</code></pre><p>You should now be able to view the web application at <a href="http://dockerhost:9901/war-camel-servlet-2.0.0-SNAPSHOT/" target="_blank">http://dockerhost:9901/war-camel-servlet-2.0.0-SNAPSHOT/</a> where &apos;dockerhost&apos; should point to the ip address returned by</p>
+<pre><code>boot2docker ip
+</code></pre><p>If you are not running docker natively on linux. (Or just use localhost if you are). <a href="http://viget.com/extend/how-to-use-docker-on-os-x-the-missing-guide" target="_blank">This article</a> describes how its a good idea to define <strong>dockerhost</strong> to point to your boot2docker ip address:</p>
+<pre><code>echo $(docker-ip) dockerhost | sudo tee -a /etc/hosts
+</code></pre><p>Then you can easily access anything running on your docker host without having to setup port forwarding.</p>
+<h3 id="property-reference"><a name="property-reference" class="anchor" href="#property-reference"><span class="fa fa-link"></span></a>Property Reference</h3>
+<p>The following maven property values are used to configure the behaviour of the maven plugin:</p>
+<table class="table table-striped">
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>docker.dataImage</td>
+<td>Used by the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md">docker-maven-plugin</a> to define the output docker image name.</td>
+</tr>
+<tr>
+<td>docker.registry</td>
+<td>Used by the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md">docker-maven-plugin</a> to define the local docker registry to use (if not using the public docker registry).</td>
+</tr>
+
+&lt;!--
+<tr>
+<td>fabric8.replicas</td>
+<td>The number of pods to create for the <a href="http://fabric8.io/v2/replicationControllers.html">Replication Controller</a> if the plugin is generating the App JSON file.</td>
+</tr>
+</table>
+
+
 
                     
                     </section>
@@ -372,8 +458,10 @@
         </div>
 
         
-        <a href="./FAQ.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page: FAQ"><i class="fa fa-angle-left"></i></a>
+        <a href="./quickstarts.html" class="navigation navigation-prev " aria-label="Previous page: QuickStarts"><i class="fa fa-angle-left"></i></a>
         
+        
+        <a href="./v2-changes.html" class="navigation navigation-next " aria-label="Next page: Changes from V1"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
