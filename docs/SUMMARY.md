@@ -7,6 +7,7 @@
   * [Builds](builds.md)
 * [Getting Started](getStarted.md)
     * [QuickStarts](quickstarts.md)
+    * [Maven Plugin](mavenPlugin.md)
 * [Changes from V1](v2-changes.md)
 * [Emulator](emulation.md)
 * [FAQ](FAQ.md)
