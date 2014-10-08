@@ -62,7 +62,7 @@
     <dependency>
       <groupId>org.jboss.arquillian.testenricher</groupId>
       <artifactId>arquillian-testenricher-cdi</artifactId>
-      <version>${arquillian-core-version}</version>
+      <version>${arquillian-core.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -83,7 +83,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>${maven-dependency-plugin-version}</version>
+        <version>${maven-dependency-plugin.version}</version>
         <executions>
           <execution>
             <id>copy-distro</id>

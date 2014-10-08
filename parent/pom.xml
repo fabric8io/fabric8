@@ -33,17 +33,17 @@
     <url>http://fabric8.io/</url>
 
     <properties>
-        <maven-assembly-plugin-version>2.4</maven-assembly-plugin-version>
-        <maven-build-helper-plugin-version>1.8</maven-build-helper-plugin-version>
-        <maven-bundle-plugin-version>2.5.0</maven-bundle-plugin-version>
-        <maven-javadoc-plugin-version>2.9.1</maven-javadoc-plugin-version>
-        <maven-notices-plugin-version>1.32</maven-notices-plugin-version>
-        <maven-bundle-summary-plugin-version>1.34</maven-bundle-summary-plugin-version>
-        <maven-surefire-plugin-version>2.17</maven-surefire-plugin-version>
-        <maven-deploy-plugin-version>2.8.1</maven-deploy-plugin-version>
-        <maven-shade-plugin-version>2.3</maven-shade-plugin-version>
+        <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
+        <maven-build-helper-plugin.version>1.8</maven-build-helper-plugin.version>
+        <maven-bundle-plugin.version>2.5.0</maven-bundle-plugin.version>
+        <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
+        <maven-notices-plugin.version>1.32</maven-notices-plugin.version>
+        <maven-bundle-summary-plugin.version>1.34</maven-bundle-summary-plugin.version>
+        <maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
+        <maven-deploy-plugin.version>2.8.1</maven-deploy-plugin.version>
+        <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -65,7 +65,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>${maven-bundle-plugin-version}</version>
+                    <version>${maven-bundle-plugin.version}</version>
                     <extensions>true</extensions>
                     <configuration>
                         <instructions>
@@ -82,7 +82,7 @@
                             </goals>
                             <configuration>
                                 <versions>
-                                    <karaf.osgi.version>${karaf-version}</karaf.osgi.version>
+                                    <karaf.osgi.version>${karaf.version}</karaf.osgi.version>
                                 </versions>
                             </configuration>
                         </execution>
@@ -91,32 +91,32 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-scr-plugin</artifactId>
-                    <version>${felix-scr-plugin-version}</version>
+                    <version>${felix-scr-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>${maven-assembly-plugin-version}</version>
+                    <version>${maven-assembly-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${maven-surefire-plugin-version}</version>
+                    <version>${maven-surefire-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>${maven-shade-plugin-version}</version>
+                    <version>${maven-shade-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>${maven-build-helper-plugin-version}</version>
+                    <version>${maven-build-helper-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>${exec-maven-plugin-version}</version>
+                    <version>${exec-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
@@ -152,22 +152,22 @@
                 <plugin>
                     <groupId>org.fusesource.mvnplugins</groupId>
                     <artifactId>maven-notices-plugin</artifactId>
-                    <version>${maven-notices-plugin-version}</version>
+                    <version>${maven-notices-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.cxf</groupId>
                     <artifactId>cxf-java2ws-plugin</artifactId>
-                    <version>${cxf-version}</version>
+                    <version>${cxf.version}</version>
                     <dependencies>
                         <dependency>
                             <groupId>org.apache.cxf</groupId>
                             <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                            <version>${cxf-version}</version>
+                            <version>${cxf.version}</version>
                         </dependency>
                         <dependency>
                             <groupId>org.apache.cxf</groupId>
                             <artifactId>cxf-rt-frontend-simple</artifactId>
-                            <version>${cxf-version}</version>
+                            <version>${cxf.version}</version>
                         </dependency>
                     </dependencies>
                     <executions>
@@ -183,7 +183,7 @@
                 <plugin>
                     <groupId>org.apache.cxf</groupId>
                     <artifactId>cxf-java2wadl-plugin</artifactId>
-                    <version>${cxf-version}</version>
+                    <version>${cxf.version}</version>
                     <executions>
                         <execution>
                             <id>process-classes</id>
@@ -243,12 +243,12 @@
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-javadoc-plugin</artifactId>
-              <version>${maven-javadoc-plugin-version}</version>
+              <version>${maven-javadoc-plugin.version}</version>
             </plugin>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-deploy-plugin</artifactId>
-               <version>${maven-deploy-plugin-version}</version>
+               <version>${maven-deploy-plugin.version}</version>
             </plugin>
         </plugins>
     </build>
@@ -313,25 +313,25 @@
             <id>snapshots</id>
             <properties>
                 <snapshot-build>redhat-610-SNAPSHOT</snapshot-build>
-                <activemq-version>5.10.0.${snapshot-build}</activemq-version>
+                <activemq.version>5.10.0.${snapshot-build}</activemq.version>
                 <aries.blueprint.version>1.0.1.${snapshot-build}</aries.blueprint.version>
                 <aries.jmx.version>1.0.1.${snapshot-build}</aries.jmx.version>
                 <aries.transaction.version>1.0.1.${snapshot-build}</aries.transaction.version>
                 <aries.util.version>1.0.1.${snapshot-build}</aries.util.version>
                 <aries.proxy.version>1.0.1.${snapshot-build}</aries.proxy.version>
-                <camel-version>2.12.0.${snapshot-build}</camel-version>
-                <cxf-version>2.7.0.${snapshot-build}</cxf-version>
-                <felix-configadmin-version>1.4.0.${snapshot-build}</felix-configadmin-version>
-                <felix-eventadmin-version>1.3.0.${snapshot-build}</felix-eventadmin-version>
-                <felix-fileinstall-version>3.3.11.${snapshot-build}</felix-fileinstall-version>
-                <felix-framework-version>4.0.3.${snapshot-build}</felix-framework-version>
-                <felix-framework-security-version>2.0.1.${snapshot-build}</felix-framework-security-version>
-                <felix-gogo-version>0.11.0.${snapshot-build}</felix-gogo-version>
-                <karaf-version>2.3.0.${snapshot-build}</karaf-version>
+                <camel.version>2.12.0.${snapshot-build}</camel.version>
+                <cxf.version>2.7.0.${snapshot-build}</cxf.version>
+                <felix-configadmin.version>1.4.0.${snapshot-build}</felix-configadmin.version>
+                <felix-eventadmin.version>1.3.0.${snapshot-build}</felix-eventadmin.version>
+                <felix-fileinstall.version>3.3.11.${snapshot-build}</felix-fileinstall.version>
+                <felix-framework.version>4.0.3.${snapshot-build}</felix-framework.version>
+                <felix-framework-security.version>2.0.1.${snapshot-build}</felix-framework-security.version>
+                <felix-gogo.version>0.11.0.${snapshot-build}</felix-gogo.version>
+                <karaf.version>2.3.0.${snapshot-build}</karaf.version>
                 <servicemix.components.version>2013.01.0.${snapshot-build}</servicemix.components.version>
                 <servicemix.features.version>4.5.0.${snapshot-build}</servicemix.features.version>
-                <servicemix-nmr-version>1.6.0.${snapshot-build}</servicemix-nmr-version>
-                <servicemix-specs-version>2.3.0.${snapshot-build}</servicemix-specs-version>
+                <servicemix-nmr.version>1.6.0.${snapshot-build}</servicemix-nmr.version>
+                <servicemix-specs.version>2.3.0.${snapshot-build}</servicemix-specs.version>
                 <servicemix.utils.version>1.6.0.${snapshot-build}</servicemix.utils.version>
             </properties>
         </profile>

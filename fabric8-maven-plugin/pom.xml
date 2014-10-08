@@ -59,7 +59,7 @@
     <dependency>
         <groupId>org.jolokia</groupId>
         <artifactId>jolokia-client-java</artifactId>
-        <version>${jolokia-version}</version>
+        <version>${jolokia.version}</version>
     </dependency>
 
     <!-- maven plugin dependencies -->

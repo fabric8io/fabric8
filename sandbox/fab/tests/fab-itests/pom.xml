@@ -31,7 +31,7 @@
   <name>Fabric8 :: FAB (deprecated) :: Tests :: Integration Tests</name>
 
   <properties>
-    <pax-exam-version>3.5.0</pax-exam-version>
+    <pax-exam.version>3.5.0</pax-exam.version>
   </properties>
 
   <dependencies>
@@ -45,35 +45,35 @@
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-junit4</artifactId>
-          <version>${pax-exam-version}</version>
+          <version>${pax-exam.version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-container-native</artifactId>
-          <version>${pax-exam-version}</version>
+          <version>${pax-exam.version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-link-assembly</artifactId>
-          <version>${pax-exam-version}</version>
+          <version>${pax-exam.version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-inject</artifactId>
-          <version>${pax-exam-version}</version>
+          <version>${pax-exam.version}</version>
           <scope>test</scope>
       </dependency>
 
       <dependency>
           <groupId>org.ops4j.pax.runner</groupId>
           <artifactId>pax-runner-no-jcl</artifactId>
-          <version>${pax-runner-version}</version>
+          <version>${pax-runner.version}</version>
           <scope>test</scope>
       </dependency>
 
@@ -123,7 +123,7 @@
       <dependency>
           <groupId>org.apache.camel.karaf</groupId>
           <artifactId>camel-karaf-commands</artifactId>
-          <version>${camel-version}</version>
+          <version>${camel.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.camel.karaf</groupId>
@@ -134,7 +134,7 @@
       <dependency>
           <groupId>org.apache.cxf.karaf</groupId>
           <artifactId>apache-cxf</artifactId>
-          <version>${cxf-version}</version>
+          <version>${cxf.version}</version>
           <type>xml</type>
           <classifier>features</classifier>
       </dependency>
@@ -189,7 +189,7 @@
       <dependency>
           <groupId>org.apache.servicemix.specs</groupId>
           <artifactId>org.apache.servicemix.specs.activation-api-1.1</artifactId>
-          <version>${servicemix-specs-version}</version>
+          <version>${servicemix-specs.version}</version>
       </dependency>
       <dependency>
           <groupId>org.ops4j.pax.url</groupId>
@@ -202,12 +202,12 @@
       <dependency>
           <groupId>org.apache.mina</groupId>
           <artifactId>mina-core</artifactId>
-          <version>${mina-version}</version>
+          <version>${mina.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.sshd</groupId>
           <artifactId>sshd-core</artifactId>
-          <version>${sshd-version}</version>
+          <version>${sshd.version}</version>
       </dependency>
       <dependency>
           <groupId>org.ow2.asm</groupId>
@@ -217,7 +217,7 @@
       <dependency>
           <groupId>commons-collections</groupId>
           <artifactId>commons-collections</artifactId>
-          <version>${commons-collections-version}</version>
+          <version>${commons-collections.version}</version>
       </dependency>
       <dependency>
           <groupId>org.ops4j.pax.swissbox</groupId>
@@ -231,7 +231,7 @@
           <plugin>
               <groupId>org.apache.servicemix.tooling</groupId>
               <artifactId>depends-maven-plugin</artifactId>
-              <version>${servicemix-tooling-plugin-version}</version>
+              <version>${servicemix-tooling-plugin.version}</version>
               <executions>
                   <execution>
                       <id>generate-depends-file</id>
@@ -262,7 +262,7 @@
           <plugin>
               <groupId>org.apache.karaf.tooling</groupId>
               <artifactId>features-maven-plugin</artifactId>
-              <version>${karaf-version}</version>
+              <version>${karaf.version}</version>
               <executions>
                   <execution>
                       <id>download-feature-bundle</id>
@@ -272,7 +272,7 @@
                       </goals>
                       <configuration>
                           <descriptors>
-                              <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features
+                              <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features
                               </descriptor>
                           </descriptors>
                           <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>

@@ -60,12 +60,12 @@
           org.fusesource.hawtbuf*;-split-package:=first,
         </fuse.osgi.private.pkg>
 
-        <apollo-version>1.7</apollo-version>
-        <proton-version>0.6</proton-version>
-        <stompjms-version>1.19</stompjms-version>
-        <scala-version>2.10.0</scala-version>
-        <mqtt-client-version>1.10</mqtt-client-version>
-        <openwire-version>1</openwire-version>
+        <apollo.version>1.7</apollo.version>
+        <proton.version>0.6</proton.version>
+        <stompjms.version>1.19</stompjms.version>
+        <scala.version>2.10.0</scala.version>
+        <mqtt-client.version>1.10</mqtt-client.version>
+        <openwire.version>1</openwire.version>
         
     </properties>
 
@@ -77,7 +77,7 @@
         <dependency>
           <groupId>io.vertx</groupId>
           <artifactId>vertx-core</artifactId>
-          <version>${vertx-version}</version>
+          <version>${vertx.version}</version>
         </dependency>
 
         <dependency>
@@ -100,14 +100,14 @@
         <dependency>
           <groupId>org.fusesource.mqtt-client</groupId>
           <artifactId>mqtt-client</artifactId>
-          <version>${mqtt-client-version}</version>
+          <version>${mqtt-client.version}</version>
         </dependency>
 
         <!-- for AMQP support -->
         <dependency>
           <groupId>org.apache.qpid</groupId>
           <artifactId>proton-j-impl</artifactId>
-          <version>${proton-version}</version>
+          <version>${proton.version}</version>
         </dependency>
 
         <!-- Lets use to Apollo to test the gateway against.   -->
@@ -115,42 +115,42 @@
           <groupId>org.apache.activemq</groupId>
           <artifactId>apollo-broker</artifactId>
           <scope>test</scope>
-          <version>${apollo-version}</version>
+          <version>${apollo.version}</version>
         </dependency>
         <dependency>
           <groupId>org.apache.activemq</groupId>
           <artifactId>apollo-stomp</artifactId>
           <scope>test</scope>
-          <version>${apollo-version}</version>
+          <version>${apollo.version}</version>
         </dependency>
         <dependency>
           <groupId>org.apache.activemq</groupId>
           <artifactId>apollo-mqtt</artifactId>
           <scope>test</scope>
-          <version>${apollo-version}</version>
+          <version>${apollo.version}</version>
         </dependency>
         <dependency>
           <groupId>org.apache.activemq</groupId>
           <artifactId>apollo-amqp</artifactId>
           <scope>test</scope>
-          <version>${apollo-version}</version>
+          <version>${apollo.version}</version>
         </dependency>
         <dependency>
           <groupId>org.apache.activemq</groupId>
           <artifactId>apollo-openwire</artifactId>
           <scope>test</scope>
-          <version>${apollo-version}</version>
+          <version>${apollo.version}</version>
         </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <scope>test</scope>
-            <version>${scala-version}</version>
+            <version>${scala.version}</version>
         </dependency>
         <dependency>
           <groupId>org.eclipse.jetty.aggregate</groupId>
           <artifactId>jetty-all-server</artifactId>
-          <version>${jetty-version}</version>
+          <version>${jetty.version}</version>
           <scope>test</scope>
         </dependency>
 
@@ -159,14 +159,14 @@
           <groupId>org.fusesource.stompjms</groupId>
           <artifactId>stompjms-client</artifactId>
           <scope>test</scope>
-          <version>${stompjms-version}</version>
+          <version>${stompjms.version}</version>
         </dependency>
 
         <!-- AMQP test client -->
         <dependency>
           <groupId>org.apache.qpid</groupId>
           <artifactId>qpid-amqp-1-0-client-jms</artifactId>
-          <version>${qpid-jms-version}</version>
+          <version>${qpid-jms.version}</version>
           <scope>test</scope>
         </dependency>
         <dependency>
@@ -179,20 +179,20 @@
         <dependency>
           <groupId>org.apache.activemq</groupId>
           <artifactId>activemq-client</artifactId>
-          <version>${activemq-version}</version>
+          <version>${activemq.version}</version>
           <scope>test</scope>
         </dependency>
         <dependency>
           <groupId>org.apache.activemq</groupId>
           <artifactId>activemq-openwire-legacy</artifactId>
-          <version>${activemq-version}</version>
+          <version>${activemq.version}</version>
           <scope>test</scope>
         </dependency>
 
         <dependency>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-log4j12</artifactId>
-          <version>${slf4j-version}</version>
+          <version>${slf4j.version}</version>
           <scope>test</scope>
         </dependency>
 

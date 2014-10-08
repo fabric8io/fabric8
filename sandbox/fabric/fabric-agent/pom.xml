@@ -377,7 +377,7 @@
         <dependency>
             <groupId>biz.aQute.bnd</groupId>
             <artifactId>bndlib</artifactId>
-            <version>${bndlib-version}</version>
+            <version>${bndlib.version}</version>
         </dependency>
 
         <dependency>
@@ -421,7 +421,7 @@
             <groupId>org.apache.karaf</groupId>
             <artifactId>apache-karaf</artifactId>
             <type>zip</type>
-            <version>${karaf-version}</version>
+            <version>${karaf.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -439,7 +439,7 @@
             <artifactId>standard</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
-            <version>${karaf-version}</version>
+            <version>${karaf.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -469,7 +469,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
-                        <karaf-version>${karaf-version}</karaf-version>
+                        <karaf.version>${karaf.version}</karaf.version>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

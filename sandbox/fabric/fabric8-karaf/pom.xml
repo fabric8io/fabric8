@@ -33,14 +33,14 @@
            <dependency>
                <groupId>org.apache.karaf</groupId>
                <artifactId>apache-karaf</artifactId>
-               <version>${karaf-version}</version>
+               <version>${karaf.version}</version>
                <scope>provided</scope>
                <type>tar.gz</type>
            </dependency>
            <dependency>
                <groupId>org.apache.karaf</groupId>
                <artifactId>apache-karaf</artifactId>
-               <version>${karaf-version}</version>
+               <version>${karaf.version}</version>
                <scope>provided</scope>
                <type>zip</type>
            </dependency>
@@ -360,7 +360,7 @@
            <dependency>
                <groupId>org.jolokia</groupId>
                <artifactId>jolokia-osgi</artifactId>
-               <version>${jolokia-version}</version>
+               <version>${jolokia.version}</version>
            </dependency>
 
          <!-- these are copied to the lib folder -->
@@ -400,12 +400,12 @@
            <dependency>
                <groupId>org.apache.aries.proxy</groupId>
                <artifactId>org.apache.aries.proxy.impl</artifactId>
-               <version>${aries-proxy-impl-version}</version>
+               <version>${aries-proxy-impl.version}</version>
            </dependency>
            <dependency>
                <groupId>org.apache.aries.proxy</groupId>
                <artifactId>org.apache.aries.proxy.api</artifactId>
-               <version>${aries-proxy-api-version}</version>
+               <version>${aries-proxy-api.version}</version>
            </dependency>
 
             <!-- dependencies for archetype-commands -->
@@ -418,13 +418,13 @@
             <dependency>
                 <groupId>org.rhq.metrics</groupId>
                 <artifactId>rest-servlet</artifactId>
-                <version>${rhq-metrics-version}</version>
+                <version>${rhq-metrics.version}</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>org.rhq.metrics</groupId>
                 <artifactId>metrics-console</artifactId>
-                <version>${rhq-metrics-version}</version>
+                <version>${rhq-metrics.version}</version>
                 <type>war</type>
             </dependency>
 
@@ -446,7 +446,7 @@
                <plugin>
                    <groupId>org.fusesource.mvnplugins</groupId>
                    <artifactId>maven-bundle-summary-plugin</artifactId>
-                   <version>${maven-bundle-summary-plugin-version}</version>
+                   <version>${maven-bundle-summary-plugin.version}</version>
                    <executions>
                        <execution>
                            <id>bundle-summary</id>
@@ -504,7 +504,7 @@
                <plugin>
                    <groupId>org.apache.karaf.tooling</groupId>
                    <artifactId>features-maven-plugin</artifactId>
-                   <version>${karaf-version}</version>
+                   <version>${karaf.version}</version>
                    <executions>
                        <execution>
                            <id>add-features-to-repo</id>
@@ -514,12 +514,12 @@
                            </goals>
                            <configuration>
                                <descriptors>
-                                   <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
-                                   <descriptor>mvn:org.apache.karaf.assemblies.features/spring/${karaf-version}/xml/features</descriptor>
-                                   <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
-                                   <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
-                                   <descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor>
-                                   <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.apache.karaf.assemblies.features/spring/${karaf.version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.drools/drools-karaf-features/${drools.version}/xml/features</descriptor>
+                                   <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio.version}/xml/features</descriptor>
                                    <descriptor>file:${basedir}/target/classes/fabric-features.xml</descriptor>
                                </descriptors>
                                <features>
@@ -589,69 +589,69 @@
                            <configuration>
                                <target name="update-properties">
                                    <echo message="Updating etc/startup.properties in unix assembly"/>
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/startup.properties" append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf.version}/etc/startup.properties" append="true" eol="unix">
                                        <fileset file="target/classes/etc/startup.properties"/>
                                    </concat>
 
                                    <echo message="Updating etc/config.properties in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/config.properties" append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf.version}/etc/config.properties" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/common/etc/config.properties" />
                                    </concat>
 
                                    <echo message="Updating etc/custom.properties in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/custom.properties" append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf.version}/etc/custom.properties" append="true" eol="unix">
                                         <fileset file="src/main/append-resources/common/etc/custom.properties" />
                                    </concat>
 
                                    <echo message="Updating etc/org.ops4j.pax.logging.cfg in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg" append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf.version}/etc/org.ops4j.pax.logging.cfg" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/common/etc/org.ops4j.pax.logging.cfg" />
                                    </concat>
 
                                    <echo message="Updating etc/system.properties in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/system.properties" append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf.version}/etc/system.properties" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/common/etc/system.properties" />
                                    </concat>
 
                                    <echo message="Updating etc/shell.init.script in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/shell.init.script" append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf.version}/etc/shell.init.script" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/common/etc/shell.init.script" />
                                    </concat>
 
                                    <echo message="Copying bin/fabric8 in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/fabric8" append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf.version}/bin/fabric8" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/unix/fabric8" />
                                    </concat>
                                    <echo message="Copying bin/deletefabric8 in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/deletefabric8" append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf.version}/bin/deletefabric8" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/unix/deletefabric8" />
                                    </concat>
                                    <echo message="Copying bin/fabric8-start in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/fabric8-start" append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf.version}/bin/fabric8-start" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/unix/fabric8-start" />
                                    </concat>
                                    <echo message="Copying bin/setenv in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/setenv" append="no" overwrite="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf.version}/bin/setenv" append="no" overwrite="true" eol="unix">
                                        <fileset file="src/main/append-resources/unix/setenv" />
                                    </concat>
                                    <echo message="Copying bin/fabric8.bat in windows assembly" />
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/fabric8.bat" append="true" eol="dos">
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf.version}/bin/fabric8.bat" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/win/fabric8.bat" />
                                    </concat>
                                    <echo message="Copying bin/fabric8-start.bat in windows assembly" />
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/fabric8-start.bat" append="true" eol="dos">
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf.version}/bin/fabric8-start.bat" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/win/fabric8-start.bat" />
                                    </concat>
                                    <echo message="Copying bin/standalone in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/bin/standalone" append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/apache-karaf-${karaf.version}/bin/standalone" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/unix/standalone" />
                                    </concat>
                                    <echo message="Copying bin/standalone.bat in windows assembly" />
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/standalone.bat" append="true" eol="dos">
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf.version}/bin/standalone.bat" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/win/standalone.bat" />
                                    </concat>
                                    <echo message="Copying bin/setenv.bat in windows assembly" />
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/bin/setenv.bat" append="no" overwrite="true" eol="dos">
+                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf.version}/bin/setenv.bat" append="no" overwrite="true" eol="dos">
                                        <fileset file="src/main/append-resources/win/setenv.bat" />
                                    </concat>
 
@@ -696,7 +696,7 @@
                              <organizationURL>http://redhat.com</organizationURL>
                              <preamble>In addition to the Red Hat products, this disk contains certain third party software or components (“Third Party Components”), which are bundled as separate files or modules and separately licensed to you by said third parties. This file contains a listing of all NOTICE/NOTICE.txt files included with the Third Party Component jars in this distribution of Fabric8. Please see the fabric_dependencies.txt file for the complete listing of Third Party Components and their attributed license agreements.  Your use of the Third Party Components is subject to the terms and conditions set forth in the applicable third party license agreement.  The Third Party Components are provided by Red Hat Inc. solely on an "AS IS" basis, without any warranty.  Red Hat, Inc. disclaims all warranties and indemnities with respect to the Third Party Components, express or implied, and assumes no liability with respect to the Third Party Components.  You acknowledge that the authors of the Third Party Components have no obligation to provide support to you for the Third Party Components.  You hereby undertake to comply with all licenses related to the applicable Third Party Components. All third party license agreements are contained in the licenses directory of </preamble>
                              <listDependencies>true</listDependencies>
-                             <extraDependencies>xerces:xercesImpl:${xerces.version},xalan:xalan:${xalan.version},xalan:serializer:${xalan.version},org.apache.servicemix.specs:org.apache.servicemix.specs.activator:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxp-api-1.4:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxws-api-2.2:${servicemix-specs-version}</extraDependencies>
+                             <extraDependencies>xerces:xercesImpl:${xerces.version},xalan:xalan:${xalan.version},xalan:serializer:${xalan.version},org.apache.servicemix.specs:org.apache.servicemix.specs.activator:${servicemix-specs.version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxp-api-1.4:${servicemix-specs.version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxws-api-2.2:${servicemix-specs.version}</extraDependencies>
                              <noticeSupplements>classes/notice-supplements.xml</noticeSupplements>
                              <repositories>${project.basedir}/target/features-repo</repositories>
                              <defaultParent>io.fabric8:fabric-project:${project.version}:../..</defaultParent>

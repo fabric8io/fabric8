@@ -49,7 +49,7 @@
             @apacheds-xbean-spring-1.5.7.jar!/apacheds-xbean-spring.xsd
         </fuse.osgi.resource>
 
-        <apacheds-version>1.5.7</apacheds-version>
+        <apacheds.version>1.5.7</apacheds.version>
     </properties>
 
     <dependencies>
@@ -58,206 +58,206 @@
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-all</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
         </dependency>
         -->
 
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-avl-partition</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core-annotations</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core-api</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core-avl</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core-constants</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core-entry</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core-jndi</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core-mock</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-i18n</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-interceptor-kerberos</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-jdbm</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-jdbm-partition</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-jdbm-store</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-kerberos-shared</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-ldif-partition</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-protocol-changepw</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-protocol-dhcp</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-protocol-dns</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-protocol-kerberos</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-protocol-ldap</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-protocol-ntp</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-protocol-shared</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-server-annotations</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-server-jndi</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-server-replication</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-server-xml</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-test-framework</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-utils</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-xbean-spring</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-xdbm-base</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-xdbm-search</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-xdbm-tools</artifactId>
-            <version>${apacheds-version}</version>
+            <version>${apacheds.version}</version>
             <scope>provided</scope>
         </dependency>
 

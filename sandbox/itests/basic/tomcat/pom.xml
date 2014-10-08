@@ -36,7 +36,7 @@
 
     <!-- Properties -->
     <properties>
-        <arquillian-core-version>1.0.0.Final</arquillian-core-version>
+        <arquillian-core.version>1.0.0.Final</arquillian-core.version>
         <tomcat.home>${project.build.directory}/fabric8-tomcat-${project.version}</tomcat.home>
     </properties>
     

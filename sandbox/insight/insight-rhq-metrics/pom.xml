@@ -87,7 +87,7 @@
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
-      <version>${osgi-version}</version>
+      <version>${osgi.version}</version>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
@@ -97,12 +97,12 @@
     <dependency>
       <groupId>org.rhq.metrics</groupId>
       <artifactId>rhq-metrics-api</artifactId>
-      <version>${rhq-metrics-version}</version>
+      <version>${rhq-metrics.version}</version>
     </dependency>
     <dependency>
       <groupId>org.rhq.metrics</groupId>
       <artifactId>rhq-metrics-core</artifactId>
-      <version>${rhq-metrics-version}</version>
+      <version>${rhq-metrics.version}</version>
     </dependency>
 
     <dependency>

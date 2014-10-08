@@ -229,12 +229,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven-dependency-plugin-version}</version>
+                <version>${maven-dependency-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>
                 <artifactId>depends-maven-plugin</artifactId>
-                <version>${servicemix-tooling-plugin-version}</version>
+                <version>${servicemix-tooling-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>generate-depends-file</id>
@@ -268,7 +268,7 @@
                         <feature>${feature}</feature>
                         <perfectus-build>${perfectus-build}</perfectus-build>
                         <fabric.version>${project.version}</fabric.version>
-                        <project-version>${project.version}</project-version>
+                        <project.version>${project.version}</project.version>
                         <fabricitest.rackspace.identity>${fabricitest.rackspace.identity}
                         </fabricitest.rackspace.identity>
                         <fabricitest.rackspace.credential>${fabricitest.rackspace.credential}

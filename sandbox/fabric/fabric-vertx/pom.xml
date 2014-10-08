@@ -35,7 +35,7 @@
     <properties>
         <fuse.osgi.export>
             io.fabric8.vertx;version=${project.version};-noimport:=true,
-            org.vertx*;version=${vertx-version}
+            org.vertx*;version=${vertx.version}
         </fuse.osgi.export>
         <fuse.osgi.import>
             META-INF.services.*,
@@ -63,12 +63,12 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
-            <version>${vertx-version}</version>
+            <version>${vertx.version}</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-platform</artifactId>
-            <version>${vertx-version}</version>
+            <version>${vertx.version}</version>
         </dependency>
     </dependencies>
 

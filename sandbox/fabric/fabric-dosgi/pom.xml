@@ -88,7 +88,7 @@
         <dependency>
             <groupId>org.fusesource.hawtbuf</groupId>
             <artifactId>hawtbuf-proto</artifactId>
-            <version>${hawtbuf-version}</version>
+            <version>${hawtbuf.version}</version>
             <optional>true</optional>
         </dependency>
 
@@ -117,7 +117,7 @@
             <plugin>
               <groupId>org.fusesource.hawtbuf</groupId>
               <artifactId>hawtbuf-protoc</artifactId>
-              <version>${hawtbuf-version}</version>
+              <version>${hawtbuf.version}</version>
               <configuration>
                 <type>alt</type>
               </configuration>

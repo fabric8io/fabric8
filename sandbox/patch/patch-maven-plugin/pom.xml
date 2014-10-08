@@ -32,7 +32,7 @@
   <name>Fabric8 :: Patch :: Maven Plugin</name>
 
     <properties>
-        <maven-version>2.0.9</maven-version>
+        <maven.version>2.0.9</maven.version>
     </properties>
 
   <dependencies>
@@ -40,12 +40,12 @@
       <dependency>
           <groupId>org.apache.maven</groupId>
           <artifactId>maven-plugin-api</artifactId>
-          <version>${maven-version}</version>
+          <version>${maven.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.maven</groupId>
           <artifactId>maven-project</artifactId>
-          <version>${maven-version}</version>
+          <version>${maven.version}</version>
       </dependency>
       <dependency>
           <groupId>io.fabric8.patch</groupId>
@@ -60,7 +60,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-plugin-plugin</artifactId>
-                    <!--version>${mavenPluginPluginVersion}</version-->
+                    <!-.version>${mavenPluginPluginVersion}</version-->
                     <configuration>
                         <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
                     </configuration>

@@ -45,7 +45,7 @@
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
 
-    <drools.version>${drools-version}</drools.version>
+    <drools.version>${drools.version}</drools.version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-karaf-camel.drools</fabric8.profile>

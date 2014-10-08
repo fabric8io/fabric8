@@ -43,8 +43,8 @@
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
     <skipTests>true</skipTests>
 
-    <swagger-jaxrs-version>1.3.10</swagger-jaxrs-version>
-    <tomcat-plugin-version>2.2</tomcat-plugin-version>
+    <swagger-jaxrs.version>1.3.10</swagger-jaxrs.version>
+    <tomcat-plugin.version>2.2</tomcat-plugin.version>
 
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
@@ -157,7 +157,7 @@
     <dependency>
       <groupId>com.wordnik</groupId>
       <artifactId>swagger-jaxrs_2.10</artifactId>
-      <version>${swagger-jaxrs-version}</version>
+      <version>${swagger-jaxrs.version}</version>
       <optional>true</optional>
     </dependency>
 
@@ -233,7 +233,7 @@
       <plugin>
         <groupId>org.apache.tomcat.maven</groupId>
         <artifactId>tomcat7-maven-plugin</artifactId>
-        <version>${tomcat-plugin-version}</version>
+        <version>${tomcat-plugin.version}</version>
         <executions>
           <execution>
             <id>start-tomcat</id>
@@ -263,7 +263,7 @@
       <plugin>
         <groupId>org.jolokia</groupId>
         <artifactId>docker-maven-plugin</artifactId>
-        <version>${docker-maven-plugin-version}</version>
+        <version>${docker-maven-plugin.version}</version>
         <configuration>
           <image>fabric8/tomcat-8.0</image>
           <mergeData>true</mergeData>

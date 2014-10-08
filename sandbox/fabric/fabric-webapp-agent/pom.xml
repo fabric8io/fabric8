@@ -36,17 +36,17 @@
         <dependency>
             <groupId>org.jolokia</groupId>
             <artifactId>jolokia-core</artifactId>
-            <version>${jolokia-version}</version>
+            <version>${jolokia.version}</version>
         </dependency>
         <dependency>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-api</artifactId>
-          <version>${slf4j-version}</version>
+          <version>${slf4j.version}</version>
         </dependency>
         <dependency>
           <groupId>org.apache.aries.blueprint</groupId>
           <artifactId>org.apache.aries.blueprint.web</artifactId>
-          <version>${blueprint-web-version}</version>
+          <version>${blueprint-web.version}</version>
           <exclusions>
             <exclusion>
               <groupId>org.apache.geronimo.specs</groupId>
@@ -69,12 +69,12 @@
         <dependency>
           <groupId>log4j</groupId>
           <artifactId>log4j</artifactId>
-          <version>${log4j-version}</version>
+          <version>${log4j.version}</version>
         </dependency>
         <dependency>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-log4j12</artifactId>
-          <version>${slf4j-version}</version>
+          <version>${slf4j.version}</version>
         </dependency>
 
         <dependency>
@@ -154,7 +154,7 @@
             <plugin>
               <groupId>${jetty-plugin-groupId}</groupId>
               <artifactId>jetty-maven-plugin</artifactId>
-              <version>${jetty-version}</version>
+              <version>${jetty.version}</version>
               <configuration>
                 <scanIntervalSeconds>1</scanIntervalSeconds>
                 <useTestScope>true</useTestScope>
@@ -172,7 +172,7 @@
             <plugin>
               <groupId>org.apache.tomcat.maven</groupId>
               <artifactId>tomcat7-maven-plugin</artifactId>
-              <version>${tomcat-plugin-version}</version>
+              <version>${tomcat-plugin.version}</version>
               <configuration>
                 <port>9090</port>
                 <path>/</path>

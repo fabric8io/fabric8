@@ -99,7 +99,7 @@
           <plugin>
             <groupId>org.scala-tools</groupId>
             <artifactId>maven-scala-plugin</artifactId>
-            <version>${scala-plugin-version}</version>
+            <version>${scala-plugin.version}</version>
             <configuration>
               <args>
                 <arg>-deprecation</arg>
@@ -126,7 +126,7 @@
           <plugin>
             <groupId>org.scala-tools</groupId>
             <artifactId>maven-scala-plugin</artifactId>
-            <version>${scala-plugin-version}</version>
+            <version>${scala-plugin.version}</version>
             <executions>
               <execution>
                 <id>doc</id>

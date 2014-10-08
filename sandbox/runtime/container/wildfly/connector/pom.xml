@@ -46,7 +46,7 @@
             <groupId>org.wildfly</groupId>
             <artifactId>wildfly-cli</artifactId>
             <classifier>client</classifier>
-            <version>${wildfly-version}</version>
+            <version>${wildfly.version}</version>
         </dependency>
     </dependencies>
 

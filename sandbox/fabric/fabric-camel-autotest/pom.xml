@@ -68,12 +68,12 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core</artifactId>
-            <version>${camel-version}</version>
+            <version>${camel.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core-osgi</artifactId>
-            <version>${camel-version}</version>
+            <version>${camel.version}</version>
         </dependency>
 
         <!-- testing -->
@@ -93,7 +93,7 @@
       <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-test</artifactId>
-        <version>${camel-version}</version>
+        <version>${camel.version}</version>
         <scope>test</scope>
       </dependency>
 

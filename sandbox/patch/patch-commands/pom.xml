@@ -59,7 +59,7 @@
     <dependency>
       <groupId>org.apache.karaf.shell</groupId>
       <artifactId>org.apache.karaf.shell.console</artifactId>
-      <version>${karaf-version}</version>
+      <version>${karaf.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.felix</groupId>

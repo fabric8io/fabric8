@@ -52,7 +52,7 @@
         <dependency>
            <groupId>javax.jmdns</groupId>
            <artifactId>jmdns</artifactId>
-           <version>${jmdns-version}</version>
+           <version>${jmdns.version}</version>
            <optional>true</optional>
         </dependency>
         <dependency>

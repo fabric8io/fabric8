@@ -48,7 +48,7 @@
     <dependency>
       <groupId>org.apache.servicemix.nmr</groupId>
       <artifactId>org.apache.servicemix.nmr.api</artifactId>
-      <version>${servicemix-nmr-version}</version>
+      <version>${servicemix-nmr.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.apache.servicemix</groupId>
@@ -59,18 +59,18 @@
     <dependency>
       <groupId>org.apache.servicemix</groupId>
       <artifactId>servicemix-utils</artifactId>
-      <version>${servicemix-utils-version}</version>
+      <version>${servicemix-utils.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.servicemix.nmr</groupId>
       <artifactId>org.apache.servicemix.nmr.management</artifactId>
-      <version>${servicemix-nmr-version}</version>
+      <version>${servicemix-nmr.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>${slf4j-api-version}</version>
+      <version>${slf4j-api.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>

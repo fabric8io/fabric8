@@ -61,7 +61,7 @@
                                 <useUniqueVersions>false</useUniqueVersions>
                             </manifest>
                             <manifestEntries>
-                                <Implementation-Version>${project.version}</Implementation-Version>
+                                <Implementation.version>${project.version}</Implementation.version>
                             </manifestEntries>
                         </archive>
                     </configuration>

@@ -35,20 +35,20 @@
   <properties>
     <clone-kube>true</clone-kube>
     <kube.dir>${basedir}/src/main/kubernetes</kube.dir>
-    <resteasy-version>3.0.8.Final</resteasy-version>
-    <cxf-version>3.0.1</cxf-version>
+    <resteasy.version>3.0.8.Final</resteasy.version>
+    <cxf.version>3.0.1</cxf.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-jaxb-annotations</artifactId>
-      <version>${jackson2-version}</version>
+      <version>${jackson2.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
-      <version>${validation-api-version}</version>
+      <version>${validation-api.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -72,12 +72,12 @@
     <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>
       <artifactId>jackson-jaxrs-json-provider</artifactId>
-      <version>${jackson2-version}</version>
+      <version>${jackson2.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
-      <version>${cxf-version}</version>
+      <version>${cxf.version}</version>
     </dependency>
 -->
 <!--
@@ -90,17 +90,17 @@
      <dependency>
        <groupId>org.jboss.resteasy</groupId>
        <artifactId>jaxrs-api</artifactId>
-       <version>${resteasy-version}</version>
+       <version>${resteasy.version}</version>
      </dependency>
      <dependency>
        <groupId>org.jboss.resteasy</groupId>
        <artifactId>resteasy-client</artifactId>
-       <version>${resteasy-version}</version>
+       <version>${resteasy.version}</version>
      </dependency>
      <dependency>
        <groupId>org.jboss.resteasy</groupId>
        <artifactId>resteasy-jackson2-provider</artifactId>
-       <version>${resteasy-version}</version>
+       <version>${resteasy.version}</version>
      </dependency>
   </dependencies>
 
@@ -155,7 +155,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>${exec-maven-plugin-version}</version>
+        <version>${exec-maven-plugin.version}</version>
         <executions>
           <execution>
             <goals>

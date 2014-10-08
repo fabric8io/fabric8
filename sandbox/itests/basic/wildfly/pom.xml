@@ -30,7 +30,7 @@
     <name>Fabric8 :: Integration Tests :: Basic :: WildFly</name>
 
     <properties>
-        <jboss.home>${project.build.directory}/wildfly-${wildfly-version}</jboss.home>
+        <jboss.home>${project.build.directory}/wildfly-${wildfly.version}</jboss.home>
     </properties>
     
     <dependencies>
@@ -109,7 +109,7 @@
                                 <artifactItem>
                                     <groupId>org.wildfly</groupId>
                                     <artifactId>wildfly-dist</artifactId>
-                                    <version>${wildfly-version}</version>
+                                    <version>${wildfly.version}</version>
                                     <type>zip</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}</outputDirectory>

@@ -37,7 +37,7 @@
         <fuse.osgi.export>
             io.fabric8.git*;version=${fuse.osgi.version};-noimport:=true,
             org.eclipse.jgit*;-noimport:=true,
-            org.gitective.core*;version=${gitective-version};-noimport:=true,
+            org.gitective.core*;version=${gitective.version};-noimport:=true,
             com.googlecode.javaewah*;-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
@@ -68,7 +68,7 @@
         <dependency>
             <groupId>org.gitective</groupId>
             <artifactId>gitective-core</artifactId>
-            <version>${gitective-version}</version>
+            <version>${gitective.version}</version>
             <exclusions>
               <exclusion>
                 <groupId>org.eclipse.jgit</groupId>
@@ -126,7 +126,7 @@
         <dependency>
           <groupId>commons-io</groupId>
           <artifactId>commons-io</artifactId>
-          <version>${commons-io2-version}</version>
+          <version>${commons-io2.version}</version>
           <scope>compile</scope>
         </dependency>
 

@@ -33,14 +33,14 @@
       <dependency>
        <groupId>javax.servlet</groupId>
        <artifactId>servlet-api</artifactId>
-       <version>${servlet-api-version}</version>
+       <version>${servlet-api.version}</version>
        <scope>provided</scope>
      </dependency>
 
      <dependency>
        <groupId>io.hawt</groupId>
        <artifactId>hawtio-base</artifactId>
-       <version>${hawtio-version}</version>
+       <version>${hawtio.version}</version>
        <!--
          NOTE this WAR dependency type which enables this WAR to
          inherit all the plugins and content from the core hawtio-web WAR
@@ -51,20 +51,20 @@
       <dependency>
         <groupId>io.hawt</groupId>
         <artifactId>hawtio-json-schema-mbean</artifactId>
-        <version>${hawtio-version}</version>
+        <version>${hawtio.version}</version>
       </dependency>
 
      <!-- lets mark dependencies from the WAR as provided to avoid jetty:run adding duplicates -->
      <dependency>
        <groupId>io.hawt</groupId>
        <artifactId>hawtio-core</artifactId>
-       <version>${hawtio-version}</version>
+       <version>${hawtio.version}</version>
        <scope>provided</scope>
      </dependency>
      <dependency>
        <groupId>io.hawt</groupId>
        <artifactId>hawtio-git</artifactId>
-       <version>${hawtio-version}</version>
+       <version>${hawtio.version}</version>
        <scope>provided</scope>
      </dependency>
     </dependencies>

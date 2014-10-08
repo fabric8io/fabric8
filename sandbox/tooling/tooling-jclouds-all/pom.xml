@@ -35,8 +35,8 @@
   <properties>
     <fuse.osgi.activator>org.jclouds.osgi.Activator</fuse.osgi.activator>
     <fuse.osgi.export>
-      com.google.gson*;version=${guava-version};-noimport:=true,
-      com.google.inject*;version=${guava-version};-noimport:=true,
+      com.google.gson*;version=${guava.version};-noimport:=true,
+      com.google.inject*;version=${guava.version};-noimport:=true,
       org.jclouds*;version=${jclouds.osgi.version.clean};-noimport:=true,
       net.oauth*,;version=${jclouds.osgi.version.clean};-noimport:=true
     </fuse.osgi.export>
@@ -51,7 +51,7 @@
     <fuse.osgi.import.before.defaults>
       !com.google.inject.internal.asm.util*,
       !com.google.gdata*,
-      com.google.common.*;version="${guava-version}",
+      com.google.common.*;version="${guava.version}",
       !sun.misc,
       org.apache.log4j*,
       !jline*,
@@ -84,7 +84,7 @@
       <dependency>
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
-          <version>${guava-version}</version>
+          <version>${guava.version}</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
@@ -100,7 +100,7 @@
       <dependency>
           <groupId>org.apache.jclouds</groupId>
           <artifactId>jclouds-all</artifactId>
-          <version>${jclouds-version}</version>
+          <version>${jclouds.version}</version>
       </dependency>
       <dependency>
           <groupId>net.schmizz</groupId>
@@ -125,47 +125,47 @@
       <dependency>
           <groupId>org.apache.jclouds.driver</groupId>
           <artifactId>jclouds-bouncycastle</artifactId>
-          <version>${jclouds-version}</version>
+          <version>${jclouds.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.jclouds.driver</groupId>
           <artifactId>jclouds-slf4j</artifactId>
-          <version>${jclouds-version}</version>
+          <version>${jclouds.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.jclouds.driver</groupId>
           <artifactId>jclouds-log4j</artifactId>
-          <version>${jclouds-version}</version>
+          <version>${jclouds.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.jclouds.driver</groupId>
           <artifactId>jclouds-sshj</artifactId>
-          <version>${jclouds-version}</version>
+          <version>${jclouds.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.jclouds.karaf</groupId>
           <artifactId>core</artifactId>
-          <version>${jclouds-version}</version>
+          <version>${jclouds.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.jclouds.karaf</groupId>
           <artifactId>cache</artifactId>
-          <version>${jclouds-version}</version>
+          <version>${jclouds.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.jclouds.karaf</groupId>
           <artifactId>recipe</artifactId>
-          <version>${jclouds-version}</version>
+          <version>${jclouds.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.jclouds.karaf</groupId>
           <artifactId>services</artifactId>
-          <version>${jclouds-version}</version>
+          <version>${jclouds.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.jclouds</groupId>
           <artifactId>jclouds-compute</artifactId>
-          <version>${jclouds-version}</version>
+          <version>${jclouds.version}</version>
       </dependency>
   </dependencies>
 

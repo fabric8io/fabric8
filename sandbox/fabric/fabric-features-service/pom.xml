@@ -40,7 +40,7 @@
             *
         </fuse.osgi.import>
         <fuse.osgi.export>
-            org.apache.karaf.features;version=${karaf-version},
+            org.apache.karaf.features;version=${karaf.version},
             io.fabric8.features;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>

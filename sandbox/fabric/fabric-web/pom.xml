@@ -68,7 +68,7 @@
         <dependency>
             <groupId>org.ops4j.pax.web</groupId>
             <artifactId>pax-web-spi</artifactId>
-            <version>${ops4j-pax-web-version}</version>
+            <version>${ops4j-pax-web.version}</version>
         </dependency>
     </dependencies>
 

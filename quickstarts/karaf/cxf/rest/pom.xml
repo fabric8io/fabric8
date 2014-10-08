@@ -41,11 +41,11 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
-    <maven-resources-plugin-version>2.6</maven-resources-plugin-version>
-    <build-helper-maven-plugin-version>1.9.1</build-helper-maven-plugin-version>
+    <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
+    <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
     <skipTests>true</skipTests>
 
-    <cxf-version-range>[2.7,3)</cxf-version-range>
+    <cxf.version-range>[2.7,3)</cxf.version-range>
 
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
@@ -178,7 +178,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>${maven-resources-plugin-version}</version>
+        <version>${maven-resources-plugin.version}</version>
         <executions>
           <execution>
             <id>filter</id>
@@ -192,7 +192,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>${build-helper-maven-plugin-version}</version>
+        <version>${build-helper-maven-plugin.version}</version>
         <executions>
           <execution>
             <id>attach-artifacts</id>

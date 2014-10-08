@@ -45,7 +45,7 @@
         <dependency>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-api</artifactId>
-          <version>${slf4j-version}</version>
+          <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
@@ -62,7 +62,7 @@
         <dependency>
           <groupId>junit</groupId>
           <artifactId>junit</artifactId>
-          <version>${junit-version}</version>
+          <version>${junit.version}</version>
           <scope>test</scope>
         </dependency>
     </dependencies>

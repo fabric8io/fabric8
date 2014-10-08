@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>${spring-version}</version>
+            <version>${spring.version}</version>
         </dependency>
 
         <dependency>
@@ -90,7 +90,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j-version}</version>
+            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -98,19 +98,19 @@
             <dependency>
               <groupId>org.drools</groupId>
               <artifactId>drools-core</artifactId>
-              <version>${drools-version}</version>
+              <version>${drools.version}</version>
               <scope>test</scope>
             </dependency>
             <dependency>
               <groupId>${drools-spring-groupId}</groupId>
               <artifactId>${drools-spring-artifactId}</artifactId>
-              <version>${drools-version}</version>
+              <version>${drools.version}</version>
               <scope>test</scope>
             </dependency>
             <dependency>
               <groupId>${drools-camel-groupId}</groupId>
               <artifactId>${drools-camel-artifactId}</artifactId>
-              <version>${drools-version}</version>
+              <version>${drools.version}</version>
               <scope>test</scope>
         -->
         <!-- Need to align Camel and CXF versions here or we have two
@@ -135,62 +135,62 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test</artifactId>
-            <version>${camel-version}</version>
+            <version>${camel.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-cxf</artifactId>
-            <version>${camel-version}</version>
+            <version>${camel.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-jaxb</artifactId>
-            <version>${camel-version}</version>
+            <version>${camel.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
-            <version>${cxf-version}</version>
+            <version>${cxf.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-bundle-jaxrs</artifactId>
-            <version>${cxf-version}</version>
+            <version>${cxf.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.camel.archetypes</groupId>
             <artifactId>camel-archetype-activemq</artifactId>
-            <version>${camel-version}</version>
+            <version>${camel.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.camel.archetypes</groupId>
             <artifactId>camel-archetype-spring</artifactId>
-            <version>${camel-version}</version>
+            <version>${camel.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.camel.archetypes</groupId>
             <artifactId>camel-archetype-java</artifactId>
-            <version>${camel-version}</version>
+            <version>${camel.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.camel.archetypes</groupId>
             <artifactId>camel-archetype-component</artifactId>
-            <version>${camel-version}</version>
+            <version>${camel.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.camel.archetypes</groupId>
             <artifactId>camel-archetype-dataformat</artifactId>
-            <version>${camel-version}</version>
+            <version>${camel.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -246,7 +246,7 @@
                     <archive>
                         <manifestEntries>
                             <Bundle-SymbolicName>${project.groupId}.${project.artifactId}.source</Bundle-SymbolicName>
-                            <Bundle-Version>${fuse.osgi.version.clean}</Bundle-Version>
+                            <Bundle.version>${fuse.osgi.version.clean}</Bundle.version>
                             <Eclipse-SourceBundle>
                                 ${project.groupId}.${project.artifactId};version="${fuse.osgi.version.clean}"
                             </Eclipse-SourceBundle>
@@ -266,7 +266,7 @@
                         <!--<exclude>**/ArchetypeTest.*</exclude>-->
                     </excludes>
                     <systemPropertyVariables>
-                        <camel-version>${camel-version}</camel-version>
+                        <camel.version>${camel.version}</camel.version>
                         <basedir>${basedir}</basedir>
                         <project.version>${project.version}</project.version>
                     </systemPropertyVariables>

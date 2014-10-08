@@ -46,7 +46,7 @@
         <dependency>
           <groupId>org.apache.aries.blueprint</groupId>
           <artifactId>org.apache.aries.blueprint.web</artifactId>
-          <version>${blueprint-web-version}</version>
+          <version>${blueprint-web.version}</version>
           <scope>compile</scope>
           <exclusions>
             <exclusion>

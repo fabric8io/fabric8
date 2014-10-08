@@ -52,31 +52,31 @@
     <dependency>
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
-      <version>${commons-httpclient-version}</version>
+      <version>${commons-httpclient.version}</version>
     </dependency>
 
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>${commons-io2-version}</version>
+      <version>${commons-io2.version}</version>
     </dependency>
 
     <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
-      <version>${commons-fileupload-version}</version>
+      <version>${commons-fileupload.version}</version>
     </dependency>
 
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
-      <version>${commons-codec-version}</version>
+      <version>${commons-codec.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>${slf4j-version}</version>
+      <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

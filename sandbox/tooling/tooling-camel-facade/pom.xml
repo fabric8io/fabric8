@@ -49,18 +49,18 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
-      <version>${camel-version}</version>
+      <version>${camel.version}</version>
     </dependency>
     <!-- camel JMS requires Spring JARs -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring</artifactId>
-      <version>${camel-version}</version>
+      <version>${camel.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>${slf4j-api-version}</version>
+      <version>${slf4j-api.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>

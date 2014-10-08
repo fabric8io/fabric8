@@ -69,13 +69,13 @@
         <dependency>
             <groupId>org.springframework.osgi</groupId>
             <artifactId>spring-osgi-core</artifactId>
-            <version>${spring-osgi-version}</version>
+            <version>${spring-osgi.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.osgi</groupId>
             <artifactId>spring-osgi-extender</artifactId>
-            <version>${spring-osgi-version}</version>
+            <version>${spring-osgi.version}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

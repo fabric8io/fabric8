@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.wildfly</groupId>
             <artifactId>wildfly-dist</artifactId>
-            <version>${wildfly-version}</version>
+            <version>${wildfly.version}</version>
             <type>tar.gz</type>
         </dependency>
 
@@ -83,7 +83,7 @@
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>
                 <artifactId>depends-maven-plugin</artifactId>
-                <version>${servicemix-tooling-plugin-version}</version>
+                <version>${servicemix-tooling-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>generate-depends-file</id>

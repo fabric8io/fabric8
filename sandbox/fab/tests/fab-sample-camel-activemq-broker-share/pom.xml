@@ -35,13 +35,13 @@
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-camel</artifactId>
-      <version>${activemq-version}</version>
+      <version>${activemq.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jms</artifactId>
-      <version>${camel-version}</version>
+      <version>${camel.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -63,7 +63,7 @@
       <plugin>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-maven-plugin</artifactId>
-        <version>${camel-version}</version>
+        <version>${camel.version}</version>
       </plugin>
 
     </plugins>

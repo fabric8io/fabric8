@@ -34,14 +34,14 @@
     <mockwebserver.version>20130706</mockwebserver.version>
     <dockerHost></dockerHost>
 
-    <resteasy-version>3.0.8.Final</resteasy-version>
+    <resteasy.version>3.0.8.Final</resteasy.version>
   </properties>
 
   <dependencies>
     <dependency>
         <groupId>com.fasterxml.jackson.module</groupId>
         <artifactId>jackson-module-jaxb-annotations</artifactId>
-        <version>${jackson2-version}</version>
+        <version>${jackson2.version}</version>
     </dependency>
     <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -58,12 +58,12 @@
     <dependency>
         <groupId>com.fasterxml.jackson.jaxrs</groupId>
         <artifactId>jackson-jaxrs-json-provider</artifactId>
-        <version>${jackson2-version}</version>
+        <version>${jackson2.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
-      <version>${cxf-3-version}</version>
+      <version>${cxf-3.version}</version>
     </dependency>
 -->
 <!--
@@ -76,17 +76,17 @@
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>jaxrs-api</artifactId>
-      <version>${resteasy-version}</version>
+      <version>${resteasy.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-client</artifactId>
-      <version>${resteasy-version}</version>
+      <version>${resteasy.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-jackson2-provider</artifactId>
-      <version>${resteasy-version}</version>
+      <version>${resteasy.version}</version>
     </dependency>
 
     <!-- generates the getters/setters -->
@@ -151,7 +151,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>${exec-maven-plugin-version}</version>
+        <version>${exec-maven-plugin.version}</version>
         <executions>
           <execution>
             <goals>

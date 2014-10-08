@@ -81,7 +81,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>${exec-maven-plugin-version}</version>
+        <version>${exec-maven-plugin.version}</version>
         <configuration>
           <mainClass>io.fabric8.demo.cxf.client.Client</mainClass>
           <includePluginDependencies>false</includePluginDependencies>

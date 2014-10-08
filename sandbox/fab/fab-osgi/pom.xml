@@ -130,7 +130,7 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>maven-bundle-plugin</artifactId>
-            <version>${maven-bundle-plugin-version}</version>
+            <version>${maven-bundle-plugin.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -167,34 +167,34 @@
         <dependency>
             <groupId>biz.aQute.bnd</groupId>
             <artifactId>bndlib</artifactId>
-            <version>${bndlib-version}</version>
+            <version>${bndlib.version}</version>
         </dependency>
 
         <!-- aether stuff -->
         <dependency>
             <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-api</artifactId>
-            <version>${aether-version}</version>
+            <version>${aether.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-spi</artifactId>
-            <version>${aether-version}</version>
+            <version>${aether.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-util</artifactId>
-            <version>${aether-version}</version>
+            <version>${aether.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-impl</artifactId>
-            <version>${aether-version}</version>
+            <version>${aether.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-connector-wagon</artifactId>
-            <version>${aether-version}</version>
+            <version>${aether.version}</version>
             <!-- clashes with guava -->
             <exclusions>
                 <exclusion>
@@ -206,39 +206,39 @@
         <dependency>
             <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-reflect</artifactId>
-            <version>${xbean-reflect-version}</version>
+            <version>${xbean-reflect.version}</version>
         </dependency>        
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-aether-provider</artifactId>
-            <version>${maven-version}</version>
+            <version>${maven.version}</version>
         </dependency>
 
         <!-- expanded transitive dependencies -->
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-model-builder</artifactId>
-            <version>${maven-version}</version>
+            <version>${maven.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-model</artifactId>
-            <version>${maven-version}</version>
+            <version>${maven.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-repository-metadata</artifactId>
-            <version>${maven-version}</version>
+            <version>${maven.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-settings-builder</artifactId>
-            <version>${maven-version}</version>
+            <version>${maven.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-settings</artifactId>
-            <version>${maven-version}</version>
+            <version>${maven.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sonatype.plexus</groupId>
@@ -308,7 +308,7 @@
         <dependency>
             <groupId>org.ops4j.pax.tinybundles</groupId>
             <artifactId>tinybundles</artifactId>
-            <version>${tinybundles-version}</version>
+            <version>${tinybundles.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

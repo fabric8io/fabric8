@@ -40,7 +40,7 @@
   <properties>
     <maven.compiler.target>1.7</maven.compiler.target>
     <maven.compiler.source>1.7</maven.compiler.source>
-    <docker-maven-plugin-version>0.9.9</docker-maven-plugin-version>
+    <docker-maven-plugin.version>0.9.9</docker-maven-plugin.version>
   </properties>
 
   <repositories>
@@ -109,7 +109,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>${maven-javadoc-plugin-version}</version>
+          <version>${maven-javadoc-plugin.version}</version>
           <configuration>
             <failOnError>false</failOnError>
           </configuration>

@@ -40,7 +40,7 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-dozer</artifactId>
-      <version>${camel-version}</version>
+      <version>${camel.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fabric8</groupId>
@@ -56,13 +56,13 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test</artifactId>
-      <version>${camel-version}</version>
+      <version>${camel.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test-spring</artifactId>
-      <version>${camel-version}</version>
+      <version>${camel.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

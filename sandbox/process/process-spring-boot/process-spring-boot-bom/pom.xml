@@ -65,7 +65,7 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
 
-    <spring-boot-version>1.1.7.RELEASE</spring-boot-version>
+    <spring-boot.version>1.1.7.RELEASE</spring-boot.version>
   </properties>
 
   <distributionManagement>
@@ -82,7 +82,7 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>${spring-boot-version}</version>
+        <version>${spring-boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

@@ -84,12 +84,12 @@
       <dependency>
           <groupId>io.hawt</groupId>
           <artifactId>hawtio-git</artifactId>
-          <version>${hawtio-version}</version>
+          <version>${hawtio.version}</version>
       </dependency>
       <dependency>
           <groupId>io.hawt</groupId>
           <artifactId>hawtio-json-schema-mbean</artifactId>
-          <version>${hawtio-version}</version>
+          <version>${hawtio.version}</version>
       </dependency>
 
         <dependency>

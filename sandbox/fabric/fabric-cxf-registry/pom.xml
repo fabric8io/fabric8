@@ -63,12 +63,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jaxb-annotations</artifactId>
-            <version>${jackson2-version}</version>
+            <version>${jackson2.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
-            <version>${validation-api-version}</version>
+            <version>${validation-api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>

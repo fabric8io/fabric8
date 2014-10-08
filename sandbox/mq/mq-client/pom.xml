@@ -35,7 +35,7 @@
       <dependency>
         <groupId>org.apache.activemq</groupId>
         <artifactId>activemq-osgi</artifactId>
-        <version>${activemq-version}</version>
+        <version>${activemq.version}</version>
       </dependency>
 
       <!-- dependencies needed for "fabric" discovery in standalone mode -->

@@ -48,13 +48,13 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-jaxb</artifactId>
-            <version>${camel-version}</version>
+            <version>${camel.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-api</artifactId>
-            <version>${cxf-version}</version>
+            <version>${cxf.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -77,19 +77,19 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test</artifactId>
-            <version>${camel-version}</version>
+            <version>${camel.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-spring</artifactId>
-            <version>${camel-version}</version>
+            <version>${camel.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
           <groupId>org.springframework</groupId>
           <artifactId>spring-core</artifactId>
-          <version>${spring-version}</version>
+          <version>${spring.version}</version>
           <scope>test</scope>
         </dependency>
     </dependencies>

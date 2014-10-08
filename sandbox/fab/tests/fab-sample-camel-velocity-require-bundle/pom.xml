@@ -39,7 +39,7 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-velocity</artifactId>
-      <version>${camel-version}</version>
+      <version>${camel.version}</version>
       <scope>provided</scope>
       <!-- exclude this bad osgi bundle which only supports version 0.0.0 it seems -->
       <exclusions>
@@ -55,7 +55,7 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-blueprint</artifactId>
-      <version>${camel-version}</version>
+      <version>${camel.version}</version>
       <scope>provided</scope>
     </dependency>
 -->
@@ -78,7 +78,7 @@
     <dependency>
       <groupId>org.springframework.osgi</groupId>
       <artifactId>spring-osgi-core</artifactId>
-      <version>${spring-osgi-version}</version>
+      <version>${spring-osgi.version}</version>
       <scope>provided</scope>
       <exclusions>
         <!-- exclude old spring -->
@@ -145,7 +145,7 @@
       <plugin>
         <groupId>org.fusesource.mvnplugins</groupId>
         <artifactId>maven-fab-plugin</artifactId>
-        <version>${maven-fab-plugin-version}</version>
+        <version>${maven-fab-plugin.version}</version>
         <configuration>
           <descriptor>
             <Long-Description />

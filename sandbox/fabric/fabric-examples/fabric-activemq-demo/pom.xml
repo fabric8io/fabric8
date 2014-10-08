@@ -49,7 +49,7 @@
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-all</artifactId>
-      <version>${activemq-version}</version>
+      <version>${activemq.version}</version>
       <scope>provided</scope>
     </dependency>
 

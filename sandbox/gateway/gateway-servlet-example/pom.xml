@@ -50,7 +50,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>${slf4j-version}</version>
+      <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -60,7 +60,7 @@
       <plugin>
         <groupId>${jetty-plugin-groupId}</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
-        <version>${jetty-version}</version>
+        <version>${jetty.version}</version>
         <configuration>
           <webAppConfig>
               <contextPath>/gateway</contextPath>

@@ -16,18 +16,18 @@
 
   <properties>
     <jettyPort>8000</jettyPort>
-    <scala-version>2.9.0</scala-version>
+    <scala.version>2.9.0</scala.version>
 <!--
     TODO lets not use 2.10 scala yet as it seems the 1.6.1 distro of scalate borks the scalate plugin
     Or at least I've not figured out yet how to run it! :)
     Wonder if the maven-scalate-plugin_2.10 needs to be called maven-scalate-plugin?
 
-    <scala-version>2.10.0</scala-version>
-    <scala-plugin-version>3.1.2</scala-plugin-version>
-    <scalate-version>1.6.1</scalate-version>
+    <scala.version>2.10.0</scala.version>
+    <scala-plugin.version>3.1.2</scala-plugin.version>
+    <scalate.version>1.6.1</scalate.version>
 -->
-    <scala-plugin-version>3.0.2</scala-plugin-version>
-    <scalate-version>1.5.3</scalate-version>
+    <scala-plugin.version>3.0.2</scala-plugin.version>
+    <scalate.version>1.5.3</scalate.version>
 
     <netbeans.hint.deploy.server>Tomcat60</netbeans.hint.deploy.server>
   </properties>
@@ -48,7 +48,7 @@
 <!--
       <artifactId>scalate-page_2.10</artifactId>
 -->
-      <version>${scalate-version}</version>
+      <version>${scalate.version}</version>
     </dependency>
 
 
@@ -56,32 +56,32 @@
         <dependency>
           <groupId>org.fusesource.scalate</groupId>
           <artifactId>scalate-wikitext</artifactId>
-          <version>${scalate-version}</version>
+          <version>${scalate.version}</version>
         </dependency>
 
         <dependency>
           <groupId>org.fusesource.scalate</groupId>
           <artifactId>scalate-jruby</artifactId>
-          <version>${scalate-version}</version>
+          <version>${scalate.version}</version>
         </dependency>
 
         <dependency>
           <groupId>org.fusesource.scalate</groupId>
           <artifactId>scalate-page</artifactId>
-          <version>${scalate-version}</version>
+          <version>${scalate.version}</version>
         </dependency>
 
         <dependency>
           <groupId>org.fusesource.scalamd</groupId>
           <artifactId>scalamd</artifactId>
-          <version>${scalamd-version}</version>
+          <version>${scalamd.version}</version>
         </dependency>
     -->
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>${slf4j-version}</version>
+      <version>${slf4j.version}</version>
     </dependency>
 
   </dependencies>
@@ -162,7 +162,7 @@
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>
-        <version>${scala-plugin-version}</version>
+        <version>${scala-plugin.version}</version>
         <executions>
           <execution>
             <goals>
@@ -181,7 +181,7 @@
             <!-- arg>-unchecked</arg -->
             <arg>-deprecation</arg>
           </args>
-          <scalaVersion>${scala-version}</scalaVersion>
+          <scalaVersion>${scala.version}</scalaVersion>
         </configuration>
       </plugin>
 
@@ -191,7 +191,7 @@
 <!--
         <artifactId>maven-scalate-plugin_2.10</artifactId>
 -->
-        <version>${scalate-version}</version>
+        <version>${scalate.version}</version>
         <configuration>
           <warSourceDirectory>${basedir}/src</warSourceDirectory>
 <!--
@@ -229,7 +229,7 @@
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
-        <version>${jetty-plugin-version}</version>
+        <version>${jetty-plugin.version}</version>
         <configuration>
           <webAppConfig>
             <contextPath>/</contextPath>
@@ -267,7 +267,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>${exec-maven-plugin-version}</version>
+        <version>${exec-maven-plugin.version}</version>
         <executions>
           <execution>
             <goals>
@@ -342,7 +342,7 @@
       <plugin>
         <groupId>org.fusesource.mvnplugins</groupId>
         <artifactId>maven-linkchecker-plugin</artifactId>
-        <version>${mvnplugins-version}</version>
+        <version>${mvnplugins.version}</version>
         <configuration>
           <excludedLinks>
             <value>http://github.com/</value>

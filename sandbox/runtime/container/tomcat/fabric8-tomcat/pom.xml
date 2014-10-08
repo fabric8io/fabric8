@@ -31,7 +31,7 @@
 
   <properties>
       <karaf.base>${tomcat.home}/work/karaf-base</karaf.base>
-      <tomcat.home>${project.build.directory}/apache-tomcat-${tomcat-version}</tomcat.home>
+      <tomcat.home>${project.build.directory}/apache-tomcat-${tomcat.version}</tomcat.home>
       <fabric8.tomcat.build>${project.build.directory}/distro-build</fabric8.tomcat.build>
       <fabric8.tomcat.home>${fabric8.tomcat.build}/fabric8-tomcat-${project.version}</fabric8.tomcat.home>
   </properties>
@@ -62,7 +62,7 @@
                               <artifactItem>
                                   <groupId>org.apache.tomcat</groupId>
                                   <artifactId>tomcat</artifactId>
-                                  <version>${tomcat-version}</version>
+                                  <version>${tomcat.version}</version>
                                   <type>zip</type>
                                   <overWrite>false</overWrite>
                                   <outputDirectory>${project.build.directory}</outputDirectory>

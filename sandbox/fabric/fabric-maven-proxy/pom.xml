@@ -122,13 +122,13 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-aether-provider</artifactId>
-			<version>${maven-version}</version>
+			<version>${maven.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.maven.wagon</groupId>
 			<artifactId>wagon-file</artifactId>
-			<version>${wagon-version}</version>
+			<version>${wagon.version}</version>
 		</dependency>
 
 		<dependency>
@@ -140,7 +140,7 @@
 		<dependency>
 			<groupId>org.apache.maven.wagon</groupId>
 			<artifactId>wagon-http-lightweight</artifactId>
-			<version>${wagon-version}</version>
+			<version>${wagon.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>nekohtml</groupId>

@@ -32,7 +32,7 @@
     <properties>
         <fuse.osgi.export>
             org.apache.curator*;version=${curator.version};-noimport:=true;-split-package:=merge-first,
-            org.apache.zookeeper*;version="${zookeeper-version}";-noimport:=true;-split-package:=merge-first,
+            org.apache.zookeeper*;version="${zookeeper.version}";-noimport:=true;-split-package:=merge-first,
             io.fabric8.zookeeper*;version=${fuse.osgi.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import.before.defaults>
