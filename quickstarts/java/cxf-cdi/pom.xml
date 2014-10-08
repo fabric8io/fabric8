@@ -42,10 +42,10 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
+    <cxf-version>3.0.2.redhat-620029</cxf-version>
     <maven-resources-plugin-version>2.6</maven-resources-plugin-version>
     <skipTests>true</skipTests>
 
-    <cxf-version>3.0.1</cxf-version>
     <jetty-version>9.1.1.v20140108</jetty-version>
     <swagger-jaxrs-version>1.3.10</swagger-jaxrs-version>
     <weld2-version>2.1.2.Final</weld2-version>
@@ -86,7 +86,7 @@
 
     <dependency>
       <groupId>org.apache.servicemix.specs</groupId>
-      <artifactId>org.apache.servicemix.specs.jsr311-api-1.1.1</artifactId>
+      <artifactId>org.apache.servicemix.specs.jsr339-api-2.0</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.validation</groupId>
@@ -97,22 +97,18 @@
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-service-description</artifactId>
-      <version>${cxf-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-integration-cdi</artifactId>
-      <version>${cxf-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-      <version>${cxf-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-management</artifactId>
-      <version>${cxf-version}</version>
     </dependency>
 
     <dependency>
