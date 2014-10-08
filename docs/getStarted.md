@@ -1,6 +1,9 @@
 ## Getting Started
 
-The quickest way to get started on your laptop is to run OpenShift V3 locally:
+In order to start working with the Fabric8 on your laptop, you need to have 
+[Kubernetes](https://github.com/GoogleCloudPlatform/kubernetes) Kube and 
+[etcd](https://github.com/coreos/etcd) services available. The quickest way to start Kube and etcd locally 
+is to run OpenShift V3 on your machine.
 
 ### Get OpenShift V3
 
