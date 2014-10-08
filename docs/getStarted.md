@@ -1,6 +1,6 @@
 ## Getting Started
 
-The quickest way to get started on your laptop is to run Openshift V3 locally:
+The quickest way to get started on your laptop is to run OpenShift V3 locally:
 
 ### Get OpenShift V3
 
