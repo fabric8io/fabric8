@@ -635,18 +635,34 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             if (artifactBundleType != null) {
                 nextUrlComponent = "/" + artifactBundleClassifier;
             } else {
-                throw new MojoFailureException(
-                        "The property artifactBundleClassifier was specified as '" + artifactBundleClassifier
-                                +"' without also specifying artifactBundleType");
+                throwClassifierWithoutTypeException();
             }
         }
         urlBuffer.append(nextUrlComponent);
     }
 
-    protected DependencyDTO loadRootDependency() throws DependencyTreeBuilderException {
+    private void throwClassifierWithoutTypeException() throws MojoFailureException {
+        throw new MojoFailureException(
+                "The property artifactBundleClassifier was specified as '" + artifactBundleClassifier
+                        +"' without also specifying artifactBundleType");
+    }
+
+    protected DependencyDTO loadRootDependency() throws DependencyTreeBuilderException, MojoFailureException {
         ArtifactFilter artifactFilter = createResolvingArtifactFilter();
         DependencyNode dependencyNode = dependencyTreeBuilder.buildDependencyTree(project, localRepository, artifactFactory, metadataSource, artifactFilter, artifactCollector);
-        return buildFrom(dependencyNode);
+        DependencyDTO dependencyDTO = buildFrom(dependencyNode);
+        if (artifactBundleType != null) {
+            dependencyDTO.setType(artifactBundleType);
+        }
+
+        if (artifactBundleClassifier != null) {
+            if (artifactBundleType != null) {
+                dependencyDTO.setClassifier(artifactBundleClassifier);
+            } else {
+                throwClassifierWithoutTypeException();
+            }
+        }
+        return dependencyDTO;
     }
 
     private DependencyDTO buildFrom(DependencyNode node) {

@@ -63,6 +63,8 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
     public static final Map<String,String> SPECIAL_VALUE_PREFIX_TYPES =
             toMap(entry("jar", "fab:"),entry("war","war:"));
 
+    private CreateProfileZipMojo mojo;
+
     private static Map.Entry<String,String> entry(String key, String value) {
         return new AbstractMap.SimpleImmutableEntry(key,value);
     }
@@ -81,6 +83,7 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
+        mojo = null;
     }
 
     public void testDefaultWarType() throws Exception {
@@ -172,7 +175,7 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
     private void requirementsRootDependencyHasTypeAndClassifier(String type, String classifier) throws IOException {
         Assert.assertEquals(type, getRequirementsRootDependency().getType());
-        Assert.assertNull(getRequirementsRootDependency().getClassifier());
+        Assert.assertEquals(classifier, getRequirementsRootDependency().getClassifier());
     }
 
     private void requirementsRootDependencyPresentWithGAV() throws IOException {
@@ -215,7 +218,7 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
         // WHEN
 
-        CreateProfileZipMojo mojo = createProfileZipMojoWithBasicConfig();
+        createProfileZipMojoWithBasicConfig();
 
         artifactBundleTypeIsOverridden(mojo, "zip");
 
@@ -236,7 +239,7 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
         pomWithJarPackaging();
 
-        CreateProfileZipMojo mojo = createProfileZipMojoWithBasicConfig();
+        createProfileZipMojoWithBasicConfig();
 
         // WHEN
 
@@ -259,7 +262,7 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
         pomWithJarPackaging();
 
-        CreateProfileZipMojo mojo = createProfileZipMojoWithBasicConfig();
+        createProfileZipMojoWithBasicConfig();
 
         // WHEN
 
@@ -274,7 +277,7 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         bundleReferencesHaveJarWithFooClassifier();
 
         requirementsRootDependencyPresentWithGAV();
-        requirementsRootDependencyHasTypeAndClassifier("jar","foo");
+        requirementsRootDependencyHasTypeAndClassifier("jar", "foo");
 
     }
 
@@ -330,7 +333,7 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
     }
 
     private CreateProfileZipMojo createProfileZipMojoWithBasicConfig() throws Exception {
-        CreateProfileZipMojo profileZipMojo = (CreateProfileZipMojo) lookupMojo( "zip", getPom());
+        CreateProfileZipMojo profileZipMojo = lookupProfileZipMojo();
 
         assertNotNull(profileZipMojo);
 
@@ -339,6 +342,11 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         setVariableValueToObject(profileZipMojo,"outputFile", getProfileZip());
 
         return profileZipMojo;
+    }
+
+    private CreateProfileZipMojo lookupProfileZipMojo() throws Exception {
+        mojo = (CreateProfileZipMojo) lookupMojo( "zip", getPom());
+        return mojo;
     }
 
     private void artifactBundleTypeIsOverridden(CreateProfileZipMojo mojo, String override) throws IllegalAccessException {
@@ -400,26 +408,40 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         return new File(getBasedir() + "/target/generated-profiles");
     }
 
-    public String getExpectedAritfactBundleValuePrefix() {
+    public String getExpectedArtifactBundleValuePrefix() {
         String packagingType = projectStub.getArtifact().getType();
-        return (SPECIAL_VALUE_PREFIX_TYPES.containsKey(packagingType) ? SPECIAL_VALUE_PREFIX_TYPES.get(packagingType) : "") + "mvn:";
+        String overrideType = getArtifactBundleTypeFromMojo();
+        String rootDependencyType = overrideType != null ? overrideType : packagingType;
+        return (SPECIAL_VALUE_PREFIX_TYPES.containsKey(rootDependencyType) ?
+                SPECIAL_VALUE_PREFIX_TYPES.get(rootDependencyType) : "") + "mvn:";
+    }
+
+    private String getArtifactBundleTypeFromMojo() {
+        try {
+            return (String) getVariableValueFromObject(mojo, "artifactBundleType");
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("unexpected exception when retrieving artifactBundleType setting",e);
+        }
     }
 
     private String getExpectedArtifactBundleValueNoType() {
-        return getExpectedAritfactBundleValuePrefix() + getBundleGavSpec();
+        return getExpectedArtifactBundleValuePrefix() + getBundleGavSpec();
     }
 
     private String getExpectedArtifactBundleValue(String type) {
         return getExpectedArtifactBundleValueNoType() + getTypeSpec(type);
     }
 
-    public String getArtfactBundleKeyPrefix() {
+    public String getArtifactBundleKeyPrefix() {
         String packagingType = projectStub.getArtifact().getType();
-        return ( SPECIAL_KEY_PREFIX_TYPES.containsKey(packagingType) ? SPECIAL_KEY_PREFIX_TYPES.get(packagingType) : "") + "mvn:";
+        String overrideType = getArtifactBundleTypeFromMojo();
+        String rootDependencyType = overrideType != null ? overrideType : packagingType;
+        return ( SPECIAL_KEY_PREFIX_TYPES.containsKey(rootDependencyType) ?
+                SPECIAL_KEY_PREFIX_TYPES.get(rootDependencyType) : "") + "mvn:";
     }
 
     private String getArtifactBundleKeyNoType() {
-        return "bundle."+getArtfactBundleKeyPrefix() + getBundleGavSpec();
+        return "bundle."+ getArtifactBundleKeyPrefix() + getBundleGavSpec();
     }
 
     private String getArtifactBundleKey(String type) {
