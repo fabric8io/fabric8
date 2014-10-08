@@ -105,7 +105,7 @@ public class LoadBalanceTargetSelector extends AbstractConduitSelector {
                     AttributedURIType ad = new AttributedURIType();
                     ad.setValue(address);
                     epr.setAddress(ad);
-                    answer = conduitInitiator.getConduit(ei, epr);
+                    answer = conduitInitiator.getConduit(ei, epr, exchange.getBus());
 
                     MessageObserver observer =
                             exchange.get(MessageObserver.class);
