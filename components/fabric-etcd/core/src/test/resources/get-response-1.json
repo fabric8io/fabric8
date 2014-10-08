@@ -1,0 +1,9 @@
+{
+    "action": "get",
+    "node": {
+        "createdIndex": 2,
+        "key": "/message",
+        "modifiedIndex": 2,
+        "value": "Hello world"
+    }
+}

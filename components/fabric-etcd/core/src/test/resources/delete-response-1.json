@@ -1,0 +1,14 @@
+{
+    "action": "delete",
+    "node": {
+        "createdIndex": 3,
+        "key": "/message",
+        "modifiedIndex": 4
+    },
+    "prevNode": {
+        "key": "/message",
+        "value": "Hello etcd",
+        "modifiedIndex": 3,
+        "createdIndex": 3
+    }
+}

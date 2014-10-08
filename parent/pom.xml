@@ -44,6 +44,70 @@
         <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>common-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-cxf</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-cxf-plugins</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-docker-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-kubernetes-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-utils</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8.etcd</groupId>
+                <artifactId>fabric-etcd-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8.etcd</groupId>
+                <artifactId>fabric-etcd-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8.etcd.reader</groupId>
+                <artifactId>fabric-etcd-reader-gson</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8.etcd.reader</groupId>
+                <artifactId>fabric-etcd-reader-jackson</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Internal testing modules -->
+            <dependency>
+                <groupId>io.fabric8.etcd</groupId>
+                <artifactId>fabric-etcd-core</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>

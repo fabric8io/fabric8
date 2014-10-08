@@ -1,0 +1,15 @@
+{
+    "action": "compareAndSwap",
+    "node": {
+        "createdIndex": 3,
+        "key": "/message",
+        "modifiedIndex": 3,
+        "value": "Hello etcd"
+    },
+    "prevNode": {
+        "createdIndex": 2,
+        "key": "/message",
+        "value": "Hello world",
+        "modifiedIndex": 2
+    }
+}
