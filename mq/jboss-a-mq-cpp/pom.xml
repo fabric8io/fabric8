@@ -63,7 +63,7 @@
               <goal>wget</goal>
             </goals>
             <configuration>
-              <url>http://www.eu.apache.org/dist/activemq/activemq-cpp/source/activemq-cpp-library-${activemqcpp.version}-src.tar.gz</url>
+              <url>http://archive.apache.org/dist/activemq/activemq-cpp/source/activemq-cpp-library-${activemqcpp.version}-src.tar.gz</url>
               <unpack>false</unpack>
               <outputDirectory>target/dependencies/</outputDirectory>
             </configuration>
@@ -75,7 +75,7 @@
               <goal>wget</goal>
             </goals>
             <configuration>
-              <url>http://www.eu.apache.org/dist/activemq/activemq-cpp/source/activemq-cpp-library-${activemqcpp.version}-src.zip</url>
+              <url>http://archive.apache.org/dist/activemq/activemq-cpp/source/activemq-cpp-library-${activemqcpp.version}-src.zip</url>
               <unpack>false</unpack>
               <outputDirectory>target/dependencies/</outputDirectory>
             </configuration>
