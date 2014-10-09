@@ -38,6 +38,10 @@ Now to install fabric8 try:
     cd fabric8/apps
     openshift kube apply -c fabric8.json
 
+Or you can just use the [fabric8.json](https://github.com/fabric8io/fabric8/blob/2.0/apps/fabric8.json) in github:
+
+    openshift kube  apply -c https://raw.githubusercontent.com/fabric8io/fabric8/2.0/apps/fabric8.json
+
 This will run a local docker registry and the hawtio web console.
 
 You should be able to check if the docker registry is running OK via this command (which should return 'true'):
