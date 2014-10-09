@@ -101,7 +101,7 @@ Now lets deploy the image into the Kubernetes environment:
 
     mvn fabric8:deploy
 
-You should now be able to view the running web application at http://dockerhost:9901/war-camel-servlet-2.0.0-SNAPSHOT/
+You should now be able to view the running web application at [http://dockerhost:9901/war-camel-servlet-2.0.0-SNAPSHOT/](http://dockerhost:9901/war-camel-servlet-2.0.0-SNAPSHOT/)
 
 ### Property Reference
 

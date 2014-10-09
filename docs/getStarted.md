@@ -116,7 +116,7 @@ You should be able to check if the docker registry is running OK via this comman
 
 #### Accessing the web console
 
-You should be able to access the web console on your docker host at port 9282 via http://dockerhost:8282/hawtio/kubernetes/pods
+You should be able to access the web console on your docker host at port 9282 via [http://dockerhost:8282/hawtio/kubernetes/pods](http://dockerhost:8282/hawtio/kubernetes/pods)
 
 If you want to hack on the code you can [run a local build of hawtio](https://github.com/hawtio/hawtio/blob/master/BUILDING.md#running-hawtio-against-kubernetes--openshift)
 
