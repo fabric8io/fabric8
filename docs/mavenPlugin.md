@@ -6,12 +6,7 @@ This maven plugin makes it easy to create or deploy [Apps](apps.html) as part of
 
 When creating new docker images for use in Kubernetes you probably want to run a local docker registry if you do not intend to reuse the public docker registry.
 
-Its a good idea to define an environment variable to point to your docker registry:
-
-    export DOCKER_REGISTRY=172.17.0.21:5000
-
-
-Then configure this: edit your **~/.m2/settings.xml** file to define the **docker.registry** value in a profile you can activate by default...
+Make sure you have added this to your **~/.m2/settings.xml** file to define the **docker.registry** value in a profile you can activate by default...
 
 e.g. add this to the &lt;servers&gt; element:
 
@@ -22,8 +17,7 @@ e.g. add this to the &lt;servers&gt; element:
         <profile>
           <id>docker-host</id>
           <properties>
-            <docker.registry>172.17.0.21:5000</docker.registry>
-            <docker.url>http://192.168.59.103:2375</docker.url>
+            <docker.registry>${env.DOCKER_REGISTRY}</docker.registry>
           </properties>
         </profile>
       </profiles>
@@ -87,20 +81,15 @@ This defaults to using the [App JSON file](apps.html) file located at **src/main
 
 The following example shows you how to build and push a docker image to Kubernetes and deploy it and then use it.
 
-First make sure you've defined an environment variable to point to your docker registry:
+Make sure you have [installed OpenShift and Fabric8](http://fabric8.io/v2/getStarted.html) (which installs the web console and the local docker registry).
 
-    export DOCKER_REGISTRY=172.17.0.21:5000
+You should be able to check if the docker registry is running OK via this command (which should return 'true'):
 
-Make sure you are running the registry. e.g. to create one on OpenShift type:
+    curl http://$DOCKER_REGISTRY/v1/_ping
 
-    cd fabric8/apps
-    openshift kube apply -c registry-config.json
+Now you are ready to build a quickstart!
 
-You should be able to check if the registry is running OK via this command (which should return 'true'):
-
-    curl $DOCKER_REGISTRY/v1/_ping
-
-Now you are ready to build your container.
+#### Build the camel-servlet web application
 
 From the distribution or source code perform these commands to push the docker image:
 
@@ -112,16 +101,7 @@ Now lets deploy the image into the Kubernetes environment:
 
     mvn fabric8:deploy
 
-You should now be able to view the web application at http://dockerhost:9901/war-camel-servlet-2.0.0-SNAPSHOT/ where 'dockerhost' should point to the ip address returned by
-
-    boot2docker ip
-
-If you are not running docker natively on linux. (Or just use localhost if you are). [This article](http://viget.com/extend/how-to-use-docker-on-os-x-the-missing-guide) describes how its a good idea to define **dockerhost** to point to your boot2docker ip address:
-
-    echo $(docker-ip) dockerhost | sudo tee -a /etc/hosts
-
-Then you can easily access anything running on your docker host without having to setup port forwarding.
-
+You should now be able to view the running web application at http://dockerhost:9901/war-camel-servlet-2.0.0-SNAPSHOT/
 
 ### Property Reference
 

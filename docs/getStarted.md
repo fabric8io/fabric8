@@ -21,33 +21,102 @@ Or you can build it yourself:
 
 Then add _output/go/bin to your PATH.
 
-### Running OpenShift V3
+### Setting up your machine
 
 <<<<<<< HEAD
-Point your environment at the local kubernetes master (so that hawtio and fabric8 java code can communicate with it over REST):
->>>>>>> add a bit more reasoning behind the environment variable - thanks @hkonsek
+To simplify the documentation and configuration script for fabric8 we are going to setup 2 local host aliases, **openshifthost** and **dockerhost** then all the instructions that follow on this site will work whether you use Docker natively on linux or you run docker in a VM or you are on a Mac or Windows and are using boot2docker.
+>>>>>>> update the docs and fabric8 install config to use the nice new hawtio console docker image (which supports connecting into Java containers running jolokia like fabric8 1.x)
 
-    export KUBERNETES_MASTER=http://127.0.0.1:8080
+Strictly speaking this isn't required to run fabric8 and OpenShift. e.g. on a linux box with native docker you could replace _dockerhost_ and _openshifthost_ with localhost in all the instructions and in the app/fabric8.json file :)
+
+However doing this will make it easier to document; so if you are trying fabric8 on your laptop this is currently the simplest approach.
+
+##### Using linux with a native docker:
+
+If you are on linux try this to define the 2 hosts to point to your localhost:
+
+    export OPENSHIFT_HOST=127.0.0.1
+    echo $OPENSHIFT_HOST openshifthost | sudo tee -a /etc/hosts
+    echo $OPENSHIFT_HOST dockerhost | sudo tee -a /etc/hosts
+
+Another option is to replace dockerhost and openshifthost in the fabric8/apps/fabric8.json file with "localhost" and use "localhost" in the 2 environment variables above and then use "localhost" whenever the documentation mentions "dockerhost" or "openshifthost".
+
+##### Using other platforms
+
+When there is not a native docker, such as on a Mac or Windows when using boot2docker, there will be different IP addresses for your host machine and the boot2docker VM. So we are going to setup 2 aliases for the host (openshifthost) and docker (dockerhost):
+
+First lets define an environment variable to point to your local IP.
+
+If you are on ethernet do:
+
+    export OPENSHIFT_HOST=`ipconfig getifaddr en0`
+
+Or if you're on wifi:
+
+    export OPENSHIFT_HOST=`ipconfig getifaddr en1`
+
+Now lets setup the **openshifthost** alias:
+
+    echo $OPENSHIFT_HOST openshifthost  | sudo tee -a /etc/hosts
+
+Now lets setup the **dockerhost** alias that should point to the ip address of boot2docker:
+
+    echo `boot2docker ip 2> /dev/null` dockerhost | sudo tee -a /etc/hosts
+
+#### Testing your setup
+
+You should be able to ping the 2 host names:
+
+    ping dockerhost
+    ping openshifthost
+
+If you are on a Mac or Windows the above should also work if you ssh into boot2docker via
+
+    boot2docker ssh
+
+#### Environment variables
+
+Now lets set up some environment variables:
+
+    export KUBERNETES_MASTER=http://openshifthost:8080
+    export DOCKER_REGISTRY=dockerhost:5000
+
+
+### Start OpenShift
 
 Then you can start it up:
 
-    $ openshift start
+    $ openshift start --listenAddr=$OPENSHIFT_HOST:8080
 
+You can then use the OpenShift command line tool or the OpenShift console.
+
+<<<<<<< HEAD
 You can then use the OpenShift command line tool; the REST API, the OpenShift console or Hawt.io to work with it. Tools
 like Hawt.io read the KUBERNETES_MASTER environment value in order to find the Kubernetes REST API URL.
+### Running fabric8
+>>>>>>> update the docs and fabric8 install config to use the nice new hawtio console docker image (which supports connecting into Java containers running jolokia like fabric8 1.x)
 
-#### Running a local docker registry
+To make sure you've got the latest and greatest hawtio console try this first:
 
-If you want to create your own images for your OpenShift environment run
+    docker pull fabric8/hawtio
+
+Now to install fabric8 try:
 
     cd fabric8/apps
-    openshift kube apply -c registry-config.json
+    openshift kube apply -c fabric8.json
 
-You will then get a docker registry running on http://localhost:5000. You can check if its up and working via http://localhost:5000/v1/_ping
+This will run a local docker registry and the hawtio web console.
 
-### Running a local build of hawtio
+You should be able to check if the docker registry is running OK via this command (which should return 'true'):
+
+    curl http://$DOCKER_REGISTRY/v1/_ping
+
+#### Accessing the web console
+
+You should be able to access the web console on your docker host at port 9282 via http://dockerhost:8282/hawtio/kubernetes/pods
 
 If you want to hack on the code you can [run a local build of hawtio](https://github.com/hawtio/hawtio/blob/master/BUILDING.md#running-hawtio-against-kubernetes--openshift)
+
 
 #### If you are on a Mac
 
@@ -62,6 +131,14 @@ If you want to also be able to access POD IP ports from your Host operating syst
 Now any Pod IP and port should be accessible both from your Host and also within the boot2docker vm
 
 If you need more help check this guide on [iptables](https://www.frozentux.net/iptables-tutorial/iptables-tutorial.html) and [four ways to connect a docker container to a local network](http://blog.oddbit.com/2014/08/11/four-ways-to-connect-a-docker/)
+
+### Whats next?
+
+So you should have now an empty OpenShift environment with the core of fabric8 installed (the web console and a local docker registry).
+
+Now you could try:
+
+ * [deploying an example quickstart project](http://fabric8.io/v2/mavenPlugin.html#example)
 
 ### Other Resources
 
