@@ -30,6 +30,7 @@ import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.net.domain.IpProtocol;
+import org.jclouds.openstack.nova.v2_0.NovaApi;
 import org.jclouds.openstack.nova.v2_0.NovaApiMetadata;
 import org.jclouds.openstack.nova.v2_0.domain.Ingress;
 import org.jclouds.openstack.nova.v2_0.domain.SecurityGroup;
@@ -184,15 +185,19 @@ public final class NovaFirewallSupport extends AbstractComponent implements ApiF
 
         @Override
         public boolean supports(ComputeService computeService) {
-            return NovaApiMetadata.CONTEXT_TOKEN.isAssignableFrom(computeService.getContext().getBackendType());
+            try {
+                computeService.getContext().unwrapApi(NovaApi.class);
+                return true;
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
         }
 
         /**
          * Returns the @{link SecurityGroupApi} for the target location.
          */
         private static Optional<? extends SecurityGroupApi> getSecurityGroup(ComputeService computeService, String location) {
-           return computeService.getContext().unwrap(NovaApiMetadata.CONTEXT_TOKEN)
-                    .getApi()
+           return computeService.getContext().unwrapApi(NovaApi.class)
                     .getSecurityGroupExtensionForZone(location);
         }
 
