@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1412850368476">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1412868677027">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -382,12 +382,19 @@
                     <section class="normal" id="section-gitbook_15">
                     
                         <h2 id="running-fabric"><a name="running-fabric" class="anchor" href="#running-fabric"><span class="fa fa-link"></span></a>Running Fabric</h2>
+<p>Make sure you have <a href="installOpenShift.html">Installed OpenShift V3</a> and <a href="setupMachine.html">Seup Your Machine</a> first before trying the following:</p>
 <h4 id="environment-variables"><a name="environment-variables" class="anchor" href="#environment-variables"><span class="fa fa-link"></span></a>Environment variables</h4>
 <p>Now make sure you have some environment variables setup. (You may want to place these in your <strong>~/.bashrc</strong> file)</p>
 <pre><code>export KUBERNETES_MASTER=http://openshifthost:8080
 export DOCKER_REGISTRY=dockerhost:5000
+export DOCKER_HOST=tcp://dockerhost:2375
+export OPENSHIFT_HOST=`grep openshifthost /etc/hosts | cut -d &quot; &quot; -f1`
+</code></pre><p>You may want to test that last expression. To see the IP address of where openshift is going to run type:</p>
+<pre><code>echo $OPENSHIFT_HOST
+</code></pre><p>which should look like a valid IP address and be reachable:</p>
+<pre><code>ping $OPENSHIFT_HOST
 </code></pre><h3 id="start-openshift"><a name="start-openshift" class="anchor" href="#start-openshift"><span class="fa fa-link"></span></a>Start OpenShift</h3>
-<p>Then you can start it up:</p>
+<p>Then you can start it up; you can run this anywhere you like really:</p>
 <pre><code>$ openshift start --listenAddr=$OPENSHIFT_HOST:8080
 </code></pre><p>You can then use the OpenShift command line tool or the OpenShift console.</p>
 <h3 id="start-fabric8"><a name="start-fabric8" class="anchor" href="#start-fabric8"><span class="fa fa-link"></span></a>Start fabric8</h3>
@@ -396,11 +403,22 @@ export DOCKER_REGISTRY=dockerhost:5000
 </code></pre><p>Now to install fabric8 try:</p>
 <pre><code>cd fabric8/apps
 openshift kube apply -c fabric8.json
+</code></pre><p>Or you can just use the <a href="https://github.com/fabric8io/fabric8/blob/2.0/apps/fabric8.json" target="_blank">fabric8.json</a> in github:</p>
+<pre><code>openshift kube  apply -c https://raw.githubusercontent.com/fabric8io/fabric8/2.0/apps/fabric8.json
 </code></pre><p>This will run a local docker registry and the hawtio web console.</p>
 <p>You should be able to check if the docker registry is running OK via this command (which should return &apos;true&apos;):</p>
 <pre><code>curl http://$DOCKER_REGISTRY/v1/_ping
 </code></pre><h3 id="open-the-web-console"><a name="open-the-web-console" class="anchor" href="#open-the-web-console"><span class="fa fa-link"></span></a>Open the Web Console</h3>
-<p>You should be able to access the web console on your docker host at port 9282 via <a href="http://dockerhost:8282/hawtio/kubernetes/pods" target="_blank">http://dockerhost:8282/hawtio/kubernetes/pods</a></p>
+<p>You should be able to access the web console on your docker host at port 9282 via:</p>
+<ul>
+<li><a href="http://dockerhost:8282/hawtio/kubernetes/pods" target="_blank">http://dockerhost:8282/hawtio/kubernetes/pods</a></li>
+</ul>
+<p>If you are having networking issues, particularly if you are using boot2docker you can run the web console by hand:</p>
+<pre><code>docker run -p 7282:8080 -it -e KUBERNETES_MASTER=$KUBERNETES_MASTER -e DOCKER_HOST=$DOCKER_HOST fabric8/hawtio
+</code></pre><p>When that container starts up you should be able to view the console at</p>
+<ul>
+<li><a href="http://dockerhost:7282/hawtio/kubernetes/pods" target="_blank">http://dockerhost:7282/hawtio/kubernetes/pods</a></li>
+</ul>
 <p>If you want to hack on the code you can <a href="https://github.com/hawtio/hawtio/blob/master/BUILDING.md#running-hawtio-against-kubernetes--openshift" target="_blank">run a local build of hawtio</a></p>
 <h3 id="whats-next-"><a name="whats-next-" class="anchor" href="#whats-next-"><span class="fa fa-link"></span></a>Whats next?</h3>
 <p>So you should have now an empty OpenShift environment with the core of fabric8 installed (the web console and a local docker registry).</p>
@@ -408,7 +426,12 @@ openshift kube apply -c fabric8.json
 <ul>
 <li><a href="http://fabric8.io/v2/mavenPlugin.html#example" target="_blank">deploying an example quickstart project</a></li>
 </ul>
-<h3 id="other-resources"><a name="other-resources" class="anchor" href="#other-resources"><span class="fa fa-link"></span></a>Other Resources</h3>
+<h3 id="resetting-openshift"><a name="resetting-openshift" class="anchor" href="#resetting-openshift"><span class="fa fa-link"></span></a>Resetting OpenShift</h3>
+<p>At any time you can Ctrl-C or kill the <em>openshift</em> process. This will leave around files from OpenShift and docker containers. So you can clear down your system via:</p>
+<pre><code>    rm -rf openshift.local.*
+    docker kill $(docker ps -q)
+    docker rm $(docker ps -a -q)
+</code></pre><h3 id="other-resources"><a name="other-resources" class="anchor" href="#other-resources"><span class="fa fa-link"></span></a>Other Resources</h3>
 <h4 id="view-a-demo"><a name="view-a-demo" class="anchor" href="#view-a-demo"><span class="fa fa-link"></span></a>View a demo</h4>
 <p>To help you get started, you could watch one of the demos in the  <a class="btn btn-success" href="https://vimeo.com/album/2635012">JBoss Fuse and JBoss A-MQ demo album</a></p>
 <p>For example, try the <a class="btn btn-success" href="https://vimeo.com/80625940">JBoss Fuse 6.1 Demo</a></p>
