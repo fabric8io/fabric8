@@ -24,7 +24,7 @@
   <feature name="quickstart-camel-amq" version="${project.version}" resolver="(obr)">
       <feature version="${project.version}">camel-amq</feature>
 
-      <bundle>mvn:io.fabric8.quickstarts/camel-amq/${project.version}</bundle>
+      <bundle>mvn:io.fabric8.quickstarts/karaf-camel-amq/${project.version}</bundle>
   </feature>
 
 </features>
