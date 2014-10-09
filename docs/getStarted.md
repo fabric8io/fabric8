@@ -23,9 +23,7 @@ Then add _output/go/bin to your PATH.
 
 ### Setting up your machine
 
-<<<<<<< HEAD
 To simplify the documentation and configuration script for fabric8 we are going to setup 2 local host aliases, **openshifthost** and **dockerhost** then all the instructions that follow on this site will work whether you use Docker natively on linux or you run docker in a VM or you are on a Mac or Windows and are using boot2docker.
->>>>>>> update the docs and fabric8 install config to use the nice new hawtio console docker image (which supports connecting into Java containers running jolokia like fabric8 1.x)
 
 Strictly speaking this isn't required to run fabric8 and OpenShift. e.g. on a linux box with native docker you could replace _dockerhost_ and _openshifthost_ with localhost in all the instructions and in the app/fabric8.json file :)
 
@@ -90,11 +88,8 @@ Then you can start it up:
 
 You can then use the OpenShift command line tool or the OpenShift console.
 
-<<<<<<< HEAD
-You can then use the OpenShift command line tool; the REST API, the OpenShift console or Hawt.io to work with it. Tools
-like Hawt.io read the KUBERNETES_MASTER environment value in order to find the Kubernetes REST API URL.
+
 ### Running fabric8
->>>>>>> update the docs and fabric8 install config to use the nice new hawtio console docker image (which supports connecting into Java containers running jolokia like fabric8 1.x)
 
 To make sure you've got the latest and greatest hawtio console try this first:
 
