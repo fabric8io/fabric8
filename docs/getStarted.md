@@ -55,7 +55,11 @@ should print out your IP address or if not then try this:
     export OPENSHIFT_HOST=`ipconfig getifaddr en1`
     echo $OPENSHIFT_HOST
 
-If you still don't have an IP address in the **OPENSHIFT_HOST** environment variable, try figure oit out and just specify it explicity :). (E.g. look in your operating system settings etc).
+If you still don't have an IP address in the **OPENSHIFT_HOST** environment variable, try just running:
+
+    ifconfig
+
+and seeing if you can spot one. If not try figure it out yourself; e.g. look in your operating system settings.
 
 Now lets setup the **openshifthost** alias:
 
