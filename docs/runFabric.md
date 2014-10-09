@@ -1,5 +1,7 @@
 ## Running Fabric
 
+Make sure you have [Installed OpenShift V3](installOpenShift.html) and [Seup Your Machine](setupMachine.html) first before trying the following:
+
 #### Environment variables
 
 Now make sure you have some environment variables setup. (You may want to place these in your **~/.bashrc** file)
@@ -7,6 +9,15 @@ Now make sure you have some environment variables setup. (You may want to place 
     export KUBERNETES_MASTER=http://openshifthost:8080
     export DOCKER_REGISTRY=dockerhost:5000
     export DOCKER_HOST=tcp://dockerhost:2375
+    export OPENSHIFT_HOST=`grep openshifthost /etc/hosts | cut -d " " -f1`
+
+You may want to test that last expression. To see the IP address of where openshift is going to run type:
+
+    echo $OPENSHIFT_HOST
+
+which should look like a valid IP address and be reachable:
+
+    ping $OPENSHIFT_HOST
 
 ### Start OpenShift
 
