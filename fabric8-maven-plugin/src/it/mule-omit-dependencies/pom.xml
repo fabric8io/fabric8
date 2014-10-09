@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Copyright 2005-2014 Red Hat, Inc.
+
+    Red Hat licenses this file to you under the Apache License, version
+    2.0 (the "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+    implied.  See the License for the specific language governing
+    permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.fabric8.maven.itests</groupId>
+    <artifactId>mule-omit-dependencies</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>mule</packaging>
+
+    <description>
+        The purpose of this test is to verify that adding dependencies to the profile
+        requirements can be skipped. One use case for this is for creating profiles to
+        deployment Mule applications.
+
+        This Mule POM has been stripped down to only include elements relevant to the tests.
+        For example nice-to-have reporting plugins have been removed.
+    </description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <version.compiler.plugin>2.3.1</version.compiler.plugin>
+        <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <eclipsePluginVersion>2.8</eclipsePluginVersion>
+
+        <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
+        <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
+
+        <!-- the version of the BOM, defining all the dependency versions -->
+        <fabric8.bom.version>@project.version@</fabric8.bom.version>
+        <fabric.version>@project.version@</fabric.version>
+        <mule.version>3.5.0</mule.version>
+        <mule.maven.version>1.9</mule.maven.version>
+
+        <!-- fabric8 deploy profile configuration -->
+        <fabric8.profile>itests-maven-mule.omit.dependencies</fabric8.profile>
+        <fabric8.parentProfiles>containers-mule.ce</fabric8.parentProfiles>
+        <!-- we can define what the context path should be using a fixed name -->
+        <fabric8.webContextPath>omitdependencies</fabric8.webContextPath>
+
+        <!-- fabric8 will by default use the packaging type as the archive extension spec -->
+        <!-- for the bundle. This means it will specify an archive 'mule-helloworld.mule' to -->
+        <!-- the resolver, which is wrong. So the default type must be overridden so that -->
+        <!-- resolver looks for mule-helloworld.zip instead! -->
+        <fabric8.artifactBundleType>zip</fabric8.artifactBundleType>
+
+        <!-- The mule application is self contained, so fabric doesn't need to know about -->
+        <!-- code dependencies -->
+        <fabric8.omitDependenciesFromRequirements>true</fabric8.omitDependenciesFromRequirements>
+    </properties>
+
+
+    <dependencies>
+        <!-- non provided dependency, this should not be included in requirements -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mule</groupId>
+            <artifactId>mule-core</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Xml configuration -->
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-spring-config</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Mule Transports -->
+        <dependency>
+            <groupId>org.mule.transports</groupId>
+            <artifactId>mule-transport-http</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Mule Modules -->
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-client</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-cxf</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-management</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- for testing -->
+        <dependency>
+            <groupId>org.mule.tests</groupId>
+            <artifactId>mule-tests-functional</artifactId>
+            <version>${mule.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.3.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version.compiler.plugin}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.mule.tools</groupId>
+                <artifactId>maven-mule-plugin</artifactId>
+                <version>${mule.maven.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <copyToAppsDirectory>true</copyToAppsDirectory>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>project</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric8-maven-plugin</artifactId>
+                <version>@project.version@</version>
+                <executions>
+                    <execution>
+                        <id>zip</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>zip</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <repositories>
+
+        <repository>
+            <id>mulesoft-releases</id>
+            <name>MuleSoft Releases Repository</name>
+            <url>http://repository.mulesoft.org/releases/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>fusesource.m2</id>
+            <name>FuseSource Community Release Repository</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>mulesoft-release</id>
+            <name>mulesoft release repository</name>
+            <layout>default</layout>
+            <url>http://repository.mulesoft.org/releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+</project>

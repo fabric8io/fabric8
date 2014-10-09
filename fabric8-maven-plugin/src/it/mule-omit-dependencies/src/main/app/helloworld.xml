@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      version="CE-3.4.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+  <flow name="it-worksFlow1" doc:name="it-worksFlow1">
+
+    <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="2121" doc:name="HTTP"/>
+
+    <set-payload value="&lt;html&gt;&lt;body&gt;&lt;h1&gt;It Works!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;"
+                 doc:name="Set Payload"/>
+
+    <message-properties-transformer doc:name="Message Properties">
+      <add-message-property key="Content-Type" value="text/html"/>
+    </message-properties-transformer>
+
+  </flow>
+
+</mule>
