@@ -341,7 +341,7 @@
                     <goal>wget</goal>
                   </goals>
                   <configuration>
-                    <url>http://www.eu.apache.org/dist/activemq/activemq-cpp/source/activemq-cpp-library-${activemqcpp.version}-src.tar.gz</url>
+                    <url>http://archive.apache.org/dist/activemq/activemq-cpp/source/activemq-cpp-library-${activemqcpp.version}-src.tar.gz</url>
                     <unpack>false</unpack>
                     <outputDirectory>target/dependencies/unix</outputDirectory>
                   </configuration>
@@ -353,7 +353,7 @@
                     <goal>wget</goal>
                   </goals>
                   <configuration>
-                    <url>http://www.eu.apache.org/dist/activemq/activemq-cpp/source/activemq-cpp-library-${activemqcpp.version}-src.zip</url>
+                    <url>http://archive.apache.org/dist/activemq/activemq-cpp/source/activemq-cpp-library-${activemqcpp.version}-src.zip</url>
                     <unpack>false</unpack>
                     <outputDirectory>target/dependencies/unix</outputDirectory>
                   </configuration>
@@ -365,7 +365,7 @@
                     <goal>wget</goal>
                   </goals>
                   <configuration>
-                    <url>http://www.eu.apache.org/dist/activemq/apache-nms/1.6.0/Apache.NMS.ActiveMQ-${activemqnms.version}-bin.zip</url>
+                    <url>http://archive.apache.org/dist/activemq/apache-nms/1.6.0/Apache.NMS.ActiveMQ-${activemqnms.version}-bin.zip</url>
                     <unpack>false</unpack>
                     <outputDirectory>target/dependencies/unix</outputDirectory>
                   </configuration>
@@ -377,7 +377,7 @@
                     <goal>wget</goal>
                   </goals>
                   <configuration>
-                    <url>http://www.eu.apache.org/dist/activemq/apache-nms/1.6.0/Apache.NMS.ActiveMQ-${activemqnms.version}-src.zip</url>
+                    <url>http://archive.apache.org/dist/activemq/apache-nms/1.6.0/Apache.NMS.ActiveMQ-${activemqnms.version}-src.zip</url>
                     <unpack>false</unpack>
                     <outputDirectory>target/dependencies/unix</outputDirectory>
                   </configuration>
