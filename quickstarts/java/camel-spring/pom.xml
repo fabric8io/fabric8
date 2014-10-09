@@ -48,8 +48,8 @@
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
     <camel.version>2.13.2</camel.version>
 
-    <!-- fabric8 deploy profile configuration -->
-    <fabric8.profile>quickstarts-java-camel.spring</fabric8.profile>
+    <!-- fabric8 deploy configuration -->
+    <docker.dataImage>mydemo/${project.artifactId}:${project.version}</docker.dataImage>
   </properties>
 
   <dependencyManagement>
@@ -99,6 +99,13 @@
   <build>
     <defaultGoal>install</defaultGoal>
 
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
     <plugins>
       <!-- Compiler plugin enforces Java 1.7 compatibility and activates annotation processors -->
       <plugin>
@@ -128,12 +135,11 @@
         <artifactId>docker-maven-plugin</artifactId>
         <version>${docker-maven-plugin.version}</version>
         <configuration>
-          <image>fabric8/fabric8-java</image>
+          <image>fabric8/java</image>
           <mergeData>true</mergeData>
           <assemblyDescriptorRef>artifact-with-dependencies</assemblyDescriptorRef>
-          <dataExportDir>/home/fabric8/lib</dataExportDir>
           <env>
-            <JAVA_MAIN>org.apache.camel.spring.Main</JAVA_MAIN>
+            <MAIN>org.apache.camel.spring.Main</MAIN>
           </env>
         </configuration>
       </plugin>
