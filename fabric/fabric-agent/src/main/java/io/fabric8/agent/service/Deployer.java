@@ -434,19 +434,19 @@ public class Deployer {
         //
         logDeployment(deployment, display);
 
+        if (!noRefresh && !toRefresh.isEmpty()) {
+            print("  Bundles to refresh:", display);
+            for (Bundle bundle : toRefresh) {
+                print("    " + bundle.getSymbolicName() + " / " + bundle.getVersion(), display);
+            }
+        }
+        if (!toManage.isEmpty()) {
+            print("  Managing bundle:", display);
+            for (Bundle bundle : toManage) {
+                print("    " + bundle.getSymbolicName() + " / " + bundle.getVersion(), display);
+            }
+        }
         if (simulate) {
-            if (!noRefresh && !toRefresh.isEmpty()) {
-                print("  Bundles to refresh:", display);
-                for (Bundle bundle : toRefresh) {
-                    print("    " + bundle.getSymbolicName() + " / " + bundle.getVersion(), display);
-                }
-            }
-            if (!toManage.isEmpty()) {
-                print("  Managing bundle:", display);
-                for (Bundle bundle : toManage) {
-                    print("    " + bundle.getSymbolicName() + " / " + bundle.getVersion(), display);
-                }
-            }
             return;
         }
 

@@ -198,6 +198,7 @@
         <feature>gravia</feature>
         <feature>karaf</feature>
 
+        <bundle dependency="true">mvn:javax.annotation/javax.annotation-api/1.2</bundle>
         <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
@@ -675,7 +676,7 @@
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2-version}</bundle>
-        <bundle>mvn:org.apache.geronimo.specs/geronimo-annotation_1.1_spec/1.0.1</bundle>
+        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-annotation_1.1_spec/1.0.1</bundle>
 <!--
         CXF 3 version
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson2-version}</bundle>
@@ -708,7 +709,7 @@
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2-version}</bundle>
-        <bundle>mvn:org.apache.geronimo.specs/geronimo-annotation_1.1_spec/1.0.1</bundle>
+        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-annotation_1.1_spec/1.0.1</bundle>
       <!--
         CXF 3 version
         <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson2-version}</bundle>

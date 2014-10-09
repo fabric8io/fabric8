@@ -37,12 +37,6 @@ public class CandidateComparator implements Comparator<Capability> {
 
     public int compare(Capability cap1, Capability cap2) {
         int c = 0;
-        // Always prefer system bundle
-        if (cap1 instanceof BundleCapability && !(cap2 instanceof BundleCapability)) {
-            c = -1;
-        } else if (!(cap1 instanceof BundleCapability) && cap2 instanceof BundleCapability) {
-            c = 1;
-        }
         // Always prefer mandatory resources
         if (c == 0) {
             if (mandatory.contains(cap1.getResource()) && !mandatory.contains(cap2.getResource())) {
@@ -107,6 +101,13 @@ public class CandidateComparator implements Comparator<Capability> {
                 // Compare these in reverse order, since we want
                 // highest version to have priority.
                 c = compareVersions(v2, v1);
+            }
+        } else if (c == 0) {
+            // Always prefer system bundle
+            if (cap1 instanceof BundleCapability && !(cap2 instanceof BundleCapability)) {
+                c = -1;
+            } else if (!(cap1 instanceof BundleCapability) && cap2 instanceof BundleCapability) {
+                c = 1;
             }
         }
         return c;
