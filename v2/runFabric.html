@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Overview | Fabric8 Documentation</title>
+        <title>Run Fabric8 | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./pods.html" />
+        <link rel="next" href="./quickstarts.html" />
         
         
-        <link rel="prev" href="./index.html" />
+        <link rel="prev" href="./setupMachine.html" />
         
 
-        <meta property="og:title" content="Overview | Fabric8 Documentation">
+        <meta property="og:title" content="Run Fabric8 | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="1" data-basepath="." data-revision="1412850368476">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1412850368476">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -334,7 +334,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 5.882352941176471%;min-width: 0%;"></div>
+        <div class="inner" style="width: 64.70588235294117%;min-width: 58.8235294117647%;"></div>
     </div>
     <div class="chapters">
     
@@ -342,25 +342,25 @@
     
         <a href="./overview.html" title="Overview" class="chapter done new-chapter" data-progress="1" style="left: 5.882352941176471%;"></a>
     
-        <a href="./pods.html" title="Pods" class="chapter  " data-progress="1.1" style="left: 11.764705882352942%;"></a>
+        <a href="./pods.html" title="Pods" class="chapter done " data-progress="1.1" style="left: 11.764705882352942%;"></a>
     
-        <a href="./replicationControllers.html" title="Replication Controllers" class="chapter  " data-progress="1.2" style="left: 17.647058823529413%;"></a>
+        <a href="./replicationControllers.html" title="Replication Controllers" class="chapter done " data-progress="1.2" style="left: 17.647058823529413%;"></a>
     
-        <a href="./labels.html" title="Labels" class="chapter  " data-progress="1.3" style="left: 23.529411764705884%;"></a>
+        <a href="./labels.html" title="Labels" class="chapter done " data-progress="1.3" style="left: 23.529411764705884%;"></a>
     
-        <a href="./services.html" title="Services" class="chapter  " data-progress="1.4" style="left: 29.41176470588235%;"></a>
+        <a href="./services.html" title="Services" class="chapter done " data-progress="1.4" style="left: 29.41176470588235%;"></a>
     
-        <a href="./apps.html" title="Apps" class="chapter  " data-progress="1.5" style="left: 35.294117647058826%;"></a>
+        <a href="./apps.html" title="Apps" class="chapter done " data-progress="1.5" style="left: 35.294117647058826%;"></a>
     
-        <a href="./builds.html" title="Builds" class="chapter  " data-progress="1.6" style="left: 41.1764705882353%;"></a>
+        <a href="./builds.html" title="Builds" class="chapter done " data-progress="1.6" style="left: 41.1764705882353%;"></a>
     
-        <a href="./getStarted.html" title="Getting Started" class="chapter  new-chapter" data-progress="2" style="left: 47.05882352941177%;"></a>
+        <a href="./getStarted.html" title="Getting Started" class="chapter done new-chapter" data-progress="2" style="left: 47.05882352941177%;"></a>
     
-        <a href="./installOpenShift.html" title="Get OpenShift V3" class="chapter  " data-progress="2.1" style="left: 52.94117647058823%;"></a>
+        <a href="./installOpenShift.html" title="Get OpenShift V3" class="chapter done " data-progress="2.1" style="left: 52.94117647058823%;"></a>
     
-        <a href="./setupMachine.html" title="Seup Your Machine" class="chapter  " data-progress="2.2" style="left: 58.8235294117647%;"></a>
+        <a href="./setupMachine.html" title="Seup Your Machine" class="chapter done " data-progress="2.2" style="left: 58.8235294117647%;"></a>
     
-        <a href="./runFabric.html" title="Run Fabric8" class="chapter  " data-progress="2.3" style="left: 64.70588235294117%;"></a>
+        <a href="./runFabric.html" title="Run Fabric8" class="chapter done " data-progress="2.3" style="left: 64.70588235294117%;"></a>
     
         <a href="./quickstarts.html" title="QuickStarts" class="chapter  " data-progress="2.4" style="left: 70.58823529411765%;"></a>
     
@@ -379,28 +379,43 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_11">
+                    <section class="normal" id="section-gitbook_15">
                     
-                        <h2 id="overview"><a name="overview" class="anchor" href="#overview"><span class="fa fa-link"></span></a>Overview</h2>
-<p>Fabric8 2.x provides an integration platform above <a href="http://docker.io/" target="_blank">Docker</a>, <a href="http://kubernetes.io" target="_blank">Kubernetes</a> and the <a href="http://openshift.github.io/" target="_blank">Kubernetes extensions defined in OpenShift Origin</a>. For non-linux platforms which don&apos;t support docker we have a <a href="emulation.html">Docker Emulation Layer</a>.</p>
-<p>Kubernetes is supported on Google &amp; Microsofts clouds, by OpenShift v3 (on premise and public cloud), by Project Atomic and VMware; so it&apos;s increasingly becoming the standard API to PaaS and Container As A Service on the hybrid clouds. So it makes sense for fabric8 to be optimised to run well on top of Kubernetes so it can reuse Container As A Service across the open hybrid cloud.</p>
-<h4 id="how-it-all-fits-together"><a name="how-it-all-fits-together" class="anchor" href="#how-it-all-fits-together"><span class="fa fa-link"></span></a>How it all fits together</h4>
+                        <h2 id="running-fabric"><a name="running-fabric" class="anchor" href="#running-fabric"><span class="fa fa-link"></span></a>Running Fabric</h2>
+<h4 id="environment-variables"><a name="environment-variables" class="anchor" href="#environment-variables"><span class="fa fa-link"></span></a>Environment variables</h4>
+<p>Now make sure you have some environment variables setup. (You may want to place these in your <strong>~/.bashrc</strong> file)</p>
+<pre><code>export KUBERNETES_MASTER=http://openshifthost:8080
+export DOCKER_REGISTRY=dockerhost:5000
+</code></pre><h3 id="start-openshift"><a name="start-openshift" class="anchor" href="#start-openshift"><span class="fa fa-link"></span></a>Start OpenShift</h3>
+<p>Then you can start it up:</p>
+<pre><code>$ openshift start --listenAddr=$OPENSHIFT_HOST:8080
+</code></pre><p>You can then use the OpenShift command line tool or the OpenShift console.</p>
+<h3 id="start-fabric8"><a name="start-fabric8" class="anchor" href="#start-fabric8"><span class="fa fa-link"></span></a>Start fabric8</h3>
+<p>To make sure you&apos;ve got the latest and greatest hawtio console try this first:</p>
+<pre><code>docker pull fabric8/hawtio
+</code></pre><p>Now to install fabric8 try:</p>
+<pre><code>cd fabric8/apps
+openshift kube apply -c fabric8.json
+</code></pre><p>This will run a local docker registry and the hawtio web console.</p>
+<p>You should be able to check if the docker registry is running OK via this command (which should return &apos;true&apos;):</p>
+<pre><code>curl http://$DOCKER_REGISTRY/v1/_ping
+</code></pre><h3 id="open-the-web-console"><a name="open-the-web-console" class="anchor" href="#open-the-web-console"><span class="fa fa-link"></span></a>Open the Web Console</h3>
+<p>You should be able to access the web console on your docker host at port 9282 via <a href="http://dockerhost:8282/hawtio/kubernetes/pods" target="_blank">http://dockerhost:8282/hawtio/kubernetes/pods</a></p>
+<p>If you want to hack on the code you can <a href="https://github.com/hawtio/hawtio/blob/master/BUILDING.md#running-hawtio-against-kubernetes--openshift" target="_blank">run a local build of hawtio</a></p>
+<h3 id="whats-next-"><a name="whats-next-" class="anchor" href="#whats-next-"><span class="fa fa-link"></span></a>Whats next?</h3>
+<p>So you should have now an empty OpenShift environment with the core of fabric8 installed (the web console and a local docker registry).</p>
+<p>Now you could try:</p>
 <ul>
-<li>Docker provides the abstraction for packaging and creating Linux based lightweight containers</li>
-<li>Kubernetes provides the mechanism for running docker containers on multiple hosts (like a distributed systemd) together with networking them together</li>
-<li>Kubernetes extensions provides the packaging, templating and building mechanisms</li>
+<li><a href="http://fabric8.io/v2/mavenPlugin.html#example" target="_blank">deploying an example quickstart project</a></li>
 </ul>
-<h4 id="kubernetes-model"><a name="kubernetes-model" class="anchor" href="#kubernetes-model"><span class="fa fa-link"></span></a>Kubernetes model</h4>
-<ul>
-<li><a href="pods.html">Pods</a></li>
-<li><a href="replicationControllers.html">Replication Controllers</a></li>
-<li><a href="services.html">Services</a></li>
-</ul>
-<h4 id="kubernetes-extensions-from-openshift-origin-v3"><a name="kubernetes-extensions-from-openshift-origin-v3" class="anchor" href="#kubernetes-extensions-from-openshift-origin-v3"><span class="fa fa-link"></span></a>Kubernetes extensions from OpenShift Origin v3</h4>
-<ul>
-<li><a href="apps.html">Apps (or Kubernetes Application Templates)</a></li>
-<li><a href="builds.html">Builds</a></li>
-</ul>
+<h3 id="other-resources"><a name="other-resources" class="anchor" href="#other-resources"><span class="fa fa-link"></span></a>Other Resources</h3>
+<h4 id="view-a-demo"><a name="view-a-demo" class="anchor" href="#view-a-demo"><span class="fa fa-link"></span></a>View a demo</h4>
+<p>To help you get started, you could watch one of the demos in the  <a class="btn btn-success" href="https://vimeo.com/album/2635012">JBoss Fuse and JBoss A-MQ demo album</a></p>
+<p>For example, try the <a class="btn btn-success" href="https://vimeo.com/80625940">JBoss Fuse 6.1 Demo</a></p>
+<h4 id="try-quickstarts"><a name="try-quickstarts" class="anchor" href="#try-quickstarts"><span class="fa fa-link"></span></a>Try QuickStarts</h4>
+<p>New users to Fabric8 should try the <a href="/gitbook/quickstarts.html">QuickStarts</a>.</p>
+<h4 id="read-the-documentation"><a name="read-the-documentation" class="anchor" href="#read-the-documentation"><span class="fa fa-link"></span></a>Read the documentation</h4>
+<p>Check out the <a href="/gitbook/overview.html">Overview</a> and <a href="/gitbook/index.html">User Guide</a>.</p>
 
                     
                     </section>
@@ -410,10 +425,10 @@
         </div>
 
         
-        <a href="./index.html" class="navigation navigation-prev " aria-label="Previous page: Introduction"><i class="fa fa-angle-left"></i></a>
+        <a href="./setupMachine.html" class="navigation navigation-prev " aria-label="Previous page: Seup Your Machine"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./pods.html" class="navigation navigation-next " aria-label="Next page: Pods"><i class="fa fa-angle-right"></i></a>
+        <a href="./quickstarts.html" class="navigation navigation-next " aria-label="Next page: QuickStarts"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Overview | Fabric8 Documentation</title>
+        <title>Get OpenShift V3 | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./pods.html" />
+        <link rel="next" href="./setupMachine.html" />
         
         
-        <link rel="prev" href="./index.html" />
+        <link rel="prev" href="./getStarted.html" />
         
 
-        <meta property="og:title" content="Overview | Fabric8 Documentation">
+        <meta property="og:title" content="Get OpenShift V3 | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="1" data-basepath="." data-revision="1412850368476">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.1" data-basepath="." data-revision="1412850368476">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -334,7 +334,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 5.882352941176471%;min-width: 0%;"></div>
+        <div class="inner" style="width: 52.94117647058823%;min-width: 47.05882352941177%;"></div>
     </div>
     <div class="chapters">
     
@@ -342,21 +342,21 @@
     
         <a href="./overview.html" title="Overview" class="chapter done new-chapter" data-progress="1" style="left: 5.882352941176471%;"></a>
     
-        <a href="./pods.html" title="Pods" class="chapter  " data-progress="1.1" style="left: 11.764705882352942%;"></a>
+        <a href="./pods.html" title="Pods" class="chapter done " data-progress="1.1" style="left: 11.764705882352942%;"></a>
     
-        <a href="./replicationControllers.html" title="Replication Controllers" class="chapter  " data-progress="1.2" style="left: 17.647058823529413%;"></a>
+        <a href="./replicationControllers.html" title="Replication Controllers" class="chapter done " data-progress="1.2" style="left: 17.647058823529413%;"></a>
     
-        <a href="./labels.html" title="Labels" class="chapter  " data-progress="1.3" style="left: 23.529411764705884%;"></a>
+        <a href="./labels.html" title="Labels" class="chapter done " data-progress="1.3" style="left: 23.529411764705884%;"></a>
     
-        <a href="./services.html" title="Services" class="chapter  " data-progress="1.4" style="left: 29.41176470588235%;"></a>
+        <a href="./services.html" title="Services" class="chapter done " data-progress="1.4" style="left: 29.41176470588235%;"></a>
     
-        <a href="./apps.html" title="Apps" class="chapter  " data-progress="1.5" style="left: 35.294117647058826%;"></a>
+        <a href="./apps.html" title="Apps" class="chapter done " data-progress="1.5" style="left: 35.294117647058826%;"></a>
     
-        <a href="./builds.html" title="Builds" class="chapter  " data-progress="1.6" style="left: 41.1764705882353%;"></a>
+        <a href="./builds.html" title="Builds" class="chapter done " data-progress="1.6" style="left: 41.1764705882353%;"></a>
     
-        <a href="./getStarted.html" title="Getting Started" class="chapter  new-chapter" data-progress="2" style="left: 47.05882352941177%;"></a>
+        <a href="./getStarted.html" title="Getting Started" class="chapter done new-chapter" data-progress="2" style="left: 47.05882352941177%;"></a>
     
-        <a href="./installOpenShift.html" title="Get OpenShift V3" class="chapter  " data-progress="2.1" style="left: 52.94117647058823%;"></a>
+        <a href="./installOpenShift.html" title="Get OpenShift V3" class="chapter done " data-progress="2.1" style="left: 52.94117647058823%;"></a>
     
         <a href="./setupMachine.html" title="Seup Your Machine" class="chapter  " data-progress="2.2" style="left: 58.8235294117647%;"></a>
     
@@ -379,29 +379,29 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_11">
+                    <section class="normal" id="section-gitbook_8">
                     
-                        <h2 id="overview"><a name="overview" class="anchor" href="#overview"><span class="fa fa-link"></span></a>Overview</h2>
-<p>Fabric8 2.x provides an integration platform above <a href="http://docker.io/" target="_blank">Docker</a>, <a href="http://kubernetes.io" target="_blank">Kubernetes</a> and the <a href="http://openshift.github.io/" target="_blank">Kubernetes extensions defined in OpenShift Origin</a>. For non-linux platforms which don&apos;t support docker we have a <a href="emulation.html">Docker Emulation Layer</a>.</p>
-<p>Kubernetes is supported on Google &amp; Microsofts clouds, by OpenShift v3 (on premise and public cloud), by Project Atomic and VMware; so it&apos;s increasingly becoming the standard API to PaaS and Container As A Service on the hybrid clouds. So it makes sense for fabric8 to be optimised to run well on top of Kubernetes so it can reuse Container As A Service across the open hybrid cloud.</p>
-<h4 id="how-it-all-fits-together"><a name="how-it-all-fits-together" class="anchor" href="#how-it-all-fits-together"><span class="fa fa-link"></span></a>How it all fits together</h4>
+                        <h2 id="install-openshift"><a name="install-openshift" class="anchor" href="#install-openshift"><span class="fa fa-link"></span></a>Install OpenShift</h2>
+<p>In order to start working with the Fabric8 on your laptop, you need to have
+<a href="https://github.com/GoogleCloudPlatform/kubernetes" target="_blank">Kubernetes</a> and
+<a href="https://github.com/coreos/etcd" target="_blank">etcd</a> services available.</p>
+<p>The quickest way to start Kube and etcd locally is to run OpenShift V3 on your machine.</p>
+<h3 id="get-openshift-v3"><a name="get-openshift-v3" class="anchor" href="#get-openshift-v3"><span class="fa fa-link"></span></a>Get OpenShift V3</h3>
+<p>You can download a <a href="https://github.com/openshift/origin/releases" target="_blank">distribution of OpenShift V3</a> if there is a download
+for your platform (currently OpenShift runs only on the 64-bit Linux). We recommend to download the <a href="https://github.com/openshift/origin/releases/download/20141003/openshift-origin-linux64-e4d4ecf.tar.gz">alpha nightly 20141003/e4d4ecf</a> version of the
+OpenShift 3 - Fabric8 has been tested against it.</p>
+<h3 id="building-openshift-v3"><a name="building-openshift-v3" class="anchor" href="#building-openshift-v3"><span class="fa fa-link"></span></a>Building OpenShift V3</h3>
+<p>Its actually pretty quick and easy to build OpenShift yourself:</p>
 <ul>
-<li>Docker provides the abstraction for packaging and creating Linux based lightweight containers</li>
-<li>Kubernetes provides the mechanism for running docker containers on multiple hosts (like a distributed systemd) together with networking them together</li>
-<li>Kubernetes extensions provides the packaging, templating and building mechanisms</li>
+<li>install <a href="http://golang.org/doc/install" target="_blank">go lang</a></li>
+<li><a href="https://github.com/jstrachan/origin/blob/master/README.md#getting-started" target="_blank">compile the OpenShift V3 code</a> via this command:</li>
 </ul>
-<h4 id="kubernetes-model"><a name="kubernetes-model" class="anchor" href="#kubernetes-model"><span class="fa fa-link"></span></a>Kubernetes model</h4>
-<ul>
-<li><a href="pods.html">Pods</a></li>
-<li><a href="replicationControllers.html">Replication Controllers</a></li>
-<li><a href="services.html">Services</a></li>
+<pre><code>    hack/build-go.sh
+</code></pre><ul>
+<li>Add the <strong>_output/go/bin</strong> folder to your <strong>PATH</strong> so that you can run the <strong>openshift</strong> command from any directory. e.g. add this to your ~/.bashrc</li>
 </ul>
-<h4 id="kubernetes-extensions-from-openshift-origin-v3"><a name="kubernetes-extensions-from-openshift-origin-v3" class="anchor" href="#kubernetes-extensions-from-openshift-origin-v3"><span class="fa fa-link"></span></a>Kubernetes extensions from OpenShift Origin v3</h4>
-<ul>
-<li><a href="apps.html">Apps (or Kubernetes Application Templates)</a></li>
-<li><a href="builds.html">Builds</a></li>
-</ul>
-
+<pre><code>    export PATH=$PATH:$GOPATH/src/github.com/openshift/origin/_output/go/bin
+</code></pre>
                     
                     </section>
                 
@@ -410,10 +410,10 @@
         </div>
 
         
-        <a href="./index.html" class="navigation navigation-prev " aria-label="Previous page: Introduction"><i class="fa fa-angle-left"></i></a>
+        <a href="./getStarted.html" class="navigation navigation-prev " aria-label="Previous page: Getting Started"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./pods.html" class="navigation navigation-next " aria-label="Next page: Pods"><i class="fa fa-angle-right"></i></a>
+        <a href="./setupMachine.html" class="navigation navigation-next " aria-label="Next page: Seup Your Machine"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
