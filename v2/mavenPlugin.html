@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1412868677027">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1412877771777">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -395,6 +395,11 @@
       &lt;id&gt;docker-host&lt;/id&gt;
       &lt;properties&gt;
         &lt;docker.registry&gt;${env.DOCKER_REGISTRY}&lt;/docker.registry&gt;
+        &lt;docker.url&gt;http://dockerhost:2375&lt;/docker.url&gt;
+        &lt;!--
+          TODO when supported by docker-maven-plugin 0.9.10
+        &lt;docker.url&gt;${env.DOCKER_HOST}&lt;/docker.url&gt;
+        --&gt;
       &lt;/properties&gt;
     &lt;/profile&gt;
   &lt;/profiles&gt;

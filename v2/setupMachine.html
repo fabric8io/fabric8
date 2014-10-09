@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2" data-basepath="." data-revision="1412868677027">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2" data-basepath="." data-revision="1412877771777">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -385,6 +385,8 @@
 <p>To simplify the documentation and configuration script for fabric8 we are going to setup 2 local host aliases, <strong>openshifthost</strong> and <strong>dockerhost</strong> then all the instructions that follow on this site will work whether you use Docker natively on linux or you run docker in a VM or you are on a Mac or Windows and are using boot2docker.</p>
 <p>Strictly speaking this isn&apos;t required to run fabric8 and OpenShift. e.g. on a linux box with native docker you could replace <em>dockerhost</em> and <em>openshifthost</em> with localhost in all the instructions and in the app/fabric8.json file :)</p>
 <p>However doing this will make it easier to document; so if you are trying fabric8 on your laptop this is currently the simplest approach.</p>
+<h3 id="install-the-latest-docker"><a name="install-the-latest-docker" class="anchor" href="#install-the-latest-docker"><span class="fa fa-link"></span></a>Install the latest Docker</h3>
+<p>First you&apos;ll need to <a href="https://docs.docker.com/installation/" target="_blank">install docker</a>, the later the version generally the better it is!</p>
 <h3 id="if-you-are-using-linux-with-a-native-docker-"><a name="if-you-are-using-linux-with-a-native-docker-" class="anchor" href="#if-you-are-using-linux-with-a-native-docker-"><span class="fa fa-link"></span></a>If you are using linux with a native docker:</h3>
 <p>If you are on linux try this to define the 2 hosts to point to your localhost:</p>
 <pre><code>export OPENSHIFT_HOST=127.0.0.1
@@ -392,7 +394,10 @@ echo $OPENSHIFT_HOST openshifthost | sudo tee -a /etc/hosts
 echo $OPENSHIFT_HOST dockerhost | sudo tee -a /etc/hosts
 </code></pre><p>Another option is to replace dockerhost and openshifthost in the fabric8/apps/fabric8.json file with &quot;localhost&quot; and use &quot;localhost&quot; in the 2 environment variables above and then use &quot;localhost&quot; whenever the documentation mentions &quot;dockerhost&quot; or &quot;openshifthost&quot;.</p>
 <h3 id="if-you-are-using-a-mac-windows-or-other-platforms"><a name="if-you-are-using-a-mac-windows-or-other-platforms" class="anchor" href="#if-you-are-using-a-mac-windows-or-other-platforms"><span class="fa fa-link"></span></a>If you are using a Mac, Windows or other platforms</h3>
-<p>When there is not a native docker, such as on a Mac or Windows when using boot2docker, there will be different IP addresses for your host machine and the boot2docker VM. So we are going to setup 2 aliases for the host (openshifthost) and docker (dockerhost):</p>
+<p>First we recommend you upgrade your boot2docker image so its the latest greatest.</p>
+<pre><code>boot2docker download
+boot2docker up
+</code></pre><p>When there is not a native docker, such as on a Mac or Windows when using boot2docker, there will be different IP addresses for your host machine and the boot2docker VM. So we are going to setup 2 aliases for the host (openshifthost) and docker (dockerhost):</p>
 <p>First lets define an environment variable to point to your local IP address. You may already know this.</p>
 <p>If not depending on your network settings and whether you are on ethernet or wifi either this:</p>
 <pre><code>export OPENSHIFT_HOST=`ipconfig getifaddr en0`
@@ -407,7 +412,12 @@ echo $OPENSHIFT_HOST
 <pre><code>echo $OPENSHIFT_HOST openshifthost  | sudo tee -a /etc/hosts
 </code></pre><p>Now lets setup the <strong>dockerhost</strong> alias that should point to the ip address of boot2docker:</p>
 <pre><code>echo `boot2docker ip 2&gt; /dev/null` dockerhost | sudo tee -a /etc/hosts
-</code></pre><h3 id="testing-your-setup"><a name="testing-your-setup" class="anchor" href="#testing-your-setup"><span class="fa fa-link"></span></a>Testing your setup</h3>
+</code></pre><p>You probably also want to add those 2 entries to your /etc/hosts inside your boot2docker vm.</p>
+<pre><code>cat /etc/hosts
+boot2docker ssh
+sudo vi /etc/hosts
+</code></pre><p>Now copy/paste those 2 lines you just added and add then to the /etc/hosts on your boot2docker vm.</p>
+<h3 id="testing-your-setup"><a name="testing-your-setup" class="anchor" href="#testing-your-setup"><span class="fa fa-link"></span></a>Testing your setup</h3>
 <p>You should be able to ping the 2 host names:</p>
 <pre><code>ping dockerhost
 ping openshifthost
