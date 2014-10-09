@@ -43,15 +43,19 @@ Another option is to replace dockerhost and openshifthost in the fabric8/apps/fa
 
 When there is not a native docker, such as on a Mac or Windows when using boot2docker, there will be different IP addresses for your host machine and the boot2docker VM. So we are going to setup 2 aliases for the host (openshifthost) and docker (dockerhost):
 
-First lets define an environment variable to point to your local IP.
+First lets define an environment variable to point to your local IP address. You may already know this.
 
-If you are on ethernet do:
+If not depending on your network settings and whether you are on ethernet or wifi either this:
 
     export OPENSHIFT_HOST=`ipconfig getifaddr en0`
+    echo $OPENSHIFT_HOST
 
-Or if you're on wifi:
+should print out your IP address or if not then try this:
 
     export OPENSHIFT_HOST=`ipconfig getifaddr en1`
+    echo $OPENSHIFT_HOST
+
+If you still don't have an IP address in the **OPENSHIFT_HOST** environment variable, try figure oit out and just specify it explicity :). (E.g. look in your operating system settings etc).
 
 Now lets setup the **openshifthost** alias:
 
