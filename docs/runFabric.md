@@ -6,6 +6,7 @@ Now make sure you have some environment variables setup. (You may want to place 
 
     export KUBERNETES_MASTER=http://openshifthost:8080
     export DOCKER_REGISTRY=dockerhost:5000
+    export DOCKER_HOST=tcp://dockerhost:2375
 
 ### Start OpenShift
 
@@ -34,10 +35,19 @@ You should be able to check if the docker registry is running OK via this comman
 
 ### Open the Web Console
 
-You should be able to access the web console on your docker host at port 9282 via [http://dockerhost:8282/hawtio/kubernetes/pods](http://dockerhost:8282/hawtio/kubernetes/pods)
+You should be able to access the web console on your docker host at port 9282 via:
+
+* [http://dockerhost:8282/hawtio/kubernetes/pods](http://dockerhost:8282/hawtio/kubernetes/pods)
+
+If you are having networking issues, particularly if you are using boot2docker you can run the web console by hand:
+
+    docker run -p 7282:8080 -it -e KUBERNETES_MASTER=$KUBERNETES_MASTER -e DOCKER_HOST=$DOCKER_HOST fabric8/hawtio
+
+When that container starts up you should be able to view the console at
+
+* [http://dockerhost:7282/hawtio/kubernetes/pods](http://dockerhost:7282/hawtio/kubernetes/pods)
 
 If you want to hack on the code you can [run a local build of hawtio](https://github.com/hawtio/hawtio/blob/master/BUILDING.md#running-hawtio-against-kubernetes--openshift)
-
 
 ### Whats next?
 
