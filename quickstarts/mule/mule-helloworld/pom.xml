@@ -62,6 +62,9 @@
     <!-- resolver looks for mule-helloworld.zip instead! -->
     <fabric8.artifactBundleType>zip</fabric8.artifactBundleType>
 
+    <!-- The mule application is self contained, so fabric doesn't need to know about -->
+    <!-- code dependencies -->
+    <fabric8.omitDependenciesFromRequirements>true</fabric8.omitDependenciesFromRequirements>
   </properties>
 
   <dependencyManagement>
