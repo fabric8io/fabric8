@@ -133,7 +133,7 @@
       <plugin>
         <groupId>org.jolokia</groupId>
         <artifactId>docker-maven-plugin</artifactId>
-        <version>${docker-maven-plugin.version}</version>
+        <version>${docker.maven.plugin.version}</version>
         <configuration>
           <image>fabric8/java</image>
           <mergeData>true</mergeData>

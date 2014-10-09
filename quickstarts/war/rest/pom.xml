@@ -262,7 +262,7 @@
       <plugin>
         <groupId>org.jolokia</groupId>
         <artifactId>docker-maven-plugin</artifactId>
-        <version>${docker-maven-plugin.version}</version>
+        <version>${docker.maven.plugin.version}</version>
         <configuration>
           <image>fabric8/tomcat-8.0</image>
           <mergeData>true</mergeData>

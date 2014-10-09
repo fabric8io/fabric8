@@ -40,7 +40,7 @@
   <properties>
     <maven.compiler.target>1.7</maven.compiler.target>
     <maven.compiler.source>1.7</maven.compiler.source>
-    <docker-maven-plugin.version>0.9.9</docker-maven-plugin.version>
+    <docker.maven.plugin.version>0.9.9</docker.maven.plugin.version>
   </properties>
 
   <repositories>
