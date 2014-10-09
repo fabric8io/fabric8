@@ -52,7 +52,6 @@
     <cxf.version>2.7.11</cxf.version>
 
     <!-- fabric8 deploy configuration -->
-    <docker.registry>localhost:5000</docker.registry>
     <docker.dataImage>mydemo/${project.artifactId}:${project.version}</docker.dataImage>
   </properties>
 

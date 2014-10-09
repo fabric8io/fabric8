@@ -49,7 +49,6 @@
 
     <!-- fabric8 deploy configuration -->
     <docker.dataImage>mydemo/${project.artifactId}:${project.version}</docker.dataImage>
-    <docker.registry>localhost:5000</docker.registry>
   </properties>
 
   <licenses>
