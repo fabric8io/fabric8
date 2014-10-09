@@ -18,6 +18,11 @@ e.g. add this to the &lt;servers&gt; element:
           <id>docker-host</id>
           <properties>
             <docker.registry>${env.DOCKER_REGISTRY}</docker.registry>
+            <docker.url>http://dockerhost:2375</docker.url>
+            <!--
+              TODO when supported by docker-maven-plugin 0.9.10
+            <docker.url>${env.DOCKER_HOST}</docker.url>
+            -->
           </properties>
         </profile>
       </profiles>

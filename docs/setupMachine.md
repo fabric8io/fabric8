@@ -6,6 +6,10 @@ Strictly speaking this isn't required to run fabric8 and OpenShift. e.g. on a li
 
 However doing this will make it easier to document; so if you are trying fabric8 on your laptop this is currently the simplest approach.
 
+### Install the latest Docker
+
+First you'll need to [install docker](https://docs.docker.com/installation/), the later the version generally the better it is!
+
 ### If you are using linux with a native docker:
 
 If you are on linux try this to define the 2 hosts to point to your localhost:
@@ -17,6 +21,11 @@ If you are on linux try this to define the 2 hosts to point to your localhost:
 Another option is to replace dockerhost and openshifthost in the fabric8/apps/fabric8.json file with "localhost" and use "localhost" in the 2 environment variables above and then use "localhost" whenever the documentation mentions "dockerhost" or "openshifthost".
 
 ### If you are using a Mac, Windows or other platforms
+
+First we recommend you upgrade your boot2docker image so its the latest greatest.
+
+    boot2docker download
+    boot2docker up
 
 When there is not a native docker, such as on a Mac or Windows when using boot2docker, there will be different IP addresses for your host machine and the boot2docker VM. So we are going to setup 2 aliases for the host (openshifthost) and docker (dockerhost):
 
@@ -45,6 +54,14 @@ Now lets setup the **openshifthost** alias:
 Now lets setup the **dockerhost** alias that should point to the ip address of boot2docker:
 
     echo `boot2docker ip 2> /dev/null` dockerhost | sudo tee -a /etc/hosts
+
+You probably also want to add those 2 entries to your /etc/hosts inside your boot2docker vm.
+
+    cat /etc/hosts
+    boot2docker ssh
+    sudo vi /etc/hosts
+
+Now copy/paste those 2 lines you just added and add then to the /etc/hosts on your boot2docker vm.
 
 ### Testing your setup
 
