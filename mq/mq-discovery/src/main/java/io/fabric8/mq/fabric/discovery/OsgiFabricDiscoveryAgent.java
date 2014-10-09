@@ -17,6 +17,8 @@ package io.fabric8.mq.fabric.discovery;
 
 import org.apache.activemq.transport.discovery.DiscoveryAgent;
 import org.apache.curator.framework.CuratorFramework;
+
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -32,11 +34,34 @@ public class OsgiFabricDiscoveryAgent extends FabricDiscoveryAgent implements Se
     BundleContext context;
 
     public OsgiFabricDiscoveryAgent() {
-        if (FrameworkUtil.getBundle(getClass()) != null) {
-            // Given we're a fragment, we need to use the host bundle context
-            context = FrameworkUtil.getBundle(DiscoveryAgent.class).getBundleContext();
-            tracker = new ServiceTracker(context, CuratorFramework.class.getName(), this);
-            tracker.open();
+        // Given we're a fragment, we need to use the host bundle context
+        context = findBundleContextToUse();
+        tracker = new ServiceTracker(context, CuratorFramework.class.getName(), this);
+        tracker.open();
+    }
+
+    private BundleContext findBundleContextToUse() {
+        // The osgi discovery is in a fragment attached to activemq
+        // We're using our caller bundle
+        Bundle activemqBundle = FrameworkUtil.getBundle(DiscoveryAgent.class);
+        Class[] classCtx = new SecurityManagerEx().getClassContext();
+        for (Class aClassCtx : classCtx) {
+            Bundle bundle = FrameworkUtil.getBundle(aClassCtx);
+            if (bundle != activemqBundle) {
+                BundleContext context = bundle != null ? bundle.getBundleContext() : null;
+                if (context != null) {
+                    return context;
+                }
+            }
+        }
+        return null;
+    }
+
+    static class SecurityManagerEx extends SecurityManager
+    {
+        public Class[] getClassContext()
+        {
+            return super.getClassContext();
         }
     }
 
