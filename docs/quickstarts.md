@@ -2,7 +2,7 @@
 
 QuickStarts is a series of examples to get you started deploying and running applications with Fabric8.
 
-The fastest way to get started is to try [Deploy an example project](http://fabric8.io/v2/mavenPlugin.html#example)
+The fastest way to get started is to try [deploy an example project](http://fabric8.io/v2/mavenPlugin.html#example)
 
 Each QuickStart is documented as follows:
 

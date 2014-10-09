@@ -9,7 +9,7 @@ Now make sure you have some environment variables setup. (You may want to place 
 
 ### Start OpenShift
 
-Then you can start it up:
+Then you can start it up; you can run this anywhere you like really:
 
     $ openshift start --listenAddr=$OPENSHIFT_HOST:8080
 
@@ -46,6 +46,17 @@ So you should have now an empty OpenShift environment with the core of fabric8 i
 Now you could try:
 
  * [deploying an example quickstart project](http://fabric8.io/v2/mavenPlugin.html#example)
+
+
+### Resetting OpenShift
+
+At any time you can Ctrl-C or kill the _openshift_ process. This will leave around files from OpenShift and docker containers. So you can clear down your system via:
+
+```
+    rm -rf openshift.local.*
+    docker kill $(docker ps -q)
+    docker rm $(docker ps -a -q)
+```
 
 ### Other Resources
 
