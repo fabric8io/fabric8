@@ -48,7 +48,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.1" data-basepath="." data-revision="1412757201651">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.1" data-basepath="." data-revision="1412842221407">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -356,8 +356,24 @@
 <h4 id="what-does-fabric8-do-"><a name="what-does-fabric8-do-" class="anchor" href="#what-does-fabric8-do-"><span class="fa fa-link"></span></a>What does fabric8 do?</h4>
 <p>fabric8 (pronounced <em>fabricate</em>) lets you create and manage fabrics (or clusters) of applications, integrations and middleware.</p>
 <p>Try reading the <a href="/gitbook/overview.html">overview</a> to see if that helps give you an idea what fabric8 is.</p>
+<h4 id="what-value-does-fabric8-add-over-openshift-"><a name="what-value-does-fabric8-add-over-openshift-" class="anchor" href="#what-value-does-fabric8-add-over-openshift-"><span class="fa fa-link"></span></a>What value does fabric8 add over OpenShift?</h4>
+<ul>
+<li><a href="http://kubernetes.io" target="_blank">Kubernetes</a> provides a <a href="http://docker.io/" target="_blank">Docker</a> Container As A Service layer</li>
+<li><a href="https://github.com/openshift/origin" target="_blank">OpenShift V3</a> extends Kubernetes to support a full Platform As A Service<ul>
+<li>hosting source code in git repositories</li>
+<li>performing builds and hosting private docker images</li>
+<li>supporting the git-push style model of kicking off new builds</li>
+</ul>
+</li>
+<li>Fabric8 is focussed on being a <strong>Java Application Platform As A Service</strong> and an <strong>Integration Platform As A Service</strong> via:<ul>
+<li>deep and rich tooling to make it easy to develop Java applications on Kubernetes/OpenShift</li>
+<li><a href="http://hawt.io/" target="_blank">hawtio based console</a> so you can view your entire environment or zoom inside inside any Java container and see exactly whats going on</li>
+<li>making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform</li>
+</ul>
+</li>
+</ul>
 <h4 id="what-java-versions-is-supported-"><a name="what-java-versions-is-supported-" class="anchor" href="#what-java-versions-is-supported-"><span class="fa fa-link"></span></a>What Java versions is supported?</h4>
-<p>fabric8 runs on Java 7 and 8. </p>
+<p>fabric8 runs on Java 7 and 8.</p>
 <h4 id="is-windows-supported"><a name="is-windows-supported" class="anchor" href="#is-windows-supported"><span class="fa fa-link"></span></a>Is Windows supported</h4>
 <p>We recommend using a linux based system for production; preferably if you want a fully managed platform use <a href="http://docker.io/" target="_blank">Docker</a> and <a href="http://kubernetes.io" target="_blank">Kubernetes</a> or <a href="https://github.com/openshift/origin" target="_blank">OpenShift Origin V3</a>.</p>
 <p>Windows is currently only partially supported. Windows users may consider using <a href="http://docker.io/" target="_blank">Docker</a> so that all the fabric8 technologies run inside a linux VM in lightweight containers.</p>
