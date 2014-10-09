@@ -369,6 +369,11 @@
         <bundle>mvn:io.hawt.kibana/hawtio-kibana/${hawtio-kibana-version}/war</bundle>
     </feature>
 
+    <feature name="insight-eshead" version="${project.version}" resolver="(obr)">
+        <feature>war</feature>
+        <bundle>mvn:io.hawt.eshead/hawtio-eshead/${hawtio-eshead-version}/war</bundle>
+    </feature>
+
     <feature name="insight-log" version="${project.version}" resolver="(obr)">
         <feature>karaf</feature>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
