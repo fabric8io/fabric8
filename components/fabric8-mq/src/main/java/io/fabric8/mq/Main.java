@@ -23,43 +23,50 @@ public class Main {
     private static String dataDirectory;
     private static int port;
 
-    static {
-        try {
-            brokerName = AccessController.doPrivileged(new PrivilegedAction<String>() {
-                @Override
-                public String run() {
-                    String result = System.getProperty("org.apache.activemq.AMQ_BROKER_NAME");
-                    result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_BROKER_NAME", "AMQ_Broker") : result;
-                    return result;
-                }
-            });
-            String portStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
-                @Override
-                public String run() {
-                    String result = System.getProperty("org.apache.activemq.AMQ_PORT");
-                    result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_PORT", "61616") : result;
-                    return result;
-                }
-            });
-            port = Integer.getInteger(portStr);
-            dataDirectory = AccessController.doPrivileged(new PrivilegedAction<String>() {
-                @Override
-                public String run() {
-                    String result = System.getProperty("org.apache.activemq.AMQ_DATA_DIRECTORYE");
-                    result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_DATA_DIRECTORY", "data") : result;
-                    return result;
-                }
-            });
-
-        } catch (Throwable e) {
-            LOG.debug("Failed to look up System properties for host and port", e);
-        }
-
-    }
-
-
     public static void main(String args[]) {
         try {
+            try {
+                brokerName = AccessController.doPrivileged(new PrivilegedAction<String>() {
+                    @Override
+                    public String run() {
+                        String result = System.getenv("AMQ_BROKER_NAME");
+                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_BROKER_NAME", "AMQ_Broker") : result;
+                        return result;
+                    }
+                });
+                String portStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
+                    @Override
+                    public String run() {
+                        String result = System.getenv("AMQ_PORT");
+                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_PORT", "61616") : result;
+                        return result;
+                    }
+                });
+                if (portStr != null && portStr.length() > 0) {
+                    port = Integer.parseInt(portStr);
+                }
+                dataDirectory = AccessController.doPrivileged(new PrivilegedAction<String>() {
+                    @Override
+                    public String run() {
+                        String result = System.getenv("AMQ_DATA_DIRECTORY");
+                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_DATA_DIRECTORY", "data") : result;
+                        return result;
+                    }
+                });
+
+            } catch (Throwable e) {
+                LOG.warn("Failed to look up System properties for host and port", e);
+            }
+
+            if (port <= 0) {
+                port = 61616;
+            }
+            if (brokerName == null) {
+                brokerName = "default";
+            }
+            if (dataDirectory == null) {
+                dataDirectory = "data";
+            }
             BrokerService brokerService = new BrokerService();
             brokerService.setBrokerName(brokerName);
             brokerService.setDataDirectory(dataDirectory);
@@ -91,12 +98,28 @@ public class Main {
             long brokerMemory = (long) (maxMemory * 0.7);
 
             brokerService.getSystemUsage().getMemoryUsage().setLimit(brokerMemory);
-            brokerService.addConnector("tcp://localhost:" + port);
+            String connector = "tcp://localhost:" + port;
+            System.out.println("Starting broker on " + connector);
+            brokerService.addConnector(connector);
 
             brokerService.start();
 
+            waitUntilStop();
         } catch (Throwable e) {
             LOG.error("Failed to Start Fabric8MQ", e);
+        }
+    }
+
+    protected static void waitUntilStop() {
+        Object lock = new Object();
+        while (true) {
+            synchronized (lock) {
+                try {
+                    lock.wait();
+                } catch (InterruptedException e) {
+                    // ignore
+                }
+            }
         }
     }
 
