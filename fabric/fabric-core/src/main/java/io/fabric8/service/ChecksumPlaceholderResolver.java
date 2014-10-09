@@ -78,7 +78,7 @@ public final class ChecksumPlaceholderResolver extends AbstractComponent impleme
             LOGGER.debug("Could not resolve placeholder", ex);
             return "0";
         } finally {
-            Closeables.closeQuitely(is);
+            Closeables.closeQuietly(is);
         }
     }
 }

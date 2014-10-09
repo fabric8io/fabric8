@@ -234,8 +234,8 @@ public final class Files {
             }
             return bos.toByteArray();
         } finally {
-            Closeables.closeQuitely(fis);
-            Closeables.closeQuitely(bos);
+            Closeables.closeQuietly(fis);
+            Closeables.closeQuietly(bos);
         }
     }
 
@@ -256,8 +256,8 @@ public final class Files {
             }
             return bos.toByteArray();
         } finally {
-            Closeables.closeQuitely(in);
-            Closeables.closeQuitely(bos);
+            Closeables.closeQuietly(in);
+            Closeables.closeQuietly(bos);
         }
     }
 
@@ -285,8 +285,8 @@ public final class Files {
             writer.write(content, 0, content.length());
             writer.flush();
         } finally {
-            Closeables.closeQuitely(fos);
-            Closeables.closeQuitely(writer);
+            Closeables.closeQuietly(fos);
+            Closeables.closeQuietly(writer);
         }
     }
 
@@ -305,7 +305,7 @@ public final class Files {
             fos = new FileOutputStream(file);
             fos.write(content);
         } finally {
-            Closeables.closeQuitely(fos);
+            Closeables.closeQuietly(fos);
         }
     }
 
@@ -341,8 +341,8 @@ public final class Files {
                 }
             }
         } finally {
-            Closeables.closeQuitely(is);
-            Closeables.closeQuitely(os);
+            Closeables.closeQuietly(is);
+            Closeables.closeQuietly(os);
         }
     }
 

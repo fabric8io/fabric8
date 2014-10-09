@@ -23,7 +23,7 @@ public final class Closeables {
         //Utility Class
     }
 
-    public static void closeQuitely(Closeable closeable) {
+    public static void closeQuietly(Closeable closeable) {
         if (closeable != null) {
             try {
                 closeable.close();

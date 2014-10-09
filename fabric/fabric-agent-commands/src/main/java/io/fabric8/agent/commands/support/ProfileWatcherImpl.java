@@ -143,7 +143,7 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
         } catch (Exception ex) {
             LOG.error("Error while saving watched URLs", ex);
         } finally {
-            Closeables.closeQuitely(bw);
+            Closeables.closeQuietly(bw);
         }
     }
 
@@ -160,7 +160,7 @@ public class ProfileWatcherImpl extends AbstractComponent implements ProfileWatc
             } catch (Exception ex) {
                 LOG.error("Error while loading watched URLs", ex);
             } finally {
-                Closeables.closeQuitely(br);
+                Closeables.closeQuietly(br);
             }
         }
     }

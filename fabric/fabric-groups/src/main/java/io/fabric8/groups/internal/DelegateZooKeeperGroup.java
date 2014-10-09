@@ -20,13 +20,14 @@ import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.NodeState;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static io.fabric8.common.util.Closeables.closeQuietly;
 
 /**
  *
@@ -174,12 +175,4 @@ public class DelegateZooKeeperGroup<T extends NodeState> implements Group<T> {
         return group != null ? group.getLastState() : null;
     }
 
-    public static void closeQuietly(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (IOException e) {
-            }
-        }
-    }
 }

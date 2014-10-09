@@ -25,13 +25,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collections;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import static io.fabric8.common.util.Closeables.closeQuitely;
+import static io.fabric8.common.util.Closeables.closeQuietly;
 
 /**
  */
@@ -55,7 +53,7 @@ public class Zips {
             String path = "";
             zipDirectory(log, sourceDir, zos, path, filter);
         } finally {
-            closeQuitely(zos);
+            closeQuietly(zos);
         }
     }
 
@@ -125,13 +123,13 @@ public class Zips {
                             zis.closeEntry();
                         }
                     } finally {
-                        closeQuitely(os);
+                        closeQuietly(os);
                     }
                 }
                 entry = zis.getNextEntry();
             }
         } finally {
-            closeQuitely(zis);
+            closeQuietly(zis);
         }
     }
 
@@ -144,7 +142,7 @@ public class Zips {
                 l = is.read(b);
             }
         } finally {
-            closeQuitely(os);
+            closeQuietly(os);
         }
     }
 

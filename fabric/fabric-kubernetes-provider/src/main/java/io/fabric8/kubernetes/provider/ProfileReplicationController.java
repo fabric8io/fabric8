@@ -103,7 +103,7 @@ public final class ProfileReplicationController extends AbstractComponent implem
         disableTimer();
         deactivateComponent();
         group.remove(this);
-        Closeables.closeQuitely(group);
+        Closeables.closeQuietly(group);
         group = null;
     }
 

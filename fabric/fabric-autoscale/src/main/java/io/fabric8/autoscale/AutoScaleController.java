@@ -108,7 +108,7 @@ public final class AutoScaleController extends AbstractComponent implements Grou
         disableTimer();
         deactivateComponent();
         group.remove(this);
-        Closeables.closeQuitely(group);
+        Closeables.closeQuietly(group);
         group = null;
     }
 

@@ -127,7 +127,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
         deactivateComponent();
         if (group != null) {
             group.remove(this);
-            Closeables.closeQuitely(group);
+            Closeables.closeQuietly(group);
         }
         group = null;
         disableMasterZkCache();

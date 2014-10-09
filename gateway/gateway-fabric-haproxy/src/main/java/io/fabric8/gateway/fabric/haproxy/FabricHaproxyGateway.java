@@ -218,7 +218,7 @@ public class FabricHaproxyGateway extends AbstractComponent {
                     nameOfStream +
                     ": " + e, e);
         } finally {
-            Closeables.closeQuitely(reader);
+            Closeables.closeQuietly(reader);
         }
     }
 

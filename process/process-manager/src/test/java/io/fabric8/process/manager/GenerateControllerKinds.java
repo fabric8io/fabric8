@@ -16,8 +16,8 @@
 package io.fabric8.process.manager;
 
 import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
 import com.google.common.io.Files;
+import io.fabric8.common.util.Closeables;
 
 import java.io.File;
 import java.io.FileWriter;

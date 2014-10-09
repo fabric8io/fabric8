@@ -299,7 +299,7 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
             JarInputStream jis = new JarInputStream(fis);
             return jis.getManifest();
         } finally {
-            Closeables.closeQuitely(fis);
+            Closeables.closeQuietly(fis);
         }
     }
 

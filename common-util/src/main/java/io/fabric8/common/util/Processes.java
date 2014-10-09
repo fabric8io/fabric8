@@ -248,7 +248,7 @@ public class Processes {
                     ": " + e, e);
             throw e;
         } finally {
-            Closeables.closeQuitely(reader);
+            Closeables.closeQuietly(reader);
         }
     }
 
@@ -288,7 +288,7 @@ public class Processes {
             LOG.error("Failed to process " + errrorMessage + ": " + e, e);
             throw e;
         } finally {
-            Closeables.closeQuitely(reader);
+            Closeables.closeQuietly(reader);
         }
     }
 }

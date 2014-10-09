@@ -17,9 +17,9 @@ package io.fabric8.process.manager.support;
 
 import aQute.bnd.osgi.Jar;
 import com.google.common.base.Throwables;
-import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
+import io.fabric8.common.util.Closeables;
 import io.fabric8.common.util.ChecksumUtils;
 import io.fabric8.common.util.FileChangeInfo;
 import io.fabric8.common.util.Filter;
