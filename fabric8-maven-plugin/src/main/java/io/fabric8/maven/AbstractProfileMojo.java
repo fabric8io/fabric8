@@ -725,7 +725,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
 
             // test for override first, so war logic can be overridden
             if (omitDependenciesFromRequirements) {
-                getLog().debug("The omitDependenciseFromRequirements flag was enabled node so skipping children");
+                getLog().debug("The omitDependenciesFromRequirements flag was enabled node so skipping children");
                 return answer;
             }
 
