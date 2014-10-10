@@ -52,7 +52,7 @@ You should be able to check if the docker registry is running OK via this comman
 
 You should be able to access the web console on your docker host at port 9282 via:
 
-* [http://dockerhost:8282/hawtio/kubernetes/pods](http://dockerhost:8282/hawtio/kubernetes/pods)
+* [http://dockerhost:8484/hawtio/kubernetes/pods](http://dockerhost:8484/hawtio/kubernetes/pods)
 
 If you are having networking issues, particularly if you are using boot2docker you can run the web console by hand:
 
