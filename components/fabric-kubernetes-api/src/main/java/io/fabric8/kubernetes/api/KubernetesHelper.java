@@ -125,6 +125,11 @@ public class KubernetesHelper {
         return loadJson(data);
     }
 
+    public static Object loadJson(String json) throws IOException {
+        byte[] data = json.getBytes();
+        return loadJson(data);
+    }
+
     /**
      * Returns the given json data as a DTO such as
      * {@link PodSchema}, {@link ReplicationControllerSchema} or
@@ -418,4 +423,5 @@ public class KubernetesHelper {
         }
         return null;
     }
+
 }
