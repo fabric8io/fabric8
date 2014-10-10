@@ -35,6 +35,7 @@
       !org.elasticsearch*,
       *;resolution:=optional
     </fuse.osgi.import.additional>
+    <fuse.osgi.export></fuse.osgi.export>
     <fuse.osgi.private.pkg>
       io.fabric8.insight.elasticsearch.discovery.*
     </fuse.osgi.private.pkg>
