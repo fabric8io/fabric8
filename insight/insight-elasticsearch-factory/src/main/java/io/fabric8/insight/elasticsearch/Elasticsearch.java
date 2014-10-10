@@ -88,9 +88,7 @@ public class Elasticsearch implements ElasticsearchMBean {
     }
 
     public void bindNode(Node node) {
-        ClusterAdminClient client = node.client().admin().cluster();
-        ClusterStatsResponse response = client.prepareClusterStats().execute().actionGet();
-        String clusterName = response.getClusterNameAsString();
+        String clusterName = node.settings().get("cluster.name");
         Set<Node> nodeSet = nodesClusterMap.get(clusterName);
         if (nodeSet == null) {
             nodeSet = new HashSet<Node>();
@@ -100,9 +98,7 @@ public class Elasticsearch implements ElasticsearchMBean {
     }
 
     public void unbindNode(Node node) {
-        ClusterAdminClient client = node.client().admin().cluster();
-        ClusterStatsResponse response = client.prepareClusterStats().execute().actionGet();
-        String clusterName = response.getClusterNameAsString();
+        String clusterName = node.settings().get("cluster.name");
         Set<Node> nodeSet = nodesClusterMap.get(clusterName);
         if (nodeSet != null) {
             nodeSet.remove(node);
