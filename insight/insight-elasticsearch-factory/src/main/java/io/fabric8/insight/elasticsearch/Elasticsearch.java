@@ -69,7 +69,7 @@ public class Elasticsearch implements ElasticsearchMBean {
         NodeInfo[] nodes = getNodeInfo(clusterName);
         if (nodes != null && nodes.length > 0) {
             String publishAddress = nodes[0].getHttp().address().publishAddress().toString().substring(0);
-            return publishAddress.substring(0, publishAddress.lastIndexOf(']')).replaceFirst("inet\\[\\/", "http://");
+            return publishAddress.substring(0, publishAddress.lastIndexOf(']')).replaceFirst("inet\\[.*\\/", "http://");
         }
         return null;
     }
