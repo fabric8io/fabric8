@@ -1,0 +1,43 @@
+{
+  "id": "fabric8MQProducerController",
+  "kind": "ReplicationController",
+  "apiVersion": "v1beta1",
+  "desiredState": {
+    "replicas": 1,
+    "replicaSelector": {
+      "name": "fabricMQProducer",
+      "container": "java",
+      "region": "default"
+    },
+    "podTemplate": {
+      "desiredState": {
+        "manifest": {
+          "version": "v1beta1",
+          "id": "fabric8MQProducerController",
+          "containers": [
+            {
+              "name": "fabric-mq-producer",
+              "image": "${docker.registry}/${docker.dataImage}",
+              "ports": [
+                {
+                  "containerPort": 8778,
+                  "hostPort": 9801
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "labels": {
+        "name": "fabricMQProducer",
+        "container": "java",
+        "region": "default"
+      }
+    }
+  },
+  "labels": {
+    "name": "fabricMQProducer",
+    "container": "java",
+    "region": "default"
+  }
+}

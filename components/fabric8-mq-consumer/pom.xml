@@ -30,10 +30,6 @@
 
   <name>Fabric8 :: MQ Consumer</name>
 
-  <properties>
-    <docker.dataImage>fabric8/${project.artifactId}:${project.version}</docker.dataImage>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -86,7 +82,6 @@
             <AMQ_QUEUENAME>TEST.FOO</AMQ_QUEUENAME>
           </env>
           <ports>
-            <port>61616</port>
             <port>8778</port>
           </ports>
         </configuration>

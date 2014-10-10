@@ -30,10 +30,6 @@
 
   <name>Fabric8 :: MQ Producer</name>
 
-  <properties>
-    <docker.dataImage>fabric8/${project.artifactId}:${project.version}</docker.dataImage>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -50,6 +46,13 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -87,7 +90,6 @@
             <AMQ_INTERVAL>50</AMQ_INTERVAL>
           </env>
           <ports>
-            <port>61616</port>
             <port>8778</port>
           </ports>
         </configuration>
