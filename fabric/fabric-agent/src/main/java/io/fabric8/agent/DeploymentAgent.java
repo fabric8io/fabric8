@@ -272,7 +272,7 @@ public class DeploymentAgent implements ManagedService {
                 for (Map.Entry<Long, Long> entry : state.bundleChecksums.entrySet()) {
                     Bundle bundle = systemBundleContext.getBundle(entry.getKey());
                     String location = bundle.getLocation();
-                    provisionChecksums.put(location, entry.getValue());
+                    provisionChecksums.put(location, entry.getValue().toString());
                 }
 /*
                 putAllProperties(provisionChecksums, libChecksums);
