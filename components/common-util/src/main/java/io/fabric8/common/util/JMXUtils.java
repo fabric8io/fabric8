@@ -15,23 +15,51 @@
  */
 package io.fabric8.common.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import java.lang.management.ManagementFactory;
 
 /**
  */
 public class JMXUtils {
+    private static final transient Logger LOG = LoggerFactory.getLogger(JMXUtils.class);
+
 
     private JMXUtils() {
         //Utils class
     }
-    
+
+    public static void registerMBean(Object bean, ObjectName objectName) {
+        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        if (mBeanServer != null) {
+            try {
+                registerMBean(bean, mBeanServer, objectName);
+            } catch (Exception e) {
+                LOG.error("Failed to register in JMX bean " + bean + " at " + objectName + ". " + e, e);
+            }
+        }
+    }
+
     public static void registerMBean(Object bean, MBeanServer mBeanServer, ObjectName objectName) throws Exception {
         if (!mBeanServer.isRegistered(objectName)) {
             mBeanServer.registerMBean(bean, objectName);
         } else {
             unregisterMBean(mBeanServer, objectName);
             mBeanServer.registerMBean(bean, objectName);
+        }
+    }
+
+    public static void unregisterMBean(ObjectName objectName) {
+        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        if (mBeanServer != null) {
+            try {
+                unregisterMBean(mBeanServer, objectName);
+            } catch (Exception e) {
+                LOG.error("Failed to unregister " + objectName + ". " + e, e);
+            }
         }
     }
 
