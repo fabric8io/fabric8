@@ -2,16 +2,9 @@ package io.fabric8.mq.producer;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Date;
 
-import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-
-import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.camel.component.ActiveMQComponent;
+import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,54 +70,24 @@ public class Main {
             	interval = 50;
             }
             
-            // Create a ConnectionFactory
-            ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:"+port);
-     
-            // Create a Connection
-            Connection connection = connectionFactory.createConnection();
-            connection.start();
-     
-            // Create a Session
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-     
-            // Create the destination Queue
-            Destination destination = session.createQueue(queueName);
-     
-            // Create a MessageProducer from the Session to the Topic or Queue
-            MessageProducer producer = session.createProducer(destination);
-            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-     
-            // Create a messages
-            Message sentMessage = session.createMessage();
-     
+         // create a camel route to consume messages from our queue
+            org.apache.camel.main.Main main = new org.apache.camel.main.Main();
             
-            try {
-            	while (true) {
-               	 // Tell the producer to send the message
-                   producer.send(sentMessage);
-                   LOG.info("Sending a message to Fabric8 MQ at " + new Date());
-                   Thread.sleep(interval);
-               }
-               
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            main.bind("activemq", ActiveMQComponent.activeMQComponent("tcp://localhost:"+port));
+            main.enableHangupSupport();
             
+            main.addRouteBuilder(new RouteBuilder() {
+                public void configure() {
+                    
+                	from("timer://mytimer?period="+interval).
+                	log("Sending message at ${date:now:HH:mm:SS:sss}").
+                	to("activemq:"+queueName);
+                }
+            });
+            
+            main.run(args);
         } catch (Throwable e) {
             LOG.error("Failed to connect to Fabric8MQ", e);
-        }
-    }
-
-    protected static void waitUntilStop() {
-        Object lock = new Object();
-        while (true) {
-            synchronized (lock) {
-                try {
-                    lock.wait();
-                } catch (InterruptedException e) {
-                    // ignore
-                }
-            }
         }
     }
 

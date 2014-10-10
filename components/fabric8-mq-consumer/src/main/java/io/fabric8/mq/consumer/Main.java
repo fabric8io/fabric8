@@ -2,11 +2,8 @@ package io.fabric8.mq.consumer;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Date;
 
 import org.apache.activemq.camel.component.ActiveMQComponent;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,11 +60,8 @@ public class Main {
             main.addRouteBuilder(new RouteBuilder() {
                 public void configure() {
                     
-            		from("activemq:"+queueName).process(new Processor() {
-                        public void process(Exchange exchange) throws Exception {
-                            LOG.info("Received message at " + new Date());
-                        }
-                    });
+            		from("activemq:"+queueName).
+            		log("Received message at ${date:now:HH:mm:SS:sss}");
                 }
             });
             
