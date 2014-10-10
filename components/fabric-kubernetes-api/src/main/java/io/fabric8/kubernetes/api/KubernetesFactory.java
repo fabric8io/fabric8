@@ -34,7 +34,7 @@ import javax.ws.rs.core.MediaType;
  */
 public class KubernetesFactory {
 
-    public static final String DEFAULT_KUBERNETES_MASTER = "http://localhost:8080/";
+    public static final String DEFAULT_KUBERNETES_MASTER = "http://localhost:8080";
 
     private String address;
 
