@@ -32,6 +32,10 @@
 
   <name>Fabric8 :: Components</name>
 
+  <properties>
+    <docker.dataImage>fabric8/${project.artifactId}:${project.version}</docker.dataImage>
+  </properties>
+
   <modules>
     <module>common-util</module>
     <module>fabric-cxf</module>

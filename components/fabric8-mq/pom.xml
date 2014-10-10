@@ -30,9 +30,6 @@
 
   <name>Fabric8 :: MQ</name>
 
-  <properties>
-    <docker.dataImage>fabric8/${project.artifactId}:${project.version}</docker.dataImage>
-  </properties>
 
   <dependencies>
     <dependency>
