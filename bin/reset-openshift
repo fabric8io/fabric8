@@ -1,0 +1,10 @@
+#!/bin/sh
+echo "Removing old OpenShift files"
+rm -rf openshift.local.*
+
+echo "Zapping docker images"
+docker kill $(docker ps -q)
+docker rm $(docker ps -a -q)
+
+echo "Restarting OpenShift"
+openshift start --listenAddr=$OPENSHIFT_HOST:8080
