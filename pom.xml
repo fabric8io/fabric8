@@ -131,12 +131,7 @@
         <cxf.version-range>[2.7,3.0)</cxf.version-range>
         <deltaspike.version>1.0.1</deltaspike.version>
         <dnsjava.version>2.1.1</dnsjava.version>
-      <!--
-          TODO needs 0.9.10 for the java containers for env/port support
-          <docker.maven.plugin.version>0.9.10-SNAPSHOT</docker.maven.plugin.version>
-
-      -->
-        <docker.maven.plugin.version>0.9.9</docker.maven.plugin.version>
+        <docker.maven.plugin.version>0.9.10</docker.maven.plugin.version>
         <drools-camel-artifactId>kie-camel</drools-camel-artifactId>
         <drools-camel-groupId>org.kie</drools-camel-groupId>
         <drools-spring-artifactId>kie-spring</drools-spring-artifactId>
@@ -558,16 +553,6 @@
                 <artifactId>fabric-docker-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric-kubernetes-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric-utils</artifactId>
-                <version>${project.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>io.fabric8.etcd</groupId>
@@ -587,6 +572,26 @@
             <dependency>
                 <groupId>io.fabric8.etcd.reader</groupId>
                 <artifactId>fabric-etcd-reader-jackson</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-kubernetes-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-mq</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>kubernetes-jolokia</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-utils</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -2675,6 +2680,7 @@
 <!--
         <module>itests</module>
 -->
+        <module>wiki</module>
     </modules>
 
     <build>
