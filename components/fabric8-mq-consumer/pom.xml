@@ -43,10 +43,6 @@
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-camel</artifactId>
     </dependency>
-<!--     <dependency> -->
-<!--       <groupId>org.apache.activemq</groupId> -->
-<!--       <artifactId>activemq-leveldb-store</artifactId> -->
-<!--     </dependency> -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
@@ -87,6 +83,7 @@
           <env>
             <MAIN>io.fabric8.mq.consumer.Main</MAIN>
             <AMQ_PORT>61616</AMQ_PORT>
+            <AMQ_QUEUENAME>TEST.FOO</AMQ_QUEUENAME>
           </env>
           <ports>
             <port>61616</port>

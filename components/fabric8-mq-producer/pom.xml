@@ -79,6 +79,8 @@
           <env>
             <MAIN>io.fabric8.mq.producer.Main</MAIN>
             <AMQ_PORT>61616</AMQ_PORT>
+            <AMQ_QUEUENAME>TEST.FOO</AMQ_QUEUENAME>
+            <AMQ_INTERVAL>50</AMQ_INTERVAL>
           </env>
           <ports>
             <port>61616</port>

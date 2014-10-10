@@ -42,8 +42,8 @@ public class Main {
                 queueName = AccessController.doPrivileged(new PrivilegedAction<String>() {
                     @Override
                     public String run() {
-                        String result = System.getenv("AMQ_INTERVAL");
-                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_QUEUENAME", "50") : result;
+                        String result = System.getenv("AMQ_QUEUENAME");
+                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_QUEUENAME", "TEST.FOO") : result;
                         return result;
                     }
                 });
