@@ -49,6 +49,7 @@
     <module>fabric8-mq</module>
     <module>fabric-utils</module>
     <module>fabric-etcd</module>
+    <module>kubernetes-jolokia</module>
   </modules>
 
 </project>

@@ -25,24 +25,27 @@
     <version>2.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>fabric8-mq</artifactId>
+  <artifactId>kubernetes-jolokia</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fabric8 :: MQ</name>
-
+  <name>Fabric8 :: Kubernetes Jolokia</name>
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-broker</artifactId>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric-kubernetes-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-leveldb-store</artifactId>
+        <groupId>org.jolokia</groupId>
+        <artifactId>jolokia-client-java</artifactId>
     </dependency>
+
+    <!-- testing -->
+
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -54,48 +57,12 @@
           <forkMode>perTest</forkMode>
         </configuration>
       </plugin>
-
-      <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-maven-plugin</artifactId>
-        <version>${project.version}</version>
-        <executions>
-          <execution>
-            <id>attach-json</id>
-            <goals>
-              <goal>attach-json</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.jolokia</groupId>
-        <artifactId>docker-maven-plugin</artifactId>
-        <version>${docker.maven.plugin.version}</version>
-        <configuration>
-          <image>fabric8/java</image>
-          <mergeData>true</mergeData>
-          <assemblyDescriptorRef>artifact-with-dependencies</assemblyDescriptorRef>
-          <env>
-            <MAIN>io.fabric8.mq.Main</MAIN>
-            <AMQ_PORT>61616</AMQ_PORT>
-            <AMQ_DATA_DIRECTORY>/var/activemq</AMQ_DATA_DIRECTORY>
-            <AMQ_BROKER_NAME>default</AMQ_BROKER_NAME>
-          </env>
-          <ports>
-            <port>61616</port>
-            <port>8778</port>
-          </ports>
-        </configuration>
-      </plugin>
-
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>${exec-maven-plugin.version}</version>
         <configuration>
-          <mainClass>io.fabric8.mq.Main</mainClass>
+          <mainClass>io.fabric8.kubernetes.jolokia.Example</mainClass>
           <includePluginDependencies>false</includePluginDependencies>
         </configuration>
       </plugin>

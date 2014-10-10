@@ -11,7 +11,7 @@
       "creationTimestamp": null,
       "id": "hawtio-service",
       "kind": "Service",
-      "port": 5000,
+      "port": 8484,
       "selector": {
         "name": "hawtioPod"
       }
@@ -39,7 +39,7 @@
                   ],
                   "ports": [
                     {
-                      "hostPort": 8282,
+                      "hostPort": 8484,
                       "containerPort": 8080,
                       "protocol": "TCP"
                     }

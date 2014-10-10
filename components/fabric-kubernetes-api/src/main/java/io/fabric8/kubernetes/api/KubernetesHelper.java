@@ -25,7 +25,11 @@ import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Filters;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
+import io.fabric8.kubernetes.api.model.CurrentState;
+import io.fabric8.kubernetes.api.model.DesiredState;
 import io.fabric8.kubernetes.api.model.Env;
+import io.fabric8.kubernetes.api.model.ManifestContainer;
+import io.fabric8.kubernetes.api.model.ManifestSchema;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
@@ -41,19 +45,47 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static io.fabric8.common.util.Lists.notNullList;
+import static io.fabric8.common.util.Strings.isNullOrBlank;
 
 /**
  */
 public class KubernetesHelper {
+    public static final String DEFAULT_DOCKER_HOST = "tcp://localhost:2375";
     private static final transient Logger LOG = LoggerFactory.getLogger(KubernetesHelper.class);
     private static ObjectMapper objectMapper = KubernetesFactory.createObjectMapper();
 
+
+    public static String getDockerIp() {
+        String url = resolveDockerHost();
+        int idx = url.indexOf("://");
+        if (idx > 0) {
+            url = url.substring(idx + 3);
+        }
+        idx = url.indexOf(":");
+        if (idx > 0) {
+            url = url.substring(0, idx);
+        }
+        return url;
+    }
+
+    public static String resolveDockerHost() {
+        String dockerHost = System.getenv("DOCKER_HOST");
+        if (isNullOrBlank(dockerHost)) {
+            dockerHost = System.getProperty("docker.host");
+        }
+        if (isNullOrBlank(dockerHost)) {
+            return DEFAULT_DOCKER_HOST;
+        } else {
+            return dockerHost;
+        }
+    }
     /**
      * Returns a list of {@link Env} objects from an environment variables map
      */
@@ -131,7 +163,16 @@ public class KubernetesHelper {
      * Returns a map indexed by pod id of the pods
      */
     public static Map<String, PodSchema> toPodMap(PodListSchema podSchema) {
-        return toPodMap(podSchema != null ? podSchema.getItems() : null);
+        return toPodMap(podSchema, null);
+    }
+
+    /**
+     * Returns a map indexed by pod id of the pods
+     */
+    public static Map<String, PodSchema> toPodMap(PodListSchema podSchema, String selector) {
+        List<PodSchema> list = podSchema != null ? podSchema.getItems() : null;
+        List<PodSchema> filteredList = Filters.filter(list, createPodFilter(selector));
+        return toPodMap(filteredList);
     }
 
     /**
@@ -175,8 +216,16 @@ public class KubernetesHelper {
      * Returns a map indexed by replicationController id of the replicationControllers
      */
     public static Map<String, ReplicationControllerSchema> toReplicationControllerMap(ReplicationControllerListSchema replicationControllerSchema) {
-        return toReplicationControllerMap(replicationControllerSchema != null ? replicationControllerSchema.getItems() : null);
+        return toReplicationControllerMap(replicationControllerSchema, null);
     }
+
+
+    private static Map<String,ReplicationControllerSchema> toReplicationControllerMap(ReplicationControllerListSchema replicationControllerSchema, String selector) {
+        List<ReplicationControllerSchema> list = replicationControllerSchema != null ? replicationControllerSchema.getItems() : null;
+        List<ReplicationControllerSchema> filteredList = Filters.filter(list, createReplicationControllerFilter(selector));
+        return toReplicationControllerMap(filteredList);
+    }
+
 
     /**
      * Returns a map indexed by replicationController id of the replicationControllers
@@ -194,8 +243,13 @@ public class KubernetesHelper {
     }
 
     public static Map<String, PodSchema> getPodMap(Kubernetes kubernetes) {
+        return getPodMap(kubernetes, null);
+    }
+
+
+    public static Map<String, PodSchema> getPodMap(Kubernetes kubernetes, String selector) {
         PodListSchema podSchema = kubernetes.getPods();
-        return toPodMap(podSchema);
+        return toPodMap(podSchema, selector);
     }
 
     public static Map<String, ServiceSchema> getServiceMap(Kubernetes kubernetes) {
@@ -204,6 +258,10 @@ public class KubernetesHelper {
 
     public static Map<String, ReplicationControllerSchema> getReplicationControllerMap(Kubernetes kubernetes) {
         return toReplicationControllerMap(kubernetes.getReplicationControllers());
+    }
+
+    public static Map<String, ReplicationControllerSchema> getReplicationControllerMap(Kubernetes kubernetes, String selector) {
+        return toReplicationControllerMap(kubernetes.getReplicationControllers(), selector);
     }
 
     /**
@@ -254,7 +312,7 @@ public class KubernetesHelper {
      * Creates a filter on a pod using the given text string
      */
     public static Filter<PodSchema> createPodFilter(final String textFilter) {
-        if (Strings.isNullOrBlank(textFilter)) {
+        if (isNullOrBlank(textFilter)) {
             return Filters.<PodSchema>trueFilter();
         } else {
             return new Filter<PodSchema>() {
@@ -273,7 +331,7 @@ public class KubernetesHelper {
      * Creates a filter on a service using the given text string
      */
     public static Filter<ServiceSchema> createServiceFilter(final String textFilter) {
-        if (Strings.isNullOrBlank(textFilter)) {
+        if (isNullOrBlank(textFilter)) {
             return Filters.<ServiceSchema>trueFilter();
         } else {
             return new Filter<ServiceSchema>() {
@@ -292,7 +350,7 @@ public class KubernetesHelper {
      * Creates a filter on a replicationController using the given text string
      */
     public static Filter<ReplicationControllerSchema> createReplicationControllerFilter(final String textFilter) {
-        if (Strings.isNullOrBlank(textFilter)) {
+        if (isNullOrBlank(textFilter)) {
             return Filters.<ReplicationControllerSchema>trueFilter();
         } else {
             return new Filter<ReplicationControllerSchema>() {
@@ -312,8 +370,9 @@ public class KubernetesHelper {
      */
     public static boolean filterMatchesIdOrLabels(String textFilter, String id, Map<String, String> labels) {
         String text = toLabelsString(labels);
-        return text.contains(textFilter) || id.contains(textFilter);
+        return (text != null && text.contains(textFilter)) || (id != null && id.contains(textFilter));
     }
+
 
     /**
      * For positive non-zero values return the text of the number or return blank
@@ -326,5 +385,37 @@ public class KubernetesHelper {
             }
         }
         return "";
+    }
+
+    /**
+     * Returns all the containers from the given pod
+     */
+    public static List<ManifestContainer> getContainers(PodSchema pod) {
+        if (pod != null) {
+            DesiredState desiredState = pod.getDesiredState();
+            if (desiredState != null) {
+                ManifestSchema manifest = desiredState.getManifest();
+                if (manifest != null) {
+                    List<ManifestContainer> containers = manifest.getContainers();
+                    if (containers != null) {
+                        return containers;
+                    }
+                }
+            }
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Returns the host of the pod
+     */
+    public static String getHost(PodSchema pod) {
+        if (pod != null) {
+            CurrentState currentState = pod.getCurrentState();
+            if (currentState != null) {
+                return currentState.getHost();
+            }
+        }
+        return null;
     }
 }
