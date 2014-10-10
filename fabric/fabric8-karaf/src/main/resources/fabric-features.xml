@@ -78,7 +78,7 @@
 
         <bundle>mvn:org.apache.karaf.service/org.apache.karaf.service.guard/${karaf-version}</bundle>
 
-        <bundle>mvn:org.apache.felix/org.apache.felix.eventadmin/${felix-eventadmin-version}</bundle>
+        <bundle>mvn:org.apache.karaf.services/org.apache.karaf.services.eventadmin/${karaf-version}</bundle>
 
 
         <!-- TODO: Either decouple diagonstic common from org.apache.karaf.features or provide a dummy FeatureServiceImpl.
