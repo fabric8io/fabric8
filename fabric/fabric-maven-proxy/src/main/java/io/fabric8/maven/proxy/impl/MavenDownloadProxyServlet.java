@@ -39,7 +39,7 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
     private final RuntimeProperties runtimeProperties;
     private final ConcurrentMap<String, ArtifactDownloadFuture> requestMap = new ConcurrentHashMap<String, ArtifactDownloadFuture>();
     private final int threadMaximumPoolSize;
-    private ExecutorService executorService;
+    private ThreadPoolExecutor executorService;
 
     public MavenDownloadProxyServlet(MavenResolver resolver, RuntimeProperties runtimeProperties, ProjectDeployer projectDeployer, int threadMaximumPoolSize) {
         super(resolver, projectDeployer);
@@ -53,13 +53,10 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
         if (threadMaximumPoolSize > 0) {
             // lets use a synchronous queue so it waits for the other threads to be available before handing over
             // we are waiting for the task to be done anyway in doGet so there is no point in having a worker queue
-            ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(1, threadMaximumPoolSize, 60, TimeUnit.SECONDS,
+            executorService = new ThreadPoolExecutor(1, threadMaximumPoolSize, 60, TimeUnit.SECONDS,
                     new SynchronousQueue<Runnable>(), new ThreadFactory("MavenDownloadProxyServlet"));
             // lets allow core threads to timeout also, so if there is no download for a while then no threads is wasted
-            threadPoolExecutor.allowCoreThreadTimeOut(true);
-            executorService = threadPoolExecutor;
-        } else {
-            executorService = Executors.newSingleThreadExecutor(new ThreadFactory("MavenDownloadProxyServlet"));
+            executorService.allowCoreThreadTimeOut(true);
         }
 
         super.start();
@@ -100,7 +97,11 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
                 masterFuture = requestMap.putIfAbsent(path, future);
                 if (masterFuture == null) {
                     masterFuture = future;
-                    executorService.submit(future);
+                    if (executorService != null) {
+                        executorService.submit(future);
+                    } else {
+                        future.run();
+                    }
                     artifactFile = masterFuture.get();
                 } else {
                     artifactFile = masterFuture.get();
