@@ -7,6 +7,7 @@ import org.apache.activemq.camel.component.ActiveMQComponent;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.dataset.SimpleDataSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,8 @@ public class ConsumerMain {
     private static String queueName;
     
     private static int slowConsumerMillis;
-    
+
+
     public static void main(String args[]) {
         try {
             try {
@@ -103,18 +105,14 @@ public class ConsumerMain {
             String brokerURL = "tcp://" + host + ":" + port + "?jms.prefetchPolicy.all=" + prefetch;
             System.out.println("Connecting to brokerURL " + brokerURL);
             main.bind("activemq", ActiveMQComponent.activeMQComponent(brokerURL));
+            main.bind("myDataSet", new SimpleDataSet());
             main.enableHangupSupport();
             
             main.addRouteBuilder(new RouteBuilder() {
                 public void configure() {
                     
             		from("activemq:"+queueName).
-            		process(new Processor() {
-            			public void process(Exchange exchange) throws Exception {
-            				Thread.sleep(slowConsumerMillis);
-            			}
-            		}).
-            		log("Received message at ${date:now:HH:mm:SS:sss}");
+            		to("dataset:myDataSet");
                 }
             });
             
