@@ -2,14 +2,19 @@ package io.fabric8.mq.producer;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Arrays;
 
 import org.apache.activemq.camel.component.ActiveMQComponent;
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.dataset.DataSet;
+import org.apache.camel.component.dataset.SimpleDataSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Main {
-    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+public class ProducerMain {
+    private static final Logger LOG = LoggerFactory.getLogger(ProducerMain.class);
 
     private static int port;
 
@@ -17,6 +22,12 @@ public class Main {
     
     private static String queueName;
     
+    private static int messageSize;
+
+    private static long messageCount;
+    
+    private static String messageBody;
+
     public static void main(String args[]) {
         try {
             try {
@@ -45,7 +56,7 @@ public class Main {
                     @Override
                     public String run() {
                         String result = System.getenv("AMQ_INTERVAL");
-                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_INTERVAL", "50") : result;
+                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_INTERVAL", "0") : result;
                         return result;
                     }
                 });
@@ -53,7 +64,30 @@ public class Main {
                 	interval = Integer.parseInt(intervalStr);
                 }
 
+                String messageSizeInBytesStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
+                	@Override
+                	public String run() {
+                		String result = System.getenv("AMQ_MESSAGE_SIZE_BYTES");
+                		result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_MESSAGE_SIZE_BYTES", "1024") : result;
+                		return result;
+                	}
+                });
+                if (messageSizeInBytesStr != null && messageSizeInBytesStr.length() > 0) {
+                	messageSize = Integer.parseInt(messageSizeInBytesStr);
+                }
 
+                String messageCountStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
+                	@Override
+                	public String run() {
+                		String result = System.getenv("AMQ_MESSAGE_COUNT_LONG");
+                		result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_MESSAGE_COUNT_LONG", "10000") : result;
+                		return result;
+                	}
+                });
+                if (messageCountStr != null && messageCountStr.length() > 0) {
+                	messageCount= Long.parseLong(messageCountStr);
+                }
+                
             } catch (Throwable e) {
                 LOG.warn("Failed to look up System properties for host and port", e);
             }
@@ -66,20 +100,38 @@ public class Main {
             	queueName = "TEST.FOO";
             }
             
-            if (interval <= 0) {
-            	interval = 50;
+            if (messageSize <= 1) {
+            	messageSize = 1024;
+            }
+
+            if (messageCount <= 0) {
+            	messageCount = 10000;
             }
             
-         // create a camel route to consume messages from our queue
+    		char[] chars = new char[messageSize];
+    		Arrays.fill(chars, 'a');
+    		
+    		messageBody = new String(chars);
+    		
+         // create a camel route to produce messages to our queue
             org.apache.camel.main.Main main = new org.apache.camel.main.Main();
             
             main.bind("activemq", ActiveMQComponent.activeMQComponent("tcp://localhost:"+port));
+            main.bind("myDataSet", createDataSet());
+            main.bind("messageBody", getMessageBody());
+            
             main.enableHangupSupport();
             
             main.addRouteBuilder(new RouteBuilder() {
                 public void configure() {
                     
-                	from("timer://mytimer?period="+interval).
+                	from("dataset:myDataSet?produceDelay="+interval).
+                	process(new Processor() {
+                		public void process(Exchange exchange) throws Exception {
+
+                			exchange.getIn().setBody(getMessageBody());
+                		}
+                	}).
                 	log("Sending message at ${date:now:HH:mm:SS:sss}").
                 	to("activemq:"+queueName);
                 }
@@ -91,6 +143,17 @@ public class Main {
         }
     }
 
+	static DataSet createDataSet() {
+		SimpleDataSet dataSet = new SimpleDataSet();
+		dataSet.setSize(messageCount);
+		
+		return dataSet;
+	}
+	
+	public static String getMessageBody (){
+		return messageBody;
+	}
+    
     public static int getPort() {
         return port;
     }
@@ -102,4 +165,12 @@ public class Main {
     public static String getQueueName() {
         return queueName;
     }
+
+	public static int getMessageSize() {
+		return messageSize;
+	}
+
+	public static long getMessageCount() {
+		return messageCount;
+	}
 }

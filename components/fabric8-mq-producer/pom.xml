@@ -84,10 +84,12 @@
           <mergeData>true</mergeData>
           <assemblyDescriptorRef>artifact-with-dependencies</assemblyDescriptorRef>
           <env>
-            <MAIN>io.fabric8.mq.producer.Main</MAIN>
+            <MAIN>io.fabric8.mq.producer.ProducerMain</MAIN>
             <AMQ_PORT>61616</AMQ_PORT>
             <AMQ_QUEUENAME>TEST.FOO</AMQ_QUEUENAME>
             <AMQ_INTERVAL>50</AMQ_INTERVAL>
+			<AMQ_MESSAGE_SIZE_BYTES>1024</AMQ_MESSAGE_SIZE_BYTES>
+			<AMQ_MESSAGE_COUNT>10000</AMQ_MESSAGE_COUNT>
           </env>
           <ports>
             <port>8778</port>
@@ -100,7 +102,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.2.1</version>
         <configuration>
-          <mainClass>io.fabric8.mq.producer.Main</mainClass>
+          <mainClass>io.fabric8.mq.producer.ProducerMain</mainClass>
           <includePluginDependencies>false</includePluginDependencies>
         </configuration>
       </plugin>
