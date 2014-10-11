@@ -28,8 +28,6 @@ public class ProducerMain {
     private static int messageSize;
 
     private static long messageCount;
-    
-    private static String messageBody;
 
     public static void main(String args[]) {
         try {
@@ -121,11 +119,6 @@ public class ProducerMain {
             if (messageCount <= 0) {
             	messageCount = 10000;
             }
-            
-    		char[] chars = new char[messageSize];
-    		Arrays.fill(chars, 'a');
-    		
-    		messageBody = new String(chars);
     		
             // create a camel route to produce messages to our queue
             org.apache.camel.main.Main main = new org.apache.camel.main.Main();
@@ -135,7 +128,6 @@ public class ProducerMain {
 
             main.bind("activemq", ActiveMQComponent.activeMQComponent(brokerURL));
             main.bind("myDataSet", createDataSet());
-            main.bind("messageBody", getMessageBody());
             
             main.enableHangupSupport();
             
@@ -143,32 +135,28 @@ public class ProducerMain {
                 public void configure() {
                     
                 	from("dataset:myDataSet?produceDelay="+interval).
-                	process(new Processor() {
-                		public void process(Exchange exchange) throws Exception {
-
-                			exchange.getIn().setBody(getMessageBody());
-                		}
-                	}).
-                	log("Sending message at ${date:now:HH:mm:SS:sss}").
                 	to("activemq:"+queueName);
                 }
             });
             
             main.run(args);
         } catch (Throwable e) {
-            LOG.error("Failed to connect to Fabric8MQ", e);
+            LOG.error("Failed to connect to Fabric8 MQ", e);
         }
     }
 
 	static DataSet createDataSet() {
-		SimpleDataSet dataSet = new SimpleDataSet();
+
+        char[] chars = new char[messageSize];
+        Arrays.fill(chars, 'a');
+            
+        String messageBody = new String(chars);
+
+        SimpleDataSet dataSet = new SimpleDataSet();
 		dataSet.setSize(messageCount);
-		
+		dataSet.setDefaultBody(messageBody);
+
 		return dataSet;
-	}
-	
-	public static String getMessageBody (){
-		return messageBody;
 	}
     
     public static int getPort() {
