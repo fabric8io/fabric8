@@ -1,10 +1,24 @@
 #!/bin/sh
+
+echo "Killing openshift"
+killall openshift
+
 echo "Removing old OpenShift files"
 rm -rf openshift.local.*
 
-echo "Zapping docker images"
+echo "Killing running docker images"
 docker kill $(docker ps -q)
-docker rm $(docker ps -a -q)
+#docker rm $(docker ps -a -q)
+
+# Turn on monitor mode.
+set -m
+
 
 echo "Restarting OpenShift"
-openshift start --listenAddr=$OPENSHIFT_HOST:8080
+openshift start --listenAddr=$OPENSHIFT_HOST:8080 &
+
+sleep 2
+
+echo "installing fabric8"
+openshift kube  apply -c https://raw.githubusercontent.com/fabric8io/fabric8/2.0/apps/fabric8.json
+
