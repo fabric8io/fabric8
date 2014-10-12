@@ -92,7 +92,7 @@ public class ContainerResource extends ResourceSupport {
      * Returns the current status
      */
     @GET
-    @Path("start")
+    @Path("status")
     public Response getStatus() {
         if (Containers.isAliveAndProvisionSuccess(container)) {
             return Response.status(Response.Status.OK).entity("Started").build();
@@ -123,8 +123,8 @@ public class ContainerResource extends ResourceSupport {
     /**
      * Stops the container
      */
-    @DELETE
-    @Path("start")
+    @POST
+    @Path("stop")
     public void stop() {
         FabricService fabricService = getFabricService();
         Objects.notNull(fabricService, "fabricService");
