@@ -28,6 +28,11 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * <p>
+ *     Important - this functionality may change when Spring Boot 1.2.x is released. Spring Boot 1.2.x comes with
+ *     its own support for the ActiveMQ clients. As soon as the former is out, we will adopt our existing codebase to
+ *     reuse Spring API as much as possible. This may lead to the changes in our API as well.
+ * </p>
+ * <p>
  *     Auto-configuration class for the ActiveMQ client. It provides a pooled ActiveMQ
  *     {@code javax.jms.ConnectionFactory}. In order to use the {@link ActiveMQAutoConfiguration} in your application
  *     just add the following jar to your Spring Boot project dependencies:
