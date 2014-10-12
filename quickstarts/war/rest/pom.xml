@@ -52,7 +52,7 @@
     <cxf.version>2.7.11</cxf.version>
 
     <!-- fabric8 deploy configuration -->
-    <docker.dataImage>mydemo/${project.artifactId}:${project.version}</docker.dataImage>
+    <docker.dataImage>quickstarts/${project.artifactId}:${project.version}</docker.dataImage>
   </properties>
 
   <licenses>

@@ -17,7 +17,7 @@
           "containers": [
             {
               "name": "quickstart-camel-servlet",
-              "image": "${docker.registry}/${docker.dataImage}",
+              "image": "${docker.dataImage}",
               "ports": [
                 {
                   "containerPort": 8080,

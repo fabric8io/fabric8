@@ -33,7 +33,7 @@
   <name>Fabric8 :: Components</name>
 
   <properties>
-    <docker.dataImage>fabric8/${project.artifactId}:${project.version}</docker.dataImage>
+    <docker.dataImage>${env.DOCKER_REGISTRY}/fabric8/${project.artifactId}:${project.version}</docker.dataImage>
   </properties>
 
   <modules>

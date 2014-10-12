@@ -39,7 +39,7 @@
                   ],
                   "ports": [
                     {
-                      "hostPort": 8484,
+                      "hostPort": 8383,
                       "containerPort": 8080,
                       "protocol": "TCP"
                     }
@@ -92,7 +92,7 @@
                   "name": "registry-container",
                   "ports": [
                     {
-                      "hostPort": 5000,
+                      "hostPort": 5001,
                       "containerPort": 5000,
                       "protocol": "TCP"
                     }

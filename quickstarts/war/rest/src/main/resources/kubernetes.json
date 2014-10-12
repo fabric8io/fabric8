@@ -17,7 +17,7 @@
           "containers": [
             {
               "name": "quickstart-rest-war",
-              "image": "${docker.registry}/${docker.dataImage}",
+              "image": "${docker.dataImage}",
               "ports": [
                 {
                   "containerPort": 8080,

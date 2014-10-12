@@ -50,7 +50,7 @@
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
 
-    <docker.dataImage>mydemo/${project.artifactId}:${project.version}</docker.dataImage>
+    <docker.dataImage>quickstarts/${project.artifactId}:${project.version}</docker.dataImage>
   </properties>
 
   <dependencyManagement>

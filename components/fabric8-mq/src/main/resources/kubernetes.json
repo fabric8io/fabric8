@@ -1,47 +1,67 @@
 {
-  "id": "fabric8MQController",
-  "kind": "ReplicationController",
+  "id": "fabric8mq-config",
+  "kind": "Config",
   "apiVersion": "v1beta1",
-  "desiredState": {
-    "replicas": 1,
-    "replicaSelector": {
-      "name": "fabricMQ",
-      "container": "fabricMQ",
-      "region": "default"
+  "name": "fabric8mq-config",
+  "description": "Creates a Fabric8MQ broker",
+  "items": [
+    {
+      "apiVersion": "v1beta1",
+      "containerPort": 61616,
+      "creationTimestamp": null,
+      "id": "fabric8mq-service",
+      "kind": "Service",
+      "port": 61616,
+      "selector": {
+        "name": "fabricMQ"
+      }
     },
-    "podTemplate": {
+    {
+      "id": "fabric8MQController",
+      "kind": "ReplicationController",
+      "apiVersion": "v1beta1",
       "desiredState": {
-        "manifest": {
-          "version": "v1beta1",
-          "id": "fabric8MQController",
-          "containers": [
-            {
-              "name": "fabric-mq",
-              "image": "${docker.registry}/${docker.dataImage}",
-              "ports": [
+        "replicas": 1,
+        "replicaSelector": {
+          "name": "fabricMQ",
+          "container": "java",
+          "region": "default"
+        },
+        "podTemplate": {
+          "desiredState": {
+            "manifest": {
+              "version": "v1beta1",
+              "id": "fabric8MQPod",
+              "containers": [
                 {
-                  "containerPort": 61616,
-                  "hostPort": 61616
-                },
-                {
-                  "containerPort": 8778,
-                  "hostPort": 9801
+                  "name": "fabric-mq",
+                  "image": "${docker.dataImage}",
+                  "ports": [
+                    {
+                      "containerPort": 61616,
+                      "hostPort": 61617
+                    },
+                    {
+                      "containerPort": 8778,
+                      "hostPort": 9600
+                    }
+                  ]
                 }
               ]
             }
-          ]
+          },
+          "labels": {
+            "name": "fabricMQ",
+            "container": "java",
+            "region": "default"
+          }
         }
       },
       "labels": {
         "name": "fabricMQ",
-        "container": "fabricMQ",
+        "container": "java",
         "region": "default"
       }
     }
-  },
-  "labels": {
-    "name": "fabricMQ",
-    "container": "fabricMQ",
-    "region": "default"
-  }
+  ]
 }

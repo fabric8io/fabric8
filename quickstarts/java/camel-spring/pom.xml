@@ -49,7 +49,7 @@
     <camel.version>2.13.2</camel.version>
 
     <!-- fabric8 deploy configuration -->
-    <docker.dataImage>mydemo/${project.artifactId}:${project.version}</docker.dataImage>
+    <docker.dataImage>${env.DOCKER_REGISTRY}/quickstarts/${project.artifactId}:${project.version}</docker.dataImage>
   </properties>
 
   <dependencyManagement>

@@ -17,7 +17,7 @@
           "containers": [
             {
               "name": "quickstart-camel-cdi",
-              "image": "${docker.registry}/${docker.dataImage}",
+              "image": "${docker.dataImage}",
               "ports": [
                 {
                   "containerPort": 8778,
