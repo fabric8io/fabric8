@@ -113,7 +113,7 @@ public class FabricDTO {
         answer.setProvisioningPending(container.isProvisioningPending());
         answer.setRoot(container.isRoot());
 
-        answer.setStartLink(baseApiLink + "/container/" + containerId + "/start");
+        answer.setLinks(baseApiLink,containerId );
         return answer;
     }
 
