@@ -1,5 +1,9 @@
 # ActiveMQ with Spring-Boot QuickStart
 
+Important - ActiveMQ functionality may change when Spring Boot 1.2.x is released. Spring Boot 1.2.x comes with
+its own support for the ActiveMQ clients. As soon as the former is out, we will adopt our existing codebase to
+reuse Spring API as much as possible. This may lead to the changes in our API as well.
+
 This example demonstrates how you can use Apache ActiveMQ with Spring Boot in a [Java Container](http://fabric8.io/gitbook/javaContainer.html)
 
 The quickstart uses Spring Boot to configure a little application that publishes a message to an embedded ActiveMQ broker.
