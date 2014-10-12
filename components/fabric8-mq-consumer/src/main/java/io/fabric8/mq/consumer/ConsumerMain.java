@@ -99,7 +99,7 @@ public class ConsumerMain {
             
             // create a camel route to consume messages from our queue
             org.apache.camel.main.Main main = new org.apache.camel.main.Main();
-            String brokerURL = "tcp://" + host + ":" + port + "?jms.prefetchPolicy.all="+prefetch);
+            String brokerURL = "tcp://" + host + ":" + port + "?jms.prefetchPolicy.all=" + prefetch;
             System.out.println("Connecting to brokerURL " + brokerURL);
             main.bind("activemq", ActiveMQComponent.activeMQComponent(brokerURL));
             main.enableHangupSupport();
