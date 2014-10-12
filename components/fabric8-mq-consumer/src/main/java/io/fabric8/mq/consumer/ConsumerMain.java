@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 public class ConsumerMain {
     private static final Logger LOG = LoggerFactory.getLogger(ConsumerMain.class);
 
+    private static String host;
     private static int port;
     
     private static int prefetch;
@@ -24,6 +25,14 @@ public class ConsumerMain {
     public static void main(String args[]) {
         try {
             try {
+                host = AccessController.doPrivileged(new PrivilegedAction<String>() {
+                    @Override
+                    public String run() {
+                        String result = System.getenv("AMQ_HOST");
+                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_HOST", "localhost") : result;
+                        return result;
+                    }
+                });
                 String portStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
                     @Override
                     public String run() {
@@ -35,7 +44,6 @@ public class ConsumerMain {
                 if (portStr != null && portStr.length() > 0) {
                     port = Integer.parseInt(portStr);
                 }
-                
                 String prefetchStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
                     @Override
                     public String run() {
@@ -73,6 +81,10 @@ public class ConsumerMain {
                 LOG.warn("Failed to look up System properties for host and port", e);
             }
 
+            if (host == null || host.length() == 0) {
+                host = "localhost";
+            }
+
             if (port <= 0) {
                 port = 61616;
             }
@@ -87,8 +99,9 @@ public class ConsumerMain {
             
             // create a camel route to consume messages from our queue
             org.apache.camel.main.Main main = new org.apache.camel.main.Main();
-            
-            main.bind("activemq", ActiveMQComponent.activeMQComponent("tcp://localhost:"+port+"?jms.prefetchPolicy.all="+prefetch));
+            String brokerURL = "tcp://" + host + ":" + port + "?jms.prefetchPolicy.all="+prefetch);
+            System.out.println("Connecting to brokerURL " + brokerURL);
+            main.bind("activemq", ActiveMQComponent.activeMQComponent(brokerURL));
             main.enableHangupSupport();
             
             main.addRouteBuilder(new RouteBuilder() {
