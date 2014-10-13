@@ -29,7 +29,26 @@
     <fileSet>
       <directory>src/main/resources</directory>
       <outputDirectory>/</outputDirectory>
+      <excludes>
+          <exclude>**/*.png</exclude>
+          <exclude>**/*.jpg</exclude>
+          <exclude>**/*.jpeg</exclude>
+          <exclude>**/*.gif</exclude>
+          <exclude>**/*.pdf</exclude>
+      </excludes>
       <filtered>true</filtered>
+    </fileSet>
+    <fileSet>
+      <directory>src/main/resources</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+          <include>**/*.png</include>
+          <include>**/*.jpg</include>
+          <include>**/*.jpeg</include>
+          <include>**/*.gif</include>
+          <include>**/*.pdf</include>
+      </includes>
+      <filtered>false</filtered>
     </fileSet>
   </fileSets>
 </assembly>
