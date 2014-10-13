@@ -29,9 +29,29 @@
 
   <groupId>io.fabric8</groupId>
   <artifactId>wiki</artifactId>
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
 
   <name>Fabric8 :: Wiki</name>
+
+  <properties>
+    <!-- get the new crack ;) -->
+    <hawtio.version>1.5-SNAPSHOT</hawtio.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.hawt</groupId>
+      <artifactId>hawtio-aether</artifactId>
+      <version>${hawtio.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.hawt</groupId>
+      <artifactId>hawtio-git</artifactId>
+      <version>${hawtio.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>
