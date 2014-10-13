@@ -11,7 +11,7 @@
       "creationTimestamp": null,
       "id": "hawtio-service",
       "kind": "Service",
-      "port": 8484,
+      "port": 8383,
       "selector": {
         "name": "hawtioPod"
       }
@@ -39,7 +39,7 @@
                   ],
                   "ports": [
                     {
-                      "hostPort": 8383,
+                      "hostPort": 8484,
                       "containerPort": 8080,
                       "protocol": "TCP"
                     }
@@ -74,7 +74,7 @@
       "creationTimestamp": null,
       "id": "registryservice",
       "kind": "Service",
-      "port": 5000,
+      "port": 5001,
       "selector": {
         "name": "registryPod"
       }
@@ -92,7 +92,7 @@
                   "name": "registry-container",
                   "ports": [
                     {
-                      "hostPort": 5001,
+                      "hostPort": 5000,
                       "containerPort": 5000,
                       "protocol": "TCP"
                     }

@@ -152,7 +152,7 @@ public class KubernetesHelper {
                     } else if (Objects.equal("Service", kind)) {
                         return objectMapper.reader(ServiceSchema.class).readValue(json);
                     } else {
-                        LOG.warn("Unknown JSON type " + kindNode + ". JSON: " + tree);
+                        return tree;
                     }
                 } else {
                     LOG.warn("No JSON type for: " + tree);

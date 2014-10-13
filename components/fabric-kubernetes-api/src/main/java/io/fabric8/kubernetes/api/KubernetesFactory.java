@@ -64,6 +64,28 @@ public class KubernetesFactory {
     }
 
     public Kubernetes createKubernetes() {
+        ResteasyWebTarget target = createTarget();
+        return target.proxy(Kubernetes.class);
+
+/*
+        List<Object> providers = new ArrayList<Object>();
+        providers.add(new JacksonJaxbJsonProvider());
+        return JAXRSClientFactory.create(address, Kubernetes.class, providers);
+*/
+    }
+
+    public KubernetesExtensions createKubernetesExtensions() {
+        ResteasyWebTarget target = createTarget();
+        return target.proxy(KubernetesExtensions.class);
+
+/*
+        List<Object> providers = new ArrayList<Object>();
+        providers.add(new JacksonJaxbJsonProvider());
+        return JAXRSClientFactory.create(address, KubernetesExtensions.class, providers);
+*/
+    }
+
+    protected ResteasyWebTarget createTarget() {
         ResteasyProviderFactory providerFactory = ResteasyProviderFactory.getInstance();
         providerFactory.register(ResteasyJackson2Provider.class);
         // handle JSON coming back as text/plain
@@ -78,14 +100,7 @@ public class KubernetesFactory {
         builder.providerFactory(providerFactory);
         builder.connectionPoolSize(Integer.parseInt(System.getProperty("docker.connection.pool", "3")));
         Client client = builder.build();
-        ResteasyWebTarget target = (ResteasyWebTarget) client.target(address);
-        return target.proxy(Kubernetes.class);
-
-/*
-        List<Object> providers = new ArrayList<Object>();
-        providers.add(new JacksonJaxbJsonProvider());
-        return JAXRSClientFactory.create(address, Kubernetes.class, providers);
-*/
+        return (ResteasyWebTarget) client.target(address);
     }
 
     /**

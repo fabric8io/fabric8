@@ -19,6 +19,7 @@ import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Objects;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.Kubernetes;
+import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -35,8 +36,7 @@ import java.io.IOException;
 @Mojo(name = "deploy", defaultPhase = LifecyclePhase.INSTALL)
 public class DeployMojo extends AbstractFabric8Mojo {
 
-    private Kubernetes kubernetes;
-    private KubernetesFactory factory = new KubernetesFactory();
+    private KubernetesClient kubernetes = new KubernetesClient();
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -44,8 +44,8 @@ public class DeployMojo extends AbstractFabric8Mojo {
         if (!Files.isFile(json)) {
             throw new MojoFailureException("No such kubernetes json file: " + json);
         }
-        Kubernetes api = getKubernetes();
-        getLog().info("Deploying " + json + " to " + factory.getAddress());
+        KubernetesClient api = getKubernetes();
+        getLog().info("Deploying " + json + " to " + api.getAddress());
 
         try {
             Object dto = KubernetesHelper.loadJson(json);
@@ -59,17 +59,7 @@ public class DeployMojo extends AbstractFabric8Mojo {
         }
     }
 
-    public Kubernetes getKubernetes() {
-        if (kubernetes == null) {
-/*
-            if (kubernetesAddress != null) {
-                factory.setAddress(kubernetesAddress);
-            }
-*/
-            kubernetes = factory.createKubernetes();
-        }
-        Objects.notNull(kubernetes, "kubernetes");
+    public KubernetesClient getKubernetes() {
         return kubernetes;
     }
-
 }

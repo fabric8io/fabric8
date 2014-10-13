@@ -17,17 +17,22 @@
  */
 package io.fabric8.kubernetes.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import io.fabric8.common.util.Objects;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getReplicationControllerMap;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getServiceMap;
+import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 
 /**
  * Applies DTOs to the current Kubernetes master
@@ -35,12 +40,16 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getServiceMap;
 public class Controller {
     private static final transient Logger LOG = LoggerFactory.getLogger(Controller.class);
 
-    private final Kubernetes kubernetes;
+    private final KubernetesClient kubernetes;
     private Map<String, PodSchema> podMap = null;
     private Map<String, ReplicationControllerSchema> replicationControllerMap = null;
     private Map<String, ServiceSchema> serviceMap = null;
 
-    public Controller(Kubernetes kubernetes) {
+    public Controller() {
+        this(new KubernetesClient());
+    }
+
+    public Controller(KubernetesClient kubernetes) {
         this.kubernetes = kubernetes;
     }
 
@@ -54,9 +63,60 @@ public class Controller {
             applyReplicationController((ReplicationControllerSchema) dto, sourceName);
         } else if (dto instanceof ServiceSchema) {
             applyService((ServiceSchema) dto, sourceName);
+        } else if (dto instanceof JsonNode) {
+            JsonNode tree = (JsonNode) dto;
+            JsonNode kindNode = tree.get("kind");
+            if (kindNode != null) {
+                String kind = kindNode.asText();
+                if (Objects.equal("Config", kind)) {
+                    applyConfig(tree, sourceName);
+                } else if (Objects.equal("Template", kind)) {
+                    applyTemplateConfig(tree, sourceName);
+                } else {
+                    LOG.warn("Unknown JSON type " + kindNode + ". JSON: " + tree);
+                }
+            } else {
+                LOG.warn("No JSON kind for: " + tree);
+            }
         } else {
             LOG.warn("Unknown Kublelet from " + sourceName + ". Object: " + dto);
         }
+    }
+
+    public void applyTemplateConfig(JsonNode entity, String sourceName) {
+        try {
+            kubernetes.createTemplate(entity);
+        } catch (Exception e) {
+            LOG.error("Failed to create controller from " + sourceName + ". " + e, e);
+        }
+    }
+
+    public void applyConfig(JsonNode entity, String sourceName) {
+        JsonNode items = entity.get("items");
+        if (items != null) {
+            for (JsonNode item : items) {
+                // lets parse into a new object
+                // TODO the apply method should deal with the item direct?
+                String json = item.toString();
+                System.out.println("Got item: "+ json);
+                Object dto = null;
+                try {
+                    dto = loadJson(json);
+                } catch (IOException e) {
+                    LOG.error("Failed to process " + json + ". " + e, e);
+                }
+                if (dto != null) {
+                    apply(dto, sourceName);
+                }
+            }
+        }
+/*
+        try {
+            kubernetes.createConfig(entity);
+        } catch (Exception e) {
+            LOG.error("Failed to create config from " + sourceName + ". " + e, e);
+        }
+*/
     }
 
     public void applyService(ServiceSchema serviceSchema, String sourceName) {

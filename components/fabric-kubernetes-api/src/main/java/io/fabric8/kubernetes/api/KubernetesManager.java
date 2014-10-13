@@ -37,13 +37,10 @@ public class KubernetesManager implements KubernetesManagerMXBean {
         }
     }
 
-    private Kubernetes kubernetes;
+    private KubernetesClient kubernetes = new KubernetesClient();
 
     public void init() {
         JMXUtils.registerMBean(this, OBJECT_NAME);
-        if (kubernetes == null) {
-            kubernetes = new KubernetesFactory().createKubernetes();
-        }
     }
 
     public void destroy() {
@@ -52,18 +49,17 @@ public class KubernetesManager implements KubernetesManagerMXBean {
 
     @Override
     public String apply(String json) throws IOException {
-        Controller controller = new Controller(getKubernetes());
+        Controller controller = new Controller(kubernetes);
         Object dto = KubernetesHelper.loadJson(json);
         controller.apply(dto, "REST call");
         return "";
     }
 
-
-    public Kubernetes getKubernetes() {
+    public KubernetesClient getKubernetes() {
         return kubernetes;
     }
 
-    public void setKubernetes(Kubernetes kubernetes) {
+    public void setKubernetes(KubernetesClient kubernetes) {
         this.kubernetes = kubernetes;
     }
 }
