@@ -1,0 +1,48 @@
+{
+  "id": "influxdbController",
+  "kind": "ReplicationController",
+  "apiVersion": "v1beta1",
+  "desiredState": {
+    "replicas": 1,
+    "replicaSelector": {
+      "name": "influxdb",
+      "group": "management"
+    },
+    "podTemplate": {
+      "desiredState": {
+        "manifest": {
+          "version": "v1beta1",
+          "id": "influxdbController",
+          "containers": [
+            {
+              "name": "influxdb",
+              "image": "tutum/influxdb",
+              "ports": [
+                {
+                  "containerPort": 8083,
+                  "hostPort": 8083
+                },
+                {
+                  "containerPort": 8084,
+                  "hostPort": 8084
+                },
+                {
+                  "containerPort": 8086,
+                  "hostPort": 8086
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "labels": {
+        "name": "influxdb",
+        "group": "management"
+      }
+    }
+  },
+  "labels": {
+    "name": "influxdb",
+    "group": "management"
+  }
+}

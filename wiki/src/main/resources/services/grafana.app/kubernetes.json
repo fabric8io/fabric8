@@ -1,0 +1,40 @@
+{
+  "id": "grafanaController",
+  "kind": "ReplicationController",
+  "apiVersion": "v1beta1",
+  "desiredState": {
+    "replicas": 1,
+    "replicaSelector": {
+      "name": "grafana",
+      "group": "management"
+    },
+    "podTemplate": {
+      "desiredState": {
+        "manifest": {
+          "version": "v1beta1",
+          "id": "grafanaController",
+          "containers": [
+            {
+              "name": "grafana",
+              "image": "tutum/grafana",
+              "ports": [
+                {
+                  "containerPort": 80,
+                  "hostPort": 9100
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "labels": {
+        "name": "grafana",
+        "group": "management"
+      }
+    }
+  },
+  "labels": {
+    "name": "grafana",
+    "group": "management"
+  }
+}
