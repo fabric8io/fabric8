@@ -40,16 +40,8 @@ public class SimpleRestProxyFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> RestProxy<T> proxyService(final Class<T> serviceClass, final String baseServiceUrl) {
-        return (RestProxy<T>) newProxyInstance(SimpleRestProxyFactory.class.getClassLoader(), new Class[]{RestProxy.class}, new InvocationHandler() {
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                String normalizedBaseServiceUrl = normalizeBaseServiceUrl(baseServiceUrl);
-                boolean isGet = method.getName().equals("get");
-                Header[] headers = args.length > 0 ? (Header[]) args[0] : new Header[0];
-                return newProxyInstance(SimpleRestProxyFactory.class.getClassLoader(), new Class[]{serviceClass}, new HttpMethodHandler(isGet, serviceClass, normalizedBaseServiceUrl, headers));
-            }
-        });
+    public <T> RestProxy<T> proxyService(Class<T> serviceClass, String baseServiceUrl) {
+        return (RestProxy<T>) newProxyInstance(SimpleRestProxyFactory.class.getClassLoader(), new Class[]{RestProxy.class}, new RestProxyHandler(serviceClass, baseServiceUrl));
     }
 
     // private helpers
@@ -66,41 +58,54 @@ public class SimpleRestProxyFactory {
 
     // private classes
 
-    private class HttpMethodHandler implements InvocationHandler {
-
-        private final boolean isGet;
+    private class RestProxyHandler implements InvocationHandler {
 
         private final Class<?> serviceClass;
 
         private final String baseServiceUrl;
 
-        private final Header[] headers;
-
-        private HttpMethodHandler(boolean isGet, Class<?> serviceClass, String baseServiceUrl, Header... headers) {
-            this.isGet = isGet;
+        private RestProxyHandler(Class<?> serviceClass, String baseServiceUrl) {
             this.serviceClass = serviceClass;
             this.baseServiceUrl = baseServiceUrl;
-            this.headers = headers;
         }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            Class<?> returnType = method.getReturnType();
-            String url = baseServiceUrl + "/" + classNameToLowerCase(serviceClass) + "/" + method.getName();
-            int argumentsInUri = isGet ? args.length : args.length - 1;
-            for (int i = 0; i < argumentsInUri; i++) {
-                url += "/" + args[i].toString();
+            boolean isGet = method.getName().equals("get");
+            Header[] headers = args.length > 0 ? (Header[]) args[0] : new Header[0];
+            return newProxyInstance(SimpleRestProxyFactory.class.getClassLoader(), new Class[]{serviceClass}, new HttpMethodHandler(isGet, headers));
+        }
+        private class HttpMethodHandler implements InvocationHandler {
+
+            private final boolean isGet;
+
+            private final Header[] headers;
+
+            private HttpMethodHandler(boolean isGet, Header... headers) {
+                this.isGet = isGet;
+                this.headers = headers;
             }
 
-            HttpMethod httpMethod = isGet ? HttpMethod.GET : HttpMethod.POST;
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                Class<?> returnType = method.getReturnType();
+                String normalizedBaseServiceUrl = normalizeBaseServiceUrl(baseServiceUrl);
+                String url = normalizedBaseServiceUrl + "/" + classNameToLowerCase(serviceClass) + "/" + method.getName();
+                int argumentsInUri = isGet ? args.length : args.length - 1;
+                for (int i = 0; i < argumentsInUri; i++) {
+                    url += "/" + args[i].toString();
+                }
 
-            HttpHeaders effectiveHeaders = new HttpHeaders();
-            for (Header header : headers) {
-                effectiveHeaders.set(header.key(), header.value());
+                HttpMethod httpMethod = isGet ? HttpMethod.GET : HttpMethod.POST;
+
+                HttpHeaders effectiveHeaders = new HttpHeaders();
+                for (Header header : headers) {
+                    effectiveHeaders.set(header.key(), header.value());
+                }
+                HttpEntity<?> entity = isGet ? new HttpEntity<>(effectiveHeaders) : new HttpEntity<>(args[args.length - 1], effectiveHeaders);
+
+                return restOperations.exchange(url, httpMethod, entity, returnType);
             }
-            HttpEntity<?> entity = isGet ? new HttpEntity<>(effectiveHeaders) : new HttpEntity<>(args[args.length - 1], effectiveHeaders);
-
-            return restOperations.exchange(url, httpMethod, entity, returnType);
         }
     }
 
