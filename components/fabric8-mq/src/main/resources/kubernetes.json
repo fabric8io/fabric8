@@ -7,11 +7,9 @@
   "items": [
     {
       "apiVersion": "v1beta1",
-      "containerPort": 61616,
-      "creationTimestamp": null,
       "id": "fabric8mq-service",
       "kind": "Service",
-      "port": 61616,
+      "port": ${activemq.service.port},
       "selector": {
         "name": "fabricMQ"
       }
@@ -38,12 +36,18 @@
                   "image": "${docker.dataImage}",
                   "ports": [
                     {
-                      "containerPort": 61616,
-                      "hostPort": 61617
+                      "containerPort": ${activemq.container.port},
+                      "hostPort": ${activemq.host.port}
                     },
                     {
                       "containerPort": 8778,
                       "hostPort": 9600
+                    }
+                  ],
+                  "env": [
+                    {
+                      "name": "AMQ_PORT",
+                      "value": "${activemq.container.port}"
                     }
                   ]
                 }

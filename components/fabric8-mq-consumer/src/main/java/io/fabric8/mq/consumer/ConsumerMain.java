@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class ConsumerMain {
     private static final Logger LOG = LoggerFactory.getLogger(ConsumerMain.class);
+    public static final String DEFAULT_HOST = "127.0.0.1";
 
     private static String host;
     private static int port;
@@ -29,7 +30,7 @@ public class ConsumerMain {
                     @Override
                     public String run() {
                         String result = System.getenv("AMQ_HOST");
-                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_HOST", "localhost") : result;
+                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_HOST", DEFAULT_HOST) : result;
                         return result;
                     }
                 });
@@ -82,7 +83,7 @@ public class ConsumerMain {
             }
 
             if (host == null || host.length() == 0) {
-                host = "localhost";
+                host = DEFAULT_HOST;
             }
 
             if (port <= 0) {

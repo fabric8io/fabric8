@@ -23,6 +23,16 @@
                   "containerPort": 8778,
                   "hostPort": 9603
                 }
+              ],
+              "env": [
+                {
+                  "name": "AMQ_PORT",
+                  "value": "${activemq.host.port}"
+                },
+                {
+                  "name": "AMQ_HOST",
+                  "value": "dockerhost"
+                }
               ]
             }
           ]

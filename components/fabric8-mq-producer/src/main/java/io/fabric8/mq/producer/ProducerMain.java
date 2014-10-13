@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class ProducerMain {
     private static final Logger LOG = LoggerFactory.getLogger(ProducerMain.class);
+    public static final String DEFAULT_HOST = "127.0.0.1";
 
     private static String host;
 
@@ -37,10 +38,11 @@ public class ProducerMain {
                     @Override
                     public String run() {
                         String result = System.getenv("AMQ_HOST");
-                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_HOST", "localhost") : result;
+                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_HOST", DEFAULT_HOST) : result;
                         return result;
                     }
-                });                String portStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
+                });
+                String portStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
                     @Override
                     public String run() {
                         String result = System.getenv("AMQ_PORT");
@@ -102,7 +104,7 @@ public class ProducerMain {
             }
 
             if (host == null || host.length() == 0) {
-                host = "localhost";
+                host = DEFAULT_HOST;
             }
             if (port <= 0) {
                 port = 61616;

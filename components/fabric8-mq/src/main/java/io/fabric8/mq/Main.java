@@ -19,8 +19,14 @@ import java.util.List;
 public class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
+    public static final String DEFAULT_BROKER_NAME = "defaultBroker";
+    public static final String DEFAULT_HOST = "0.0.0.0";
+    public static final String DEFAULT_PORT_TEXT = "61616";
+    public static final String DEFAULT_DATA_DIRECTORY = "data";
+
     private static String brokerName;
     private static String dataDirectory;
+    private static String host;
     private static int port;
 
     public static void main(String args[]) {
@@ -30,7 +36,15 @@ public class Main {
                     @Override
                     public String run() {
                         String result = System.getenv("AMQ_BROKER_NAME");
-                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_BROKER_NAME", "AMQ_Broker") : result;
+                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_BROKER_NAME", DEFAULT_BROKER_NAME) : result;
+                        return result;
+                    }
+                });
+                host = AccessController.doPrivileged(new PrivilegedAction<String>() {
+                    @Override
+                    public String run() {
+                        String result = System.getenv("AMQ_HOST");
+                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_HOST", DEFAULT_HOST) : result;
                         return result;
                     }
                 });
@@ -38,7 +52,7 @@ public class Main {
                     @Override
                     public String run() {
                         String result = System.getenv("AMQ_PORT");
-                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_PORT", "61616") : result;
+                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_PORT", DEFAULT_PORT_TEXT) : result;
                         return result;
                     }
                 });
@@ -49,7 +63,7 @@ public class Main {
                     @Override
                     public String run() {
                         String result = System.getenv("AMQ_DATA_DIRECTORY");
-                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_DATA_DIRECTORY", "data") : result;
+                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_DATA_DIRECTORY", DEFAULT_DATA_DIRECTORY) : result;
                         return result;
                     }
                 });
@@ -58,11 +72,14 @@ public class Main {
                 LOG.warn("Failed to look up System properties for host and port", e);
             }
 
+            if (host == null || host.length() == 0) {
+                host = "0.0.0.0";
+            }
             if (port <= 0) {
                 port = 61616;
             }
             if (brokerName == null) {
-                brokerName = "default";
+                brokerName = DEFAULT_BROKER_NAME;
             }
             if (dataDirectory == null) {
                 dataDirectory = "data";
@@ -98,7 +115,7 @@ public class Main {
             long brokerMemory = (long) (maxMemory * 0.7);
 
             brokerService.getSystemUsage().getMemoryUsage().setLimit(brokerMemory);
-            String connector = "tcp://localhost:" + port;
+            String connector = "tcp://" + host + ":" + port;
             System.out.println("Starting broker on " + connector);
             brokerService.addConnector(connector);
 

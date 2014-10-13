@@ -30,7 +30,6 @@
 
   <name>Fabric8 :: MQ</name>
 
-
   <dependencies>
     <dependency>
       <groupId>org.apache.activemq</groupId>
@@ -79,12 +78,12 @@
           <assemblyDescriptorRef>artifact-with-dependencies</assemblyDescriptorRef>
           <env>
             <MAIN>io.fabric8.mq.Main</MAIN>
-            <AMQ_PORT>61616</AMQ_PORT>
+            <AMQ_PORT>${activemq.container.port}</AMQ_PORT>
             <AMQ_DATA_DIRECTORY>/var/activemq</AMQ_DATA_DIRECTORY>
             <AMQ_BROKER_NAME>default</AMQ_BROKER_NAME>
           </env>
           <ports>
-            <port>61616</port>
+            <port>${activemq.container.port}</port>
             <port>8778</port>
           </ports>
         </configuration>
