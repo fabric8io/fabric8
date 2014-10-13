@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.5" data-basepath="." data-revision="1413154267858">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.5" data-basepath="." data-revision="1413228220055">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -1209,6 +1209,9 @@ public class MyRouterConfiguration {
 
 }
 </code></pre><h3 id="auto-configured-activemq-client"><a name="auto-configured-activemq-client" class="anchor" href="#auto-configured-activemq-client"><span class="fa fa-link"></span></a>Auto-configured ActiveMQ client</h3>
+<p>Important - this functionality may change when Spring Boot 1.2.x is released. Spring Boot 1.2.x comes with
+its own support for the ActiveMQ clients. As soon as the former is out, we will adopt our existing codebase to
+reuse Spring API as much as possible. This may lead to the changes in our API as well.</p>
 <p>Fabric comes with the auto-configuration class for the ActiveMQ client. It provides a pooled ActiveMQ
 <code>javax.jms.ConnectionFactory</code>. In order to use the <code>ActiveMQAutoConfiguration</code> in your application just add the
 following jar to your Spring Boot project dependencies:</p>
