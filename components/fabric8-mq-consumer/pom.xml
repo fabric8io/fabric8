@@ -80,7 +80,6 @@
             <MAIN>io.fabric8.mq.consumer.ConsumerMain</MAIN>
             <AMQ_PORT>${activemq.host.port}</AMQ_PORT>
             <AMQ_QUEUENAME>TEST.FOO</AMQ_QUEUENAME>
-            <AMQ_SLOW_CONSUMER_MILLIS>0</AMQ_SLOW_CONSUMER_MILLIS>
             <AMQ_PREFETCH>1000</AMQ_PREFETCH>
           </env>
           <ports>

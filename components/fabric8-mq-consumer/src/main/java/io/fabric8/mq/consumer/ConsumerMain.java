@@ -13,17 +13,16 @@ import org.slf4j.LoggerFactory;
 
 public class ConsumerMain {
     private static final Logger LOG = LoggerFactory.getLogger(ConsumerMain.class);
+
     public static final String DEFAULT_HOST = "127.0.0.1";
 
     private static String host;
+
     private static int port;
     
     private static int prefetch;
     
     private static String queueName;
-    
-    private static int slowConsumerMillis;
-
 
     public static void main(String args[]) {
         try {
@@ -67,18 +66,6 @@ public class ConsumerMain {
                         return result;
                     }
                 });
-                
-                String slowConsumerMillisStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
-	                @Override
-	                public String run() {
-	                	String result = System.getenv("AMQ_SLOW_CONSUMER_MILLIS");
-	                	result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_SLOW_CONSUMER_MILLIS", "0") : result;
-	                	return result;
-	                }
-                });
-                if (slowConsumerMillisStr != null && slowConsumerMillisStr.length() > 0) {
-                	slowConsumerMillis = Integer.parseInt(slowConsumerMillisStr);
-                }
                 
             } catch (Throwable e) {
                 LOG.warn("Failed to look up System properties for host and port", e);
@@ -129,9 +116,5 @@ public class ConsumerMain {
 
     public static String getQueueName() {
         return queueName;
-    }
-    
-    public static int getSlowConsumerMillis() {
-    	return slowConsumerMillis;
     }
 }
