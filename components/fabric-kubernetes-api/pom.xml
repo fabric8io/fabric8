@@ -49,7 +49,9 @@
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
       <version>${validation-api.version}</version>
+<!--
       <optional>true</optional>
+-->
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
