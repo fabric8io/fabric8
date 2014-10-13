@@ -16,11 +16,16 @@
 package io.fabric8.process.spring.boot.rest.simple.client;
 
 import org.junit.Test;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestOperations;
 
+import static io.fabric8.process.spring.boot.rest.simple.client.Header.header;
 import static java.lang.String.format;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 
 public class SimpleRestProxyFactoryTest {
 
@@ -39,7 +44,18 @@ public class SimpleRestProxyFactoryTest {
         fooServiceRestProxy.get().getString(arg);
 
         // Then
-        verify(restOperations).getForObject(format("http://company.com/api/fooService/getString/%d", arg), String.class);
+        verify(restOperations).exchange(format("http://company.com/api/fooService/getString/%d", arg), GET, new HttpEntity<>(new HttpHeaders()), String.class);
+    }
+
+    @Test
+    public void shouldGenerateGetRequestWithHeader() {
+        // When
+        fooServiceRestProxy.get(header("headerKey", "headerValue")).getString(arg);
+
+        // Then
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("headerKey", "headerValue");
+        verify(restOperations).exchange(format("http://company.com/api/fooService/getString/%d", arg), GET, new HttpEntity<>(headers), String.class);
     }
 
     @Test
@@ -48,7 +64,18 @@ public class SimpleRestProxyFactoryTest {
         fooServiceRestProxy.post().getString(arg);
 
         // Then
-        verify(restOperations).postForObject("http://company.com/api/fooService/getString", arg, String.class);
+        verify(restOperations).exchange("http://company.com/api/fooService/getString", POST, new HttpEntity<>(arg), String.class);
+    }
+
+    @Test
+    public void shouldGeneratePostRequestWithHeader() {
+        // When
+        fooServiceRestProxy.post(header("headerKey", "headerValue")).getString(arg);
+
+        // Then
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("headerKey", "headerValue");
+        verify(restOperations).exchange("http://company.com/api/fooService/getString", POST, new HttpEntity<>(arg, headers), String.class);
     }
 
     @Test
@@ -57,7 +84,7 @@ public class SimpleRestProxyFactoryTest {
         fooServiceRestProxy.post().getString(arg);
 
         // Then
-        verify(restOperations).postForObject("http://company.com/api/fooService/getString", arg, String.class);
+        verify(restOperations).exchange("http://company.com/api/fooService/getString", POST, new HttpEntity<>(arg), String.class);
     }
 
 }
