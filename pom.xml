@@ -2680,7 +2680,11 @@
 <!--
         <module>itests</module>
 -->
+
+      <!-- TODO lets disable until then next release of hawtio -->
+<!--
         <module>wiki</module>
+-->
     </modules>
 
     <build>
