@@ -1,6 +1,6 @@
 ## Running Fabric
 
-Make sure you have [Installed OpenShift V3](installOpenShift.html) and [Seup Your Machine](setupMachine.html) first before trying the following:
+Make sure you have [Installed OpenShift V3](installOpenShift.html) and [Setup Your Machine](setupMachine.html) first before trying the following:
 
 #### Environment variables
 

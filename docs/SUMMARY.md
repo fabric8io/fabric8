@@ -7,7 +7,7 @@
   * [Builds](builds.md)
 * [Getting Started](getStarted.md)
     * [Get OpenShift V3](installOpenShift.md)
-    * [Seup Your Machine](setupMachine.md)
+    * [Setup Your Machine](setupMachine.md)
     * [Run Fabric8](runFabric.md)
     * [QuickStarts](quickstarts.md)
     * [Maven Plugin](mavenPlugin.md)

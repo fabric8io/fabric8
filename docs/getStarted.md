@@ -3,7 +3,7 @@
 Here are the steps to get started:
 
 1. [Get OpenShift V3](installOpenShift.html)
-1. [Seup Your Machine](setupMachine.html)
+1. [Setup Your Machine](setupMachine.html)
 1. [Run Fabric8](runFabric.html)
 1. [Deploy an example quickstart project](http://fabric8.io/v2/mavenPlugin.html#example)
 1. [Check out the Quickstarts](quickstarts.html)
