@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 public class ProducerMain {
     private static final Logger LOG = LoggerFactory.getLogger(ProducerMain.class);
 
+    private static String host;
+
     private static int port;
 
     private static int interval;
@@ -31,7 +33,14 @@ public class ProducerMain {
     public static void main(String args[]) {
         try {
             try {
-                String portStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
+                host = AccessController.doPrivileged(new PrivilegedAction<String>() {
+                    @Override
+                    public String run() {
+                        String result = System.getenv("AMQ_HOST");
+                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_HOST", "localhost") : result;
+                        return result;
+                    }
+                });                String portStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
                     @Override
                     public String run() {
                         String result = System.getenv("AMQ_PORT");
@@ -92,6 +101,9 @@ public class ProducerMain {
                 LOG.warn("Failed to look up System properties for host and port", e);
             }
 
+            if (host == null || host.length() == 0) {
+                host = "localhost";
+            }
             if (port <= 0) {
                 port = 61616;
             }
@@ -113,10 +125,13 @@ public class ProducerMain {
     		
     		messageBody = new String(chars);
     		
-         // create a camel route to produce messages to our queue
+            // create a camel route to produce messages to our queue
             org.apache.camel.main.Main main = new org.apache.camel.main.Main();
-            
-            main.bind("activemq", ActiveMQComponent.activeMQComponent("tcp://localhost:"+port));
+
+            String brokerURL = "tcp://" + host + ":" + port;
+            System.out.println("Connecting to brokerURL: " + brokerURL);
+
+            main.bind("activemq", ActiveMQComponent.activeMQComponent(brokerURL));
             main.bind("myDataSet", createDataSet());
             main.bind("messageBody", getMessageBody());
             
