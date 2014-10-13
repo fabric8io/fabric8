@@ -1,0 +1,1 @@
+Elasticsearch database cluster for indexing JSON documents.

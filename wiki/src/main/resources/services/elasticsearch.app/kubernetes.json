@@ -1,0 +1,59 @@
+{
+  "id": "elasticsearch-config",
+  "kind": "Config",
+  "apiVersion": "v1beta1",
+  "name": "elasticsearch-config",
+  "description": "Creates a Elasticsearch cluster",
+  "items": [
+    {
+      "apiVersion": "v1beta1",
+      "containerPort": 9200,
+      "id": "elasticsearch-service",
+      "kind": "Service",
+      "port": 9200,
+      "selector": {
+        "name": "elasticsearchPod"
+      }
+    },
+    {
+      "apiVersion": "v1beta1",
+      "desiredState": {
+        "podTemplate": {
+          "desiredState": {
+            "manifest": {
+              "version": "v1beta1",
+              "id": "elasticsearchPod",
+              "containers": [
+                {
+                  "image": "dockerfile/elasticsearch",
+                  "name": "elasticsearch-container",
+                  "ports": [
+                    {
+                      "name": "rest",
+                      "containerPort": 9200
+                    }, {
+                      "name": "transport",
+                      "containerPort": 9300
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "labels": {
+            "name": "elasticsearchPod"
+          }
+        },
+        "replicaSelector": {
+          "name": "elasticsearchPod"
+        },
+        "replicas": 3
+      },
+      "id": "elasticsearchController",
+      "kind": "ReplicationController",
+      "labels": {
+        "name": "elasticsearchController"
+      }
+    }
+  ]
+}
