@@ -17,8 +17,8 @@ package io.fabric8.process.spring.boot.rest.simple.client;
 
 public interface RestProxy<T> {
 
-    T post();
+    T post(Header... headers);
 
-    T get();
+    T get(Header... headers);
 
 }

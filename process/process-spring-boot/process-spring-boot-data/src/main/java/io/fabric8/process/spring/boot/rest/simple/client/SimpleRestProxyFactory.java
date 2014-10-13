@@ -15,6 +15,9 @@
  */
 package io.fabric8.process.spring.boot.rest.simple.client;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
@@ -43,7 +46,8 @@ public class SimpleRestProxyFactory {
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 String normalizedBaseServiceUrl = normalizeBaseServiceUrl(baseServiceUrl);
                 boolean isGet = method.getName().equals("get");
-                return newProxyInstance(SimpleRestProxyFactory.class.getClassLoader(), new Class[]{serviceClass}, new HttpMethodHandler(isGet, serviceClass, normalizedBaseServiceUrl));
+                Header[] headers = args.length > 0 ? (Header[]) args[0] : new Header[0];
+                return newProxyInstance(SimpleRestProxyFactory.class.getClassLoader(), new Class[]{serviceClass}, new HttpMethodHandler(isGet, serviceClass, normalizedBaseServiceUrl, headers));
             }
         });
     }
@@ -70,10 +74,13 @@ public class SimpleRestProxyFactory {
 
         private final String baseServiceUrl;
 
-        private HttpMethodHandler(boolean isGet, Class<?> serviceClass, String baseServiceUrl) {
+        private final Header[] headers;
+
+        private HttpMethodHandler(boolean isGet, Class<?> serviceClass, String baseServiceUrl, Header... headers) {
             this.isGet = isGet;
             this.serviceClass = serviceClass;
             this.baseServiceUrl = baseServiceUrl;
+            this.headers = headers;
         }
 
         @Override
@@ -84,12 +91,16 @@ public class SimpleRestProxyFactory {
             for (int i = 0; i < argumentsInUri; i++) {
                 url += "/" + args[i].toString();
             }
-            if(isGet) {
-                return restOperations.getForObject(url, returnType);
-            } else {
-                Object request = args[args.length - 1];
-                return restOperations.postForObject(url, request, returnType);
+
+            HttpMethod httpMethod = isGet ? HttpMethod.GET : HttpMethod.POST;
+
+            HttpHeaders effectiveHeaders = new HttpHeaders();
+            for (Header header : headers) {
+                effectiveHeaders.set(header.key(), header.value());
             }
+            HttpEntity<?> entity = isGet ? new HttpEntity<>(effectiveHeaders) : new HttpEntity<>(args[args.length - 1], effectiveHeaders);
+
+            return restOperations.exchange(url, httpMethod, entity, returnType);
         }
     }
 
