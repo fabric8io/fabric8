@@ -3,5 +3,5 @@
     "pidFile": "bin/.mule.pid",
     "stopCommand": "stop",
     "deployPath": "apps",
-    "sharedLibraryPath": "lib"
+    "sharedLibraryPath": "lib/user"
 }
