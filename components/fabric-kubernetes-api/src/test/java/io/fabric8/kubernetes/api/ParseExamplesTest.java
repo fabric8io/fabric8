@@ -18,11 +18,7 @@
 package io.fabric8.kubernetes.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.kubernetes.api.model.DesiredState;
-import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.ManifestSchema;
-import io.fabric8.kubernetes.api.model.PodListSchema;
-import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.*;
 import org.junit.Test;
 
 import java.io.File;
@@ -78,6 +74,19 @@ public class ParseExamplesTest {
         assertEquals("pod1.desiredState.manifest.version", "__EMPTY__",pod.getDesiredState().getManifest().getVersion().name());
 
 
+    }
+
+    @Test
+    public void testParseService() throws Exception {
+        ServiceSchema service = assertParseExampleFile("service.json", ServiceSchema.class);
+
+        assertEquals("Service", service.getKind());
+
+        assertEquals(80, service.getContainerPort().getAdditionalProperties().get("intValue"));
+
+        ObjectMapper mapper = KubernetesFactory.createObjectMapper();
+
+        mapper.writer().writeValue(System.out, service);
     }
 
     @Test

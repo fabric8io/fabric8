@@ -30,7 +30,8 @@
       "required": false
     },
     "containerPort": {
-      "type": "string",
+      "type": "object",
+      "javaType": "io.fabric8.kubernetes.api.model.IntOrString",
       "required": false
     },
     "labels": {

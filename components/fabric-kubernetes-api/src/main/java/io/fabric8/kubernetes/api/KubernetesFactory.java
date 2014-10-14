@@ -15,7 +15,13 @@
  */
 package io.fabric8.kubernetes.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import io.fabric8.kubernetes.api.model.IntOrString;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.jboss.resteasy.plugins.providers.DefaultTextPlain;
@@ -28,6 +34,8 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.ContextResolver;
+import java.io.IOException;
 
 /**
  * A simple helper class for creating instances of Kubernetes
@@ -87,6 +95,7 @@ public class KubernetesFactory {
 
     protected ResteasyWebTarget createTarget() {
         ResteasyProviderFactory providerFactory = ResteasyProviderFactory.getInstance();
+        providerFactory.register(JacksonIntOrStringConfig.class);
         providerFactory.register(ResteasyJackson2Provider.class);
         // handle JSON coming back as text/plain
         providerFactory.register(PlainTextJacksonProvider.class);
@@ -183,6 +192,77 @@ public class KubernetesFactory {
      * Creates a configured Jackson object mapper for parsing JSON
      */
     public static ObjectMapper createObjectMapper() {
-        return new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(IntOrString.class, new IntOrStringSerializer());
+        module.addDeserializer(IntOrString.class, new IntOrStringDeserializer());
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(module);
+
+        return mapper;
     }
+
+    static class IntOrStringSerializer extends JsonSerializer<IntOrString> {
+
+        @Override
+        public void serialize(IntOrString value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+            if (value != null) {
+                Object intValue = value.getAdditionalProperties().get("intValue");
+                if (intValue != null) {
+                    jgen.writeNumber((Integer) intValue);
+                } else {
+                    Object stringValue = value.getAdditionalProperties().get("stringValue");
+                    if (stringValue != null) {
+                        jgen.writeString((String) stringValue);
+                    } else {
+                        jgen.writeNull();
+                    }
+                }
+            } else {
+                jgen.writeNull();
+            }
+        }
+
+    }
+
+    static class IntOrStringDeserializer extends JsonDeserializer<IntOrString> {
+
+        @Override
+        public IntOrString deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+            ObjectCodec oc = jsonParser.getCodec();
+            JsonNode node = oc.readTree(jsonParser);
+
+            IntOrString intOrString = new IntOrString();
+
+            int asInt = node.asInt();
+            if (asInt != 0) {
+                intOrString.setAdditionalProperty("intValue", asInt);
+            } else {
+                intOrString.setAdditionalProperty("stringValue", node.asText());
+            }
+
+            return intOrString;
+        }
+
+    }
+
+    public static class JacksonIntOrStringConfig implements ContextResolver<ObjectMapper> {
+
+        public JacksonIntOrStringConfig() {
+
+        }
+
+        @Override
+        public ObjectMapper getContext(Class<?> aClass) {
+            SimpleModule module = new SimpleModule();
+            module.addSerializer(IntOrString.class, new KubernetesFactory.IntOrStringSerializer());
+            module.addDeserializer(IntOrString.class, new KubernetesFactory.IntOrStringDeserializer());
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(module);
+
+            return mapper;
+        }
+    }
+
 }
