@@ -50,9 +50,7 @@ public class KubernetesManager implements KubernetesManagerMXBean {
     @Override
     public String apply(String json) throws IOException {
         Controller controller = new Controller(kubernetes);
-        Object dto = KubernetesHelper.loadJson(json);
-        controller.apply(dto, "REST call");
-        return "";
+        return controller.applyJson(json);
     }
 
     public KubernetesClient getKubernetes() {

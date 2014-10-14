@@ -52,6 +52,16 @@ public class Controller {
         this.kubernetes = kubernetes;
     }
 
+
+    /**
+     * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
+     */
+    public String applyJson(String json) throws IOException {
+        Object dto = KubernetesHelper.loadJson(json);
+        apply(dto, "REST call");
+        return "";
+    }
+
     /**
      * Applies the given DTOs onto the Kubernetes master
      */
@@ -189,6 +199,5 @@ public class Controller {
         // TODO we could maybe ignore failed services?
         return entity != null;
     }
-
 
 }
