@@ -317,8 +317,6 @@ class CreateAction extends AbstractAction {
             sb.append("(You can use the --zookeeper-password / --generate-zookeeper-password option to specify one.)\n");
         }   else if (generateZookeeperPassword) {
             sb.append("Generated zookeeper password:").append(options.getZookeeperPassword());
-        }  else {
-            sb.append("Using specified zookeeper password:").append(options.getZookeeperPassword());
         }
         System.out.println(sb.toString());
         if (!nonManaged && !waitForProvisioning) {
