@@ -858,6 +858,29 @@
        </build>
 
     <profiles>
+        <!-- Workaround for issue #xxx: verify-features does not work during internal release build
+             TODO: remove this once the issue gets fixed -->
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>fabric8-maven-plugin</artifactId>
+                        <version>${project.version}</version>
+                        <executions>
+                            <execution>
+                                <id>verify</id>
+                                <phase>none</phase>
+                                <goals>
+                                    <goal>verify-features</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>verify-features</id>
             <build>
