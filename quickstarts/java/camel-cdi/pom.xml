@@ -51,6 +51,7 @@
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
 
     <docker.dataImage>quickstarts/${project.artifactId}:${project.version}</docker.dataImage>
+    <fabric8.iconRef>icons/camel.svg</fabric8.iconRef>
   </properties>
 
   <dependencyManagement>

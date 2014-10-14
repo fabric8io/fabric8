@@ -50,6 +50,7 @@
 
     <!-- fabric8 deploy configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstarts/${project.artifactId}:${project.version}</docker.dataImage>
+    <fabric8.iconRef>icons/camel.svg</fabric8.iconRef>
   </properties>
 
   <dependencyManagement>

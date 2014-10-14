@@ -29,6 +29,7 @@
   <packaging>jar</packaging>
 
   <name>Fabric8 :: MQ</name>
+  <description>Fabric8 MQ Broker</description>
 
   <dependencies>
     <dependency>

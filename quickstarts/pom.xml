@@ -82,8 +82,6 @@
   <build>
     <plugins>
       <!-- generate a .zip with all the quickstarts -->
-      <!-- TODO -->
-<!--
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-maven-plugin</artifactId>
@@ -98,10 +96,9 @@
           </execution>
         </executions>
         <configuration>
-          <replaceReadmeLinksPrefix>/fabric/profiles/quickstarts/</replaceReadmeLinksPrefix>
+          <replaceReadmeLinksPrefix>/QuickStarts/</replaceReadmeLinksPrefix>
         </configuration>
       </plugin>
--->
     </plugins>
     <pluginManagement>
       <plugins>

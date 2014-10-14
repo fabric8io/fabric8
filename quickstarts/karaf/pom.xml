@@ -32,6 +32,10 @@
   <packaging>pom</packaging>
   <name>Fabric8 :: Quickstarts :: Karaf :: Parent</name>
 
+  <properties>
+    <fabric8.iconRef>icons/karaf.svg</fabric8.iconRef>
+  </properties>
+
   <modules>
     <module>beginner</module>
     <module>camel-amq</module>

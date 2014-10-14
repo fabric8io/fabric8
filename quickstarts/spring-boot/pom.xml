@@ -32,6 +32,10 @@
   <packaging>pom</packaging>
   <name>Fabric8 :: Quickstarts :: Spring-Boot :: Parent</name>
 
+  <properties>
+    <fabric8.iconRef>icons/java.svg</fabric8.iconRef>
+  </properties>
+
   <modules>
     <module>activemq</module>
     <module>camel</module>

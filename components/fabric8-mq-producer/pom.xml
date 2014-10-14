@@ -29,6 +29,7 @@
   <packaging>jar</packaging>
 
   <name>Fabric8 :: MQ Producer</name>
+  <description>Fabric8 MQ Example Producer</description>
 
   <dependencies>
     <dependency>

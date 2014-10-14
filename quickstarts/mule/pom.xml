@@ -41,7 +41,9 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <maven.compiler.source>1.7</maven.compiler.source>
         <fabric8.artifactBundleType>zip</fabric8.artifactBundleType>
+        <fabric8.iconRef>icons/java.svg</fabric8.iconRef>
     </properties>
+
     <repositories>
         <repository>
             <id>fusesource.m2</id>

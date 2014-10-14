@@ -142,10 +142,16 @@
   <build>
     <resources>
       <resource>
-        <directory>src/test/fabric8</directory>
-        <filtering>true</filtering>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
       </resource>
     </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/fabric8</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
