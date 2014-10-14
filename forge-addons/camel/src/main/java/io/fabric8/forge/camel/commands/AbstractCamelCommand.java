@@ -12,6 +12,7 @@ import org.jboss.forge.addon.ui.output.UIOutput;
 import javax.inject.Inject;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 // extending AbstractProjectCommand we have access to ProjectFactory
@@ -25,7 +26,7 @@ public abstract class AbstractCamelCommand extends AbstractProjectCommand
 
     protected UIProvider uiProvider;
 
-    protected  List<String> camelDepsInUse = new ArrayList<>();
+    protected  List<String> camelDepsInUse = null;
 
 
     @Override
@@ -59,13 +60,17 @@ public abstract class AbstractCamelCommand extends AbstractProjectCommand
     @Override
     public void initializeUI(UIBuilder builder) throws Exception
     {
+        List<String> currentCamelDeps = new ArrayList<String>();
+
         Project selectedProject = getSelectedProject(builder);
         List<Dependency> dependencies = selectedProject.getFacet(DependencyFacet.class).getEffectiveDependencies();
         for (Dependency d : dependencies){
             if(MVN_CAMEL_GROUPID.equals(d.getCoordinate().getGroupId())){
-                camelDepsInUse.add(d.getCoordinate().getArtifactId());
+                currentCamelDeps.add(d.getCoordinate().getArtifactId());
             }
         }
+        Collections.sort(currentCamelDeps);
+        camelDepsInUse = currentCamelDeps;
     }
 
 }
