@@ -41,7 +41,7 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
-    <cxf-version>3.0.2.redhat-620029</cxf-version>
+    <cxf-version>3.0.2</cxf-version>
     <skipTests>true</skipTests>
 
     <!-- the version of the BOM, defining all the dependency versions -->

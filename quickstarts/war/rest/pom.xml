@@ -42,7 +42,7 @@
     <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
     <skipTests>true</skipTests>
-    <cxf-version>3.0.2.redhat-620029</cxf-version>
+    <cxf-version>3.0.2</cxf-version>
     <swagger-jaxrs-version>1.3.10</swagger-jaxrs-version>
     <tomcat-plugin-version>2.2</tomcat-plugin-version>
 
