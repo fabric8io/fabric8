@@ -4,4 +4,4 @@ Classified as a NoSQL database, MongoDB eschews the traditional table-based rela
 
 First developed by the software company 10gen (now MongoDB Inc.) in October 2007 as a component of a planned platform as a service product, the company shifted to an open source development model in 2009, with 10gen offering commercial support and other services. Since then, MongoDB has been adopted as backend software by a number of major websites and services, including Craigslist, eBay, Foursquare, SourceForge, Viacom, and the New York Times, among others. MongoDB is the most popular NoSQL database system.
 
-More details on the <a href="http://wikipedia.org/wiki/MongoDB" target="wikipedia">MongoDB wikipedia page</a> or the <a href="http://mongodb.com/" target="elasticsearch">MongoDB home page</a>.
+More details on the <a href="http://wikipedia.org/wiki/MongoDB" target="wikipedia">MongoDB wikipedia page</a> or the <a href="http://mongodb.com/" target="mongodb">MongoDB home page</a>.

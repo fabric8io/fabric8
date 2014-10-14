@@ -1,0 +1,36 @@
+{
+  "id": "liveoakController",
+  "kind": "ReplicationController",
+  "apiVersion": "v1beta1",
+  "desiredState": {
+    "replicas": 1,
+    "replicaSelector": {
+      "name": "liveoak",
+      "group": "management"
+    },
+    "podTemplate": {
+      "desiredState": {
+        "manifest": {
+          "version": "v1beta1",
+          "id": "liveoakController",
+          "containers": [
+            {
+              "name": "liveoak",
+              "image": "jboss/liveoak-server",
+              "ports": [
+              ]
+            }
+          ]
+        }
+      },
+      "labels": {
+        "name": "liveoak",
+        "group": "management"
+      }
+    }
+  },
+  "labels": {
+    "name": "liveoak",
+    "group": "management"
+  }
+}

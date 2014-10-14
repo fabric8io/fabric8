@@ -1,1 +1,1 @@
-InfluxDB database for storing historical metrics
+<a href="http://influxdb.com/" target="influxdb">InfluxDB</a> database for storing historical metrics

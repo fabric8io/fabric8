@@ -1,0 +1,36 @@
+{
+  "id": "aerogearController",
+  "kind": "ReplicationController",
+  "apiVersion": "v1beta1",
+  "desiredState": {
+    "replicas": 1,
+    "replicaSelector": {
+      "name": "aerogear",
+      "group": "management"
+    },
+    "podTemplate": {
+      "desiredState": {
+        "manifest": {
+          "version": "v1beta1",
+          "id": "aerogearController",
+          "containers": [
+            {
+              "name": "aerogear",
+              "image": "jboss/aerogear-simplepush-server",
+              "ports": [
+              ]
+            }
+          ]
+        }
+      },
+      "labels": {
+        "name": "aerogear",
+        "group": "management"
+      }
+    }
+  },
+  "labels": {
+    "name": "aerogear",
+    "group": "management"
+  }
+}

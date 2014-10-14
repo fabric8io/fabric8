@@ -1,0 +1,36 @@
+{
+  "id": "keycloakController",
+  "kind": "ReplicationController",
+  "apiVersion": "v1beta1",
+  "desiredState": {
+    "replicas": 1,
+    "replicaSelector": {
+      "name": "keycloak",
+      "group": "management"
+    },
+    "podTemplate": {
+      "desiredState": {
+        "manifest": {
+          "version": "v1beta1",
+          "id": "keycloakController",
+          "containers": [
+            {
+              "name": "keycloak",
+              "image": "jboss/keycloak",
+              "ports": [
+              ]
+            }
+          ]
+        }
+      },
+      "labels": {
+        "name": "keycloak",
+        "group": "management"
+      }
+    }
+  },
+  "labels": {
+    "name": "keycloak",
+    "group": "management"
+  }
+}
