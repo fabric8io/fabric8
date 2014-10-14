@@ -1,1 +1,1 @@
-Elasticsearch database cluster for indexing JSON documents.
+Elasticsearch provides distributed RESTful search and analytics

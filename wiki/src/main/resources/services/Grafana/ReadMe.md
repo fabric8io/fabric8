@@ -1,3 +1,3 @@
-## Grafana
+Grafana is an open source, feature rich metrics dashboard and graph editor for Graphite, InfluxDB & OpenTSDB.
 
-This profile lets you create a number of Grafana containers
+More details on the <a href="http://grafana.org/" target="wikipedia">Grafana home page</a>.

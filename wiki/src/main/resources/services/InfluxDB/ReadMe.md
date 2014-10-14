@@ -1,3 +1,3 @@
-## InfluxDB
+InfluxDB is an open-source distributed time series database with no external dependencies.
 
-This profile lets you create a number of InfluxDB containers on your network.
+More details on the <a href="http://influxdb.com/" target="wikipedia">InfluxDB home page</a>.
