@@ -41,13 +41,9 @@
     <maven.compiler.source>1.7</maven.compiler.source>
 
     <!-- the version of the BOM, defining all the dependency versions -->
+    <camel.version>2.13.2</camel.version>
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
-    <fabric.version>2.0.0-SNAPSHOT</fabric.version>
 
-    <!-- fabric8 deploy profile configuration -->
-    <fabric8.profile>quickstarts-karaf-beginner-camel.eips</fabric8.profile>
-    <fabric8.parentProfiles>feature-camel</fabric8.parentProfiles>
-    <fabric8.features></fabric8.features>
   </properties>
 
   <dependencyManagement>
@@ -100,6 +96,17 @@
 
   <build>
     <finalName>${project.artifactId}</finalName>
+      <resources>
+          <resource>
+              <directory>src/main/resources</directory>
+              <filtering>true</filtering>
+          </resource>
+          <resource>
+              <directory>src/main/fabric8</directory>
+              <filtering>true</filtering>
+              <targetPath>${project.build.directory}/fabric8</targetPath>
+          </resource>
+      </resources>
     <plugins>
       <!-- Compiler plugin enforces Java 1.7 compatibility and activates annotation processors -->
       <plugin>
@@ -117,9 +124,49 @@
         <extensions>true</extensions>
       </plugin>
       <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-maven-plugin</artifactId>
-        <version>${fabric.version}</version>
+        <groupId>org.apache.karaf.tooling</groupId>
+        <artifactId>features-maven-plugin</artifactId>
+        <version>2.4.0</version>
+        <executions>
+          <execution>
+            <id>add-features-to-repo</id>
+            <phase>package</phase>
+            <goals>
+              <goal>add-features-to-repo</goal>
+            </goals>
+            <!-- We populate the offline repository -->
+            <configuration>
+              <descriptors>
+                <descriptor>file://${project.build.directory}/fabric8/features.xml</descriptor>
+              </descriptors>
+              <repository>target/fabric8/repository/</repository>
+              <addTransitiveFeatures>true</addTransitiveFeatures>
+              <features>
+                <feature>${project.artifactId}</feature>
+              </features>
+            </configuration>
+          </execution>
+          <execution>
+            <id>create-kar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>create-kar</goal>
+            </goals>
+            <configuration>
+              <featuresFile>${project.build.directory}/fabric8/features.xml</featuresFile>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.jolokia</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>${docker.maven.plugin.version}</version>
+        <configuration>
+          <image>fabric8/karaf-2.4</image>
+          <mergeData>true</mergeData>
+          <assemblyDescriptor>${project.build.directory}/fabric8/assembly.xml</assemblyDescriptor>
+        </configuration>
       </plugin>
     </plugins>
   </build>
