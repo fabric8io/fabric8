@@ -45,10 +45,11 @@
     <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
     <skipTests>true</skipTests>
 
-    <cxf.version>3.0.1</cxf.version>
+    <cxf.version>3.0.2</cxf.version>
+    <guava.version>18.0</guava.version>
     <jetty.version>9.1.1.v20140108</jetty.version>
     <swagger-jaxrs.version>1.3.10</swagger-jaxrs.version>
-    <weld2.version>2.1.2.Final</weld2.version>
+    <weld2.version>2.2.5.Final</weld2.version>
     <validation-api.version>1.1.0.Final</validation-api.version>
 
     <!-- the version of the BOM, defining all the dependency versions -->
@@ -56,7 +57,7 @@
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
 
     <!-- fabric8 deploy configuration -->
-    <docker.dataImage>quickstarts/${project.artifactId}:${project.version}</docker.dataImage>
+    <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
   </properties>
 
   <dependencyManagement>
@@ -108,6 +109,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-transports-http</artifactId>
+      <version>${cxf.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-management</artifactId>
       <version>${cxf.version}</version>
     </dependency>
@@ -126,6 +132,11 @@
       <groupId>org.jboss.weld</groupId>
       <artifactId>weld-core</artifactId>
       <version>${weld2.version}</version>
+    </dependency>
+    <dependency>
+       <groupId>com.google.guava</groupId>
+       <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
     </dependency>
 
     <!-- these explicit transitive dependencies avoid issues of 8.x bleeding into the generated archetype -->
@@ -369,6 +380,25 @@
       </build>
     </profile>
 
+    <profile>
+      <id>docker-build</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jolokia</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>${docker.maven.plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
-
 </project>

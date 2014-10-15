@@ -52,7 +52,7 @@
     <cxf.version>2.7.11</cxf.version>
 
     <!-- fabric8 deploy configuration -->
-    <docker.dataImage>quickstarts/${project.artifactId}:${project.version}</docker.dataImage>
+    <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
   </properties>
 
   <licenses>
@@ -355,6 +355,25 @@
       </build>
     </profile>
 
+    <profile>
+      <id>docker-build</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jolokia</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>${docker.maven.plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
-
 </project>

@@ -49,7 +49,7 @@
     <camel.version>2.13.2</camel.version>
 
     <!-- fabric8 deploy configuration -->
-    <docker.dataImage>${env.DOCKER_REGISTRY}/quickstarts/${project.artifactId}:${project.version}</docker.dataImage>
+    <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
     <fabric8.iconRef>icons/camel.svg</fabric8.iconRef>
   </properties>
 
@@ -210,4 +210,27 @@
     </pluginRepository>
   </pluginRepositories>
 
+
+  <profiles>
+    <profile>
+      <id>docker-build</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jolokia</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>${docker.maven.plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
