@@ -33,14 +33,14 @@ To make sure you've got the latest and greatest hawtio console try this first:
 
     docker pull fabric8/hawtio
 
-Now to install fabric8 try:
+Now to install fabric8 apply the [fabric8.json](https://github.com/fabric8io/fabric8/blob/2.0/apps/fabric8.json):
+
+    openshift kube  apply -c https://raw.githubusercontent.com/fabric8io/fabric8/2.0/apps/fabric8.json
+
+Or if you have a clone of the [fabric8 source code](https://github.com/fabric8io/fabric8/tree/2.0) you could try:
 
     cd fabric8/apps
     openshift kube apply -c fabric8.json
-
-Or you can just use the [fabric8.json](https://github.com/fabric8io/fabric8/blob/2.0/apps/fabric8.json) in github:
-
-    openshift kube  apply -c https://raw.githubusercontent.com/fabric8io/fabric8/2.0/apps/fabric8.json
 
 This will run a local docker registry and the hawtio web console.
 
