@@ -79,7 +79,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
     /**
      * Name of the created app zip file
      */
-    @Parameter(property = "fabric8.zip.outFile", defaultValue = "${project.build.directory}/app.zip")
+    @Parameter(property = "fabric8.zip.outFile", defaultValue = "${project.build.directory}/${project.artifactId}-${project.version}-app.zip")
     private File outputFile;
 
     @Component
