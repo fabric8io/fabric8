@@ -27,10 +27,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.fabric8</groupId>
-  <artifactId>components</artifactId>
+  <artifactId>apps</artifactId>
   <packaging>pom</packaging>
 
-  <name>Fabric8 :: Components</name>
+  <name>Fabric8 :: Apps</name>
 
   <properties>
     <activemq.host.port>6161</activemq.host.port>
@@ -42,18 +42,32 @@
 
 
   <modules>
-    <module>common-util</module>
-    <module>fabric-cxf</module>
-    <!--
-            TODO
-            <module>fabric-cxf-registry</module>
-    -->
-    <module>fabric-cxf-plugins</module>
-    <module>fabric-docker-api</module>
-    <module>fabric-kubernetes-api</module>
-    <module>fabric-utils</module>
-    <module>fabric-etcd</module>
-    <module>kubernetes-jolokia</module>
+    <module>fabric8-mq</module>
+    <module>fabric8-mq-producer</module>
+    <module>fabric8-mq-consumer</module>
   </modules>
+
+  <build>
+    <plugins>
+      <!-- generate a .zip with all the quickstarts -->
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <executions>
+          <execution>
+            <id>zip</id>
+            <phase>package</phase>
+            <goals>
+              <goal>zip</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <replaceReadmeLinksPrefix>/apps/</replaceReadmeLinksPrefix>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

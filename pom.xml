@@ -2673,6 +2673,7 @@
         <module>parent</module>
         <module>fabric8-maven-plugin</module>
         <module>components</module>
+        <module>apps</module>
         <module>quickstarts</module>
         <module>tooling</module>
         <module>forge-addons</module>
