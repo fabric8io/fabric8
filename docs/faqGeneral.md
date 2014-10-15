@@ -18,6 +18,12 @@ fabric8 (pronounced _fabricate_) lets you create and manage fabrics (or clusters
 
 Try reading the [overview](/gitbook/overview.html) to see if that helps give you an idea what fabric8 is.
 
+#### Are Docker and Kubernetes required to run Fabric8?
+
+Yes. Fabric8 starting from version 2.0 operates on applications via Kubernetes layer. It means that Fabric8 can be used
+in any environment providing the Kubernetes platform. It also means that Kubernetes (and therefore Docker) is a requirement
+for the Fabric8.
+
 #### What value does fabric8 add over OpenShift?
 
 * [Kubernetes](http://kubernetes.io) provides a [Docker](http://docker.io/) Container As A Service layer
@@ -44,3 +50,8 @@ Windows is currently only partially supported. Windows users may consider using 
 
 FAB (Fuse Application Bundles) has been deprecated for the 1.2 release and removed form 2.x.
 
+#### Does Fabric8 use ZooKeeper runtime registry?
+
+No, not anymore. Fabric8 1.x used ZooKeeper to share the runtime information between applications and to discover services. Kubernetes
+comes with the [etcd](https://github.com/coreos/etcd) and support for the services binding, so Fabric8 v2 doesn't need 
+ZooKeeper registry anymore.
