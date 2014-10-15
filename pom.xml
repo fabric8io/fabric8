@@ -108,7 +108,7 @@
         <bndlib.version>2.1.0</bndlib.version>
         <bouncycastle.version>1.49</bouncycastle.version>
         <camel.version-range>[2.13,3)</camel.version-range>
-        <camel.version>2.13.2</camel.version>
+        <camel.version>2.14.0</camel.version>
         <cassandra.version>2.0.7</cassandra.version>
         <codahale-metrics.version>3.0.1</codahale-metrics.version>
         <commons-beanutils.version>1.8.3</commons-beanutils.version>
@@ -127,8 +127,8 @@
         <commons-jxpath.version>1.3_1</commons-jxpath.version>
         <xmlresolver.version>1.2_5</xmlresolver.version>
         <curator.version>2.6.0</curator.version>
-        <cxf.version>2.7.11</cxf.version>
-        <cxf.version-range>[2.7,3.0)</cxf.version-range>
+        <cxf.version>3.0.2</cxf.version>
+        <cxf.version-range>[3.0,4)</cxf.version-range>
         <deltaspike.version>1.0.1</deltaspike.version>
         <dnsjava.version>2.1.1</dnsjava.version>
         <docker.maven.plugin.version>0.9.10</docker.maven.plugin.version>
@@ -176,7 +176,7 @@
         <gson.version>2.3</gson.version>
         <groovy.version>2.3.6</groovy.version>
         <mockwebserver.version>20130706</mockwebserver.version>
-        <guava.version>15.0</guava.version>
+        <guava.version>18.0</guava.version>
         <guava.osgi.version.clean>15.0</guava.osgi.version.clean>
         <hadoop.version>1.2.1</hadoop.version>
         <hawtbuf.version>1.11</hawtbuf.version>
@@ -276,8 +276,7 @@
         <vertx.version>2.1.2</vertx.version>
         <wagon.version>2.6</wagon.version>
         <wagon-webdav-plugin.version>1.0-beta-7</wagon-webdav-plugin.version>
-        <weld.version>1.1.18.Final</weld.version>
-        <weld2.version>2.1.2.Final</weld2.version>
+        <weld2.version>2.2.5.Final</weld2.version>
         <wildfly.version>8.1.0.Final</wildfly.version>
         <xalan.version>2.7.1</xalan.version>
         <xbean.version>3.16</xbean.version>
