@@ -69,7 +69,12 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-bundle</artifactId>
+      <artifactId>cxf-rt-frontend-jaxws</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-ws-security</artifactId>
     </dependency>
 
     <!--
