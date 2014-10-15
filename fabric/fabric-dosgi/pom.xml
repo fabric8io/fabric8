@@ -31,6 +31,7 @@
 
     <properties>
         <fuse.osgi.export>
+            io.fabric8.dosgi.api
         </fuse.osgi.export>
         <fuse.osgi.import.before.defaults>
             !org.objectweb.asm,
