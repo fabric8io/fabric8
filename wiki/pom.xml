@@ -33,11 +33,6 @@
 
   <name>Fabric8 :: Wiki</name>
 
-  <properties>
-    <!-- get the new crack ;) -->
-    <hawtio.version>1.5-SNAPSHOT</hawtio.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>io.hawt</groupId>
