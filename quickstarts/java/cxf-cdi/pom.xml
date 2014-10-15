@@ -45,13 +45,6 @@
     <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
     <skipTests>true</skipTests>
 
-    <cxf.version>3.0.2</cxf.version>
-    <guava.version>18.0</guava.version>
-    <jetty.version>9.1.1.v20140108</jetty.version>
-    <swagger-jaxrs.version>1.3.10</swagger-jaxrs.version>
-    <weld2.version>2.2.5.Final</weld2.version>
-    <validation-api.version>1.1.0.Final</validation-api.version>
-
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
@@ -89,91 +82,77 @@
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
+<!--
       <version>${validation-api.version}</version>
+-->
     </dependency>
 
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-service-description</artifactId>
-      <version>${cxf.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-integration-cdi</artifactId>
-      <version>${cxf.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-      <version>${cxf.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-transports-http</artifactId>
-      <version>${cxf.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-management</artifactId>
-      <version>${cxf.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.weld.se</groupId>
       <artifactId>weld-se</artifactId>
-      <version>${weld2.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.weld.servlet</groupId>
       <artifactId>weld-servlet</artifactId>
-      <version>${weld2.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.weld</groupId>
       <artifactId>weld-core</artifactId>
-      <version>${weld2.version}</version>
     </dependency>
     <dependency>
        <groupId>com.google.guava</groupId>
        <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
     </dependency>
 
     <!-- these explicit transitive dependencies avoid issues of 8.x bleeding into the generated archetype -->
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-server</artifactId>
-      <version>${jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlet</artifactId>
-      <version>${jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-jndi</artifactId>
-      <version>${jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-jsp</artifactId>
-      <version>${jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-http</artifactId>
-      <version>${jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-io</artifactId>
-      <version>${jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-util</artifactId>
-      <version>${jetty.version}</version>
     </dependency>
 
     <!--
@@ -188,7 +167,6 @@
     <dependency>
       <groupId>com.wordnik</groupId>
       <artifactId>swagger-jaxrs_2.10</artifactId>
-      <version>${swagger-jaxrs.version}</version>
       <optional>true</optional>
     </dependency>
 
@@ -256,7 +234,6 @@
       <plugin>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-java2wadl-plugin</artifactId>
-        <version>${cxf.version}</version>
         <executions>
           <execution>
             <id>process-classes</id>
