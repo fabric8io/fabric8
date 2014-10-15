@@ -16,6 +16,7 @@
 package io.fabric8.maven;
 
 import io.fabric8.common.util.Files;
+import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -81,6 +82,12 @@ public class ZipMojo extends AbstractFabric8Mojo {
      */
     @Parameter(property = "fabric8.zip.outFile", defaultValue = "${project.build.directory}/${project.artifactId}-${project.version}-app.zip")
     private File outputFile;
+
+    /**
+     * Name of the aggregated app zip file
+     */
+    @Parameter(property = "fabric8.aggregated.zip.outFile", defaultValue = "${project.build.directory}/${project.artifactId}-${project.version}-app.zip")
+    private File aggregatedZipOutputFile;
 
     @Component
     private MavenProjectHelper projectHelper;
@@ -178,9 +185,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
             if (reactorProjects != null) {
                 List<MavenProject> pomZipProjects = new ArrayList<>();
                 List<MavenProject> fabricZipGoalProjects = new ArrayList<>();
-                List<MavenProject> fabricHasParentZipGoalProject = new ArrayList<MavenProject>();
                 for (MavenProject reactorProject : reactorProjects) {
-
                     if ("pom".equals(reactorProject.getPackaging())) {
                         pomZipProjects.add(reactorProject);
                     }
@@ -209,50 +214,32 @@ public class ZipMojo extends AbstractFabric8Mojo {
 
                 // we want a list of projects which has a parent that has a zip goal too
                 // as that helps us detect the 'last' project when we do a full build from the entire project
-                for (MavenProject project : fabricZipGoalProjects) {
-                    if (fabricZipGoalProjects.contains(project.getParent())) {
-                        fabricHasParentZipGoalProject.add(project);
+                MavenProject project = getProject();
+                MavenProject parentProject = project.getParent();
+                List<MavenProject> projectsWithSameParent = new ArrayList<>();
+
+                for (MavenProject zipGoalProject : fabricZipGoalProjects) {
+                    MavenProject zipGoalProjectParent = zipGoalProject.getParent();
+                    if (parentProject != null && Objects.equal(parentProject, zipGoalProjectParent)) {
+                        projectsWithSameParent.add(zipGoalProject);
+                    }
+                }
+                MavenProject rootProject = null;
+                int projectsWithSameParentSize = projectsWithSameParent.size();
+                if (projectsWithSameParentSize > 1) {
+                    MavenProject lastProject = projectsWithSameParent.get(projectsWithSameParentSize - 1);
+                    if (Objects.equal(lastProject, project)) {
+                        rootProject = parentProject;
                     }
                 }
 
-                // are we the last project?
-                MavenProject project = getProject();
-                boolean last = reactorProjects.size() > 1 && project == reactorProjects.get(reactorProjects.size() - 1);
-                if (!last) {
-                    // are we the last project with the zip goal, part of a group as they have a parent?
-                    // TODO: there can be multiple groups, so when we switch to a new group we should aggregate
-                    last = fabricHasParentZipGoalProject.size() > 1 && project == fabricHasParentZipGoalProject.get(fabricHasParentZipGoalProject.size() - 1);
-                }
-                if (!last) {
-                    // are we the last project with the zip goal?
-                    last = fabricZipGoalProjects.size() > 1 && project == fabricZipGoalProjects.get(fabricZipGoalProjects.size() - 1);
-                }
-
-                // we need to generate the aggregated zip last, so we have all the generated apps in the other modules
-                // which we can aggregate
-                if (last) {
+                if (rootProject != null) {
                     getLog().info("");
                     getLog().info("Creating aggregated app zip");
-                    getLog().info("built the last fabric8:zip project so generating a combined zip for all " + fabricZipGoalProjects.size() + " projects with a fabric8:zip goal");
-
-                    // favor root project as the 1st project with fabric8:zip goal
-                    MavenProject rootProject = fabricZipGoalProjects.size() > 0 ? fabricZipGoalProjects.get(0) : reactorProjects.get(0);
-
-                    // we got the root project, now filter out pom projects which has the rootProject as one of their parents
-                    List<MavenProject> ourPomZipProjects = new ArrayList<MavenProject>();
-                    // include the root project if its a zip as well
-                    if (pomZipProjects.contains(rootProject)) {
-                        ourPomZipProjects.add(rootProject);
-                    }
-                    ourPomZipProjects.add(rootProject);
-                    for (MavenProject zip : pomZipProjects) {
-                        if (hasParent(zip, rootProject, true)) {
-                            ourPomZipProjects.add(zip);
-                        }
-                    }
+                    getLog().info("built the last fabric8:zip project so generating a combined zip for all " + projectsWithSameParentSize + " projects with a fabric8:zip goal: " + projectsWithSameParent);
 
                     getLog().info("Choosing root project " + rootProject.getArtifactId() + " for generation of aggregated zip");
-                    generateAggregatedZip(rootProject, fabricZipGoalProjects, ourPomZipProjects);
+                    generateAggregatedZip(rootProject, fabricZipGoalProjects, projectsWithSameParent);
                 }
             }
 
@@ -283,11 +270,19 @@ public class ZipMojo extends AbstractFabric8Mojo {
 
     protected void generateAggregatedZip(MavenProject rootProject, List<MavenProject> reactorProjects, List<MavenProject> pomZipProjects) throws IOException, MojoExecutionException {
         File projectBaseDir = rootProject.getBasedir();
-        File projectOutputFile = new File(projectBaseDir, "target/app.zip");
-        getLog().info("Generating " + projectOutputFile.getAbsolutePath() + " from root project " + rootProject.getArtifactId());
+        String rootProjectGroupId = rootProject.getGroupId();
+        String rootProjectArtifactId = rootProject.getArtifactId();
+        String rootProjectVersion = rootProject.getVersion();
+
+        String aggregatedZipFileName = "target/" + rootProjectArtifactId + "-" + rootProjectVersion + "-app.zip";
+        File projectOutputFile = new File(projectBaseDir, aggregatedZipFileName);
+        getLog().info("Generating " + projectOutputFile.getAbsolutePath() + " from root project " + rootProjectArtifactId);
         File projectBuildDir = new File(projectBaseDir, reactorProjectOutputPath);
 
-        createAggregatedZip(reactorProjects, projectBaseDir, projectBuildDir, reactorProjectOutputPath, projectOutputFile,
+        if (projectOutputFile.exists()) {
+            projectOutputFile.delete();
+        }
+        createAggregatedZip(projectBaseDir, projectBuildDir, reactorProjectOutputPath, projectOutputFile,
                 includeReadMe, pomZipProjects);
         if (rootProject.getAttachedArtifacts() != null) {
             // need to remove existing as otherwise we get a WARN
@@ -303,7 +298,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
             }
         }
 
-        getLog().info("Attaching aggregated zip " + projectOutputFile + " to root project " + rootProject.getArtifactId());
+        getLog().info("Attaching aggregated zip " + projectOutputFile + " to root project " + rootProjectArtifactId);
         projectHelper.attachArtifact(rootProject, artifactType, artifactClassifier, projectOutputFile);
 
         // if we are doing an install goal, then also install the aggregated zip manually
@@ -320,10 +315,10 @@ public class ZipMojo extends AbstractFabric8Mojo {
             request.setInteractive(false);
 
             Properties props = new Properties();
-            props.setProperty("file", "target/app.zip");
-            props.setProperty("groupId", rootProject.getGroupId());
-            props.setProperty("artifactId", rootProject.getArtifactId());
-            props.setProperty("version", rootProject.getVersion());
+            props.setProperty("file", aggregatedZipFileName);
+            props.setProperty("groupId", rootProjectGroupId);
+            props.setProperty("artifactId", rootProjectArtifactId);
+            props.setProperty("version", rootProjectVersion);
             props.setProperty("classifier", "app");
             props.setProperty("packaging", "zip");
             request.setProperties(props);
@@ -553,12 +548,12 @@ public class ZipMojo extends AbstractFabric8Mojo {
         }
     }
 
-    protected void createAggregatedZip(List<MavenProject> reactorProjectList, File projectBaseDir, File projectBuildDir,
+    protected void createAggregatedZip(File projectBaseDir, File projectBuildDir,
                                        String reactorProjectOutputPath, File projectOutputFile,
                                        boolean includeReadMe, List<MavenProject> pomZipProjects) throws IOException {
         projectBuildDir.mkdirs();
 
-        for (MavenProject reactorProject : reactorProjectList) {
+        for (MavenProject reactorProject : pomZipProjects) {
             // ignoreProject the execution root which just aggregates stuff
             if (!reactorProject.isExecutionRoot()) {
                 Log log = getLog();
