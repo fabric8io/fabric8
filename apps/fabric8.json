@@ -35,6 +35,14 @@
                     {
                       "name": "DOCKER_HOST",
                       "value": "tcp://dockerhost:2375"
+                    },
+                    {
+                      "name": "hawtio_config_cloneOnStartup",
+                      "value": "false"
+                    },
+                    {
+                      "name": "TODO_hawtio_config_importURLs",
+                      "value": "mvn:io.fabric8/wiki/2.0.0-SNAPSHOT/zip"
                     }
                   ],
                   "ports": [
