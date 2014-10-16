@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Emulator | Fabric8 Documentation</title>
+        <title>App Zip | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./FAQ.html" />
+        <link rel="next" href="./builds.html" />
         
         
-        <link rel="prev" href="./v2-changes.html" />
+        <link rel="prev" href="./apps.html" />
         
 
-        <meta property="og:title" content="Emulator | Fabric8 Documentation">
+        <meta property="og:title" content="App Zip | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="4" data-basepath="." data-revision="1413460029743">
+    <div class="book" data-github="fabric8io/fabric8" data-level="1.6" data-basepath="." data-revision="1413460029743">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -343,7 +343,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 88.88888888888889%;min-width: 83.33333333333333%;"></div>
+        <div class="inner" style="width: 38.888888888888886%;min-width: 33.333333333333336%;"></div>
     </div>
     <div class="chapters">
     
@@ -363,23 +363,23 @@
     
         <a href="./appzip.html" title="App Zip" class="chapter done " data-progress="1.6" style="left: 38.888888888888886%;"></a>
     
-        <a href="./builds.html" title="Builds" class="chapter done " data-progress="1.7" style="left: 44.44444444444444%;"></a>
+        <a href="./builds.html" title="Builds" class="chapter  " data-progress="1.7" style="left: 44.44444444444444%;"></a>
     
-        <a href="./getStarted.html" title="Getting Started" class="chapter done new-chapter" data-progress="2" style="left: 50%;"></a>
+        <a href="./getStarted.html" title="Getting Started" class="chapter  new-chapter" data-progress="2" style="left: 50%;"></a>
     
-        <a href="./installOpenShift.html" title="Get OpenShift V3" class="chapter done " data-progress="2.1" style="left: 55.55555555555556%;"></a>
+        <a href="./installOpenShift.html" title="Get OpenShift V3" class="chapter  " data-progress="2.1" style="left: 55.55555555555556%;"></a>
     
-        <a href="./setupMachine.html" title="Setup Your Machine" class="chapter done " data-progress="2.2" style="left: 61.111111111111114%;"></a>
+        <a href="./setupMachine.html" title="Setup Your Machine" class="chapter  " data-progress="2.2" style="left: 61.111111111111114%;"></a>
     
-        <a href="./runFabric.html" title="Run Fabric8" class="chapter done " data-progress="2.3" style="left: 66.66666666666667%;"></a>
+        <a href="./runFabric.html" title="Run Fabric8" class="chapter  " data-progress="2.3" style="left: 66.66666666666667%;"></a>
     
-        <a href="./quickstarts.html" title="QuickStarts" class="chapter done " data-progress="2.4" style="left: 72.22222222222223%;"></a>
+        <a href="./quickstarts.html" title="QuickStarts" class="chapter  " data-progress="2.4" style="left: 72.22222222222223%;"></a>
     
-        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter done " data-progress="2.5" style="left: 77.77777777777777%;"></a>
+        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter  " data-progress="2.5" style="left: 77.77777777777777%;"></a>
     
-        <a href="./v2-changes.html" title="Changes from V1" class="chapter done new-chapter" data-progress="3" style="left: 83.33333333333333%;"></a>
+        <a href="./v2-changes.html" title="Changes from V1" class="chapter  new-chapter" data-progress="3" style="left: 83.33333333333333%;"></a>
     
-        <a href="./emulation.html" title="Emulator" class="chapter done new-chapter" data-progress="4" style="left: 88.88888888888889%;"></a>
+        <a href="./emulation.html" title="Emulator" class="chapter  new-chapter" data-progress="4" style="left: 88.88888888888889%;"></a>
     
         <a href="./FAQ.html" title="FAQ" class="chapter  new-chapter" data-progress="5" style="left: 94.44444444444444%;"></a>
     
@@ -390,29 +390,31 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_1">
+                    <section class="normal" id="section-gitbook_4">
                     
-                        <h2 id="emulation-layer"><a name="emulation-layer" class="anchor" href="#emulation-layer"><span class="fa fa-link"></span></a>Emulation Layer</h2>
-<p>This layer supports the Kubernetes REST APIs on non-linux platforms (as some folks using Java middleware don&apos;t use linux). The use case is specifically to just support running Java application servers on non-linux; we have no plans to try emulate the whole docker ecosystem.</p>
-<h3 id="providing-a-zip-process-alternative-to-docker-images"><a name="providing-a-zip-process-alternative-to-docker-images" class="anchor" href="#providing-a-zip-process-alternative-to-docker-images"><span class="fa fa-link"></span></a>Providing a Zip Process alternative to Docker images</h3>
-<p>To be able to start/stop containers without using Docker (so we can start/stop things like Karaf, Tomcat, WildFly on non-linux) we will need to create a <strong>Zip Process</strong> which is a ZIP file with shell scripts to start/stop/restart.</p>
-<p>So that rather than linux LXC containers, we&apos;d map image names to Zip Process files; unzip files into folders on disk and run shell scripts to start/stop/restart processes.</p>
-<p>These Zip Processes images would be very limited; offer none of the isolation and quota behaviour of LXC containers but they would provide a similar abstraction to docker so we could manage Java application servers on any platform.</p>
-<h3 id="implementation-options"><a name="implementation-options" class="anchor" href="#implementation-options"><span class="fa fa-link"></span></a>Implementation Options</h3>
-<p>The exact details are being worked out; there are a few options we could consider:</p>
-<h4 id="reusing-openshift-kubernetes-code"><a name="reusing-openshift-kubernetes-code" class="anchor" href="#reusing-openshift-kubernetes-code"><span class="fa fa-link"></span></a>Reusing OpenShift / Kubernetes code</h4>
+                        <h2 id="app-zip"><a name="app-zip" class="anchor" href="#app-zip"><span class="fa fa-link"></span></a>App Zip</h2>
+<p>An <em>App Zip</em> is a packaging format for <a href="apps.html">Apps</a> to make them easier to distribute and share between environments.</p>
+<p>Essentially an App Zip is just a standard ZIP file which includes one or more Apps, their JSON metadata, documentation and images.</p>
+<h3 id="using-app-zips"><a name="using-app-zips" class="anchor" href="#using-app-zips"><span class="fa fa-link"></span></a>Using App Zips</h3>
+<p>You can drag and drop App Zips from the fabric8 console (in the <strong>wiki</strong> tab) to/from your desktop to make it really easy to install <a href="apps.html">Apps</a> or share them.</p>
+<p>Its also easy to host an App Zip on any website so its easy for others to download and install.</p>
+<p>You can also use the <a href="mavenPlugin.html#deploying">mvn fabric8:deploy</a> goal to deploy a locally built App Zip file into the wiki.</p>
+<h3 id="app-zip-specification"><a name="app-zip-specification" class="anchor" href="#app-zip-specification"><span class="fa fa-link"></span></a>App Zip Specification</h3>
 <ul>
-<li>compile the openshift/kubernetes go-lang code to each platform and use it everywhere (like docker and etcd already work on other platforms)<ul>
-<li>docker is supported on most platforms so we could use that too</li>
+<li>An App Zip is a ZIP file containing 1 or more Apps.</li>
+<li>An App is a folder containing a <strong>kubernetes.json</strong> file which maps to any of the kubernetes JSON blobs (pod, replication controller, service, config, template etc)</li>
+<li>An App can contain optional extra files for documentation, icons and metadata:</li>
 </ul>
-</li>
-<li>when folks want to really use the underlying host system to provision Java application servers we would map image names to <em>Zip Process</em> images</li>
-</ul>
-<h4 id="hybrid-approach"><a name="hybrid-approach" class="anchor" href="#hybrid-approach"><span class="fa fa-link"></span></a>Hybrid approach</h4>
-<p>We could keep the OpenShift / Kubernetes code in a VM in terms of etcd, the master, the kube-proxy etc. Then port the kubelet (starting/stopping containers) to use Docker and / or Zip Processes</p>
-<h4 id="writing-a-pure-java-implementation"><a name="writing-a-pure-java-implementation" class="anchor" href="#writing-a-pure-java-implementation"><span class="fa fa-link"></span></a>Writing a pure Java implementation</h4>
-<p>We could refactor the Java code from fabric8 1.x which is a conceptual kubernetes like thing and port it to implement the Kubernetes REST API.</p>
-<p>We could then reuse the existing Docker support or support Zip Process (by porting the 1.x code for Process Manager / Process Container)</p>
+<h4 id="kubernetes-json"><a name="kubernetes-json" class="anchor" href="#kubernetes-json"><span class="fa fa-link"></span></a>kubernetes.json</h4>
+<p>A JSON file which consists of Kubernetes JSON metadata. Typically this is either a Config (which is a collection of 1 or more core Kubernetes JSON abstractions; pod, replication contoller, service) or a Template (which is a parameterised Config that once the parameters are supplied generates a Config); though it could just be a pod, replication controller or service.</p>
+<h4 id="readme-md-html-adoc"><a name="readme-md-html-adoc" class="anchor" href="#readme-md-html-adoc"><span class="fa fa-link"></span></a>ReadMe.md / .html / .adoc</h4>
+<p>A page of documentation describing the App. Using the App Store metaphor think of this as the detailed description page when you click on an App in an App Store.</p>
+<p>My using this naming convention; an App if stored on github is then easy to browse (the ReadMe file will be displayed when viewing an App folder on github or in fabric8&apos;s web console etc)</p>
+<p>If the ReadMe requires additional documentation, images or media then put those files into a sub directory (ideally called <strong>doc</strong>) to leave the root folder uncluttered.</p>
+<h4 id="summary-md-html-adoc"><a name="summary-md-html-adoc" class="anchor" href="#summary-md-html-adoc"><span class="fa fa-link"></span></a>Summary.md / .html / .adoc</h4>
+<p>A short description; usually a line of text which is shown next to the icon when searching an App Store or viewing a Library.</p>
+<h4 id="icon-svg-png-jpeg"><a name="icon-svg-png-jpeg" class="anchor" href="#icon-svg-png-jpeg"><span class="fa fa-link"></span></a>icon.svg / .png / .jpeg</h4>
+<p>An icon for the App for displaying on an App Store or Library. We recommend SVG as this displays more faithfully on many different devices but if SVG isn&apos;t available its better to have some image than none.</p>
 
                     
                     </section>
@@ -422,10 +424,10 @@
         </div>
 
         
-        <a href="./v2-changes.html" class="navigation navigation-prev " aria-label="Previous page: Changes from V1"><i class="fa fa-angle-left"></i></a>
+        <a href="./apps.html" class="navigation navigation-prev " aria-label="Previous page: Apps"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./FAQ.html" class="navigation navigation-next " aria-label="Next page: FAQ"><i class="fa fa-angle-right"></i></a>
+        <a href="./builds.html" class="navigation navigation-next " aria-label="Next page: Builds"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
