@@ -72,5 +72,5 @@ The recommended shell for Fabric8 v2 is [JBoss Forge](http://forge.jboss.org) sh
 
 #### Deprecations
 
-FAB (Fuse Application Bundles) has been deprecated for the 1.2 release and removed form 2.x.
+FAB (Fuse Application Bundles) has been deprecated for the 1.2 release and removed from 2.x.
 
