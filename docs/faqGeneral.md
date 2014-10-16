@@ -60,11 +60,15 @@ No, not anymore. Starting from v2 Fabric8 uses [app](http://fabric8.io/v2/apps.h
 to configure deployment of the managed application. More detailed configuration (like properties or YAML files) can be 
 added to the file system of the application's Docker image.
 
-### Is Fabric8 server required to provision applications?
+#### Is Fabric8 server required to provision applications?
 
 No, not anymore. Starting from Fabric8 v2 Kubernetes is responsible for providing the runtime registry for the
 managed applications. It means that you don't have to start any dedicated Fabric8 deamon. Tools like [Fabric8 Maven plugin](http://fabric8.io/v2/mavenPlugin.html)
 or [Hawt.io](http://hawt.io) can connect directly to the Kubernetes and deploy/manage it.
+
+#### If there is no Fabric8 server, how can I use Fabric8 shell?
+
+The recommended shell for Fabric8 v2 is [JBoss Forge](http://forge.jboss.org) shell.
 
 #### Deprecations
 
