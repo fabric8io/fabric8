@@ -16,12 +16,13 @@
 package io.fabric8.quickstarts.java.simple;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
 public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         while(true) {
-            System.out.println("Hello Fabric8!");
+            System.out.println("Hello Fabric8! Here's your random string: " + randomAlphanumeric(5));
             SECONDS.sleep(1);
         }
     }
