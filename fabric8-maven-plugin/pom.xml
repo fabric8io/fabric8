@@ -118,6 +118,11 @@
       <version>2.0</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.mvel</groupId>
+      <artifactId>mvel2</artifactId>
+    </dependency>
+
     <!-- Testing -->
 
 

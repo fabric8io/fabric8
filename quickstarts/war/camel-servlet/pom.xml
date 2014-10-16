@@ -47,7 +47,7 @@
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
 
-    <!-- fabric8 deploy configuration -->
+    <!-- fabric8 configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
   </properties>
 
@@ -191,9 +191,9 @@
         <version>${fabric.version}</version>
         <executions>
           <execution>
-            <id>attach-json</id>
+            <id>json</id>
             <goals>
-              <goal>attach-json</goal>
+              <goal>json</goal>
             </goals>
           </execution>
         </executions>

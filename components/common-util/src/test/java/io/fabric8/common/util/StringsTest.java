@@ -20,6 +20,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class StringsTest {
 
     @Test
@@ -45,20 +47,20 @@ public class StringsTest {
     @Test
     public void emptyIfNullTest() {
         
-        Assert.assertEquals("Some text", Strings.emptyIfNull("Some text"));
-        Assert.assertEquals(" ", Strings.emptyIfNull(" "));
-        Assert.assertEquals("", Strings.emptyIfNull(""));
-        Assert.assertEquals("", Strings.emptyIfNull(null));        
+        assertEquals("Some text", Strings.emptyIfNull("Some text"));
+        assertEquals(" ", Strings.emptyIfNull(" "));
+        assertEquals("", Strings.emptyIfNull(""));
+        assertEquals("", Strings.emptyIfNull(null));
         
     }
     
     @Test
     public void defaultIfEmptyTest() {
         
-        Assert.assertEquals("Some text", Strings.defaultIfEmpty("Some text", "default"));
-        Assert.assertEquals(" ", Strings.defaultIfEmpty(" ", "default"));
-        Assert.assertEquals("default", Strings.defaultIfEmpty("", "default"));
-        Assert.assertEquals("default", Strings.defaultIfEmpty(null, "default"));
+        assertEquals("Some text", Strings.defaultIfEmpty("Some text", "default"));
+        assertEquals(" ", Strings.defaultIfEmpty(" ", "default"));
+        assertEquals("default", Strings.defaultIfEmpty("", "default"));
+        assertEquals("default", Strings.defaultIfEmpty(null, "default"));
         
     }
     
@@ -69,10 +71,10 @@ public class StringsTest {
         
         Assert.assertTrue(list.size() == 4);
         
-        Assert.assertEquals("a", list.get(0));
-        Assert.assertEquals("b", list.get(1));
-        Assert.assertEquals(" c ", list.get(2));
-        Assert.assertEquals("d", list.get(3));
+        assertEquals("a", list.get(0));
+        assertEquals("b", list.get(1));
+        assertEquals(" c ", list.get(2));
+        assertEquals("d", list.get(3));
         
         list = Strings.splitAsList("a,b,c;,d,", ";");
 
@@ -106,10 +108,10 @@ public class StringsTest {
         
         Assert.assertTrue(list.size() == 4);
 
-        Assert.assertEquals("a", list.get(0));
-        Assert.assertEquals("b", list.get(1));
-        Assert.assertEquals("c", list.get(2));
-        Assert.assertEquals("d", list.get(3));
+        assertEquals("a", list.get(0));
+        assertEquals("b", list.get(1));
+        assertEquals("c", list.get(2));
+        assertEquals("d", list.get(3));
         
         list = Strings.splitAndTrimAsList("a,b,c;,d,", ";");
 
@@ -139,36 +141,36 @@ public class StringsTest {
     @Test
     public void joinTest() {
         
-        Assert.assertEquals("a,b,3,d,1.2,f,null", Strings.join(",", "a", "b", 3, "d", 1.2d, "f", null));
-        Assert.assertEquals("a b 3d1.2fnull", Strings.join("", "a", " b ", 3, "d", 1.2d, "f", null));
-        Assert.assertEquals("", Strings.join(""));
+        assertEquals("a,b,3,d,1.2,f,null", Strings.join(",", "a", "b", 3, "d", 1.2d, "f", null));
+        assertEquals("a b 3d1.2fnull", Strings.join("", "a", " b ", 3, "d", 1.2d, "f", null));
+        assertEquals("", Strings.join(""));
         
     }
     
     @Test
     public void joinNotNullTest() {
         
-        Assert.assertEquals("a,b,3,d,1.2,f", Strings.joinNotNull(",", "a", "b", 3, "d", 1.2d, "f", null));
-        Assert.assertEquals("a b 3d1.2f", Strings.joinNotNull("", "a", " b ", 3, "d", 1.2d, "f", null));
-        Assert.assertEquals("", Strings.joinNotNull(""));     
+        assertEquals("a,b,3,d,1.2,f", Strings.joinNotNull(",", "a", "b", 3, "d", 1.2d, "f", null));
+        assertEquals("a b 3d1.2f", Strings.joinNotNull("", "a", " b ", 3, "d", 1.2d, "f", null));
+        assertEquals("", Strings.joinNotNull(""));
         
     }
     
     @Test
     public void toStringTest() {
         
-        Assert.assertEquals("foobar", Strings.toString("foobar"));
-        Assert.assertEquals("12345", Strings.toString(12345));
-        Assert.assertEquals("null", Strings.toString(null));
+        assertEquals("foobar", Strings.toString("foobar"));
+        assertEquals("12345", Strings.toString(12345));
+        assertEquals("null", Strings.toString(null));
         
     }
     
     @Test
     public void unquoteTest() {
         
-        Assert.assertEquals("foobar", Strings.unquote("\"foobar\""));
-        Assert.assertEquals("\"foobar\"", Strings.unquote("\"\"foobar\"\""));
-        Assert.assertEquals("'foobar'", Strings.unquote("'foobar'"));
+        assertEquals("foobar", Strings.unquote("\"foobar\""));
+        assertEquals("\"foobar\"", Strings.unquote("\"\"foobar\"\""));
+        assertEquals("'foobar'", Strings.unquote("'foobar'"));
         Assert.assertNull(Strings.unquote(null));
         
     }
@@ -202,25 +204,32 @@ public class StringsTest {
 
         Assert.assertTrue(list.size() == 6);
 
-        Assert.assertEquals("a", list.get(0));
-        Assert.assertEquals("b", list.get(1));
-        Assert.assertEquals("3", list.get(2));
-        Assert.assertEquals("d", list.get(3));
-        Assert.assertEquals("some space", list.get(4));
-        Assert.assertEquals("f", list.get(5));
+        assertEquals("a", list.get(0));
+        assertEquals("b", list.get(1));
+        assertEquals("3", list.get(2));
+        assertEquals("d", list.get(3));
+        assertEquals("some space", list.get(4));
+        assertEquals("f", list.get(5));
 
         list = Strings.parseDelimitedString("a,b,3, d ,some space ,f", ",", false);
 
         Assert.assertTrue(list.size() == 6);
 
-        Assert.assertEquals("a", list.get(0));
-        Assert.assertEquals("b", list.get(1));
-        Assert.assertEquals("3", list.get(2));
-        Assert.assertEquals(" d ", list.get(3));
-        Assert.assertEquals("some space ", list.get(4));
-        Assert.assertEquals("f", list.get(5));
+        assertEquals("a", list.get(0));
+        assertEquals("b", list.get(1));
+        assertEquals("3", list.get(2));
+        assertEquals(" d ", list.get(3));
+        assertEquals("some space ", list.get(4));
+        assertEquals("f", list.get(5));
 
     }
-    
-    
+
+
+    @Test
+    public void testCamelCase() throws Exception {
+        assertEquals("fooBarWhatnot", Strings.convertToCamelCase("foo-bar-whatnot", "-"));
+        assertEquals("fooBarWhatnot", Strings.convertToCamelCase("foo--bar-whatnot", "-"));
+    }
+
+
 }

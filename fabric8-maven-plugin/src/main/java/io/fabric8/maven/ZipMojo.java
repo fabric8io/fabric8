@@ -48,11 +48,8 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -180,7 +177,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
                 List<MavenProject> pomZipProjects = new ArrayList<>();
                 List<MavenProject> fabricZipGoalProjects = new ArrayList<>();
                 for (MavenProject reactorProject : reactorProjects) {
-                    if ("pom".equals(reactorProject.getPackaging())) {
+                    if (isPom(reactorProject)) {
                         pomZipProjects.add(reactorProject);
                     }
 
@@ -243,22 +240,6 @@ public class ZipMojo extends AbstractFabric8Mojo {
             throw e;
         } catch (Exception e) {
             throw new MojoExecutionException("Error executing", e);
-        }
-    }
-
-    public boolean isIncludeArtifact() {
-        return !"pom".equals(getProject().getPackaging());
-    }
-
-    protected boolean hasParent(MavenProject me, MavenProject parent, boolean recusive) {
-        if (me == null) {
-            return false;
-        } else if (me.getParent() == parent) {
-            return true;
-        } else if (recusive) {
-            return hasParent(me.getParent(), parent, recusive);
-        } else {
-            return false;
         }
     }
 
@@ -351,10 +332,10 @@ public class ZipMojo extends AbstractFabric8Mojo {
         if (!ignoreProject) {
             File kubernetesJson = getKubernetesJson();
             if (kubernetesJson != null && kubernetesJson.isFile() && kubernetesJson.exists()) {
-                File jsonFile = new File(appBuildDir, "kubernetes.json");
-                jsonFile.getParentFile().mkdirs();
-                Files.copy(kubernetesJson, jsonFile);
-            }
+                    File jsonFile = new File(appBuildDir, "kubernetes.json");
+                    jsonFile.getParentFile().mkdirs();
+                    Files.copy(kubernetesJson, jsonFile);
+                }
 
             // TODO if no iconRef is specified we could try guess based on the project?
 
@@ -415,37 +396,6 @@ public class ZipMojo extends AbstractFabric8Mojo {
             getLog().info("Created app zip file: " + outputZipFile);
         }
     }
-
-    protected InputStream loadPluginResource(String iconRef) throws MojoExecutionException {
-        InputStream answer = Thread.currentThread().getContextClassLoader().getResourceAsStream(iconRef);
-        if (answer == null) {
-            answer = getTestClassLoader().getResourceAsStream(iconRef);
-        }
-        return answer;
-    }
-
-    protected static URLClassLoader createURLClassLoader(Collection<URL> jars) {
-        return new URLClassLoader(jars.toArray(new URL[jars.size()]));
-    }
-
-
-    protected URLClassLoader getTestClassLoader() throws MojoExecutionException {
-        List<URL> urls = new ArrayList<>();
-        try {
-            for (Object object : getProject().getTestClasspathElements()) {
-                if (object != null) {
-                    String path = object.toString();
-                    File file = new File(path);
-                    URL url = file.toURI().toURL();
-                    urls.add(url);
-                }
-            }
-        } catch (Exception e) {
-            throw new MojoExecutionException("Failed to resolve classpath: " + e, e);
-        }
-        return createURLClassLoader(urls);
-    }
-
 
 
     protected static File copyReadMe(File src, File appBuildDir) throws IOException {

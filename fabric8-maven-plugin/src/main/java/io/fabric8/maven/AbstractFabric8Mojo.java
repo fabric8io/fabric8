@@ -16,11 +16,18 @@
 package io.fabric8.maven;
 
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Abstract base class for Fabric8 based Mojos
@@ -56,6 +63,10 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
     @Parameter(property = "fabric8.ignoreProject", defaultValue = "false")
     private boolean ignoreProject;
 
+    protected static URLClassLoader createURLClassLoader(Collection<URL> jars) {
+        return new URLClassLoader(jars.toArray(new URL[jars.size()]));
+    }
+
     public File getKubernetesJson() {
         return kubernetesJson;
     }
@@ -74,5 +85,37 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
 
     public File getZipFile() {
         return zipFile;
+    }
+
+    /**
+     * Returns true if this project is a pom packaging project
+     */
+    protected boolean isPom(MavenProject reactorProject) {
+        return "pom".equals(reactorProject.getPackaging());
+    }
+
+    protected InputStream loadPluginResource(String iconRef) throws MojoExecutionException {
+        InputStream answer = Thread.currentThread().getContextClassLoader().getResourceAsStream(iconRef);
+        if (answer == null) {
+            answer = getTestClassLoader().getResourceAsStream(iconRef);
+        }
+        return answer;
+    }
+
+    protected URLClassLoader getTestClassLoader() throws MojoExecutionException {
+        List<URL> urls = new ArrayList<>();
+        try {
+            for (Object object : getProject().getTestClasspathElements()) {
+                if (object != null) {
+                    String path = object.toString();
+                    File file = new File(path);
+                    URL url = file.toURI().toURL();
+                    urls.add(url);
+                }
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Failed to resolve classpath: " + e, e);
+        }
+        return createURLClassLoader(urls);
     }
 }

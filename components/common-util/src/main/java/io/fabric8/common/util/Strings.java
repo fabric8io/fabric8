@@ -273,4 +273,26 @@ public class Strings {
         return list;
     }
 
+    /**
+     * Converts the given text with the given separator into camelCase
+     */
+    public static String convertToCamelCase(String text, String separator) {
+        StringBuffer buffer = new StringBuffer();
+        String[] words = text.split(separator);
+        boolean first = true;
+        for (String word : words) {
+            if (first) {
+                buffer.append(word);
+                first = false;
+            } else {
+                if (word.length() > 0) {
+                    buffer.append(Character.toUpperCase(word.charAt(0)));
+                    if (word.length() > 1) {
+                        buffer.append(word.substring(1));
+                    }
+                }
+            }
+        }
+        return buffer.toString();
+    }
 }

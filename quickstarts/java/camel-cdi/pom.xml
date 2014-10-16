@@ -50,6 +50,9 @@
     <camel.version>2.14.0</camel.version>
 
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
+    <fabric8.hostPort.jolokia>9801</fabric8.hostPort.jolokia>
+    <fabric8.label.container>java</fabric8.label.container>
+    <fabric8.label.group>quickstarts</fabric8.label.group>
     <fabric8.iconRef>icons/camel.svg</fabric8.iconRef>
   </properties>
 
@@ -150,9 +153,9 @@
         <version>${fabric.version}</version>
         <executions>
           <execution>
-            <id>attach-json</id>
+            <id>json</id>
             <goals>
-              <goal>attach-json</goal>
+              <goal>json</goal>
             </goals>
           </execution>
         </executions>

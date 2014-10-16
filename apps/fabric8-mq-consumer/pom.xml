@@ -61,9 +61,9 @@
         <version>${project.version}</version>
         <executions>
           <execution>
-            <id>attach-json</id>
+            <id>json</id>
             <goals>
-              <goal>attach-json</goal>
+              <goal>json</goal>
             </goals>
           </execution>
         </executions>

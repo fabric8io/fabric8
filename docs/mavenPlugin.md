@@ -32,7 +32,7 @@ e.g. add this to the &lt;servers&gt; element:
 
 ### Adding the plugin to your project
 
-To enable this maven plugin and to automatically release the [App JSON file](apps.html) as part of your build add this to your pom.xml:
+To enable this maven plugin and to automatically generate/copy and release the [App JSON file](apps.html) as part of your build add this to your pom.xml:
 
       <plugin>
         <groupId>io.fabric8</groupId>
@@ -40,9 +40,9 @@ To enable this maven plugin and to automatically release the [App JSON file](app
         <version>${fabric.version}</version>
         <executions>
           <execution>
-            <id>attach-json</id>
+            <id>json</id>
             <goals>
-              <goal>attach-json</goal>
+              <goal>json</goal>
             </goals>
           </execution>
         </executions>
