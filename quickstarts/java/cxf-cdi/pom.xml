@@ -49,6 +49,9 @@
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
 
+    <!-- versions for use in mvn plugins as we cannot inherit them from a BOM -->
+    <cxf.version>3.0.2</cxf.version>
+
     <!-- fabric8 deploy configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
   </properties>
@@ -234,6 +237,7 @@
       <plugin>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-java2wadl-plugin</artifactId>
+        <version>${cxf.version}</version>
         <executions>
           <execution>
             <id>process-classes</id>

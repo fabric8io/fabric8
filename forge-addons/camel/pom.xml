@@ -70,13 +70,6 @@
 
         <dependency>
             <groupId>org.jboss.forge.addon</groupId>
-            <artifactId>parser-java</artifactId>
-            <classifier>forge-addon</classifier>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.jboss.forge.addon</groupId>
             <artifactId>parser-xml</artifactId>
             <classifier>forge-addon</classifier>
         </dependency>
