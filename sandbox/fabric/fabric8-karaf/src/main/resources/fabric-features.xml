@@ -21,7 +21,7 @@
 
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository>
 <!--
-    CXF 3 version of JAXRS 2.0 client for fabric-docker-api
+    CXF 3 version of JAXRS 2.0 client for docker-api
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-3-version}/xml/features</repository>
 -->
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
@@ -656,16 +656,16 @@
         <bundle>mvn:io.fabric8/fabric-autoscale/${project.version}</bundle>
     </feature>
 
-    <feature name="fabric-docker-api" version="${project.version}" resolver="(obr)">
+    <feature name="docker-api" version="${project.version}" resolver="(obr)">
 <!--
-        CXF 3 version of JAXRS 2.0 client for fabric-docker-api
+        CXF 3 version of JAXRS 2.0 client for docker-api
         <feature version="[3.0,4.0)">cxf-specs</feature>
         <feature version="[3.0,4.0)">cxf-jaxrs</feature>
         <bundle>mvn:javax.ws.rs/javax.ws.rs-api/2.0</bundle>
 -->
         <feature>http</feature>
         <feature version="${project.version}">fabric-project-deployer</feature>
-        <bundle>mvn:io.fabric8/fabric-docker-api/${project.version}</bundle>
+        <bundle>mvn:io.fabric8/docker-api/${project.version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
@@ -681,7 +681,7 @@
 
     <feature name="fabric-docker-provider" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-core</feature>
-        <feature version="${project.version}">fabric-docker-api</feature>
+        <feature version="${project.version}">docker-api</feature>
         <feature version="${project.version}">fabric-process-container</feature>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-docker-provider/${project.version}</bundle>
@@ -689,16 +689,16 @@
     </feature>
 
 
-    <feature name="fabric-kubernetes-api" version="${project.version}" resolver="(obr)">
+    <feature name="kubernetes-api" version="${project.version}" resolver="(obr)">
       <!--
-        CXF 3 version of JAXRS 2.0 client for fabric-docker-api
+        CXF 3 version of JAXRS 2.0 client for docker-api
         <feature version="[3.0,4.0)">cxf-specs</feature>
         <feature version="[3.0,4.0)">cxf-jaxrs</feature>
         <bundle>mvn:javax.ws.rs/javax.ws.rs-api/2.0</bundle>
       -->
         <feature>http</feature>
         <feature version="${project.version}">fabric-project-deployer</feature>
-        <bundle>mvn:io.fabric8/fabric-kubernetes-api/${project.version}</bundle>
+        <bundle>mvn:io.fabric8/kubernetes-api/${project.version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
@@ -713,7 +713,7 @@
     </feature>
 
     <feature name="fabric-kubernetes-provider" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-kubernetes-api</feature>
+        <feature version="${project.version}">kubernetes-api</feature>
         <feature version="${project.version}">fabric-docker-provider</feature>
         <bundle>mvn:io.fabric8/fabric-kubernetes-provider/${project.version}</bundle>
     </feature>

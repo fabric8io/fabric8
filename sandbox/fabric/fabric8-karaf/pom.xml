@@ -146,7 +146,7 @@
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
-               <artifactId>fabric-docker-api</artifactId>
+               <artifactId>docker-api</artifactId>
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
@@ -190,7 +190,7 @@
            </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>fabric-kubernetes-api</artifactId>
+                <artifactId>kubernetes-api</artifactId>
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>

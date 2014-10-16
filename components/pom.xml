@@ -45,8 +45,8 @@
             <module>fabric-cxf-registry</module>
     -->
     <module>fabric-cxf-plugins</module>
-    <module>fabric-docker-api</module>
-    <module>fabric-kubernetes-api</module>
+    <module>docker-api</module>
+    <module>kubernetes-api</module>
     <module>fabric-utils</module>
     <module>fabric-etcd</module>
     <module>kubernetes-jolokia</module>

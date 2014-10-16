@@ -27,7 +27,7 @@
   </parent>
 
   <groupId>io.fabric8</groupId>
-  <artifactId>fabric-kubernetes-api</artifactId>
+  <artifactId>kubernetes-api</artifactId>
   <packaging>bundle</packaging>
 
   <name>Fabric8 :: Kubernetes Client API</name>

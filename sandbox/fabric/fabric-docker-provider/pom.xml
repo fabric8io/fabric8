@@ -100,7 +100,7 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fabric-docker-api</artifactId>
+            <artifactId>docker-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
