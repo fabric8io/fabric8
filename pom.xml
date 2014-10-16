@@ -277,7 +277,7 @@
         <vertx.version>2.1.2</vertx.version>
         <wagon.version>2.6</wagon.version>
         <wagon-webdav-plugin.version>1.0-beta-7</wagon-webdav-plugin.version>
-        <weld2.version>2.2.5.Final</weld2.version>
+        <weld.version>2.2.5.Final</weld.version>
         <wildfly.version>8.1.0.Final</wildfly.version>
         <xalan.version>2.7.1</xalan.version>
         <xbean.version>3.16</xbean.version>
@@ -1380,22 +1380,22 @@
             <dependency>
               <groupId>org.jboss.weld.se</groupId>
               <artifactId>weld-se</artifactId>
-              <version>${weld2.version}</version>
+              <version>${weld.version}</version>
             </dependency>
             <dependency>
               <groupId>org.jboss.weld.se</groupId>
               <artifactId>weld-se-core</artifactId>
-              <version>${weld2.version}</version>
+              <version>${weld.version}</version>
             </dependency>
             <dependency>
               <groupId>org.jboss.weld.servlet</groupId>
               <artifactId>weld-servlet</artifactId>
-              <version>${weld2.version}</version>
+              <version>${weld.version}</version>
             </dependency>
             <dependency>
               <groupId>org.jboss.weld</groupId>
               <artifactId>weld-core</artifactId>
-              <version>${weld2.version}</version>
+              <version>${weld.version}</version>
             </dependency>
 
             <dependency>

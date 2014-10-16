@@ -49,7 +49,7 @@
     <!-- versions for use in mvn plugins -->
     <camel.version>2.14.0</camel.version>
     <deltaspike.version>1.0.3</deltaspike.version>
-    <weld2.version>2.2.5.Final</weld2.version>
+    <weld.version>2.2.5.Final</weld.version>
 
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
     <fabric8.iconRef>icons/camel.svg</fabric8.iconRef>
