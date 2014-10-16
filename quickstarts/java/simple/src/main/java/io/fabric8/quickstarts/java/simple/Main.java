@@ -18,6 +18,9 @@ package io.fabric8.quickstarts.java.simple;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
+/**
+ * Example of the "main class". Put your bootstrap logic here.
+ */
 public class Main {
 
     public static void main(String[] args) throws InterruptedException {
