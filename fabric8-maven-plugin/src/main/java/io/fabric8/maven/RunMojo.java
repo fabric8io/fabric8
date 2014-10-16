@@ -33,8 +33,8 @@ import java.io.IOException;
 /**
  * Deploys the App to a kubernetes environment
  */
-@Mojo(name = "deploy", defaultPhase = LifecyclePhase.INSTALL)
-public class DeployMojo extends AbstractFabric8Mojo {
+@Mojo(name = "run", defaultPhase = LifecyclePhase.INSTALL)
+public class RunMojo extends AbstractFabric8Mojo {
 
     private KubernetesClient kubernetes = new KubernetesClient();
 

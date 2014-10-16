@@ -78,12 +78,6 @@ public class ZipMojo extends AbstractFabric8Mojo {
     private File buildDir;
 
     /**
-     * Name of the created app zip file
-     */
-    @Parameter(property = "fabric8.zip.outFile", defaultValue = "${project.build.directory}/${project.artifactId}-${project.version}-app.zip")
-    private File outputFile;
-
-    /**
      * Name of the aggregated app zip file
      */
     @Parameter(property = "fabric8.aggregated.zip.outFile", defaultValue = "${project.build.directory}/${project.artifactId}-${project.version}-app.zip")
@@ -414,10 +408,11 @@ public class ZipMojo extends AbstractFabric8Mojo {
                 }
             }
 
-            Zips.createZipFile(getLog(), buildDir, outputFile);
+            File outputZipFile = getZipFile();
+            Zips.createZipFile(getLog(), buildDir, outputZipFile);
 
-            projectHelper.attachArtifact(project, artifactType, artifactClassifier, outputFile);
-            getLog().info("Created app zip file: " + outputFile);
+            projectHelper.attachArtifact(project, artifactType, artifactClassifier, outputZipFile);
+            getLog().info("Created app zip file: " + outputZipFile);
         }
     }
 

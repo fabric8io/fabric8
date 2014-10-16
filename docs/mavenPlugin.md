@@ -18,11 +18,7 @@ e.g. add this to the &lt;servers&gt; element:
           <id>docker-host</id>
           <properties>
             <docker.registry>${env.DOCKER_REGISTRY}</docker.registry>
-            <docker.url>http://dockerhost:2375</docker.url>
-            <!--
-              TODO when supported by docker-maven-plugin 0.9.10
             <docker.url>${env.DOCKER_HOST}</docker.url>
-            -->
           </properties>
         </profile>
       </profiles>
@@ -52,6 +48,22 @@ To enable this maven plugin and to automatically release the [App JSON file](app
         </executions>
       </plugin>
 
+To automatically generate an [App Zip](appzip.html) for your project then add this:
+
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <executions>
+          <execution>
+            <id>zip</id>
+            <phase>package</phase>
+            <goals>
+              <goal>zip</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 
 ### Building and Pushing your docker image
 
@@ -75,12 +87,28 @@ Or to push the docker image to your local docker registry
 
 Before deploying you need to make sure your docker image is available to Kubernetes. See above for how to do this. Any docker registry that is accessible to Kubernetes is supported.
 
-To deploy your container use the following goal:
+To deploy your [App Zip](appzip.html) into the wiki in the web console use the following goal:
 
     mvn fabric8:deploy
 
-This defaults to using the [App JSON file](apps.html) file located at **src/main/resources/kubernetes.json** so that it can be filtered like most maven resources are; to substitute docker image name and version etc.
+This goal uses the default fabric8 console URL of **http://dockerhost:8484/hawtio/** unless you specify the FABRIC8_CONSOLE environment variable to point at something else.
 
+e.g. to try this against a locally running hawtio try:
+
+    export FABRIC8_CONSOLE=http://localhost:8282/hawtio/
+
+
+This goal will then POST the [App Zip](appzip.html) into the wiki so you should be able to view the newly posted [App](apps.html) at [http://dockerhost:8484/hawtio/wiki/branch/master/view](http://dockerhost:8484/hawtio/wiki/branch/master/view)
+
+### Running
+
+Before running you need to make sure your docker image is available to Kubernetes. See above for how to do this. Any docker registry that is accessible to Kubernetes is supported.
+
+To run your App use the following goal:
+
+    mvn fabric8:run
+
+This defaults to using the [App JSON file](apps.html) file located at **src/main/resources/kubernetes.json** so that it can be filtered like most maven resources are; to substitute docker image name and version etc.
 
 ### Example
 

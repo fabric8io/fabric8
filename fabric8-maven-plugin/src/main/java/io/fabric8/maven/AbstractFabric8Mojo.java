@@ -28,6 +28,11 @@ import java.io.File;
 public abstract class AbstractFabric8Mojo extends AbstractMojo {
 
     /**
+     * Name of the created app zip file
+     */
+    @Parameter(property = "fabric8.zip.file", defaultValue = "${project.build.directory}/${project.artifactId}-${project.version}-app.zip")
+    protected File zipFile;
+    /**
      * The custom kubernetes JSON file
      */
     @Parameter(property = "kubernetesJson", defaultValue = "${basedir}/target/classes/kubernetes.json")
@@ -65,5 +70,9 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
 
     public boolean isIgnoreProject() {
         return ignoreProject;
+    }
+
+    public File getZipFile() {
+        return zipFile;
     }
 }
