@@ -4,6 +4,7 @@
   * [Labels](labels.md)
   * [Services](services.md)
   * [Apps](apps.md)
+  * [App Zip](appzip.md)
   * [Builds](builds.md)
 * [Getting Started](getStarted.md)
     * [Get OpenShift V3](installOpenShift.md)

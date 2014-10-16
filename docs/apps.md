@@ -10,3 +10,5 @@ A template is also **parameterizable**; so that as the template is instantiated 
 
 For example an App could generate an ActiveMQ regional cluster; where the template is parameterised with the region name, it's service port number and the number of replicas.
 
+An App can then be packaged into an [App Zip](appzip.html) for easier distribution between environments.
+
