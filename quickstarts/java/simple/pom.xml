@@ -37,6 +37,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <version.compiler.plugin>2.3.1</version.compiler.plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
     <maven.compiler.target>1.7</maven.compiler.target>
@@ -44,7 +45,6 @@
 
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
-    <fabric.version>2.0.0-SNAPSHOT</fabric.version>
 
     <!-- fabric8 configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
@@ -89,7 +89,7 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-maven-plugin</artifactId>
-        <version>${fabric.version}</version>
+        <version>${fabric8.version}</version>
         <executions>
           <execution>
             <id>json</id>
