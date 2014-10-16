@@ -18,10 +18,16 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.common.util.JMXUtils;
+import io.fabric8.common.util.Strings;
+import io.fabric8.kubernetes.api.model.ManifestContainer;
+import io.fabric8.kubernetes.api.model.PodSchema;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A simple MBean for performing custom operations on kubernetes
@@ -51,6 +57,19 @@ public class KubernetesManager implements KubernetesManagerMXBean {
     public String apply(String json) throws IOException {
         Controller controller = new Controller(kubernetes);
         return controller.applyJson(json);
+    }
+
+    @Override
+    public String getDockerRegistry() {
+        // TODO we could find the docker registry by querying pods using a selector
+        // for now lets just reuse the DOCKER_REGISTRY environment variable
+        String answer = System.getenv("DOCKER_REGISTRY");
+        if (Strings.isNotBlank(answer)) {
+            if (!answer.contains("://")) {
+                answer = "http://" + answer;
+            }
+        }
+        return answer;
     }
 
     public KubernetesClient getKubernetes() {

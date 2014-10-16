@@ -37,6 +37,10 @@
                       "value": "tcp://dockerhost:2375"
                     },
                     {
+                      "name": "DOCKER_REGISTRY",
+                      "value": "dockerhost:5000"
+                    },
+                    {
                       "name": "hawtio_config_cloneOnStartup",
                       "value": "false"
                     },

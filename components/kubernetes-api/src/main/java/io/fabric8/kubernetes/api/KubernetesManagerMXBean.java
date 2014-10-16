@@ -28,4 +28,6 @@ public interface KubernetesManagerMXBean {
      * and applies it to the runtime environment so that any changes or new items take effect
      */
     String apply(String json) throws IOException;
+
+    String getDockerRegistry();
 }
