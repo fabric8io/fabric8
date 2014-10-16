@@ -46,6 +46,11 @@
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
 
+    <!-- versions for use in mvn plugins -->
+    <camel.version>2.14.0</camel.version>
+    <deltaspike.version>1.0.3</deltaspike.version>
+    <weld2.version>2.2.5.Final</weld2.version>
+
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
     <fabric8.iconRef>icons/camel.svg</fabric8.iconRef>
   </properties>
@@ -80,6 +85,22 @@
     <dependency>
       <groupId>org.jboss.weld.se</groupId>
       <artifactId>weld-se</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.weld.servlet</groupId>
+      <artifactId>weld-servlet</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.weld</groupId>
+      <artifactId>weld-core</artifactId>
+    </dependency>
+    <dependency>
+       <groupId>com.google.guava</groupId>
+       <artifactId>guava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.cdictrl</groupId>
+      <artifactId>deltaspike-cdictrl-weld</artifactId>
     </dependency>
 
     <dependency>
@@ -150,6 +171,26 @@
           <env>
             <MAIN>org.apache.camel.cdi.Main</MAIN>
           </env>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.2.1</version>
+        <configuration>
+          <mainClass>org.apache.camel.cdi.Main</mainClass>
+          <includePluginDependencies>false</includePluginDependencies>
+        </configuration>
+      </plugin>
+
+      <!-- allows the route to be ran via 'mvn camel:run' -->
+      <plugin>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-maven-plugin</artifactId>
+        <version>${camel.version}</version>
+        <configuration>
+          <useCDI>true</useCDI>
         </configuration>
       </plugin>
     </plugins>

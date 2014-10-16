@@ -46,7 +46,7 @@
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
-    <camel.version>2.13.2</camel.version>
+    <camel.version>2.14.0</camel.version>
 
     <!-- fabric8 deploy configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
@@ -152,8 +152,18 @@
           </env>
         </configuration>
       </plugin>
-    </plugins>
 
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.2.1</version>
+        <configuration>
+          <mainClass>org.apache.camel.spring.Main</mainClass>
+          <includePluginDependencies>false</includePluginDependencies>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
   <repositories>

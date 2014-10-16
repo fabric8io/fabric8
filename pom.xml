@@ -129,7 +129,7 @@
         <curator.version>2.6.0</curator.version>
         <cxf.version>3.0.2</cxf.version>
         <cxf.version-range>[3.0,4)</cxf.version-range>
-        <deltaspike.version>1.0.1</deltaspike.version>
+        <deltaspike.version>1.0.3</deltaspike.version>
         <dnsjava.version>2.1.1</dnsjava.version>
         <docker.maven.plugin.version>0.9.10</docker.maven.plugin.version>
         <drools-camel-artifactId>kie-camel</drools-camel-artifactId>
@@ -1384,7 +1384,7 @@
             </dependency>
             <dependency>
               <groupId>org.jboss.weld.se</groupId>
-              <artifactId>weld-se</artifactId>
+              <artifactId>weld-se-core</artifactId>
               <version>${weld2.version}</version>
             </dependency>
             <dependency>
@@ -1396,6 +1396,12 @@
               <groupId>org.jboss.weld</groupId>
               <artifactId>weld-core</artifactId>
               <version>${weld2.version}</version>
+            </dependency>
+
+            <dependency>
+              <groupId>org.apache.deltaspike.cdictrl</groupId>
+              <artifactId>deltaspike-cdictrl-weld</artifactId>
+              <version>${deltaspike.version}</version>
             </dependency>
 
             <dependency>
@@ -2234,12 +2240,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>com.google.mockwebserver</groupId>
                 <artifactId>mockwebserver</artifactId>
                 <version>${mockwebserver.version}</version>
@@ -2582,11 +2582,6 @@
                 <version>${arquillian-core.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian.container</groupId>
-                <artifactId>arquillian-container-karaf-managed</artifactId>
-                <version>${arquillian-osgi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.arquillian.container</groupId>
