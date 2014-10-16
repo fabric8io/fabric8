@@ -88,6 +88,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.kubernetes.name")
     private String kubernetesName;
 
+    /**
+     * The name label used in the generated Kubernetes JSON template
+     */
+    @Parameter(property = "fabric8.kubernetes.containerName")
+    private String kubernetesContainerName;
+
 
     /**
      * The labels passed into the generated Kubernetes JSON template.
@@ -153,6 +159,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             }
             addIfNotDefined(variables, "fabric8_kubernetes_id", kubernetesId);
             addIfNotDefined(variables, "fabric8_kubernetes_name", getKubernetesName());
+            addIfNotDefined(variables, "fabric8_kubernetes_container_name", getKubernetesContainerName());
             Map<String, String> labels = getLabels();
             Map<String, String> ports = getPorts();
             variables.put("project", project);
@@ -169,7 +176,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
     }
 
-    public String getKubernetesName() {
+    public String getKubernetesContainerName() {
         if (Strings.isNullOrBlank(kubernetesName)) {
             // lets generate it from the docker user and the camelCase artifactId
             String groupPrefix = null;
@@ -188,8 +195,18 @@ public class JsonMojo extends AbstractFabric8Mojo {
             if (Strings.isNullOrBlank(groupPrefix)) {
                 groupPrefix = project.getGroupId();
             }
-            String name = groupPrefix + "-" + project.getArtifactId();
-            kubernetesName = Strings.convertToCamelCase(name, "-");
+            kubernetesContainerName = groupPrefix + "-" + project.getArtifactId();
+        }
+        return kubernetesContainerName;
+    }
+
+    public void setKubernetesContainerName(String kubernetesContainerName) {
+        this.kubernetesContainerName = kubernetesContainerName;
+    }
+
+    public String getKubernetesName() {
+        if (Strings.isNullOrBlank(kubernetesName)) {
+            kubernetesName = Strings.convertToCamelCase(getKubernetesContainerName(), "-");
         }
         return kubernetesName;
     }

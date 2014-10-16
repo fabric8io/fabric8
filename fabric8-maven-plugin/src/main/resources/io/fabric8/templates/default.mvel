@@ -15,7 +15,7 @@
           "id": "@{fabric8_kubernetes_name}Pod",
           "containers": [
             {
-              "name": "@{fabric8_kubernetes_name}",
+              "name": "@{fabric8_kubernetes_container_name}",
               "image": "@{docker_dataImage}",
               "ports": [
                 {
