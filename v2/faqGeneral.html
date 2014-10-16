@@ -48,7 +48,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.1" data-basepath="." data-revision="1413331404083">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.1" data-basepath="." data-revision="1413417803561">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -407,9 +407,16 @@
 </ul>
 <h4 id="what-java-versions-is-supported-"><a name="what-java-versions-is-supported-" class="anchor" href="#what-java-versions-is-supported-"><span class="fa fa-link"></span></a>What Java versions is supported?</h4>
 <p>fabric8 runs on Java 7 and 8.</p>
+<h4 id="are-docker-and-kubernetes-required-to-run-fabric8-"><a name="are-docker-and-kubernetes-required-to-run-fabric8-" class="anchor" href="#are-docker-and-kubernetes-required-to-run-fabric8-"><span class="fa fa-link"></span></a>Are Docker and Kubernetes required to run Fabric8?</h4>
+<p>Fabric8 is designed to work best on top of Kubernetes and Docker; it means fabric8 will work very well in any environment providing the Kubernetes platform such as RHEL Atomic, OpenShift, Google Compute Engine, Azure etc.</p>
+<p>However we need the <a href="http://fabric8.io/v2/emulation.html" target="_blank">Emulator</a> to be able to work on platforms which don&apos;t support Docker; or where you wish to run Java processes directly on the underlying operating system rather than inside docker containers.</p>
 <h4 id="is-windows-supported"><a name="is-windows-supported" class="anchor" href="#is-windows-supported"><span class="fa fa-link"></span></a>Is Windows supported</h4>
 <p>We recommend using a linux based system for production; preferably if you want a fully managed platform use <a href="http://docker.io/" target="_blank">Docker</a> and <a href="http://kubernetes.io" target="_blank">Kubernetes</a> or <a href="https://github.com/openshift/origin" target="_blank">OpenShift Origin V3</a>.</p>
 <p>Windows is currently only partially supported. Windows users may consider using <a href="http://docker.io/" target="_blank">Docker</a> so that all the fabric8 technologies run inside a linux VM in lightweight containers.</p>
+<p>If you need to run Java on real Windows processes then we recommend using the <a href="http://fabric8.io/v2/emulation.html" target="_blank">Emulator</a> when its complete.rs.</p>
+<h4 id="does-fabric8-use-zookeeper-runtime-registry-"><a name="does-fabric8-use-zookeeper-runtime-registry-" class="anchor" href="#does-fabric8-use-zookeeper-runtime-registry-"><span class="fa fa-link"></span></a>Does Fabric8 use ZooKeeper runtime registry?</h4>
+<p>No, not anymore. Fabric8 1.x used ZooKeeper to share the runtime information between applications and to discover services. Kubernetes comes with the <a href="https://github.com/coreos/etcd" target="_blank">etcd</a> internally which servces much of the same purpose and has support for the services binding, so Fabric8 v2 doesn&apos;t need ZooKeeper registry anymore for general purpose provisioning of containers and services.</p>
+<p>However certain services will still require master slave election and partitioning functionality (such as running clusters of ActiveMQ); where either <a href="https://github.com/coreos/etcd" target="_blank">etcd</a> or <a href="http://zookeeper.apache.org/" target="_blank">Apache ZooKeeper</a> is required. If a Kubernetes environment allows it then fabric8 could reuse the underlying etcd cluster; otherwise an etcd or ZK clusters is required for things like ActiveMQ clustering.</p>
 <h4 id="deprecations"><a name="deprecations" class="anchor" href="#deprecations"><span class="fa fa-link"></span></a>Deprecations</h4>
 <p>FAB (Fuse Application Bundles) has been deprecated for the 1.2 release and removed form 2.x.</p>
 

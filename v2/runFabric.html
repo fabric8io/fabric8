@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1413331404083">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1413417803561">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -400,11 +400,11 @@ export OPENSHIFT_HOST=`grep openshifthost /etc/hosts | cut -d &quot; &quot; -f1`
 <h3 id="start-fabric8"><a name="start-fabric8" class="anchor" href="#start-fabric8"><span class="fa fa-link"></span></a>Start fabric8</h3>
 <p>To make sure you&apos;ve got the latest and greatest hawtio console try this first:</p>
 <pre><code>docker pull fabric8/hawtio
-</code></pre><p>Now to install fabric8 try:</p>
+</code></pre><p>Now to install fabric8 apply the <a href="https://github.com/fabric8io/fabric8/blob/2.0/apps/fabric8.json" target="_blank">fabric8.json</a>:</p>
+<pre><code>openshift kube  apply -c https://raw.githubusercontent.com/fabric8io/fabric8/2.0/apps/fabric8.json
+</code></pre><p>Or if you have a clone of the <a href="https://github.com/fabric8io/fabric8/tree/2.0" target="_blank">fabric8 source code</a> you could try:</p>
 <pre><code>cd fabric8/apps
 openshift kube apply -c fabric8.json
-</code></pre><p>Or you can just use the <a href="https://github.com/fabric8io/fabric8/blob/2.0/apps/fabric8.json" target="_blank">fabric8.json</a> in github:</p>
-<pre><code>openshift kube  apply -c https://raw.githubusercontent.com/fabric8io/fabric8/2.0/apps/fabric8.json
 </code></pre><p>This will run a local docker registry and the hawtio web console.</p>
 <p>You should be able to check if the docker registry is running OK via this command (which should return &apos;true&apos;):</p>
 <pre><code>curl http://$DOCKER_REGISTRY/v1/_ping
