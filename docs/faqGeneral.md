@@ -54,6 +54,18 @@ No, not anymore. Fabric8 1.x used ZooKeeper to share the runtime information bet
 
 However certain services will still require master slave election and partitioning functionality (such as running clusters of ActiveMQ); where either [etcd](https://github.com/coreos/etcd) or [Apache ZooKeeper](http://zookeeper.apache.org/) is required. If a Kubernetes environment allows it then fabric8 could reuse the underlying etcd cluster; otherwise an etcd or ZK clusters is required for things like ActiveMQ clustering.
 
+#### Does Fabric8 still use profiles to configure application deployment?
+
+No, not anymore. Starting from v2 Fabric8 uses [app](http://fabric8.io/v2/apps.html) JSON files (i.e. Kubernetes extension proposed by OpenShift 3)
+to configure deployment of the managed application. More detailed configuration (like properties or YAML files) can be 
+added to the file system of the application's Docker image.
+
+### Is Fabric8 server required to provision applications?
+
+No, not anymore. Starting from Fabric8 v2 Kubernetes is responsible for providing the runtime registry for the
+managed applications. It means that you don't have to start any dedicated Fabric8 deamon. Tools like [Fabric8 Maven plugin](http://fabric8.io/v2/mavenPlugin.html)
+or [Hawt.io](http://hawt.io) can connect directly to the Kubernetes and deploy/manage it.
+
 #### Deprecations
 
 FAB (Fuse Application Bundles) has been deprecated for the 1.2 release and removed form 2.x.
