@@ -50,7 +50,7 @@ If you need to run Java on real Windows processes then we recommend using the [E
 
 #### Does Fabric8 use ZooKeeper runtime registry?
 
-No, not anymore. Fabric8 1.x used ZooKeeper to share the runtime information between applications and to discover services. Kubernetes comes with the [etcd](https://github.com/coreos/etcd) internally which servces much of the same purpose and has support for the services binding, so Fabric8 v2 doesn't need ZooKeeper registry anymore for general purpose provisioning of containers and services.
+No, not anymore. Fabric8 1.x used ZooKeeper to share the runtime information between applications and to discover services. Kubernetes comes with the [etcd](https://github.com/coreos/etcd) internally which serves much of the same purpose and has support for the services binding, so Fabric8 v2 doesn't need ZooKeeper registry anymore for general purpose provisioning of containers and services.
 
 However certain services will still require master slave election and partitioning functionality (such as running clusters of ActiveMQ); where either [etcd](https://github.com/coreos/etcd) or [Apache ZooKeeper](http://zookeeper.apache.org/) is required. If a Kubernetes environment allows it then fabric8 could reuse the underlying etcd cluster; otherwise an etcd or ZK clusters is required for things like ActiveMQ clustering.
 
