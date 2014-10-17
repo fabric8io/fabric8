@@ -24,12 +24,12 @@
   <parent>
     <groupId>io.fabric8.quickstarts</groupId>
     <artifactId>fabric8-quickstarts-java-parent</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0.redhat-033</version>
   </parent>
 
   <groupId>io.fabric8.quickstarts</groupId>
   <artifactId>java-camel-cdi</artifactId>
-  <version>1.2.0-SNAPSHOT</version>
+  <version>1.2.0.redhat-033</version>
   <packaging>jar</packaging>
 
   <name>Fabric8 :: Quickstarts :: Java :: Camel with CDI Java Container</name>
@@ -47,8 +47,8 @@
     <weld2-version>2.1.2.Final</weld2-version>
 
     <!-- the version of the BOM, defining all the dependency versions -->
-    <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
-    <fabric.version>1.2.0-SNAPSHOT</fabric.version>
+    <fabric8.bom.version>1.2.0.redhat-033</fabric8.bom.version>
+    <fabric.version>1.2.0.redhat-033</fabric.version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-java-camel.cdi</fabric8.profile>
