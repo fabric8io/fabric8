@@ -104,7 +104,7 @@ public class ManagedApi implements ManagedComponent, ServerLifeCycleListener {
         String ret = "/cxf"; //if can't get it from configAdmin use the default value
         if (getConfigurationAdmin() != null) {
             try {
-                Configuration configuration = getConfigurationAdmin().getConfiguration("org.apache.cxf.osgi");
+                Configuration configuration = getConfigurationAdmin().getConfiguration("org.apache.cxf.osgi", null);
                 if (configuration != null) {
                     Dictionary properties = configuration.getProperties();
                     if (properties != null) {
