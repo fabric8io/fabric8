@@ -68,7 +68,11 @@ or [Hawt.io](http://hawt.io) can connect directly to the Kubernetes and deploy/m
 
 #### If there is no Fabric8 server, how can I use Fabric8 shell?
 
-The recommended shell for Fabric8 v2 is [JBoss Forge](http://forge.jboss.org) shell.
+For the Fabric8 v2 development activities, the recommended tool is [JBoss Forge](http://forge.jboss.org) with the 
+[Fabric8 add-on](https://github.com/fabric8io/fabric8/tree/2.0/forge-addons). For provisioning purposes (like creating 
+containers/services or changing the replica sizes) the default shell is OpenShift/Kube. Kube will be included in 
+[Red Hat Enterprise Linux](http://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) 
+and OpenShift V3 and is the standard shell for provisioning any kind of the container.
 
 #### Deprecations
 
