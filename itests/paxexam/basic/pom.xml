@@ -132,12 +132,6 @@
             <groupId>io.fabric8.examples</groupId>
             <artifactId>fabric-cxf-demo-client</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.cxf</groupId>
-                    <artifactId>cxf-bundle</artifactId>
-                </exclusion>
-            </exclusions>
             <scope>test</scope>
         </dependency>
         <dependency>

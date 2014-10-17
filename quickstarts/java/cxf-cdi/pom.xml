@@ -76,12 +76,6 @@
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-cxf</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.cxf</groupId>
-          <artifactId>cxf-bundle</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
