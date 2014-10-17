@@ -16,22 +16,10 @@
 package io.fabric8.maven;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.fabric8.common.util.Closeables;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
-import org.apache.http.HttpEntity;
+import io.fabric8.kubernetes.template.Apps;
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URIUtils;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.maven.artifact.deployer.ArtifactDeployer;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
@@ -46,11 +34,12 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.io.SettingsWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Console;
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -62,6 +51,7 @@ import java.util.Map;
 @Mojo(name = "deploy", defaultPhase = LifecyclePhase.INSTALL, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 @Execute(phase = LifecyclePhase.INSTALL)
 public class DeployToWikiMojo extends AbstractFabric8Mojo {
+    private static final transient Logger LOG = LoggerFactory.getLogger(DeployToWikiMojo.class);
 
     public static final String DEFAULT_CONSOLE_URL = "http://dockerhost:8484/hawtio/";
     @Component
@@ -273,49 +263,7 @@ public class DeployToWikiMojo extends AbstractFabric8Mojo {
             getLog().warn("No <password> value defined for the server " + serverId + " in your ~/.m2/settings.xml. Please add a value!");
         }
 
-        HttpClientBuilder builder = HttpClients.custom();
-        if (Strings.isNotBlank(user) && Strings.isNotBlank(password)) {
-            CredentialsProvider credsProvider = new BasicCredentialsProvider();
-            credsProvider.setCredentials(
-                    new AuthScope("localhost", 443),
-                    new UsernamePasswordCredentials(user, password));
-            builder = builder
-                    .setDefaultCredentialsProvider(credsProvider);
-        }
-
-        CloseableHttpClient client = builder.build();
-        try {
-
-            String url = consoleUrl;
-            if (!url.endsWith("/")) {
-                url += "/";
-            }
-            url += "git/";
-            url += branch;
-            if (!deployPath.startsWith("/")) {
-                url += "/";
-            }
-            url += deployPath;
-
-            getLog().info("Posting App Zip " + file.getName() + " to " + url);
-            URI buildUrl = new URI(url);
-            HttpPost post = new HttpPost(buildUrl);
-            // use multi part entity format
-            FileBody zip = new FileBody(file);
-            HttpEntity entity = MultipartEntityBuilder.create()
-                    .addPart(file.getName(), zip)
-                    .build();
-            post.setEntity(entity);
-            // post.setEntity(new FileEntity(file));
-
-            HttpResponse response = client.execute(URIUtils.extractHost(buildUrl), post);
-            getLog().info("Response: " + response);
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode < 200 || statusCode >= 300) {
-                throw new MojoExecutionException("Failed to post App Zip to: " + url + " " + response);
-            }
-        } finally {
-            Closeables.closeQuitely(client);
-        }
+        Apps.postFileToGit(file, user, password, consoleUrl, branch, deployPath, LOG);
     }
+
 }

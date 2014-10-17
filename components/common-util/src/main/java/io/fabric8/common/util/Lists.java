@@ -45,4 +45,15 @@ public class Lists {
             return list;
         }
     }
+
+    /**
+     * Creates an array list of elements
+     */
+    public static <T> List<T> newArrayList(T... items) {
+        List<T> answer = new ArrayList<>(items.length);
+        for (T item : items) {
+            answer.add(item);
+        }
+        return answer;
+    }
 }

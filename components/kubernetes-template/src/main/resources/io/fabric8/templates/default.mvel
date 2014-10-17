@@ -1,0 +1,37 @@
+{
+  "id": "@{name}Controller",
+  "kind": "ReplicationController",
+  "apiVersion": "v1beta1",
+  "desiredState": {
+    "replicas": @{replicaCount},
+    "replicaSelector": {@foreach{label : labels.entrySet()}
+      "@{label.key}": "@{label.value}"@end{", "}
+    },
+    "podTemplate": {
+      "desiredState": {
+        "manifest": {
+          "version": "v1beta1",
+          "id": "@{name}Pod",
+          "containers": [
+            {
+              "name": "@{containerName}",
+              "image": "@{docker_dataImage}",
+              "ports": [@foreach{port : ports}
+                {
+@if{port.containerPort != null}                  "containerPort": @{port.containerPort}@if{port.hostPort != null},@end{}@end{}
+@if{port.hostPort != null}                  "hostPort": @{port.hostPort}@end{}
+                }@end{", "}
+              ]
+            }
+          ]
+        }
+      },
+      "labels": {@foreach{label : labels.entrySet()}
+        "@{label.key}": "@{label.value}"@end{", "}
+      }
+    }
+  },
+  "labels": {@foreach{label : labels.entrySet()}
+    "@{label.key}": "@{label.value}"@end{", "}
+  }
+}

@@ -46,10 +46,11 @@
     -->
     <module>fabric-cxf-plugins</module>
     <module>docker-api</module>
-    <module>kubernetes-api</module>
     <module>fabric-utils</module>
     <module>fabric-etcd</module>
+    <module>kubernetes-api</module>
     <module>kubernetes-jolokia</module>
+    <module>kubernetes-template</module>
   </modules>
 
 </project>

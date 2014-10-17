@@ -16,7 +16,11 @@
 package io.fabric8.maven;
 
 import io.fabric8.common.util.Files;
+import io.fabric8.common.util.Lists;
 import io.fabric8.common.util.Strings;
+import io.fabric8.kubernetes.api.model.Port;
+import io.fabric8.kubernetes.template.GenerateTemplateDTO;
+import io.fabric8.kubernetes.template.TemplateGenerator;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -25,16 +29,11 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.mvel2.ParserContext;
-import org.mvel2.templates.CompiledTemplate;
-import org.mvel2.templates.TemplateCompiler;
-import org.mvel2.templates.TemplateRuntime;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -46,6 +45,8 @@ import java.util.Set;
 @Mojo(name = "json", defaultPhase = LifecyclePhase.PACKAGE)
 public class JsonMojo extends AbstractFabric8Mojo {
 
+    public static final String FABRIC8_PORT_HOST_PREFIX = "fabric8.port.host.";
+    public static final String FABRIC8_PORT_CONTAINER_PREFIX = "fabric8.port.container.";
     @Component
     private MavenProjectHelper projectHelper;
 
@@ -65,8 +66,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
     /**
      * Which MVEL based template should we use to generate the kubernetes JSON?
      */
-    @Parameter(property = "fabric8.zip.template", defaultValue = "io/fabric8/templates/default.mvel")
-    private String zipTemplate;
+    @Parameter(property = "fabric8.json.template", defaultValue = TemplateGenerator.DEFAULT_TEMPLATE)
+    private String jsonTemplate;
 
 
     /**
@@ -105,11 +106,16 @@ public class JsonMojo extends AbstractFabric8Mojo {
 
     /**
      * The ports passed into the generated Kubernetes JSON template.
-     * <p/>
-     * If no value is explicitly configured in the maven plugin then we use all maven properties starting with "fabric8.port."
      */
     @Parameter()
-    private Map<String, String> ports;
+    private List<Port> ports;
+
+    /**
+     * Maps the port names to the default container port numbers
+     */
+    @Parameter()
+    private Map<String, Integer> defaultContainerPortMap;
+
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -132,20 +138,17 @@ public class JsonMojo extends AbstractFabric8Mojo {
     }
 
     protected void generateKubernetesJson(File kubernetesJson) throws MojoExecutionException {
-        if (Strings.isNullOrBlank(zipTemplate)) {
-            throw new MojoExecutionException("No fabric8.zipTemplate specified so cannot generate the Kubernetes JSON file!");
+        if (Strings.isNullOrBlank(jsonTemplate)) {
+            throw new MojoExecutionException("No fabric8.jsonTemplate specified so cannot generate the Kubernetes JSON file!");
         } else {
-            InputStream in = loadPluginResource(zipTemplate);
-            if (in == null) {
-                throw new MojoExecutionException("Could not find template: " + zipTemplate + " on the ClassPath when trying to generate the Kubernetes JSON!");
-            }
-            ParserContext parserContext = new ParserContext();
-            Map<String, Object> variables = new HashMap<>();
 
+            GenerateTemplateDTO config = new GenerateTemplateDTO();
+            config.setTemplate(jsonTemplate);
 
             // TODO populate properties, project etc.
             MavenProject project = getProject();
             Properties properties = project.getProperties();
+            Map<String, Object> variables = new HashMap<>();
             Set<Map.Entry<Object, Object>> entries = properties.entrySet();
             for (Map.Entry<Object, Object> entry : entries) {
                 Object key = entry.getKey();
@@ -157,22 +160,19 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     variables.put(keyText, value);
                 }
             }
-            addIfNotDefined(variables, "fabric8_kubernetes_id", kubernetesId);
-            addIfNotDefined(variables, "fabric8_kubernetes_name", getKubernetesName());
-            addIfNotDefined(variables, "fabric8_kubernetes_container_name", getKubernetesContainerName());
-            Map<String, String> labels = getLabels();
-            Map<String, String> ports = getPorts();
-            variables.put("project", project);
-            variables.put("labels", labels);
-            variables.put("ports", ports);
+            config.setLabels(getLabels());
+            config.setVariables(variables);
+            config.setPorts(getPorts());
+            config.setName(getKubernetesName());
+            config.setContainerName(getKubernetesContainerName());
 
-            try {
-                CompiledTemplate compiledTemplate = TemplateCompiler.compileTemplate(in, parserContext);
-                String answer = TemplateRuntime.execute(compiledTemplate, parserContext, variables).toString();
-                Files.writeToFile(kubernetesJson, answer, Charset.defaultCharset());
-            } catch (IOException e) {
-                throw new MojoExecutionException("Failed to generate Kubernetes JSON from template " + zipTemplate + ". " + e, e);
-            }
+            List<ClassLoader> classLoaders = Lists.newArrayList(Thread.currentThread().getContextClassLoader(),
+                    getTestClassLoader(),
+                    getClass().getClassLoader(),
+                    TemplateGenerator.class.getClassLoader());
+
+            TemplateGenerator generator = new TemplateGenerator(config, classLoaders);
+            generator.generate(kubernetesJson);
         }
     }
 
@@ -215,17 +215,86 @@ public class JsonMojo extends AbstractFabric8Mojo {
         this.kubernetesName = kubernetesName;
     }
 
-    public Map<String, String> getPorts() {
+    public Map<String, Integer> getDefaultContainerPortMap() {
+        if (defaultContainerPortMap == null) {
+            defaultContainerPortMap = new HashMap<>();
+        }
+        if (defaultContainerPortMap.isEmpty()) {
+            // lets populate default values
+            defaultContainerPortMap.put("jolokia", 8778);
+            defaultContainerPortMap.put("web", 8080);
+        }
+        return defaultContainerPortMap;
+    }
+
+    public void setDefaultContainerPortMap(Map<String, Integer> defaultContainerPortMap) {
+        this.defaultContainerPortMap = defaultContainerPortMap;
+    }
+
+    public List<Port> getPorts() {
         if (ports == null) {
-            ports = new HashMap<>();
+            ports = new ArrayList<>();
         }
         if (ports.isEmpty()) {
-            ports = findPropertiesWithPrefix("fabric8.port.");
+            Map<String,Port> portMap = new HashMap<>();
+            Map<String, String> hostPorts = findPropertiesWithPrefix(FABRIC8_PORT_HOST_PREFIX);
+            Map<String, String> containerPorts = findPropertiesWithPrefix(FABRIC8_PORT_CONTAINER_PREFIX);
+
+            for (Map.Entry<String, String> entry : containerPorts.entrySet()) {
+                String name = entry.getKey();
+                String portText = entry.getValue();
+                Integer portNumber = parsePort(portText, FABRIC8_PORT_CONTAINER_PREFIX + name);
+                if (portNumber != null) {
+                    Port port = getOrCreatePort(portMap, name);
+                    port.setContainerPort(portNumber);
+                }
+            }
+            for (Map.Entry<String, String> entry : hostPorts.entrySet()) {
+                String name = entry.getKey();
+                String portText = entry.getValue();
+                Integer portNumber = parsePort(portText, FABRIC8_PORT_HOST_PREFIX + name);
+                if (portNumber != null) {
+                    Port port = getOrCreatePort(portMap, name);
+                    port.setHostPort(portNumber);
+
+                    // if the container port isn't set, lets try default that using defaults
+                    if (port.getContainerPort() == null) {
+                        port.setContainerPort(getDefaultContainerPortMap().get(name));
+                    }
+                }
+            }
+            getLog().info("Generated port mappings: " + portMap);
+            getLog().debug("from host ports: " + hostPorts);
+            getLog().debug("from containerPorts ports: " + containerPorts);
+            ports.addAll(portMap.values());
         }
         return ports;
     }
 
-    public void setPorts(Map<String, String> ports) {
+    protected static Port getOrCreatePort(Map<String, Port> portMap, String name) {
+        Port answer = portMap.get(name);
+        if (answer == null) {
+            answer = new Port();
+            portMap.put(name, answer);
+
+            // TODO should we set the name?
+            // answer.setName(name);
+        }
+        return answer;
+    }
+
+    protected Integer parsePort(String portText, String propertyName) {
+        if (Strings.isNotBlank(portText)) {
+            try {
+                return Integer.parseInt(portText);
+            } catch (NumberFormatException e) {
+                getLog().warn("Failed to parse port text: " + portText + " from maven property " + propertyName + ". " + e, e);
+            }
+        }
+        return null;
+    }
+
+    public void setPorts(List<Port> ports) {
         this.ports = ports;
     }
 

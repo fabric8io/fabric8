@@ -185,6 +185,7 @@
         <hawtio-kibana.version>3.1.0-SNAPSHOT</hawtio-kibana.version>
         <hawtio-swagger.version>1.0.2</hawtio-swagger.version>
         <hawtio.version>1.4.26</hawtio.version>
+        <httpclient.version>4.3.1</httpclient.version>
         <httpcomponents.version>4.0.2</httpcomponents.version>
         <influxdb.version>1.2</influxdb.version>
         <jackson.version>1.9.2</jackson.version>
@@ -587,6 +588,11 @@
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-jolokia</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>kubernetes-template</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
