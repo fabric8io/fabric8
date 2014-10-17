@@ -158,6 +158,7 @@
         <felix-utils.version>1.6.0</felix-utils.version>
         <felix.obr.version>1.0.2</felix.obr.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
+        <fest.version>2.0M10</fest.version>
         <geronimo-annotation.version>1.1.1</geronimo-annotation.version>
         <geronimo-connector.version>3.1.1</geronimo-connector.version>
         <geronimo-ejb-3-1-spec.version>1.0.2</geronimo-ejb-3-1-spec.version>
@@ -2726,6 +2727,11 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
+            </dependency>
+            <dependency>
+                 <groupId>org.easytesting</groupId>
+                 <artifactId>fest-assert-core</artifactId>
+                 <version>${fest.version}</version>
             </dependency>
 
             <dependency>

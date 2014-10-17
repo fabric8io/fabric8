@@ -19,11 +19,11 @@ package io.fabric8.kubernetes;
 
 import io.fabric8.common.util.IOHelpers;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.ControllerDesiredState;
 import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.template.CreateAppDTO;
 import io.fabric8.kubernetes.template.TemplateGenerator;
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import java.io.File;
@@ -33,8 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.fabric8.common.util.Files.recursiveDelete;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -50,7 +49,8 @@ public class TemplateGeneratorTest {
         CreateAppDTO dto = new CreateAppDTO();
         dto.setName("MyApp");
         dto.setDockerImage("fabric8/hawtio");
-        dto.setReplicaCount(3);
+        int replicaCount = 3;
+        dto.setReplicaCount(replicaCount);
 
         List<Port> ports = new ArrayList<>();
         Port jolokiaPort = new Port();
@@ -73,7 +73,16 @@ public class TemplateGeneratorTest {
         Object loadedDTO = KubernetesHelper.loadJson(json);
         System.out.println("Loaded json DTO: " + loadedDTO);
         assertTrue("Loaded DTO should be a ReplicationControllerSchema but was " + loadedDTO, loadedDTO instanceof ReplicationControllerSchema);
-        ReplicationControllerSchema replicationController = (ReplicationControllerSchema) loadedDTO;
+        ReplicationControllerSchema rc = (ReplicationControllerSchema) loadedDTO;
+
+        assertThat(rc.getLabels()).isEqualTo(labels);
+        ControllerDesiredState desiredState = rc.getDesiredState();
+        assertThat(desiredState.getReplicas()).isEqualTo(replicaCount);
+        assertThat(desiredState.getReplicaSelector()).isEqualTo(labels);
+
+        // TODO expose labels on pod template
+        //assertThat(desiredState.getPodTemplate()).isEqualTo(labels);
     }
+
 
 }
