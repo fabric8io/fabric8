@@ -85,6 +85,7 @@ public class TemplateGenerator {
             variables.put("labels", labels);
             variables.put("ports", config.getPorts());
             variables.put("replicaCount", config.getReplicaCount());
+            variables.put("environmentVariables", config.getEnvironmentVariables());
 
             try {
                 CompiledTemplate compiledTemplate = TemplateCompiler.compileTemplate(in, parserContext);

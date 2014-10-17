@@ -16,6 +16,9 @@
             {
               "name": "@{containerName}",
               "image": "@{docker_dataImage}",
+              "env": {@foreach{env : environmentVariables.entrySet()}
+                "@{env.key}": "@{env.value}"@end{", "}
+              },
               "ports": [@foreach{port : ports}
                 {
 @if{port.containerPort != null}                  "containerPort": @{port.containerPort}@if{port.hostPort != null},@end{}@end{}

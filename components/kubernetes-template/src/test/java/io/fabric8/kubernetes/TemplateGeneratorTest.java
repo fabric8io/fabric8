@@ -66,6 +66,10 @@ public class TemplateGeneratorTest {
         labels.put("drink", "beer");
         dto.setLabels(labels);
 
+        Map<String, String> env = new HashMap<>();
+        env.put("CHEESE", "EDAM");
+        dto.setEnvironmentVariables(env);
+
         TemplateGenerator generator = new TemplateGenerator(dto);
         generator.generate(jsonFile);
 

@@ -74,14 +74,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
      * Whether or not we should generate the Kubernetes JSON file using the MVEL template if there is not one specified
      * in the build (usually in src/main/resources/kubernetes.json)
      */
-    @Parameter(property = "fabric8.generateZip", defaultValue = "true")
+    @Parameter(property = "fabric8.generateJson", defaultValue = "true")
     private boolean generateJson;
-
-    /**
-     * The ID prefix used in the generated Kubernetes JSON template
-     */
-    @Parameter(property = "fabric8.kubernetes.id", defaultValue = "${project.groupId}-${project.artifactId}-${project.version}")
-    private String kubernetesId;
 
     /**
      * The name label used in the generated Kubernetes JSON template
@@ -105,6 +99,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private Map<String, String> labels;
 
     /**
+     * The environment variables passed into the generated Kubernetes JSON template.
+     * <p/>
+     * If no value is explicitly configured in the maven plugin then we use all maven properties starting with "fabric8.env."
+     */
+    @Parameter()
+    private Map<String, String> environmentVariables;
+
+    /**
      * The ports passed into the generated Kubernetes JSON template.
      */
     @Parameter()
@@ -115,6 +117,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
      */
     @Parameter()
     private Map<String, Integer> defaultContainerPortMap;
+
+    /**
+     * The ID prefix used in the generated Kubernetes JSON template
+     */
+    @Parameter(property = "fabric8.replicas", defaultValue = "1")
+    private Integer replicaCount;
 
 
     @Override
@@ -165,6 +173,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
             config.setPorts(getPorts());
             config.setName(getKubernetesName());
             config.setContainerName(getKubernetesContainerName());
+            config.setReplicaCount(replicaCount);
+            config.setEnvironmentVariables(getEnvironmentVariables());
 
             List<ClassLoader> classLoaders = Lists.newArrayList(Thread.currentThread().getContextClassLoader(),
                     getTestClassLoader(),
@@ -306,6 +316,16 @@ public class JsonMojo extends AbstractFabric8Mojo {
             labels = findPropertiesWithPrefix("fabric8.label.");
         }
         return labels;
+    }
+
+    public Map<String, String> getEnvironmentVariables() {
+        if (environmentVariables == null) {
+            environmentVariables = new HashMap<>();
+        }
+        if (environmentVariables.isEmpty()) {
+            environmentVariables = findPropertiesWithPrefix("fabric8.env.");
+        }
+        return environmentVariables;
     }
 
     protected Map<String, String> findPropertiesWithPrefix(String prefix) {

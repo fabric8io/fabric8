@@ -83,6 +83,67 @@ Or to push the docker image to your local docker registry
 
     docker push $DOCKER_REGISTRY/mydemo/war-camel-servlet:2.0.0-SNAPSHOT
 
+### Generating the JSON
+
+An [App](apps.html) requires a **kubernetes.json** file which you can hand craft yourself; or you can put it into **src/main/resources** so that you can use Maven's default resource filtering to replace any project properties (e.g. the group ID, artifact ID, version number).
+
+The **fabric8:json** goal will either copy or generate the JSON and then add it to your build so that the JSON gets released along with your artifacts.
+
+    mvn fabric8:json
+    cat target/classes/kubernetes/json
+
+#### Properties for configuring the generation
+
+You can use maven properties to customize the generation of the JSON:
+
+<table class="table table-striped">
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>docker.dataImage</td>
+<td>Used by the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md">docker-maven-plugin</a> to define the output docker image name.</td>
+</tr>
+<tr>
+<td>fabric8.kubernetes.name</td>
+<td>The name of the application used in the id of the JSON and as a label.</td>
+</tr>
+<tr>
+<td>fabric8.kubernetes.kubernetesContainerName</td>
+<td>The docker container name of the application; if undefined it uses the lower case un-camelcased name.</td>
+</tr>
+<tr>
+<td>fabric8.generateJson</td>
+<td>If set to false then the generation of the JSON is disabled.</td>
+</tr>
+<tr>
+<td>fabric8.json.template</td>
+<td>The name of the MVEL template found on the classpath to use for the generation of the JSON.</td>
+</tr>
+<tr>
+<td>fabric8.replicas</td>
+<td>The number of pods to create for the <a href="http://fabric8.io/v2/replicationControllers.html">Replication Controller</a> if the plugin is generating the App JSON file.</td>
+</tr>
+<tr>
+<td>fabric8.env.FOO = BAR</td>
+<td>Defines the environment variable FOO and value BAR.</td>
+</tr>
+<tr>
+<td>fabric8.label.FOO = BAR</td>
+<td>Defines the kubernetes label FOO and value BAR.</td>
+</tr>
+<tr>
+<td>fabric8.port.container.FOO = 1234</td>
+<td>Defines the port named FOO has a container port 1234.</td>
+</tr>
+<tr>
+<td>fabric8.port.host.FOO = 4567</td>
+<td>Defines the port named FOO has a host port 4567.</td>
+</tr>
+</table>
+
+
 ### Deploying
 
 Before deploying you need to make sure your docker image is available to Kubernetes. See above for how to do this. Any docker registry that is accessible to Kubernetes is supported.
@@ -152,12 +213,6 @@ The following maven property values are used to configure the behaviour of the m
 <tr>
 <td>docker.registry</td>
 <td>Used by the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md">docker-maven-plugin</a> to define the local docker registry to use (if not using the public docker registry).</td>
-</tr>
-
-<!--
-<tr>
-<td>fabric8.replicas</td>
-<td>The number of pods to create for the <a href="http://fabric8.io/v2/replicationControllers.html">Replication Controller</a> if the plugin is generating the App JSON file.</td>
 </tr>
 </table>
 
