@@ -46,6 +46,7 @@
     <module>fabric8-mq</module>
     <module>fabric8-mq-producer</module>
     <module>fabric8-mq-consumer</module>
+	<module>fabric8-mq-autoscaler</module>
   </modules>
 
   <build>
