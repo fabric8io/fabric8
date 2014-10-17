@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.fabric8.common.util.Files.recursiveDelete;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**

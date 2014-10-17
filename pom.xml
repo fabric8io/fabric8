@@ -104,6 +104,7 @@
         <arquillian-weld-ee-embedded.version>1.0.0.CR3</arquillian-weld-ee-embedded.version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
         <asm.version>5.0.3</asm.version>
+        <assertj.core.version>1.7.0</assertj.core.version>
         <blueprint-web.version>1.0.0</blueprint-web.version>
         <bndlib.version>2.1.0</bndlib.version>
         <bouncycastle.version>1.49</bouncycastle.version>
@@ -158,7 +159,6 @@
         <felix-utils.version>1.6.0</felix-utils.version>
         <felix.obr.version>1.0.2</felix.obr.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
-        <fest.version>2.0M10</fest.version>
         <geronimo-annotation.version>1.1.1</geronimo-annotation.version>
         <geronimo-connector.version>3.1.1</geronimo-connector.version>
         <geronimo-ejb-3-1-spec.version>1.0.2</geronimo-ejb-3-1-spec.version>
@@ -2729,9 +2729,9 @@
                 <version>${junit.version}</version>
             </dependency>
             <dependency>
-                 <groupId>org.easytesting</groupId>
-                 <artifactId>fest-assert-core</artifactId>
-                 <version>${fest.version}</version>
+              <groupId>org.assertj</groupId>
+              <artifactId>assertj-core</artifactId>
+              <version>${assertj.core.version}</version>
             </dependency>
 
             <dependency>
