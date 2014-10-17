@@ -77,9 +77,12 @@ public class TemplateGenerator {
                 addIfNotDefined(variables, DOCKER_DATA_IMAGE, dockerImage);
             }
             Objects.notNull(variables.get(DOCKER_DATA_IMAGE), "no docker.dataImage property specified!");
-            addIfNotDefined(variables, "name", config.getName());
+            String name = config.getName();
+            addIfNotDefined(variables, "name", name);
             addIfNotDefined(variables, "containerName", config.getContainerName());
-            variables.put("labels", config.getLabels());
+            Map<String, String> labels = config.getLabels();
+            addIfNotDefined(labels, "name", name);
+            variables.put("labels", labels);
             variables.put("ports", config.getPorts());
             variables.put("replicaCount", config.getReplicaCount());
 
@@ -104,9 +107,9 @@ public class TemplateGenerator {
         return null;
     }
 
-    protected static void addIfNotDefined(Map<String, Object> variables, String key, String value) {
-        if (!variables.containsKey(key)) {
-            variables.put(key, value);
+    protected static <T> void addIfNotDefined(Map<String, T> map, String key, T value) {
+        if (!map.containsKey(key)) {
+            map.put(key, value);
         }
     }
 }

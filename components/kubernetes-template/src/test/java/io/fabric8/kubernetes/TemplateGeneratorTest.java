@@ -46,10 +46,12 @@ public class TemplateGeneratorTest {
         recursiveDelete(jsonFile);
 
 
-        CreateAppDTO dto = new CreateAppDTO();
-        dto.setName("MyApp");
-        dto.setDockerImage("fabric8/hawtio");
+        String name = "MyApp";
         int replicaCount = 3;
+
+        CreateAppDTO dto = new CreateAppDTO();
+        dto.setName(name);
+        dto.setDockerImage("fabric8/hawtio");
         dto.setReplicaCount(replicaCount);
 
         List<Port> ports = new ArrayList<>();
@@ -66,6 +68,8 @@ public class TemplateGeneratorTest {
 
         TemplateGenerator generator = new TemplateGenerator(dto);
         generator.generate(jsonFile);
+
+        labels.put("name", name);
 
         String json = IOHelpers.readFully(jsonFile);
         System.out.println("Generated: " + json);
