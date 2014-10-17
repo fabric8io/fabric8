@@ -161,7 +161,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 }
             }
             config.setLabels(getLabels());
-            config.setVariables(variables);
+            config.setTemplateVariables(variables);
             config.setPorts(getPorts());
             config.setName(getKubernetesName());
             config.setContainerName(getKubernetesContainerName());

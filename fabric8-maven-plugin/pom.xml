@@ -44,8 +44,11 @@
       <dependency>
           <groupId>io.fabric8</groupId>
           <artifactId>kubernetes-template</artifactId>
-          <version>${project.version}</version>
       </dependency>
+    <dependency>
+      <groupId>org.mvel</groupId>
+      <artifactId>mvel2</artifactId>
+    </dependency>
 
     <dependency>
         <groupId>io.fabric8</groupId>

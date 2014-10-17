@@ -36,7 +36,7 @@ public class GenerateTemplateDTO {
     protected Map<String, String> labels;
     protected Map<String, String> environmentVariables;
     protected List<Port> ports;
-    protected Map<String, Object> variables;
+    protected Map<String, Object> templateVariables;
     private Integer replicaCount;
 
     public String getDockerImage() {
@@ -58,15 +58,15 @@ public class GenerateTemplateDTO {
         this.template = template;
     }
 
-    public Map<String, Object> getVariables() {
-        if (variables == null) {
-            variables = new HashMap<>();
+    public Map<String, Object> getTemplateVariables() {
+        if (templateVariables == null) {
+            templateVariables = new HashMap<>();
         }
-        return variables;
+        return templateVariables;
     }
 
-    public void setVariables(Map<String, Object> variables) {
-        this.variables = variables;
+    public void setTemplateVariables(Map<String, Object> templateVariables) {
+        this.templateVariables = templateVariables;
     }
 
     public Map<String, String> getEnvironmentVariables() {

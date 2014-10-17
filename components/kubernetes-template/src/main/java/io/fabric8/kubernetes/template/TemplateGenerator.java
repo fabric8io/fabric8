@@ -72,7 +72,7 @@ public class TemplateGenerator {
             }
             ParserContext parserContext = new ParserContext();
             Map<String, Object> variables = new HashMap<>();
-            variables.putAll(config.getVariables());
+            variables.putAll(config.getTemplateVariables());
             if (Strings.isNotBlank(dockerImage)) {
                 addIfNotDefined(variables, DOCKER_DATA_IMAGE, dockerImage);
             }

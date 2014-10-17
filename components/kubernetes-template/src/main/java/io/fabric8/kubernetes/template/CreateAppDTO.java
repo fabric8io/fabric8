@@ -17,13 +17,7 @@
  */
 package io.fabric8.kubernetes.template;
 
-import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
-import io.fabric8.kubernetes.api.model.Port;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Represents a DTO which can be posted as JSON for creating a new application via a wizard or command line tool
@@ -47,7 +41,7 @@ public class CreateAppDTO extends GenerateTemplateDTO {
                 ", ports=" + ports +
                 ", summaryMarkdown='" + summaryMarkdown + '\'' +
                 ", readMeMarkdown='" + readMeMarkdown + '\'' +
-                ", variables=" + variables +
+                ", templateVariables=" + templateVariables +
                 '}';
     }
 
