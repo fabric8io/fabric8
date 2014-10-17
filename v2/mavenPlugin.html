@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1413460029743">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1413504222767">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -418,16 +418,16 @@
   &lt;/activeProfiles&gt;
 &lt;/settings&gt;
 </code></pre><h3 id="adding-the-plugin-to-your-project"><a name="adding-the-plugin-to-your-project" class="anchor" href="#adding-the-plugin-to-your-project"><span class="fa fa-link"></span></a>Adding the plugin to your project</h3>
-<p>To enable this maven plugin and to automatically release the <a href="apps.html">App JSON file</a> as part of your build add this to your pom.xml:</p>
+<p>To enable this maven plugin and to automatically generate/copy and release the <a href="apps.html">App JSON file</a> as part of your build add this to your pom.xml:</p>
 <pre><code>  &lt;plugin&gt;
     &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
     &lt;artifactId&gt;fabric8-maven-plugin&lt;/artifactId&gt;
     &lt;version&gt;${fabric.version}&lt;/version&gt;
     &lt;executions&gt;
       &lt;execution&gt;
-        &lt;id&gt;attach-json&lt;/id&gt;
+        &lt;id&gt;json&lt;/id&gt;
         &lt;goals&gt;
-          &lt;goal&gt;attach-json&lt;/goal&gt;
+          &lt;goal&gt;json&lt;/goal&gt;
         &lt;/goals&gt;
       &lt;/execution&gt;
     &lt;/executions&gt;
