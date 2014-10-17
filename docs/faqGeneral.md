@@ -60,6 +60,18 @@ No, not anymore. Starting from v2 Fabric8 uses [app](http://fabric8.io/v2/apps.h
 to configure deployment of the managed application. More detailed configuration (like properties or YAML files) can be 
 added to the file system of the application's Docker image.
 
+#### Is Git repository still used to store the applications' configuration?
+
+Applications' configuration isn't stored in Git repository as it used to be in Fabric8 v1. As Fabric8 v2 doesn't use 
+profiles (but app templates instead), the Git repository is not needed anymore. You can just store application's configuration (app file)
+in the Maven project and use the [Fabric8 Maven plugin to start](http://fabric8.io/v2/mavenPlugin.html#running) the application in Kubernetes 
+without keeping the configuration in any central repository (like Git).
+
+However keeping app files in Git for easier configuration management can be useful. That's why Hawt.io provides this
+functionality for you. You can push your configuration to the Hawt.io Git repository via 
+[fabric8:deploy](http://fabric8.io/v2/mavenPlugin.html#deploying) Maven goal. Fabric8 uses [App Zip](http://fabric8.io/v2/appzip.html)
+packaging format to distribute the configuration between the various environments.
+
 #### Is Fabric8 server required to provision applications?
 
 No, not anymore. Starting from Fabric8 v2 Kubernetes is responsible for providing the runtime registry for the
