@@ -48,7 +48,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.1" data-basepath="." data-revision="1413504222767">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.1" data-basepath="." data-revision="1413555921999">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -437,9 +437,13 @@ added to the file system of the application&apos;s Docker image.</p>
 managed applications. It means that you don&apos;t have to start any dedicated Fabric8 deamon. Tools like <a href="http://fabric8.io/v2/mavenPlugin.html" target="_blank">Fabric8 Maven plugin</a>
 or <a href="http://hawt.io" target="_blank">Hawt.io</a> can connect directly to the Kubernetes and deploy/manage it.</p>
 <h4 id="if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell-"><a name="if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell-" class="anchor" href="#if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell-"><span class="fa fa-link"></span></a>If there is no Fabric8 server, how can I use Fabric8 shell?</h4>
-<p>The recommended shell for Fabric8 v2 is <a href="http://forge.jboss.org" target="_blank">JBoss Forge</a> shell.</p>
+<p>For the Fabric8 v2 development activities, the recommended tool is <a href="http://forge.jboss.org" target="_blank">JBoss Forge</a> with the 
+<a href="https://github.com/fabric8io/fabric8/tree/2.0/forge-addons" target="_blank">Fabric8 add-on</a>. For provisioning purposes (like creating 
+containers/services or changing the replica sizes) the default shell is OpenShift/Kube. Kube will be included in 
+<a href="http://www.redhat.com/en/technologies/linux-platforms/enterprise-linux" target="_blank">Red Hat Enterprise Linux</a> 
+and OpenShift V3 and is the standard shell for provisioning any kind of the container.</p>
 <h4 id="deprecations"><a name="deprecations" class="anchor" href="#deprecations"><span class="fa fa-link"></span></a>Deprecations</h4>
-<p>FAB (Fuse Application Bundles) has been deprecated for the 1.2 release and removed form 2.x.</p>
+<p>FAB (Fuse Application Bundles) has been deprecated for the 1.2 release and removed from 2.x.</p>
 
                     
                     </section>
