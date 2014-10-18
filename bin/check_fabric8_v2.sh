@@ -20,16 +20,18 @@ export KUBERNETES_MASTER="http://$OPENSHIFT_IP:8080"
 export DOCKER_REGISTRY="$DOCKER_IP:5000"
 export DOCKER_HOST="tcp://$DOCKER_IP:2375"
 
-sed 's/dockerhost/'"$DOCKER_IP"'/g' fabric8.json > modifiedFabric8.json
+sed 's/dockerhost/'"$DOCKER_IP"'/g' ../apps/fabric8.json > modifiedFabric8.json
 sed -i 's/openshifthost/'"$OPENSHIFT_IP"'/g' modifiedFabric8.json
 
-# run openshift 
+echo "INFO: Starting Openshift:"
 openshift start --listenAddr="$OPENSHIFT_IP:8080" > openshift.log 2> openshift.log & 
 
-while  ! curl -m 10  "http://$OPENSHIFT_IP:8080";  do echo "DEBUG: Openshift REST layer not running yet." ; sleep 2s; done; echo "INFO: Openshift REST layer ready."
+echo "INFO: Checking for Openshift Availability:"
+while  ! curl -s -m 10  "http://$OPENSHIFT_IP:8080" > /dev/null;  do echo "DEBUG: Openshift REST layer not running yet." ; sleep 2s; done; echo "INFO: Openshift REST layer ready."
 
 echo "INFO Checking communications from Docker Containers to Host"
-docker run --rm -it base bash -c "echo probe > /dev/tcp/$OPENSHIFT_IP/8080"
+set +e
+docker run --rm -it fabric8/hawtio bash -c "echo probe > /dev/tcp/$OPENSHIFT_IP/8080"
 
 if [[ $?  != 0 ]] ; then
   echo "ERROR: Docker containers have problems to communicate with Openshift Rest API"
@@ -56,6 +58,7 @@ if [[ $?  != 0 ]] ; then
   echo "       sudo iptables -I FORWARD -i docker0 -o docker0 -j ACCEPT"
   exit 1
 else
+  set -e
   echo "INFO: Automated checks PASSED"
   echo "INFO: Provisioning Fabric8"
   openshift kube apply -c modifiedFabric8.json 
