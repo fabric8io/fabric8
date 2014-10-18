@@ -1,0 +1,41 @@
+{
+  "apiVersion": "v1beta1",
+  "creationTimestamp": null,
+  "desiredState": {
+    "podTemplate": {
+      "desiredState": {
+        "manifest": {
+          "containers": [
+            {
+              "image": "registry",
+              "name": "registry-container",
+              "ports": [
+                {
+                  "hostPort": 5000,
+                  "containerPort": 5000,
+                  "protocol": "TCP"
+                }
+              ]
+            }
+          ],
+          "id": "registryPod",
+          "version": "v1beta1",
+          "volumes": null
+        },
+        "restartpolicy": {}
+      },
+      "labels": {
+        "name": "registryPod"
+      }
+    },
+    "replicaSelector": {
+      "name": "registryPod"
+    },
+    "replicas": 1
+  },
+  "id": "registryController",
+  "kind": "ReplicationController",
+  "labels": {
+    "name": "registryController"
+  }
+}

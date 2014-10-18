@@ -1,0 +1,59 @@
+{
+  "apiVersion": "v1beta1",
+  "creationTimestamp": null,
+  "desiredState": {
+    "podTemplate": {
+      "desiredState": {
+        "manifest": {
+          "containers": [
+            {
+              "image": "fabric8/hawtio",
+              "name": "hawtio-container",
+              "env": [
+                {
+                  "name": "KUBERNETES_MASTER",
+                  "value": "http://openshifthost:8080"
+                },
+                {
+                  "name": "DOCKER_REGISTRY",
+                  "value": "localhost:5000"
+                },
+                {
+                  "name": "hawtio_config_cloneOnStartup",
+                  "value": "false"
+                },
+                {
+                  "name": "TODO_hawtio_config_importURLs",
+                  "value": "mvn:io.fabric8/wiki/2.0.0-SNAPSHOT/zip"
+                }
+              ],
+              "ports": [
+                {
+                  "hostPort": 8080,
+                  "containerPort": 8080,
+                  "protocol": "TCP"
+                }
+              ]
+            }
+          ],
+          "id": "hawtioPod",
+          "version": "v1beta1",
+          "volumes": null
+        },
+        "restartpolicy": {}
+      },
+      "labels": {
+        "name": "hawtioPod"
+      }
+    },
+    "replicaSelector": {
+      "name": "hawtioPod"
+    },
+    "replicas": 1
+  },
+  "id": "hawtioController",
+  "kind": "ReplicationController",
+  "labels": {
+    "name": "hawtioController"
+  }
+}
