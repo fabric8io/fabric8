@@ -64,8 +64,8 @@ public class TestMQAutoScaler extends Thread {
     private int numberOfConsumers = 2;
     private int numberOfProducers = 2;
     private int numberOfMessagesInABatch = 1000;
-    private int numberOfDestinations = 10;
-    private int rumTimeMinutes = 1;
+    private int numberOfDestinations = 5;
+    private int rumTimeMinutes = 10;
     private String destinationName = "test.scaling";
 
     private AtomicLong producerMessageCount = new AtomicLong();
@@ -267,6 +267,7 @@ public class TestMQAutoScaler extends Thread {
             TextMessage textMessage = session.createTextMessage(connection.getClientID() + "batch:" + batch + " test message " + i);
             producer.send(textMessage);
             producerMessageCount.incrementAndGet();
+            Thread.sleep(1000);
         }
         session.close();
     }
@@ -318,6 +319,7 @@ public class TestMQAutoScaler extends Thread {
             testMQAutoScaler.setRumTimeMinutes(Integer.valueOf(RUNNING_TIME));
             testMQAutoScaler.init();
             testMQAutoScaler.start();
+
             testMQAutoScaler.join();
             testMQAutoScaler.shutDown();
             System.err.println("");

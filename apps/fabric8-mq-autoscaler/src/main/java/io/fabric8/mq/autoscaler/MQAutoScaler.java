@@ -175,14 +175,19 @@ public class MQAutoScaler implements MQAutoScalerMBean {
     }
 
     void distributeLoad(List<BrokerVitalSigns> brokers) {
-        if (!brokers.isEmpty() && brokers.size() < getMaximumGroupSize()) {
-            boolean scaleBrokers = false;
+        int totalConnections = 0;
+        int totalDestinations = 0;
+        if (!brokers.isEmpty()) {
+            boolean brokerLimitsExceeded = false;
+            boolean destinationLimitsExceeded = false;
             for (BrokerVitalSigns brokerVitalSigns : brokers) {
-                scaleBrokers |= brokerVitalSigns.areLimitsExceeded(brokerLimits);
-                scaleBrokers |= brokerVitalSigns.areLimitsExceeded(destinationLimits);
+                brokerLimitsExceeded = brokerVitalSigns.areLimitsExceeded(brokerLimits);
+                destinationLimitsExceeded = brokerVitalSigns.areLimitsExceeded(destinationLimits);
+                totalConnections += brokerVitalSigns.getTotalConnections();
+                totalDestinations += brokerVitalSigns.getTotalDestinations();
             }
 
-            if (scaleBrokers) {
+            if (brokerLimitsExceeded || destinationLimitsExceeded) {
 
                 try {
                     requestDesiredBrokerNumber(getBrokerName(), brokers.size() + 1);
@@ -190,29 +195,41 @@ public class MQAutoScaler implements MQAutoScalerMBean {
                     LOG.error("Failed to request more brokers ", e);
                 }
 
-                //bounce the brokers
-                for (BrokerVitalSigns broker : brokers) {
-                    try {
-                        bounceBroker(broker);
-                    } catch (Exception e) {
-                        LOG.error("Failed to bounce broker connectors for " + broker.getBrokerName(), e);
+                if (brokers.size() < getMaximumGroupSize()) {
+                    if (destinationLimitsExceeded) {
+                        //we can't do much - other than distribute the load for all clients
+                        //at this point
+                        //bounce the brokers
+                        for (BrokerVitalSigns broker : brokers) {
+                            try {
+                                bounceBroker(broker);
+                            } catch (Exception e) {
+                                LOG.error("Failed to bounce broker connectors for " + broker.getBrokerName(), e);
+                            }
+                        }
+                    } else {
+                        //connection limits exceeded
+                        int newSize = brokers.size() + 1;
+                        int averageSize = (totalConnections / newSize) + 1;
+                        for (BrokerVitalSigns brokerVitalSigns : brokers) {
+                            try {
+                                bounceConnections(brokerVitalSigns, (brokerVitalSigns.getTotalConnections() - averageSize));
+                            } catch (Exception e) {
+                                LOG.error("Failed to stop client connections", e);
+                            }
+                        }
                     }
                 }
-            } else {
+            } else if (brokers.size() > getMinimumGroupSize()) {
                 //see if we have spare capacity - so we can remove a broker(s)
-                int totalConnections = 0;
-                int totalDestinations = 0;
-                for (BrokerVitalSigns brokerVitalSigns : brokers) {
-                    totalConnections += brokerVitalSigns.getTotalConnections();
-                    totalDestinations += brokerVitalSigns.getTotalDestinations();
-                }
-                boolean connectionDensity = ((totalConnections / brokers.size()) + 1) < brokerLimits.getConnectionsLimit();
-                boolean destinationDensity = ((totalDestinations / brokers.size()) + 1) < brokerLimits.getDestinationsLimit();
-                if (connectionDensity && destinationDensity) {
+
+                boolean spareConnectionCapacity = ((totalConnections / brokers.size()) + 1) < brokerLimits.getConnectionsLimit();
+                boolean spareDestinationCapacity = ((totalDestinations / brokers.size()) + 1) < brokerLimits.getDestinationsLimit();
+                if (spareConnectionCapacity && spareDestinationCapacity) {
                     LOG.info("Scaling down brokers ");
 
                     try {
-                        requestDesiredBrokerNumber(getBrokerName(), brokers.size() + 1);
+                        requestDesiredBrokerNumber(getBrokerName(), brokers.size() - 1);
                     } catch (Exception e) {
                         LOG.error("Failed to request more brokers ", e);
                     }
@@ -361,11 +378,55 @@ public class MQAutoScaler implements MQAutoScalerMBean {
         }
 
         for (String key : roots) {
-            J4pResponse<J4pExecRequest> result = broker.getClient().execute(new J4pExecRequest(key, "stop"));
+            broker.getClient().execute(new J4pExecRequest(key, "stop"));
         }
         Thread.sleep(1000);
         for (String key : roots) {
-            J4pResponse<J4pExecRequest> result = broker.getClient().execute(new J4pExecRequest(key, "start"));
+            broker.getClient().execute(new J4pExecRequest(key, "start"));
+        }
+
+    }
+
+    private void bounceConnections(BrokerVitalSigns broker, int number) throws Exception {
+        ObjectName root = broker.getRoot();
+        Hashtable<String, String> props = root.getKeyPropertyList();
+        props.put("connector", "clientConnectors");
+        props.put("connectorName", "*");
+        String objectName = root.getDomain() + ":" + getOrderedProperties(props);
+
+        /**
+         * not interested in StatisticsEnabled, just need a real attribute so we can get the root which we
+         * can execute against
+         */
+
+        List<String> connectors = new ArrayList<>();
+        J4pResponse<J4pReadRequest> response = broker.getClient().execute(new J4pReadRequest(objectName, "StatisticsEnabled"));
+        JSONObject value = response.getValue();
+        for (Object key : value.keySet()) {
+            connectors.add(key.toString());
+        }
+
+        List<String> targets = new ArrayList<>();
+        for (String key : connectors) {
+            ObjectName on = new ObjectName(key);
+            Hashtable<String, String> p = on.getKeyPropertyList();
+            p.put("connectionName", "*");
+            p.put("connectionViewType", "clientId");
+            String clientObjectName = root.getDomain() + ":" + getOrderedProperties(p);
+            ObjectName on1 = new ObjectName(clientObjectName);
+            J4pResponse<J4pReadRequest> response1 = broker.getClient().execute(new J4pReadRequest(on1, "Slow"));
+            JSONObject value1 = response1.getValue();
+            for (Object k : value1.keySet()) {
+                targets.add(k.toString());
+            }
+        }
+
+        int count = 0;
+        for (String key : targets) {
+            broker.getClient().execute(new J4pExecRequest(key, "stop"));
+            if (++count >= number) {
+                break;
+            }
         }
 
     }
