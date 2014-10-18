@@ -1,0 +1,11 @@
+{
+  "apiVersion": "v1beta1",
+  "containerPort": 0,
+  "creationTimestamp": null,
+  "id": "hawtio-service",
+  "kind": "Service",
+  "port": 8080,
+  "selector": {
+    "name": "hawtioPod"
+  }
+}
