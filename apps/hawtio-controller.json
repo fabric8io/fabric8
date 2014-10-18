@@ -12,7 +12,7 @@
               "env": [
                 {
                   "name": "KUBERNETES_MASTER",
-                  "value": "http://openshifthost:8080"
+                  "value": "https://10.245.1.2"
                 },
                 {
                   "name": "DOCKER_REGISTRY",
