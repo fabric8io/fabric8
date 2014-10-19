@@ -7,24 +7,24 @@
         "manifest": {
           "containers": [
             {
-              "image": "localhost:5001/registry",
-              "name": "registry-container",
+              "image": "registry",
+              "name": "registry-mirror-container",
               "ports": [
                 {
                   "hostPort": 5000,
                   "containerPort": 5000,
                   "protocol": "TCP"
                 }
-              ]
+              ],
+              "env": [
+                { "name": "SETTINGS_FLAVOR", "value": "local" },
+                { "name": "STORAGE_PATH", "value": "/registry-data" },
+                { "name": "MIRROR_SOURCE", "value": "https://registry-1.docker.io" },
+                { "name": "MIRROR_SOURCE_INDEX", "value": "https://index.docker.io" }
+              ],
             }
           ],
-          "env": [
-            { "name": "SETTINGS_FLAVOR", "value": "local" },
-            { "name": "STORAGE_PATH", "value": "/registry-data" },
-            { "name": "SEARCH_BACKEND", "value": "sqlalchemy" },
-            { "name": "SQLALCHEMY_INDEX_DATABASE", "value": "sqlite:////registry-data/docker-registry.db" }
-          ],
-          "id": "registryPod",
+          "id": "registryMirrorPod",
           "version": "v1beta1",
           "volumes": [
           ]
@@ -32,17 +32,17 @@
         "restartpolicy": {}
       },
       "labels": {
-        "name": "registryPod"
+        "name": "registryMirrorPod"
       }
     },
     "replicaSelector": {
-      "name": "registryPod"
+      "name": "registryMirrorPod"
     },
     "replicas": 1
   },
-  "id": "registryController",
+  "id": "registryMirrorController",
   "kind": "ReplicationController",
   "labels": {
-    "name": "registryController"
+    "name": "registryMirrorController"
   }
 }
