@@ -17,6 +17,7 @@ package io.fabric8.maven;
 
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Lists;
+import io.fabric8.common.util.PropertiesHelper;
 import io.fabric8.common.util.Strings;
 import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.Port;
@@ -248,8 +249,10 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
         if (ports.isEmpty()) {
             Map<String,Port> portMap = new HashMap<>();
-            Map<String, String> hostPorts = findPropertiesWithPrefix(FABRIC8_PORT_HOST_PREFIX);
-            Map<String, String> containerPorts = findPropertiesWithPrefix(FABRIC8_PORT_CONTAINER_PREFIX);
+            Properties properties1 = getProject().getProperties();
+            Map<String, String> hostPorts = PropertiesHelper.findPropertiesWithPrefix(properties1, FABRIC8_PORT_HOST_PREFIX);
+            Properties properties = getProject().getProperties();
+            Map<String, String> containerPorts = PropertiesHelper.findPropertiesWithPrefix(properties, FABRIC8_PORT_CONTAINER_PREFIX);
 
             for (Map.Entry<String, String> entry : containerPorts.entrySet()) {
                 String name = entry.getKey();
@@ -323,7 +326,8 @@ public class JsonMojo extends AbstractFabric8Mojo {
             labels = new HashMap<>();
         }
         if (labels.isEmpty()) {
-            labels = findPropertiesWithPrefix("fabric8.label.");
+            Properties properties = getProject().getProperties();
+            labels = PropertiesHelper.findPropertiesWithPrefix(properties, "fabric8.label.");
         }
         return labels;
     }
@@ -354,24 +358,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
             environmentVariables.addAll(envMap.values());
         }
         return environmentVariables;
-    }
-
-    protected Map<String, String> findPropertiesWithPrefix(String prefix) {
-        Map<String, String> answer = new HashMap<>();
-        Properties properties = getProject().getProperties();
-        Set<Map.Entry<Object, Object>> entries = properties.entrySet();
-        for (Map.Entry<Object, Object> entry : entries) {
-            Object value = entry.getValue();
-            Object key = entry.getKey();
-            if (key instanceof String && value != null) {
-                String keyText = key.toString();
-                if (keyText.startsWith(prefix)) {
-                    String newKey = keyText.substring(prefix.length());
-                    answer.put(newKey, value.toString());
-                }
-            }
-        }
-        return answer;
     }
 
     public void setLabels(Map<String, String> labels) {

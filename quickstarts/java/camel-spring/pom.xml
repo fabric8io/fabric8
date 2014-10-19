@@ -46,7 +46,10 @@
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
+
+    <!-- maven plugin versions -->
     <camel.version>2.14.0</camel.version>
+    <jimagezip.version>2.0.0-SNAPSHOT</jimagezip.version>
 
     <!-- fabric8 configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
@@ -54,6 +57,10 @@
     <fabric8.label.container>java</fabric8.label.container>
     <fabric8.label.group>quickstarts</fabric8.label.group>
     <fabric8.iconRef>icons/camel.svg</fabric8.iconRef>
+
+    <!-- jimagezip properties -->
+    <docker.baseImage>fabric8/java</docker.baseImage>
+    <docker.env.MAIN>org.apache.camel.spring.Main</docker.env.MAIN>
   </properties>
 
   <dependencyManagement>
@@ -233,6 +240,27 @@
             <groupId>org.jolokia</groupId>
             <artifactId>docker-maven-plugin</artifactId>
             <version>${docker.maven.plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>jimagezip</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>io.jimagezip</groupId>
+            <artifactId>jimagezip-maven-plugin</artifactId>
+            <version>${jimagezip.version}</version>
             <executions>
               <execution>
                 <goals>

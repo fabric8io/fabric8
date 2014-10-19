@@ -15,8 +15,10 @@
  */
 package io.fabric8.common.util;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Helper methods for extracting values form a Properties object
@@ -44,5 +46,26 @@ public class PropertiesHelper {
         Properties properties = new Properties();
         properties.putAll(map);
         return getLong(properties, key, defaultValue);
+    }
+
+    /**
+     * Returns the map of entries in the properties object which have keys starting with the given prefix, removing the prefix
+     * from the returned map
+     */
+    public static Map<String, String> findPropertiesWithPrefix(Properties properties, String prefix) {
+        Map<String, String> answer = new HashMap<>();
+        Set<Map.Entry<Object, Object>> entries = properties.entrySet();
+        for (Map.Entry<Object, Object> entry : entries) {
+            Object value = entry.getValue();
+            Object key = entry.getKey();
+            if (key instanceof String && value != null) {
+                String keyText = key.toString();
+                if (keyText.startsWith(prefix)) {
+                    String newKey = keyText.substring(prefix.length());
+                    answer.put(newKey, value.toString());
+                }
+            }
+        }
+        return answer;
     }
 }
