@@ -23,11 +23,11 @@
   <parent>
     <groupId>io.fabric8.quickstarts</groupId>
     <artifactId>fabric8-quickstarts-karaf-cxf-parent</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0.redhat-034</version>
   </parent>
 
   <artifactId>karaf-cxf-camel-cxf-contract-first</artifactId>
-  <version>1.2.0-SNAPSHOT</version>
+  <version>1.2.0.redhat-034</version>
   <packaging>bundle</packaging>
   <name>Fabric8 :: Quickstarts :: Karaf :: CXF :: Camel CXF Contract First</name>
   <description>Creates a web service using the WSDL contract first</description>
@@ -38,10 +38,10 @@
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
     <maven.compiler.target>1.7</maven.compiler.target>
     <maven.compiler.source>1.7</maven.compiler.source>
-    <cxf-version>3.0.2</cxf-version>
+    <cxf-version>3.0.2.redhat-620034</cxf-version>
     <!-- the version of the BOM, defining all the dependency versions -->
-    <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
-    <fabric.version>1.2.0-SNAPSHOT</fabric.version>
+    <fabric8.bom.version>1.2.0.redhat-034</fabric8.bom.version>
+    <fabric.version>1.2.0.redhat-034</fabric.version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-karaf-cxf-camel.cxf.contract.first</fabric8.profile>

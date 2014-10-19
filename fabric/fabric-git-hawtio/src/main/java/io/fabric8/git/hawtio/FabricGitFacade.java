@@ -323,6 +323,10 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         GitHelpers.createOrCheckoutBranch(git, branch, "origin");
     }
 
+    public void uploadFile(String p1, String p2, boolean p3, String p4, String p5) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
     private <T> T gitReadOperation(GitOperation<T> gitop) {
         GitContext context = new GitContext();
         return gitDataStore.get().gitOperation(context, gitop, null);
