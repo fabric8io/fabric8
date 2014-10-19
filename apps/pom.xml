@@ -35,7 +35,9 @@
   <properties>
     <activemq.host.port>6161</activemq.host.port>
     <activemq.container.port>6162</activemq.container.port>
+    <activemq.container.host>6161</activemq.container.host>
     <activemq.service.port>6163</activemq.service.port>
+
 
     <docker.dataImage>${env.DOCKER_REGISTRY}/fabric8/${project.artifactId}:${project.version}</docker.dataImage>
     <fabric8.iconRef>icons/activemq.svg</fabric8.iconRef>

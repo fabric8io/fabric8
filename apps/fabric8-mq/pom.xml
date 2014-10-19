@@ -34,6 +34,20 @@
   <properties>
     <!-- Note: need to override guava version as leveldb has an issue with > 15.0 -->
     <guava.version>15.0</guava.version>
+
+    <!-- fabric8 configuration -->
+    <docker.dataImage>${env.DOCKER_REGISTRY}/fabric8/${project.artifactId}:${project.version}</docker.dataImage>
+    <fabric8.port.containerPort>${activemq.container.port}</fabric8.port.containerPort>
+    <fabric8.port.hostPort>${activemq.host.port}</fabric8.port.hostPort>
+    <fabric8.kubernetes.name>fabric8MQ</fabric8.kubernetes.name>
+    <fabric8.port.container.broker>${activemq.container.port}</fabric8.port.container.broker>
+    <fabric8.port.host.broker>${activemq.host.port}</fabric8.port.host.broker>
+    <fabric8.port.host.jolokia>9802</fabric8.port.host.jolokia>
+    <fabric8.env.name>AMQ_PORT</fabric8.env.name>
+    <fabric8.env.value>${activemq.container.port}</fabric8.env.value>
+    <fabric8.label.container>java</fabric8.label.container>
+    <fabric8.label.group>fabric8MQ</fabric8.label.group>
+    <fabric8.iconRef>icons/activemq.svg</fabric8.iconRef>
   </properties>
 
   <dependencies>
