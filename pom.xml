@@ -205,7 +205,7 @@
         <felix-scr-plugin-version>1.16.0</felix-scr-plugin-version>
         <felix-scr-version>1.8.2</felix-scr-version>
         <felix-utils-version>1.6.0</felix-utils-version>
-        <felix.obr.version>1.0.2</felix.obr.version>
+        <felix.obr.version>2.0.2</felix.obr.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
         <geronimo-annotation.version>1.1.1</geronimo-annotation.version>
         <geronimo-connector.version>3.1.1</geronimo-connector.version>
