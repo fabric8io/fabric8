@@ -72,14 +72,12 @@ sample application are appended to the log.
 
 The following information is divided into two sections, whether you are using the command line shell in fabric, or using the web console
 
-### Using the command line shell
+### Using the OpenShift Kube command line shell
 
-To stop and undeploy the example in fabric8:
+To stop and undeploy the example using the OpenShift Kube command line, enter the following commands at the console:
 
-1. Stop and delete the child container by entering the following command at the console:
-
-        fabric:container-stop mychild
-        fabric:container-delete mychild
+        openshift kube stop quickStartCamelSpringController
+        openshift kube rm quickStartCamelSpringController
 
 ### Using the web console
 
