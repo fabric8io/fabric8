@@ -1,0 +1,10 @@
+{
+  "apiVersion": "v1beta1",
+  "id": "registry-mirror-service",
+  "kind": "Service",
+  "port": 5001,
+  "selector": {
+    "name": "registryMirrorPod"
+  }
+}
+
