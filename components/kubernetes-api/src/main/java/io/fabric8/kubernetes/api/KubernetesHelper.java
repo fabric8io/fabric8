@@ -86,7 +86,6 @@ public class KubernetesHelper {
         }
     }
 
-
     /**
      * Returns the given json data as a DTO such as
      * {@link PodSchema}, {@link ReplicationControllerSchema} or
