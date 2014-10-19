@@ -99,7 +99,7 @@ This example comes with sample data which you can use to try this example
 
 ## Undeploy this example
 
-The following information is divded into two sections, whether you are using the command line shell in fabric, or using the web console
+The following information is divided into two sections, whether you are using the command line shell in fabric, or using the web console
 
 ### Using the command line shell
 
