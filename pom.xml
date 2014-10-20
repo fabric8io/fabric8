@@ -2228,6 +2228,11 @@
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
                 <version>${jackson2.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-jaxb-annotations</artifactId>
+                <version>${jackson2.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>

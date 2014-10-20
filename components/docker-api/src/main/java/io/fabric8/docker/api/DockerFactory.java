@@ -15,20 +15,11 @@
  */
 package io.fabric8.docker.api;
 
-import io.fabric8.docker.api.support.ProgressBodyReader;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
-import org.jboss.resteasy.plugins.providers.DefaultTextPlain;
-import org.jboss.resteasy.plugins.providers.FileProvider;
-import org.jboss.resteasy.plugins.providers.InputStreamProvider;
-import org.jboss.resteasy.plugins.providers.StringTextStar;
-import org.jboss.resteasy.plugins.providers.jackson.Jackson2JsonpInterceptor;
-import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 
-import javax.ws.rs.client.Client;
-
-//import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple helper class for creating instances of Docker
@@ -65,6 +56,7 @@ public class DockerFactory {
     }
 
     public Docker createDocker() {
+/*
         ResteasyProviderFactory providerFactory = ResteasyProviderFactory.getInstance();
         providerFactory.register(ResteasyJackson2Provider.class);
         providerFactory.register(Jackson2JsonpInterceptor.class);
@@ -80,11 +72,10 @@ public class DockerFactory {
         Client client = builder.build();
         ResteasyWebTarget target = (ResteasyWebTarget) client.target(address);
         return target.proxy(Docker.class);
-/*
+*/
         List<Object> providers = new ArrayList<Object>();
         providers.add(new JacksonJaxbJsonProvider());
         return JAXRSClientFactory.create(address, Docker.class, providers);
-*/
     }
 
     public String getDockerHost() {

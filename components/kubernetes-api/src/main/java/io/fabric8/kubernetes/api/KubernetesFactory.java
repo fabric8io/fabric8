@@ -19,23 +19,22 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import io.fabric8.kubernetes.api.model.IntOrString;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
-import org.jboss.resteasy.plugins.providers.DefaultTextPlain;
-import org.jboss.resteasy.plugins.providers.FileProvider;
-import org.jboss.resteasy.plugins.providers.InputStreamProvider;
-import org.jboss.resteasy.plugins.providers.StringTextStar;
-import org.jboss.resteasy.plugins.providers.jackson.Jackson2JsonpInterceptor;
-import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple helper class for creating instances of Kubernetes
@@ -72,44 +71,21 @@ public class KubernetesFactory {
     }
 
     public Kubernetes createKubernetes() {
-        ResteasyWebTarget target = createTarget();
-        return target.proxy(Kubernetes.class);
-
-/*
-        List<Object> providers = new ArrayList<Object>();
-        providers.add(new JacksonJaxbJsonProvider());
+        List<Object> providers = createProviders();
         return JAXRSClientFactory.create(address, Kubernetes.class, providers);
-*/
     }
 
     public KubernetesExtensions createKubernetesExtensions() {
-        ResteasyWebTarget target = createTarget();
-        return target.proxy(KubernetesExtensions.class);
-
-/*
-        List<Object> providers = new ArrayList<Object>();
-        providers.add(new JacksonJaxbJsonProvider());
+        List<Object> providers = createProviders();
         return JAXRSClientFactory.create(address, KubernetesExtensions.class, providers);
-*/
     }
 
-    protected ResteasyWebTarget createTarget() {
-        ResteasyProviderFactory providerFactory = ResteasyProviderFactory.getInstance();
-        providerFactory.register(JacksonIntOrStringConfig.class);
-        providerFactory.register(ResteasyJackson2Provider.class);
-        // handle JSON coming back as text/plain
-        providerFactory.register(PlainTextJacksonProvider.class);
-        providerFactory.register(Jackson2JsonpInterceptor.class);
-        providerFactory.register(StringTextStar.class);
-        providerFactory.register(DefaultTextPlain.class);
-        providerFactory.register(FileProvider.class);
-        providerFactory.register(InputStreamProvider.class);
-
-        ResteasyClientBuilder builder = new ResteasyClientBuilder();
-        builder.providerFactory(providerFactory);
-        builder.connectionPoolSize(Integer.parseInt(System.getProperty("docker.connection.pool", "3")));
-        Client client = builder.build();
-        return (ResteasyWebTarget) client.target(address);
+    protected List<Object> createProviders() {
+        List<Object> providers = new ArrayList<Object>();
+        providers.add(new JacksonJaxbJsonProvider());
+        providers.add(new PlainTextJacksonProvider());
+        providers.add(new JacksonIntOrStringConfig());
+        return providers;
     }
 
     /**
@@ -118,7 +94,7 @@ public class KubernetesFactory {
     @javax.ws.rs.ext.Provider
     @javax.ws.rs.Consumes({"text/plain"})
     @javax.ws.rs.Produces({"text/plain"})
-    public static class PlainTextJacksonProvider extends ResteasyJackson2Provider {
+    public static class PlainTextJacksonProvider extends JacksonJaxbJsonProvider {
         public PlainTextJacksonProvider() {
         }
 
@@ -130,7 +106,6 @@ public class KubernetesFactory {
             if (!answer && type.equals("text")) {
                 answer = super.hasMatchingMediaType(MediaType.APPLICATION_JSON_TYPE);
             }
-            System.out.println("PlainTextJacksonProvider called with type " + type + " subtype" + subtype + " and answer: " + answer);
             return answer;
         }
     }

@@ -67,43 +67,14 @@
       <artifactId>commons-lang</artifactId>
     </dependency>
 
-    <!--
-        the CXF 3.0 client
-    -->
-<!--
     <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>
       <artifactId>jackson-jaxrs-json-provider</artifactId>
-      <version>${jackson2.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
-      <version>${cxf.version}</version>
     </dependency>
--->
-<!--
-    <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>javax.ws.rs-api</artifactId>
-      <version>2.0</version>
-    </dependency>
--->
-     <dependency>
-       <groupId>org.jboss.resteasy</groupId>
-       <artifactId>jaxrs-api</artifactId>
-       <version>${resteasy.version}</version>
-     </dependency>
-     <dependency>
-       <groupId>org.jboss.resteasy</groupId>
-       <artifactId>resteasy-client</artifactId>
-       <version>${resteasy.version}</version>
-     </dependency>
-     <dependency>
-       <groupId>org.jboss.resteasy</groupId>
-       <artifactId>resteasy-jackson2-provider</artifactId>
-       <version>${resteasy.version}</version>
-     </dependency>
   </dependencies>
 
   <build>
