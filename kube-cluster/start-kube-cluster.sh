@@ -1,12 +1,9 @@
 #!/bin/bash
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+KUBE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 KUBE_VERSION=${KUBE_VERSION:-0.4.1}
 
-ROOTDIR=${DIR}/../
-KUBE_DIR=${ROOTDIR}/kube-cluster/
-
-cd ${ROOTDIR}
+cd ${KUBE_DIR}
 
 if [ ! -d "${KUBE_DIR}/kubernetes" ]; then
   case ${KUBE_VERSION} in
@@ -30,7 +27,7 @@ export KUBERNETES_MASTER=https://10.245.1.2
 MINION_1_IP=10.245.2.2
 
 ${KUBE_DIR}/kubernetes/cluster/kubecfg.sh -c ${KUBE_DIR}/docker-registry-mirror-controller.json create replicationControllers
-${KUBE_DIR}/kubernetes/cluster/kubecfg.sh -c ${KUBE_DIR}/apps/docker-registry-mirror-service.json create services
+${KUBE_DIR}/kubernetes/cluster/kubecfg.sh -c ${KUBE_DIR}/docker-registry-mirror-service.json create services
 
 ${KUBE_DIR}/kubernetes/cluster/kubecfg.sh -c ${KUBE_DIR}/docker-registry-controller.json create replicationControllers
 ${KUBE_DIR}/kubernetes/cluster/kubecfg.sh -c ${KUBE_DIR}/docker-registry-service.json create services
