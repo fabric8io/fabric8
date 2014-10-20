@@ -50,7 +50,7 @@ public class ParseExamplesTest {
         assertEquals("pod1.id", "my-pod-1", pod.getId());
         DesiredState desiredState = pod.getDesiredState();
         assertNotNull("pod1.desiredState", desiredState);
-        ManifestSchema manifest = desiredState.getManifest();
+        Manifest manifest = desiredState.getManifest();
         assertNotNull("pod1.desiredState.manifest", manifest);
         List<ManifestContainer> containers = manifest.getContainers();
         assertNotEmpty("pod1.desiredState.manifest.containers", containers);

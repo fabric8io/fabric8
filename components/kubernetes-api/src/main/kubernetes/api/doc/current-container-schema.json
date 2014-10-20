@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "type": "object",
+  "javaType": "io.fabric8.kubernetes.api.model.PodCurrentContainerInfo",
+  "description": "Metadata for current containers in a Pod.",
+  "properties": {
+    "restartCount": {
+      "type": "integer",
+      "required": false,
+      "description": "Number of restarts."
+    },
+    "detailInfo": {
+      "type": "object",
+      "description": "Detailed information of the container"
+    },
+    "state": {
+      "type": "object",
+      "description": "The container state.",
+      "properties": {
+        "running": {
+          "type": "object",
+          "description": "Denotes the container is running."
+        }
+      }
+    }
+  }
+}

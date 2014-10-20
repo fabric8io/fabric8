@@ -21,7 +21,7 @@ import io.fabric8.kubernetes.api.model.CurrentState;
 import io.fabric8.kubernetes.api.model.DesiredState;
 import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.ManifestSchema;
+import io.fabric8.kubernetes.api.model.Manifest;
 import io.fabric8.kubernetes.api.model.PodContainerManifest;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.Port;
@@ -71,7 +71,7 @@ public class PodInfo extends AbstractPodCommand {
         }
         DesiredState desiredState = podInfo.getDesiredState();
         if (desiredState != null) {
-            ManifestSchema manifest = desiredState.getManifest();
+            Manifest manifest = desiredState.getManifest();
             if (manifest != null) {
                 List<ManifestContainer> containers = manifest.getContainers();
                 if (notEmpty(containers)) {

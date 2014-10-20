@@ -77,6 +77,10 @@
         },
         "info": {
           "type": "object",
+          "javaType": "java.util.Map<String,PodCurrentContainerInfo>",
+          "items": {
+            "$ref": "controller-schema.json"
+          },
           "required": false
         }
       }

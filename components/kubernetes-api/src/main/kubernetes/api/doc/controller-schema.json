@@ -41,7 +41,27 @@
         "podTemplate": {
           "type": "object",
           "required": false,
-          "description": "Template from which to create new pods, as necessary. Identical to pod schema."
+          "description": "Template from which to create new pods, as necessary. Identical to pod schema.",
+          "properties": {
+            "desiredState": {
+              "type": "object",
+              "javaType": "io.fabric8.kubernetes.api.model.PodTemplateDesiredState",
+              "required": false,
+              "description": "The desired configuration of the pod",
+              "properties": {
+                "manifest": {
+                  "$ref": "manifest-schema.json",
+                  "required": false,
+                  "description": "Manifest describing group of [Docker containers](http://docker.io); compatible with format used by [Google Cloud Platform's container-vm images](https://developers.google.com/compute/docs/containers)"
+                }
+              }
+            },
+            "labels": {
+              "type": "object",
+              "javaType": "java.util.Map<String,String>",
+              "required": false
+            }
+          }
         }
       }
     },

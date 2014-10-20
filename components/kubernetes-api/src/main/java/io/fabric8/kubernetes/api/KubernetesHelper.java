@@ -25,13 +25,17 @@ import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Filters;
 import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
+import io.fabric8.kubernetes.api.model.ControllerDesiredState;
 import io.fabric8.kubernetes.api.model.CurrentState;
 import io.fabric8.kubernetes.api.model.DesiredState;
+import io.fabric8.kubernetes.api.model.Manifest;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.ManifestSchema;
 import io.fabric8.kubernetes.api.model.PodContainerManifest;
+import io.fabric8.kubernetes.api.model.PodCurrentContainerInfo;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.PodTemplate;
+import io.fabric8.kubernetes.api.model.PodTemplateDesiredState;
 import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.api.model.ServiceListSchema;
@@ -395,7 +399,45 @@ public class KubernetesHelper {
      */
     public static List<ManifestContainer> getContainers(ReplicationControllerSchema replicationController) {
         if (replicationController != null) {
-            // TODO
+            ControllerDesiredState desiredState = replicationController.getDesiredState();
+            return getContainers(desiredState);
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Returns all the containers from the given Replication Controller's desiredState
+     */
+    public static List<ManifestContainer> getContainers(ControllerDesiredState desiredState) {
+        if (desiredState != null) {
+            PodTemplate podTemplate = desiredState.getPodTemplate();
+            return getContainers(podTemplate);
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    public static List<ManifestContainer> getContainers(PodTemplate podTemplate) {
+        if (podTemplate != null) {
+            PodTemplateDesiredState podTemplateDesiredState = podTemplate.getDesiredState();
+            return getContainers(podTemplateDesiredState);
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    public static List<ManifestContainer> getContainers(PodTemplateDesiredState podTemplateDesiredState) {
+        if (podTemplateDesiredState != null) {
+            Manifest manifest = podTemplateDesiredState.getManifest();
+            return getContainers(manifest);
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    public static List<ManifestContainer> getContainers(Manifest manifest) {
+        if (manifest != null) {
+            List<ManifestContainer> containers = manifest.getContainers();
+            if (containers != null) {
+                return containers;
+            }
         }
         return Collections.EMPTY_LIST;
     }
@@ -415,7 +457,7 @@ public class KubernetesHelper {
      */
     public static List<ManifestContainer> getContainers(DesiredState desiredState) {
         if (desiredState != null) {
-            ManifestSchema manifest = desiredState.getManifest();
+            Manifest manifest = desiredState.getManifest();
             if (manifest != null) {
                 List<ManifestContainer> containers = manifest.getContainers();
                 if (containers != null) {
@@ -429,32 +471,26 @@ public class KubernetesHelper {
     /**
      * Returns all the current containers from the given currentState
      */
-    public static List<ManifestContainer> getCurrentContainers(PodSchema pod) {
+    public static Map<String, PodCurrentContainerInfo> getCurrentContainers(PodSchema pod) {
         if (pod != null) {
             CurrentState currentState = pod.getCurrentState();
             return getCurrentContainers(currentState);
 
         }
-        return Collections.EMPTY_LIST;
+        return Collections.EMPTY_MAP;
     }
 
     /**
      * Returns all the current containers from the given currentState
      */
-    public static List<ManifestContainer> getCurrentContainers(CurrentState currentState) {
+    public static Map<String, PodCurrentContainerInfo> getCurrentContainers(CurrentState currentState) {
         if (currentState != null) {
-            PodContainerManifest manifest = currentState.getManifest();
-            if (manifest != null) {
-/*
-                // TODO...
-                List<ManifestContainer> containers = manifest.getContainers();
-                if (containers != null) {
-                    return containers;
-                }
-*/
+            Map<String, PodCurrentContainerInfo> info = currentState.getInfo();
+            if (info != null) {
+                return info;
             }
         }
-        return Collections.EMPTY_LIST;
+        return Collections.EMPTY_MAP;
     }
 
     /**

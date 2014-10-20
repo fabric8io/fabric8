@@ -19,8 +19,9 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.ControllerDesiredState;
 import io.fabric8.kubernetes.api.model.DesiredState;
+import io.fabric8.kubernetes.api.model.Manifest;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.ManifestSchema;
+import io.fabric8.kubernetes.api.model.PodCurrentContainerInfo;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A simple example program testing out the REST API
@@ -71,8 +73,8 @@ public class Example {
         pod.setLabels(labels);
         DesiredState desiredState = new DesiredState();
         pod.setDesiredState(desiredState);
-        ManifestSchema manifest = new ManifestSchema();
-        manifest.setVersion(ManifestSchema.Version.V_1_BETA_1);
+        Manifest manifest = new Manifest();
+        manifest.setVersion(Manifest.Version.V_1_BETA_1);
         desiredState.setManifest(manifest);
 
         ManifestContainer manifestContainer = new ManifestContainer();
@@ -98,13 +100,21 @@ public class Example {
             System.out.println("PodSchema " + item.getId() + " created: " + item.getCreationTimestamp());
             DesiredState desiredState = item.getDesiredState();
             if (desiredState != null) {
-                ManifestSchema manifest = desiredState.getManifest();
+                Manifest manifest = desiredState.getManifest();
                 if (manifest != null) {
                     List<ManifestContainer> containers = manifest.getContainers();
                     for (ManifestContainer container : containers) {
                         System.out.println("Container " + container.getImage() + " " + container.getCommand() + " ports: " + container.getPorts());
                     }
                 }
+            }
+            Map<String, PodCurrentContainerInfo> currentContainers = KubernetesHelper.getCurrentContainers(item);
+            System.out.println("Has " + currentContainers.size() + " container(s)");
+            Set<Map.Entry<String, PodCurrentContainerInfo>> entries = currentContainers.entrySet();
+            for (Map.Entry<String, PodCurrentContainerInfo> entry : entries) {
+                String id = entry.getKey();
+                PodCurrentContainerInfo info = entry.getValue();
+                System.out.println("Current container: " + id + " info: " + info);
             }
         }
         System.out.println();
