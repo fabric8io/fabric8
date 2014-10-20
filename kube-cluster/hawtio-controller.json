@@ -23,6 +23,10 @@
                   "value": "vagrant"
                 },
                 {
+                  "name": "KUBERNETES_TRUST_CERT",
+                  "value": true
+                },
+                {
                   "name": "DOCKER_REGISTRY",
                   "value": "localhost:5000"
                 },
