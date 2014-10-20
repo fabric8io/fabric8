@@ -19,15 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import javax.servlet.ServletException;
@@ -105,7 +97,11 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
                 masterFuture = requestMap.putIfAbsent(path, future);
                 if (masterFuture == null) {
                     masterFuture = future;
-                    executorService.submit(future);
+                    if (executorService != null) {
+                        executorService.submit(future);
+                    } else {
+                        future.run();
+                    }
                     artifactFile = masterFuture.get();
                 } else {
                     artifactFile = masterFuture.get();
@@ -136,7 +132,7 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
                 resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
                 LOGGER.warning("DownloadProxyServlet cannot process request as we are overloaded, returning HTTP Status: 503");
             } catch (Exception ex) {
-                LOGGER.warning("Error while downloading artifact:" + ex.getMessage());
+                LOGGER.log(Level.WARNING,"Error while downloading artifact: " + ex.getMessage(), ex);
             } finally {
                 Closeables.closeQuietly(is);
                 if (masterFuture != null && artifactFile != null) {
@@ -181,12 +177,20 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
         public File call() throws Exception {
             File download = download(path);
             if (download != null)  {
-                File tmpFile = io.fabric8.utils.Files.createTempFile(runtimeProperties.getDataPath());
+                File tmpFile = createTempFile();
                 Files.copy(download, tmpFile);
                 return tmpFile;
             } else {
                 return null;
             }
+        }
+
+        private File createTempFile() throws IOException {
+            return Files.createTempFile(getAbsolutePath());
+        }
+
+        private String getAbsolutePath() {
+            return runtimeProperties.getDataPath().toFile().getAbsolutePath();
         }
     }
 }
