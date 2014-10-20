@@ -15,6 +15,14 @@
                   "value": "https://10.245.1.2"
                 },
                 {
+                  "name": "KUBERNETES_USERNAME",
+                  "value": "vagrant"
+                },
+                {
+                  "name": "KUBERNETES_PASSWORD",
+                  "value": "vagrant"
+                },
+                {
                   "name": "DOCKER_REGISTRY",
                   "value": "localhost:5000"
                 },
