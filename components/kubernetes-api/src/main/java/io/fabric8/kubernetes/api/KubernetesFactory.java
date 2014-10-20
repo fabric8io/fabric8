@@ -19,20 +19,23 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import io.fabric8.common.util.Strings;
 import io.fabric8.kubernetes.api.model.IntOrString;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.http.HTTPConduit;
 
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
 import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,26 +46,47 @@ public class KubernetesFactory {
 
     public static final String DEFAULT_KUBERNETES_MASTER = "http://localhost:8080";
 
+    public static final String KUBERNETES_TRUST_ALL_CERIFICATES = "KUBERNETES_TRUST_CERT";
+
+    public static final String KUBERNETES_USERNAME = "KUBERNETES_USERNAME";
+
+    public static final String KUBERNETES_PASSWORD = "KUBERNETES_PASSWORD";
+
     private String address;
 
+    private boolean trustAllCerts = false;
+
+    private String username;
+    private String password;
+
     public KubernetesFactory() {
-        findKubernetesMaster();
-        init();
+        this(null);
     }
 
     public KubernetesFactory(String address) {
         this.address = address;
         if (isEmpty(address)) {
-            findKubernetesMaster();
+            this.address = findKubernetesMaster();
         }
         init();
     }
 
-    protected void findKubernetesMaster() {
-        this.address = resolveHttpKubernetesMaster();
+    protected String findKubernetesMaster() {
+        return resolveHttpKubernetesMaster();
     }
 
     private void init() {
+        if (System.getenv(KUBERNETES_TRUST_ALL_CERIFICATES) != null) {
+            this.trustAllCerts = Boolean.valueOf(System.getenv(KUBERNETES_TRUST_ALL_CERIFICATES));
+        }
+
+        if (System.getenv(KUBERNETES_USERNAME) != null) {
+            this.username = System.getenv(KUBERNETES_USERNAME);
+        }
+        if (System.getenv(KUBERNETES_PASSWORD) != null) {
+            this.password = System.getenv(KUBERNETES_PASSWORD);
+        }
+
     }
 
     @Override
@@ -71,13 +95,25 @@ public class KubernetesFactory {
     }
 
     public Kubernetes createKubernetes() {
-        List<Object> providers = createProviders();
-        return JAXRSClientFactory.create(address, Kubernetes.class, providers);
+        return createWebClient(Kubernetes.class);
     }
 
     public KubernetesExtensions createKubernetesExtensions() {
+        return createWebClient(KubernetesExtensions.class);
+    }
+
+    protected <T> T createWebClient(Class<T> clientType) {
         List<Object> providers = createProviders();
-        return JAXRSClientFactory.create(address, KubernetesExtensions.class, providers);
+
+        WebClient webClient = WebClient.create(address, providers);
+
+        configureAuthDetails(webClient);
+
+        if (trustAllCerts) {
+            disableSslChecks(webClient);
+        }
+
+        return JAXRSClientFactory.fromClient(webClient, clientType);
     }
 
     protected List<Object> createProviders() {
@@ -175,6 +211,47 @@ public class KubernetesFactory {
         mapper.registerModule(module);
 
         return mapper;
+    }
+
+    private void configureAuthDetails(WebClient webClient) {
+        if (Strings.isNotBlank(username) && Strings.isNotBlank(password)) {
+
+            HTTPConduit conduit = WebClient.getConfig(webClient).getHttpConduit();
+
+            conduit.getAuthorization().setUserName(username);
+            conduit.getAuthorization().setPassword(password);
+        }
+    }
+
+    private void disableSslChecks(WebClient webClient) {
+        HTTPConduit conduit = WebClient.getConfig(webClient)
+                .getHttpConduit();
+
+        TLSClientParameters params = conduit.getTlsClientParameters();
+
+        if (params == null) {
+            params = new TLSClientParameters();
+            conduit.setTlsClientParameters(params);
+        }
+
+        params.setTrustManagers(new TrustManager[]{new X509TrustManager() {
+            @Override
+            public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+
+            }
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[0];
+            }
+        }});
+
+        params.setDisableCNCheck(true);
     }
 
     static class IntOrStringSerializer extends JsonSerializer<IntOrString> {
