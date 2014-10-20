@@ -93,7 +93,7 @@ public class Apps {
             }
             return response;
         } finally {
-            Closeables.closeQuitely(client);
+            Closeables.closeQuietly(client);
         }
     }
 }

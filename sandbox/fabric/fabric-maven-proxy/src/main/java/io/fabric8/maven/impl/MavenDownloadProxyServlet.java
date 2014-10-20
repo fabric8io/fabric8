@@ -140,7 +140,7 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
             } catch (Exception ex) {
                 LOGGER.warning("Error while downloading artifact:" + ex.getMessage());
             } finally {
-                Closeables.closeQuitely(is);
+                Closeables.closeQuietly(is);
                 if (masterFuture != null && artifactFile != null) {
                     masterFuture.release(artifactFile);
                 }

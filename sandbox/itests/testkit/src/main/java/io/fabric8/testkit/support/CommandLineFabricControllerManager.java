@@ -236,7 +236,7 @@ public class CommandLineFabricControllerManager extends FabricControllerManagerS
                     ": " + e, e);
             throw e;
         } finally {
-            Closeables.closeQuitely(reader);
+            Closeables.closeQuietly(reader);
         }
     }
 

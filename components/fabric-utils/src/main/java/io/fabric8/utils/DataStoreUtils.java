@@ -132,7 +132,7 @@ public class DataStoreUtils {
         } catch (Exception ex) {
             return "0";
         } finally {
-            Closeables.closeQuitely(is);
+            Closeables.closeQuietly(is);
         }
     }
 

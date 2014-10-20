@@ -167,7 +167,7 @@ public class FabricZoneManager implements Runnable {
         }
         for (Group group : activeGroups.values()) {
             group.remove(groupListener);
-            Closeables.closeQuitely(group);
+            Closeables.closeQuietly(group);
         }
         caches.clear();
         znames.clear();

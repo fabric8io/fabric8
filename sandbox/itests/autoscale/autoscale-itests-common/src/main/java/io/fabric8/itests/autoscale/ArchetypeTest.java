@@ -251,7 +251,7 @@ public class ArchetypeTest {
         } catch (Exception e) {
             LOG.error("Failed to process results of " + commands + ": " + e, e);
         } finally {
-            Closeables.closeQuitely(reader);
+            Closeables.closeQuietly(reader);
         }
         int exitCode = process.waitFor();
         System.out.println("command exit code: " + exitCode);

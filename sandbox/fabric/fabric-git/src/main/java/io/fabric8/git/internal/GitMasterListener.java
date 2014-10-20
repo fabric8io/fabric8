@@ -64,7 +64,7 @@ public final class GitMasterListener extends AbstractComponent implements GroupL
     void deactivate() {
         deactivateComponent();
         group.remove(this);
-        Closeables.closeQuitely(group);
+        Closeables.closeQuietly(group);
     }
 
     @Override

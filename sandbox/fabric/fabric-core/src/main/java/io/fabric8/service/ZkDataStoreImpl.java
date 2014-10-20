@@ -125,10 +125,10 @@ public final class ZkDataStoreImpl extends AbstractComponent implements DataStor
 
     private void deactivateInternal() {
         configCache.getListenable().removeListener(this);
-        Closeables.closeQuitely(configCache);
+        Closeables.closeQuietly(configCache);
 
         containerCache.getListenable().removeListener(this);
-        Closeables.closeQuitely(containerCache);
+        Closeables.closeQuietly(containerCache);
 
         callbacksExecutor.shutdownNow();
         cacheExecutor.shutdownNow();

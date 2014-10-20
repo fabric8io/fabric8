@@ -111,7 +111,7 @@ public class ZookeeperImportUtils {
                 }
             }
         } finally {
-            Closeables.closeQuitely(in);
+            Closeables.closeQuietly(in);
         }
     }
 

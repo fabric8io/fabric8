@@ -16,6 +16,8 @@
 package io.fabric8.common.util;
 
 import java.io.Closeable;
+import java.io.InputStream;
+import java.io.Reader;
 
 public final class Closeables {
 
@@ -23,7 +25,27 @@ public final class Closeables {
         //Utility Class
     }
 
-    public static void closeQuitely(Closeable closeable) {
+    public static void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (Exception ex) {
+                //ignore
+            }
+        }
+    }
+
+    public static void closeQuietly(InputStream closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (Exception ex) {
+                //ignore
+            }
+        }
+    }
+
+    public static void closeQuietly(Reader closeable) {
         if (closeable != null) {
             try {
                 closeable.close();

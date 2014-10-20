@@ -59,7 +59,7 @@ public final class RegexSupport {
             } catch (Exception e) {
                 throw new RuntimeException("Error reading from " + file + " : " + e);
             } finally {
-                Closeables.closeQuitely(reader);
+                Closeables.closeQuietly(reader);
             }
         }
 

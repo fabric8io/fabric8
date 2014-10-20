@@ -100,7 +100,7 @@ public class HttpMappingZooKeeperTreeCache {
     public void destroy() {
         if (active.compareAndSet(true, false)) {
             treeCache.getListenable().removeListener(treeListener);
-            Closeables.closeQuitely(treeCache);
+            Closeables.closeQuietly(treeCache);
             treeCache = null;
             treeCacheExecutor.shutdownNow();
         }
