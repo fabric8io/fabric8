@@ -39,6 +39,7 @@
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
 
     <spring-boot-plugin.version>1.1.7.RELEASE</spring-boot-plugin.version>
+    <spring-boot.version>1.1.7.RELEASE</spring-boot.version>
 
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
@@ -47,32 +48,51 @@
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-spring.boot-webmvc</fabric8.profile>
     <fabric8.parentProfiles>containers-java.spring.boot</fabric8.parentProfiles>
+
+    <!-- fabric8 configuration -->
+    <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
+    <fabric8.port.host.jolokia>9804</fabric8.port.host.jolokia>
+    <fabric8.label.container>java</fabric8.label.container>
+    <fabric8.label.group>quickstarts</fabric8.label.group>
   </properties>
 
-  <dependencyManagement>
+  <!--<dependencyManagement>-->
+    <!--<dependencies>-->
+      <!--&lt;!&ndash; BOMs &ndash;&gt;-->
+      <!--<dependency>-->
+        <!--<groupId>io.fabric8</groupId>-->
+        <!--<artifactId>process-spring-boot-bom</artifactId>-->
+        <!--<version>${fabric.version}</version>-->
+        <!--<type>pom</type>-->
+        <!--<scope>import</scope>-->
+      <!--</dependency>-->
+    <!--</dependencies>-->
+  <!--</dependencyManagement>-->
+
+    <dependencyManagement>
     <dependencies>
-      <!-- BOMs -->
-      <dependency>
-        <groupId>io.fabric8</groupId>
-        <artifactId>process-spring-boot-bom</artifactId>
-        <version>${fabric.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
+        <dependency>
+            <!-- Import dependency management from Spring Boot -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-dependencies</artifactId>
+            <version>1.1.7.RELEASE</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
     </dependencies>
-  </dependencyManagement>
+    </dependencyManagement>
 
   <dependencies>
 
     <!-- Fabric8 -->
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>process-spring-boot-container</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>process-spring-boot-registry</artifactId>
-    </dependency>
+    <!--<dependency>-->
+      <!--<groupId>io.fabric8</groupId>-->
+      <!--<artifactId>process-spring-boot-container</artifactId>-->
+    <!--</dependency>-->
+    <!--<dependency>-->
+      <!--<groupId>io.fabric8</groupId>-->
+      <!--<artifactId>process-spring-boot-registry</artifactId>-->
+    <!--</dependency>-->
 
     <!-- Spring -->
     <dependency>
