@@ -29,6 +29,7 @@ import io.fabric8.kubernetes.api.model.CurrentState;
 import io.fabric8.kubernetes.api.model.DesiredState;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.ManifestSchema;
+import io.fabric8.kubernetes.api.model.PodContainerManifest;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
@@ -383,14 +384,74 @@ public class KubernetesHelper {
     public static List<ManifestContainer> getContainers(PodSchema pod) {
         if (pod != null) {
             DesiredState desiredState = pod.getDesiredState();
-            if (desiredState != null) {
-                ManifestSchema manifest = desiredState.getManifest();
-                if (manifest != null) {
-                    List<ManifestContainer> containers = manifest.getContainers();
-                    if (containers != null) {
-                        return containers;
-                    }
+            return getContainers(desiredState);
+
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Returns all the containers from the given Replication Controller
+     */
+    public static List<ManifestContainer> getContainers(ReplicationControllerSchema replicationController) {
+        if (replicationController != null) {
+            // TODO
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Returns all the containers from the given Replication Controller
+     */
+    public static List<ManifestContainer> getCurrentContainers(ReplicationControllerSchema replicationController) {
+        if (replicationController != null) {
+            // TODO
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Returns all the manifest containers from the given desiredState
+     */
+    public static List<ManifestContainer> getContainers(DesiredState desiredState) {
+        if (desiredState != null) {
+            ManifestSchema manifest = desiredState.getManifest();
+            if (manifest != null) {
+                List<ManifestContainer> containers = manifest.getContainers();
+                if (containers != null) {
+                    return containers;
                 }
+            }
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Returns all the current containers from the given currentState
+     */
+    public static List<ManifestContainer> getCurrentContainers(PodSchema pod) {
+        if (pod != null) {
+            CurrentState currentState = pod.getCurrentState();
+            return getCurrentContainers(currentState);
+
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Returns all the current containers from the given currentState
+     */
+    public static List<ManifestContainer> getCurrentContainers(CurrentState currentState) {
+        if (currentState != null) {
+            PodContainerManifest manifest = currentState.getManifest();
+            if (manifest != null) {
+/*
+                // TODO...
+                List<ManifestContainer> containers = manifest.getContainers();
+                if (containers != null) {
+                    return containers;
+                }
+*/
             }
         }
         return Collections.EMPTY_LIST;
