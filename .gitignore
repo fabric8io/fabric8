@@ -14,5 +14,5 @@ overlays
 *.fmd
 .cache
 dependency-reduced-pom.xml
-kube-cluster
+kube-cluster/kubernetes
 apps/modifiedFabric8.json
