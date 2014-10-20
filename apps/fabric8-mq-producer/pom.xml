@@ -31,6 +31,20 @@
   <name>Fabric8 :: MQ Producer</name>
   <description>Fabric8 MQ Example Producer</description>
 
+    <properties>
+        <!-- fabric8 configuration -->
+        <docker.dataImage>${env.DOCKER_REGISTRY}/fabric8/${project.artifactId}:${project.version}</docker.dataImage>
+        <fabric8.port.containerPort>${activemq.container.port}</fabric8.port.containerPort>
+        <fabric8.port.hostPort>${activemq.host.port}</fabric8.port.hostPort>
+        <fabric8.kubernetes.name>fabric8MQCProducer</fabric8.kubernetes.name>
+        <fabric8.port.host.jolokia>9602</fabric8.port.host.jolokia>
+        <fabric8.env.AMQ_PORT>${activemq.host.port}</fabric8.env.AMQ_PORT>
+        <fabric8.env.AMQ_HOST>dockerhost</fabric8.env.AMQ_HOST>
+        <fabric8.label.container>java</fabric8.label.container>
+        <fabric8.label.group>fabric8MQProducer</fabric8.label.group>
+        <fabric8.iconRef>icons/activemq.svg</fabric8.iconRef>
+    </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.camel</groupId>

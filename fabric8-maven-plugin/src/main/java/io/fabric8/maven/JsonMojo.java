@@ -18,6 +18,7 @@ package io.fabric8.maven;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Lists;
 import io.fabric8.common.util.Strings;
+import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.template.GenerateTemplateDTO;
 import io.fabric8.kubernetes.template.TemplateGenerator;
@@ -104,7 +105,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
      * If no value is explicitly configured in the maven plugin then we use all maven properties starting with "fabric8.env."
      */
     @Parameter()
-    private Map<String, String> environmentVariables;
+    private List<Env> environmentVariables;
 
     /**
      * The ports passed into the generated Kubernetes JSON template.
@@ -293,6 +294,15 @@ public class JsonMojo extends AbstractFabric8Mojo {
         return answer;
     }
 
+    protected static Env getOrCreateEnv(Map<String, Env> envMap, String name) {
+        Env answer = envMap.get(name);
+        if (answer == null) {
+            answer = new Env();
+            envMap.put(name, answer);
+        }
+        return answer;
+    }
+
     protected Integer parsePort(String portText, String propertyName) {
         if (Strings.isNotBlank(portText)) {
             try {
@@ -318,12 +328,30 @@ public class JsonMojo extends AbstractFabric8Mojo {
         return labels;
     }
 
-    public Map<String, String> getEnvironmentVariables() {
+    public List<Env> getEnvironmentVariables() {
         if (environmentVariables == null) {
-            environmentVariables = new HashMap<>();
+            environmentVariables = new ArrayList<Env>();
         }
         if (environmentVariables.isEmpty()) {
-            environmentVariables = findPropertiesWithPrefix("fabric8.env.");
+            Map<String,Env> envMap = new HashMap<>();
+            Map<String, String> envs = findPropertiesWithPrefix("fabric8.env.");
+
+            for (Map.Entry<String, String> entry : envs.entrySet()) {
+                String name = entry.getKey();
+                String value = entry.getValue();
+
+               if (name != null) {
+                    Env env = getOrCreateEnv(envMap, name);
+                    env.setName(name);
+
+                    if (env.getValue() == null) {
+                        env.setValue(value);
+                    }
+                }
+            }
+            getLog().info("Generated env mappings: " + envMap);
+            getLog().debug("from envs: " + envs);
+            environmentVariables.addAll(envMap.values());
         }
         return environmentVariables;
     }

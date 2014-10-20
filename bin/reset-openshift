@@ -27,3 +27,8 @@ echo "installing fabric8"
 openshift kube  apply -c $DIRNAME/../apps/fabric8.json
 #openshift kube  apply -c https://raw.githubusercontent.com/fabric8io/fabric8/2.0/apps/fabric8.json
 
+
+echo "INFO: Checking for Openshift Availability:"
+while  ! curl -s -m 10  "http://dockerhost:5000/v1/_ping" > /dev/null;  do echo "DEBUG: Openshift REST layer not running yet." ; sleep 2s; done; 
+echo "INFO: Openshift REST layer ready."
+

@@ -20,6 +20,7 @@ package io.fabric8.kubernetes;
 import io.fabric8.common.util.IOHelpers;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.ControllerDesiredState;
+import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.template.CreateAppDTO;
@@ -58,7 +59,13 @@ public class TemplateGeneratorTest {
         Port jolokiaPort = new Port();
         jolokiaPort.setHostPort(10001);
         jolokiaPort.setContainerPort(8778);
+
+        Port brokerPort = new Port();
+        brokerPort.setHostPort(6161);
+        brokerPort.setContainerPort(6162);
+
         ports.add(jolokiaPort);
+        ports.add(brokerPort);
         dto.setPorts(ports);
 
         Map<String, String> labels = new HashMap<>();
@@ -66,9 +73,19 @@ public class TemplateGeneratorTest {
         labels.put("drink", "beer");
         dto.setLabels(labels);
 
-        Map<String, String> env = new HashMap<>();
-        env.put("CHEESE", "EDAM");
-        dto.setEnvironmentVariables(env);
+        List<Env> envs = new ArrayList<>();
+        Env env1 = new Env();
+        env1.setName("CHEESE");
+        env1.setValue("EDAM");
+
+        Env env2 = new Env();
+        env2.setName("CHEESE");
+        env2.setValue("EDAM");
+
+        envs.add(env1);
+        envs.add(env2);
+
+        dto.setEnvironmentVariables(envs);
 
         TemplateGenerator generator = new TemplateGenerator(dto);
         generator.generate(jsonFile);

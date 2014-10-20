@@ -16,9 +16,12 @@
             {
               "name": "@{containerName}",
               "image": "@{docker_dataImage}",
-              "env": {@foreach{env : environmentVariables.entrySet()}
-                "@{env.key}": "@{env.value}"@end{", "}
-              },
+              "env": [@foreach{env : environmentVariables}
+                {
+@if{env.name != null}                  "name": "@{env.name}"@if{env.value != null},@end{}@end{}
+@if{env.value != null}                  "value": "@{env.value}"@end{}
+                }@end{", "}
+              ],
               "ports": [@foreach{port : ports}
                 {
 @if{port.containerPort != null}                  "containerPort": @{port.containerPort}@if{port.hostPort != null},@end{}@end{}

@@ -27,7 +27,6 @@ import io.fabric8.common.util.Objects;
 import io.fabric8.common.util.Strings;
 import io.fabric8.kubernetes.api.model.CurrentState;
 import io.fabric8.kubernetes.api.model.DesiredState;
-import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.ManifestSchema;
 import io.fabric8.kubernetes.api.model.PodListSchema;
@@ -85,20 +84,6 @@ public class KubernetesHelper {
         } else {
             return dockerHost;
         }
-    }
-    /**
-     * Returns a list of {@link Env} objects from an environment variables map
-     */
-    public static List<Env> createEnv(Map<String, String> environmentVariables) {
-        List<Env> answer = new ArrayList<>();
-        Set<Map.Entry<String, String>> entries = environmentVariables.entrySet();
-        for (Map.Entry<String, String> entry : entries) {
-            Env env = new Env();
-            env.setName(entry.getKey());
-            env.setValue(entry.getValue());
-            answer.add(env);
-        }
-        return answer;
     }
 
     /**
