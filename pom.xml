@@ -233,7 +233,7 @@
         <hawtio-eshead-version>1.0.0</hawtio-eshead-version>
         <hawtio-kibana-version>3.1.0_2</hawtio-kibana-version>
         <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
-        <hawtio-version>1.4.22</hawtio-version>
+        <hawtio-version>1.4.26</hawtio-version>
         <influxdb-version>1.2</influxdb-version>
         <jackson-version>1.9.2</jackson-version>
         <jackson2-version>2.4.1</jackson2-version>
@@ -2756,7 +2756,7 @@
                 <artifactId>cxf-rt-features-clustering</artifactId>
                 <version>${cxf-version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-java2ws-plugin</artifactId>
@@ -2768,7 +2768,7 @@
                 <artifactId>cxf-codegen-plugin</artifactId>
                 <version>${cxf-version}</version>
             </dependency>
-           
+
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-java2wadl-plugin</artifactId>
