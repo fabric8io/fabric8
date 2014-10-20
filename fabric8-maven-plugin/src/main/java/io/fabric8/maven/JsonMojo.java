@@ -40,6 +40,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import static io.fabric8.common.util.PropertiesHelper.findPropertiesWithPrefix;
+
 /**
  * Generates or copies the Kubernetes JSON file and attaches it to the build so its
  * installed and released to maven repositories like other build artifacts.
@@ -250,9 +252,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
         if (ports.isEmpty()) {
             Map<String,Port> portMap = new HashMap<>();
             Properties properties1 = getProject().getProperties();
-            Map<String, String> hostPorts = PropertiesHelper.findPropertiesWithPrefix(properties1, FABRIC8_PORT_HOST_PREFIX);
+            Map<String, String> hostPorts = findPropertiesWithPrefix(properties1, FABRIC8_PORT_HOST_PREFIX);
             Properties properties = getProject().getProperties();
-            Map<String, String> containerPorts = PropertiesHelper.findPropertiesWithPrefix(properties, FABRIC8_PORT_CONTAINER_PREFIX);
+            Map<String, String> containerPorts = findPropertiesWithPrefix(properties, FABRIC8_PORT_CONTAINER_PREFIX);
 
             for (Map.Entry<String, String> entry : containerPorts.entrySet()) {
                 String name = entry.getKey();
@@ -326,8 +328,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             labels = new HashMap<>();
         }
         if (labels.isEmpty()) {
-            Properties properties = getProject().getProperties();
-            labels = PropertiesHelper.findPropertiesWithPrefix(properties, "fabric8.label.");
+            labels = findPropertiesWithPrefix(getProject().getProperties(), "fabric8.label.");
         }
         return labels;
     }
@@ -338,7 +339,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
         if (environmentVariables.isEmpty()) {
             Map<String,Env> envMap = new HashMap<>();
-            Map<String, String> envs = findPropertiesWithPrefix("fabric8.env.");
+            Map<String, String> envs = findPropertiesWithPrefix(getProject().getProperties(), "fabric8.env.");
 
             for (Map.Entry<String, String> entry : envs.entrySet()) {
                 String name = entry.getKey();
