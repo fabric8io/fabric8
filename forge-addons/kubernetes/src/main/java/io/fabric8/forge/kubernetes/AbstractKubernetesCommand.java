@@ -18,7 +18,8 @@
 package io.fabric8.forge.kubernetes;
 
 import io.fabric8.common.util.Objects;
-import io.fabric8.kubernetes.api.Kubernetes;
+import io.fabric8.common.util.Strings;
+import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.utils.TablePrinter;
 import org.jboss.forge.addon.projects.ProjectFactory;
@@ -26,6 +27,8 @@ import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
 import org.jboss.forge.addon.ui.UIProvider;
 import org.jboss.forge.addon.ui.command.UICommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
+import org.jboss.forge.addon.ui.input.UIInput;
+import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.output.UIOutput;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
@@ -39,7 +42,7 @@ import java.io.PrintStream;
 public abstract class AbstractKubernetesCommand extends AbstractProjectCommand implements UICommand {
     public static String CATEGORY = "Kubernetes";
 
-    private Kubernetes kubernetes;
+    private KubernetesClient kubernetes;
 
     @Inject
     private ProjectFactory projectFactory;
@@ -49,11 +52,9 @@ public abstract class AbstractKubernetesCommand extends AbstractProjectCommand i
     */
     UIProvider uiProvider;
 
-    /*
-        @Inject
-        @WithAttributes(name = "kubernetesUrl", label = "The URL where the kubernetes master is running")
-    */
-    private String kubernetesAddress;
+    @Inject
+    @WithAttributes(name = "kubernetesUrl", label = "The URL where the kubernetes master is running")
+    UIInput<String> kubernetesUrl;
 
     @Override
     protected boolean isProjectRequired() {
@@ -65,19 +66,20 @@ public abstract class AbstractKubernetesCommand extends AbstractProjectCommand i
         return projectFactory;
     }
 
-    public Kubernetes getKubernetes() {
+    public KubernetesClient getKubernetes() {
         if (kubernetes == null) {
-            KubernetesFactory factory = new KubernetesFactory();
-            if (kubernetesAddress != null) {
-                factory.setAddress(kubernetesAddress);
+            String kubernetesAddress = kubernetesUrl.getValue();
+            if (Strings.isNotBlank(kubernetesAddress)) {
+                kubernetes = new KubernetesClient(new KubernetesFactory(kubernetesAddress));
+            } else {
+                kubernetes = new KubernetesClient();
             }
-            kubernetes = factory.createKubernetes();
         }
         Objects.notNull(kubernetes, "kubernetes");
         return kubernetes;
     }
 
-    public void setKubernetes(Kubernetes kubernetes) {
+    public void setKubernetes(KubernetesClient kubernetes) {
         this.kubernetes = kubernetes;
     }
 

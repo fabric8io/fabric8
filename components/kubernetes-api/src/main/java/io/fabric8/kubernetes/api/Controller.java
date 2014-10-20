@@ -25,7 +25,9 @@ import io.fabric8.kubernetes.api.model.ServiceSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
@@ -56,7 +58,34 @@ public class Controller {
     /**
      * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
+    public String applyJson(byte[] json) throws IOException {
+        Object dto = KubernetesHelper.loadJson(json);
+        apply(dto, "REST call");
+        return "";
+    }
+
+    /**
+     * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
+     */
     public String applyJson(String json) throws IOException {
+        Object dto = KubernetesHelper.loadJson(json);
+        apply(dto, "REST call");
+        return "";
+    }
+
+    /**
+     * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
+     */
+    public String applyJson(File json) throws IOException {
+        Object dto = KubernetesHelper.loadJson(json);
+        apply(dto, "REST call");
+        return "";
+    }
+
+    /**
+     * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
+     */
+    public String applyJson(InputStream json) throws IOException {
         Object dto = KubernetesHelper.loadJson(json);
         apply(dto, "REST call");
         return "";

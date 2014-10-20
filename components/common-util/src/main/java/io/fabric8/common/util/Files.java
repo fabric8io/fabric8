@@ -141,6 +141,10 @@ public final class Files {
         return null;
     }
 
+    public static String getFileExtension(File file) {
+        return getFileExtension(file.getName());
+    }
+
     /**
      * Creates a temporary file.
      */

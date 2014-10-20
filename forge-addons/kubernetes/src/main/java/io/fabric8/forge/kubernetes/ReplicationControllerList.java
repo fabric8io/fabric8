@@ -20,12 +20,10 @@ package io.fabric8.forge.kubernetes;
 import io.fabric8.common.util.Filter;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.CurrentState;
-import io.fabric8.kubernetes.api.model.DesiredState;
-import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.ManifestSchema;
-import io.fabric8.kubernetes.api.model.PodListSchema;
-import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.ControllerCurrentState;
+import io.fabric8.kubernetes.api.model.ControllerDesiredState;
+import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.utils.TablePrinter;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -38,14 +36,16 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
 import javax.inject.Inject;
+import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.toPositiveNonZeroText;
 
 /**
- * Command to list pods in kubernetes
+ * Command to list replication controllers in kubernetes
  */
-public class PodList extends AbstractKubernetesCommand {
+public class ReplicationControllerList extends AbstractKubernetesCommand {
 
     @Inject
     @WithAttributes(name = "filter", label = "The text filter used to filter pods using label selectors")
@@ -55,8 +55,8 @@ public class PodList extends AbstractKubernetesCommand {
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.from(super.getMetadata(context), getClass())
                 .category(Categories.create(CATEGORY))
-                .name(CATEGORY + ": Pod List")
-                .description("Lists the pods in a kubernetes cloud");
+                .name(CATEGORY + ": Replication Controller List")
+                .description("Lists the replication controllers in a kubernetes cloud");
     }
 
     @Override
@@ -68,51 +68,38 @@ public class PodList extends AbstractKubernetesCommand {
     @Override
     public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
         Kubernetes kubernetes = getKubernetes();
-        PodListSchema pods = kubernetes.getPods();
-        KubernetesHelper.removeEmptyPods(pods);
-        TablePrinter table = podsAsTable(pods);
-        return tableResults(table);
+
+        ReplicationControllerListSchema replicationControllers = kubernetes.getReplicationControllers();
+        printReplicationControllers(replicationControllers, System.out);
+        return null;
     }
 
-    protected TablePrinter podsAsTable(PodListSchema pods) {
+    private void printReplicationControllers(ReplicationControllerListSchema replicationControllers, PrintStream out) {
         TablePrinter table = new TablePrinter();
-        table.columns("id", "image(s)", "host", "labels", "status");
-        List<PodSchema> items = pods.getItems();
+        table.columns("id", "labels", "replicas", "replica selector");
+        List<ReplicationControllerSchema> items = replicationControllers.getItems();
         if (items == null) {
             items = Collections.EMPTY_LIST;
         }
-        Filter<PodSchema> filter = KubernetesHelper.createPodFilter(filterText.getValue());
-        for (PodSchema item : items) {
+        Filter<ReplicationControllerSchema> filter = KubernetesHelper.createReplicationControllerFilter(filterText.getValue());
+        for (ReplicationControllerSchema item : items) {
             if (filter.matches(item)) {
                 String id = item.getId();
-                CurrentState currentState = item.getCurrentState();
-                String status = "";
-                String host = "";
-                if (currentState != null) {
-                    status = currentState.getStatus();
-                    host = currentState.getHost();
-                }
-                Map<String, String> labelMap = item.getLabels();
-                String labels = KubernetesHelper.toLabelsString(labelMap);
-                DesiredState desiredState = item.getDesiredState();
+                String labels = KubernetesHelper.toLabelsString(item.getLabels());
+                Integer replicas = null;
+                ControllerDesiredState desiredState = item.getDesiredState();
+                ControllerCurrentState currentState = item.getCurrentState();
+                String selector = null;
                 if (desiredState != null) {
-                    ManifestSchema manifest = desiredState.getManifest();
-                    if (manifest != null) {
-                        List<ManifestContainer> containers = manifest.getContainers();
-                        for (ManifestContainer container : containers) {
-                            String image = container.getImage();
-                            table.row(id, image, host, labels, status);
-
-                            id = "";
-                            host = "";
-                            status = "";
-                            labels = "";
-                        }
-                    }
+                    selector = KubernetesHelper.toLabelsString(desiredState.getReplicaSelector());
                 }
+                if (currentState != null) {
+                    replicas = currentState.getReplicas();
+                }
+                table.row(id, labels, toPositiveNonZeroText(replicas), selector);
             }
         }
-        return table;
+        table.print();
     }
 }
 
