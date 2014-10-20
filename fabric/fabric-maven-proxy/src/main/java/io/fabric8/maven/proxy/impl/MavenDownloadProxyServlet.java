@@ -24,8 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -57,15 +57,11 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
 
     @Override
     public synchronized void start() throws IOException {
-        // only the download servlet has a thread pool
-        if (threadMaximumPoolSize > 0) {
-            // lets use a synchronous queue so it waits for the other threads to be available before handing over
-            // we are waiting for the task to be done anyway in doGet so there is no point in having a worker queue
-            executorService = new ThreadPoolExecutor(1, threadMaximumPoolSize, 60, TimeUnit.SECONDS,
-                    new SynchronousQueue<Runnable>(), new ThreadFactory("MavenDownloadProxyServlet"));
-            // lets allow core threads to timeout also, so if there is no download for a while then no threads is wasted
-            executorService.allowCoreThreadTimeOut(true);
-        }
+        // Create a thread pool with the given maxmimum number of threads
+        // All threads will time out after 60 seconds
+        int nbThreads = threadMaximumPoolSize > 0 ? threadMaximumPoolSize : 8;
+        executorService = new ThreadPoolExecutor(0, nbThreads, 60, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>(), new ThreadFactory("MavenDownloadProxyServlet"));
 
         super.start();
     }
