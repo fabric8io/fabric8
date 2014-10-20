@@ -48,7 +48,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="5.1" data-basepath="." data-revision="1413555921999">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5.1" data-basepath="." data-revision="1413792801877">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -432,6 +432,15 @@
 <p>No, not anymore. Starting from v2 Fabric8 uses <a href="http://fabric8.io/v2/apps.html" target="_blank">app</a> JSON files (i.e. Kubernetes extension proposed by OpenShift 3)
 to configure deployment of the managed application. More detailed configuration (like properties or YAML files) can be 
 added to the file system of the application&apos;s Docker image.</p>
+<h4 id="is-git-repository-still-used-to-store-the-applications-configuration-"><a name="is-git-repository-still-used-to-store-the-applications-configuration-" class="anchor" href="#is-git-repository-still-used-to-store-the-applications-configuration-"><span class="fa fa-link"></span></a>Is Git repository still used to store the applications&apos; configuration?</h4>
+<p>Applications&apos; configuration isn&apos;t stored in Git repository as it used to be in Fabric8 v1. As Fabric8 v2 doesn&apos;t use 
+profiles (but app templates instead), the Git repository is not needed anymore. You can just store application&apos;s configuration (app file)
+in the Maven project and use the <a href="http://fabric8.io/v2/mavenPlugin.html#running" target="_blank">Fabric8 Maven plugin to start</a> the application in Kubernetes 
+without keeping the configuration in any central repository (like Git).</p>
+<p>However keeping app files in Git for easier configuration management can be useful. That&apos;s why Hawt.io provides this
+functionality for you. You can push your configuration to the Hawt.io Git repository via 
+<a href="http://fabric8.io/v2/mavenPlugin.html#deploying" target="_blank">fabric8:deploy</a> Maven goal. Fabric8 uses <a href="http://fabric8.io/v2/appzip.html" target="_blank">App Zip</a>
+packaging format to distribute the configuration between the various environments.</p>
 <h4 id="is-fabric8-server-required-to-provision-applications-"><a name="is-fabric8-server-required-to-provision-applications-" class="anchor" href="#is-fabric8-server-required-to-provision-applications-"><span class="fa fa-link"></span></a>Is Fabric8 server required to provision applications?</h4>
 <p>No, not anymore. Starting from Fabric8 v2 Kubernetes is responsible for providing the runtime registry for the
 managed applications. It means that you don&apos;t have to start any dedicated Fabric8 deamon. Tools like <a href="http://fabric8.io/v2/mavenPlugin.html" target="_blank">Fabric8 Maven plugin</a>

@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="1.4" data-basepath="." data-revision="1413555921999">
+    <div class="book" data-github="fabric8io/fabric8" data-level="1.4" data-basepath="." data-revision="1413792801877">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -393,7 +393,7 @@
                     <section class="normal" id="section-gitbook_17">
                     
                         <h2 id="service"><a name="service" class="anchor" href="#service"><span class="fa fa-link"></span></a>Service</h2>
-<p>A <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/DESIGN.md#labels" target="_blank">Service</a> is a kubernetes abstraction to provide a network connection to one or more network services.</p>
+<p>A <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/DESIGN.md#labels" target="_blank">Service</a> is a kubernetes abstraction to provide a network connection to one or more network services. For more detail see the <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md" target="_blank">background on how services work</a></p>
 <p>A service uses a label selector to find all the containers running which provide a certain network service on a certain port. The service is then bound to a local port. So to access the service from inside your application or container you just bind to the local network on the port number for the service. </p>
 <p>This means you need to map all services to distinct port numbers. e.g. one for your mysql, one for your ActiveMQ region etc.</p>
 
