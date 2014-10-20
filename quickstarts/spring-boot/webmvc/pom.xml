@@ -106,6 +106,12 @@
     <dependency>
       <groupId>org.springframework.data</groupId>
       <artifactId>spring-data-rest-webmvc</artifactId>
+        <!--<exclusions>-->
+            <!--<exclusion>-->
+                <!--<groupId>org.atteo</groupId>-->
+                <!--<artifactId>evo-inflector</artifactId>-->
+            <!--</exclusion>-->
+        <!--</exclusions>-->
     </dependency>
 
     <!-- Database driver -->
@@ -139,7 +145,8 @@
         <artifactId>spring-boot-maven-plugin</artifactId>
         <version>${spring-boot-plugin.version}</version>
         <configuration>
-          <mainClass>io.fabric8.process.spring.boot.container.FabricSpringApplication</mainClass>
+            <mainClass>io.fabric8.quickstarts.springbootmvc.App</mainClass>
+          <!--<mainClass>io.fabric8.process.spring.boot.container.FabricSpringApplication</mainClass>-->
         </configuration>
         <executions>
           <execution>
@@ -150,11 +157,33 @@
         </executions>
       </plugin>
 
-      <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-maven-plugin</artifactId>
-        <version>${fabric.version}</version>
-      </plugin>
+        <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric8-maven-plugin</artifactId>
+            <version>${fabric8.version}</version>
+            <executions>
+                <execution>
+                    <id>json</id>
+                    <goals>
+                        <goal>json</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+
+        <plugin>
+            <groupId>org.jolokia</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>${docker.maven.plugin.version}</version>
+            <configuration>
+                <image>fabric8/java</image>
+                <mergeData>true</mergeData>
+                <assemblyDescriptorRef>artifact-with-dependencies</assemblyDescriptorRef>
+                <env>
+                    <FABRIC8_JAR>${project.artifactId}-${project.version}.jar</FABRIC8_JAR>
+                </env>
+            </configuration>
+        </plugin>
     </plugins>
   </build>
 
