@@ -52,6 +52,8 @@
     <!-- fabric8 configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
     <fabric8.port.host.jolokia>9804</fabric8.port.host.jolokia>
+    <fabric8.port.host.http>10000</fabric8.port.host.http>
+    <fabric8.port.container.http>8080</fabric8.port.container.http>
     <fabric8.label.container>java</fabric8.label.container>
     <fabric8.label.group>quickstarts</fabric8.label.group>
   </properties>
@@ -182,6 +184,9 @@
                 <env>
                     <JAR>${project.artifactId}-${project.version}.jar</JAR>
                 </env>
+                <ports>
+                    <port>8080</port>
+                </ports>
             </configuration>
         </plugin>
     </plugins>
