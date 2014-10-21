@@ -37,18 +37,18 @@ You can deploy and run this example from the web console, as follows
 ## How to try this example
 
 1. Using the hawtio console at http://dockerhost:8484/hawtio, you should now see simple java as a 'pod' under the kubernetes tab http://dockerhost:8484/hawtio/kubernetes/pods?_id=
-1. You can find out the containerId using `docker ps` - the output should look like:
-
+1. You can find out the containerId using `docker ps` - the output should look something like:
+```
 	CONTAINER ID        IMAGE                                                   COMMAND                CREATED             STATUS              PORTS                    NAMES
 	19d5280bf22e        dockerhost:5000/quickstart/java-simple:2.0.0-SNAPSHOT   /bin/sh -c 'java $JA   3 days ago          Up 28 minutes                                k8s_quickstart-java-simple.6c2fc62f_c6fa4631-588f-11e4-8746-406c8f215ad7.etcd_c6fa4631-588f-11e4-8746-406c8f215ad7_e28ca78b
-
+```
 1. Use `docker logs -f <CONTAINER ID>` to see what the simple java app is writing to the console, and
 see that every second it logs another line:
-
+```
 	Hello Fabric8! Here's your random string: NMsq3
 	Hello Fabric8! Here's your random string: wPzMW
 	Hello Fabric8! Here's your random string: tiTpX
-
+```
 1. At this point you have verified that things work but additionally we can find out some more about this container.
 First `docker inspect <image>` to see all the metadata. For instance part of this output reads
 ```
