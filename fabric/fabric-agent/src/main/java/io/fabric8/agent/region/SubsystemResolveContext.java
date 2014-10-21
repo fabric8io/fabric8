@@ -151,14 +151,32 @@ public class SubsystemResolveContext extends ResolveContext {
                     String id = getSymbolicName(resource) + "|" + getVersion(resource);
                     Resource prev = providers.get(id);
                     if (prev != null && prev != resource) {
-                        String r1 = getRegion(prev).getName();
-                        String r2 = getRegion(resource).getName();
-                        int c = r1.compareTo(r2);
-                        if (c == 0) {
-                            // One of the resource has to be a bundle, use that one
-                            c = (prev instanceof BundleRevision) ? -1 : +1;
+                        Region r1 = getRegion(prev);
+                        Region r2 = getRegion(resource);
+                        boolean r2canSeeR1 = isResourceVisibleFromRegion(prev, r2);
+                        boolean r1canSeeR2 = isResourceVisibleFromRegion(resource, r1);
+                        if (r1canSeeR2 && r2canSeeR1) {
+                            // r1 and r2 can see each other
+                            int reqDiff = prev.getRequirements(null).size() - resource.getRequirements(null).size();
+                            if (reqDiff == 0) {
+                                String r1Name = getRegion(prev).getName();
+                                String r2Name = getRegion(resource).getName();
+                                int c = r1Name.compareTo(r2Name);
+                                if (c == 0) {
+                                    // One of the resource has to be a bundle, use that one
+                                    c = (prev instanceof BundleRevision) ? -1 : +1;
+                                }
+                                resource = c < 0 ? prev : resource;
+                            } else {
+                                // one of the resource has less requirements, so use this one
+                                // This can be the case when one resource has conditionals, which adds further
+                                // requirements to the condition feature.
+                                resource = reqDiff < 0 ? prev : resource;
+                            }
+                        } else {
+                            // only one region can see the other, grab the correct
+                            resource = r1canSeeR2 ? prev : resource;
                         }
-                        resource = c < 0 ? prev : resource;
                     }
                     providers.put(id, resource);
                 }
@@ -173,6 +191,30 @@ public class SubsystemResolveContext extends ResolveContext {
             Collections.sort(caps, candidateComparator);
         }
         return caps;
+    }
+
+    private boolean isResourceVisibleFromRegion(Resource resource, Region region) {
+        AbstractRegionDigraphVisitor<Resource> visitor = new AbstractRegionDigraphVisitor<Resource>(Collections.singletonList(resource)) {
+            @Override
+            protected boolean contains(Region region, Resource candidate) {
+                return getRegion(candidate).equals(region);
+            }
+
+            @Override
+            protected boolean isAllowed(Resource resource, RegionFilter filter) {
+                List<Capability> identities = resource.getCapabilities(IDENTITY_NAMESPACE);
+                if (identities != null && !identities.isEmpty()) {
+                    Capability identity = identities.iterator().next();
+                    Map<String, Object> attrs = new HashMap<String, Object>();
+                    attrs.put(BUNDLE_SYMBOLICNAME_ATTRIBUTE, identity.getAttributes().get(IDENTITY_NAMESPACE));
+                    attrs.put(BUNDLE_VERSION_ATTRIBUTE, identity.getAttributes().get(CAPABILITY_VERSION_ATTRIBUTE));
+                    return filter.isAllowed(VISIBLE_BUNDLE_NAMESPACE, attrs);
+                }
+                return false;
+            }
+        };
+        region.visitSubgraph(visitor);
+        return !visitor.getAllowed().isEmpty();
     }
 
     private Subsystem getSubsystem(Resource resource) {
