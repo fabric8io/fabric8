@@ -51,6 +51,7 @@ see that every second it logs another line:
 
 1. At this point you have verified that things work but additionally we can find out some more about this container.
 First `docker inspect <image>` to see all the metadata. For instance part of this output reads
+```
 ....
      "Env": [
             "HOME=/",
@@ -66,28 +67,29 @@ First `docker inspect <image>` to see all the metadata. For instance part of thi
             "java $JAVA_OPTIONS -cp $CLASSPATH $MAIN $ARGUMENTS"
         ],
 ....
+```
 which shows our java process is started using a Cmd, and that it is uing the io.fabric8.quickstarts.java.simple.Main class to start it, with a classpath of everything in the /maven directory. The JAVA_OPTION start a jolokia agent.
 
 1. Using `docker top d356604acb80` we can see simple java process as well as the jolokia agent.
-
+```
 	PID                 USER                COMMAND
 	2624                root                /bin/sh -c java $JAVA_OPTIONS -cp $CLASSPATH $MAIN $ARGUMENTS
 	2643                root                java -javaagent:/opt/jolokia/jolokia.jar=host=0.0.0.0,port=8778,agentId=$HOSTNAME -cp /maven/*:/maven io.fabric8.quickstarts.java.simple.Main
-
+```
 1. You use NSEnter (https://github.com/jpetazzo/nsenter) to connect to the container using the alias `docker-enter <containerId>`. We can inspect the file system and see our jars in the /maven directory 
-
-/maven# ls -l
-total 412
--rw-r--r-- 1 root root 412739 Oct 20  2014 commons-lang3-3.3.2.jar
--rw-r--r-- 1 root root   4453 Oct 20  2014 java-simple-2.0.0-SNAPSHOT.jar
-
+```
+	/maven# ls -l
+	total 412
+	-rw-r--r-- 1 root root 412739 Oct 20  2014 commons-lang3-3.3.2.jar
+	-rw-r--r-- 1 root root   4453 Oct 20  2014 java-simple-2.0.0-SNAPSHOT.jar
+```
 and the jolokia jars in the /opt/jolokia directory
-
-opt/jolokia# ls -l
-total 388
--rw-r--r-- 1 root root 389459 Jun 14 17:43 jolokia.jar
--rw-r--r-- 1 root root    871 Oct  8 09:33 jolokia_env.sh
-
+```
+	opt/jolokia# ls -l
+	total 388
+	-rw-r--r-- 1 root root 389459 Jun 14 17:43 jolokia.jar
+	-rw-r--r-- 1 root root    871 Oct  8 09:33 jolokia_env.sh
+```
 
 ## Undeploy this example
 
