@@ -148,6 +148,7 @@ public interface Kubernetes {
      */
     @DELETE
     @Path("pods/{podId}")
+    @Consumes("text/plain")
     String deletePod(@PathParam("podId") @NotNull String podId) throws Exception;
 
 
@@ -220,6 +221,7 @@ public interface Kubernetes {
     @DELETE
     @Path("services/{serviceId}")
     @Produces("application/json")
+    @Consumes("text/plain")
     String deleteService(@PathParam("serviceId") @NotNull String serviceId) throws Exception;
 
 
@@ -314,5 +316,6 @@ public interface Kubernetes {
     @DELETE
     @Path("replicationControllers/{controllerId}")
     @Produces("application/json")
+    @Consumes("text/plain")
     String deleteReplicationController(@PathParam("controllerId") @NotNull String controllerId) throws Exception;
 }
