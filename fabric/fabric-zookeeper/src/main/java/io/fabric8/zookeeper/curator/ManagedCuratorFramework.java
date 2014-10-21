@@ -25,11 +25,13 @@ import static io.fabric8.zookeeper.curator.Constants.ZOOKEEPER_PASSWORD;
 import static io.fabric8.zookeeper.curator.Constants.ZOOKEEPER_URL;
 
 import java.io.IOException;
+import java.sql.Time;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -103,12 +105,15 @@ public final class ManagedCuratorFramework extends AbstractComponent implements 
 
         public void run() {
             try {
-                if (curator != null) {
-                    curator.getZookeeperClient().stop();
-                }
+                // ENTESB-2111: first unregister CuratorFramework service, as it might be used in @Deactivate
+                // methods of SCR components which depend on CF
                 if (registration != null) {
                     registration.unregister();
                     registration = null;
+                }
+                // then stop it
+                if (curator != null) {
+                    curator.getZookeeperClient().stop();
                 }
                 try {
                     Closeables.close(curator, true);
@@ -199,14 +204,15 @@ public final class ManagedCuratorFramework extends AbstractComponent implements 
     }
 
     @Deactivate
-    void deactivate() throws IOException {
+    void deactivate() throws InterruptedException {
         deactivateComponent();
         State prev = state.getAndSet(null);
         if (prev != null) {
             CuratorFrameworkLocator.unbindCurator(prev.curator);
             prev.close();
         }
-        executor.shutdownNow();
+        executor.shutdown();
+        executor.awaitTermination(30, TimeUnit.SECONDS);
     }
 
     /**
@@ -228,9 +234,11 @@ public final class ManagedCuratorFramework extends AbstractComponent implements 
 
         CuratorFramework framework = builder.build();
 
-        for (ConnectionStateListener listener : connectionStateListeners) {
-            framework.getConnectionStateListenable().addListener(listener);
-        }
+        // ENTESB-2111: don't register SCR-bound ConnectionStateListeners here, rather
+        // invoke them once in State.stateChanged()
+//        for (ConnectionStateListener listener : connectionStateListeners) {
+//            framework.getConnectionStateListenable().addListener(listener);
+//        }
         return framework;
     }
 
