@@ -323,6 +323,25 @@ public class KubernetesHelper {
     }
 
     /**
+     * Creates a filter on a pod using the given set of labels
+     */
+    public static Filter<PodSchema> createPodFilter(final Map<String,String> labelSelector) {
+        if (labelSelector == null || labelSelector.isEmpty()) {
+            return Filters.<PodSchema>trueFilter();
+        } else {
+            return new Filter<PodSchema>() {
+                public String toString() {
+                    return "PodFilter(" + labelSelector + ")";
+                }
+
+                public boolean matches(PodSchema entity) {
+                    return filterLabels(labelSelector, entity.getLabels());
+                }
+            };
+        }
+    }
+
+    /**
      * Creates a filter on a service using the given text string
      */
     public static Filter<ServiceSchema> createServiceFilter(final String textFilter) {
@@ -336,6 +355,25 @@ public class KubernetesHelper {
 
                 public boolean matches(ServiceSchema entity) {
                     return filterMatchesIdOrLabels(textFilter, entity.getId(), entity.getLabels());
+                }
+            };
+        }
+    }
+
+    /**
+     * Creates a filter on a service using the given text string
+     */
+    public static Filter<ServiceSchema> createServiceFilter(final Map<String,String> labelSelector) {
+        if (labelSelector == null || labelSelector.isEmpty()) {
+            return Filters.<ServiceSchema>trueFilter();
+        } else {
+            return new Filter<ServiceSchema>() {
+                public String toString() {
+                    return "ServiceFilter(" + labelSelector + ")";
+                }
+
+                public boolean matches(ServiceSchema entity) {
+                    return filterLabels(labelSelector, entity.getLabels());
                 }
             };
         }
@@ -361,11 +399,49 @@ public class KubernetesHelper {
     }
 
     /**
+     * Creates a filter on a replicationController using the given text string
+     */
+    public static Filter<ReplicationControllerSchema> createReplicationControllerFilter(final Map<String,String> labelSelector) {
+        if (labelSelector == null || labelSelector.isEmpty()) {
+            return Filters.<ReplicationControllerSchema>trueFilter();
+        } else {
+            return new Filter<ReplicationControllerSchema>() {
+                public String toString() {
+                    return "ReplicationControllerFilter(" + labelSelector + ")";
+                }
+
+                public boolean matches(ReplicationControllerSchema entity) {
+                    return filterLabels(labelSelector, entity.getLabels());
+                }
+            };
+        }
+    }
+
+    /**
      * Returns true if the given textFilter matches either the id or the labels
      */
     public static boolean filterMatchesIdOrLabels(String textFilter, String id, Map<String, String> labels) {
         String text = toLabelsString(labels);
         return (text != null && text.contains(textFilter)) || (id != null && id.contains(textFilter));
+    }
+
+    /**
+     * Returns true if the given textFilter matches the actual labels
+     */
+    public static boolean filterLabels(Map<String, String> filterLabels, Map<String, String> labels) {
+        if (labels == null) {
+            return false;
+        }
+        Set<Map.Entry<String, String>> entries = filterLabels.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            String key = entry.getKey();
+            String expectedValue = entry.getValue();
+            String actualValue = labels.get(key);
+            if (!Objects.equal(expectedValue, actualValue)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
