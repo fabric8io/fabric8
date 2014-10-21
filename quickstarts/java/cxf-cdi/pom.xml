@@ -51,12 +51,17 @@
 
     <!-- versions for use in mvn plugins as we cannot inherit them from a BOM -->
     <cxf.version>3.0.2</cxf.version>
+    <jimagezip.version>2.0.0-SNAPSHOT</jimagezip.version>
 
     <!-- fabric8 configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
     <fabric8.port.host.jolokia>9803</fabric8.port.host.jolokia>
     <fabric8.label.container>java</fabric8.label.container>
     <fabric8.label.group>quickstarts</fabric8.label.group>
+
+    <!-- jimagezip properties -->
+    <docker.baseImage>fabric8/java</docker.baseImage>
+    <docker.env.MAIN>io.fabric8.quickstarts.cxfcdi.ApplicationStarter</docker.env.MAIN>
   </properties>
 
   <dependencyManagement>
@@ -285,6 +290,11 @@
           </env>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>io.jimagezip</groupId>
+        <artifactId>jimagezip-maven-plugin</artifactId>
+        <version>${jimagezip.version}</version>
+      </plugin>
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -372,6 +382,27 @@
             <groupId>org.jolokia</groupId>
             <artifactId>docker-maven-plugin</artifactId>
             <version>${docker.maven.plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>jimagezip</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>io.jimagezip</groupId>
+            <artifactId>jimagezip-maven-plugin</artifactId>
+            <version>${jimagezip.version}</version>
             <executions>
               <execution>
                 <goals>

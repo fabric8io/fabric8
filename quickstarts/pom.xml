@@ -81,6 +81,8 @@
   </modules>
 
   <build>
+    <defaultGoal>install</defaultGoal>
+
     <plugins>
       <!-- generate a .zip with all the quickstarts -->
       <plugin>
