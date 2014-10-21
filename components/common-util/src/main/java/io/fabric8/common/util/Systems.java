@@ -24,6 +24,26 @@ public class Systems {
     private static final transient Logger LOG = LoggerFactory.getLogger(Systems.class);
 
     /**
+     * Returns the value of the given environment variable or system property and if both are blank return the default value
+     */
+    public static String getEnvVarOrSystemProperty(String envVarName, String systemProperty, String defaultValue) {
+        String answer = null;
+        try {
+            answer = System.getenv(envVarName);
+        } catch (Exception e) {
+            LOG.warn("Failed to look up environment variable $" + envVarName + ". " + e, e);
+        }
+        if (Strings.isNullOrBlank(answer)) {
+            answer = System.getProperty(systemProperty, defaultValue);
+        }
+        if (Strings.isNotBlank(answer)) {
+            return answer;
+        } else {
+            return defaultValue;
+        }
+    }
+
+    /**
      * Returns the value of the given environment variable if its not blank or the given default value
      */
     public static String getEnvVar(String envVarName, String defaultValue) {
