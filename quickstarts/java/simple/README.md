@@ -36,7 +36,8 @@ You can deploy and run this example from the web console, as follows
 
 ## How to try this example
 
-1. Use `docker ps` to find the container id - the output should look like:
+1. Using the hawtio console at http://dockerhost:8484/hawtio, you should now see simple java as a 'pod' under the kubernetes tab http://dockerhost:8484/hawtio/kubernetes/pods?_id=
+1. You can find out the containerId using `docker ps` - the output should look like:
 
 	CONTAINER ID        IMAGE                                                   COMMAND                CREATED             STATUS              PORTS                    NAMES
 	19d5280bf22e        dockerhost:5000/quickstart/java-simple:2.0.0-SNAPSHOT   /bin/sh -c 'java $JA   3 days ago          Up 28 minutes                                k8s_quickstart-java-simple.6c2fc62f_c6fa4631-588f-11e4-8746-406c8f215ad7.etcd_c6fa4631-588f-11e4-8746-406c8f215ad7_e28ca78b
