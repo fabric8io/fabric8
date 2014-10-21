@@ -178,9 +178,9 @@
             <configuration>
                 <image>fabric8/java</image>
                 <mergeData>true</mergeData>
-                <assemblyDescriptorRef>artifact-with-dependencies</assemblyDescriptorRef>
+                <assemblyDescriptorRef>artifact</assemblyDescriptorRef>
                 <env>
-                    <FABRIC8_JAR>${project.artifactId}-${project.version}.jar</FABRIC8_JAR>
+                    <JAR>${project.artifactId}-${project.version}.jar</JAR>
                 </env>
             </configuration>
         </plugin>
