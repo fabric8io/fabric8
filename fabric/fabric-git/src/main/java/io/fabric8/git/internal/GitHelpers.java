@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.eclipse.jgit.api.CheckoutCommand;
+import org.eclipse.jgit.api.CheckoutResult;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
@@ -158,8 +160,10 @@ public class GitHelpers {
         if (equals(current, branch)) {
             return true;
         } else if (localBranchExists(git, branch)) {
-            Ref ref = git.checkout().setName(branch).setForce(true).call();
-            LOGGER.debug("Checked out branch {} with results: ", branch, ref.getName());
+            CheckoutCommand checkoutCommand = git.checkout().setName(branch).setForce(true);
+            Ref ref = checkoutCommand.call();
+            CheckoutResult result = checkoutCommand.getResult();
+            LOGGER.debug("Checked out branch {} with results: {}", branch, result.getStatus());
             return true;
         } else {
             LOGGER.debug("Branch {} not found!", branch);
