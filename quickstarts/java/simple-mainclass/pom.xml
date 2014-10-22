@@ -28,12 +28,12 @@
   </parent>
 
   <groupId>io.fabric8.quickstarts</groupId>
-  <artifactId>java-simple</artifactId>
+  <artifactId>java-simple-mainclass</artifactId>
   <version>2.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>Fabric8 :: Quickstarts :: Java :: Simple</name>
-  <description>Simple standalone Java Container</description>
+  <name>Fabric8 :: Quickstarts :: Java :: Simple main class</name>
+  <description>Simple standalone Java Container (main class)</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

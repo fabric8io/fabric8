@@ -40,7 +40,7 @@ You can deploy and run this example from the web console, as follows
 1. You can find out the containerId using `docker ps` - the output should look something like:
 ```
 	CONTAINER ID        IMAGE                                                   COMMAND                CREATED             STATUS              PORTS                    NAMES
-	19d5280bf22e        dockerhost:5000/quickstart/java-simple:2.0.0-SNAPSHOT   /bin/sh -c 'java $JA   3 days ago          Up 28 minutes                                k8s_quickstart-java-simple.6c2fc62f_c6fa4631-588f-11e4-8746-406c8f215ad7.etcd_c6fa4631-588f-11e4-8746-406c8f215ad7_e28ca78b
+	19d5280bf22e        dockerhost:5000/quickstart/java-simple-mainclass:2.0.0-SNAPSHOT   /bin/sh -c 'java $JA   3 days ago          Up 28 minutes                                k8s_quickstart-java-simple-mainclass.6c2fc62f_c6fa4631-588f-11e4-8746-406c8f215ad7.etcd_c6fa4631-588f-11e4-8746-406c8f215ad7_e28ca78b
 ```
 1. Use `docker logs -f <CONTAINER ID>` to see what the simple java app is writing to the console, and
 see that every second it logs another line:
@@ -81,7 +81,7 @@ which shows our java process is started using a Cmd, and that it is uing the io.
 	/maven# ls -l
 	total 412
 	-rw-r--r-- 1 root root 412739 Oct 20  2014 commons-lang3-3.3.2.jar
-	-rw-r--r-- 1 root root   4453 Oct 20  2014 java-simple-2.0.0-SNAPSHOT.jar
+	-rw-r--r-- 1 root root   4453 Oct 20  2014 java-simple-mainclass-2.0.0-SNAPSHOT.jar
 ```
 and the jolokia jars in the /opt/jolokia directory
 ```
