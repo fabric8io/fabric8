@@ -3,7 +3,9 @@ package io.fabric8.forge.camel.commands;
 import com.jcabi.xml.XML;
 import com.jcabi.xml.XMLDocument;
 import io.fabric8.forge.camel.api.CamelSupportedTechnologyEnum;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
@@ -11,6 +13,7 @@ import org.jboss.forge.addon.parser.java.resources.JavaResource;
 import org.jboss.forge.addon.parser.java.resources.JavaResourceVisitor;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.ProjectFacet;
+import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.*;
 import org.jboss.forge.addon.resource.FileResource;
@@ -44,8 +47,12 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class CamelNewComponentsCommand extends AbstractCamelCommand {
 
@@ -67,6 +74,7 @@ public class CamelNewComponentsCommand extends AbstractCamelCommand {
 
     @Inject
     ResourceFactory resourceFactory;
+
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -131,6 +139,8 @@ public class CamelNewComponentsCommand extends AbstractCamelCommand {
 
         installMavenDependency(component, selectedVersion, project);
 
+
+
         CamelSupportedTechnologyEnum tech = detectTechnology(project);
         //add different samples based on technology
         switch (tech){
@@ -142,10 +152,8 @@ public class CamelNewComponentsCommand extends AbstractCamelCommand {
 
                 Map<String, Object> templateContext = new HashMap<>();
                 String componentId = component.split("-")[1];
-                String componentClass = "";
                 templateContext.put("componentId", componentId);
-                List<String> foundComponentClasses = findComponentClasses(project);
-                System.out.println(foundComponentClasses);
+                String componentClass = findComponentFQCN(component, selectedVersion);
                 templateContext.put("componentClass", componentClass);
 
                 fileResource.createNewFile();
@@ -162,36 +170,47 @@ public class CamelNewComponentsCommand extends AbstractCamelCommand {
 
     }
 
-    private List<String> findComponentClasses(Project project) {
-        final List<String> classes = new ArrayList<String>();
-        //TODO: I still need to find a way to visit the added jar. Is there an archive Facet?
-//                .visitJavaSources(
-//                new JavaResourceVisitor() {
-//                    @Override
-//                    public void visit(VisitContext context, JavaResource javaResource) {
-//                        try {
-//                            JavaSource<?> javaType = javaResource.getJavaType();
-//                            if (javaType.isClass()) {
-//                                JavaClassSource source = (JavaClassSource) javaType;
-//                                if (source.hasInterface(org.apache.camel.Component.class)
-//                                        ) {
-//                                    classes.add(source.getName());
-//                                    System.out.println(ReflectionToStringBuilder.toString(source));
-//                                }
-//                            }
-//                        } catch (FileNotFoundException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                });
-        return classes;
+
+
+    private String findComponentFQCN(String component, String selectedVersion) {
+        String result = null;
+        InputStream stream = null;
+        try {
+            File tmp = File.createTempFile("camel-dep", "jar");
+            URL url = new URL(String.format("https://repo1.maven.org/maven2/org/apache/camel/%s/%s/%s-%s.jar", component, selectedVersion, component, selectedVersion));
+
+            FileUtils.copyURLToFile(url, tmp);
+
+            ZipFile zipFile = new ZipFile(tmp);
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if(entry.getName().startsWith("META-INF/services/org/apache/camel/component/") && !entry.isDirectory() ){
+                    stream = zipFile.getInputStream(entry);
+                    Properties prop = new Properties();
+                    prop.load(stream);
+                    result =  prop.getProperty("class");
+                    break;
+                }
+            }
+        }catch(Exception e){
+            throw new RuntimeException("Unable to inspect added component", e);
+        }
+        finally{
+            if(stream != null){
+                try {
+                    stream.close();
+                } catch(Exception e){}
+            }
+        }
+        return result;
     }
 
     private void installMavenDependency(String component, String selectedVersion, Project project) {
-        Dependency dependency = DependencyBuilder.create();
-        DependencyBuilder dependencyBuilder = DependencyBuilder.create(dependency).setGroupId(MVN_CAMEL_GROUPID).setVersion(selectedVersion).setArtifactId(component);
+        Dependency dependency = DependencyBuilder.create().setGroupId(MVN_CAMEL_GROUPID).setVersion(selectedVersion).setArtifactId(component);
 
-        dependencyInstaller.install(project, dependencyBuilder);
+        dependencyInstaller.install(project, dependency);
     }
 
     private Set<String> getAvailableCamelComponents() {
