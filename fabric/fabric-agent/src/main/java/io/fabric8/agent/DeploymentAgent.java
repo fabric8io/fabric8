@@ -54,6 +54,7 @@ import io.fabric8.maven.MavenResolver;
 import io.fabric8.maven.MavenResolvers;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
+import org.apache.maven.settings.Mirror;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -71,6 +72,7 @@ import static io.fabric8.agent.service.Constants.DEFAULT_BUNDLE_UPDATE_RANGE;
 import static io.fabric8.agent.service.Constants.DEFAULT_FEATURE_RESOLUTION_RANGE;
 import static io.fabric8.agent.service.Constants.DEFAULT_UPDATE_SNAPSHOTS;
 import static io.fabric8.agent.utils.AgentUtils.addMavenProxies;
+import static io.fabric8.agent.utils.AgentUtils.getMavenProxy;
 
 public class DeploymentAgent implements ManagedService {
 
@@ -309,13 +311,11 @@ public class DeploymentAgent implements ManagedService {
             }
         }
 
-        // Adding the maven proxy URL to the list of repositories.
-        addMavenProxies(properties, fabricService.getService());
-
         updateStatus("analyzing", null);
 
         // Building configuration
-        MavenResolver resolver = MavenResolvers.createMavenResolver(properties, "org.ops4j.pax.url.mvn");
+        Mirror mirror = getMavenProxy(fabricService.getService());
+        MavenResolver resolver = MavenResolvers.createMavenResolver(mirror, properties, "org.ops4j.pax.url.mvn");
         final DownloadManager manager = DownloadManagers.createDownloadManager(resolver, getDownloadExecutor());
         manager.addListener(new DownloadCallback() {
             @Override
