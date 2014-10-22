@@ -104,7 +104,7 @@ public class SimpleRestProxyFactory {
                 }
                 HttpEntity<?> entity = isGet ? new HttpEntity<>(effectiveHeaders) : new HttpEntity<>(args[args.length - 1], effectiveHeaders);
 
-                return restOperations.exchange(url, httpMethod, entity, returnType);
+                return restOperations.exchange(url, httpMethod, entity, returnType).getBody();
             }
         }
     }
