@@ -15,7 +15,6 @@
  */
 package io.fabric8.git.hawtio;
 
-import static io.fabric8.git.internal.GitHelpers.getRootGitDirectory;
 import io.fabric8.api.GitContext;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.Validatable;
@@ -24,34 +23,38 @@ import io.fabric8.api.scr.ValidationSupport;
 import io.fabric8.git.GitDataStore;
 import io.fabric8.git.internal.GitHelpers;
 import io.fabric8.git.internal.GitOperation;
-import io.hawt.git.CommitInfo;
-import io.hawt.git.CommitTreeInfo;
-import io.hawt.git.FileContents;
-import io.hawt.git.FileInfo;
-import io.hawt.git.GitFacadeMXBean;
-import io.hawt.git.GitFacadeSupport;
+import io.hawt.git.*;
+import io.hawt.util.Files;
+import io.hawt.util.Function;
 import io.hawt.util.Strings;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.*;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.util.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.Callable;
+
+import static io.fabric8.git.internal.GitHelpers.getRootGitDirectory;
+import static io.hawt.git.GitHelper.doUploadFiles;
 
 @ThreadSafe
 @Component(name = "io.fabric8.git.hawtio", label = "Fabric8 Git Hawtio Service", immediate = true, metatype = false)
-@Service(GitFacadeMXBean.class)
+@Service({GitFacadeMXBean.class, GitFileManager.class})
 public final class FabricGitFacade extends GitFacadeSupport implements Validatable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FabricGitFacade.class);
+
+    private final Object lock = new Object();
+
+    private PersonIdent stashPersonIdent;
 
     @Reference(referenceInterface = GitDataStore.class)
     private final ValidatingReference<GitDataStore> gitDataStore = new ValidatingReference<GitDataStore>();
@@ -320,7 +323,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         if (Strings.isBlank(branch)) {
             branch = "master";
         }
-        GitHelpers.createOrCheckoutBranch(git, branch, "origin");
+        GitHelpers.checkoutBranch(git, branch);
     }
 
     private <T> T gitReadOperation(GitOperation<T> gitop) {
@@ -349,5 +352,99 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
 
     void unbindGitDataStore(GitDataStore gitDataStore) {
         this.gitDataStore.unbind(gitDataStore);
+    }
+
+    /**
+     * Uploads the given local file name to the given branch and path; unzipping any zips if the flag is true
+     */
+    @Override
+    public void uploadFile(String branch, String path, boolean unzip, String sourceFileName, String destName) throws IOException, GitAPIException {
+        Map<String, File> uploadedFiles = new HashMap<>();
+        File sourceFile = new File(sourceFileName);
+        if (!sourceFile.exists()) {
+            throw new IllegalArgumentException("Source file does not exist: " + sourceFile);
+        }
+        uploadedFiles.put(destName, sourceFile);
+        uploadFiles(branch, path, unzip, uploadedFiles);
+    }
+
+    /**
+     * Uploads a list of files to the given branch and path
+     */
+    public void uploadFiles(String branch, String path, final boolean unzip, final Map<String, File> uploadFiles) throws IOException, GitAPIException {
+        LOG.info("uploadFiles: branch: " + branch + " path: " + path + " unzip: " + unzip + " uploadFiles: " + uploadFiles);
+
+        WriteCallback<Object> callback = new WriteCallback<Object>() {
+            @Override
+            public Object apply(WriteContext context) throws IOException, GitAPIException {
+                File folder = context.getFile();
+                // lets copy the files into the folder so we can add them to git
+                List<File> copiedFiles = new ArrayList<>();
+                Set<Map.Entry<String, File>> entries = uploadFiles.entrySet();
+                for (Map.Entry<String, File> entry : entries) {
+                    String name = entry.getKey();
+                    File uploadFile = entry.getValue();
+                    File copiedFile = new File(folder, name);
+                    Files.copy(uploadFile, copiedFile);
+                    copiedFiles.add(copiedFile);
+                }
+                doUploadFiles(context, folder, unzip, copiedFiles);
+                return null;
+            }
+        };
+        writeFile(branch, path, callback);
+    }
+
+    @Override
+    public <T> T readFile(final String branch, final String pathOrEmpty, final Function<File,T> callback) throws IOException, GitAPIException {
+        return gitOperation(getStashPersonIdent(), new Callable<T>() {
+            @Override
+            public String toString() {
+                return "doReadFile(" + branch + ", " + pathOrEmpty + ", " + callback + ")";
+            }
+
+            @Override
+            public T call() throws Exception {
+                Git git = gitDataStore.get().getGit();
+                return doReadFile(git, getRootGitDirectory(git), branch, pathOrEmpty, callback);
+            }
+        });
+    }
+
+    @Override
+    public <T> T writeFile(final String branch, final String pathOrEmpty, final WriteCallback<T> callback) throws IOException, GitAPIException {
+        return gitOperation(getStashPersonIdent(), new Callable<T>() {
+            @Override
+            public String toString() {
+                return "doWriteFile(" + branch + ", " + pathOrEmpty + ", " + callback + ")";
+            }
+
+            @Override
+            public T call() throws Exception {
+                Git git = gitDataStore.get().getGit();
+                return doWriteFile(git, getRootGitDirectory(git), branch, pathOrEmpty, callback);
+            }
+        });
+    }
+
+    public PersonIdent getStashPersonIdent() {
+        if (stashPersonIdent == null) {
+            stashPersonIdent = new PersonIdent("dummy", "dummy");
+        }
+        return stashPersonIdent;
+    }
+
+    /**
+     * Performs the given operations on a clean git repository
+     */
+    protected <T> T gitOperation(PersonIdent personIdent, Callable<T> callable) {
+        synchronized (lock) {
+            try {
+                T answer = callable.call();
+                return answer;
+            } catch (Exception e) {
+                throw new RuntimeIOException(e);
+            }
+        }
     }
 }
