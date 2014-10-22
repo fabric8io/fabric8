@@ -37,10 +37,11 @@
   </properties>
 
   <modules>
-    <module>simple</module>
     <module>camel-cdi</module>
     <module>camel-spring</module>
     <module>cxf-cdi</module>
+    <module>simple-mainclass</module>
+    <module>simple-fatjar</module>
   </modules>
 
   <build>
