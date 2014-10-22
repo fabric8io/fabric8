@@ -49,7 +49,7 @@
 
     <!-- maven plugin versions -->
     <camel.version>2.14.0</camel.version>
-    <jimagezip.version>2.0.0-SNAPSHOT</jimagezip.version>
+    <jube.version>2.0.0-SNAPSHOT</jube.version>
 
     <!-- fabric8 configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
@@ -58,7 +58,7 @@
     <fabric8.label.group>quickstarts</fabric8.label.group>
     <fabric8.iconRef>icons/camel.svg</fabric8.iconRef>
 
-    <!-- jimagezip properties -->
+    <!-- jube properties -->
     <docker.baseImage>fabric8/java</docker.baseImage>
     <docker.env.MAIN>org.apache.camel.spring.Main</docker.env.MAIN>
   </properties>
@@ -163,9 +163,9 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>io.jimagezip</groupId>
-        <artifactId>jimagezip-maven-plugin</artifactId>
-        <version>${jimagezip.version}</version>
+        <groupId>org.jboss.jube</groupId>
+        <artifactId>jube-maven-plugin</artifactId>
+        <version>${jube.version}</version>
       </plugin>
 
       <plugin>
@@ -258,13 +258,13 @@
     </profile>
 
     <profile>
-      <id>jimagezip</id>
+      <id>jube</id>
       <build>
         <plugins>
           <plugin>
-            <groupId>io.jimagezip</groupId>
-            <artifactId>jimagezip-maven-plugin</artifactId>
-            <version>${jimagezip.version}</version>
+            <groupId>org.jboss.jube</groupId>
+            <artifactId>jube-maven-plugin</artifactId>
+            <version>${jube.version}</version>
             <executions>
               <execution>
                 <goals>

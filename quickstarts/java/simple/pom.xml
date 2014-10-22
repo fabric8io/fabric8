@@ -47,7 +47,7 @@
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
 
     <!-- versions for use in mvn plugins as we cannot inherit them from a BOM -->
-    <jimagezip.version>2.0.0-SNAPSHOT</jimagezip.version>
+    <jube.version>2.0.0-SNAPSHOT</jube.version>
 
     <!-- fabric8 configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
@@ -55,7 +55,7 @@
     <fabric8.label.container>java</fabric8.label.container>
     <fabric8.label.group>quickstarts</fabric8.label.group>
 
-    <!-- jimagezip properties -->
+    <!-- jube properties -->
     <docker.baseImage>fabric8/java</docker.baseImage>
     <docker.env.MAIN>io.fabric8.quickstarts.java.simple.Main</docker.env.MAIN>
   </properties>
@@ -128,9 +128,9 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>io.jimagezip</groupId>
-        <artifactId>jimagezip-maven-plugin</artifactId>
-        <version>${jimagezip.version}</version>
+        <groupId>org.jboss.jube</groupId>
+        <artifactId>jube-maven-plugin</artifactId>
+        <version>${jube.version}</version>
       </plugin>
     </plugins>
   </build>
@@ -213,13 +213,13 @@
     </profile>
 
     <profile>
-      <id>jimagezip</id>
+      <id>jube</id>
       <build>
         <plugins>
           <plugin>
-            <groupId>io.jimagezip</groupId>
-            <artifactId>jimagezip-maven-plugin</artifactId>
-            <version>${jimagezip.version}</version>
+            <groupId>org.jboss.jube</groupId>
+            <artifactId>jube-maven-plugin</artifactId>
+            <version>${jube.version}</version>
             <executions>
               <execution>
                 <goals>
