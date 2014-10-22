@@ -38,6 +38,7 @@
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
+            org.apache.felix.utils.version;
             io.fabric8.utils;
             io.fabric8.maven.proxy.impl;
                 -split-package:=first,

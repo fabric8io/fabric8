@@ -126,16 +126,25 @@ public class AetherBasedResolver implements MavenResolver {
 
     /**
      * Create a AetherBasedResolver
-     * 
+     *
      * @param configuration (must be not null)
      */
     public AetherBasedResolver( final MavenConfiguration configuration ) {
+        this( configuration, null );
+    }
+
+    /**
+     * Create a AetherBasedResolver
+     * 
+     * @param configuration (must be not null)
+     */
+    public AetherBasedResolver( final MavenConfiguration configuration, final Mirror mirror ) {
         m_config = configuration;
         m_settings = configuration.getSettings();
         m_repoSystem = newRepositorySystem();
         decryptSettings();
         m_proxySelector = selectProxies();
-        m_mirrorSelector = selectMirrors();
+        m_mirrorSelector = selectMirrors( mirror );
     }
 
     private RepositorySystem newRepositorySystem() {
@@ -168,11 +177,14 @@ public class AetherBasedResolver implements MavenResolver {
         return proxySelector;
     }
 
-    private MirrorSelector selectMirrors() {
+    private MirrorSelector selectMirrors( Mirror mirror ) {
         // configure mirror
         DefaultMirrorSelector selector = new DefaultMirrorSelector();
-        for( Mirror mirror : m_settings.getMirrors() ) {
-            selector.add( mirror.getName(), mirror.getUrl(), null, false, mirror.getMirrorOf(), "*" );
+        for( Mirror m : m_settings.getMirrors() ) {
+            selector.add( m.getName(), m.getUrl(), null, false, m.getMirrorOf(), "*" );
+        }
+        if( mirror != null ) {
+            selector.add(mirror.getName(), mirror.getUrl(), null, false, mirror.getMirrorOf(), "*");
         }
         return selector;
     }

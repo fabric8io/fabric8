@@ -15,8 +15,10 @@
  */
 package io.fabric8.maven.proxy.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,10 +28,12 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.regex.Matcher;
 
+import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
@@ -44,8 +48,10 @@ import io.fabric8.maven.MavenResolver;
 import io.fabric8.maven.url.internal.AetherBasedResolver;
 import io.fabric8.maven.util.MavenConfigurationImpl;
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.settings.Proxy;
 import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -247,25 +253,156 @@ public class MavenProxyServletSupportTest {
         });
     }
 
-    private void testDownload(Handler serverHandler) throws Exception {
+    @Test
+    public void testDownloadMetadata() throws Exception {
         final String old = System.getProperty("karaf.data");
         System.setProperty("karaf.data", new File("target").getCanonicalPath());
         FileUtils.deleteDirectory(new File("target/tmp"));
 
         Server server = new Server(0);
-        server.setHandler(serverHandler);
+        server.setHandler(new AbstractHandler() {
+            @Override
+            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+                String result = null;
+                if ("/repo1/org/apache/camel/camel-core/maven-metadata.xml".equals(target)) {
+                    result =
+                            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                            "<metadata>\n" +
+                            "  <groupId>org.apache.camel</groupId>\n" +
+                            "  <artifactId>camel-core</artifactId>\n" +
+                            "  <versioning>\n" +
+                            "    <latest>2.14.0</latest>\n" +
+                            "    <release>2.14.0</release>\n" +
+                            "    <versions>\n" +
+                            "      <version>1.6.1</version>\n" +
+                            "      <version>1.6.2</version>\n" +
+                            "      <version>1.6.3</version>\n" +
+                            "      <version>1.6.4</version>\n" +
+                            "      <version>2.0-M2</version>\n" +
+                            "      <version>2.0-M3</version>\n" +
+                            "      <version>2.0.0</version>\n" +
+                            "      <version>2.1.0</version>\n" +
+                            "      <version>2.2.0</version>\n" +
+                            "      <version>2.3.0</version>\n" +
+                            "      <version>2.4.0</version>\n" +
+                            "      <version>2.5.0</version>\n" +
+                            "      <version>2.6.0</version>\n" +
+                            "      <version>2.7.0</version>\n" +
+                            "      <version>2.7.1</version>\n" +
+                            "      <version>2.7.2</version>\n" +
+                            "      <version>2.7.3</version>\n" +
+                            "      <version>2.7.4</version>\n" +
+                            "      <version>2.7.5</version>\n" +
+                            "      <version>2.8.0</version>\n" +
+                            "      <version>2.8.1</version>\n" +
+                            "      <version>2.8.2</version>\n" +
+                            "      <version>2.8.3</version>\n" +
+                            "      <version>2.8.4</version>\n" +
+                            "      <version>2.8.5</version>\n" +
+                            "      <version>2.8.6</version>\n" +
+                            "      <version>2.9.0-RC1</version>\n" +
+                            "      <version>2.9.0</version>\n" +
+                            "      <version>2.9.1</version>\n" +
+                            "      <version>2.9.2</version>\n" +
+                            "      <version>2.9.3</version>\n" +
+                            "      <version>2.9.4</version>\n" +
+                            "      <version>2.9.5</version>\n" +
+                            "      <version>2.9.6</version>\n" +
+                            "      <version>2.9.7</version>\n" +
+                            "      <version>2.9.8</version>\n" +
+                            "      <version>2.10.0</version>\n" +
+                            "      <version>2.10.1</version>\n" +
+                            "      <version>2.10.2</version>\n" +
+                            "      <version>2.10.3</version>\n" +
+                            "      <version>2.10.4</version>\n" +
+                            "      <version>2.10.5</version>\n" +
+                            "      <version>2.10.6</version>\n" +
+                            "      <version>2.10.7</version>\n" +
+                            "      <version>2.11.0</version>\n" +
+                            "      <version>2.11.1</version>\n" +
+                            "      <version>2.11.2</version>\n" +
+                            "      <version>2.11.3</version>\n" +
+                            "      <version>2.11.4</version>\n" +
+                            "      <version>2.12.0</version>\n" +
+                            "      <version>2.12.1</version>\n" +
+                            "      <version>2.12.2</version>\n" +
+                            "      <version>2.12.3</version>\n" +
+                            "      <version>2.12.4</version>\n" +
+                            "      <version>2.13.0</version>\n" +
+                            "      <version>2.13.1</version>\n" +
+                            "      <version>2.13.2</version>\n" +
+                            "      <version>2.14.0</version>\n" +
+                            "    </versions>\n" +
+                            "    <lastUpdated>20140918132816</lastUpdated>\n" +
+                            "  </versioning>\n" +
+                            "</metadata>\n" +
+                            "\n";
+                } else if ("/repo2/org/apache/camel/camel-core/maven-metadata.xml".equals(target)) {
+                    result =
+                            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                            "<metadata modelVersion=\"1.1.0\">\n" +
+                            "  <groupId>org.apache.camel</groupId>\n" +
+                            "  <artifactId>camel-core</artifactId>\n" +
+                            "  <versioning>\n" +
+                            "    <latest>2.14.0.redhat-620034</latest>\n" +
+                            "    <release>2.14.0.redhat-620034</release>\n" +
+                            "    <versions>\n" +
+                            "      <version>2.10.0.redhat-60074</version>\n" +
+                            "      <version>2.12.0.redhat-610312</version>\n" +
+                            "      <version>2.12.0.redhat-610328</version>\n" +
+                            "      <version>2.12.0.redhat-610355</version>\n" +
+                            "      <version>2.12.0.redhat-610378</version>\n" +
+                            "      <version>2.12.0.redhat-610396</version>\n" +
+                            "      <version>2.12.0.redhat-610399</version>\n" +
+                            "      <version>2.12.0.redhat-610401</version>\n" +
+                            "      <version>2.12.0.redhat-610402</version>\n" +
+                            "      <version>2.12.0.redhat-611403</version>\n" +
+                            "      <version>2.12.0.redhat-611405</version>\n" +
+                            "      <version>2.12.0.redhat-611406</version>\n" +
+                            "      <version>2.12.0.redhat-611408</version>\n" +
+                            "      <version>2.12.0.redhat-611409</version>\n" +
+                            "      <version>2.12.0.redhat-611410</version>\n" +
+                            "      <version>2.12.0.redhat-611411</version>\n" +
+                            "      <version>2.12.0.redhat-611412</version>\n" +
+                            "      <version>2.14.0.redhat-620031</version>\n" +
+                            "      <version>2.14.0.redhat-620033</version>\n" +
+                            "      <version>2.14.0.redhat-620034</version>\n" +
+                            "    </versions>\n" +
+                            "    <lastUpdated>20141019130841</lastUpdated>\n" +
+                            "  </versioning>\n" +
+                            "</metadata>\n" +
+                            "\n";
+                }
+                if (result == null) {
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    baseRequest.setHandled(true);
+                    response.getOutputStream().close();
+                } else {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    baseRequest.setHandled(true);
+                    response.getOutputStream().write(result.getBytes());
+                    response.getOutputStream().close();
+                }
+            }
+        });
         server.start();
 
         try {
             int localPort = server.getConnectors()[0].getLocalPort();
-            List<String> remoteRepos = Arrays.asList("http://relevant.not/maven2@id=central");
+            List<String> remoteRepos = Arrays.asList("http://relevant.not/repo1@id=repo1,http://relevant.not/repo2@id=repo2");
             RuntimeProperties props = new MockRuntimeProperties();
             // TODO: local repo should point to target/tmp
             MavenResolver resolver = createResolver("target/tmp", remoteRepos, "http", "localhost", localPort, "fuse", "fuse", null);
             MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(resolver, props, projectDeployer, 5);
 
+            AsyncContext context = EasyMock.createMock(AsyncContext.class);
+
             HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
-            EasyMock.expect(request.getPathInfo()).andReturn("org.apache.camel/camel-core/2.13.0/camel-core-2.13.0-sources.jar");
+            EasyMock.expect(request.getPathInfo()).andReturn("org/apache/camel/camel-core/maven-metadata.xml");
+//            EasyMock.expect(request.getPathInfo()).andReturn("org/apache/camel/camel-core/LATEST/camel-core-LATEST.jar");
+            EasyMock.expect(request.startAsync()).andReturn(context);
+            context.setTimeout(EasyMock.anyInt());
+            EasyMock.expectLastCall();
 
             HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -291,13 +428,109 @@ public class MavenProxyServletSupportTest {
             response.setHeader((String) EasyMock.anyObject(), (String) EasyMock.anyObject());
             EasyMock.expectLastCall().anyTimes();
 
-            EasyMock.replay(request, response);
+            final CountDownLatch latch = new CountDownLatch(1);
+            context.complete();
+            EasyMock.expectLastCall().andAnswer(new IAnswer<Object>() {
+                @Override
+                public Object answer() throws Throwable {
+                    latch.countDown();
+                    return null;
+                }
+            });
+
+            EasyMock.makeThreadSafe(context, true);
+            EasyMock.replay(request, response, context);
 
             servlet.start();
             servlet.doGet(request, response);
+
+            latch.await();
+
+            org.apache.maven.artifact.repository.metadata.Metadata m =
+                    new MetadataXpp3Reader().read( new ByteArrayInputStream( baos.toByteArray() ), false );
+            assertEquals("2.14.0.redhat-620034", m.getVersioning().getLatest());
+            assertTrue(m.getVersioning().getVersions().contains("2.10.4"));
+            assertTrue(m.getVersioning().getVersions().contains("2.12.0.redhat-610399"));
+
+            EasyMock.verify(request, response, context);
+        } finally {
+            server.stop();
+            if (old != null) {
+                System.setProperty("karaf.data", old);
+            }
+        }
+    }
+
+    private void testDownload(Handler serverHandler) throws Exception {
+        final String old = System.getProperty("karaf.data");
+        System.setProperty("karaf.data", new File("target").getCanonicalPath());
+        FileUtils.deleteDirectory(new File("target/tmp"));
+
+        Server server = new Server(0);
+        server.setHandler(serverHandler);
+        server.start();
+
+        try {
+            int localPort = server.getConnectors()[0].getLocalPort();
+            List<String> remoteRepos = Arrays.asList("http://relevant.not/maven2@id=central");
+            RuntimeProperties props = new MockRuntimeProperties();
+            // TODO: local repo should point to target/tmp
+            MavenResolver resolver = createResolver("target/tmp", remoteRepos, "http", "localhost", localPort, "fuse", "fuse", null);
+            MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(resolver, props, projectDeployer, 5);
+
+            AsyncContext context = EasyMock.createMock(AsyncContext.class);
+
+            HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+            EasyMock.expect(request.getPathInfo()).andReturn("org.apache.camel/camel-core/2.13.0/camel-core-2.13.0-sources.jar");
+            EasyMock.expect(request.startAsync()).andReturn(context);
+            context.setTimeout(EasyMock.anyInt());
+            EasyMock.expectLastCall();
+
+            HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            EasyMock.expect(response.getOutputStream()).andReturn(new ServletOutputStream() {
+                @Override
+                public void write(int b) throws IOException {
+                    baos.write(b);
+                }
+
+                @Override
+                public void write(byte[] b, int off, int len) throws IOException {
+                    baos.write(b, off, len);
+                }
+            }).anyTimes();
+            response.setStatus(EasyMock.anyInt());
+            EasyMock.expectLastCall().anyTimes();
+            response.setContentLength(EasyMock.anyInt());
+            EasyMock.expectLastCall().anyTimes();
+            response.setContentType((String) EasyMock.anyObject());
+            EasyMock.expectLastCall().anyTimes();
+            response.setDateHeader((String) EasyMock.anyObject(), EasyMock.anyLong());
+            EasyMock.expectLastCall().anyTimes();
+            response.setHeader((String) EasyMock.anyObject(), (String) EasyMock.anyObject());
+            EasyMock.expectLastCall().anyTimes();
+
+            final CountDownLatch latch = new CountDownLatch(1);
+            context.complete();
+            EasyMock.expectLastCall().andAnswer(new IAnswer<Object>() {
+                @Override
+                public Object answer() throws Throwable {
+                    latch.countDown();
+                    return null;
+                }
+            });
+
+            EasyMock.makeThreadSafe(context, true);
+            EasyMock.replay(request, response, context);
+
+            servlet.start();
+            servlet.doGet(request, response);
+
+            latch.await();
+
             Assert.assertArrayEquals(new byte[] { 0x42 }, baos.toByteArray());
 
-            EasyMock.verify(request, response);
+            EasyMock.verify(request, response, context);
         } finally {
             server.stop();
             if (old != null) {

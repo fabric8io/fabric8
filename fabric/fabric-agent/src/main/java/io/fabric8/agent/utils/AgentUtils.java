@@ -46,6 +46,7 @@ import io.fabric8.common.util.MultiException;
 import io.fabric8.common.util.Strings;
 import io.fabric8.maven.util.Parser;
 import io.fabric8.service.VersionPropertyPointerResolver;
+import org.apache.maven.settings.Mirror;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -275,6 +276,27 @@ public class AgentUtils {
             }
         }
         return downloadLocations(manager, locations);
+    }
+
+    public static Mirror getMavenProxy(FabricService fabricService) {
+        try {
+            if (fabricService != null) {
+                String httpUrl = fabricService.getCurrentContainer().getHttpUrl();
+                URI uri = fabricService.getMavenRepoURI();
+                if (uri == null || uri.toString().startsWith(httpUrl)) {
+                    return null;
+                }
+                Mirror mirror = new Mirror();
+                mirror.setName("fabric-maven-proxy");
+                mirror.setUrl(uri.toURL().toExternalForm());
+                mirror.setMirrorOf("*");
+                return mirror;
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Unable to retrieve maven proxy urls: " + e.getMessage());
+            LOGGER.debug("Unable to retrieve maven proxy urls: " + e.getMessage(), e);
+        }
+        return null;
     }
 
     public static void addMavenProxies(Dictionary<String, String> props, FabricService fabricService) {

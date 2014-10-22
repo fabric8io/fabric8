@@ -19,17 +19,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+
+import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,21 +35,18 @@ import javax.servlet.http.HttpServletResponse;
 import io.fabric8.api.FabricConstants;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.common.util.Closeables;
-import io.fabric8.common.util.Files;
 import io.fabric8.deployer.ProjectDeployer;
-import io.fabric8.utils.ThreadFactory;
 import io.fabric8.maven.MavenResolver;
+import io.fabric8.utils.ThreadFactory;
 
 public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
 
-    private final RuntimeProperties runtimeProperties;
-    private final ConcurrentMap<String, ArtifactDownloadFuture> requestMap = new ConcurrentHashMap<String, ArtifactDownloadFuture>();
+    private final ConcurrentMap<String, ArtifactDownloadFuture> requestMap = new ConcurrentHashMap<>();
     private final int threadMaximumPoolSize;
     private ThreadPoolExecutor executorService;
 
     public MavenDownloadProxyServlet(MavenResolver resolver, RuntimeProperties runtimeProperties, ProjectDeployer projectDeployer, int threadMaximumPoolSize) {
-        super(resolver, projectDeployer);
-        this.runtimeProperties = runtimeProperties;
+        super(resolver, runtimeProperties, projectDeployer);
         this.threadMaximumPoolSize = threadMaximumPoolSize;
     }
 
@@ -69,7 +64,12 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
     @Override
     public synchronized void stop() {
         if (executorService != null) {
-            executorService.shutdownNow();
+            executorService.shutdown();
+            try {
+                executorService.awaitTermination(5, TimeUnit.MINUTES);
+            } catch (InterruptedException e) {
+                executorService.shutdownNow();
+            }
         }
         super.stop();
     }
@@ -85,105 +85,106 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        InputStream is = null;
-        File artifactFile = null;
-        ArtifactDownloadFuture masterFuture = null;
-
-        try {
-            String path = req.getPathInfo();
-            if (path != null && path.startsWith("/")) {
-                path = path.substring(1);
-            }
-
-            try {
-                ArtifactDownloadFuture future = new ArtifactDownloadFuture(path);
-                masterFuture = requestMap.putIfAbsent(path, future);
-                if (masterFuture == null) {
-                    masterFuture = future;
-                    executorService.submit(future);
-                    artifactFile = masterFuture.get();
-                } else {
-                    artifactFile = masterFuture.get();
-                }
-
-                requestMap.remove(path);
-                if (artifactFile == null) {
-                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    return;
-                }
-
-                is = new FileInputStream(artifactFile);
-                LOGGER.log(Level.INFO, String.format("Writing response for file : %s", path));
-                resp.setStatus(HttpServletResponse.SC_OK);
-                resp.setContentType("application/octet-stream");
-                resp.setDateHeader("Date", System.currentTimeMillis());
-                resp.setHeader("Connection", "close");
-                resp.setContentLength(is.available());
-                resp.setHeader("Server", "MavenProxy Proxy/" + FabricConstants.FABRIC_VERSION);
-                byte buffer[] = new byte[8192];
-                int length;
-                while ((length = is.read(buffer)) != -1) {
-                    resp.getOutputStream().write(buffer, 0, length);
-                }
-                resp.getOutputStream().flush();
-            } catch (RejectedExecutionException ex) {
-                // we cannot accept the download request currently as we are overloaded
-                resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-                LOGGER.warning("DownloadProxyServlet cannot process request as we are overloaded, returning HTTP Status: 503");
-            } catch (Exception ex) {
-                LOGGER.warning("Error while downloading artifact:" + ex.getMessage());
-            } finally {
-                Closeables.closeQuietly(is);
-                if (masterFuture != null && artifactFile != null) {
-                    masterFuture.release(artifactFile);
-                }
-            }
-        } catch (Exception ex) {
+    protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+        String tpath = req.getPathInfo();
+        if (tpath == null) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return;
         }
+        if (tpath.startsWith("/")) {
+            tpath = tpath.substring(1);
+        }
+        final String path = tpath;
+
+        final AsyncContext asyncContext = req.startAsync();
+        asyncContext.setTimeout(TimeUnit.MINUTES.toMillis(5));
+        final ArtifactDownloadFuture future = new ArtifactDownloadFuture(path);
+        ArtifactDownloadFuture masterFuture = requestMap.putIfAbsent(path, future);
+        if (masterFuture == null) {
+            masterFuture = future;
+            masterFuture.lock();
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        File file = download(path);
+                        future.setValue(file);
+                    } catch (Throwable t) {
+                        future.setValue(t);
+                    }
+                }
+            });
+        } else {
+            masterFuture.lock();
+        }
+        masterFuture.addListener(new FutureListener<ArtifactDownloadFuture>() {
+            @Override
+            public void operationComplete(ArtifactDownloadFuture future) {
+                Object value = future.getValue();
+                if (value instanceof Throwable) {
+                    LOGGER.warning("Error while downloading artifact:" + value);
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                } else if (value instanceof File) {
+                    File artifactFile = (File) value;
+                    InputStream is = null;
+                    try {
+                        is = new FileInputStream(artifactFile);
+                        LOGGER.log(Level.INFO, String.format("Writing response for file : %s", path));
+                        resp.setStatus(HttpServletResponse.SC_OK);
+                        resp.setContentType("application/octet-stream");
+                        resp.setDateHeader("Date", System.currentTimeMillis());
+                        resp.setHeader("Connection", "close");
+                        resp.setContentLength(is.available());
+                        resp.setHeader("Server", "MavenProxy Proxy/" + FabricConstants.FABRIC_VERSION);
+                        byte buffer[] = new byte[8192];
+                        int length;
+                        while ((length = is.read(buffer)) != -1) {
+                            resp.getOutputStream().write(buffer, 0, length);
+                        }
+                        resp.getOutputStream().flush();
+                    } catch (Exception e) {
+                        LOGGER.warning("Error while sending artifact:" + e);
+                        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    } finally {
+                        Closeables.closeQuietly(is);
+                    }
+                } else {
+                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                }
+                future.release();
+                try {
+                    asyncContext.complete();
+                } catch (IllegalStateException e) {
+                    // Ignore, the response must have already been sent with an error
+                }
+            }
+        });
     }
 
-    private class ArtifactDownloadFuture extends FutureTask<File> {
+    private class ArtifactDownloadFuture extends DefaultFuture<ArtifactDownloadFuture> {
 
         private final AtomicInteger participants = new AtomicInteger();
-
-        public ArtifactDownloadFuture(String path) {
-            super(new ArtifactDownloadTask(path));
-        }
-
-        @Override
-        public File get() throws InterruptedException, ExecutionException {
-            participants.incrementAndGet();
-            return super.get();
-        }
-
-        public synchronized void release(File f) {
-            if (participants.decrementAndGet() == 0) {
-                f.delete();
-            }
-        }
-    }
-
-    private class ArtifactDownloadTask implements Callable<File> {
-
         private final String path;
 
-        private ArtifactDownloadTask(String path) {
+        private ArtifactDownloadFuture(String path) {
             this.path = path;
         }
 
-        @Override
-        public File call() throws Exception {
-            File download = download(path);
-            if (download != null)  {
-                File tmpFile = io.fabric8.utils.Files.createTempFile(runtimeProperties.getDataPath());
-                Files.copy(download, tmpFile);
-                return tmpFile;
-            } else {
-                return null;
+        public void lock() {
+            participants.incrementAndGet();
+        }
+
+        public void release() {
+            if (participants.decrementAndGet() == 0) {
+                requestMap.remove(path);
+                Object v = getValue();
+                if (v instanceof File) {
+                    ((File) v).delete();
+                }
             }
         }
+
     }
+
 }
 

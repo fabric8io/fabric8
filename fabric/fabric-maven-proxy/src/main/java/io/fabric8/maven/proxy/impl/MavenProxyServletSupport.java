@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
@@ -36,6 +37,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServlet;
 
+import io.fabric8.api.RuntimeProperties;
 import io.fabric8.common.util.Files;
 import io.fabric8.deployer.ProjectDeployer;
 import io.fabric8.deployer.dto.DependencyDTO;
@@ -43,6 +45,11 @@ import io.fabric8.deployer.dto.DeployResults;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.maven.MavenResolver;
 import io.fabric8.maven.proxy.MavenProxy;
+import org.apache.felix.utils.version.VersionTable;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
+import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
@@ -88,12 +95,15 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     protected RepositorySystemSession session;
     protected File tmpFolder = new File(System.getProperty("karaf.data") + File.separator + "maven" + File.separator + "proxy" + File.separator + "tmp");
 
+    final RuntimeProperties runtimeProperties;
+
     final ProjectDeployer projectDeployer;
 
     final MavenResolver resolver;
 
-    public MavenProxyServletSupport(MavenResolver resolver, ProjectDeployer projectDeployer) {
+    public MavenProxyServletSupport(MavenResolver resolver, RuntimeProperties runtimeProperties, ProjectDeployer projectDeployer) {
         this.resolver = resolver;
+        this.runtimeProperties = runtimeProperties;
         this.projectDeployer = projectDeployer;
     }
 
@@ -129,27 +139,53 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             Metadata metadata = null;
             try {
                 metadata = convertPathToMetadata(path);
-                List<MetadataRequest> requests = new ArrayList<MetadataRequest>();
-                String id = metdataMatcher.group(7);
+                // Only handle xxx/maven-metadata.xml requests
+                if (!"maven-metadata.xml".equals(metadata.getType()) || metdataMatcher.group(7) != null) {
+                    return null;
+                }
+                List<MetadataRequest> requests = new ArrayList<>();
                 for (RemoteRepository repository : repositories) {
-                    if (repository.getId().equals(id)) {
-                        MetadataRequest request = new MetadataRequest(metadata, repository, null);
-                        request.setFavorLocalRepository(false);
-                        requests.add(request);
-                    }
+                    MetadataRequest request = new MetadataRequest(metadata, repository, null);
+                    request.setFavorLocalRepository(false);
+                    requests.add(request);
                 }
-                if (requests.isEmpty()) {
-                    for (RemoteRepository repository : repositories) {
-                        MetadataRequest request = new MetadataRequest(metadata, repository, null);
-                        request.setFavorLocalRepository(false);
-                        requests.add(request);
-                    }
-                }
+                MetadataRequest request = new MetadataRequest(metadata, null, null);
+                request.setFavorLocalRepository(true);
+                requests.add(request);
+                org.apache.maven.artifact.repository.metadata.Metadata mr = new org.apache.maven.artifact.repository.metadata.Metadata();
+                mr.setModelVersion("1.1.0");
+                mr.setGroupId(metadata.getGroupId());
+                mr.setArtifactId(metadata.getArtifactId());
+                mr.setVersioning(new Versioning());
+                boolean merged = false;
                 List<MetadataResult> results = system.resolveMetadata(session, requests);
                 for (MetadataResult result : results) {
                     if (result.getMetadata() != null && result.getMetadata().getFile() != null) {
-                        return result.getMetadata().getFile();
+                        FileInputStream fis = new FileInputStream( result.getMetadata().getFile() );
+                        org.apache.maven.artifact.repository.metadata.Metadata m = new MetadataXpp3Reader().read( fis, false );
+                        fis.close();
+                        if (m.getVersioning() != null) {
+                            mr.getVersioning().setLastUpdated(latestTimestamp(mr.getVersioning().getLastUpdated(), m.getVersioning().getLastUpdated()));
+                            mr.getVersioning().setLatest(latestVersion(mr.getVersioning().getLatest(), m.getVersioning().getLatest()));
+                            mr.getVersioning().setRelease(latestVersion(mr.getVersioning().getRelease(), m.getVersioning().getRelease()));
+                            for (String v : m.getVersioning().getVersions()) {
+                                if (!mr.getVersioning().getVersions().contains(v)) {
+                                    mr.getVersioning().getVersions().add(v);
+                                }
+                            }
+                            mr.getVersioning().getSnapshotVersions().addAll(m.getVersioning().getSnapshotVersions());
+                        }
+                        merged = true;
                     }
+                }
+                if (merged) {
+                    Collections.sort(mr.getVersioning().getVersions(), VERSION_COMPARATOR);
+                    Collections.sort(mr.getVersioning().getSnapshotVersions(), SNAPSHOT_VERSION_COMPARATOR);
+                    File tmpFile = Files.createTempFile(runtimeProperties.getDataPath());
+                    FileOutputStream fos = new FileOutputStream(tmpFile);
+                    new MetadataXpp3Writer().write(fos, mr);
+                    fos.close();
+                    return tmpFile;
                 }
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, String.format("Could not find metadata : %s due to %s", metadata, e));
@@ -161,13 +197,57 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             LOGGER.log(Level.INFO, String.format("Received request for maven artifact : %s", path));
             Artifact artifact = convertPathToArtifact(path);
             try {
-                return resolver.resolveFile(artifact);
+                File download = resolver.resolveFile(artifact);
+                File tmpFile = Files.createTempFile(runtimeProperties.getDataPath());
+                Files.copy(download, tmpFile);
+                return tmpFile;
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, String.format("Could not find artifact : %s due to %s", artifact, e), e);
                 return null;
             }
         }
         return null;
+    }
+
+    private Comparator<String> VERSION_COMPARATOR = new Comparator<String>() {
+        @Override
+        public int compare(String v1, String v2) {
+            return VersionTable.getVersion(v1).compareTo(VersionTable.getVersion(v2));
+        }
+    };
+
+    private Comparator<SnapshotVersion> SNAPSHOT_VERSION_COMPARATOR = new Comparator<SnapshotVersion>() {
+        @Override
+        public int compare(SnapshotVersion o1, SnapshotVersion o2) {
+            int c = VERSION_COMPARATOR.compare(o1.getVersion(), o2.getVersion());
+            if (c == 0) {
+                c = o1.getExtension().compareTo(o2.getExtension());
+            }
+            if (c == 0) {
+                c = o1.getClassifier().compareTo(o2.getClassifier());
+            }
+            return c;
+        }
+    };
+
+    private String latestTimestamp(String t1, String t2) {
+        if (t1 == null) {
+            return t2;
+        } else if (t2 == null) {
+            return t1;
+        }  else {
+            return t1.compareTo(t2) < 0 ? t2 : t1;
+        }
+    }
+
+    private String latestVersion(String v1, String v2) {
+        if (v1 == null) {
+            return v2;
+        } else if (v2 == null) {
+            return v1;
+        } else {
+            return VERSION_COMPARATOR.compare(v1, v2) < 0 ? v2 : v1;
+        }
     }
 
     @Override

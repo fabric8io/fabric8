@@ -15,6 +15,7 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
 import io.fabric8.maven.MavenResolver;
 import io.fabric8.maven.MavenResolvers;
+import org.apache.maven.settings.Mirror;
 
 public final class DownloadManagers {
 
@@ -36,8 +37,8 @@ public final class DownloadManagers {
             configuration = new HashMap<>();
         }
         Dictionary<String, String> properties = mapToDictionary(configuration);
-        AgentUtils.addMavenProxies(properties, fabricService);
-        MavenResolver resolver = MavenResolvers.createMavenResolver(properties, "org.ops4j.pax.url.mvn");
+        Mirror mirror = AgentUtils.getMavenProxy(fabricService);
+        MavenResolver resolver = MavenResolvers.createMavenResolver(mirror, properties, "org.ops4j.pax.url.mvn");
         return createDownloadManager(resolver, executorService);
     }
 
