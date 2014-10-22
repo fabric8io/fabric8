@@ -102,6 +102,7 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
                 if (masterFuture == null) {
                     masterFuture = future;
                     executorService.submit(future);
+
                     artifactFile = masterFuture.get();
                 } else {
                     artifactFile = masterFuture.get();
@@ -132,7 +133,7 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
                 resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
                 LOGGER.warning("DownloadProxyServlet cannot process request as we are overloaded, returning HTTP Status: 503");
             } catch (Exception ex) {
-                LOGGER.warning("Error while downloading artifact:" + ex.getMessage());
+                LOGGER.log(Level.WARNING,"Error while downloading artifact: " + ex.getMessage(), ex);
             } finally {
                 Closeables.closeQuietly(is);
                 if (masterFuture != null && artifactFile != null) {
@@ -177,12 +178,20 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
         public File call() throws Exception {
             File download = download(path);
             if (download != null)  {
-                File tmpFile = io.fabric8.utils.Files.createTempFile(runtimeProperties.getDataPath());
+                File tmpFile = createTempFile();
                 Files.copy(download, tmpFile);
                 return tmpFile;
             } else {
                 return null;
             }
+        }
+
+        private File createTempFile() throws IOException {
+            return Files.createTempFile(getAbsolutePath());
+        }
+
+        private String getAbsolutePath() {
+            return runtimeProperties.getDataPath().toFile().getAbsolutePath();
         }
     }
 }
