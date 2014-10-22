@@ -15,13 +15,20 @@
  */
 package io.fabric8.process.spring.boot.rest.simple.client;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestOperations;
 
 import static io.fabric8.process.spring.boot.rest.simple.client.Header.header;
 import static java.lang.String.format;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.HttpMethod.GET;
@@ -29,7 +36,7 @@ import static org.springframework.http.HttpMethod.POST;
 
 public class SimpleRestProxyFactoryTest {
 
-    RestOperations restOperations = mock(RestOperations.class);
+    RestOperations restOperations = mock(RestOperations.class, RETURNS_DEEP_STUBS);
 
     String baseServiceUri = "http://company.com/api/";
 
@@ -37,6 +44,12 @@ public class SimpleRestProxyFactoryTest {
             proxyService(FooService.class, baseServiceUri);
 
     int arg = 666;
+
+    @Before
+    public void before() {
+        given(restOperations.exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), eq(String.class)).getBody()).
+                willReturn("returnValue");
+    }
 
     @Test
     public void shouldGenerateGetRequest() {
