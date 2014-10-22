@@ -231,19 +231,20 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             }
             try {
                 JSch jsch = new JSch();
+                java.util.Properties config = new java.util.Properties();
+                config.put("StrictHostKeyChecking", "no");
                 byte[] privateKey = readFile(options.getPrivateKeyFile());
                 byte[] passPhrase = options.getPassPhrase() != null ? options.getPassPhrase().getBytes() : null;
                 if (privateKey != null && options.getPassword() == null) {
                     jsch.addIdentity(options.getUsername(),privateKey,null, passPhrase);
                     session = jsch.getSession(options.getUsername(), options.getHost(), options.getPort());
+                    config.put("PreferredAuthentications", "publickey");
                 } else {
                     session = jsch.getSession(options.getUsername(), options.getHost(), options.getPort());
                     session.setPassword(options.getPassword());
+                    config.put("PreferredAuthentications", "password,keyboard-interactive");
                 }
                 session.setTimeout(60000);
-                java.util.Properties config = new java.util.Properties();
-                config.put("StrictHostKeyChecking", "no");
-                config.put("PreferredAuthentications", "publickey,password");
                 session.setConfig(config);
                 session.connect();
                 connectException = null;
