@@ -15,16 +15,9 @@
  */
 package io.fabric8.zookeeper.bootstrap;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
+import org.apache.zookeeper.server.ServerCnxnFactory;
 import org.apache.zookeeper.server.ServerConfig;
 import org.apache.zookeeper.server.ServerStats;
 import org.apache.zookeeper.server.ZKDatabase;
@@ -34,12 +27,15 @@ import org.apache.zookeeper.server.quorum.QuorumPeer;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig.ConfigException;
 import org.apache.zookeeper.server.quorum.QuorumStats;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.util.Properties;
 
 public class ZooKeeperServerFactory  {
     static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperServerFactory.class);
@@ -59,10 +55,9 @@ public class ZooKeeperServerFactory  {
 
     private Destroyable destroyable;
     private ServiceRegistration<?> registration;
+    private String zooKeeperUrl;
 
-    @Inject
-    public ZooKeeperServerFactory(QuorumPeerConfig peerConfig,
-                                  @ConfigProperty(name = "ZOOKEEPER_SERVER_ID") String serverId) throws IOException, InterruptedException {
+    public ZooKeeperServerFactory(QuorumPeerConfig peerConfig, String serverId) throws IOException, InterruptedException {
         this.peerConfig = peerConfig;
         this.serverId = serverId;
 
@@ -98,6 +93,8 @@ public class ZooKeeperServerFactory  {
                 throw e;
             }
 
+            updateZooKeeperURL(cnxnFactory.getLocalAddress(), cnxnFactory.getLocalPort());
+
             // Register stats provider
             this.clusteredServer = new ClusteredServer(quorumPeer);
 /*
@@ -117,7 +114,9 @@ public class ZooKeeperServerFactory  {
                 protected void configureSaslLogin() throws IOException {
                 }
             };
-            cnxnFactory.configure(serverConfig.getClientPortAddress(), serverConfig.getMaxClientCnxns());
+            InetSocketAddress clientPortAddress = serverConfig.getClientPortAddress();
+            cnxnFactory.configure(clientPortAddress, serverConfig.getMaxClientCnxns());
+            updateZooKeeperURL(cnxnFactory.getLocalAddress(), cnxnFactory.getLocalPort());
 
             try {
                 LOGGER.debug("Starting ZooKeeper server on address %s", peerConfig.getClientPortAddress());
@@ -137,6 +136,26 @@ public class ZooKeeperServerFactory  {
         }
     }
 
+    private void updateZooKeeperURL(InetSocketAddress localAddress, int localPort) {
+        System.out.println("localAddress: " + localAddress + " localPort " + localPort);
+        if (localAddress != null) {
+            InetAddress address = localAddress.getAddress();
+            String hostName;
+            if (address != null) {
+                hostName = address.getHostName();
+            } else {
+                hostName = localAddress.getHostName();
+            }
+            zooKeeperUrl = hostName + ":" + localPort;
+            System.out.println("ZK URL: " + zooKeeperUrl);
+        } else {
+            System.out.println("NO ZK ADDRESSS!");
+        }
+    }
+
+    public String getZooKeeperUrl() {
+        return zooKeeperUrl;
+    }
 
     public void destroy() throws Exception {
         LOGGER.info("Destroying zookeeper server: {}", destroyable);
@@ -163,6 +182,7 @@ public class ZooKeeperServerFactory  {
         LOGGER.info("Created zookeeper server configuration: {}", serverConfig);
         return serverConfig;
     }
+
 
     interface Destroyable {
         void destroy() throws Exception;

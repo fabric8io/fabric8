@@ -103,4 +103,8 @@ public class CuratorConfig {
         result = 31 * result + (zookeeperUrl != null ? zookeeperUrl.hashCode() : 0);
         return result;
     }
+
+    public void setZookeeperUrl(String zookeeperUrl) {
+        this.zookeeperUrl = zookeeperUrl;
+    }
 }

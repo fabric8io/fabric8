@@ -24,7 +24,9 @@ import io.fabric8.zookeeper.ACLManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +38,11 @@ public class CuratorACLManager implements ACLManager, ACLProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(CuratorACLManager.class);
     private final ConcurrentMap<String, String> acls = new ConcurrentHashMap<String, String>();
 
+    @Inject
+    public CuratorACLManager() {
+        // TODO how best to load the ACL manager config?
+        this(new HashMap<String, Object>());
+    }
     public CuratorACLManager(Map<String, ?> configuration) {
         acls.put("/", "world:anyone:acdrw");
         acls.put("/fabric", "auth::acdrw,world:anyone:");

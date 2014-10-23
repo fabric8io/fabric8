@@ -60,7 +60,7 @@ public final class ManagedCuratorFramework {
 
     private AtomicReference<State> state = new AtomicReference<State>();
 
-    @Inject
+    //@Inject
     public ManagedCuratorFramework(CuratorConfig config, ACLProvider aclProvider) {
         this.config = config;
         this.aclProvider = aclProvider;
@@ -157,6 +157,12 @@ public final class ManagedCuratorFramework {
      * Builds a {@link org.apache.curator.framework.CuratorFramework} from the specified {@link java.util.Map<String, ?>}.
      */
     private synchronized CuratorFramework buildCuratorFramework(CuratorConfig curatorConfig) {
+        ACLProvider aclProviderInstance = aclProvider;
+        List<ConnectionStateListener> connectionListenerList = connectionStateListeners;
+        return createCuratorFramework(curatorConfig, aclProviderInstance, connectionListenerList);
+    }
+
+    public static CuratorFramework createCuratorFramework(CuratorConfig curatorConfig, ACLProvider aclProviderInstance, List<ConnectionStateListener> connectionListenerList) {
         CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
                 .canBeReadOnly(true)
                 .ensembleProvider(new FixedEnsembleProvider(curatorConfig.getZookeeperUrl()))
@@ -167,12 +173,12 @@ public final class ManagedCuratorFramework {
         if (!Strings.isNullOrEmpty(curatorConfig.getZookeeperPassword())) {
             String scheme = "digest";
             byte[] auth = ("fabric:" + PasswordEncoder.decode(curatorConfig.getZookeeperPassword())).getBytes();
-            builder = builder.authorization(scheme, auth).aclProvider(aclProvider);
+            builder = builder.authorization(scheme, auth).aclProvider(aclProviderInstance);
         }
 
         CuratorFramework framework = builder.build();
 
-        for (ConnectionStateListener listener : connectionStateListeners) {
+        for (ConnectionStateListener listener : connectionListenerList) {
             framework.getConnectionStateListenable().addListener(listener);
         }
         return framework;
