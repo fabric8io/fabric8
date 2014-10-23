@@ -55,6 +55,8 @@ public class CuratorFactoryProducer {
             curatorConfig.setZookeeperUrl(zookeeperUrl);
         }
         List<ConnectionStateListener> connectionListenerList = new ArrayList<>();
-        return ManagedCuratorFramework.createCuratorFramework(curatorConfig, aclProvider, connectionListenerList);
+        CuratorFramework curatorFramework = ManagedCuratorFramework.createCuratorFramework(curatorConfig, aclProvider, connectionListenerList);
+        curatorFramework.start();
+        return curatorFramework;
     }
 }
