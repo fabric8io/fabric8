@@ -17,6 +17,7 @@
  */
 package io.fabric8.kubernetes.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -89,6 +90,13 @@ public class KubernetesHelper {
         } else {
             return dockerHost;
         }
+    }
+
+    public static String toJson(Object dto) throws JsonProcessingException {
+        Class<?> clazz = dto.getClass();
+        String json = objectMapper.writerWithType(clazz).writeValueAsString(dto);
+        System.out.println("Writing class + " + clazz + " dto " + dto + " to json is: " + json);
+        return json;
     }
 
     /**

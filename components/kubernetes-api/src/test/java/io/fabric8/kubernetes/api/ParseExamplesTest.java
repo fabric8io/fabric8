@@ -60,6 +60,9 @@ public class ParseExamplesTest {
         assertEquals("pod1.desiredState.manifest.container[0].image", "dockerfile/nginx", container.getImage());
 
         System.out.println("pod1 container1 " + container);
+
+        String json = KubernetesHelper.toJson(podList);
+        System.out.println("Got JSON: " + json);
     }
 
     @Test

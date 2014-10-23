@@ -40,7 +40,12 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.setData;
  */
 public enum ZkPath {
 
+    KUBERNETES_MODEL                        ("/kubernetes/model"),
+    KUBERNETES_REPLICATOR                   ("/kubernetes/replicator"),
 
+
+
+    // TODO the following are probably not required ;)
     // config nodes
     CONFIGS                        ("/fabric/configs"),
     CONFIGS_CONTAINERS             ("/fabric/configs/containers"),
