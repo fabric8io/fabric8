@@ -48,7 +48,7 @@ public class CuratorFactoryProducer {
         String zookeeperUrl = curatorConfig.getZookeeperUrl();
         System.out.println("ZK URL: " + zookeeperUrl);
         if (Strings.isNullOrBlank(zookeeperUrl)) {
-            System.out.println("No ZK string so creating a local ensemble server");
+            System.out.println("No ZooKeeper URL has been configured so creating a local ensemble server");
             serverFactory = new ZooKeeperServerFactory(peerConfig, "rootEnsembleNode");
             zookeeperUrl = serverFactory.getZooKeeperUrl();
             Objects.notNull(zookeeperUrl, "zookeeperUrl");

@@ -146,10 +146,11 @@ public class ZooKeeperServerFactory  {
             } else {
                 hostName = localAddress.getHostName();
             }
+            //hostName = "localhost";
             zooKeeperUrl = hostName + ":" + localPort;
-            System.out.println("ZK URL: " + zooKeeperUrl);
+            LOGGER.info("ZooKeeper URL to local ensemble is: " + zooKeeperUrl);
         } else {
-            System.out.println("NO ZK ADDRESSS!");
+            throw new IllegalStateException("No zookeeper URL can be found for the ensemble server!");
         }
     }
 
