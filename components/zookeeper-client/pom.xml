@@ -73,12 +73,6 @@
       <artifactId>deltaspike-core-impl</artifactId>
     </dependency>
 
-    <!--
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.utils</artifactId>
-            </dependency>
-    -->
     <dependency>
       <groupId>org.apache.curator</groupId>
       <artifactId>curator-framework</artifactId>
@@ -91,12 +85,6 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
-    <!--
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric-api</artifactId>
-            </dependency>
-    -->
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-utils</artifactId>
@@ -118,24 +106,6 @@
       <artifactId>jackson-databind</artifactId>
     </dependency>
 
-    <!-- Provided Dependencies -->
-    <!--
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.scr.annotations</artifactId>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.osgi</groupId>
-                <artifactId>org.osgi.core</artifactId>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.osgi</groupId>
-                <artifactId>org.osgi.enterprise</artifactId>
-                <scope>provided</scope>
-            </dependency>
-    -->
 
     <!-- Test Dependencies -->
     <dependency>

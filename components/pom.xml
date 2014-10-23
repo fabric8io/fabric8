@@ -39,15 +39,16 @@
 
   <modules>
     <module>common-util</module>
+    <module>docker-api</module>
     <module>fabric-cxf</module>
     <!--
             TODO
             <module>fabric-cxf-registry</module>
     -->
     <module>fabric-cxf-plugins</module>
-    <module>docker-api</module>
-    <module>fabric-utils</module>
     <module>fabric-etcd</module>
+    <module>fabric-groups</module>
+    <module>fabric-utils</module>
     <module>kubernetes-api</module>
     <module>kubernetes-jolokia</module>
     <module>kubernetes-template</module>

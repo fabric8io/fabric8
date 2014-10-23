@@ -20,27 +20,20 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric-project</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>io.fabric8</groupId>
+    <artifactId>components</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+  </parent>
 
     <artifactId>fabric-groups</artifactId>
-    <packaging>bundle</packaging>
 
     <name>Fabric8 :: Groups</name>
-
-    <properties>
-        <fuse.osgi.export>
-            io.fabric8.groups*;version=${project.version},
-        </fuse.osgi.export>
-    </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>fabric-zookeeper</artifactId>
+            <artifactId>zookeeper-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -59,13 +52,6 @@
             <artifactId>jackson-annotations</artifactId>
         </dependency>
 
-        <!-- Provided Dependencies -->
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        
         <!-- Test Dependencies -->
         <dependency>
             <groupId>junit</groupId>
