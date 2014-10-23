@@ -381,11 +381,10 @@ public class AetherBasedResolver implements MavenResolver {
             );
         }
 
-        List<RemoteRepository> remoteRepos = selectRepositories();
+        List<RemoteRepository> remoteRepos = getRepositories();
         if (repositoryURL != null) {
             addRepo(remoteRepos, repositoryURL);
         }
-        assignProxyAndMirrors( remoteRepos );
         try {
             RepositorySystemSession session = createSession();
             artifact = resolveLatestVersionRange( session, remoteRepos, artifact );
