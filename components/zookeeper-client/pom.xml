@@ -1,0 +1,167 @@
+<!--
+
+     Copyright 2005-2014 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.fabric8</groupId>
+    <artifactId>components</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>zookeeper-client</artifactId>
+
+  <name>Fabric8 :: ZooKeeper Service</name>
+
+  <properties>
+    <!--
+            <fuse.osgi.export>
+                org.apache.curator*;version=${curator.version};-noimport:=true;-split-package:=merge-first,
+                org.apache.zookeeper*;version="${zookeeper.version}";-noimport:=true;-split-package:=merge-first,
+                io.fabric8.zookeeper*;version=${fuse.osgi.version};-noimport:=true,
+            </fuse.osgi.export>
+            <fuse.osgi.import.before.defaults>
+                !org.apache.log4j.jmx,
+                !org.apache.log4j.spi,
+                !jline*,
+                !org.xml.*,
+                !javax.xml.parsers,
+                !com.sun.management,
+                !org.jboss.netty*,
+            </fuse.osgi.import.before.defaults>
+            <fuse.osgi.import.additional>
+                org.apache.log4j*;version="[1.2,2)"
+            </fuse.osgi.import.additional>
+            <fuse.osgi.capabilities.provide><![CDATA[
+                osgi.service;effective:=active;objectClass=org.apache.curator.framework.CuratorFramework
+            ]]></fuse.osgi.capabilities.provide>
+            <fuse.osgi.private.pkg>
+                org.apache.jute*,
+                io.fabric8.utils,
+                org.apache.felix.utils.properties;-split-package:=first,
+            </fuse.osgi.private.pkg>
+    -->
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.jboss.weld</groupId>
+      <artifactId>weld-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.core</groupId>
+      <artifactId>deltaspike-core-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.deltaspike.core</groupId>
+      <artifactId>deltaspike-core-impl</artifactId>
+    </dependency>
+
+    <!--
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.utils</artifactId>
+            </dependency>
+    -->
+    <dependency>
+      <groupId>org.apache.curator</groupId>
+      <artifactId>curator-framework</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.curator</groupId>
+      <artifactId>curator-recipes</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+    <!--
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-api</artifactId>
+            </dependency>
+    -->
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric-utils</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
+    <!-- Provided Dependencies -->
+    <!--
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.scr.annotations</artifactId>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.enterprise</artifactId>
+                <scope>provided</scope>
+            </dependency>
+    -->
+
+    <!-- Test Dependencies -->
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>-Dproject.version=${project.version}</argLine>
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          <useSystemClassLoader>true</useSystemClassLoader>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
