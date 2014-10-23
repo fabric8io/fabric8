@@ -1,0 +1,43 @@
+{
+  "apiVersion": "v1beta1",
+  "desiredState": {
+    "podTemplate": {
+      "desiredState": {
+        "manifest": {
+          "volumes": [{ "name": "docker-socket", "source": { "hostDir": { "path": "/var/run/docker.sock" } } }],
+          "containers": [
+            {
+              "image": "progrium/logspout",
+              "name": "logspout-container",
+              "ports": [
+                {
+                  "hostPort": 8000,
+                  "containerPort": 8000,
+                  "protocol": "TCP"
+                }
+              ],
+              "volumeMounts": [
+                { "name": "docker-socket", "mountPath": "/tmp/docker.sock", "readOnly": true }
+              ]
+            }
+          ],
+          "id": "logspoutPod",
+          "version": "v1beta1"
+        },
+        "restartpolicy": {}
+      },
+      "labels": {
+        "name": "logspoutPod"
+      }
+    },
+    "replicaSelector": {
+      "name": "logspoutPod"
+    },
+    "replicas": 1
+  },
+  "id": "logspoutController",
+  "kind": "ReplicationController",
+  "labels": {
+    "name": "logspoutController"
+  }
+}

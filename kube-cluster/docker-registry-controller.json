@@ -7,7 +7,7 @@
         "manifest": {
           "containers": [
             {
-              "image": "localhost:5001/registry",
+              "image": "registry",
               "name": "registry-container",
               "ports": [
                 {

@@ -7,7 +7,7 @@
         "manifest": {
           "containers": [
             {
-              "image": "localhost:5001/fabric8/hawtio",
+              "image": "fabric8/hawtio",
               "name": "hawtio-container",
               "env": [
                 {
