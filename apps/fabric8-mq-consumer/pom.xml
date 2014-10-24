@@ -99,7 +99,7 @@
           <assemblyDescriptorRef>artifact-with-dependencies</assemblyDescriptorRef>
           <env>
             <MAIN>io.fabric8.mq.consumer.ConsumerMain</MAIN>
-            <AMQ_PORT>${activemq.host.port}</AMQ_PORT>
+            <AMQ_SERVICE_ID>FABRIC8MQ</AMQ_SERVICE_ID>
             <AMQ_QUEUENAME>TEST.FOO</AMQ_QUEUENAME>
             <AMQ_PREFETCH>1000</AMQ_PREFETCH>
           </env>
