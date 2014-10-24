@@ -1,0 +1,21 @@
+{
+  "id": "fabric8-mq-config",
+  "kind": "Config",
+  "apiVersion": "v1beta1",
+  "name": "fabric8-mq-config",
+  "description": "Creates a fabric8 MQ service",
+  "items": [
+    {
+      "id": "fabric8-mq-service",
+      "apiVersion": "v1beta1",
+      "kind": "Service",
+      "containerPort": "${activemq.container.port}",
+      "port": "${activemq.service.port}",
+      "selector": {
+        "container": "java",
+        "name": "fabric8MQ",
+        "group": "fabric8MQ"
+      }
+    }
+  ]
+}
