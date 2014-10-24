@@ -30,6 +30,11 @@
 
     <name>Fabric8 :: MQ Autoscaler</name>
 
+    <properties>
+      <!-- jube properties -->
+      <docker.env.MAIN>io.fabric8.mq.autoscaler.MQAutoScalerMain</docker.env.MAIN>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.fabric8</groupId>

@@ -43,6 +43,9 @@
         <fabric8.label.container>java</fabric8.label.container>
         <fabric8.label.group>fabric8MQProducer</fabric8.label.group>
         <fabric8.iconRef>icons/activemq.svg</fabric8.iconRef>
+
+        <!-- jube properties -->
+        <docker.env.MAIN>io.fabric8.mq.producer.ProducerMain</docker.env.MAIN>
     </properties>
 
   <dependencies>

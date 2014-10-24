@@ -40,6 +40,9 @@
 
     <docker.dataImage>${env.DOCKER_REGISTRY}/fabric8/${project.artifactId}:${project.version}</docker.dataImage>
     <fabric8.iconRef>icons/activemq.svg</fabric8.iconRef>
+
+    <!-- jube properties -->
+    <docker.baseImage>fabric8/java</docker.baseImage>
   </properties>
 
 
@@ -47,7 +50,7 @@
     <module>fabric8-mq</module>
     <module>fabric8-mq-producer</module>
     <module>fabric8-mq-consumer</module>
-	<module>fabric8-mq-autoscaler</module>
+	  <module>fabric8-mq-autoscaler</module>
   </modules>
 
   <build>
@@ -69,6 +72,19 @@
         <configuration>
           <replaceReadmeLinksPrefix>/apps/</replaceReadmeLinksPrefix>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jboss.jube</groupId>
+        <artifactId>jube-maven-plugin</artifactId>
+        <version>${jube.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>build</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
