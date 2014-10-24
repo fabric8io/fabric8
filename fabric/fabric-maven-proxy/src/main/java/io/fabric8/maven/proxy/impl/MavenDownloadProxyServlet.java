@@ -143,7 +143,7 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
                         }
                         resp.getOutputStream().flush();
                     } catch (Exception e) {
-                        LOGGER.warning("Error while sending artifact:" + e);
+                        LOGGER.log(Level.WARNING,"Error while sending artifact:" + e.getMessage(), e);
                         resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     } finally {
                         Closeables.closeQuietly(is);
