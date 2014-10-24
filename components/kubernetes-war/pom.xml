@@ -37,8 +37,25 @@
   <dependencies>
     <dependency>
       <groupId>io.hawt</groupId>
-      <artifactId>hawtio-kubernetes</artifactId>
+      <artifactId>hawtio-default</artifactId>
+      <type>war</type>
     </dependency>
+<!--
+    <dependency>
+      <groupId>io.hawt</groupId>
+      <artifactId>hawtio-kubernetes</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>io.hawt</groupId>
+          <artifactId>hawtio-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+-->
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-template</artifactId>
