@@ -22,7 +22,7 @@
     <parent>
         <groupId>io.fabric8.runtime</groupId>
         <artifactId>fabric-runtime-container-tomcat</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.2.0.redhat-037</version>
     </parent>
 
     <artifactId>fabric-runtime-container-console-webapp</artifactId>

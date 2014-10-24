@@ -22,7 +22,7 @@
     <parent>
       <groupId>io.fabric8.mq</groupId>
       <artifactId>mq-project</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0.redhat-037</version>
     </parent>
 
     <artifactId>mq-http-discovery</artifactId>

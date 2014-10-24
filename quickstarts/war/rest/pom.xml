@@ -24,12 +24,12 @@
   <parent>
     <groupId>io.fabric8.quickstarts</groupId>
     <artifactId>fabric8-quickstarts-war-parent</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0.redhat-037</version>
   </parent>
 
   <groupId>io.fabric8.quickstarts</groupId>
   <artifactId>war-rest</artifactId>
-  <version>1.2.0-SNAPSHOT</version>
+  <version>1.2.0.redhat-037</version>
   <packaging>war</packaging>
   <name>Fabric8 :: Quickstarts :: WAR :: RESTful WebService WAR</name>
   <description>RESTful WebService Example using JAX-RS in a WAR</description>
@@ -42,13 +42,13 @@
     <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
     <skipTests>true</skipTests>
-    <cxf-version>3.0.2</cxf-version>
+    <cxf-version>3.0.2.redhat-620037</cxf-version>
     <swagger-jaxrs-version>1.3.10</swagger-jaxrs-version>
     <tomcat-plugin-version>2.2</tomcat-plugin-version>
 
     <!-- the version of the BOM, defining all the dependency versions -->
-    <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
-    <fabric.version>1.2.0-SNAPSHOT</fabric.version>
+    <fabric8.bom.version>1.2.0.redhat-037</fabric8.bom.version>
+    <fabric.version>1.2.0.redhat-037</fabric.version>
 
     <!-- fabric8 deploy profile configuration -->
     <fabric8.profile>quickstarts-war-rest</fabric8.profile>

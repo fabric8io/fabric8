@@ -23,7 +23,7 @@
   <parent>
     <groupId>io.fabric8.quickstarts</groupId>
     <artifactId>fabric8-quickstarts-mule-parent</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0.redhat-037</version>
   </parent>
 
   <artifactId>mule-helloworld</artifactId>
@@ -45,8 +45,8 @@
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
 
     <!-- the version of the BOM, defining all the dependency versions -->
-    <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
-    <fabric.version>1.2.0-SNAPSHOT</fabric.version>
+    <fabric8.bom.version>1.2.0.redhat-037</fabric8.bom.version>
+    <fabric.version>1.2.0.redhat-037</fabric.version>
     <mule.version>3.5.0</mule.version>
     <mule.maven.version>1.9</mule.maven.version>
 
