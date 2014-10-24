@@ -9,8 +9,8 @@
       "id": "fabric8-mq-service",
       "apiVersion": "v1beta1",
       "kind": "Service",
-      "containerPort": "${activemq.container.port}",
-      "port": "${activemq.service.port}",
+      "containerPort": ${activemq.container.port},
+      "port": ${activemq.service.port},
       "selector": {
         "container": "java",
         "name": "fabric8MQ",
