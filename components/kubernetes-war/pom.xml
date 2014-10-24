@@ -36,6 +36,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>io.hawt</groupId>
+      <artifactId>hawtio-kubernetes</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-template</artifactId>
       <exclusions>
