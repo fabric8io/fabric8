@@ -27,9 +27,7 @@
     <version>2.0.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>io.fabric8.quickstarts</groupId>
   <artifactId>java-cxf-cdi</artifactId>
-  <version>2.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Fabric8 :: Quickstarts :: Java :: CXF JAX-RS with CDI Java Container</name>
@@ -43,15 +41,19 @@
     <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
     <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
-    <skipTests>true</skipTests>
+    <skipTests>false</skipTests>
 
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
 
     <!-- versions for use in mvn plugins as we cannot inherit them from a BOM -->
+<<<<<<< HEAD
     <cxf.version>3.0.2</cxf.version>
     <jube.version>2.0.0-SNAPSHOT</jube.version>
+=======
+    <org.eclipse.jetty.version>9.1.5.v20140505</org.eclipse.jetty.version>
+>>>>>>> making CDI work again by using jetty9 rather then 8
 
     <!-- fabric8 configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
@@ -64,6 +66,7 @@
     <docker.env.MAIN>io.fabric8.quickstarts.cxfcdi.ApplicationStarter</docker.env.MAIN>
   </properties>
 
+  
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -75,27 +78,19 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+  
 
   <dependencies>
 
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-cxf</artifactId>
-      <version>${fabric.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.apache.cxf</groupId>
           <artifactId>cxf-bundle</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
-<!--
-      <version>${validation-api.version}</version>
--->
     </dependency>
 
     <dependency>
@@ -131,39 +126,48 @@
       <groupId>org.jboss.weld</groupId>
       <artifactId>weld-core</artifactId>
     </dependency>
-    <dependency>
-       <groupId>com.google.guava</groupId>
-       <artifactId>guava</artifactId>
-    </dependency>
 
-    <!-- these explicit transitive dependencies avoid issues of 8.x bleeding into the generated archetype -->
+    <!-- these explicit transitive dependencies avoid issues of 8.x bleeding into the generated archetype 
+         WARNING - this quickstart fails with jetty-8.x, the symptoms are that the endpoints are not registered. -->
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-server</artifactId>
+      <version>${org.eclipse.jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlet</artifactId>
+      <version>${org.eclipse.jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-jndi</artifactId>
+      <version>${org.eclipse.jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-jsp</artifactId>
+      <version>${org.eclipse.jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-http</artifactId>
+      <version>${org.eclipse.jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-io</artifactId>
+      <version>${org.eclipse.jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-util</artifactId>
+      <version>${org.eclipse.jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-security</artifactId>
+      <version>${org.eclipse.jetty.version}</version>
     </dependency>
 
     <!--
@@ -245,7 +249,7 @@
       <plugin>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-java2wadl-plugin</artifactId>
-        <version>${cxf.version}</version>
+        <version>3.0.0</version>
         <executions>
           <execution>
             <id>process-classes</id>
@@ -287,6 +291,7 @@
           <assemblyDescriptorRef>artifact-with-dependencies</assemblyDescriptorRef>
           <env>
             <MAIN>io.fabric8.quickstarts.cxfcdi.ApplicationStarter</MAIN>
+            <FABRIC8_HTTP_PORT>8080</FABRIC8_HTTP_PORT>
           </env>
         </configuration>
       </plugin>

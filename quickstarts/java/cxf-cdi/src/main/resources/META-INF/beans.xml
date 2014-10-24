@@ -6,6 +6,8 @@
 	
 	<scan>
 		<exclude name="org.apache.cxf.**" />
-                <exclude name="com.google.common.util.concurrent.ServiceManager" />
+		<!--  
+        <exclude name="com.google.common.util.concurrent.ServiceManager" />
+        -->
  	</scan>
 </beans>

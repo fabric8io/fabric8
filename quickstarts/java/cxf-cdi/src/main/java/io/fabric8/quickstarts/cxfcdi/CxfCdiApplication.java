@@ -48,5 +48,7 @@ public class CxfCdiApplication extends Application {
                 )
         );
     }
+    
+    
 }
 
