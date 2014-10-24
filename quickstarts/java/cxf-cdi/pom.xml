@@ -48,13 +48,9 @@
     <fabric.version>2.0.0-SNAPSHOT</fabric.version>
 
     <!-- versions for use in mvn plugins as we cannot inherit them from a BOM -->
-<<<<<<< HEAD
     <cxf.version>3.0.2</cxf.version>
     <jube.version>2.0.0-SNAPSHOT</jube.version>
-=======
     <org.eclipse.jetty.version>9.1.5.v20140505</org.eclipse.jetty.version>
->>>>>>> making CDI work again by using jetty9 rather then 8
-
     <!-- fabric8 configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
     <fabric8.port.host.jolokia>9803</fabric8.port.host.jolokia>
@@ -66,7 +62,6 @@
     <docker.env.MAIN>io.fabric8.quickstarts.cxfcdi.ApplicationStarter</docker.env.MAIN>
   </properties>
 
-  
   <dependencyManagement>
     <dependencies>
       <dependency>

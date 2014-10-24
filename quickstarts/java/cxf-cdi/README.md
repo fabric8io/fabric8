@@ -1,3 +1,5 @@
+Note that these instructions are out of date for v2. We need to update these soon.
+
 # REST with CXF and CDI QuickStart
 
 This quick start demonstrates how to create a RESTful (JAX-RS) web service using Apache CXF and expose it using CDI running in a Java standalone container.
