@@ -282,8 +282,14 @@ public class AgentUtils {
         try {
             if (fabricService != null) {
                 String httpUrl = fabricService.getCurrentContainer().getHttpUrl();
-                URI uri = fabricService.getMavenRepoURI();
-                if (uri == null || uri.toString().startsWith(httpUrl)) {
+                // Do not use getMavenRepoURI() as it may return the default repository
+                List<URI> uris = fabricService.getMavenRepoURIs();
+                if (uris == null || uris.isEmpty()) {
+                    return null;
+                }
+                URI uri = uris.get(0);
+                // Bypass the proxy if on our own container
+                if (uri.toString().startsWith(httpUrl)) {
                     return null;
                 }
                 Mirror mirror = new Mirror();
