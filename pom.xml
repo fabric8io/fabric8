@@ -616,6 +616,12 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
+                <artifactId>kubernetes-war</artifactId>
+                <version>${project.version}</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
                 <artifactId>fabric-utils</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -2755,6 +2761,11 @@
             </dependency>
             <dependency>
                 <groupId>io.hawt</groupId>
+                <artifactId>hawtio-kubernetes</artifactId>
+                <version>${hawtio.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.hawt</groupId>
                 <artifactId>hawtio-maven-indexer</artifactId>
                 <version>${hawtio.version}</version>
             </dependency>
@@ -2762,6 +2773,18 @@
                 <groupId>io.hawt</groupId>
                 <artifactId>hawtio-osgi-jmx</artifactId>
                 <version>${hawtio.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.hawt</groupId>
+                <artifactId>hawtio-web</artifactId>
+                <version>${hawtio.version}</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>io.hawt</groupId>
+                <artifactId>hawtio-default</artifactId>
+                <version>${hawtio.version}</version>
+                <type>war</type>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
