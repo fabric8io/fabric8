@@ -164,7 +164,13 @@ public class Controller {
         String id = serviceSchema.getId();
         ServiceSchema old = serviceMap.get(id);
         if (isRunning(old)) {
-            LOG.info("Not creating service for " + id + " from " + sourceName + " as its already running");
+            LOG.info("Updating a service from " + sourceName);
+            try {
+                Object answer = kubernetes.updateService(id, serviceSchema);
+                LOG.info("Updated service: " + answer);
+            } catch (Exception e) {
+                LOG.error("Failed to update controller from " + sourceName + ". " + e + ". " + serviceSchema, e);
+            }
         } else {
             LOG.info("Creating a service from " + sourceName);
             try {
@@ -183,7 +189,13 @@ public class Controller {
         String id = replicationControllerSchema.getId();
         ReplicationControllerSchema old = replicationControllerMap.get(id);
         if (isRunning(old)) {
-            LOG.info("Not creating replicationController for " + id + " from " + sourceName + " as its already running");
+            LOG.info("Updating replicationController from " + sourceName);
+            try {
+                Object answer = kubernetes.updateReplicationController(id, replicationControllerSchema);
+                LOG.info("Updated replicationController: " + answer);
+            } catch (Exception e) {
+                LOG.error("Failed to update replicationController from " + sourceName + ". " + e + ". " + replicationControllerSchema, e);
+            }
         } else {
             LOG.info("Creating a replicationController from " + sourceName);
             try {
@@ -202,7 +214,13 @@ public class Controller {
         String id = podSchema.getId();
         PodSchema old = podMap.get(id);
         if (isRunning(old)) {
-            LOG.info("Not creating pod for " + id + " from " + sourceName + " as its already running");
+            LOG.info("Updating a pod from " + sourceName);
+            try {
+                Object answer = kubernetes.updatePod(id, podSchema);
+                LOG.info("Updated pod result: " + answer);
+            } catch (Exception e) {
+                LOG.error("Failed to update pod from " + sourceName + ". " + e + ". " + podSchema, e);
+            }
         } else {
             LOG.info("Creating a pod from " + sourceName);
             try {

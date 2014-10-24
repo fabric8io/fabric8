@@ -21,9 +21,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.jaxrs.cfg.Annotations;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import io.fabric8.common.util.Strings;
-import io.fabric8.kubernetes.api.model.IntOrString;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -104,23 +104,21 @@ public class KubernetesFactory {
 
     protected <T> T createWebClient(Class<T> clientType) {
         List<Object> providers = createProviders();
-
         WebClient webClient = WebClient.create(address, providers);
-
         configureAuthDetails(webClient);
-
         if (trustAllCerts) {
             disableSslChecks(webClient);
         }
-
         return JAXRSClientFactory.fromClient(webClient, clientType);
     }
 
     protected List<Object> createProviders() {
         List<Object> providers = new ArrayList<Object>();
-        providers.add(new JacksonJaxbJsonProvider());
-        providers.add(new PlainTextJacksonProvider());
-        providers.add(new JacksonIntOrStringConfig());
+        Annotations[] annotationsToUse = JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS;
+        ObjectMapper objectMapper = createObjectMapper();
+        providers.add(new JacksonJaxbJsonProvider(objectMapper, annotationsToUse));
+        providers.add(new PlainTextJacksonProvider(objectMapper, annotationsToUse));
+        //providers.add(new JacksonIntOrStringConfig(objectMapper));
         return providers;
     }
 
@@ -131,7 +129,8 @@ public class KubernetesFactory {
     @javax.ws.rs.Consumes({"text/plain"})
     @javax.ws.rs.Produces({"text/plain"})
     public static class PlainTextJacksonProvider extends JacksonJaxbJsonProvider {
-        public PlainTextJacksonProvider() {
+        public PlainTextJacksonProvider(ObjectMapper mapper, Annotations[] annotationsToUse) {
+            super(mapper, annotationsToUse);
         }
 
         @Override
@@ -203,12 +202,14 @@ public class KubernetesFactory {
      * Creates a configured Jackson object mapper for parsing JSON
      */
     public static ObjectMapper createObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+/*
         SimpleModule module = new SimpleModule();
         module.addSerializer(IntOrString.class, new IntOrStringSerializer());
         module.addDeserializer(IntOrString.class, new IntOrStringDeserializer());
 
-        ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(module);
+*/
 
         return mapper;
     }
@@ -252,69 +253,6 @@ public class KubernetesFactory {
         }});
 
         params.setDisableCNCheck(true);
-    }
-
-    static class IntOrStringSerializer extends JsonSerializer<IntOrString> {
-
-        @Override
-        public void serialize(IntOrString value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-            if (value != null) {
-                Object intValue = value.getAdditionalProperties().get("intValue");
-                if (intValue != null) {
-                    jgen.writeNumber((Integer) intValue);
-                } else {
-                    Object stringValue = value.getAdditionalProperties().get("stringValue");
-                    if (stringValue != null) {
-                        jgen.writeString((String) stringValue);
-                    } else {
-                        jgen.writeNull();
-                    }
-                }
-            } else {
-                jgen.writeNull();
-            }
-        }
-
-    }
-
-    static class IntOrStringDeserializer extends JsonDeserializer<IntOrString> {
-
-        @Override
-        public IntOrString deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-            ObjectCodec oc = jsonParser.getCodec();
-            JsonNode node = oc.readTree(jsonParser);
-
-            IntOrString intOrString = new IntOrString();
-
-            int asInt = node.asInt();
-            if (asInt != 0) {
-                intOrString.setAdditionalProperty("intValue", asInt);
-            } else {
-                intOrString.setAdditionalProperty("stringValue", node.asText());
-            }
-
-            return intOrString;
-        }
-
-    }
-
-    public static class JacksonIntOrStringConfig implements ContextResolver<ObjectMapper> {
-
-        public JacksonIntOrStringConfig() {
-
-        }
-
-        @Override
-        public ObjectMapper getContext(Class<?> aClass) {
-            SimpleModule module = new SimpleModule();
-            module.addSerializer(IntOrString.class, new KubernetesFactory.IntOrStringSerializer());
-            module.addDeserializer(IntOrString.class, new KubernetesFactory.IntOrStringDeserializer());
-
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(module);
-
-            return mapper;
-        }
     }
 
 }

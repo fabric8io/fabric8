@@ -85,7 +85,8 @@ public class ParseExamplesTest {
 
         assertEquals("Service", service.getKind());
 
-        assertEquals(80, service.getContainerPort().getAdditionalProperties().get("intValue"));
+        Integer expectedPort = 80;
+        assertEquals(expectedPort, service.getContainerPort().getIntValue());
 
         ObjectMapper mapper = KubernetesFactory.createObjectMapper();
 

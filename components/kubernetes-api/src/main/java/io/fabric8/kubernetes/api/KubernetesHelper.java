@@ -590,4 +590,32 @@ public class KubernetesHelper {
         return null;
     }
 
+    /**
+     * Returns the container port number for the given service
+     */
+    public static int getContainerPort(ServiceSchema service) {
+        String id = service.getId();
+        IntOrString containerPort = service.getContainerPort();
+        Objects.notNull(containerPort, "containerPort for service " + id);
+        int answer = 0;
+        Integer intValue = containerPort.getIntValue();
+        if (intValue != null) {
+            answer = intValue.intValue();
+        } else {
+            String containerPortText = containerPort.getStringValue();
+            if (Strings.isNullOrBlank(containerPortText)) {
+                throw new IllegalArgumentException("No containerPort for service " + id);
+            }
+            try {
+                answer = Integer.parseInt(containerPortText);
+            } catch (NumberFormatException e) {
+                throw new IllegalStateException("Invalid containerPort expression " + containerPortText + " for service " + id + ". " + e, e);
+            }
+        }
+        if (answer <= 0) {
+            throw new IllegalArgumentException("Invalid port number for service " + id + ". " + answer);
+        }
+        return answer;
+    }
+
 }
