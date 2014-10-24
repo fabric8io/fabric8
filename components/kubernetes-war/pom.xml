@@ -83,6 +83,23 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>${jetty-plugin-groupId}</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <version>${jetty.version}</version>
+        <configuration>
+          <scanIntervalSeconds>1</scanIntervalSeconds>
+          <useTestScope>true</useTestScope>
+          <systemProperties>
+<!--
+            <systemProperty>
+              <key>karaf.data</key>
+              <value>${project.build.directory}/karaf-data</value>
+            </systemProperty>
+-->
+          </systemProperties>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

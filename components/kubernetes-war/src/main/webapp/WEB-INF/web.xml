@@ -9,7 +9,7 @@
   <display-name>fabric8 kubernetes support</display-name>
 
   <listener>
-    <listener-class>io.hawt.HawtioContextListener</listener-class>
+    <listener-class>io.hawt.blueprint.HawtioBlueprintContextListener</listener-class>
   </listener>
 
   <context-param>
