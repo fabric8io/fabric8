@@ -55,6 +55,7 @@
     <module>kubernetes-api</module>
     <module>kubernetes-jolokia</module>
     <module>kubernetes-template</module>
+    <module>kubernetes-war</module>
     <module>zookeeper-client</module>
   </modules>
 
