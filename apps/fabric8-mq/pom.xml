@@ -45,7 +45,7 @@
     <fabric8.port.host.jolokia>9802</fabric8.port.host.jolokia>
     <fabric8.env.AMQ_PORT>${activemq.container.port}</fabric8.env.AMQ_PORT>
     <fabric8.label.container>java</fabric8.label.container>
-    <fabric8.label.group>fabric8MQ</fabric8.label.group>
+    <fabric8.label.group>defaultMQGroup</fabric8.label.group>
     <fabric8.iconRef>icons/activemq.svg</fabric8.iconRef>
 
     <!-- jube properties -->

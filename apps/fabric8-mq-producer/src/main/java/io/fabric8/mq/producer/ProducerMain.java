@@ -4,6 +4,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 
+import io.fabric8.common.util.Systems;
 import org.apache.activemq.camel.component.ActiveMQComponent;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 public class ProducerMain {
     private static final Logger LOG = LoggerFactory.getLogger(ProducerMain.class);
     public static final String DEFAULT_HOST = "127.0.0.1";
+    public static final String DEFAULT_PORT = "61616";
 
     private static String host;
 
@@ -31,27 +33,17 @@ public class ProducerMain {
 
     public static void main(String args[]) {
         try {
+            String serviceName = Systems.getEnvVarOrSystemProperty("AMQ_SERVICE_ID", "AMQ_SERVICE_ID", "FABRIC8MQ").toUpperCase() + "_SERVICE";
+            String hostEnvVar = serviceName + "_HOST";
+            String portEnvVar = serviceName + "_PORT";
             try {
-                host = AccessController.doPrivileged(new PrivilegedAction<String>() {
-                    @Override
-                    public String run() {
-                        String result = System.getenv("AMQ_HOST");
-                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_HOST", DEFAULT_HOST) : result;
-                        return result;
-                    }
-                });
-                String portStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
-                    @Override
-                    public String run() {
-                        String result = System.getenv("AMQ_PORT");
-                        result = (result == null || result.isEmpty()) ? System.getProperty("org.apache.activemq.AMQ_PORT", "61616") : result;
-                        return result;
-                    }
-                });
+
+                host = Systems.getEnvVarOrSystemProperty(hostEnvVar, hostEnvVar, DEFAULT_HOST);
+                String portStr = Systems.getEnvVarOrSystemProperty(portEnvVar, hostEnvVar, DEFAULT_PORT);
                 if (portStr != null && portStr.length() > 0) {
                     port = Integer.parseInt(portStr);
                 }
-                
+
                 queueName = AccessController.doPrivileged(new PrivilegedAction<String>() {
                     @Override
                     public String run() {
@@ -107,7 +99,7 @@ public class ProducerMain {
             if (port <= 0) {
                 port = 61616;
             }
-            
+
             if (queueName == null) {
             	queueName = "TEST.FOO";
             }
@@ -120,6 +112,8 @@ public class ProducerMain {
             	messageCount = 10000;
             }
     		
+            System.out.println("Using broker host " + host + " from $" + hostEnvVar + " and port " + port + " from $" + portEnvVar);
+
             // create a camel route to produce messages to our queue
             org.apache.camel.main.Main main = new org.apache.camel.main.Main();
 
