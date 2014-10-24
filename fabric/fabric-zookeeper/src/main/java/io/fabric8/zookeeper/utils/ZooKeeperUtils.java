@@ -17,6 +17,7 @@ package io.fabric8.zookeeper.utils;
 
 import io.fabric8.api.FabricException;
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.api.transaction.CuratorTransaction;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.utils.ZKPaths;
@@ -42,6 +43,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 public final class ZooKeeperUtils {
 

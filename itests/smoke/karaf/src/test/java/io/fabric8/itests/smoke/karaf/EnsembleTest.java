@@ -99,7 +99,6 @@ public class EnsembleTest {
             try {
                 Deque<Container> containerQueue = new LinkedList<Container>(containers);
                 Deque<Container> addedContainers = new LinkedList<Container>();
-
                 for (int e = 0; e < 3 && containerQueue.size() >= 2 && containerQueue.size() % 2 == 0; e++) {
                     Container cnt1 = containerQueue.removeFirst();
                     Container cnt2 = containerQueue.removeFirst();
@@ -135,6 +134,7 @@ public class EnsembleTest {
                     Assert.assertFalse(ensembleContainersResult.contains(cnt2.getId()));
                     ProvisionSupport.provisioningSuccess(Arrays.asList(fabricService.getContainers()), ProvisionSupport.PROVISION_TIMEOUT);
                 }
+
             } finally {
                 ContainerBuilder.stop(fabricService, containers);
             }

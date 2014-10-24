@@ -154,7 +154,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     private BootstrapConfiguration cleanInternal(final BundleContext syscontext, BootstrapConfiguration bootConfig, RuntimeProperties runtimeProps) throws TimeoutException {
         LOGGER.debug("Begin clean fabric");
         try {
-            Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=io.fabric8.zookeeper.server)(service.pid=io.fabric8.zookeeper))");
+            Configuration[] configs = configAdmin.get().listConfigurations("(|(service.pid=io.fabric8.zookeeper.server)(service.pid=io.fabric8.zookeeper))");
             File karafData = new File(data);
 
             // Setup the listener for unregistration of {@link BootstrapConfiguration}

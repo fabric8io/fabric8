@@ -77,9 +77,10 @@ public class FabricBootstrapTest {
         Configuration config = configAdmin.listConfigurations("(service.pid=" + Constants.ZOOKEEPER_CLIENT_PID + ")")[0];
         Assert.assertNotNull("Configuration not null", config);
         Assert.assertNotNull("zookeeper.url not null", config.getProperties().get("zookeeper.url"));
-        config = configAdmin.listConfigurations("(service.factoryPid=" + Constants.ZOOKEEPER_SERVER_PID + ")")[0];
+        config = configAdmin.listConfigurations("(service.pid=" + Constants.ZOOKEEPER_SERVER_PID + ")")[0];
         Assert.assertNotNull("Configuration not null", config);
-        Assert.assertNotNull("dataDir not null", config.getProperties().get("dataDir"));
+        Assert.assertNotNull("dataDir not null", config.getProperties().get("dataBaseDir"));
+        Assert.assertNotNull("dataLogDir not null", config.getProperties().get("dataLogBaseDir"));
         config = configAdmin.listConfigurations("(service.pid=" + Constants.DATASTORE_PID + ")")[0];
         Assert.assertNotNull("Configuration not null", config);
         Assert.assertNotNull("gitpullperiod not null", config.getProperties().get("gitpullperiod"));
