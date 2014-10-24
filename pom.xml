@@ -582,6 +582,18 @@
                 <artifactId>fabric-groups</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>gateway-model</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.fabric8</groupId>
+              <artifactId>gateway-servlet</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-api</artifactId>
@@ -1443,6 +1455,18 @@
               <groupId>org.jboss.shrinkwrap.resolver</groupId>
               <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
               <version>${shrinkwrap-resolver.version}</version>
+            </dependency>
+
+            <!-- vertx -->
+            <dependency>
+                <groupId>io.vertx</groupId>
+                <artifactId>vertx-core</artifactId>
+                <version>${vertx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.vertx</groupId>
+                <artifactId>vertx-platform</artifactId>
+                <version>${vertx.version}</version>
             </dependency>
 
             <!-- LogBack -->

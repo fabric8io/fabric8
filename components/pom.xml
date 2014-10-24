@@ -49,6 +49,9 @@
     <module>fabric-etcd</module>
     <module>fabric-groups</module>
     <module>fabric-utils</module>
+    <module>gateway-model</module>
+    <module>gateway-servlet</module>
+    <module>gateway-servlet-example</module>
     <module>kubernetes-api</module>
     <module>kubernetes-jolokia</module>
     <module>kubernetes-template</module>
