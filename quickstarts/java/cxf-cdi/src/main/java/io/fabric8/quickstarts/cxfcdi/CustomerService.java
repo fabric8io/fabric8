@@ -16,7 +16,6 @@
 package io.fabric8.quickstarts.cxfcdi;
 
 
-import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -27,7 +26,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -52,7 +50,6 @@ import java.util.Map;
  */
 @Path("/customerservice/")
 @Api(value = "/customerservice", description = "Operations about customerservice")
-
 public class CustomerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomerService.class);
@@ -62,6 +59,7 @@ public class CustomerService {
     Map<Long, Order> orders = new HashMap<Long, Order>();
     private MessageContext jaxrsContext;
 
+    
     public CustomerService() {
         init();
     }

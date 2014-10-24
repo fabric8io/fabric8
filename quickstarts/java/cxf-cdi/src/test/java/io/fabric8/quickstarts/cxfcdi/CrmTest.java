@@ -15,12 +15,16 @@
  */
 package io.fabric8.quickstarts.cxfcdi;
 
-import junit.framework.Assert;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.FileRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
+import org.eclipse.jetty.server.Server;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +48,24 @@ public final class CrmTest {
     private URL url;
     private InputStream in;
 
+    private static Server server = null;
+    
+    @BeforeClass
+    public static void before() {
+    	try {
+    		server = ApplicationStarter.startServer();
+    	} catch (Exception e) {
+    		LOG.error(e.getMessage(),e);
+    		Assert.fail("Jetty Server could not be started");
+    	}
+    }
+    
+    @AfterClass
+    public static void after() throws Exception {
+    	if (server!=null) server.stop();
+    }
+    
+    
     /*
      * Just a simple helper method to read bytes from an InputStream and return the String representation.
      */
