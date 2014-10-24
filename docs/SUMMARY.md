@@ -12,6 +12,7 @@
     * [Run Fabric8](runFabric.md)
     * [QuickStarts](quickstarts.md)
     * [Maven Plugin](mavenPlugin.md)
+    * [Forge Addons](forge.md)
 * [Changes from V1](v2-changes.md)
 * [Emulator](emulation.md)
 * [FAQ](FAQ.md)
