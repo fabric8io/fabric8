@@ -328,6 +328,7 @@ public final class ZooKeeperUtils {
         }
         return properties;
     }
+       /*
 
     public static void setPropertiesAsMap(CuratorFramework curator, String path, Map<String, String> map) throws Exception {
         Properties properties = new Properties();
@@ -364,6 +365,7 @@ public final class ZooKeeperUtils {
             // ignore
         }
     }
+*/
 
     public static String getSubstitutedPath(final CuratorFramework curator, String path) throws Exception {
         String normalized = path != null && path.contains("#") ? path.substring(0, path.lastIndexOf('#')) : path;

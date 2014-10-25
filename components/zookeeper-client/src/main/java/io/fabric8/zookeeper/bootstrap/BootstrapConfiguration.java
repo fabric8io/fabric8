@@ -15,29 +15,6 @@
  */
 package io.fabric8.zookeeper.bootstrap;
 
-import io.fabric8.common.util.Strings;
-import io.fabric8.utils.HostUtils;
-import io.fabric8.utils.PasswordEncoder;
-import io.fabric8.utils.Ports;
-import io.fabric8.zookeeper.CreateEnsembleOptions;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
-import org.osgi.service.component.annotations.Reference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.Set;
 
 /**
  * Copyright (C) FuseSource, Inc.

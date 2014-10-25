@@ -27,7 +27,6 @@ import org.apache.zookeeper.server.quorum.QuorumPeer;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig.ConfigException;
 import org.apache.zookeeper.server.quorum.QuorumStats;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +53,6 @@ public class ZooKeeperServerFactory  {
 */
 
     private Destroyable destroyable;
-    private ServiceRegistration<?> registration;
     private String zooKeeperUrl;
 
     public ZooKeeperServerFactory(QuorumPeerConfig peerConfig, String serverId) throws IOException, InterruptedException {
@@ -160,10 +158,6 @@ public class ZooKeeperServerFactory  {
 
     public void destroy() throws Exception {
         LOGGER.info("Destroying zookeeper server: {}", destroyable);
-        if (registration != null) {
-            registration.unregister();
-            registration = null;
-        }
         if (destroyable != null) {
             destroyable.destroy();
             destroyable = null;

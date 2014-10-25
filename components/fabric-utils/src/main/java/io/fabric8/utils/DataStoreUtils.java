@@ -30,8 +30,6 @@ import java.util.Properties;
 import io.fabric8.common.util.ChecksumUtils;
 import io.fabric8.common.util.Closeables;
 
-import org.osgi.framework.BundleContext;
-
 public class DataStoreUtils {
 
     public static byte[] toBytes(Properties source) {
@@ -151,19 +149,5 @@ public class DataStoreUtils {
         }
     }
 
-    /**
-     * Substitutes bundle property.
-     * @return  The target value or an empty String.
-     */
-    public static String substituteBundleProperty(String key, BundleContext bundleContext) {
-        String value = null;
-        if (bundleContext != null) {
-            value = bundleContext.getProperty(key);
-        }
-        if (value == null) {
-            value = System.getProperty(key);
-        }
-        return value != null ? value : "";
-    }
 
 }

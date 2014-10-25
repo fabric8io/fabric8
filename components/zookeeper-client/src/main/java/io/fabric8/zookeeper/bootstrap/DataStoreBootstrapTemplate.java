@@ -15,34 +15,6 @@
  */
 package io.fabric8.zookeeper.bootstrap;
 
-import io.fabric8.utils.DataStoreUtils;
-import io.fabric8.utils.PasswordEncoder;
-import io.fabric8.utils.Ports;
-import io.fabric8.zookeeper.ZkPath;
-import io.fabric8.zookeeper.curator.CuratorACLManager;
-import io.fabric8.zookeeper.utils.ZooKeeperUtils;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.RetryNTimes;
-import org.apache.karaf.jaas.modules.Encryption;
-import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class DataStoreBootstrapTemplate {
 }
 /*

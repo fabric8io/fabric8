@@ -15,10 +15,9 @@
  */
 package io.fabric8.zookeeper.utils;
 
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.osgi.framework.BundleContext;
 
 /**
  * <p>
@@ -48,34 +47,6 @@ public class InterpolationHelper {
 
     }
 
-    /**
-     * Perform substitution on a property set
-     *
-     * @param properties the property set to perform substitution on
-     */
-    public static void performSubstitution(Map<String, String> properties) {
-        performSubstitution(properties, (BundleContext) null);
-    }
-
-    /**
-     * Perform substitution on a property set
-     *
-     * @param properties the property set to perform substitution on
-     */
-    public static void performSubstitution(Map<String, String> properties, final BundleContext context) {
-        performSubstitution(properties, new SubstitutionCallback() {
-            public String getValue(String key) {
-                String value = null;
-                if (context != null) {
-                    value = context.getProperty(key);
-                }
-                if (value == null) {
-                    value = System.getProperty(value, "");
-                }
-                return value;
-            }
-        });
-    }
 
     /**
      * Perform substitution on a property set

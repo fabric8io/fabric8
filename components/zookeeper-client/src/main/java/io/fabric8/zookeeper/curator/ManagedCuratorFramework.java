@@ -25,13 +25,10 @@ import org.apache.curator.framework.api.ACLProvider;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.RetryNTimes;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -53,9 +50,9 @@ public final class ManagedCuratorFramework {
     @Reference(referenceInterface = ConnectionStateListener.class, bind = "bindConnectionStateListener", unbind = "unbindConnectionStateListener", cardinality = OPTIONAL_MULTIPLE, policy = DYNAMIC)
     @Reference(referenceInterface = BootstrapConfiguration.class)
     private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
+    private BundleContext bundleContext;
 */
 
-    private BundleContext bundleContext;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private AtomicReference<State> state = new AtomicReference<State>();
@@ -76,7 +73,9 @@ public final class ManagedCuratorFramework {
     class State implements ConnectionStateListener, Runnable {
         final CuratorConfig configuration;
         final AtomicBoolean closed = new AtomicBoolean();
+/*
         ServiceRegistration<CuratorFramework> registration;
+*/
         CuratorFramework curator;
 
         State(CuratorConfig configuration) {
@@ -88,10 +87,12 @@ public final class ManagedCuratorFramework {
                 if (curator != null) {
                     curator.getZookeeperClient().stop();
                 }
+/*
                 if (registration != null) {
                     registration.unregister();
                     registration = null;
                 }
+*/
                 try {
                     Closeables.close(curator, true);
                 } catch (IOException e) {
@@ -111,11 +112,13 @@ public final class ManagedCuratorFramework {
 
         @Override
         public void stateChanged(CuratorFramework client, ConnectionState newState) {
+/*
             if (newState == ConnectionState.CONNECTED || newState == ConnectionState.READ_ONLY || newState == ConnectionState.RECONNECTED) {
                 if (registration == null) {
                     registration = bundleContext.registerService(CuratorFramework.class, curator, null);
                 }
             }
+*/
             for (ConnectionStateListener listener : connectionStateListeners) {
                 listener.stateChanged(client, newState);
             }
