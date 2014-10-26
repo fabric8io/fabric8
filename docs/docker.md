@@ -16,6 +16,12 @@ The **DOCKER_HOST** environment variable should point to the URL to connect to d
 
 e.g. on a Mac the value of DOCKER_HOST is often something like tcp://192.168.59.103:2375. Fabric8 uses the DOCKER_HOST environment variable to know where the Docker Remote API is located.
 
+TLS is enabled on the docker service in boot2docker 1.3 and later. This means setting additional environment variables. This can be easily done by running:
+
+    $(boot2docker shellinit)
+
+in your current shell.
+
 If running on Linux, please refer to [docker documentation](https://docs.docker.com/articles/basics/#bind-docker-to-another-hostport-or-a-unix-socket) on how to bind Docker to a host/port or a Unix socket.
 
 #### Security Warning
