@@ -562,8 +562,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                                 metadata.setContainer(container);
                                 LOGGER.info("The container " + metadata.getContainerName() + " has been successfully created");
                             } else {
-                                dataStore.get().deleteContainer(fabricService, containerOptions.getName());
                                 LOGGER.warn("The creation of the container " + metadata.getContainerName() + " has failed", metadata.getFailure());
+                                dataStore.get().deleteContainer(fabricService, containerOptions.getName());
                             }
                             metadatas.add(metadata);
                         } catch (Throwable t) {
