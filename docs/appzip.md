@@ -26,7 +26,7 @@ A JSON file which consists of Kubernetes JSON metadata. Typically this is either
 
 A page of documentation describing the App. Using the App Store metaphor think of this as the detailed description page when you click on an App in an App Store.
 
-My using this naming convention; an App if stored on github is then easy to browse (the ReadMe file will be displayed when viewing an App folder on github or in fabric8's web console etc)
+By using this naming convention; an App if stored on github is then easy to browse (the ReadMe file will be displayed when viewing an App folder on github or in fabric8's web console etc)
 
 If the ReadMe requires additional documentation, images or media then put those files into a sub directory (ideally called **doc**) to leave the root folder uncluttered.
 
