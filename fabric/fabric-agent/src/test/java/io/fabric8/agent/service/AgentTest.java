@@ -6,14 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -25,6 +18,7 @@ import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.agent.download.impl.MavenDownloadManager;
 import io.fabric8.maven.MavenResolver;
 import io.fabric8.maven.MavenResolvers;
+import io.fabric8.maven.url.ServiceConstants;
 import io.fabric8.maven.url.internal.AetherBasedResolver;
 import io.fabric8.maven.util.MavenConfigurationImpl;
 import org.apache.felix.utils.version.VersionRange;
@@ -49,7 +43,9 @@ public class AgentTest {
         System.setProperty("karaf.data", new File("target/karaf/data").getAbsolutePath());
         System.setProperty("karaf.home", new File("target/karaf").getAbsolutePath());
 
-        MavenResolver mavenResolver = MavenResolvers.createMavenResolver(null, null);
+        Dictionary<String, String> resolverProps = new Hashtable<>();
+        resolverProps.put(ServiceConstants.PROPERTY_REPOSITORIES, "https://repository.jboss.org/nexus/content/groups/ea/@id=jboss.ea.repo,http://repo1.maven.org/maven2@id=maven.central.repo");
+        MavenResolver mavenResolver = MavenResolvers.createMavenResolver(resolverProps, null);
         DownloadManager manager = DownloadManagers.createDownloadManager(mavenResolver, Executors.newScheduledThreadPool(8));
 
         BundleContext systemBundleContext = createMock(BundleContext.class);
@@ -64,29 +60,32 @@ public class AgentTest {
 
         long nextBundleId = 2;
         List<Bundle> mockBundles = new ArrayList<>();
+
+        String karafVersion = System.getProperty("karaf-version");
+
         String[] bundles = {
                 "mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.api/1.0.1",
-                "mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.cm/1.0.4",
-                "mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.core/1.4.1",
+                "mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.cm/1.0.5",
+                "mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.core/1.4.2",
                 "mvn:org.apache.aries.proxy/org.apache.aries.proxy.api/1.0.1",
-                "mvn:org.apache.aries.proxy/org.apache.aries.proxy.impl/1.0.3",
+                "mvn:org.apache.aries.proxy/org.apache.aries.proxy.impl/1.0.4",
                 "mvn:org.apache.aries/org.apache.aries.util/1.1.0",
                 "mvn:org.apache.felix/org.apache.felix.configadmin/1.8.0",
-                "mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.command/2.4.0",
-                "mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.config/2.4.0",
-                "mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.modules/2.4.0",
-                "mvn:org.apache.karaf.shell/org.apache.karaf.shell.commands/2.4.0",
-                "mvn:org.apache.karaf.shell/org.apache.karaf.shell.console/2.4.0",
-                "mvn:org.apache.karaf.shell/org.apache.karaf.shell.dev/2.4.0",
-                "mvn:org.apache.karaf.shell/org.apache.karaf.shell.log/2.4.0",
-                "mvn:org.apache.karaf.shell/org.apache.karaf.shell.osgi/2.4.0",
-                "mvn:org.apache.karaf.shell/org.apache.karaf.shell.packages/2.4.0",
-                "mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/2.4.0",
+                "mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.command/" + karafVersion,
+                "mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.config/" + karafVersion,
+                "mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.modules/" + karafVersion,
+                "mvn:org.apache.karaf.shell/org.apache.karaf.shell.commands/" + karafVersion,
+                "mvn:org.apache.karaf.shell/org.apache.karaf.shell.console/" + karafVersion,
+                "mvn:org.apache.karaf.shell/org.apache.karaf.shell.dev/" + karafVersion,
+                "mvn:org.apache.karaf.shell/org.apache.karaf.shell.log/" + karafVersion,
+                "mvn:org.apache.karaf.shell/org.apache.karaf.shell.osgi/" + karafVersion,
+                "mvn:org.apache.karaf.shell/org.apache.karaf.shell.packages/" + karafVersion,
+                "mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/" + karafVersion,
                 "mvn:org.apache.mina/mina-core/2.0.7",
                 "mvn:org.apache.sshd/sshd-core/0.12.0",
                 "mvn:org.ow2.asm/asm-all/5.0.3",
-                "mvn:org.ops4j.pax.logging/pax-logging-api/1.7.0",
-                "mvn:org.ops4j.pax.logging/pax-logging-service/1.7.0",
+                "mvn:org.ops4j.pax.logging/pax-logging-api/1.8.0",
+                "mvn:org.ops4j.pax.logging/pax-logging-service/1.8.0",
         };
         for (String bundleUri : bundles) {
             File file = mavenResolver.download(bundleUri);
@@ -123,8 +122,8 @@ public class AgentTest {
                 Collections.<String>emptySet(),
                 Collections.<String>emptySet(),
                 new HashSet<>(Arrays.asList(
-                        "mvn:org.ops4j.pax.logging/pax-logging-api/1.7.0",
-                        "mvn:org.ops4j.pax.logging/pax-logging-service/1.7.0",
+                        "mvn:org.ops4j.pax.logging/pax-logging-api/1.8.0",
+                        "mvn:org.ops4j.pax.logging/pax-logging-service/1.8.0",
                         "mvn:org.apache.felix/org.apache.felix.configadmin/1.8.0"
                 )),
                 Collections.<String, Map<VersionRange, Map<String, String>>>emptyMap()
