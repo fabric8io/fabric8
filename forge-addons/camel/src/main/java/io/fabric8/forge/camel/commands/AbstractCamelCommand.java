@@ -16,9 +16,9 @@ import java.util.Collections;
 import java.util.List;
 
 // extending AbstractProjectCommand we have access to ProjectFactory
-public abstract class AbstractCamelCommand extends AbstractProjectCommand
-{
+public abstract class AbstractCamelCommand extends AbstractProjectCommand{
     public static final String MVN_CAMEL_GROUPID = "org.apache.camel";
+    private static final String MVN_CAMEL_CORE = "camel-core";
     public static String CATEGORY = "Camel";
 
     @Inject
@@ -27,6 +27,9 @@ public abstract class AbstractCamelCommand extends AbstractProjectCommand
     protected UIProvider uiProvider;
 
     protected  List<String> camelDepsInUse = null;
+
+
+    protected String camelCoreVersion = null;
 
 
     @Override
@@ -67,10 +70,17 @@ public abstract class AbstractCamelCommand extends AbstractProjectCommand
         for (Dependency d : dependencies){
             if(MVN_CAMEL_GROUPID.equals(d.getCoordinate().getGroupId())){
                 currentCamelDeps.add(d.getCoordinate().getArtifactId());
+                if(MVN_CAMEL_CORE.equals(d.getCoordinate().getArtifactId())){
+                    camelCoreVersion = d.getCoordinate().getVersion();
+                }
             }
         }
         Collections.sort(currentCamelDeps);
         camelDepsInUse = currentCamelDeps;
+    }
+
+    public String getCamelCoreVersion() {
+        return camelCoreVersion;
     }
 
 }
