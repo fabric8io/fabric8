@@ -315,7 +315,10 @@ public class DeployToProfileMojo extends AbstractProfileMojo {
 
                 // lets deploy the pom for the artifact first
                 if (isFile(pomFile)) {
-                    deploy(pomFile, artifact, repo, localRepository, retryFailedDeploymentCount);
+                    Artifact pomArtifact =
+                            artifactFactory.createProjectArtifact(artifact.getGroupId(), artifact.getArtifactId(),
+                                    artifact.getBaseVersion());
+                    deploy(pomFile, pomArtifact, repo, localRepository, retryFailedDeploymentCount);
                 }
                 if (isFile(file)) {
                     deploy(file, artifact, repo, localRepository, retryFailedDeploymentCount);
