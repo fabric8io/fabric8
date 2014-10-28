@@ -4,18 +4,14 @@ import com.jcabi.xml.XML;
 import com.jcabi.xml.XMLDocument;
 import io.fabric8.forge.camel.api.CamelSupportedTechnologyEnum;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.parser.java.resources.JavaResource;
 import org.jboss.forge.addon.parser.java.resources.JavaResourceVisitor;
 import org.jboss.forge.addon.projects.Project;
-import org.jboss.forge.addon.projects.ProjectFacet;
-import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
-import org.jboss.forge.addon.projects.facets.*;
+import org.jboss.forge.addon.projects.facets.ResourcesFacet;
 import org.jboss.forge.addon.resource.FileResource;
 import org.jboss.forge.addon.resource.Resource;
 import org.jboss.forge.addon.resource.ResourceFactory;
@@ -32,6 +28,7 @@ import org.jboss.forge.addon.ui.context.UIValidationContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
 import org.jboss.forge.addon.ui.input.UIInput;
+import org.jboss.forge.addon.ui.input.UIPrompt;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.Result;
@@ -47,7 +44,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
@@ -93,35 +89,52 @@ public class CamelNewComponentsCommand extends AbstractCamelCommand {
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         super.initializeUI(builder);
+        initializeAvailableCamelComponents();
 
         //populate autocompletion options
         named.setCompleter(new UICompleter<String>() {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
-                availableComponents = getAvailableCamelComponents();
-                List<String> componentsList = new ArrayList<>(availableComponents.size());
-                for(String s: availableComponents){
+
+                // filter
+                List<String> filteredList = new ArrayList<String>(availableComponents.size());
+                for (String s : availableComponents) {
+                    if (!camelDepsInUse.contains(s)) {
+                        filteredList.add(s);
+                    }
+                }
+
+                // rename key
+                List<String> noPrefixList = new ArrayList<String>(filteredList.size());
+                for (String s : filteredList) {
+                    noPrefixList.add(s.split("-")[1]);
+                }
+
+                // keep only relevant
+                List<String> componentsList = new ArrayList<>(noPrefixList.size());
+                for (String s : noPrefixList) {
                     //adding to the proposals only entries relevant to the current partially typed string
                     if (s.startsWith(value))
                         componentsList.add(s);
                 }
 
-                //filter out components already in use
-                componentsList.removeAll(camelDepsInUse);
+                //sort
                 Collections.sort(componentsList);
                 return componentsList;
             }
         });
 
+        version.setCompleter(new UIVersionCompleter(this));
+
         named.addValidator(new UIValidator() {
             @Override
             public void validate(UIValidationContext context) {
-                if(availableComponents == null){
-                    availableComponents = getAvailableCamelComponents();
+                if (availableComponents == null) {
+                    availableComponents = initializeAvailableCamelComponents();
                 }
 
-                if(!availableComponents.contains(context.getCurrentInputComponent().getValue())){
-                    context.addValidationError(context.getCurrentInputComponent(),  "Selected Camel component is not available.");
+                if (!availableComponents.contains("camel-" + context.getCurrentInputComponent().getValue())) {
+                    context.addValidationError(context.getCurrentInputComponent(), "Selected Camel component is not available.");
                 }
             }
         });
@@ -133,22 +146,27 @@ public class CamelNewComponentsCommand extends AbstractCamelCommand {
     @Override
     public Result execute(UIExecutionContext context) throws Exception {
         String component = named.getValue();
+        component = "camel-" + component;
         String selectedVersion = version.getValue();
 
         Project project = getSelectedProject(context);
 
         installMavenDependency(component, selectedVersion, project);
 
-
-
-        CamelSupportedTechnologyEnum tech = detectTechnology(project);
+        CamelSupportedTechnologyEnum tech = null;
+        try {
+            tech = detectTechnology(project);
+        } catch (IllegalStateException e) {
+            return Results.fail("Unable to identify project type.");
+        }
         //add different samples based on technology
-        switch (tech){
-            case BLUEPRINT:
+        switch (tech) {
+            case BLUEPRINT: {
                 ResourcesFacet facet = getSelectedProject(context).getFacet(ResourcesFacet.class);
-                FileResource<?> fileResource = facet.getResource("OSGI-INF" + File.separator + "blueprint" + File.separator + "components.xml");
-                Resource<URL> blueprintXML = resourceFactory.create(getClass().getResource("/templates/my_blueprint.ftl")).reify(URLResource.class);
-                Template template = templateFactory.create(blueprintXML, FreemarkerTemplate.class);
+                String outputFilePath = "OSGI-INF" + File.separator + "blueprint" + File.separator + "components.xml";
+                FileResource<?> fileResource = facet.getResource(outputFilePath);
+                Resource<URL> xml = resourceFactory.create(getClass().getResource("/templates/my_blueprint.ftl")).reify(URLResource.class);
+                Template template = templateFactory.create(xml, FreemarkerTemplate.class);
 
                 Map<String, Object> templateContext = new HashMap<>();
                 String componentId = component.split("-")[1];
@@ -156,12 +174,38 @@ public class CamelNewComponentsCommand extends AbstractCamelCommand {
                 String componentClass = findComponentFQCN(component, selectedVersion);
                 templateContext.put("componentClass", componentClass);
 
+                UIPrompt prompt = context.getPrompt();
+                if (!prompt.promptBoolean("File '" + outputFilePath + "' already exists. Do you want to overwrite it?")) {
+                    return Results.fail("File '" + outputFilePath + "' already exists.");
+                }
+
                 fileResource.createNewFile();
                 fileResource.setContents(template.process(templateContext));
 
                 break;
-            case SPRING:
+            }
+            case SPRING: {
+                ResourcesFacet facet = getSelectedProject(context).getFacet(ResourcesFacet.class);
+                String outputFilePath = "META-INF" + File.separator + "spring" + File.separator + "components.xml";
+                FileResource<?> fileResource = facet.getResource(outputFilePath);
+                Resource<URL> xml = resourceFactory.create(getClass().getResource("/templates/my_spring.ftl")).reify(URLResource.class);
+                Template template = templateFactory.create(xml, FreemarkerTemplate.class);
+
+                Map<String, Object> templateContext = new HashMap<>();
+                String componentId = component.split("-")[1];
+                templateContext.put("componentId", componentId);
+                String componentClass = findComponentFQCN(component, selectedVersion);
+                templateContext.put("componentClass", componentClass);
+
+                UIPrompt prompt = context.getPrompt();
+                if (!prompt.promptBoolean("File '" + outputFilePath + "' already exists. Do you want to overwrite it?")) {
+                    return Results.fail("File '" + outputFilePath + "' already exists.");
+                }
+
+                fileResource.createNewFile();
+                fileResource.setContents(template.process(templateContext));
                 break;
+            }
             case JAVA:
                 break;
         }
@@ -169,7 +213,6 @@ public class CamelNewComponentsCommand extends AbstractCamelCommand {
         return Results.success(component + " component successfully installed!");
 
     }
-
 
 
     private String findComponentFQCN(String component, String selectedVersion) {
@@ -186,22 +229,22 @@ public class CamelNewComponentsCommand extends AbstractCamelCommand {
 
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                if(entry.getName().startsWith("META-INF/services/org/apache/camel/component/") && !entry.isDirectory() ){
+                if (entry.getName().startsWith("META-INF/services/org/apache/camel/component/") && !entry.isDirectory()) {
                     stream = zipFile.getInputStream(entry);
                     Properties prop = new Properties();
                     prop.load(stream);
-                    result =  prop.getProperty("class");
+                    result = prop.getProperty("class");
                     break;
                 }
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("Unable to inspect added component", e);
-        }
-        finally{
-            if(stream != null){
+        } finally {
+            if (stream != null) {
                 try {
                     stream.close();
-                } catch(Exception e){}
+                } catch (Exception e) {
+                }
             }
         }
         return result;
@@ -213,45 +256,49 @@ public class CamelNewComponentsCommand extends AbstractCamelCommand {
         dependencyInstaller.install(project, dependency);
     }
 
-    private Set<String> getAvailableCamelComponents() {
-        String camelComponentsListLocation = "https://raw.githubusercontent.com/fusesource/fuseide/master/core/plugins/org.fusesource.ide.camel.model/components/components-2.13.2.xml";
-        Set<String> result = new LinkedHashSet<String>();
-        String xmlString = null;
+    private synchronized Set<String> initializeAvailableCamelComponents() {
+        if (availableComponents == null) {
+            String camelComponentsListLocation = "https://raw.githubusercontent.com/fusesource/fuseide/master/core/plugins/org.fusesource.ide.camel.model/components/components-2.13.2.xml";
+            Set<String> result = new LinkedHashSet<String>();
+            String xmlString = null;
 
-        //xmlString = IOUtils.toString(new URL(camelComponentsListLocation));
-        client = factory.createClient();
-        try {
-            xmlString = client.target(camelComponentsListLocation).request(MediaType.WILDCARD_TYPE).get(String.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to fetch list of Camel components from: " + camelComponentsListLocation, e);
+            //xmlString = IOUtils.toString(new URL(camelComponentsListLocation));
+            client = factory.createClient();
+            try {
+                xmlString = client.target(camelComponentsListLocation).request(MediaType.WILDCARD_TYPE).get(String.class);
+            } catch (Exception e) {
+                throw new RuntimeException("Unable to fetch list of Camel components from: " + camelComponentsListLocation, e);
+            }
+
+            XML xml = new XMLDocument(xmlString);
+            List<String> connectors = xml.xpath("/connectors/connector/@id");
+            for (String id : connectors) {
+                result.add("camel-" + id);
+            }
+            availableComponents = Collections.unmodifiableSet(result);
         }
 
-        XML xml = new XMLDocument(xmlString);
-        List<String> connectors = xml.xpath("/connectors/connector/@id");
-        for (String id : connectors) {
-            result.add("camel-" + id);
-        }
-        return Collections.unmodifiableSet(result);
+        return availableComponents;
     }
 
     private CamelSupportedTechnologyEnum detectTechnology(Project project) {
-        if(probeForCDI(project)){
+        if (probeForCDI(project)) {
             return CamelSupportedTechnologyEnum.JAVA;
-        }else if(probeForBlueprint(project)){
+        } else if (probeForBlueprint(project)) {
             return CamelSupportedTechnologyEnum.BLUEPRINT;
-        }else if(probeForSpring(project)){
+        } else if (probeForSpring(project)) {
             return CamelSupportedTechnologyEnum.SPRING;
-        }else{
+        } else {
             throw new IllegalStateException("We couldn't identify Camel Project technology");
         }
     }
 
     private boolean probeForSpring(Project project) {
         ResourcesFacet facet = project.getFacet(ResourcesFacet.class);
-        FileResource<?> resource = facet.getResource("META-INF" + File.pathSeparator + "spring");
-        if(resource.isDirectory()){
+        FileResource<?> resource = facet.getResource("META-INF" + File.separator + "spring");
+        if (resource.isDirectory()) {
             return true;
-        }else{
+        } else {
             return false;
         }
 
@@ -260,9 +307,9 @@ public class CamelNewComponentsCommand extends AbstractCamelCommand {
     private boolean probeForBlueprint(Project project) {
         ResourcesFacet facet = project.getFacet(ResourcesFacet.class);
         FileResource<?> resource = facet.getResource("OSGI-INF");
-        if(resource.isDirectory()){
+        if (resource.isDirectory()) {
             return true;
-        }else{
+        } else {
             return false;
         }
 
@@ -294,4 +341,19 @@ public class CamelNewComponentsCommand extends AbstractCamelCommand {
     }
 
 
+}
+
+class UIVersionCompleter implements UICompleter{
+    AbstractCamelCommand command;
+
+    public UIVersionCompleter(AbstractCamelCommand command){
+        this.command = command;
+    }
+
+    @Override
+    public Iterable getCompletionProposals(UIContext context, InputComponent input, String value) {
+        List<String> result = new ArrayList<>(1);
+        result.add(command.getCamelCoreVersion());
+        return result;
+    }
 }
