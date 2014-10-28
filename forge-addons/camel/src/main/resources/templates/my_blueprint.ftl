@@ -4,6 +4,9 @@
            xsi:schemaLocation="
 			http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-  <bean id="${componentId}" class="${componentClass}"/>
+  <bean id="${componentId}" class="${componentClass}">
+    <!-- optional configuration by user goes here... -->
+    <!-- <property name="bar">cheese</property>      -->
+    </bean>
 
 </blueprint>
