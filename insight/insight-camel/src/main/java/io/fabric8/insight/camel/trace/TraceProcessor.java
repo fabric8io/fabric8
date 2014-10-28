@@ -15,9 +15,7 @@
  */
 package io.fabric8.insight.camel.trace;
 
-import org.apache.camel.AsyncCallback;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
+import org.apache.camel.*;
 import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.processor.DelegateAsyncProcessor;
 import org.apache.camel.util.MessageHelper;
@@ -28,13 +26,14 @@ import java.util.Queue;
 /**
  *
  */
-public class TraceProcessor extends DelegateAsyncProcessor {
+public class TraceProcessor extends DelegateAsyncProcessor implements CamelContextAware {
 
     private final Queue<TracerEventMessage> queue;
     private final Tracer tracer;
     private final ProcessorDefinition<?> processorDefinition;
     private final ProcessorDefinition<?> routeDefinition;
     private final boolean first;
+    private CamelContext camelContext;
 
     public TraceProcessor(Queue<TracerEventMessage> queue, Processor processor,
                           ProcessorDefinition<?> processorDefinition,
@@ -96,4 +95,13 @@ public class TraceProcessor extends DelegateAsyncProcessor {
         return "Tracer[" + processor + "]";
     }
 
+    @Override
+    public void setCamelContext(CamelContext camelContext) {
+        this.camelContext = camelContext;
+    }
+
+    @Override
+    public CamelContext getCamelContext() {
+        return camelContext;
+    }
 }

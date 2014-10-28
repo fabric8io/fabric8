@@ -15,9 +15,7 @@
  */
 package io.fabric8.insight.camel.profiler;
 
-import org.apache.camel.AsyncCallback;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
+import org.apache.camel.*;
 import org.apache.camel.processor.DelegateAsyncProcessor;
 
 import java.util.Map;
@@ -25,10 +23,11 @@ import java.util.Map;
 /**
  *
  */
-public class ProfilerProcessor extends DelegateAsyncProcessor {
+public class ProfilerProcessor extends DelegateAsyncProcessor implements CamelContextAware {
     private final Profiler profiler;
     private final Stats stats;
     private final Map<String, ExchangeData> exchanges;
+    private CamelContext camelContext;
 
     public ProfilerProcessor(Profiler profiler, Processor processor, Stats stats, Map<String, ExchangeData> exchanges) {
         super(processor);
@@ -74,5 +73,15 @@ public class ProfilerProcessor extends DelegateAsyncProcessor {
     @Override
     public String toString() {
         return "Profiler[" + processor + "]";
+    }
+
+    @Override
+    public void setCamelContext(CamelContext camelContext) {
+        this.camelContext = camelContext;
+    }
+
+    @Override
+    public CamelContext getCamelContext() {
+        return camelContext;
     }
 }

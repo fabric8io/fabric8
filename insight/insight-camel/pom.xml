@@ -57,11 +57,6 @@
       <dependency>
           <groupId>org.apache.camel</groupId>
           <artifactId>camel-core</artifactId>
-          <version>${camel-version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.karaf.shell</groupId>
-          <artifactId>org.apache.karaf.shell.console</artifactId>
       </dependency>
 
       <dependency>
@@ -69,68 +64,13 @@
           <artifactId>mvel2</artifactId>
       </dependency>
 
-
       <dependency>
           <groupId>org.osgi</groupId>
           <artifactId>org.osgi.core</artifactId>
-          <version>${osgi-version}</version>
       </dependency>
       <dependency>
           <groupId>org.osgi</groupId>
           <artifactId>org.osgi.compendium</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>org.elasticsearch</groupId>
-          <artifactId>elasticsearch</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>org.elasticsearch</groupId>
-          <artifactId>elasticsearch-hadoop</artifactId>
-          <version>2.0.0</version>
-          <exclusions>
-              <exclusion>
-                  <groupId>*</groupId>
-                  <artifactId>*</artifactId>
-              </exclusion>
-          </exclusions>
-      </dependency>
-
-      <dependency>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-core</artifactId>
-          <version>3.6.0</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-analyzers</artifactId>
-          <version>3.6.0</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-highlighter</artifactId>
-          <version>3.6.0</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-memory</artifactId>
-          <version>3.6.0</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-queries</artifactId>
-          <version>3.6.0</version>
-      </dependency>
-
-      <dependency>
-          <groupId>log4j</groupId>
-          <artifactId>log4j</artifactId>
-          <version>1.2.16</version>
-      </dependency>
-
-      <dependency>
-          <groupId>org.jboss.netty</groupId>
-          <artifactId>netty</artifactId>
-          <version>3.2.3.Final</version>
       </dependency>
 
   </dependencies>

@@ -17,6 +17,7 @@ package io.fabric8.insight.camel.profiler;
 
 import io.fabric8.insight.camel.base.SwitchableContainerStrategy;
 import org.apache.camel.CamelContext;
+import org.apache.camel.CamelContextAware;
 import org.apache.camel.Processor;
 import org.apache.camel.api.management.ManagedResource;
 import org.apache.camel.model.ProcessorDefinition;
@@ -52,21 +53,21 @@ public class Profiler extends SwitchableContainerStrategy implements ProfilerMBe
         context.setProcessorFactory(new ProcessorFactory() {
             @Override
             public Processor createChildProcessor(RouteContext routeContext, ProcessorDefinition<?> definition, boolean mandatory) throws Exception {
-                Processor proc = delegate != null ? delegate.createChildProcessor(routeContext, definition, mandatory)
+                Processor processor = delegate != null ? delegate.createChildProcessor(routeContext, definition, mandatory)
                         : definition.createOutputsProcessor(routeContext);
-                return wrap(routeContext, definition, proc);
+                return wrap(routeContext, definition, processor);
             }
             @Override
             public Processor createProcessor(RouteContext routeContext, ProcessorDefinition<?> definition) throws Exception {
-                Processor proc = delegate != null ? delegate.createProcessor(routeContext, definition)
+                Processor processor = delegate != null ? delegate.createProcessor(routeContext, definition)
                         : definition.createProcessor(routeContext);
-                return wrap(routeContext, definition, proc);
+                return wrap(routeContext, definition, processor);
             }
         });
     }
 
-    public Processor wrap(RouteContext routeContext, ProcessorDefinition<?> definition, Processor proc) {
-        if (proc == null) {
+    public Processor wrap(RouteContext routeContext, ProcessorDefinition<?> definition, Processor processor) {
+        if (processor == null) {
             return null;
         }
         RouteDefinition route = ProcessorDefinitionHelper.getRoute(definition);
@@ -75,7 +76,12 @@ public class Profiler extends SwitchableContainerStrategy implements ProfilerMBe
                 RouteDefinitionHelper.forceAssignIds(routeContext.getCamelContext(), route);
             }
         }
-        return new ProfilerProcessor(this, proc, getStats(definition), exchanges);
+        ProfilerProcessor profilerProcessor = new ProfilerProcessor(this, processor, getStats(definition), exchanges);
+        profilerProcessor.setCamelContext(routeContext.getCamelContext());
+        if (processor instanceof CamelContextAware) {
+            ((CamelContextAware) processor).setCamelContext(routeContext.getCamelContext());
+        }
+        return profilerProcessor;
     }
 
     public String dumpStatsAsXml(String routeId) {

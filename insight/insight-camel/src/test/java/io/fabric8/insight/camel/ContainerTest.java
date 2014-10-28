@@ -21,6 +21,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.Property;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultProducerTemplate;
 import org.apache.camel.model.ProcessorDefinition;
@@ -71,7 +72,7 @@ public class ContainerTest {
                         .doCatch(Throwable.class)
                         .to("seda:errors");
 
-                String[] eps = { "polyglot", "english", "dutch", "german", "french", "errors" };
+                String[] eps = {"polyglot", "english", "dutch", "german", "french", "errors"};
                 for (String s : eps) {
                     from("seda:" + s)
                             .aggregate(constant("ok"), new BodyInAggregatingStrategy()).completionSize(3)
@@ -85,7 +86,7 @@ public class ContainerTest {
         final ProducerTemplate template = new DefaultProducerTemplate(context);
         template.start();
 
-        final String[] values = { "<hello/>", "<hallo/>", "<bonjour/>" };
+        final String[] values = {"<hello/>", "<hallo/>", "<bonjour/>"};
         final Random rnd = new Random();
 
         for (int i = 0; i < 100; i++) {
@@ -177,6 +178,29 @@ public class ContainerTest {
             return aggregated == 3;
         }
 
+    }
+
+    @Test
+    public void testLoadBalancer() throws Exception {
+        Profiler profiler = new Profiler();
+        Breadcrumbs breadcrumbs = new Breadcrumbs();
+
+        CamelContext context = new DefaultCamelContext();
+        profiler.manage(context);
+        breadcrumbs.manage(context);
+
+        context.addRoutes(new RouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                from("direct:a").loadBalance().failover().to("mock:out");
+            }
+        });
+
+        context.start();
+
+        final ProducerTemplate template = new DefaultProducerTemplate(context);
+        template.start();
+        template.sendBody("direct:a", "Hello");
     }
 
 
