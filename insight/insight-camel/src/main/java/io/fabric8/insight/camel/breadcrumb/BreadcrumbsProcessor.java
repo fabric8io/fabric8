@@ -15,10 +15,7 @@
  */
 package io.fabric8.insight.camel.breadcrumb;
 
-import org.apache.camel.AsyncCallback;
-import org.apache.camel.DelegateProcessor;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
+import org.apache.camel.*;
 import org.apache.camel.processor.DelegateAsyncProcessor;
 import org.apache.camel.processor.aggregate.AggregateProcessor;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
@@ -29,9 +26,10 @@ import java.util.Set;
 /**
  *
  */
-public class BreadcrumbsProcessor extends DelegateAsyncProcessor {
+public class BreadcrumbsProcessor extends DelegateAsyncProcessor implements CamelContextAware {
 
     private final SwitchableContainerStrategy breadcrumbs;
+    private CamelContext camelContext;
 
     public BreadcrumbsProcessor(Breadcrumbs breadcrumbs, Processor processor) {
         super(processor);
@@ -65,6 +63,16 @@ public class BreadcrumbsProcessor extends DelegateAsyncProcessor {
     @Override
     public String toString() {
         return "Breadcrumbs[" + processor + "]";
+    }
+
+    @Override
+    public void setCamelContext(CamelContext camelContext) {
+        this.camelContext = camelContext;
+    }
+
+    @Override
+    public CamelContext getCamelContext() {
+        return camelContext;
     }
 
 }

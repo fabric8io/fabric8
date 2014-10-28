@@ -17,6 +17,7 @@ package io.fabric8.insight.camel.breadcrumb;
 
 import io.fabric8.insight.camel.base.SwitchableContainerStrategy;
 import org.apache.camel.CamelContext;
+import org.apache.camel.CamelContextAware;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.api.management.ManagedResource;
@@ -62,7 +63,12 @@ public class Breadcrumbs extends SwitchableContainerStrategy implements Breadcru
         if (processor == null) {
             return null;
         }
-        return new BreadcrumbsProcessor(this, processor);
+        BreadcrumbsProcessor breadcrumbsProcessor = new BreadcrumbsProcessor(this, processor);
+        breadcrumbsProcessor.setCamelContext(routeContext.getCamelContext());
+        if (processor instanceof CamelContextAware) {
+            ((CamelContextAware) processor).setCamelContext(routeContext.getCamelContext());
+        }
+        return breadcrumbsProcessor;
     }
 
     public static Set<String> getBreadcrumbs(Exchange exchange) {

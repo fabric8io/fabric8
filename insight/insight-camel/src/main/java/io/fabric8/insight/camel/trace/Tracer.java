@@ -16,6 +16,7 @@
 package io.fabric8.insight.camel.trace;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.CamelContextAware;
 import org.apache.camel.Processor;
 import org.apache.camel.api.management.ManagedAttribute;
 import org.apache.camel.api.management.ManagedOperation;
@@ -90,7 +91,12 @@ public class Tracer extends SwitchableContainerStrategy implements TracerMBean {
         }
         routeContexts.add(routeContext);
         processors.add(definition);
-        return new TraceProcessor(queue, processor, definition, route, first, this);
+        TraceProcessor traceProcessor = new TraceProcessor(queue, processor, definition, route, first, this);
+        traceProcessor.setCamelContext(routeContext.getCamelContext());
+        if (processor instanceof CamelContextAware) {
+            ((CamelContextAware) processor).setCamelContext(routeContext.getCamelContext());
+        }
+        return traceProcessor;
     }
 
     @ManagedAttribute(description = "Is tracing enabled")
