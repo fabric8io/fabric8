@@ -16,6 +16,7 @@
 package io.fabric8.cxf;
 
 import io.fabric8.common.util.PublicPortMapper;
+import io.fabric8.cxf.env.CxfContextResolver;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,6 +33,7 @@ import java.util.List;
 public class FabricServerListener implements ServerLifeCycleListener {
     private static final transient Log LOG = LogFactory.getLog(FabricServerListener.class);
     private final Group<CxfNodeState> group;
+    private final CxfContextResolver cxfContextResolver;
     private ServerAddressResolver addressResolver;
     private final CuratorFramework curator;
     private final List<String> services = new ArrayList<String>();
@@ -40,6 +42,7 @@ public class FabricServerListener implements ServerLifeCycleListener {
         this.group = group;
         this.addressResolver = addressResolver;
         this.curator = curator;
+        this.cxfContextResolver = new CxfContextResolver();
     }
 
     public FabricServerListener(Group<CxfNodeState> group) {
@@ -79,11 +82,45 @@ public class FabricServerListener implements ServerLifeCycleListener {
         } else {
             answer = address;
         }
-        if (isFullAddress(address)) {
-            answer = toPublicAddress(address);
+        if (!isFullAddress(answer)) {
+            answer = getAddressPrefix() + answer;
+        }
+        if (isFullAddress(answer)) {
+            answer = toPublicAddress(answer);
         }
 
         return answer;
+    }
+
+    /**
+     * Tries to find the prefix for relative jaxws/jaxrs service addresses. It uses discovered CXF servlet prefix and
+     * ZK-registered URL of the container
+     *
+     * @return
+     */
+    private String getAddressPrefix() {
+        // TODO: won't work outside of Karaf
+        String containerId = System.getProperty("karaf.name");
+        if (containerId == null || containerId.trim().equals("")) {
+            return "";
+        }
+
+        if (curator != null) {
+            try {
+                // it'll be either http or https
+                String httpUrl = "${zk:" + containerId + "/http}";
+                String cxfPrefix = cxfContextResolver.getCxfServletContext();
+                curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
+                httpUrl = ZooKeeperUtils.getSubstitutedData(curator, httpUrl);
+
+                return httpUrl + cxfPrefix;
+            } catch (Exception e) {
+                LOG.warn(e.getMessage(), e);
+                return "";
+            }
+        } else {
+            return "";
+        }
     }
 
     protected boolean isFullAddress(String address) {
