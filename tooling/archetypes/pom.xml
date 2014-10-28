@@ -31,7 +31,9 @@
     <name>Fabric8 :: Archetypes :: Parent</name>
 
     <modules>
+<!--
         <module>java-simple-archetype</module>
+-->
         <module>java-camel-cdi-archetype</module>
         <module>java-camel-spring-archetype</module>
         <module>java-cxf-cdi-archetype</module>
