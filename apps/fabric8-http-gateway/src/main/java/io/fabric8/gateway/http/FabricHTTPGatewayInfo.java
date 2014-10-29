@@ -15,7 +15,7 @@
  */
 package io.fabric8.gateway.http;
 
-import io.fabric8.common.util.ShutdownTracker;
+import io.fabric8.utils.ShutdownTracker;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;

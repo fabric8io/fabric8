@@ -1,9 +1,6 @@
 package io.fabric8.gateway.http;
 
-import io.fabric8.common.util.Systems;
-import io.fabric8.gateway.fabric.support.vertx.VertxService;
-
-import java.util.List;
+import io.fabric8.utils.Systems;
 
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;

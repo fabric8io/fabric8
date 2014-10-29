@@ -15,7 +15,6 @@
  */
 package io.fabric8.gateway.http;
 
-import io.fabric8.common.util.ShutdownTracker;
 
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
@@ -40,6 +39,7 @@ import io.fabric8.gateway.handlers.http.HttpGatewayHandler;
 import io.fabric8.gateway.handlers.http.HttpGatewayServer;
 import io.fabric8.gateway.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.handlers.http.MappedServices;
+import io.fabric8.utils.ShutdownTracker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
