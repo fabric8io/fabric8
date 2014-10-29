@@ -55,11 +55,15 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
+import org.osgi.framework.namespace.BundleNamespace;
+import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.framework.namespace.PackageNamespace;
 import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.resource.Namespace;
+import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.service.repository.Repository;
@@ -893,14 +897,22 @@ public class Deployer {
                     if (toRefresh.contains(b)) {
                         // The bundle is wired to a bundle being refreshed,
                         // so we need to refresh it too
+                        LOGGER.info("Refreshing " + bundle.getSymbolicName() + " / " + bundle.getVersion() + " because it's wired to " + b.getSymbolicName() + "/" + b.getVersion() + " which is being refreshed (through" + wire.getRequirement() + ")");
                         toRefresh.add(bundle);
                         continue main;
                     }
                     Resource res = bndToRes.get(b);
                     wiredBundles.add(res != null ? res : rev);
                 }
-                Set<Resource> wiredResources = new HashSet<>();
+                Map<Resource, Requirement> wiredResources = new HashMap<>();
                 for (Wire wire : newWires) {
+                    // Handle only packages, hosts, and required bundles
+                    String namespace = wire.getRequirement().getNamespace();
+                    if (!namespace.equals(BundleNamespace.BUNDLE_NAMESPACE)
+                            && !namespace.equals(PackageNamespace.PACKAGE_NAMESPACE)
+                            && !namespace.equals(HostNamespace.HOST_NAMESPACE)) {
+                        continue;
+                    }
                     // Ignore non-resolution time requirements
                     String effective = wire.getRequirement().getDirectives().get(Namespace.CAPABILITY_EFFECTIVE_DIRECTIVE);
                     if (effective != null && !Namespace.EFFECTIVE_RESOLVE.equals(effective)) {
@@ -910,9 +922,30 @@ public class Deployer {
                     if (!isBundle(wire.getProvider())) {
                         continue;
                     }
-                    wiredResources.add(wire.getProvider());
+                    if (!wiredResources.containsKey(wire.getProvider())) {
+                        wiredResources.put(wire.getProvider(), wire.getRequirement());
+                    }
                 }
-                if (!wiredBundles.containsAll(wiredResources)) {
+                if (!wiredBundles.containsAll(wiredResources.keySet())) {
+                    Map<Resource, Requirement> newResources = new HashMap<>(wiredResources);
+                    newResources.keySet().removeAll(wiredBundles);
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Refreshing ").append(bundle.getSymbolicName()).append(" / ").append(bundle.getVersion()).append(" because it should be wired to: ");
+                    boolean first = true;
+                    for (Map.Entry<Resource, Requirement> entry : newResources.entrySet()) {
+                        if (!first) {
+                            sb.append(", ");
+                        } else {
+                            first = false;
+                        }
+                        Resource res = entry.getKey();
+                        Requirement req = entry.getValue();
+                        sb.append(getSymbolicName(res)).append("/").append(getVersion(res));
+                        sb.append(" (through ");
+                        sb.append(req);
+                        sb.append(")");
+                    }
+                    LOGGER.info(sb.toString());
                     toRefresh.add(bundle);
                 }
             }
