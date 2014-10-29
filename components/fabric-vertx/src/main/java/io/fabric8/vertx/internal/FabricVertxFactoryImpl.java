@@ -15,17 +15,17 @@
  */
 package io.fabric8.vertx.internal;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import io.fabric8.vertx.FabricVertexFactory;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Service;
+
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.impl.DefaultVertxFactory;
 
-@Component(immediate = true)
-@Service(FabricVertexFactory.class)
+@ApplicationScoped
 public class FabricVertxFactoryImpl extends VertxFactory implements FabricVertexFactory {
 
     private final DefaultVertxFactory defaultVertxFactory = new DefaultVertxFactory();

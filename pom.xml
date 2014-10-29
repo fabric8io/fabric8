@@ -628,6 +628,11 @@
                 <artifactId>zookeeper-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
+                <artifactId>fabric-vertx</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- Internal testing modules -->
             <dependency>
@@ -1441,6 +1446,16 @@
             <dependency>
               <groupId>org.apache.deltaspike.core</groupId>
               <artifactId>deltaspike-core-impl</artifactId>
+              <version>${deltaspike.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.deltaspike.modules</groupId>
+              <artifactId>deltaspike-test-control-module-api</artifactId>
+              <version>${deltaspike.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.deltaspike.modules</groupId>
+              <artifactId>deltaspike-test-control-module-impl</artifactId>
               <version>${deltaspike.version}</version>
             </dependency>
             <dependency>

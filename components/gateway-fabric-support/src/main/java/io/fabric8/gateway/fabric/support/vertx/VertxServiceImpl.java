@@ -15,20 +15,15 @@
  */
 package io.fabric8.gateway.fabric.support.vertx;
 
-import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.utils.Objects;
 import io.fabric8.vertx.FabricVertexFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Modified;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.ReferencePolicy;
-import org.apache.felix.scr.annotations.Service;
-import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
@@ -36,34 +31,30 @@ import org.vertx.java.core.Vertx;
 /**
  * The gateway service which
  */
-@Service(VertxService.class)
-@Component(name = "io.fabric8.gateway.vertx", label = "Fabric8 Gateway Vertx Service", immediate = true, metatype = false)
-public class VertxServiceImpl extends AbstractComponent implements VertxService {
+@ApplicationScoped
+public class VertxServiceImpl implements VertxService {
     private static final transient Logger LOG = LoggerFactory.getLogger(VertxServiceImpl.class);
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY, bind = "setCurator", unbind = "unsetCurator")
+    @Inject
     private CuratorFramework curator;
 
-    @Reference(referenceInterface = FabricVertexFactory.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
+    @Inject
     private FabricVertexFactory vertxFactory;
 
     private Vertx vertx;
 
-    public VertxServiceImpl() {
-    }
-
-    @Activate
-    public void activate(ComponentContext context) throws Exception {
+    @PostConstruct
+    public void activate() throws Exception {
         vertx = vertxFactory.createVertx();
         Objects.notNull(vertx, "vertx");
     }
 
-    @Modified
-    public void updated() throws Exception {
-        // lets reload the configuration and find all the groups to create if they are not already created
-    }
+//    @Modified
+//    public void updated() throws Exception {
+//        // lets reload the configuration and find all the groups to create if they are not already created
+//    }
 
-    @Deactivate
+    @PreDestroy
     public void deactivate() {
         if (vertx != null) {
             try {

@@ -20,19 +20,20 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>fabric-project</artifactId>
+        <artifactId>components</artifactId>
         <groupId>io.fabric8</groupId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.fabric8</groupId>
     <artifactId>fabric-vertx</artifactId>
+    <!--
     <packaging>bundle</packaging>
-
+    -->
     <name>Fabric8 :: Vert.x</name>
 
     <properties>
+    <!--
         <fuse.osgi.export>
             io.fabric8.vertx;version=${project.version};-noimport:=true,
             org.vertx*;version=${vertx.version}
@@ -44,9 +45,11 @@
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
         </fuse.osgi.private.pkg>
+          -->
     </properties>
 
     <dependencies>
+    <!--  
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
@@ -59,19 +62,39 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.annotations</artifactId>
         </dependency>
-
+        -->
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
-            <version>${vertx.version}</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-platform</artifactId>
-            <version>${vertx.version}</version>
         </dependency>
-    </dependencies>
+        <dependency>
+          <groupId>org.jboss.weld.se</groupId>
+          <artifactId>weld-se</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>org.apache.deltaspike.modules</groupId>
+            <artifactId>deltaspike-test-control-module-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.deltaspike.modules</groupId>
+            <artifactId>deltaspike-test-control-module-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.deltaspike.cdictrl</groupId>
+            <artifactId>deltaspike-cdictrl-weld</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        
+    </dependencies>
+<!-- 
     <build>
         <plugins>
             <plugin>
@@ -92,5 +115,6 @@
             </plugin>
         </plugins>
     </build>
+     -->
 
 </project>

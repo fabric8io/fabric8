@@ -37,6 +37,7 @@
     <activemq.container.port>6162</activemq.container.port>
     <activemq.container.host>6161</activemq.container.host>
     <activemq.service.port>6163</activemq.service.port>
+    <httpgateway.port>9000</httpgateway.port>
 
     <docker.dataImage>${env.DOCKER_REGISTRY}/fabric8/${project.artifactId}:${project.version}</docker.dataImage>
     <fabric8.iconRef>icons/activemq.svg</fabric8.iconRef>
@@ -47,10 +48,11 @@
 
 
   <modules>
+    <module>fabric8-http-gateway</module>
     <module>fabric8-mq</module>
     <module>fabric8-mq-producer</module>
     <module>fabric8-mq-consumer</module>
-	  <module>fabric8-mq-autoscaler</module>
+    <module>fabric8-mq-autoscaler</module>
   </modules>
 
   <build>

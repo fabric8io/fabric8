@@ -20,18 +20,21 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>gateway-project</artifactId>
+        <artifactId>components</artifactId>
         <groupId>io.fabric8</groupId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>gateway-core</artifactId>
+    <!--  
     <packaging>bundle</packaging>
+    -->
     
     <name>Fabric8 :: Gateway :: Core</name>
 
     <properties>
+    <!--  
         <fuse.osgi.export>
             io.fabric8.gateway*;version=${project.version};-noimport:=true
         </fuse.osgi.export>
@@ -59,6 +62,7 @@
           io.fabric8.mqtt*;-split-package:=first,
           org.fusesource.hawtbuf*;-split-package:=first,
         </fuse.osgi.private.pkg>
+        -->
 
         <apollo.version>1.7</apollo.version>
         <proton.version>0.6</proton.version>
@@ -70,30 +74,28 @@
     </properties>
 
     <dependencies>
+    <!--  
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.annotations</artifactId>
         </dependency>
+    -->
         <dependency>
           <groupId>io.vertx</groupId>
           <artifactId>vertx-core</artifactId>
-          <version>${vertx.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-utils</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>gateway-model</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-vertx</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <!-- for MQTT support -->

@@ -15,10 +15,10 @@
  */
 package io.fabric8.gateway.fabric.support.http;
 
-import io.fabric8.api.jcip.GuardedBy;
-import io.fabric8.utils.Closeables;
 import io.fabric8.gateway.ServiceDTO;
 import io.fabric8.gateway.handlers.http.HttpMappingRule;
+import io.fabric8.utils.Closeables;
+import io.fabric8.utils.jcip.GuardedBy;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
 import java.io.IOException;
@@ -37,7 +37,6 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
-import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +82,7 @@ public class HttpMappingZooKeeperTreeCache {
 
 
     protected TreeCache getTreeCache() {
-        IllegalStateAssertion.assertTrue(active.get(), "Gateway service cache not active");
+        assert active.get() : "Gateway service cache not active";
         return treeCache;
     }
 
