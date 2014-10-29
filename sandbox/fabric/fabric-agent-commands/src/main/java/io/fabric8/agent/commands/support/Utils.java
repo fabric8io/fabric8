@@ -25,7 +25,7 @@ import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileService;
-import io.fabric8.common.util.ChecksumUtils;
+import io.fabric8.utils.ChecksumUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -232,7 +232,6 @@
             io.fabric8.agent.resolver;
             io.fabric8.agent.sort;
             io.fabric8.agent.utils;
-            io.fabric8.common.util;
             io.fabric8.fab;
             io.fabric8.fab.osgi;
             io.fabric8.fab.osgi.bnd;
@@ -391,12 +390,6 @@
             <artifactId>fab-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>common-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-commons</artifactId>

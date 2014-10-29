@@ -17,7 +17,7 @@
  */
 package io.fabric8.kubernetes.template;
 
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.Port;
 

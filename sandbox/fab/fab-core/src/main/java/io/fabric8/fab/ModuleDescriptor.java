@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static io.fabric8.common.util.Strings.emptyIfNull;
-import static io.fabric8.common.util.Strings.join;
-import static io.fabric8.common.util.Strings.splitAndTrimAsList;
+import static io.fabric8.utils.Strings.emptyIfNull;
+import static io.fabric8.utils.Strings.join;
+import static io.fabric8.utils.Strings.splitAndTrimAsList;
 /**
  * Describes a fabric module, and related extension modules.
  */

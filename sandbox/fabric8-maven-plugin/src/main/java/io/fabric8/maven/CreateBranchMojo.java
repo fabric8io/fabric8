@@ -24,8 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Strings;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;

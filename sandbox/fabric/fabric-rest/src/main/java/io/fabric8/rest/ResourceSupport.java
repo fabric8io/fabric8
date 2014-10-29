@@ -17,7 +17,7 @@ package io.fabric8.rest;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ProfileService;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.core.jmx.Links;
 
 import org.apache.curator.framework.CuratorFramework;

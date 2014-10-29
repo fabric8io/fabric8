@@ -15,7 +15,7 @@
  */
 package io.fabric8.insight.camel.audit;
 
-import io.fabric8.common.util.IOHelpers;
+import io.fabric8.utils.IOHelpers;
 import io.fabric8.insight.camel.base.SwitchableContainerStrategy;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;

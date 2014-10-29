@@ -21,7 +21,7 @@ import io.fabric8.api.TargetContainer;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.Files;
+import io.fabric8.utils.Files;
 import io.fabric8.git.GitDataStore;
 import io.fabric8.git.GitHttpEndpoint;
 import io.fabric8.git.GitNode;

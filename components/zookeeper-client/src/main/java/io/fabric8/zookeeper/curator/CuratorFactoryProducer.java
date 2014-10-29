@@ -17,8 +17,8 @@
  */
 package io.fabric8.zookeeper.curator;
 
-import io.fabric8.common.util.Objects;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.bootstrap.ZooKeeperServerFactory;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.ACLProvider;

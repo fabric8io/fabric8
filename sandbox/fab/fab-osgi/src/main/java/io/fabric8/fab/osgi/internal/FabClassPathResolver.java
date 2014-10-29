@@ -32,7 +32,7 @@ import aQute.bnd.header.Attrs;
 import aQute.bnd.header.Parameters;
 import aQute.bnd.osgi.Analyzer;
 import org.apache.felix.utils.version.VersionCleaner;
-import io.fabric8.common.util.*;
+import io.fabric8.utils.*;
 import io.fabric8.fab.*;
 import io.fabric8.fab.osgi.ServiceConstants;
 import io.fabric8.fab.osgi.util.FeatureCollector;
@@ -47,9 +47,9 @@ import static io.fabric8.fab.ModuleDescriptor.FAB_MODULE_DESCRIPTION;
 import static io.fabric8.fab.ModuleDescriptor.FAB_MODULE_ID;
 import static io.fabric8.fab.ModuleDescriptor.FAB_MODULE_NAME;
 import static io.fabric8.fab.ModuleDescriptor.FAB_MODULE_PROPERTIES;
-import static io.fabric8.common.util.Strings.defaultIfEmpty;
-import static io.fabric8.common.util.Strings.emptyIfNull;
-import static io.fabric8.common.util.Strings.join;
+import static io.fabric8.utils.Strings.defaultIfEmpty;
+import static io.fabric8.utils.Strings.emptyIfNull;
+import static io.fabric8.utils.Strings.join;
 
 /**
  * Resolves the classpath using the FAB resolving mechanism

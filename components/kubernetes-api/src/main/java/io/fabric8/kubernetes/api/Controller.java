@@ -18,7 +18,7 @@
 package io.fabric8.kubernetes.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.fabric8.common.util.Objects;
+import io.fabric8.utils.Objects;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;

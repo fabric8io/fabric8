@@ -19,7 +19,7 @@ import io.fabric8.api.jmx.MetaTypeFacadeMXBean;
 import io.fabric8.api.jmx.MetaTypeInformationDTO;
 import io.fabric8.api.jmx.MetaTypeObjectDTO;
 import io.fabric8.api.jmx.MetaTypeSummaryDTO;
-import io.fabric8.common.util.JMXUtils;
+import io.fabric8.utils.JMXUtils;
 import io.fabric8.internal.Objects;
 import io.fabric8.utils.BundleUtils;
 

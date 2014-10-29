@@ -27,7 +27,7 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.Objects;
+import io.fabric8.utils.Objects;
 import io.fabric8.process.manager.Installation;
 import io.fabric8.process.manager.ProcessManager;
 import io.fabric8.service.child.ChildContainerController;

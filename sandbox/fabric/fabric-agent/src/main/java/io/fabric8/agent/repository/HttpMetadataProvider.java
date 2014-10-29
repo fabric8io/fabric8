@@ -22,7 +22,7 @@ import java.net.URL;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
-import io.fabric8.common.util.json.JsonReader;
+import io.fabric8.utils.json.JsonReader;
 
 /**
  */

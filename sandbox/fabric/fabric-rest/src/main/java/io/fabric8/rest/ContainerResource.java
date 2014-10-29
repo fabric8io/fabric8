@@ -21,8 +21,8 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.jmx.ContainerDTO;
-import io.fabric8.common.util.Objects;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

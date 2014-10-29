@@ -15,7 +15,7 @@
  */
 package io.fabric8.cxf;
 
-import io.fabric8.common.util.PublicPortMapper;
+import io.fabric8.utils.PublicPortMapper;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

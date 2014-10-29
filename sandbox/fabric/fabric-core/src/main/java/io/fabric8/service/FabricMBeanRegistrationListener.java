@@ -15,7 +15,7 @@
  */
 package io.fabric8.service;
 
-import io.fabric8.common.util.ShutdownTracker;
+import io.fabric8.utils.ShutdownTracker;
 import io.fabric8.core.jmx.FabricManager;
 import io.fabric8.core.jmx.FileSystem;
 import io.fabric8.core.jmx.HealthCheck;

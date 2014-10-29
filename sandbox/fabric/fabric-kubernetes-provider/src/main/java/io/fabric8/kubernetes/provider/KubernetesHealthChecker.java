@@ -27,8 +27,8 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.api.scr.support.Strings;
-import io.fabric8.common.util.Closeables;
-import io.fabric8.common.util.Objects;
+import io.fabric8.utils.Closeables;
+import io.fabric8.utils.Objects;
 import io.fabric8.container.process.JolokiaAgentHelper;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
@@ -67,7 +67,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.fabric8.common.util.Lists.notNullList;
+import static io.fabric8.utils.Lists.notNullList;
 import static io.fabric8.kubernetes.provider.KubernetesHelpers.containerNameToPodId;
 
 /**

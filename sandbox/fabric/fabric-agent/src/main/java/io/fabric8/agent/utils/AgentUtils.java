@@ -40,8 +40,8 @@ import io.fabric8.agent.mvn.Parser;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileService;
-import io.fabric8.common.util.MultiException;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.MultiException;
+import io.fabric8.utils.Strings;
 import io.fabric8.service.VersionPropertyPointerResolver;
 import io.fabric8.utils.features.FeatureUtils;
 

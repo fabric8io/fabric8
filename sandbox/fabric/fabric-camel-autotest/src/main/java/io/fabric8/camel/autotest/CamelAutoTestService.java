@@ -28,7 +28,7 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.scr.AbstractFieldInjectionComponent;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;

@@ -1,7 +1,7 @@
 package io.fabric8.maven;
 
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.IOHelpers;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.IOHelpers;
 import org.apache.felix.metatype.MetaData;
 import org.apache.felix.metatype.MetaDataReader;
 import org.apache.maven.plugin.AbstractMojo;

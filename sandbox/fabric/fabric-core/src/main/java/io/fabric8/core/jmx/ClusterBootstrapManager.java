@@ -28,7 +28,7 @@ import javax.management.StandardMBean;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.fabric8.common.util.JMXUtils;
+import io.fabric8.utils.JMXUtils;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;

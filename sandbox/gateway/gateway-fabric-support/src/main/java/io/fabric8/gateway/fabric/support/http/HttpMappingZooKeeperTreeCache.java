@@ -16,7 +16,7 @@
 package io.fabric8.gateway.fabric.support.http;
 
 import io.fabric8.api.jcip.GuardedBy;
-import io.fabric8.common.util.Closeables;
+import io.fabric8.utils.Closeables;
 import io.fabric8.gateway.ServiceDTO;
 import io.fabric8.gateway.handlers.http.HttpMappingRule;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;

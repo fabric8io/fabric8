@@ -26,14 +26,14 @@ import io.fabric8.fab.DependencyTree;
 import io.fabric8.fab.ModuleDescriptor;
 import io.fabric8.fab.VersionedDependencyId;
 import io.fabric8.fab.osgi.ServiceConstants;
-import io.fabric8.common.util.Filter;
+import io.fabric8.utils.Filter;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.graph.Dependency;
 
-import static io.fabric8.common.util.Strings.notEmpty;
+import static io.fabric8.utils.Strings.notEmpty;
 
 /**
  */

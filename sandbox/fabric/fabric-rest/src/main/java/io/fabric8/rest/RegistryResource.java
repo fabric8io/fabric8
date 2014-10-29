@@ -15,7 +15,7 @@
  */
 package io.fabric8.rest;
 
-import io.fabric8.common.util.Files;
+import io.fabric8.utils.Files;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.slf4j.Logger;

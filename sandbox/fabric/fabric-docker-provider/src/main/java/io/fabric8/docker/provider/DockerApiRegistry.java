@@ -18,7 +18,7 @@ package io.fabric8.docker.provider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.JMXUtils;
+import io.fabric8.utils.JMXUtils;
 import io.fabric8.zookeeper.ZkPath;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;

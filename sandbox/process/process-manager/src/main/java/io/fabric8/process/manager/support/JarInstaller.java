@@ -20,11 +20,11 @@ import com.google.common.base.Throwables;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
-import io.fabric8.common.util.ChecksumUtils;
-import io.fabric8.common.util.FileChangeInfo;
-import io.fabric8.common.util.Filter;
-import io.fabric8.common.util.Pair;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.ChecksumUtils;
+import io.fabric8.utils.FileChangeInfo;
+import io.fabric8.utils.Filter;
+import io.fabric8.utils.Pair;
+import io.fabric8.utils.Strings;
 import io.fabric8.fab.DependencyFilters;
 import io.fabric8.fab.DependencyTreeResult;
 import io.fabric8.fab.MavenResolverImpl;
@@ -52,7 +52,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.jar.Attributes;
 
-import static io.fabric8.common.util.Strings.join;
+import static io.fabric8.utils.Strings.join;
 
 /**
  */

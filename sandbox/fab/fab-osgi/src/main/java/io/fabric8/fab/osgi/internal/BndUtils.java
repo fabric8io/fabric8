@@ -55,14 +55,14 @@ import io.fabric8.fab.osgi.ServiceConstants;
 import io.fabric8.fab.osgi.bnd.ActiveMQNamespaceHandlerPlugin;
 import io.fabric8.fab.osgi.bnd.CXFNamespaceHandlerPlugin;
 import io.fabric8.fab.osgi.bnd.ClassPathImportsHandlerPlugin;
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Strings;
 import org.ops4j.lang.NullArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.fabric8.common.util.Strings.emptyIfNull;
-import static io.fabric8.common.util.Strings.notEmpty;
+import static io.fabric8.utils.Strings.emptyIfNull;
+import static io.fabric8.utils.Strings.notEmpty;
 
 /**
  * Wrapper over PeterK's bnd lib.

@@ -17,7 +17,7 @@ package io.fabric8.mq.fabric.cf;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.felix.scr.annotations.*;
-import io.fabric8.common.util.Maps;
+import io.fabric8.utils.Maps;
 import io.fabric8.api.FabricService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

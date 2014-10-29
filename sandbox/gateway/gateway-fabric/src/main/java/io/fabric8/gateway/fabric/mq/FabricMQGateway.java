@@ -18,7 +18,7 @@ package io.fabric8.gateway.fabric.mq;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.gateway.ServiceMap;
 import io.fabric8.gateway.fabric.support.vertx.VertxService;
 import io.fabric8.gateway.handlers.tcp.TcpGateway;

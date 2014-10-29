@@ -17,7 +17,7 @@
  */
 package io.fabric8.kubernetes;
 
-import io.fabric8.common.util.IOHelpers;
+import io.fabric8.utils.IOHelpers;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.ControllerDesiredState;
 import io.fabric8.kubernetes.api.model.Env;
@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.fabric8.common.util.Files.recursiveDelete;
+import static io.fabric8.utils.Files.recursiveDelete;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 

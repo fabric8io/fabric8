@@ -25,8 +25,8 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
-import static io.fabric8.common.util.Files.assertDirectoryExists;
-import static io.fabric8.common.util.Files.assertFileExists;
+import static io.fabric8.utils.Files.assertDirectoryExists;
+import static io.fabric8.utils.Files.assertFileExists;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;

@@ -17,7 +17,7 @@ package io.fabric8.runtime.container.karaf;
 
 import io.fabric8.api.GeoLocationService;
 import io.fabric8.api.PortService;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.internal.ImmutableContainerBuilder;
 import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;

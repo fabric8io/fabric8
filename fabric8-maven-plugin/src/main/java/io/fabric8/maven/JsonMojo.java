@@ -16,9 +16,9 @@
 package io.fabric8.maven;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.Lists;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Lists;
+import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.Port;
@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import static io.fabric8.common.util.PropertiesHelper.findPropertiesWithPrefix;
+import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 
 /**
  * Generates or copies the Kubernetes JSON file and attaches it to the build so its

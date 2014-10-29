@@ -17,7 +17,7 @@ package io.fabric8.core.jmx;
 
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.jmx.FileSystemMBean;
-import io.fabric8.common.util.ShutdownTracker;
+import io.fabric8.utils.ShutdownTracker;
 
 import java.io.File;
 import java.io.IOException;

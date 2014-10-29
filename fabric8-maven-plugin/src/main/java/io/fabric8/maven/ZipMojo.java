@@ -15,9 +15,9 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.Objects;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;

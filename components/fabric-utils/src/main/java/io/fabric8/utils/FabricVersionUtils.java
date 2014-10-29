@@ -19,8 +19,6 @@ package io.fabric8.utils;
 import java.io.InputStream;
 import java.util.Properties;
 
-import io.fabric8.common.util.IOHelpers;
-
 public class FabricVersionUtils {
 
     private static String version;

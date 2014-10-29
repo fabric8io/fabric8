@@ -17,7 +17,7 @@
  */
 package io.fabric8.kubernetes.jolokia;
 
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.model.ManifestContainer;

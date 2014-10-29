@@ -17,8 +17,8 @@
  */
 package io.fabric8.kubernetes.template;
 
-import io.fabric8.common.util.Closeables;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Closeables;
+import io.fabric8.utils.Strings;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;

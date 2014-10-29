@@ -16,10 +16,9 @@
 package io.fabric8.maven;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.template.Apps;
-import org.apache.http.HttpResponse;
 import org.apache.maven.artifact.deployer.ArtifactDeployer;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolver;

@@ -15,14 +15,14 @@
  */
 package io.fabric8.fab;
 
-import io.fabric8.common.util.Objects;
+import io.fabric8.utils.Objects;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
 
-import static io.fabric8.common.util.Objects.compare;
-import static io.fabric8.common.util.Objects.equal;
-import static io.fabric8.common.util.Strings.notEmpty;
+import static io.fabric8.utils.Objects.compare;
+import static io.fabric8.utils.Objects.equal;
+import static io.fabric8.utils.Strings.notEmpty;
 
 /**
  * Represents kind of dependency; so groupId, artifactId, classifier and extension

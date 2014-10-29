@@ -29,8 +29,8 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Strings;
 import io.fabric8.deployer.ProjectDeployerImpl;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DeployResults;

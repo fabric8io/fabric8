@@ -17,7 +17,7 @@
  */
 package io.fabric8.testkit.support;
 
-import io.fabric8.common.util.Filter;
+import io.fabric8.utils.Filter;
 
 import java.io.File;
 

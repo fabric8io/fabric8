@@ -15,7 +15,7 @@
  */
 package io.fabric8.zookeeper.utils;
 
-import io.fabric8.common.util.Closeables;
+import io.fabric8.utils.Closeables;
 
 import java.io.BufferedReader;
 import java.io.File;

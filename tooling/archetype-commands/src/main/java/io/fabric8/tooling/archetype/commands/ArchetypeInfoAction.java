@@ -21,7 +21,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
-import static io.fabric8.common.util.Strings.emptyIfNull;
+import static io.fabric8.utils.Strings.emptyIfNull;
 import static io.fabric8.tooling.archetype.commands.ArchetypeHelper.toMavenCoordinate;
 
 @Command(name = ArchetypeInfo.FUNCTION_VALUE, scope = ArchetypeInfo.SCOPE_VALUE, description = ArchetypeInfo.DESCRIPTION)

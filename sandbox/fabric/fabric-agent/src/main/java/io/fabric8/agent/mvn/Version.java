@@ -15,7 +15,7 @@
  */
 package io.fabric8.agent.mvn;
 
-import io.fabric8.common.util.NullArgumentException;
+import io.fabric8.utils.NullArgumentException;
 
 /**
  * Represents an artifact version.
@@ -37,7 +37,7 @@ public class Version
      * Creates a new version.
      *
      * @param version version as a string
-     * @throws io.fabric8.common.util.NullArgumentException
+     * @throws io.fabric8.utils.NullArgumentException
      *          if version is null or empty
      */
     public Version(final String version) {

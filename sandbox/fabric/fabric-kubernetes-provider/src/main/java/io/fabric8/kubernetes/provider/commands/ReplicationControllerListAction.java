@@ -15,8 +15,8 @@
  */
 package io.fabric8.kubernetes.provider.commands;
 
-import io.fabric8.common.util.Filter;
-import io.fabric8.common.util.Objects;
+import io.fabric8.utils.Filter;
+import io.fabric8.utils.Objects;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.model.ControllerCurrentState;
 import io.fabric8.kubernetes.api.model.ControllerDesiredState;

@@ -28,8 +28,8 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.xml.transform.stream.StreamSource;
 
-import io.fabric8.common.util.JMXUtils;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.JMXUtils;
+import io.fabric8.utils.Strings;
 import io.fabric8.tooling.archetype.catalog.Archetype;
 import io.fabric8.tooling.archetype.catalog.Archetypes;
 import org.apache.felix.scr.annotations.Activate;

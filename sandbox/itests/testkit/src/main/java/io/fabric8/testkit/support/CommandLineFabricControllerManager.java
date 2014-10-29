@@ -17,10 +17,10 @@
  */
 package io.fabric8.testkit.support;
 
-import io.fabric8.common.util.Closeables;
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.IOHelpers;
-import io.fabric8.common.util.Processes;
+import io.fabric8.utils.Closeables;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.IOHelpers;
+import io.fabric8.utils.Processes;
 import io.fabric8.testkit.FabricAssertions;
 import io.fabric8.testkit.FabricController;
 import io.fabric8.testkit.jolokia.JolokiaFabricController;
@@ -39,7 +39,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
-import static io.fabric8.common.util.Strings.join;
+import static io.fabric8.utils.Strings.join;
 import static io.fabric8.testkit.FabricAssertions.waitForValidValue;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;

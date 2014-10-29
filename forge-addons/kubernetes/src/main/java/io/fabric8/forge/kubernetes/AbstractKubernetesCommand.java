@@ -17,8 +17,8 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.common.util.Objects;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.utils.TablePrinter;

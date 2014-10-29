@@ -30,7 +30,7 @@ import io.fabric8.agent.download.FutureListener;
 import io.fabric8.agent.mvn.MavenConfigurationImpl;
 import io.fabric8.agent.mvn.MavenSettingsImpl;
 import io.fabric8.agent.mvn.PropertiesPropertyResolver;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.tooling.archetype.ArchetypeService;
 import io.fabric8.tooling.archetype.catalog.Archetype;
 import io.fabric8.tooling.archetype.generator.ArchetypeHelper;
@@ -40,8 +40,8 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
 
-import static io.fabric8.common.util.Strings.isNotBlank;
-import static io.fabric8.common.util.Strings.isNullOrBlank;
+import static io.fabric8.utils.Strings.isNotBlank;
+import static io.fabric8.utils.Strings.isNullOrBlank;
 
 @Command(name = ArchetypeGenerate.FUNCTION_VALUE, scope = ArchetypeGenerate.SCOPE_VALUE, description = ArchetypeGenerate.DESCRIPTION, detailedDescription = "classpath:archetypeGenerate.txt")
 public class ArchetypeGenerateAction extends AbstractAction {

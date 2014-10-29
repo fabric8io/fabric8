@@ -15,7 +15,7 @@
  */
 package io.fabric8.kubernetes.provider.commands;
 
-import io.fabric8.common.util.Objects;
+import io.fabric8.utils.Objects;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.model.CurrentState;
 import io.fabric8.kubernetes.api.model.DesiredState;

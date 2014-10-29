@@ -23,7 +23,7 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.scr.support.Strings;
-import io.fabric8.common.util.Objects;
+import io.fabric8.utils.Objects;
 import io.fabric8.process.manager.DownloadStrategy;
 import io.fabric8.process.manager.InstallOptions;
 

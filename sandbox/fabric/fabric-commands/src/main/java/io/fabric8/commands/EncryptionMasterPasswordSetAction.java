@@ -16,7 +16,7 @@
 package io.fabric8.commands;
 
 
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.zookeeper.ZkPath;
 import org.apache.curator.framework.CuratorFramework;

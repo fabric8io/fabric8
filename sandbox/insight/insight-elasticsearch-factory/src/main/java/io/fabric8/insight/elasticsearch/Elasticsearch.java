@@ -15,7 +15,7 @@
  */
 package io.fabric8.insight.elasticsearch;
 
-import io.fabric8.common.util.JMXUtils;
+import io.fabric8.utils.JMXUtils;
 import org.apache.felix.scr.annotations.*;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;

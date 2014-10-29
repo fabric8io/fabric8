@@ -16,7 +16,7 @@
 package io.fabric8.git.internal;
 
 import io.fabric8.api.Profiles;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 
 import java.io.File;
 import java.io.IOException;

@@ -38,7 +38,6 @@
 
 
   <modules>
-    <module>common-util</module>
     <module>docker-api</module>
     <module>fabric-cxf</module>
     <!--

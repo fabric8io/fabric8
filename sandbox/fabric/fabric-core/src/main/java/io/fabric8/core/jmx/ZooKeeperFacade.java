@@ -21,7 +21,7 @@ import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getStringData;
 import io.fabric8.api.jmx.ZkContents;
 import io.fabric8.api.jmx.ZooKeeperFacadeMXBean;
-import io.fabric8.common.util.ShutdownTracker;
+import io.fabric8.utils.ShutdownTracker;
 import io.fabric8.service.FabricServiceImpl;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 

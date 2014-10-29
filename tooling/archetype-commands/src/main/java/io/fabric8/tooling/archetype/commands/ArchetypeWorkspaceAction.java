@@ -17,7 +17,7 @@ package io.fabric8.tooling.archetype.commands;
 
 import java.util.prefs.Preferences;
 
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.tooling.archetype.ArchetypeService;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;

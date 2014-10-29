@@ -15,7 +15,7 @@
  */
 package io.fabric8.gateway.servlet;
 
-import io.fabric8.common.util.IOHelpers;
+import io.fabric8.utils.IOHelpers;
 import io.fabric8.gateway.model.HttpProxyRule;
 import io.fabric8.gateway.model.HttpProxyRuleBase;
 import io.fabric8.gateway.servlet.support.NonBindingSocketFactory;

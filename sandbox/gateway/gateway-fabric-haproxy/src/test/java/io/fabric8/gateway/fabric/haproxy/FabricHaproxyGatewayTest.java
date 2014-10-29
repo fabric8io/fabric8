@@ -15,7 +15,7 @@
  */
 package io.fabric8.gateway.fabric.haproxy;
 
-import io.fabric8.common.util.Files;
+import io.fabric8.utils.Files;
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
 import io.fabric8.gateway.ServiceDTO;
 import io.fabric8.gateway.fabric.support.http.HttpMappingRuleBase;

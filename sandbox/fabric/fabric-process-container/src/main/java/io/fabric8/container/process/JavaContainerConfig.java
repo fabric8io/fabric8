@@ -16,7 +16,7 @@
 package io.fabric8.container.process;
 
 import io.fabric8.api.Constants;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Property;
 

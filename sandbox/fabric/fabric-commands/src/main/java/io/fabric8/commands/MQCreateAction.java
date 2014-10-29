@@ -17,7 +17,7 @@ package io.fabric8.commands;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.RuntimeProperties;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.core.jmx.MQManager;
 
 import org.apache.felix.gogo.commands.Argument;

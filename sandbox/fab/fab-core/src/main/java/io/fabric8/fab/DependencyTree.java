@@ -31,11 +31,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.Filter;
-import io.fabric8.common.util.Manifests;
-import io.fabric8.common.util.Objects;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Filter;
+import io.fabric8.utils.Manifests;
+import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.artifact.Artifact;
@@ -49,9 +49,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import static io.fabric8.common.util.Objects.compare;
-import static io.fabric8.common.util.Objects.equal;
-import static io.fabric8.common.util.Strings.notEmpty;
+import static io.fabric8.utils.Objects.compare;
+import static io.fabric8.utils.Objects.equal;
+import static io.fabric8.utils.Strings.notEmpty;
 
 /**
  * Represents a specific versioned dependency and its transitive dependencies which can be used as the key

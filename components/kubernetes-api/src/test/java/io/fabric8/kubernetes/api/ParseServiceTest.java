@@ -17,23 +17,13 @@
  */
 package io.fabric8.kubernetes.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.kubernetes.api.model.DesiredState;
-import io.fabric8.kubernetes.api.IntOrString;
-import io.fabric8.kubernetes.api.model.Manifest;
-import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.PodListSchema;
-import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
 
-import static io.fabric8.common.util.Files.assertDirectoryExists;
-import static io.fabric8.common.util.Files.assertFileExists;
+import static io.fabric8.utils.Files.assertFileExists;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;

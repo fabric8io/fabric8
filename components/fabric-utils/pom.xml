@@ -32,22 +32,10 @@
     <name>Fabric8 :: Utils</name>
   
     <dependencies>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>common-util</artifactId>
-        </dependency>
-
-<!--
-        <dependency>
-            <groupId>org.apache.karaf.features</groupId>
-            <artifactId>org.apache.karaf.features.core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-        </dependency>
--->
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+      </dependency>
 
         <dependency>
           <groupId>com.fasterxml.jackson.core</groupId>

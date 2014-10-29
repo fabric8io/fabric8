@@ -16,7 +16,7 @@
 package io.fabric8.zookeeper.utils;
 
 import org.apache.curator.framework.CuratorFramework;
-import io.fabric8.common.util.Closeables;
+import io.fabric8.utils.Closeables;
 
 import java.io.BufferedInputStream;
 import java.io.File;

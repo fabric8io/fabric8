@@ -27,7 +27,7 @@ import io.fabric8.fab.DependencyTree;
 import io.fabric8.fab.VersionedDependencyId;
 import io.fabric8.fab.osgi.util.FeatureCollector;
 import io.fabric8.fab.osgi.util.Services;
-import io.fabric8.common.util.Filter;
+import io.fabric8.utils.Filter;
 import org.junit.Test;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.graph.Dependency;

@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServlet;
 
 import com.google.common.base.Strings;
-import io.fabric8.common.util.Files;
+import io.fabric8.utils.Files;
 import io.fabric8.deployer.ProjectDeployer;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DeployResults;

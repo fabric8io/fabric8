@@ -17,7 +17,7 @@
  */
 package io.fabric8.zookeeper.utils;
 
-import io.fabric8.common.util.Objects;
+import io.fabric8.utils.Objects;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;

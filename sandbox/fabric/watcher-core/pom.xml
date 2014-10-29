@@ -33,12 +33,6 @@
         <fuse.osgi.export>
             io.fabric8.watcher*;version=${fuse.osgi.version};-noimport:=true,
         </fuse.osgi.export>
-<!--
-        <fuse.osgi.activator>io.fabric8.xjc.Activator</fuse.osgi.activator>
--->
-        <fuse.osgi.private.pkg>
-          io.fabric8.common.util
-        </fuse.osgi.private.pkg>
     </properties>
 
     <dependencies>
@@ -49,7 +43,7 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>common-util</artifactId>
+            <artifactId>fabric-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
 

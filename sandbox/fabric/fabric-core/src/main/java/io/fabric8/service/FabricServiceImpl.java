@@ -745,7 +745,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                                 List<String> serviceTexts = new ArrayList<String>();
                                 for (Object service : services) {
                                     String serviceText = getSubstitutedData(curatorFramework, service.toString());
-                                    if (io.fabric8.common.util.Strings.isNotBlank(serviceText)) {
+                                    if (io.fabric8.utils.Strings.isNotBlank(serviceText)) {
                                         return serviceText;
                                     }
                                 }

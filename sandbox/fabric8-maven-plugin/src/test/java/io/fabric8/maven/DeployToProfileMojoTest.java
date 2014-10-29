@@ -32,8 +32,8 @@ import java.io.File;
 import java.io.IOException;
 
 import static io.fabric8.api.FabricConstants.FABRIC_VERSION;
-import static io.fabric8.common.util.Base64Encoder.decode;
-import static io.fabric8.common.util.Files.writeToFile;
+import static io.fabric8.utils.Base64Encoder.decode;
+import static io.fabric8.utils.Files.writeToFile;
 import static io.fabric8.maven.DeployToProfileMojo.PLACEHOLDER_PROJECT_ARTIFACT_ID;
 import static io.fabric8.maven.DeployToProfileMojo.PLACEHOLDER_PROJECT_GROUP_ID;
 import static io.fabric8.maven.DeployToProfileMojo.PLACEHOLDER_PROJECT_VERSION;

@@ -34,7 +34,7 @@ import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.Closeables;
+import io.fabric8.utils.Closeables;
 import io.fabric8.deployer.JavaContainers;
 import io.fabric8.internal.Objects;
 import io.fabric8.service.child.ChildContainers;

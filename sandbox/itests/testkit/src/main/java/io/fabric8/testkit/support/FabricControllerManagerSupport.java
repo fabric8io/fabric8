@@ -18,7 +18,7 @@
 package io.fabric8.testkit.support;
 
 import io.fabric8.api.EnvironmentVariables;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.testkit.FabricControllerManager;
 
 import java.io.File;
@@ -28,7 +28,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static io.fabric8.common.util.Strings.join;
+import static io.fabric8.utils.Strings.join;
 
 /**
  */

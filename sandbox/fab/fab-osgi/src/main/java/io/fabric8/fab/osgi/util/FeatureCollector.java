@@ -16,7 +16,7 @@
 package io.fabric8.fab.osgi.util;
 
 import org.apache.karaf.features.Feature;
-import io.fabric8.common.util.Collector;
+import io.fabric8.utils.Collector;
 
 /**
  * Interface to tag {@link Collector} implementation collecting Karaf {@link Feature} names.

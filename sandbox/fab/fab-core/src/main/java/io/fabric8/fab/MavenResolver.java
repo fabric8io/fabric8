@@ -18,7 +18,7 @@ package io.fabric8.fab;
 import java.io.File;
 import java.io.IOException;
 
-import io.fabric8.common.util.Filter;
+import io.fabric8.utils.Filter;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;

@@ -21,7 +21,7 @@ import io.fabric8.api.FabricException;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.Closeables;
+import io.fabric8.utils.Closeables;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.internal.ZooKeeperGroup;

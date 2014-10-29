@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.apache.karaf.features.FeaturesService;
 import io.fabric8.fab.DependencyTree;
-import io.fabric8.common.util.Filter;
+import io.fabric8.utils.Filter;
 import org.junit.Test;
 
 import static org.easymock.EasyMock.createNiceMock;

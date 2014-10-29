@@ -15,7 +15,7 @@
  */
 package io.fabric8.zookeeper.utils;
 
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;

@@ -28,7 +28,7 @@ import io.fabric8.api.Version;
 import io.fabric8.api.ZkDefs;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.container.process.JavaContainerConfig;
 import io.fabric8.container.process.JolokiaAgentHelper;
 import io.fabric8.container.process.ZooKeeperPublishConfig;

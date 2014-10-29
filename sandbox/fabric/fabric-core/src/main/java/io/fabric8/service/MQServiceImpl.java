@@ -32,9 +32,9 @@ import io.fabric8.api.ProfileRegistry;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.Version;
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.IOHelpers;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.IOHelpers;
+import io.fabric8.utils.Strings;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

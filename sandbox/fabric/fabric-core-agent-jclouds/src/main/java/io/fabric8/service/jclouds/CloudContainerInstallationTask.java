@@ -31,7 +31,7 @@ import com.google.common.io.Resources;
 import io.fabric8.api.CreationStateListener;
 import io.fabric8.api.FabricConstants;
 import io.fabric8.api.ZkDefs;
-import io.fabric8.common.util.Files;
+import io.fabric8.utils.Files;
 import io.fabric8.internal.ContainerProviderUtils;
 import io.fabric8.service.jclouds.firewall.FirewallManager;
 import io.fabric8.service.jclouds.firewall.FirewallManagerFactory;

@@ -15,12 +15,9 @@
  */
 package io.fabric8.maven;
 
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.Objects;
+import io.fabric8.utils.Files;
 import io.fabric8.kubernetes.api.Controller;
-import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;

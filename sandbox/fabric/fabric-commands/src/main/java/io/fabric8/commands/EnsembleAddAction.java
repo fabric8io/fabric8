@@ -22,7 +22,7 @@ import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.ServiceProxy;
 import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.boot.commands.support.EnsembleCommandSupport;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.utils.FabricValidations;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;

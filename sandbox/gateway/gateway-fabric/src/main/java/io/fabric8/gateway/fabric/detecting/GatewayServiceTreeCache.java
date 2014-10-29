@@ -16,8 +16,8 @@
 package io.fabric8.gateway.fabric.detecting;
 
 import io.fabric8.api.jcip.GuardedBy;
-import io.fabric8.common.util.Closeables;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Closeables;
+import io.fabric8.utils.Strings;
 import io.fabric8.gateway.ServiceDTO;
 import io.fabric8.gateway.ServiceMap;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;

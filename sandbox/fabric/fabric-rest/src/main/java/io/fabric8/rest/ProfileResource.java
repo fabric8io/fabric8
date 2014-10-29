@@ -24,7 +24,7 @@ import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.jmx.ProfileDTO;
-import io.fabric8.common.util.Objects;
+import io.fabric8.utils.Objects;
 import io.fabric8.core.jmx.Links;
 
 import java.util.Collections;
