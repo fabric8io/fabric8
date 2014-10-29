@@ -15,10 +15,11 @@
  */
 package io.fabric8.maven;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Lists;
-import io.fabric8.common.util.PropertiesHelper;
 import io.fabric8.common.util.Strings;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.template.GenerateTemplateDTO;
@@ -33,6 +34,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -128,6 +130,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.replicas", defaultValue = "1")
     private Integer replicaCount;
 
+    /**
+     * The extra additional kubernetes JSON file for things like services
+     */
+    @Parameter(property = "kubernetesExtraJson", defaultValue = "${basedir}/target/classes/kubernetes-extra.json")
+    private File kubernetesExtraJson;
+
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -136,16 +144,38 @@ public class JsonMojo extends AbstractFabric8Mojo {
         if (json == null) {
             throw new MojoExecutionException("No kubernetes json file is specified!");
         }
-        if (!json.exists()) {
-            if (!isPom(getProject()) && !isIgnoreProject() && generateJson) {
-                generateKubernetesJson(json);
+        if (!isPom(getProject()) && !isIgnoreProject() && generateJson) {
+            generateKubernetesJson(json);
+
+            if (kubernetesExtraJson != null && kubernetesExtraJson.exists()) {
+                combineJsonFiles(json, kubernetesExtraJson);
             }
-        } else {
-            getLog().warn("No kubernetes JSON file specified");
         }
         if (Files.isFile(json)) {
             getLog().info("Attaching kubernetes json file: " + json + " to the build");
             projectHelper.attachArtifact(getProject(), artifactType, artifactClassifier, json);
+        }
+    }
+
+    protected void combineJsonFiles(File json, File kubernetesExtraJson) throws MojoExecutionException {
+        // lets combine json files together
+        getLog().info("Combining generated json " + json + " with extra json " + kubernetesExtraJson);
+        Object extra = loadJsonFile(kubernetesExtraJson);
+        Object generated = loadJsonFile(json);
+        try {
+            JsonNode comnbined = KubernetesHelper.combineJson(generated, extra);
+            KubernetesHelper.saveJson(json, comnbined);
+            getLog().info("Saved as :" + json.getAbsolutePath());
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to save combined JSON files " + json + " and " + kubernetesExtraJson + " as " + json + ". " + e, e);
+        }
+    }
+
+    protected static Object loadJsonFile(File file) throws MojoExecutionException {
+        try {
+            return KubernetesHelper.loadJson(file);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to parse JSON " + file + ". " + e, e);
         }
     }
 
@@ -250,7 +280,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             ports = new ArrayList<>();
         }
         if (ports.isEmpty()) {
-            Map<String,Port> portMap = new HashMap<>();
+            Map<String, Port> portMap = new HashMap<>();
             Properties properties1 = getProject().getProperties();
             Map<String, String> hostPorts = findPropertiesWithPrefix(properties1, FABRIC8_PORT_HOST_PREFIX);
             Properties properties = getProject().getProperties();
@@ -338,14 +368,14 @@ public class JsonMojo extends AbstractFabric8Mojo {
             environmentVariables = new ArrayList<Env>();
         }
         if (environmentVariables.isEmpty()) {
-            Map<String,Env> envMap = new HashMap<>();
+            Map<String, Env> envMap = new HashMap<>();
             Map<String, String> envs = findPropertiesWithPrefix(getProject().getProperties(), "fabric8.env.");
 
             for (Map.Entry<String, String> entry : envs.entrySet()) {
                 String name = entry.getKey();
                 String value = entry.getValue();
 
-               if (name != null) {
+                if (name != null) {
                     Env env = getOrCreateEnv(envMap, name);
                     env.setName(name);
 

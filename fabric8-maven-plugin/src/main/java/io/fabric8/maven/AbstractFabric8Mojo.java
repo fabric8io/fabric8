@@ -39,6 +39,7 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
      */
     @Parameter(property = "fabric8.zip.file", defaultValue = "${project.build.directory}/${project.artifactId}-${project.version}-app.zip")
     protected File zipFile;
+
     /**
      * The custom kubernetes JSON file
      */

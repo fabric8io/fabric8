@@ -17,10 +17,14 @@
  */
 package io.fabric8.kubernetes.api;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Filter;
 import io.fabric8.common.util.Filters;
@@ -161,6 +165,13 @@ public class KubernetesHelper {
         return null;
     }
 
+
+    /**
+     * Saves the json object to the given file
+     */
+    public static void saveJson(File json, Object object) throws IOException {
+        objectMapper.writer().writeValue(json, object);
+    }
 
     /**
      * Returns a map indexed by pod id of the pods
@@ -616,6 +627,70 @@ public class KubernetesHelper {
             throw new IllegalArgumentException("Invalid port number for service " + id + ". " + answer);
         }
         return answer;
+    }
+
+    /**
+     * Combines the JSON objects into a config object
+     */
+    public static JsonNode combineJson(Object... objects) throws IOException {
+        JsonNode config = findOrCreateConfig(objects);
+        JsonNode items = config.get("items");
+        ArrayNode itemArray = null;
+        if (items instanceof ArrayNode) {
+            itemArray = (ArrayNode) items;
+        } else {
+            itemArray = new ArrayNode(createNodeFactory());
+            if (config instanceof ObjectNode) {
+                ObjectNode objectNode = (ObjectNode) config;
+                objectNode.set("items", itemArray);
+            } else {
+                throw new IllegalArgumentException("config " + config + " is not a ObjectNode");
+            }
+        }
+        for (Object object : objects) {
+            if (object != config) {
+                JsonNode node = toJsonNode(object);
+                itemArray.add(node);
+            }
+        }
+        return config;
+    }
+
+    protected static JsonNodeFactory createNodeFactory() {
+        return new JsonNodeFactory(false);
+    }
+
+    protected static JsonNode findOrCreateConfig(Object[] objects) {
+        for (Object object : objects) {
+            if (object instanceof JsonNode) {
+                JsonNode jsonNode = (JsonNode) object;
+                JsonNode items = jsonNode.get("items");
+                if (items != null && items.isArray()) {
+                    return jsonNode;
+                }
+            }
+        }
+        // lets create a new config
+        JsonNodeFactory factory = createNodeFactory();
+        ObjectNode config = factory.objectNode();
+        config.set("apiVersion", factory.textNode("v1beta1"));
+        config.set("kind", factory.textNode("Config"));
+        config.set("items", factory.arrayNode());
+        return config;
+    }
+
+    /**
+     * Converts the DTO to a JsonNode
+     */
+    public static JsonNode toJsonNode(Object object) throws IOException {
+        if (object instanceof JsonNode) {
+            return (JsonNode) object;
+        } else if (object == null) {
+            return null;
+        } else {
+            String json = toJson(object);
+            return objectMapper.reader().readTree(json);
+        }
     }
 
 }
