@@ -62,12 +62,15 @@ import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.ArtifactProperties;
 import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.artifact.DefaultArtifactType;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.collection.DependencyCollectionContext;
 import org.eclipse.aether.collection.DependencyCollectionException;
 import org.eclipse.aether.collection.DependencyGraphTransformationContext;
 import org.eclipse.aether.collection.DependencyGraphTransformer;
+import org.eclipse.aether.collection.DependencyManager;
 import org.eclipse.aether.collection.DependencySelector;
+import org.eclipse.aether.collection.DependencyTraverser;
 import org.eclipse.aether.connector.wagon.WagonProvider;
 import org.eclipse.aether.connector.wagon.WagonRepositoryConnectorFactory;
 import org.eclipse.aether.graph.DefaultDependencyNode;
@@ -93,12 +96,24 @@ import org.eclipse.aether.resolution.VersionRangeRequest;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResult;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
+import org.eclipse.aether.util.artifact.DefaultArtifactTypeRegistry;
+import org.eclipse.aether.util.graph.manager.ClassicDependencyManager;
 import org.eclipse.aether.util.graph.selector.AndDependencySelector;
 import org.eclipse.aether.util.graph.selector.ExclusionDependencySelector;
+import org.eclipse.aether.util.graph.selector.OptionalDependencySelector;
 import org.eclipse.aether.util.graph.selector.ScopeDependencySelector;
+import org.eclipse.aether.util.graph.transformer.ChainedDependencyGraphTransformer;
+import org.eclipse.aether.util.graph.transformer.ConflictResolver;
+import org.eclipse.aether.util.graph.transformer.JavaDependencyContextRefiner;
+import org.eclipse.aether.util.graph.transformer.JavaScopeDeriver;
+import org.eclipse.aether.util.graph.transformer.JavaScopeSelector;
+import org.eclipse.aether.util.graph.transformer.NearestVersionSelector;
+import org.eclipse.aether.util.graph.transformer.SimpleOptionalitySelector;
+import org.eclipse.aether.util.graph.traverser.FatArtifactTraverser;
 import org.eclipse.aether.util.repository.AuthenticationBuilder;
 import org.eclipse.aether.util.repository.DefaultMirrorSelector;
 import org.eclipse.aether.util.repository.DefaultProxySelector;
+import org.eclipse.aether.util.repository.SimpleArtifactDescriptorPolicy;
 import org.eclipse.aether.util.version.GenericVersionScheme;
 import org.eclipse.aether.version.Version;
 import org.slf4j.Logger;
@@ -448,7 +463,7 @@ public class AetherBasedResolver implements MavenResolver {
     }
 
     public DefaultRepositorySystemSession createSession() {
-        DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
+        DefaultRepositorySystemSession session = newSession();
 
         File local;
         if( m_config.getLocalRepository() != null ) {
@@ -483,6 +498,52 @@ public class AetherBasedResolver implements MavenResolver {
 
         return session;
     }
+
+    private static DefaultRepositorySystemSession newSession()
+    {
+        DefaultRepositorySystemSession session = new DefaultRepositorySystemSession();
+
+        DependencyTraverser depTraverser = new FatArtifactTraverser();
+        session.setDependencyTraverser( depTraverser );
+
+        DependencyManager depManager = new ClassicDependencyManager();
+        session.setDependencyManager( depManager );
+
+        DependencySelector depFilter =
+                new AndDependencySelector( new ScopeDependencySelector( "test", "provided" ),
+                        new OptionalDependencySelector(), new ExclusionDependencySelector() );
+        session.setDependencySelector( depFilter );
+
+        DependencyGraphTransformer transformer =
+                new ConflictResolver( new NearestVersionSelector(), new JavaScopeSelector(),
+                        new SimpleOptionalitySelector(), new JavaScopeDeriver() );
+        new ChainedDependencyGraphTransformer( transformer, new JavaDependencyContextRefiner() );
+        session.setDependencyGraphTransformer( transformer );
+
+        DefaultArtifactTypeRegistry stereotypes = new DefaultArtifactTypeRegistry();
+        stereotypes.add( new DefaultArtifactType( "pom" ) );
+        stereotypes.add( new DefaultArtifactType( "maven-plugin", "jar", "", "java" ) );
+        stereotypes.add( new DefaultArtifactType( "jar", "jar", "", "java" ) );
+        stereotypes.add( new DefaultArtifactType( "ejb", "jar", "", "java" ) );
+        stereotypes.add( new DefaultArtifactType( "ejb-client", "jar", "client", "java" ) );
+        stereotypes.add( new DefaultArtifactType( "test-jar", "jar", "tests", "java" ) );
+        stereotypes.add( new DefaultArtifactType( "javadoc", "jar", "javadoc", "java" ) );
+        stereotypes.add( new DefaultArtifactType( "java-source", "jar", "sources", "java", false, false ) );
+        stereotypes.add( new DefaultArtifactType( "war", "war", "", "java", false, true ) );
+        stereotypes.add( new DefaultArtifactType( "ear", "ear", "", "java", false, true ) );
+        stereotypes.add( new DefaultArtifactType( "rar", "rar", "", "java", false, true ) );
+        stereotypes.add( new DefaultArtifactType( "par", "par", "", "java", false, true ) );
+        session.setArtifactTypeRegistry( stereotypes );
+
+        session.setArtifactDescriptorPolicy( new SimpleArtifactDescriptorPolicy( true, true ) );
+
+        Properties sysProps = (Properties) System.getProperties().clone();
+        session.setSystemProperties( sysProps );
+        session.setConfigProperties( sysProps );
+
+        return session;
+    }
+
 
     private void addServerConfig( DefaultRepositorySystemSession session, Server server )
     {
