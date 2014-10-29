@@ -16,7 +16,7 @@
 package io.fabric8.gateway.fabric.support.vertx;
 
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.common.util.Objects;
+import io.fabric8.utils.Objects;
 import io.fabric8.vertx.FabricVertexFactory;
 
 import org.apache.curator.framework.CuratorFramework;

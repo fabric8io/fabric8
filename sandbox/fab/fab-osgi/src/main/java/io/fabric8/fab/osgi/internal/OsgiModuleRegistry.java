@@ -27,7 +27,7 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 
-import static io.fabric8.common.util.Strings.*;
+import static io.fabric8.utils.Strings.*;
 /**
  * <p>
  * </p>

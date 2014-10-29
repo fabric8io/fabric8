@@ -41,7 +41,7 @@ import org.ops4j.net.URLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.fabric8.common.util.Strings.notEmpty;
+import static io.fabric8.utils.Strings.notEmpty;
 
 /**
  * Information about a resolved Fuse Application Bundle.  This class will allow you to access the FAB's InputStream

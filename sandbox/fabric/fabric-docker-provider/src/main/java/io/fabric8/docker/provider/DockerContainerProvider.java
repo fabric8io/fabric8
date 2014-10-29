@@ -28,7 +28,7 @@ import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.container.process.JolokiaAgentHelper;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.DockerApiConnectionException;

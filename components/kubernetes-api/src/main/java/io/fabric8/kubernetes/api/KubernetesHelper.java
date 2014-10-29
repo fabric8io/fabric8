@@ -17,7 +17,6 @@
  */
 package io.fabric8.kubernetes.api;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,17 +24,16 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.Filter;
-import io.fabric8.common.util.Filters;
-import io.fabric8.common.util.Objects;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Filter;
+import io.fabric8.utils.Filters;
+import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.model.ControllerDesiredState;
 import io.fabric8.kubernetes.api.model.CurrentState;
 import io.fabric8.kubernetes.api.model.DesiredState;
 import io.fabric8.kubernetes.api.model.Manifest;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.PodContainerManifest;
 import io.fabric8.kubernetes.api.model.PodCurrentContainerInfo;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
@@ -60,8 +58,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static io.fabric8.common.util.Lists.notNullList;
-import static io.fabric8.common.util.Strings.isNullOrBlank;
+import static io.fabric8.utils.Lists.notNullList;
+import static io.fabric8.utils.Strings.isNullOrBlank;
 
 /**
  */

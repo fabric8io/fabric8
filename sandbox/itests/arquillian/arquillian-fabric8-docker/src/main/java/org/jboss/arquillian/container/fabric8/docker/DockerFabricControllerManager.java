@@ -18,7 +18,7 @@
 package org.jboss.arquillian.container.fabric8.docker;
 
 import io.fabric8.api.EnvironmentVariables;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.docker.api.Docker;
 import io.fabric8.docker.api.DockerFactory;
 import io.fabric8.docker.api.Dockers;

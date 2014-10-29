@@ -59,7 +59,7 @@ import io.fabric8.agent.repository.HttpMetadataProvider;
 import io.fabric8.agent.repository.MetadataRepository;
 import io.fabric8.agent.resolver.ResourceBuilder;
 import io.fabric8.api.data.BundleInfo;
-import io.fabric8.common.util.MultiException;
+import io.fabric8.utils.MultiException;
 import io.fabric8.fab.osgi.internal.FabResolverFactoryImpl;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.karaf.deployer.blueprint.BlueprintTransformer;

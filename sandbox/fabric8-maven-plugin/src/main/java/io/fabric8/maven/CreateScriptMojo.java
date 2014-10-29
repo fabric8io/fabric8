@@ -22,7 +22,7 @@ import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.List;
 
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import org.apache.maven.plugin.MojoExecutionException;

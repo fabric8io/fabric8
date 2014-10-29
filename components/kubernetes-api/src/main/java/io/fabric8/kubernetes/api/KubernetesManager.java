@@ -17,17 +17,12 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.common.util.JMXUtils;
-import io.fabric8.common.util.Strings;
-import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.utils.JMXUtils;
+import io.fabric8.utils.Strings;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A simple MBean for performing custom operations on kubernetes

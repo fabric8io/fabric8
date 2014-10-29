@@ -15,7 +15,7 @@
 
 package io.fabric8.mq.autoscaler;
 
-import io.fabric8.common.util.JMXUtils;
+import io.fabric8.utils.JMXUtils;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.ControllerDesiredState;

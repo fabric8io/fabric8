@@ -15,7 +15,7 @@
  */
 package io.fabric8.gateway.fabric.http;
 
-import io.fabric8.common.util.ShutdownTracker;
+import io.fabric8.utils.ShutdownTracker;
 import io.fabric8.gateway.fabric.jmx.FabricGatewayInfoMBean;
 
 import javax.management.MBeanServer;

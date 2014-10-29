@@ -32,7 +32,7 @@ import io.fabric8.fab.osgi.internal.OsgiModuleRegistry;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
-import static io.fabric8.common.util.Strings.join;
+import static io.fabric8.utils.Strings.join;
 
 @Command(name = "install", scope = "module", description = "Install a module")
 public class InstallCommand extends CommandSupport {

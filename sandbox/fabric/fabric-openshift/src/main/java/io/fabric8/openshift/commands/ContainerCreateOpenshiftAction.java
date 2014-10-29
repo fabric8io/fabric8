@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricService;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.openshift.CreateOpenshiftContainerOptions;
 import io.fabric8.openshift.commands.support.ContainerCreateSupport;
 import io.fabric8.utils.FabricValidations;

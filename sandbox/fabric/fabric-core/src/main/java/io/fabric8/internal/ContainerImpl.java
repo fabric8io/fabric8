@@ -31,7 +31,7 @@ import io.fabric8.api.Version;
 import io.fabric8.api.ZkDefs;
 import io.fabric8.api.data.BundleInfo;
 import io.fabric8.api.data.ServiceInfo;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.service.ContainerTemplate;
 
 import java.io.IOException;

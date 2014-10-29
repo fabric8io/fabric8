@@ -27,9 +27,9 @@ import io.fabric8.api.HostScalingRequirements;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.SshHostConfiguration;
-import io.fabric8.common.util.Filter;
-import io.fabric8.common.util.Filters;
-import io.fabric8.common.util.Objects;
+import io.fabric8.utils.Filter;
+import io.fabric8.utils.Filters;
+import io.fabric8.utils.Objects;
 import io.fabric8.utils.CountingMap;
 
 import java.util.Collection;
@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static io.fabric8.common.util.Filters.trueFilter;
+import static io.fabric8.utils.Filters.trueFilter;
 
 /**
  * A bunch of helper methods for implementing auto scalers implementations choosing & filtering configurations, hosts etc

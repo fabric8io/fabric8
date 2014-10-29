@@ -24,7 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 
-import io.fabric8.common.util.Files;
+import io.fabric8.utils.Files;
 
 /**
  * Handles parsing of Strings which are really sequences of JSON objects without

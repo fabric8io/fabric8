@@ -17,8 +17,8 @@ package io.fabric8.fab;
 
 import org.apache.maven.model.Model;
 
-import static io.fabric8.common.util.Strings.notEmpty;
-import static io.fabric8.common.util.Strings.nullIfEmpty;
+import static io.fabric8.utils.Strings.notEmpty;
+import static io.fabric8.utils.Strings.nullIfEmpty;
 
 /**
  * <p>

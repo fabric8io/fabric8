@@ -40,8 +40,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import io.fabric8.common.util.IOHelpers;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.IOHelpers;
+import io.fabric8.utils.Strings;
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

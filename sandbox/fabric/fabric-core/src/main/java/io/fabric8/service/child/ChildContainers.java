@@ -23,7 +23,7 @@ import io.fabric8.api.CreateContainerOptions;
 import io.fabric8.api.EnvironmentVariables;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profiles;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.utils.PasswordEncoder;
 
 import java.util.Map;

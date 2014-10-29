@@ -37,8 +37,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import io.fabric8.api.FabricConstants;
 import io.fabric8.api.RuntimeProperties;
-import io.fabric8.common.util.Closeables;
-import io.fabric8.common.util.Files;
+import io.fabric8.utils.Closeables;
+import io.fabric8.utils.Files;
 import io.fabric8.deployer.ProjectDeployer;
 import io.fabric8.utils.ThreadFactory;
 

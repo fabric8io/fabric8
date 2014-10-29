@@ -23,7 +23,7 @@ import io.fabric8.api.Constants;
 import io.fabric8.api.DataStoreTemplate;
 import io.fabric8.api.RuntimeProperties;
 import io.fabric8.api.scr.Configurer;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.git.hawtio.FabricGitFacade;
 import io.fabric8.zookeeper.spring.ZKServerFactoryBean;
 

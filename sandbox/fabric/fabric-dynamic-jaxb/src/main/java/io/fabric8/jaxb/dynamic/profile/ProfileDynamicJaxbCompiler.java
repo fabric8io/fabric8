@@ -48,8 +48,8 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 
-import io.fabric8.common.util.Maps;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Maps;
+import io.fabric8.utils.Strings;
 import io.fabric8.api.Container;
 import io.fabric8.api.Containers;
 import io.fabric8.api.DataStore;

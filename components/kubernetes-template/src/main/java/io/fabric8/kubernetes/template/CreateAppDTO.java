@@ -17,7 +17,7 @@
  */
 package io.fabric8.kubernetes.template;
 
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 
 /**
  * Represents a DTO which can be posted as JSON for creating a new application via a wizard or command line tool

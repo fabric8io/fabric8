@@ -15,7 +15,7 @@
  */
 package io.fabric8.agent.mvn;
 
-import io.fabric8.common.util.NullArgumentException;
+import io.fabric8.utils.NullArgumentException;
 
 /**
  * A version segment backed up by a String.

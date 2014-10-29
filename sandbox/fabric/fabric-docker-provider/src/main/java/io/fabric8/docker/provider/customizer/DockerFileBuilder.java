@@ -3,7 +3,7 @@ package io.fabric8.docker.provider.customizer;
 import java.io.File;
 import java.io.IOException;
 
-import io.fabric8.common.util.Files;
+import io.fabric8.utils.Files;
 
 /**
  *

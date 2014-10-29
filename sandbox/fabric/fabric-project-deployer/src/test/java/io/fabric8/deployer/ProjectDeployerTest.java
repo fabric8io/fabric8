@@ -26,7 +26,7 @@ import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.RuntimeProperties;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import io.fabric8.git.internal.FabricGitServiceImpl;

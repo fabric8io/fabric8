@@ -21,7 +21,7 @@ import io.fabric8.api.Version;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.ShutdownTracker;
+import io.fabric8.utils.ShutdownTracker;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;

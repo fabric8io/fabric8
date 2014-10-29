@@ -21,7 +21,7 @@ import io.fabric8.utils.FabricVersionUtils;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
-import static io.fabric8.common.util.Strings.emptyIfNull;
+import static io.fabric8.utils.Strings.emptyIfNull;
 
 @Command(name = FabricInfo.FUNCTION_VALUE, scope = FabricInfo.SCOPE_VALUE, description = FabricInfo.DESCRIPTION)
 public class FabricInfoAction extends AbstractAction {

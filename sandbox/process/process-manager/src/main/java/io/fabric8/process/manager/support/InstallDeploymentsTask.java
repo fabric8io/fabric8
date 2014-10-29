@@ -15,8 +15,8 @@
  */
 package io.fabric8.process.manager.support;
 
-import io.fabric8.common.util.ChecksumUtils;
-import io.fabric8.common.util.FileChangeInfo;
+import io.fabric8.utils.ChecksumUtils;
+import io.fabric8.utils.FileChangeInfo;
 import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.InstallTask;
 import io.fabric8.process.manager.config.ProcessConfig;

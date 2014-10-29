@@ -15,7 +15,7 @@
  */
 package io.fabric8.fab;
 
-import io.fabric8.common.util.Filter;
+import io.fabric8.utils.Filter;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

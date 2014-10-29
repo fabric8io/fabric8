@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import io.fabric8.common.util.NullArgumentException;
+import io.fabric8.utils.NullArgumentException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

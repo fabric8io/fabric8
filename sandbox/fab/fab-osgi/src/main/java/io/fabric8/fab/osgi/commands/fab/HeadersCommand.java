@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.fab.osgi.FabBundleInfo;
 import io.fabric8.fab.osgi.ServiceConstants;
 import io.fabric8.fab.osgi.commands.CommandSupport;

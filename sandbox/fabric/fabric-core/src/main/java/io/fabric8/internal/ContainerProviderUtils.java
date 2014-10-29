@@ -33,7 +33,7 @@ import io.fabric8.api.CreateEnsembleOptions;
 import io.fabric8.api.CreateRemoteContainerOptions;
 import io.fabric8.api.FabricConstants;
 import io.fabric8.api.ZkDefs;
-import io.fabric8.common.util.ObjectUtils;
+import io.fabric8.utils.ObjectUtils;
 import io.fabric8.utils.Base64Encoder;
 import io.fabric8.utils.HostUtils;
 import io.fabric8.utils.Ports;

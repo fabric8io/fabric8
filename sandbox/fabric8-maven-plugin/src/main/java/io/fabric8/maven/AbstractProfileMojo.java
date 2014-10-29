@@ -46,8 +46,8 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.ProjectRequirements;
 import org.apache.maven.artifact.Artifact;

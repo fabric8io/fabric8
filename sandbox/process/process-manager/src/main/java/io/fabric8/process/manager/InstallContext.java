@@ -16,8 +16,8 @@
 package io.fabric8.process.manager;
 
 import io.fabric8.api.Container;
-import io.fabric8.common.util.FileChangeInfo;
-import io.fabric8.common.util.Files;
+import io.fabric8.utils.FileChangeInfo;
+import io.fabric8.utils.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

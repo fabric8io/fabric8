@@ -19,7 +19,7 @@ package io.fabric8.docker.provider.customizer;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
-import io.fabric8.common.util.Files;
+import io.fabric8.utils.Files;
 import io.fabric8.deployer.JavaContainers;
 
 import java.io.File;

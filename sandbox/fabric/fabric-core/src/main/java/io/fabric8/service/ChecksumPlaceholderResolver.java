@@ -19,8 +19,8 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.PlaceholderResolver;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.common.util.ChecksumUtils;
-import io.fabric8.common.util.Closeables;
+import io.fabric8.utils.ChecksumUtils;
+import io.fabric8.utils.Closeables;
 
 import java.io.InputStream;
 import java.net.URL;

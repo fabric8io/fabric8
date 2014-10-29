@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.patch.Patch;
 import org.apache.felix.utils.manifest.Clause;
 import org.apache.felix.utils.manifest.Parser;
@@ -66,10 +66,10 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.framework.wiring.FrameworkWiring;
 
-import static io.fabric8.common.util.IOHelpers.close;
-import static io.fabric8.common.util.IOHelpers.copy;
-import static io.fabric8.common.util.IOHelpers.readFully;
-import static io.fabric8.common.util.IOHelpers.writeFully;
+import static io.fabric8.utils.IOHelpers.close;
+import static io.fabric8.utils.IOHelpers.copy;
+import static io.fabric8.utils.IOHelpers.readFully;
+import static io.fabric8.utils.IOHelpers.writeFully;
 
 public class ServiceImpl implements Service {
 

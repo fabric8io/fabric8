@@ -24,7 +24,7 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.Profile;
 import io.fabric8.api.ProfileService;
 import io.fabric8.api.Profiles;
-import io.fabric8.common.util.Files;
+import io.fabric8.utils.Files;
 import io.fabric8.deployer.JavaContainers;
 import io.fabric8.service.VersionPropertyPointerResolver;
 import io.fabric8.service.child.ChildContainers;

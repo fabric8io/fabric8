@@ -3,10 +3,8 @@ package io.fabric8.mq.consumer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import io.fabric8.common.util.Systems;
+import io.fabric8.utils.Systems;
 import org.apache.activemq.camel.component.ActiveMQComponent;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.dataset.SimpleDataSet;
 import org.slf4j.Logger;

@@ -15,7 +15,7 @@
  */
 package io.fabric8.camel;
 
-import io.fabric8.common.util.PublicPortMapper;
+import io.fabric8.utils.PublicPortMapper;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;

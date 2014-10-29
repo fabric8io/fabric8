@@ -30,7 +30,7 @@ import java.util.StringTokenizer;
 import io.fabric8.api.Constants;
 import io.fabric8.api.FabricException;
 import io.fabric8.api.Profile;
-import io.fabric8.common.util.ChecksumUtils;
+import io.fabric8.utils.ChecksumUtils;
 import io.fabric8.utils.DataStoreUtils;
 
 /**

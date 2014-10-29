@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import io.fabric8.common.util.NullArgumentException;
-import io.fabric8.common.util.URLUtils;
+import io.fabric8.utils.NullArgumentException;
+import io.fabric8.utils.URLUtils;
 
 /**
  * An artifact that can be downloaded.

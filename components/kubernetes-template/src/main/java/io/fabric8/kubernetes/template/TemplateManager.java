@@ -18,10 +18,10 @@
 package io.fabric8.kubernetes.template;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.JMXUtils;
-import io.fabric8.common.util.Objects;
-import io.fabric8.common.util.Zips;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.JMXUtils;
+import io.fabric8.utils.Objects;
+import io.fabric8.utils.Zips;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

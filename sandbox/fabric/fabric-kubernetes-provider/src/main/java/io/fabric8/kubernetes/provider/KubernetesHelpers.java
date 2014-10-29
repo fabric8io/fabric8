@@ -17,9 +17,9 @@
  */
 package io.fabric8.kubernetes.provider;
 
-import io.fabric8.common.util.Filter;
-import io.fabric8.common.util.Filters;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Filter;
+import io.fabric8.utils.Filters;
+import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;

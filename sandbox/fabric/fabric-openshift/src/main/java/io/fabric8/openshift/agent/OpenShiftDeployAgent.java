@@ -40,8 +40,8 @@ import org.eclipse.jgit.transport.CredentialItem;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.URIish;
 
-import io.fabric8.common.util.Maps;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Maps;
+import io.fabric8.utils.Strings;
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
 import io.fabric8.api.Container;

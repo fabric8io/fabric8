@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.*;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.JMXUtils;
+import io.fabric8.utils.JMXUtils;
 import io.fabric8.groups.Group;
 import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.NodeState;
@@ -48,7 +48,7 @@ import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.concurrent.*;
 
-import static io.fabric8.common.util.IOHelpers.loadFully;
+import static io.fabric8.utils.IOHelpers.loadFully;
 import static io.fabric8.insight.metrics.model.MetricsJSON.parseJson;
 
 /**

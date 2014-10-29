@@ -18,7 +18,7 @@ package io.fabric8.process.manager.support;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
-import io.fabric8.common.util.FileChangeInfo;
+import io.fabric8.utils.FileChangeInfo;
 import io.fabric8.process.manager.InstallContext;
 import io.fabric8.process.manager.service.ProcessManagerService;
 import io.fabric8.process.manager.support.mvel.MvelPredicate;

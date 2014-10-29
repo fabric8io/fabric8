@@ -23,7 +23,7 @@ import com.openshift.client.IDomain;
 import com.openshift.client.IOpenShiftConnection;
 import com.openshift.client.OpenShiftConnectionFactory;
 
-import io.fabric8.common.util.Maps;
+import io.fabric8.utils.Maps;
 import io.fabric8.api.Container;
 import io.fabric8.api.CreateContainerMetadata;
 

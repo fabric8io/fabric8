@@ -20,7 +20,7 @@ import io.fabric8.api.FabricStatus;
 import io.fabric8.api.ProfileStatus;
 import io.fabric8.api.jmx.HealthCheckMBean;
 import io.fabric8.api.jmx.HealthStatus;
-import io.fabric8.common.util.ShutdownTracker;
+import io.fabric8.utils.ShutdownTracker;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;

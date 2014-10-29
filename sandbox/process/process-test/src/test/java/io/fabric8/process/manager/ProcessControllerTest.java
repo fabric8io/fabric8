@@ -15,7 +15,7 @@
  */
 package io.fabric8.process.manager;
 
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.process.test.AbstractProcessTest;
 
 import org.junit.Ignore;

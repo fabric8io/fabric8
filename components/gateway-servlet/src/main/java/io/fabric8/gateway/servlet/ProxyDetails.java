@@ -15,7 +15,7 @@
  */
 package io.fabric8.gateway.servlet;
 
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.gateway.model.HttpProxyRule;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;

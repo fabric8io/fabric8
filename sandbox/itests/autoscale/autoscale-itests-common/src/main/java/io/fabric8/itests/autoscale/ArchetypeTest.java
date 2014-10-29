@@ -16,9 +16,9 @@
 package io.fabric8.itests.autoscale;
 
 import io.fabric8.api.FabricRequirements;
-import io.fabric8.common.util.Closeables;
-import io.fabric8.common.util.Strings;
-import io.fabric8.common.util.XmlUtils;
+import io.fabric8.utils.Closeables;
+import io.fabric8.utils.Strings;
+import io.fabric8.utils.XmlUtils;
 import io.fabric8.testkit.FabricAssertions;
 import io.fabric8.testkit.FabricController;
 import org.jboss.arquillian.junit.Arquillian;

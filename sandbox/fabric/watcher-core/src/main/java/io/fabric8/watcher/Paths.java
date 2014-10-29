@@ -15,7 +15,7 @@
  */
 package io.fabric8.watcher;
 
-import io.fabric8.common.util.XmlHelper;
+import io.fabric8.utils.XmlHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;

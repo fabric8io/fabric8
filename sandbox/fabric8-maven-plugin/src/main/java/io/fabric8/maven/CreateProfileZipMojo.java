@@ -32,8 +32,8 @@ import java.util.Properties;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.api.Constants;
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;

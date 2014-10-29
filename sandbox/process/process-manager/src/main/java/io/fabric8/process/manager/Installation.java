@@ -15,7 +15,7 @@
  */
 package io.fabric8.process.manager;
 
-import io.fabric8.common.util.Processes;
+import io.fabric8.utils.Processes;
 import io.fabric8.process.manager.config.ProcessConfig;
 
 import java.io.File;

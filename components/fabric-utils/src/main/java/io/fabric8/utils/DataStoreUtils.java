@@ -27,9 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import io.fabric8.common.util.ChecksumUtils;
-import io.fabric8.common.util.Closeables;
-
 public class DataStoreUtils {
 
     public static byte[] toBytes(Properties source) {

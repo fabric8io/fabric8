@@ -16,9 +16,9 @@
 package io.fabric8.openshift;
 
 import io.fabric8.api.AutoScaleRequest;
-import io.fabric8.common.util.Maps;
-import io.fabric8.common.util.Strings;
-import io.fabric8.common.util.Systems;
+import io.fabric8.utils.Maps;
+import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
 import io.fabric8.api.Containers;

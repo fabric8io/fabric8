@@ -536,7 +536,7 @@
             <!-- Fabric -->
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>common-util</artifactId>
+                <artifactId>fabric-utils</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

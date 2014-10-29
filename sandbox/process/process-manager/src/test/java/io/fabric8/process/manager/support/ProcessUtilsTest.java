@@ -15,7 +15,7 @@
  */
 package io.fabric8.process.manager.support;
 
-import io.fabric8.common.util.Processes;
+import io.fabric8.utils.Processes;
 import org.junit.Assert;
 import org.junit.Test;
 

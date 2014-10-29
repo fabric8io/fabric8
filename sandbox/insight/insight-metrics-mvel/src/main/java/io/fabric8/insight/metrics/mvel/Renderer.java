@@ -15,7 +15,7 @@
  */
 package io.fabric8.insight.metrics.mvel;
 
-import io.fabric8.common.util.IOHelpers;
+import io.fabric8.utils.IOHelpers;
 import io.fabric8.insight.metrics.model.MetricsJSON;
 import io.fabric8.insight.metrics.model.Query;
 import io.fabric8.insight.metrics.model.QueryResult;

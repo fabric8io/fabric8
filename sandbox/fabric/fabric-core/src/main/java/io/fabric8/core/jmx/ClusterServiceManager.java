@@ -22,7 +22,7 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.jmx.ClusterServiceManagerMBean;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
-import io.fabric8.common.util.JMXUtils;
+import io.fabric8.utils.JMXUtils;
 
 import java.util.List;
 import java.util.Map;

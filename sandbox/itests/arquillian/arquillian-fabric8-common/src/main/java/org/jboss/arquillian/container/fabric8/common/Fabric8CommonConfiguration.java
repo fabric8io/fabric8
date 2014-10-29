@@ -18,7 +18,7 @@
 package org.jboss.arquillian.container.fabric8.common;
 
 import io.fabric8.api.EnvironmentVariables;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import io.fabric8.testkit.support.FabricControllerManagerSupport;
 import org.jboss.arquillian.container.spi.ConfigurationException;
 import org.jboss.arquillian.container.spi.client.container.ContainerConfiguration;

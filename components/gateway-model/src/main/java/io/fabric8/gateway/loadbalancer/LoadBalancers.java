@@ -15,7 +15,7 @@
  */
 package io.fabric8.gateway.loadbalancer;
 
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -25,8 +25,8 @@ import io.fabric8.api.FabricService;
 import io.fabric8.api.NameValidator;
 import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.scr.support.Strings;
-import io.fabric8.common.util.Filter;
-import io.fabric8.common.util.Filters;
+import io.fabric8.utils.Filter;
+import io.fabric8.utils.Filters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

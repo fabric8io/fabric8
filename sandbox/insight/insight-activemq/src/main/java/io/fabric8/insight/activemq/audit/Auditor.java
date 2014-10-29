@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.fabric8.common.util.IOHelpers;
+import io.fabric8.utils.IOHelpers;
 import org.apache.activemq.broker.ConnectionContext;
 import org.apache.activemq.broker.ProducerBrokerExchange;
 import org.apache.activemq.broker.region.MessageReference;

@@ -15,8 +15,8 @@
  */
 package io.fabric8.fab;
 
-import io.fabric8.common.util.Filter;
-import io.fabric8.common.util.Filters;
+import io.fabric8.utils.Filter;
+import io.fabric8.utils.Filters;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
 
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import static io.fabric8.common.util.Filters.isEmpty;
+import static io.fabric8.utils.Filters.isEmpty;
 
 /**
  */

@@ -21,7 +21,7 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 
 import java.util.Map;
 

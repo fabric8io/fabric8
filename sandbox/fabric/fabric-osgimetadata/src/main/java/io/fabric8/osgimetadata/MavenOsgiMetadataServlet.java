@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import io.fabric8.common.util.json.JsonWriter;
+import io.fabric8.utils.json.JsonWriter;
 
 /**
  *

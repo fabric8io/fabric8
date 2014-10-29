@@ -24,7 +24,7 @@ import io.fabric8.api.ProfileRequirements;
 import io.fabric8.api.SshConfiguration;
 import io.fabric8.api.SshHostConfiguration;
 import io.fabric8.api.jcip.NotThreadSafe;
-import io.fabric8.common.util.Strings;
+import io.fabric8.utils.Strings;
 
 import java.io.File;
 import java.net.URI;

@@ -34,8 +34,8 @@ import io.fabric8.api.Profile;
 import io.fabric8.api.Profiles;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.support.Strings;
-import io.fabric8.common.util.Files;
-import io.fabric8.common.util.Objects;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Objects;
 import io.fabric8.deployer.JavaContainers;
 import io.fabric8.process.manager.DownloadStrategy;
 import io.fabric8.process.manager.InstallContext;
@@ -642,7 +642,7 @@ public class ProcessManagerController implements ChildContainerController {
         for (Map.Entry<String, String> portEntry : ports.entrySet()) {
             String portName = portEntry.getKey();
             String portText = portEntry.getValue();
-            if (portText != null && !io.fabric8.common.util.Strings.isNullOrBlank(portText)) {
+            if (portText != null && !io.fabric8.utils.Strings.isNullOrBlank(portText)) {
                 Integer port = null;
                 try {
                     port = Integer.parseInt(portText);
