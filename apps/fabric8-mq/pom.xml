@@ -43,13 +43,13 @@
     <fabric8.port.container.broker>${activemq.container.port}</fabric8.port.container.broker>
     <fabric8.port.host.broker>${activemq.host.port}</fabric8.port.host.broker>
     <fabric8.port.host.jolokia>9802</fabric8.port.host.jolokia>
-    <fabric8.env.AMQ_PORT>${activemq.container.port}</fabric8.env.AMQ_PORT>
     <fabric8.label.container>java</fabric8.label.container>
     <fabric8.label.group>defaultMQGroup</fabric8.label.group>
     <fabric8.iconRef>icons/activemq.svg</fabric8.iconRef>
 
     <!-- jube properties -->
     <docker.env.MAIN>io.fabric8.mq.Main</docker.env.MAIN>
+    <docker.port.AMQ>${activemq.container.port}</docker.port.AMQ>
   </properties>
 
   <dependencies>

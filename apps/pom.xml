@@ -44,6 +44,7 @@
 
     <!-- jube properties -->
     <docker.baseImage>fabric8/java</docker.baseImage>
+    <docker.port.JOLOKIA>8778</docker.port.JOLOKIA>
   </properties>
 
 
