@@ -94,7 +94,7 @@ public class DeploymentAgent implements ManagedService {
 
     private ServiceTracker<FabricService, FabricService> fabricService;
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-agent"));
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-agent-" + Integer.toHexString(hashCode())));
     private final ScheduledExecutorService downloadExecutor;
 
     private final BundleContext bundleContext;
@@ -182,8 +182,8 @@ public class DeploymentAgent implements ManagedService {
         LOGGER.info("Stopping DeploymentAgent");
         // We can't wait for the threads to finish because the agent needs to be able to
         // update itself and this would cause a deadlock
-        executor.shutdownNow();
-        downloadExecutor.shutdownNow();
+        executor.shutdown();
+        downloadExecutor.shutdown();
         fabricService.close();
     }
 
