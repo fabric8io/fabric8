@@ -38,7 +38,7 @@
 export JAVA_MIN_MEM=512M # Minimum memory for the JVM
 export JAVA_MAX_MEM=512M # Maximum memory for the JVM
 export JAVA_PERM_MEM=128M # Minimum perm memory for the JVM
-export JAVA_MAX_PERM_MEM=128M # Maximum memory for the JVM
+export JAVA_MAX_PERM_MEM=256M # Maximum memory for the JVM
 # export EXTRA_JAVA_OPTS # Additional JVM options
 # export KARAF_HOME # Karaf home folder
 # export KARAF_DATA # Karaf data folder
