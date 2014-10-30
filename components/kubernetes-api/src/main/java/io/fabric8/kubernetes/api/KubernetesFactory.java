@@ -196,14 +196,7 @@ public class KubernetesFactory {
      */
     public static ObjectMapper createObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
-/*
-        SimpleModule module = new SimpleModule();
-        module.addSerializer(IntOrString.class, new IntOrStringSerializer());
-        module.addDeserializer(IntOrString.class, new IntOrStringDeserializer());
-
-        mapper.registerModule(module);
-*/
-
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
         return mapper;
     }
 
