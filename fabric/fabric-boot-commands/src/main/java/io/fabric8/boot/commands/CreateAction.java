@@ -226,7 +226,7 @@ class CreateAction extends AbstractAction {
         }
 
         builder.minimumPort(minimumPort);
-        builder.minimumPort(maximumPort);
+        builder.maximumPort(maximumPort);
         bootProperties.put(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
         bootProperties.put(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
