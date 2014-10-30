@@ -35,9 +35,9 @@
     <properties>
         <fuse.osgi.export>
           io.fabric8.git.hawtio*;version=${fuse.osgi.version};-noimport:=true,
-          io.hawt.git*;-noimport:=true,
-          io.hawt.config*;-noimport:=true;-split-package:=first,
-          io.hawt.util*;-noimport:=true;-split-package:=first
+          io.hawt.git*;-noimport:=true;version=${hawtio-version},
+          io.hawt.config*;-noimport:=true;version=${hawtio-version};-split-package:=first,
+          io.hawt.util*;-noimport:=true;version=${hawtio-version};-split-package:=first
         </fuse.osgi.export>
         <fuse.osgi.import>
           io.fabric*,*
