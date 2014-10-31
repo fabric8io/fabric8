@@ -27,21 +27,18 @@ public class MQAutoScalerMain {
 
         try {
             MQAutoScaler mqAutoScaler = new MQAutoScaler();
-            String brokerName = getEnv("BROKER_NAME", mqAutoScaler.getBrokerName());
+            String brokerName = getEnv("AMQ_SERVICE_ID", mqAutoScaler.getBrokerName());
             mqAutoScaler.setBrokerName(brokerName);
-            String groupName = getEnv("GROUP_NAME", mqAutoScaler.getGroupName());
+            String groupName = getEnv("AMQ_GROUP_NAME", mqAutoScaler.getGroupName());
             mqAutoScaler.setGroupName(groupName);
-            String consumerLimit = getEnv("CONSUMER_LIMIT", mqAutoScaler.getConsumerLimit());
-            mqAutoScaler.setConsumerLimit(Integer.valueOf(consumerLimit));
-            String producerLimit = getEnv("PRODUCER_LIMIT", mqAutoScaler.getProducerLimit());
-            mqAutoScaler.setProducerLimit(Integer.valueOf(producerLimit));
-            String pollTime = getEnv("POLLTIME", mqAutoScaler.getPollTime());
+            String pollTime = getEnv("POLL_TIME", mqAutoScaler.getPollTime());
             mqAutoScaler.setPollTime(Integer.valueOf(pollTime));
             String maximumGroupSize = getEnv("MAX_GROUP_SIZE", mqAutoScaler.getMaximumGroupSize());
             mqAutoScaler.setMaximumGroupSize(Integer.valueOf(maximumGroupSize));
             String minimumGroupSize = getEnv("MIN_GROUP_SIZE", mqAutoScaler.getMinimumGroupSize());
             mqAutoScaler.setMinimumGroupSize(Integer.parseInt(minimumGroupSize));
-
+            String kubernetesMaster = getEnv("KUBERNETES_MASTER", mqAutoScaler.getKubernetesMaster());
+            mqAutoScaler.setKubernetesMaster(kubernetesMaster);
             mqAutoScaler.start();
 
             waiting();
@@ -53,7 +50,7 @@ public class MQAutoScalerMain {
 
     static void waiting() {
         while (true) {
-            Object object = new Object();
+            final Object object = new Object();
             synchronized (object) {
                 try {
                     object.wait();

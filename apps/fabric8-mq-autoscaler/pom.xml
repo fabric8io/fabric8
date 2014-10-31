@@ -28,11 +28,30 @@
     <artifactId>fabric8-mq-autoscaler</artifactId>
     <packaging>jar</packaging>
 
-    <name>Fabric8 :: MQ Autoscaler</name>
+    <name>Fabric8 :: MQ AutoScaler</name>
+    <description>Fabric8 MQ AutoScaler</description>
 
     <properties>
-      <!-- jube properties -->
-      <docker.env.MAIN>io.fabric8.mq.autoscaler.MQAutoScalerMain</docker.env.MAIN>
+        <!-- fabric8 configuration -->
+        <docker.dataImage>${env.DOCKER_REGISTRY}/fabric8/${project.artifactId}:${project.version}</docker.dataImage>
+        <fabric8.kubernetes.name>fabric8MQAutoScaler</fabric8.kubernetes.name>
+        <fabric8.port.host.jolokia>9603</fabric8.port.host.jolokia>
+        <fabric8.env.AMQ_SERVICE_ID>fabric8MQ</fabric8.env.AMQ_SERVICE_ID>
+        <fabric8.env.AMQ_GROUP_NAME>defaultMQGroup</fabric8.env.AMQ_GROUP_NAME>
+        <fabric8.env.MAX_GROUP_SIZE>5</fabric8.env.MAX_GROUP_SIZE>
+        <fabric8.env.MIN_GROUP_SIZE>5</fabric8.env.MIN_GROUP_SIZE>
+        <fabric8.env.MAX_BROKER_CONNECTIONS>2</fabric8.env.MAX_BROKER_CONNECTIONS>
+        <fabric8.env.MAX_BROKER_DESTINATIONS>2</fabric8.env.MAX_BROKER_DESTINATIONS>
+        <fabric8.env.MAX_DESTINATION_DEPTH>10</fabric8.env.MAX_DESTINATION_DEPTH>
+        <fabric8.env.MAX_PRODUCERS_PER_DESTINATION>2</fabric8.env.MAX_PRODUCERS_PER_DESTINATION>
+        <fabric8.env.MAX_CONSUMERS_PER_DESTINATION>2</fabric8.env.MAX_CONSUMERS_PER_DESTINATION>
+        <fabric8.env.POLL_TIME>5</fabric8.env.POLL_TIME>
+        <fabric8.label.container>java</fabric8.label.container>
+        <fabric8.label.group>fabric8MQAutoScaler</fabric8.label.group>
+        <fabric8.iconRef>icons/activemq.svg</fabric8.iconRef>
+
+        <!-- jube properties -->
+        <docker.env.MAIN>io.fabric8.mq.autoscaler.MQAutoScalerMain</docker.env.MAIN>
     </properties>
 
     <dependencies>
@@ -83,6 +102,16 @@
                     <assemblyDescriptorRef>artifact-with-dependencies</assemblyDescriptorRef>
                     <env>
                         <MAIN>io.fabric8.mq.autoscaler.MQAutoScalerMain</MAIN>
+                        <AMQ_SERVICE_ID>fabric8MQ</AMQ_SERVICE_ID>
+                        <AMQ_GROUP_NAME>defaultMQGroup</AMQ_GROUP_NAME>
+                        <MAX_GROUP_SIZE>5</MAX_GROUP_SIZE>
+                        <MIN_GROUP_SIZE>5</MIN_GROUP_SIZE>
+                        <MAX_BROKER_CONNECTIONS>2</MAX_BROKER_CONNECTIONS>
+                        <MAX_BROKER_DESTINATIONS>2</MAX_BROKER_DESTINATIONS>
+                        <MAX_DESTINATION_DEPTH>10</MAX_DESTINATION_DEPTH>
+                        <MAX_PRODUCERS_PER_DESTINATION>2</MAX_PRODUCERS_PER_DESTINATION>
+                        <MAX_CONSUMERS_PER_DESTINATION>2</MAX_CONSUMERS_PER_DESTINATION>
+                        <POLL_TIME>5</POLL_TIME>
                     </env>
                     <ports>
                         <port>8778</port>
@@ -95,7 +124,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.2.1</version>
                 <configuration>
-                    <mainClass>io.fabric8.mq.autoscaler.MQAutoScaler</mainClass>
+                    <mainClass>io.fabric8.mq.autoscaler.MQAutoScalerMain</mainClass>
                     <includePluginDependencies>false</includePluginDependencies>
                 </configuration>
             </plugin>

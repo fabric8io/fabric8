@@ -17,17 +17,29 @@ package io.fabric8.mq.autoscaler;
 
 public interface MQAutoScalerMBean {
 
-    int getConsumerLimit();
+    int getMaxConnectionsPerBroker();
 
-    void setConsumerLimit(int consumerLimit);
+    void setMaxConnectionsPerBroker(int maxConnectionsPerBroker);
+
+    int getMaxDestinationsPerBroker();
+
+    void setMaxDestinationsPerBroker(int maxDestinationsPerBroker);
+
+    int getMaxConsumersPerDestination();
+
+    void setMaxConsumersPerDestination(int maxConsumersPerDestination);
+
+    int getMaxProducersPerDestination();
+
+    void setMaxProducersPerDestination(int maxProducersPerDestination);
+
+    int getMaxDestinationDepth();
+
+    void setMaxDestinationDepth(int maxDestinationDepth);
 
     String getGroupName();
 
     void setGroupName(String groupName);
-
-    int getProducerLimit();
-
-    void setProducerLimit(int producerLimit);
 
     int getPollTime();
 

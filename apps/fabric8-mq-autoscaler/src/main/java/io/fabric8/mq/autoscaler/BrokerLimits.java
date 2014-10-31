@@ -18,31 +18,31 @@ package io.fabric8.mq.autoscaler;
 import static io.fabric8.mq.autoscaler.EnvUtils.getEnv;
 
 public class BrokerLimits {
-    private int connectionsLimit = 10;
-    private int destinationsLimit = 10;
+    private int maxConnectionsPerBroker = 10;
+    private int maxDestinationsPerBroker = 10;
 
     public BrokerLimits() {
-        getEnv("connectionsLimit", 10);
-        getEnv("destinationsLimit", 10);
+        getEnv("MAX_BROKER_CONNECTIONS", 10);
+        getEnv("MAX_BROKER_DESTINATIONS", 10);
     }
 
-    public int getConnectionsLimit() {
-        return connectionsLimit;
+    public int getMaxConnectionsPerBroker() {
+        return maxConnectionsPerBroker;
     }
 
-    public void setConnectionsLimit(int connectionsLimit) {
-        this.connectionsLimit = connectionsLimit;
+    public void setMaxConnectionsPerBroker(int maxConnectionsPerBroker) {
+        this.maxConnectionsPerBroker = maxConnectionsPerBroker;
     }
 
-    public int getDestinationsLimit() {
-        return destinationsLimit;
+    public int getMaxDestinationsPerBroker() {
+        return maxDestinationsPerBroker;
     }
 
-    public void setDestinationsLimit(int destinationsLimit) {
-        this.destinationsLimit = destinationsLimit;
+    public void setMaxDestinationsPerBroker(int maxDestinationsPerBroker) {
+        this.maxDestinationsPerBroker = maxDestinationsPerBroker;
     }
 
     public String toString() {
-        return "BrokerLimits: connectionsLimit=" + getConnectionsLimit() + ", destinationsLimit=" + getDestinationsLimit();
+        return "BrokerLimits: maxConnectionsPerBroker=" + getMaxConnectionsPerBroker() + ", maxDestinationsPerBroker=" + getMaxDestinationsPerBroker();
     }
 }

@@ -15,14 +15,15 @@
  */
 package io.fabric8.mq.autoscaler;
 
-import io.fabric8.utils.JMXUtils;
 import io.fabric8.kubernetes.api.Kubernetes;
+import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.ControllerDesiredState;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.jolokia.JolokiaClients;
+import io.fabric8.utils.JMXUtils;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -50,37 +51,66 @@ public class MQAutoScaler implements MQAutoScalerMBean {
     private final String DEFAULT_DOMAIN = "io.fabric8";
     private String brokerName = "fabricMQ";
     private String groupName = "default";
-    private int producerLimit = 10;
-    private int consumerLimit = 10;
     private int pollTime = 5;
     private int minimumGroupSize = 1;
     private int maximumGroupSize = 2;
+    private String kubernetesMaster = KubernetesFactory.DEFAULT_KUBERNETES_MASTER;
     private ObjectName MQAutoScalerObjectName;
     private AtomicBoolean started = new AtomicBoolean();
     private JolokiaClients clients;
     private Kubernetes kubernetes;
-    private BrokerLimits brokerLimits;
-    private DestinationLimits destinationLimits;
+    private final BrokerLimits brokerLimits = new BrokerLimits();
+    private final DestinationLimits destinationLimits = new DestinationLimits();
     private Timer timer;
 
     @Override
-    public int getConsumerLimit() {
-        return consumerLimit;
+    public int getMaxConnectionsPerBroker() {
+        return brokerLimits.getMaxConnectionsPerBroker();
     }
 
     @Override
-    public void setConsumerLimit(int consumerLimit) {
-        this.consumerLimit = consumerLimit;
+    public void setMaxConnectionsPerBroker(int maxConnectionsPerBroker) {
+        brokerLimits.setMaxConnectionsPerBroker(maxConnectionsPerBroker);
     }
 
     @Override
-    public int getProducerLimit() {
-        return producerLimit;
+    public int getMaxDestinationsPerBroker() {
+        return brokerLimits.getMaxDestinationsPerBroker();
     }
 
     @Override
-    public void setProducerLimit(int producerLimit) {
-        this.producerLimit = producerLimit;
+    public void setMaxDestinationsPerBroker(int maxDestinationsPerBroker) {
+        brokerLimits.setMaxDestinationsPerBroker(maxDestinationsPerBroker);
+    }
+
+    @Override
+    public int getMaxConsumersPerDestination() {
+        return destinationLimits.getMaxConsumersPerDestination();
+    }
+
+    @Override
+    public void setMaxConsumersPerDestination(int maxConsumersPerDestination) {
+        destinationLimits.setMaxConsumersPerDestination(maxConsumersPerDestination);
+    }
+
+    @Override
+    public int getMaxProducersPerDestination() {
+        return destinationLimits.getMaxProducersPerDestination();
+    }
+
+    @Override
+    public void setMaxProducersPerDestination(int maxProducersPerDestination) {
+        destinationLimits.setMaxProducersPerDestination(maxProducersPerDestination);
+    }
+
+    @Override
+    public int getMaxDestinationDepth() {
+        return destinationLimits.getMaxDestinationDepth();
+    }
+
+    @Override
+    public void setMaxDestinationDepth(int maxDestinationDepth) {
+        destinationLimits.setMaxDestinationDepth(maxDestinationDepth);
     }
 
     @Override
@@ -129,15 +159,23 @@ public class MQAutoScaler implements MQAutoScalerMBean {
         this.minimumGroupSize = minimumGroupSize;
     }
 
+    public String getKubernetesMaster() {
+        return kubernetesMaster;
+    }
+
+    public void setKubernetesMaster(String kubernetesMaster) {
+        this.kubernetesMaster = kubernetesMaster;
+    }
+
     public void start() throws Exception {
         if (started.compareAndSet(false, true)) {
             MQAutoScalerObjectName = new ObjectName(DEFAULT_DOMAIN, "type", "mq-autoscaler");
             JMXUtils.registerMBean(this, MQAutoScalerObjectName);
-            brokerLimits = new BrokerLimits();
-            destinationLimits = new DestinationLimits();
 
-            clients = new JolokiaClients();
-            kubernetes = clients.getKubernetes();
+            KubernetesFactory kubernetesFactory = new KubernetesFactory(getKubernetesMaster());
+            kubernetes = kubernetesFactory.createKubernetes();
+            clients = new JolokiaClients(kubernetes);
+
             timer = new Timer("MQAutoScaler timer");
             long pollTime = getPollTime() * 1000;
             timer.schedule(new TimerTask() {
@@ -147,6 +185,7 @@ public class MQAutoScaler implements MQAutoScalerMBean {
                     validateMQLoad();
                 }
             }, 0, pollTime);
+            LOG.info("MQAutoScaler started, using Kubernetes master " + getKubernetesMaster());
 
         }
     }
@@ -165,7 +204,7 @@ public class MQAutoScaler implements MQAutoScalerMBean {
 
     void validateMQLoad() {
         try {
-            String selector = "container=java,name=" + getBrokerName() + ",region=" + getGroupName();
+            String selector = "container=java,name=" + getBrokerName() + ",group=" + getGroupName();
             List<BrokerVitalSigns> result = pollBrokers(selector);
             distributeLoad(result);
 
@@ -223,8 +262,8 @@ public class MQAutoScaler implements MQAutoScalerMBean {
             } else if (brokers.size() > getMinimumGroupSize()) {
                 //see if we have spare capacity - so we can remove a broker(s)
 
-                boolean spareConnectionCapacity = ((totalConnections / brokers.size()) + 1) < brokerLimits.getConnectionsLimit();
-                boolean spareDestinationCapacity = ((totalDestinations / brokers.size()) + 1) < brokerLimits.getDestinationsLimit();
+                boolean spareConnectionCapacity = ((totalConnections / brokers.size()) + 1) < brokerLimits.getMaxConnectionsPerBroker();
+                boolean spareDestinationCapacity = ((totalDestinations / brokers.size()) + 1) < brokerLimits.getMaxDestinationsPerBroker();
                 if (spareConnectionCapacity && spareDestinationCapacity) {
                     LOG.info("Scaling down brokers ");
 
@@ -242,6 +281,7 @@ public class MQAutoScaler implements MQAutoScalerMBean {
         List<BrokerVitalSigns> result = new ArrayList<>();
         Map<String, PodSchema> podMap = KubernetesHelper.getPodMap(kubernetes, selector);
         Collection<PodSchema> pods = podMap.values();
+        LOG.info("Checking " + selector + ": groupSize = " + pods.size());
         for (PodSchema pod : pods) {
             String host = KubernetesHelper.getHost(pod);
             List<ManifestContainer> containers = KubernetesHelper.getContainers(pod);

@@ -29,7 +29,6 @@ public class BrokerVitalSigns {
 
     private final String brokerName;
     private int totalConnections;
-    private int totalDestinations;
     private boolean blockedProducers;
     private Map<ActiveMQDestination, DestinationVitalSigns> queueVitalSigns = new ConcurrentHashMap<>();
     private Map<ActiveMQDestination, DestinationVitalSigns> topicVitalSigns = new ConcurrentHashMap<>();
@@ -84,16 +83,16 @@ public class BrokerVitalSigns {
 
     public boolean areLimitsExceeded(BrokerLimits brokerLimits) {
         int totalConnections = getTotalConnections();
-        boolean connectionsExceeded = totalConnections > brokerLimits.getConnectionsLimit();
+        boolean connectionsExceeded = totalConnections > brokerLimits.getMaxConnectionsPerBroker();
         if (connectionsExceeded) {
-            LOG.info("Broker " + getBrokerName() + " exceeded connection limits(" + brokerLimits.getConnectionsLimit() + ") with " + totalConnections + " connections");
+            LOG.info("Broker " + getBrokerName() + " exceeded connection limits(" + brokerLimits.getMaxConnectionsPerBroker() + ") with " + totalConnections + " connections");
         }
 
         int totalDestinations = getTotalDestinations();
-        boolean destinationsExceeded = totalDestinations > brokerLimits.getDestinationsLimit();
+        boolean destinationsExceeded = totalDestinations > brokerLimits.getMaxDestinationsPerBroker();
 
         if (destinationsExceeded) {
-            LOG.info("Broker " + getBrokerName() + " exceeded destination limits(" + brokerLimits.getDestinationsLimit() + ") with " + totalDestinations + " destinations");
+            LOG.info("Broker " + getBrokerName() + " exceeded destination limits(" + brokerLimits.getMaxDestinationsPerBroker() + ") with " + totalDestinations + " destinations");
         }
         return connectionsExceeded || destinationsExceeded;
     }
@@ -133,7 +132,7 @@ public class BrokerVitalSigns {
             String separator = "";
             for (DestinationVitalSigns destinationVitalSigns : queueVitalSigns.values()) {
                 result += separator;
-                result = destinationVitalSigns.toString();
+                result += destinationVitalSigns.toString();
                 separator += ",";
             }
         }

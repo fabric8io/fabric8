@@ -18,43 +18,43 @@ package io.fabric8.mq.autoscaler;
 import static io.fabric8.mq.autoscaler.EnvUtils.getEnv;
 
 public class DestinationLimits {
-    private int depthLimit = 10;
-    private int producersLimit = 1;
-    private int consumersLimit = 1;
+    private int maxDestinationDepth = 10;
+    private int maxProducersPerDestination = 1;
+    private int maxConsumersPerDestination = 1;
 
     public DestinationLimits() {
-        getEnv("depthLimit", 10);
-        getEnv("producersLimit", 2);
-        getEnv("consumersLimit", 2);
+        getEnv("MAX_DESTINATION_DEPTH", 10);
+        getEnv("MAX_PRODUCERS_PER_DESTINATION", 2);
+        getEnv("MAX_CONSUMERS_PER_DESTINATION", 2);
     }
 
-    public int getConsumersLimit() {
-        return consumersLimit;
+    public int getMaxConsumersPerDestination() {
+        return maxConsumersPerDestination;
     }
 
-    public void setConsumersLimit(int consumersLimit) {
-        this.consumersLimit = consumersLimit;
+    public void setMaxConsumersPerDestination(int maxConsumersPerDestination) {
+        this.maxConsumersPerDestination = maxConsumersPerDestination;
     }
 
-    public int getProducersLimit() {
-        return producersLimit;
+    public int getMaxProducersPerDestination() {
+        return maxProducersPerDestination;
     }
 
-    public void setProducersLimit(int producersLimit) {
-        this.producersLimit = producersLimit;
+    public void setMaxProducersPerDestination(int maxProducersPerDestination) {
+        this.maxProducersPerDestination = maxProducersPerDestination;
     }
 
-    public int getDepthLimit() {
-        return depthLimit;
+    public int getMaxDestinationDepth() {
+        return maxDestinationDepth;
     }
 
-    public void setDepthLimit(int depthLimit) {
-        this.depthLimit = depthLimit;
+    public void setMaxDestinationDepth(int maxDestinationDepth) {
+        this.maxDestinationDepth = maxDestinationDepth;
     }
 
     public String toString() {
-        return "DestinationLimits: depthLimit=" + getDepthLimit() + ", producerLimit=" + getProducersLimit() + ",consumerLimit=" +
-                   getConsumersLimit();
+        return "DestinationLimits: maxDestinationDepth=" + getMaxDestinationDepth() + ", producerLimit=" + getMaxProducersPerDestination() + ",consumerLimit=" +
+                   getMaxConsumersPerDestination();
     }
 
 }

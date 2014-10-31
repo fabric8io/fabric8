@@ -24,8 +24,6 @@ public class DestinationVitalSigns {
 
     public enum Type {QUEUE, TOPIC}
 
-    ;
-
     private int queueDepth;
     private int numberOfProducers;
     private int numberOfConsumers;
@@ -65,23 +63,23 @@ public class DestinationVitalSigns {
 
     public boolean areLimitsExceeded(BrokerVitalSigns brokerVitalSigns, DestinationLimits destinationLimits) {
         int depth = getQueueDepth();
-        boolean depthExceeded = depth > destinationLimits.getDepthLimit();
+        boolean depthExceeded = depth > destinationLimits.getMaxDestinationDepth();
         if (depthExceeded) {
-            LOG.info(getDestination() + " exceeded depth limit(" + destinationLimits.getDepthLimit() + ") with " + depth + " on broker" + brokerVitalSigns.getBrokerName());
+            LOG.info(getDestination() + " exceeded depth limit(" + destinationLimits.getMaxDestinationDepth() + ") with " + depth + " on broker" + brokerVitalSigns.getBrokerName());
         }
 
         int consumers = getNumberOfConsumers();
-        boolean consumersExceeded = consumers > destinationLimits.getConsumersLimit();
+        boolean consumersExceeded = consumers > destinationLimits.getMaxConsumersPerDestination();
 
         if (consumersExceeded) {
-            LOG.info(getDestination() + " exceeded consumer limit(" + destinationLimits.getConsumersLimit() + ") with " + consumers + " on broker" + brokerVitalSigns.getBrokerName());
+            LOG.info(getDestination() + " exceeded consumer limit(" + destinationLimits.getMaxConsumersPerDestination() + ") with " + consumers + " on broker" + brokerVitalSigns.getBrokerName());
         }
 
         int producers = getNumberOfProducers();
-        boolean producersExceeded = producers > destinationLimits.getProducersLimit();
+        boolean producersExceeded = producers > destinationLimits.getMaxProducersPerDestination();
 
         if (producersExceeded) {
-            LOG.info(getDestination() + " exceeded producer limit(" + destinationLimits.getProducersLimit() + ") with " + producers + " on broker" + brokerVitalSigns.getBrokerName());
+            LOG.info(getDestination() + " exceeded producer limit(" + destinationLimits.getMaxProducersPerDestination() + ") with " + producers + " on broker" + brokerVitalSigns.getBrokerName());
         }
 
         return producersExceeded || consumersExceeded || depthExceeded;
