@@ -94,9 +94,7 @@ public class KubernetesHelper {
 
     public static String toJson(Object dto) throws JsonProcessingException {
         Class<?> clazz = dto.getClass();
-        String json = objectMapper.writerWithType(clazz).writeValueAsString(dto);
-        System.out.println("Writing class + " + clazz + " dto " + dto + " to json is: " + json);
-        return json;
+        return objectMapper.writerWithType(clazz).writeValueAsString(dto);
     }
 
     /**
