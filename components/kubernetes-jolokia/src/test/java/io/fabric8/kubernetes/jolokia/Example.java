@@ -58,10 +58,10 @@ public class Example {
             List<ManifestContainer> containers = KubernetesHelper.getContainers(pod);
             for (ManifestContainer container : containers) {
                 System.out.println("pod " + pod.getId() + " container: " + container.getName() + " image: " + container.getImage());
-                J4pClient jolokia = clients.jolokiaClient(host, container);
+                J4pClient jolokia = clients.jolokiaClient(host, container, pod);
 
                 if (jolokia != null) {
-                    System.out.println("   has jolokia client: " + jolokia);
+                    System.out.println("   has jolokia client: " + jolokia + " from host: " + host + " URL: " + jolokia.getUri());
                     try {
                         ObjectName objectName = new ObjectName("java.lang:type=OperatingSystem");
                         J4pResponse<J4pReadRequest> results = jolokia.execute(new J4pReadRequest(objectName, "SystemCpuLoad"));

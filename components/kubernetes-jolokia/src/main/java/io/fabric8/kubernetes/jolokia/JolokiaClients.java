@@ -15,6 +15,10 @@
  */
 package io.fabric8.kubernetes.jolokia;
 
+import io.fabric8.kubernetes.api.model.CurrentState;
+import io.fabric8.kubernetes.api.model.DetailInfo;
+import io.fabric8.kubernetes.api.model.PodCurrentContainerInfo;
+import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesFactory;
@@ -25,7 +29,9 @@ import org.jolokia.client.J4pClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getDockerIp;
 
@@ -54,7 +60,7 @@ public class JolokiaClients {
     /**
      * Returns the jolokia client for the given container
      */
-    public J4pClient jolokiaClient(String host, ManifestContainer container) {
+    public J4pClient jolokiaClient(String host, ManifestContainer container, PodSchema pod) {
         if (container != null) {
             List<Port> ports = container.getPorts();
             for (Port port : ports) {
@@ -62,7 +68,7 @@ public class JolokiaClients {
                 if (containerPort != null) {
                     if (containerPort == 8778) {
                         Integer hostPort = port.getHostPort();
-                        if (hostPort != null) {
+                        if (hostPort != null && hasDocker(pod)) {
                             // if Kubernetes is running locally on a platform which doesn't support docker natively
                             // then docker containers will be on a different IP so lets check for localhost and
                             // switch to the docker IP if its available
@@ -80,6 +86,31 @@ public class JolokiaClients {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns true if we detect we are running inside docker
+     */
+    protected boolean hasDocker(PodSchema pod) {
+        CurrentState currentState = pod.getCurrentState();
+        if (currentState != null) {
+            Map<String, PodCurrentContainerInfo> info = currentState.getInfo();
+            if (info != null) {
+                Collection<PodCurrentContainerInfo> containers = info.values();
+                for (PodCurrentContainerInfo container : containers) {
+                    DetailInfo detailInfo = container.getDetailInfo();
+                    if (detailInfo != null) {
+                        Map<String, Object> additionalProperties = detailInfo.getAdditionalProperties();
+                        if (additionalProperties != null) {
+                            if (additionalProperties.containsKey("HostConfig")) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public String getUser() {

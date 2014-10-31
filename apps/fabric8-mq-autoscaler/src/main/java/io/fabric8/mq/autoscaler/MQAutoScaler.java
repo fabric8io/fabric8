@@ -247,7 +247,7 @@ public class MQAutoScaler implements MQAutoScalerMBean {
             List<ManifestContainer> containers = KubernetesHelper.getContainers(pod);
             for (ManifestContainer container : containers) {
                 LOG.info("Checking pod " + pod.getId() + " container: " + container.getName() + " image: " + container.getImage());
-                J4pClient client = clients.jolokiaClient(host, container);
+                J4pClient client = clients.jolokiaClient(host, container, pod);
                 BrokerVitalSigns brokerVitalSigns = getBrokerVitalSigns(client);
                 LOG.debug("Broker vitals for container " + container.getName() + " is: " + brokerVitalSigns);
                 result.add(brokerVitalSigns);

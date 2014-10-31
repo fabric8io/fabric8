@@ -64,6 +64,7 @@
         <configuration>
           <mainClass>io.fabric8.kubernetes.jolokia.Example</mainClass>
           <includePluginDependencies>false</includePluginDependencies>
+          <classpathScope>test</classpathScope>
         </configuration>
       </plugin>
     </plugins>
