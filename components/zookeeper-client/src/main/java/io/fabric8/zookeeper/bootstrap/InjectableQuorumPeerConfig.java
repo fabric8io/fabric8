@@ -27,8 +27,10 @@ import java.net.InetSocketAddress;
  */
 public class InjectableQuorumPeerConfig extends QuorumPeerConfig {
     @Inject
-    public InjectableQuorumPeerConfig(@ConfigProperty(name = "ZOOKEEPER_CLIENT_PORT", defaultValue = "0")
+    public InjectableQuorumPeerConfig(@ConfigProperty(name = "ZOOKEEPER_CLIENT_PORT", defaultValue = "2181")
                                       int clientPort,
+                                      @ConfigProperty(name = "ZOOKEEPER_ELECTION_PORT", defaultValue = "2182")
+                                      int electionPort,
                                       @ConfigProperty(name = "ZOOKEEPER_DATADIR", defaultValue = "ensemble/data")
                                       String dataDir,
                                       @ConfigProperty(name = "ZOOKEEPER_DATA_LOG_DIR", defaultValue = "ensemble/log")
@@ -46,5 +48,6 @@ public class InjectableQuorumPeerConfig extends QuorumPeerConfig {
         if (clientPort > 0) {
             this.clientPortAddress = new InetSocketAddress(clientPort);
         }
+        this.electionPort = electionPort;
     }
 }

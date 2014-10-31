@@ -25,27 +25,50 @@ import static io.fabric8.zookeeper.curator.Constants.DEFAULT_SESSION_TIMEOUT_MS;
 import static io.fabric8.zookeeper.curator.Constants.MAX_RETRIES_LIMIT;
 
 public class CuratorConfig {
-
-    @ConfigProperty(name = "ZOOKEEPER_URL", defaultValue = "localhost:2181")
     private String zookeeperUrl;
-
-    @ConfigProperty(name = "ZOOKEEPER_USER")
     private String zooKeeperUser;
-
-    @ConfigProperty(name = "ZOOKEEPER_PASSWORD")
     private String zookeeperPassword;
-
-    @ConfigProperty(name = "ZOOKEEPER_RETRY_POLICY_MAX_RETRIES", defaultValue = "" + MAX_RETRIES_LIMIT)
     private int zookeeperRetryMax = MAX_RETRIES_LIMIT;
-
-    @ConfigProperty(name = "ZOOKEEPER_RETRY_POLICY_INTERVAL_MS", defaultValue = "" + DEFAULT_RETRY_INTERVAL)
     private int zookeeperRetryInterval = DEFAULT_RETRY_INTERVAL;
-
-    @ConfigProperty(name = "ZOOKEEPER_CONNECTION_TIMEOUT", defaultValue = "" + DEFAULT_CONNECTION_TIMEOUT_MS)
     private int zookeeperConnectionTimeOut = DEFAULT_CONNECTION_TIMEOUT_MS;
-
-    @ConfigProperty(name = "ZOOKEEPER_SESSION_TIMEOUT", defaultValue = "" + DEFAULT_SESSION_TIMEOUT_MS)
     private int zookeeperSessionTimeout = DEFAULT_SESSION_TIMEOUT_MS;
+
+    @Inject
+    public CuratorConfig(@ConfigProperty(name = "ZOOKEEPER_URL")
+                         String zookeeperUrl,
+                         @ConfigProperty(name = "ZOOKEEPER_USER")
+                         String zooKeeperUser,
+                         @ConfigProperty(name = "ZOOKEEPER_PASSWORD")
+                         String zookeeperPassword,
+                         @ConfigProperty(name = "ZOOKEEPER_RETRY_POLICY_MAX_RETRIES", defaultValue = "" + MAX_RETRIES_LIMIT)
+                         int zookeeperRetryMax,
+                         @ConfigProperty(name = "ZOOKEEPER_RETRY_POLICY_INTERVAL_MS", defaultValue = "" + DEFAULT_RETRY_INTERVAL)
+                         int zookeeperRetryInterval,
+                         @ConfigProperty(name = "ZOOKEEPER_CONNECTION_TIMEOUT", defaultValue = "" + DEFAULT_CONNECTION_TIMEOUT_MS)
+                         int zookeeperConnectionTimeOut,
+                         @ConfigProperty(name = "ZOOKEEPER_SESSION_TIMEOUT", defaultValue = "" + DEFAULT_SESSION_TIMEOUT_MS)
+                         int zookeeperSessionTimeout) {
+        this.zookeeperUrl = zookeeperUrl;
+        this.zooKeeperUser = zooKeeperUser;
+        this.zookeeperPassword = zookeeperPassword;
+        this.zookeeperRetryMax = zookeeperRetryMax;
+        this.zookeeperRetryInterval = zookeeperRetryInterval;
+        this.zookeeperConnectionTimeOut = zookeeperConnectionTimeOut;
+        this.zookeeperSessionTimeout = zookeeperSessionTimeout;
+    }
+
+    @Override
+    public String toString() {
+        return "CuratorConfig{" +
+                "zookeeperUrl='" + zookeeperUrl + '\'' +
+                ", zooKeeperUser='" + zooKeeperUser + '\'' +
+                ", zookeeperPassword='" + zookeeperPassword + '\'' +
+                ", zookeeperRetryMax=" + zookeeperRetryMax +
+                ", zookeeperRetryInterval=" + zookeeperRetryInterval +
+                ", zookeeperConnectionTimeOut=" + zookeeperConnectionTimeOut +
+                ", zookeeperSessionTimeout=" + zookeeperSessionTimeout +
+                '}';
+    }
 
     public String getZookeeperPassword() {
         return zookeeperPassword;
@@ -69,10 +92,6 @@ public class CuratorConfig {
 
     public String getZookeeperUrl() {
         return zookeeperUrl;
-    }
-
-    @Inject
-    public CuratorConfig() {
     }
 
     @Override

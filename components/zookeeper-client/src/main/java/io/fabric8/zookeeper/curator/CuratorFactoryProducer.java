@@ -45,11 +45,13 @@ public class CuratorFactoryProducer {
                                                    ) throws IOException, InterruptedException {
         String zookeeperUrl = curatorConfig.getZookeeperUrl();
         System.out.println("ZK URL: " + zookeeperUrl);
+        System.out.println("ZK config: " + curatorConfig);
         if (Strings.isNullOrBlank(zookeeperUrl)) {
             System.out.println("No ZooKeeper URL has been configured so creating a local ensemble server");
             serverFactory = new ZooKeeperServerFactory(peerConfig, "rootEnsembleNode");
             zookeeperUrl = serverFactory.getZooKeeperUrl();
             Objects.notNull(zookeeperUrl, "zookeeperUrl");
+            System.out.println("======= connecting to: " + zookeeperUrl);
             curatorConfig.setZookeeperUrl(zookeeperUrl);
         }
         List<ConnectionStateListener> connectionListenerList = new ArrayList<>();
