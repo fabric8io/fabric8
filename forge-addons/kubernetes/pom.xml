@@ -25,6 +25,8 @@
     <version>2.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>kubernetes</artifactId>
+  <name>Fabric8 :: Forge Addons :: Kubernetes</name>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
