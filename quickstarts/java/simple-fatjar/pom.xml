@@ -145,7 +145,7 @@
           <mergeData>true</mergeData>
           <assemblyDescriptorRef>artifact</assemblyDescriptorRef>
           <env>
-            <MAIN>io.fabric8.quickstarts.java.simple.fatjar.Main</MAIN>
+              <JAR>${artifactId}-${version}.jar</JAR>
           </env>
         </configuration>
       </plugin>
