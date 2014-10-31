@@ -95,7 +95,10 @@ public class KubernetesFactory {
         return createWebClient(KubernetesExtensions.class);
     }
 
-    protected <T> T createWebClient(Class<T> clientType) {
+    /**
+     * Creates a JAXRS web client for the given JAXRS client
+     */
+    public <T> T createWebClient(Class<T> clientType) {
         List<Object> providers = createProviders();
         WebClient webClient = WebClient.create(address, providers);
         configureAuthDetails(webClient);
