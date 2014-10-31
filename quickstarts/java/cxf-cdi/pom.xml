@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
      Copyright 2005-2014 Red Hat, Inc.
@@ -51,6 +50,8 @@
     <cxf.version>3.0.2</cxf.version>
     <jube.version>2.0.0-SNAPSHOT</jube.version>
     <org.eclipse.jetty.version>9.1.5.v20140505</org.eclipse.jetty.version>
+    
+    <http.port>9091</http.port>
     <!-- fabric8 configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
     <fabric8.port.host.jolokia>9803</fabric8.port.host.jolokia>
@@ -60,6 +61,7 @@
     <!-- jube properties -->
     <docker.baseImage>fabric8/java</docker.baseImage>
     <docker.env.MAIN>io.fabric8.quickstarts.cxfcdi.ApplicationStarter</docker.env.MAIN>
+    <docker.port.HTTP>${http.port}</docker.port.HTTP>
   </properties>
 
   <dependencyManagement>
@@ -294,6 +296,14 @@
         <groupId>org.jboss.jube</groupId>
         <artifactId>jube-maven-plugin</artifactId>
         <version>${jube.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>build</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>

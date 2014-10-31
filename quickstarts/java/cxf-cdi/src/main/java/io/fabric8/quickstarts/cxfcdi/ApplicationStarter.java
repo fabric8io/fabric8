@@ -15,6 +15,8 @@
  */
 package io.fabric8.quickstarts.cxfcdi;
 
+import java.util.Map;
+
 import org.apache.cxf.cdi.CXFCdiServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -30,19 +32,34 @@ public class ApplicationStarter {
 	
     public static Server startServer() throws Exception {
 
-         // use system property first
-        String port = System.getProperty("server.port");
+        // use system property first
+        String port = System.getProperty("HTTP_PORT");
         if (port == null) {
             // and fallback to use environment variable
-            port = System.getenv("FABRIC8_HTTP_PORT");
+            port = System.getenv("HTTP_PORT");
         }
         if (port == null) {
-            // and use port 8585 by default
-            port = "8585";
+            // and use port 8586 by default
+            port = "8586";
         }
         Integer num = Integer.parseInt(port);
-
         System.out.println("Starting REST server on port: " + port);
+        String service = System.getProperty("SERVICE");
+        if (service == null) {
+            // and fallback to use environment variable
+            service = System.getenv("SERVICE");
+        }
+        if (service == null) {
+            // and use 'java-cxf-cdi' by default
+            service = "java-cxf-cdi";
+        }
+
+        Map<String, String> env = System.getenv();
+        for (String envName : env.keySet()) {
+            System.out.format("%s=%s%n", envName, env.get(envName));
+        }
+
+
         final Server server = new Server(num);
 
         // Register and map the dispatcher servlet
@@ -51,7 +68,7 @@ public class ApplicationStarter {
         context.setContextPath("/");
         context.addEventListener(new Listener());
         context.addEventListener(new BeanManagerResourceBindingListener());
-        context.addServlet(servletHolder, "/cxfcdi/*");
+        context.addServlet(servletHolder, "/" + service + "/*");
 
         server.setHandler(context);
         server.start();
