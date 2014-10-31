@@ -90,7 +90,7 @@ An [App](apps.html) requires a **kubernetes.json** file which you can hand craft
 The **fabric8:json** goal will either copy or generate the JSON and then add it to your build so that the JSON gets released along with your artifacts.
 
     mvn fabric8:json
-    cat target/classes/kubernetes/json
+    cat target/classes/kubernetes.json
 
 #### Properties for configuring the generation
 
@@ -119,7 +119,7 @@ You can use maven properties to customize the generation of the JSON:
 </tr>
 <tr>
 <td>fabric8.json.template</td>
-<td>The name of the MVEL template found on the classpath to use for the generation of the JSON.</td>
+<td>The name of the <a href="http://mvel.codehaus.org/">MVEL</a> template found on the classpath to use for the generation of the JSON.</td>
 </tr>
 <tr>
 <td>fabric8.replicas</td>
