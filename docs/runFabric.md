@@ -19,28 +19,15 @@ which should look like a valid IP address and be reachable:
 
     ping $OPENSHIFT_HOST
 
-### Start OpenShift
-
-Then you can start it up; you can run this anywhere you like really:
-
-    $ openshift start --listenAddr=$OPENSHIFT_HOST:8080
-
-You can then use the OpenShift command line tool or the OpenShift console.
-
-### Start fabric8
+### Start OpenShift and install fabric8 v2
 
 To make sure you've got the latest and greatest hawtio console try this first:
 
     docker pull fabric8/hawtio
 
-Now to install fabric8 apply the [fabric8.json](https://github.com/fabric8io/fabric8/blob/2.0/apps/fabric8.json):
+Then you can start it up; you can run this anywhere you like really:
 
-    openshift kube  apply -c https://raw.githubusercontent.com/fabric8io/fabric8/2.0/apps/fabric8.json
-
-Or if you have a clone of the [fabric8 source code](https://github.com/fabric8io/fabric8/tree/2.0) you could try:
-
-    cd fabric8/apps
-    openshift kube apply -c fabric8.json
+    $ ./bin/start
 
 This will run a local docker registry and the hawtio web console.
 
@@ -79,9 +66,11 @@ At any time you can Ctrl-C or kill the _openshift_ process. This will leave arou
 
 ```
     rm -rf openshift.local.*
-    docker kill $(docker ps -q)
-    docker rm $(docker ps -a -q)
+    docker kill $(docker ps  | grep "k8s_*" | cut -c 1-12)
+    docker rm $(docker ps  | grep "k8s_*"
 ```
+
+or run _./bin/reset-openshift_ to reset to a fresh installation.
 
 ### Other Resources
 
