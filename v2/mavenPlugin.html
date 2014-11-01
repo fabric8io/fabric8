@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1414713811465">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.5" data-basepath="." data-revision="1414800200990">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -471,7 +471,7 @@
 <p>An <a href="apps.html">App</a> requires a <strong>kubernetes.json</strong> file which you can hand craft yourself; or you can put it into <strong>src/main/resources</strong> so that you can use Maven&apos;s default resource filtering to replace any project properties (e.g. the group ID, artifact ID, version number).</p>
 <p>The <strong>fabric8:json</strong> goal will either copy or generate the JSON and then add it to your build so that the JSON gets released along with your artifacts.</p>
 <pre><code>mvn fabric8:json
-cat target/classes/kubernetes/json
+cat target/classes/kubernetes.json
 </code></pre><h4 id="properties-for-configuring-the-generation"><a name="properties-for-configuring-the-generation" class="anchor" href="#properties-for-configuring-the-generation"><span class="fa fa-link"></span></a>Properties for configuring the generation</h4>
 <p>You can use maven properties to customize the generation of the JSON:</p>
 <table class="table table-striped">
@@ -497,7 +497,7 @@ cat target/classes/kubernetes/json
 </tr>
 <tr>
 <td>fabric8.json.template</td>
-<td>The name of the MVEL template found on the classpath to use for the generation of the JSON.</td>
+<td>The name of the <a href="http://mvel.codehaus.org/">MVEL</a> template found on the classpath to use for the generation of the JSON.</td>
 </tr>
 <tr>
 <td>fabric8.replicas</td>
