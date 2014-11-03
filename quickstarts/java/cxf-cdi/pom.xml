@@ -413,6 +413,7 @@
             <groupId>org.jboss.jube</groupId>
             <artifactId>jube-maven-plugin</artifactId>
             <version>${jube.version}</version>
+            <!-- plugin of version 2.0-SNAPSHOT is not yet available on CI
             <executions>
               <execution>
                 <goals>
@@ -421,6 +422,7 @@
                 <phase>package</phase>
               </execution>
             </executions>
+            -->
           </plugin>
         </plugins>
       </build>
