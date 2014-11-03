@@ -48,7 +48,7 @@ import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
  * Generates or copies the Kubernetes JSON file and attaches it to the build so its
  * installed and released to maven repositories like other build artifacts.
  */
-@Mojo(name = "json", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "json", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
 public class JsonMojo extends AbstractFabric8Mojo {
 
     public static final String FABRIC8_PORT_HOST_PREFIX = "docker.port.host.";
