@@ -39,6 +39,7 @@ import javax.management.ObjectName;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -62,6 +63,10 @@ public class MQAutoScaler implements MQAutoScalerMBean {
     private final BrokerLimits brokerLimits = new BrokerLimits();
     private final DestinationLimits destinationLimits = new DestinationLimits();
     private Timer timer;
+    private TimerTask timerTask;
+    private String selector = "";
+    private final InactiveBrokers inactiveBrokers = new InactiveBrokers();
+
 
     @Override
     public int getMaxConnectionsPerBroker() {
@@ -140,7 +145,11 @@ public class MQAutoScaler implements MQAutoScalerMBean {
 
     @Override
     public void setPollTime(int pollTime) {
+        int oldTime = this.pollTime;
         this.pollTime = pollTime;
+        if (oldTime != pollTime) {
+            startTimerTask();
+        }
     }
 
     public int getMaximumGroupSize() {
@@ -167,8 +176,17 @@ public class MQAutoScaler implements MQAutoScalerMBean {
         this.kubernetesMaster = kubernetesMaster;
     }
 
+    public String getSelector() {
+        return selector;
+    }
+
+    public void setSelector(String selector) {
+        this.selector = selector;
+    }
+
     public void start() throws Exception {
         if (started.compareAndSet(false, true)) {
+            setSelector("container=java,name=" + getBrokerName() + ",group=" + getGroupName());
             MQAutoScalerObjectName = new ObjectName(DEFAULT_DOMAIN, "type", "mq-autoscaler");
             JMXUtils.registerMBean(this, MQAutoScalerObjectName);
 
@@ -177,14 +195,7 @@ public class MQAutoScaler implements MQAutoScalerMBean {
             clients = new JolokiaClients(kubernetes);
 
             timer = new Timer("MQAutoScaler timer");
-            long pollTime = getPollTime() * 1000;
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    LOG.info("Checking Load across Fabric8MQ group: " + getGroupName());
-                    validateMQLoad();
-                }
-            }, 0, pollTime);
+            startTimerTask();
             LOG.info("MQAutoScaler started, using Kubernetes master " + getKubernetesMaster());
 
         }
@@ -198,14 +209,14 @@ public class MQAutoScaler implements MQAutoScalerMBean {
             }
             if (timer != null) {
                 timer.cancel();
+                timerTask = null;
             }
         }
     }
 
     void validateMQLoad() {
         try {
-            String selector = "container=java,name=" + getBrokerName() + ",group=" + getGroupName();
-            List<BrokerVitalSigns> result = pollBrokers(selector);
+            List<BrokerVitalSigns> result = pollBrokers();
             distributeLoad(result);
 
         } catch (Throwable e) {
@@ -219,42 +230,51 @@ public class MQAutoScaler implements MQAutoScalerMBean {
         if (!brokers.isEmpty()) {
             boolean brokerLimitsExceeded = false;
             boolean destinationLimitsExceeded = false;
+            boolean lazyBroker = false;
+            boolean orphanedConsumers = false;
             for (BrokerVitalSigns brokerVitalSigns : brokers) {
-                brokerLimitsExceeded = brokerVitalSigns.areLimitsExceeded(brokerLimits);
-                destinationLimitsExceeded = brokerVitalSigns.areLimitsExceeded(destinationLimits);
+                brokerLimitsExceeded |= brokerVitalSigns.areLimitsExceeded(brokerLimits);
+                destinationLimitsExceeded |= brokerVitalSigns.areLimitsExceeded(destinationLimits);
+                lazyBroker |= inactiveBrokers.isInactive(brokerVitalSigns, (getPollTime() * 1000 * 2));
                 totalConnections += brokerVitalSigns.getTotalConnections();
                 totalDestinations += brokerVitalSigns.getTotalDestinations();
+                orphanedConsumers |= (brokerVitalSigns.getTotalConnections() > 0 && brokerVitalSigns.getTotalDestinations() == 0);
+
             }
 
             if (brokerLimitsExceeded || destinationLimitsExceeded) {
+                boolean exceededConnectionCapacity = ((totalConnections / brokers.size())) > brokerLimits.getMaxConnectionsPerBroker();
+                boolean exceededDestinationCapacity = ((totalDestinations / brokers.size())) > brokerLimits.getMaxDestinationsPerBroker();
 
-                try {
-                    requestDesiredBrokerNumber(getBrokerName(), brokers.size() + 1);
-                } catch (Exception e) {
-                    LOG.error("Failed to request more brokers ", e);
-                }
-
-                if (brokers.size() < getMaximumGroupSize()) {
-                    if (destinationLimitsExceeded) {
-                        //we can't do much - other than distribute the load for all clients
-                        //at this point
-                        //bounce the brokers
-                        for (BrokerVitalSigns broker : brokers) {
-                            try {
-                                bounceBroker(broker);
-                            } catch (Exception e) {
-                                LOG.error("Failed to bounce broker connectors for " + broker.getBrokerName(), e);
-                            }
+                if (exceededConnectionCapacity || exceededDestinationCapacity) {
+                    if (brokers.size() < getMaximumGroupSize()) {
+                        try {
+                            requestDesiredBrokerNumber(brokers.size() + 1);
+                        } catch (Exception e) {
+                            LOG.error("Failed to request more brokers ", e);
                         }
-                    } else {
-                        //connection limits exceeded
-                        int newSize = brokers.size() + 1;
-                        int averageSize = (totalConnections / newSize) + 1;
-                        for (BrokerVitalSigns brokerVitalSigns : brokers) {
-                            try {
-                                bounceConnections(brokerVitalSigns, (brokerVitalSigns.getTotalConnections() - averageSize));
-                            } catch (Exception e) {
-                                LOG.error("Failed to stop client connections", e);
+
+                        if (destinationLimitsExceeded) {
+                            //we can't do much - other than distribute the load for all clients
+                            //at this point
+                            //bounce the brokers
+                            for (BrokerVitalSigns broker : brokers) {
+                                try {
+                                    bounceBroker(broker);
+                                } catch (Exception e) {
+                                    LOG.error("Failed to bounce broker connectors for " + broker.getBrokerName(), e);
+                                }
+                            }
+                        } else {
+                            //connection limits exceeded
+                            int newSize = brokers.size() + 1;
+                            int averageSize = (totalConnections / newSize) + 1;
+                            for (BrokerVitalSigns brokerVitalSigns : brokers) {
+                                try {
+                                    bounceConnections(brokerVitalSigns, (brokerVitalSigns.getTotalConnections() - averageSize));
+                                } catch (Exception e) {
+                                    LOG.error("Failed to stop client connections", e);
+                                }
                             }
                         }
                     }
@@ -268,18 +288,30 @@ public class MQAutoScaler implements MQAutoScalerMBean {
                     LOG.info("Scaling down brokers ");
 
                     try {
-                        requestDesiredBrokerNumber(getBrokerName(), brokers.size() - 1);
+                        requestDesiredBrokerNumber(brokers.size() - 1);
                     } catch (Exception e) {
                         LOG.error("Failed to request more brokers ", e);
+                    }
+                }
+            }else if (lazyBroker || orphanedConsumers){
+                //try force redistribution of connections
+                if (brokers.size() > 1) {
+                    LOG.info("Brokers detected with no load, redistributing clients");
+                    for (BrokerVitalSigns broker : brokers) {
+                        try {
+                            bounceBroker(broker);
+                        } catch (Exception e) {
+                            LOG.error("Failed to bounce broker connectors for " + broker.getBrokerName(), e);
+                        }
                     }
                 }
             }
         }
     }
 
-    List<BrokerVitalSigns> pollBrokers(String selector) {
+    List<BrokerVitalSigns> pollBrokers() {
         List<BrokerVitalSigns> result = new ArrayList<>();
-        Map<String, PodSchema> podMap = KubernetesHelper.getPodMap(kubernetes, selector);
+        Map<String, PodSchema> podMap = KubernetesHelper.getPodMap(kubernetes, getSelector());
         Collection<PodSchema> pods = podMap.values();
         LOG.info("Checking " + selector + ": groupSize = " + pods.size());
         for (PodSchema pod : pods) {
@@ -289,8 +321,10 @@ public class MQAutoScaler implements MQAutoScalerMBean {
                 LOG.info("Checking pod " + pod.getId() + " container: " + container.getName() + " image: " + container.getImage());
                 J4pClient client = clients.jolokiaClient(host, container, pod);
                 BrokerVitalSigns brokerVitalSigns = getBrokerVitalSigns(client);
-                LOG.debug("Broker vitals for container " + container.getName() + " is: " + brokerVitalSigns);
-                result.add(brokerVitalSigns);
+                if (brokerVitalSigns != null) {
+                    LOG.debug("Broker vitals for container " + container.getName() + " is: " + brokerVitalSigns);
+                    result.add(brokerVitalSigns);
+                }
             }
         }
         return result;
@@ -306,7 +340,11 @@ public class MQAutoScaler implements MQAutoScalerMBean {
                 root = getBrokerJMXRoot(client);
                 attribute = "BrokerName";
                 Object brokerName = getAttribute(client, root, attribute);
-                brokerVitalSigns = new BrokerVitalSigns(brokerName.toString(), client, root);
+
+                attribute = "BrokerId";
+                Object brokerId = getAttribute(client, root, attribute);
+
+                brokerVitalSigns = new BrokerVitalSigns(brokerName.toString(), brokerId.toString(), client, root);
 
                 attribute = "TotalConnectionsCount";
                 Number result = (Number) getAttribute(client, root, attribute);
@@ -345,32 +383,37 @@ public class MQAutoScaler implements MQAutoScalerMBean {
         return brokerVitalSigns;
     }
 
-    private BrokerVitalSigns populateDestinations(DestinationVitalSigns.Type type, BrokerVitalSigns brokerVitalSigns) throws Exception {
+    private BrokerVitalSigns populateDestinations(DestinationVitalSigns.Type type, BrokerVitalSigns brokerVitalSigns) {
 
-        ObjectName root = brokerVitalSigns.getRoot();
-        Hashtable<String, String> props = root.getKeyPropertyList();
-        props.put("destinationType", type == DestinationVitalSigns.Type.QUEUE ? "Queue" : "Topic");
-        props.put("destinationName", "*");
-        String objectName = root.getDomain() + ":" + getOrderedProperties(props);
+        try {
+            ObjectName root = brokerVitalSigns.getRoot();
+            Hashtable<String, String> props = root.getKeyPropertyList();
+            props.put("destinationType", type == DestinationVitalSigns.Type.QUEUE ? "Queue" : "Topic");
+            props.put("destinationName", "*");
+            String objectName = root.getDomain() + ":" + getOrderedProperties(props);
 
-        J4pResponse<J4pReadRequest> response = brokerVitalSigns.getClient().execute(new J4pReadRequest(objectName, "Name", "QueueSize", "ConsumerCount", "ProducerCount"));
-        JSONObject value = response.getValue();
-        for (Object key : value.keySet()) {
-            //get the destinations
-            JSONObject jsonObject = (JSONObject) value.get(key);
-            String name = jsonObject.get("Name").toString();
-            String producerCount = jsonObject.get("ProducerCount").toString().trim();
-            String consumerCount = jsonObject.get("ConsumerCount").toString().trim();
-            String queueSize = jsonObject.get("QueueSize").toString().trim();
+            J4pResponse<J4pReadRequest> response = brokerVitalSigns.getClient().execute(new J4pReadRequest(objectName, "Name", "QueueSize", "ConsumerCount", "ProducerCount"));
+            JSONObject value = response.getValue();
+            for (Object key : value.keySet()) {
+                //get the destinations
+                JSONObject jsonObject = (JSONObject) value.get(key);
+                String name = jsonObject.get("Name").toString();
+                String producerCount = jsonObject.get("ProducerCount").toString().trim();
+                String consumerCount = jsonObject.get("ConsumerCount").toString().trim();
+                String queueSize = jsonObject.get("QueueSize").toString().trim();
 
-            if (!name.contains("Advisory") && !name.contains(ActiveMQDestination.TEMP_DESTINATION_NAME_PREFIX)) {
-                ActiveMQDestination destination = type == DestinationVitalSigns.Type.QUEUE ? new ActiveMQQueue(name) : new ActiveMQTopic(name);
-                DestinationVitalSigns destinationVitalSigns = new DestinationVitalSigns(destination);
-                destinationVitalSigns.setNumberOfConsumers(Integer.parseInt(consumerCount));
-                destinationVitalSigns.setNumberOfProducers(Integer.parseInt(producerCount));
-                destinationVitalSigns.setQueueDepth(Integer.parseInt(queueSize));
-                brokerVitalSigns.addDestinationVitalSigns(destinationVitalSigns);
+                if (!name.contains("Advisory") && !name.contains(ActiveMQDestination.TEMP_DESTINATION_NAME_PREFIX)) {
+                    ActiveMQDestination destination = type == DestinationVitalSigns.Type.QUEUE ? new ActiveMQQueue(name) : new ActiveMQTopic(name);
+                    DestinationVitalSigns destinationVitalSigns = new DestinationVitalSigns(destination);
+                    destinationVitalSigns.setNumberOfConsumers(Integer.parseInt(consumerCount));
+                    destinationVitalSigns.setNumberOfProducers(Integer.parseInt(producerCount));
+                    destinationVitalSigns.setQueueDepth(Integer.parseInt(queueSize));
+                    brokerVitalSigns.addDestinationVitalSigns(destinationVitalSigns);
+                }
             }
+        } catch (Exception ex) {
+            // Destinations don't exist yet on the broker
+            LOG.debug("populateDestinations failed", ex);
         }
         return brokerVitalSigns;
     }
@@ -387,89 +430,152 @@ public class MQAutoScaler implements MQAutoScalerMBean {
         return result;
     }
 
-    private void requestDesiredBrokerNumber(String selector, int number) throws Exception {
-        Map<String, ReplicationControllerSchema> replicationControllerMap = KubernetesHelper.getReplicationControllerMap(kubernetes, selector);
+    private void requestDesiredBrokerNumber(int number) throws Exception {
+        Map<String, ReplicationControllerSchema> replicationControllerMap = KubernetesHelper.getReplicationControllerMap(kubernetes, getSelector());
         Collection<ReplicationControllerSchema> replicationControllers = replicationControllerMap.values();
         for (ReplicationControllerSchema replicationController : replicationControllers) {
             ControllerDesiredState desiredState = replicationController.getDesiredState();
             desiredState.setReplicas(number);
             replicationController.setDesiredState(desiredState);
             kubernetes.updateReplicationController(replicationController.getId(), replicationController);
+            LOG.info("Updated required replicas for " + replicationController.getId() + " to " + number);
         }
+        //sleep, for changes to take effect
+        Thread.sleep(getPollTime() * 1000);
     }
 
     private void bounceBroker(BrokerVitalSigns broker) throws Exception {
-        ObjectName root = broker.getRoot();
-        Hashtable<String, String> props = root.getKeyPropertyList();
-        props.put("connector", "clientConnectors");
-        props.put("connectorName", "*");
-        String objectName = root.getDomain() + ":" + getOrderedProperties(props);
+        if (broker.getTotalConnections() > 0) {
+            ObjectName root = broker.getRoot();
+            Hashtable<String, String> props = root.getKeyPropertyList();
+            props.put("connector", "clientConnectors");
+            props.put("connectorName", "*");
+            String objectName = root.getDomain() + ":" + getOrderedProperties(props);
 
-        /**
-         * not interested in StatisticsEnabled, just need a real attribute so we can get the root which we
-         * can execute against
-         */
+            /**
+             * not interested in StatisticsEnabled, just need a real attribute so we can get the root which we
+             * can execute against
+             */
 
-        List<String> roots = new ArrayList<>();
-        J4pResponse<J4pReadRequest> response = broker.getClient().execute(new J4pReadRequest(objectName, "StatisticsEnabled"));
-        JSONObject value = response.getValue();
-        for (Object key : value.keySet()) {
-            roots.add(key.toString());
+            List<String> roots = new ArrayList<>();
+            J4pResponse<J4pReadRequest> response = broker.getClient().execute(new J4pReadRequest(objectName, "StatisticsEnabled"));
+            JSONObject value = response.getValue();
+            for (Object key : value.keySet()) {
+                roots.add(key.toString());
+            }
+
+            for (String key : roots) {
+                broker.getClient().execute(new J4pExecRequest(key, "stop"));
+                LOG.info("Stopping all clients " + " on broker " + broker.getBrokerIdentifier() + ": connector = " + key);
+            }
+            Thread.sleep(1000);
+            for (String key : roots) {
+                broker.getClient().execute(new J4pExecRequest(key, "start"));
+            }
         }
-
-        for (String key : roots) {
-            broker.getClient().execute(new J4pExecRequest(key, "stop"));
-        }
-        Thread.sleep(1000);
-        for (String key : roots) {
-            broker.getClient().execute(new J4pExecRequest(key, "start"));
-        }
-
     }
 
     private void bounceConnections(BrokerVitalSigns broker, int number) throws Exception {
-        ObjectName root = broker.getRoot();
-        Hashtable<String, String> props = root.getKeyPropertyList();
-        props.put("connector", "clientConnectors");
-        props.put("connectorName", "*");
-        String objectName = root.getDomain() + ":" + getOrderedProperties(props);
+        if (number > 0) {
+            ObjectName root = broker.getRoot();
+            Hashtable<String, String> props = root.getKeyPropertyList();
+            props.put("connector", "clientConnectors");
+            props.put("connectorName", "*");
+            String objectName = root.getDomain() + ":" + getOrderedProperties(props);
 
-        /**
-         * not interested in StatisticsEnabled, just need a real attribute so we can get the root which we
-         * can execute against
-         */
+            /**
+             * not interested in StatisticsEnabled, just need a real attribute so we can get the root which we
+             * can execute against
+             */
 
-        List<String> connectors = new ArrayList<>();
-        J4pResponse<J4pReadRequest> response = broker.getClient().execute(new J4pReadRequest(objectName, "StatisticsEnabled"));
-        JSONObject value = response.getValue();
-        for (Object key : value.keySet()) {
-            connectors.add(key.toString());
-        }
-
-        List<String> targets = new ArrayList<>();
-        for (String key : connectors) {
-            ObjectName on = new ObjectName(key);
-            Hashtable<String, String> p = on.getKeyPropertyList();
-            p.put("connectionName", "*");
-            p.put("connectionViewType", "clientId");
-            String clientObjectName = root.getDomain() + ":" + getOrderedProperties(p);
-            ObjectName on1 = new ObjectName(clientObjectName);
-            J4pResponse<J4pReadRequest> response1 = broker.getClient().execute(new J4pReadRequest(on1, "Slow"));
-            JSONObject value1 = response1.getValue();
-            for (Object k : value1.keySet()) {
-                targets.add(k.toString());
+            List<String> connectors = new ArrayList<>();
+            J4pResponse<J4pReadRequest> response = broker.getClient().execute(new J4pReadRequest(objectName, "StatisticsEnabled"));
+            JSONObject value = response.getValue();
+            for (Object key : value.keySet()) {
+                connectors.add(key.toString());
             }
-        }
 
-        int count = 0;
-        for (String key : targets) {
-            broker.getClient().execute(new J4pExecRequest(key, "stop"));
-            if (++count >= number) {
-                break;
+            List<String> targets = new ArrayList<>();
+            for (String key : connectors) {
+                ObjectName on = new ObjectName(key);
+                Hashtable<String, String> p = on.getKeyPropertyList();
+                p.put("connectionName", "*");
+                p.put("connectionViewType", "clientId");
+                String clientObjectName = root.getDomain() + ":" + getOrderedProperties(p);
+                ObjectName on1 = new ObjectName(clientObjectName);
+                J4pResponse<J4pReadRequest> response1 = broker.getClient().execute(new J4pReadRequest(on1, "Slow"));
+                JSONObject value1 = response1.getValue();
+                for (Object k : value1.keySet()) {
+                    targets.add(k.toString());
+                }
+            }
+
+            int count = 0;
+            for (String key : targets) {
+                broker.getClient().execute(new J4pExecRequest(key, "stop"));
+                LOG.info("Stopping Client " + key + " on broker " + broker.getBrokerIdentifier());
+                if (++count >= number) {
+                    break;
+                }
             }
         }
 
     }
 
+    private void startTimerTask() {
+        if (started.get()) {
+            if (timerTask != null) {
+                timerTask.cancel();
+            }
+            timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    LOG.info("Checking Load across Fabric8MQ group: " + getGroupName());
+                    validateMQLoad();
+                }
+            };
+            long pollTime = getPollTime() * 1000;
+            timer.schedule(timerTask, pollTime, pollTime);
+        }
+    }
+
+
+    private static class LRUCache<K,V> extends LinkedHashMap<K,V>{
+
+        private final int maxEntries;
+        LRUCache(int maxEntries){
+          this.maxEntries=maxEntries;
+        }
+
+        protected boolean removeEldestEntry(Map.Entry eldest) {
+            return size() > maxEntries;
+        }
+    }
+
+    private static class InactiveBrokers {
+        private final LRUCache<String,Long> cache = new LRUCache<>(10);
+
+        boolean isInactive(BrokerVitalSigns brokerVitalSigns, int timeLimit){
+            boolean result = false;
+            if (brokerVitalSigns != null) {
+                String id = brokerVitalSigns.getBrokerIdentifier();
+                if (brokerVitalSigns.getTotalConnections() == 0) {
+                    long currentTime = System.currentTimeMillis();
+
+                    Long inactive = cache.get(id);
+                    if (inactive != null) {
+                        if ((inactive.longValue() + timeLimit) < currentTime) {
+                            result = true;
+                        }
+                    } else {
+                        cache.put(id, currentTime);
+                    }
+                } else {
+                    cache.remove(id);
+                }
+            }
+            return result;
+        }
+    }
 }
 

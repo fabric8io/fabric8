@@ -39,6 +39,16 @@ public class MQAutoScalerMain {
             mqAutoScaler.setMinimumGroupSize(Integer.parseInt(minimumGroupSize));
             String kubernetesMaster = getEnv("KUBERNETES_MASTER", mqAutoScaler.getKubernetesMaster());
             mqAutoScaler.setKubernetesMaster(kubernetesMaster);
+            String maxBrokerConnections = getEnv("MAX_BROKER_CONNECTIONS",mqAutoScaler.getMaxConnectionsPerBroker());
+            mqAutoScaler.setMaxConnectionsPerBroker(Integer.parseInt(maxBrokerConnections));
+            String maxBrokerDestinations = getEnv("MAX_BROKER_DESTINATIONS", mqAutoScaler.getMaxDestinationsPerBroker());
+            mqAutoScaler.setMaxDestinationsPerBroker(Integer.parseInt(maxBrokerDestinations));
+            String maxDestinationDepth = getEnv("MAX_DESTINATION_DEPTH", mqAutoScaler.getMaxDestinationDepth());
+            mqAutoScaler.setMaxDestinationDepth(Integer.parseInt(maxDestinationDepth));
+            String maxProducersPerDestination = getEnv("MAX_PRODUCERS_PER_DESTINATION", mqAutoScaler.getMaxProducersPerDestination());
+            mqAutoScaler.setMaxProducersPerDestination(Integer.parseInt(maxProducersPerDestination));
+            String maxConsumersPerDestination = getEnv("MAX_CONSUMERS_PER_DESTINATION", mqAutoScaler.getMaxConsumersPerDestination());
+            mqAutoScaler.setMaxConsumersPerDestination(Integer.parseInt(maxConsumersPerDestination));
             mqAutoScaler.start();
 
             waiting();

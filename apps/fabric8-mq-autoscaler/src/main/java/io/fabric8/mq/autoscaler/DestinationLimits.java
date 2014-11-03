@@ -15,17 +15,12 @@
  */
 package io.fabric8.mq.autoscaler;
 
-import static io.fabric8.mq.autoscaler.EnvUtils.getEnv;
-
 public class DestinationLimits {
     private int maxDestinationDepth = 10;
     private int maxProducersPerDestination = 1;
     private int maxConsumersPerDestination = 1;
 
     public DestinationLimits() {
-        getEnv("MAX_DESTINATION_DEPTH", 10);
-        getEnv("MAX_PRODUCERS_PER_DESTINATION", 2);
-        getEnv("MAX_CONSUMERS_PER_DESTINATION", 2);
     }
 
     public int getMaxConsumersPerDestination() {

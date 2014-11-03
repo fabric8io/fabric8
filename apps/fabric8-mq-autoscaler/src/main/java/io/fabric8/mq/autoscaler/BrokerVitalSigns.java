@@ -28,6 +28,7 @@ public class BrokerVitalSigns {
     private static final Logger LOG = LoggerFactory.getLogger(BrokerVitalSigns.class);
 
     private final String brokerName;
+    private final String brokerId;
     private int totalConnections;
     private boolean blockedProducers;
     private Map<ActiveMQDestination, DestinationVitalSigns> queueVitalSigns = new ConcurrentHashMap<>();
@@ -35,8 +36,9 @@ public class BrokerVitalSigns {
     private final J4pClient client;
     private final ObjectName root;
 
-    public BrokerVitalSigns(String brokerName, J4pClient client, ObjectName root) {
+    public BrokerVitalSigns(String brokerName, String brokerId, J4pClient client, ObjectName root) {
         this.brokerName = brokerName;
+        this.brokerId = brokerId;
         this.client = client;
         this.root = root;
     }
@@ -65,6 +67,12 @@ public class BrokerVitalSigns {
         return brokerName;
     }
 
+
+    public String getBrokerId() {
+        return brokerId;
+    }
+
+
     public J4pClient getClient() {
         return client;
     }
@@ -85,14 +93,18 @@ public class BrokerVitalSigns {
         int totalConnections = getTotalConnections();
         boolean connectionsExceeded = totalConnections > brokerLimits.getMaxConnectionsPerBroker();
         if (connectionsExceeded) {
-            LOG.info("Broker " + getBrokerName() + " exceeded connection limits(" + brokerLimits.getMaxConnectionsPerBroker() + ") with " + totalConnections + " connections");
+            LOG.info("Broker " + getBrokerIdentifier() + " EXCEEDED connection limits(" + brokerLimits.getMaxConnectionsPerBroker() + ") with " + totalConnections + " connections");
+        }else {
+            LOG.info("Broker " + getBrokerIdentifier() + " within connection limits(" + brokerLimits.getMaxConnectionsPerBroker() + ") with " + totalConnections + " connections");
         }
 
         int totalDestinations = getTotalDestinations();
         boolean destinationsExceeded = totalDestinations > brokerLimits.getMaxDestinationsPerBroker();
 
         if (destinationsExceeded) {
-            LOG.info("Broker " + getBrokerName() + " exceeded destination limits(" + brokerLimits.getMaxDestinationsPerBroker() + ") with " + totalDestinations + " destinations");
+            LOG.info("Broker " + getBrokerIdentifier() + " EXCEEDED destination limits(" + brokerLimits.getMaxDestinationsPerBroker() + ") with " + totalDestinations + " destinations");
+        }else {
+            LOG.info("Broker " + getBrokerIdentifier() + " within destination limits(" + brokerLimits.getMaxDestinationsPerBroker() + ") with " + totalDestinations + " destinations");
         }
         return connectionsExceeded || destinationsExceeded;
     }
@@ -113,8 +125,12 @@ public class BrokerVitalSigns {
         return limitsExceeded;
     }
 
+    public String getBrokerIdentifier(){
+        return getBrokerName() + "[" + getBrokerId() + "]";
+    }
+
     public String toString() {
-        String result = "BrokerVitalSigns(" + getBrokerName() + ") connections=" + getTotalConnections() + ",destinations=" +
+        String result = "BrokerVitalSigns(" + getBrokerName() + "["+getBrokerId()+"]) connections=" + getTotalConnections() + ",destinations=" +
                             getTotalDestinations() + ",blockedProducers=" + isBlockedProducers();
         if (!topicVitalSigns.isEmpty()) {
             result += System.lineSeparator();

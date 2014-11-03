@@ -15,15 +15,11 @@
  */
 package io.fabric8.mq.autoscaler;
 
-import static io.fabric8.mq.autoscaler.EnvUtils.getEnv;
-
 public class BrokerLimits {
     private int maxConnectionsPerBroker = 10;
     private int maxDestinationsPerBroker = 10;
 
     public BrokerLimits() {
-        getEnv("MAX_BROKER_CONNECTIONS", 10);
-        getEnv("MAX_BROKER_DESTINATIONS", 10);
     }
 
     public int getMaxConnectionsPerBroker() {

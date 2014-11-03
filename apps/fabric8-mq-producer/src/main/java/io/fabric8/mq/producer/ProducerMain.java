@@ -15,10 +15,6 @@
  */
 package io.fabric8.mq.producer;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Arrays;
-
 import io.fabric8.utils.Systems;
 import org.apache.activemq.camel.component.ActiveMQComponent;
 import org.apache.camel.builder.RouteBuilder;
@@ -26,6 +22,10 @@ import org.apache.camel.component.dataset.DataSet;
 import org.apache.camel.component.dataset.SimpleDataSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Arrays;
 
 public class ProducerMain {
     private static final Logger LOG = LoggerFactory.getLogger(ProducerMain.class);
@@ -130,7 +130,7 @@ public class ProducerMain {
             // create a camel route to produce messages to our queue
             org.apache.camel.main.Main main = new org.apache.camel.main.Main();
 
-            String brokerURL = "tcp://" + host + ":" + port;
+            String brokerURL = "failover://(tcp://" + host + ":" + port+")";
             System.out.println("Connecting to brokerURL: " + brokerURL);
 
             main.bind("activemq", ActiveMQComponent.activeMQComponent(brokerURL));
