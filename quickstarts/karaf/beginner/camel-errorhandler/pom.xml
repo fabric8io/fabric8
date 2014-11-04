@@ -102,11 +102,6 @@
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
-      <resource>
-        <directory>src/main/fabric8</directory>
-        <filtering>true</filtering>
-        <targetPath>${project.build.directory}/fabric8</targetPath>
-      </resource>
     </resources>
     <plugins>
       <!-- Compiler plugin enforces Java 1.7 compatibility and activates annotation processors -->

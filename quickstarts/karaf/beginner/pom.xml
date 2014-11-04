@@ -43,6 +43,27 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>filter-extra-resources</id>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <phase>process-resources</phase>
+            <configuration>
+              <outputDirectory>${project.build.directory}/fabric8</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/main/fabric8</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric8-maven-plugin</artifactId>
         <version>${project.version}</version>
@@ -75,6 +96,9 @@
                 <phase>package</phase>
               </execution>
             </executions>
+            <configuration>
+              <assemblyDescriptor>${project.build.directory}/fabric8/assembly.xml</assemblyDescriptor>
+            </configuration>
           </plugin>
         </plugins>
       </build>
