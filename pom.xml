@@ -26,7 +26,7 @@
 
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-project</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>2.0.0</version>
     <packaging>pom</packaging>
 
     <name>Fabric8</name>
@@ -62,7 +62,8 @@
         <connection>scm:git:git@github.com:fabric8io/fabric8.git</connection>
         <developerConnection>scm:git:git@github.com:fabric8io/fabric8.git</developerConnection>
         <url>http://github.com/fabric8io/fabric8/</url>
-    </scm>
+      <tag>fabric8-2.0.0</tag>
+  </scm>
 
     <properties>
         <license.dir>${project.parent.basedir}/etc</license.dir>
