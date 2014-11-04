@@ -34,8 +34,6 @@
     <properties>
         <!-- fabric8 configuration -->
         <docker.dataImage>${env.DOCKER_REGISTRY}/fabric8/${project.artifactId}:${project.version}</docker.dataImage>
-        <docker.port.container.amq>${activemq.container.port}</docker.port.container.amq>
-        <docker.port.host.amq>${activemq.host.port}</docker.port.host.amq>
         <docker.port.host.jolokia>9603</docker.port.host.jolokia>
 
         <fabric8.kubernetes.name>fabric8MQConsumer</fabric8.kubernetes.name>
