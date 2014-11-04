@@ -64,6 +64,10 @@ public class ApplicationStarter {
 
         // Register and map the dispatcher servlet
         final ServletHolder servletHolder = new ServletHolder(new CXFCdiServlet());
+        
+        // change default service list URI
+        servletHolder.setInitParameter("service-list-path", "/cxf/servicesList");
+
         final ServletContextHandler context = new ServletContextHandler();
         context.setContextPath("/");
         context.addEventListener(new Listener());
