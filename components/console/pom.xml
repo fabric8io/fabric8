@@ -109,17 +109,50 @@
         <configuration>
           <scanIntervalSeconds>1</scanIntervalSeconds>
           <useTestScope>true</useTestScope>
+          <connectors>
+            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+              <port>8484</port>
+              <maxIdleTime>60000</maxIdleTime>
+            </connector>
+          </connectors>
           <systemProperties>
+            <hawtio.config.dir>target/hawtioConfig</hawtio.config.dir>
 <!--
             <systemProperty>
-              <key>karaf.data</key>
-              <value>${project.build.directory}/karaf-data</value>
+              <key>hawtio.config.dir</key>
+              <value>target/hawtioConfig</value>
+            </systemProperty>
+            <systemProperty>
+              <key>hawtio.config.repo</key>
+              <value></value>
+            </systemProperty>
+-->
+<!--
+            <systemProperty>
+              <key>hawtio.config.cloneOnStartup</key>
+              <value>false</value>
             </systemProperty>
 -->
           </systemProperties>
+          <webApp>
+            <contextPath>/hawtio</contextPath>
+          </webApp>
         </configuration>
       </plugin>
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>hawtio-snapshot</id>
+      <dependencies>
+        <dependency>
+          <groupId>io.hawt</groupId>
+          <artifactId>hawtio-default</artifactId>
+          <version>1.5-SNAPSHOT</version>
+          <type>war</type>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>
