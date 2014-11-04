@@ -61,7 +61,10 @@
     <!-- jube properties -->
     <docker.baseImage>fabric8/java</docker.baseImage>
     <docker.env.MAIN>io.fabric8.quickstarts.cxfcdi.ApplicationStarter</docker.env.MAIN>
+
+    <!-- TODO we should rationalise these so there's only 1 required maven property -->
     <docker.port.HTTP>${http.port}</docker.port.HTTP>
+    <fabric8.port.container.HTTP>${http.port}</fabric8.port.container.HTTP>
   </properties>
 
   <dependencyManagement>
