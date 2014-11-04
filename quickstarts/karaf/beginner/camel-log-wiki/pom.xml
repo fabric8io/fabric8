@@ -110,7 +110,7 @@
               <descriptors>
                 <descriptor>file://${project.build.directory}/fabric8/features.xml</descriptor>
               </descriptors>
-              <repository>target/fabric8/repository/</repository>
+              <repository>${project.build.directory}/fabric8/repository/</repository>
               <addTransitiveFeatures>true</addTransitiveFeatures>
               <features>
                 <feature>${project.artifactId}</feature>

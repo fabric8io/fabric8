@@ -93,7 +93,7 @@
                 <goals>
                   <goal>build</goal>
                 </goals>
-                <phase>package</phase>
+                <phase>install</phase>
               </execution>
             </executions>
             <configuration>
