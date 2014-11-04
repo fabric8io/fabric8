@@ -25,6 +25,24 @@
     <packaging>pom</packaging>
     <name>Fabric8 :: Bill of material</name>
     <description>A list of the artifacts that are released.</description>
+    <url>http://fabric8.io/</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>geeks</id>
+            <name>Fabric8 Development Team</name>
+            <organization>fabric8</organization>
+            <organizationUrl>http://fabric8.io/</organizationUrl>
+        </developer>
+    </developers>
 
   <distributionManagement>
     <repository>
@@ -98,5 +116,10 @@
         </dependencies>
     </dependencyManagement>
 
+    <scm>
+        <connection>scm:git:git@github.com:fabric8io/fabric8.git</connection>
+        <developerConnection>scm:git:git@github.com:fabric8io/fabric8.git</developerConnection>
+        <url>http://github.com/fabric8io/fabric8/</url>
+    </scm>
 
 </project>

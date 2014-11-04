@@ -61,9 +61,8 @@
     <scm>
         <connection>scm:git:git@github.com:fabric8io/fabric8.git</connection>
         <developerConnection>scm:git:git@github.com:fabric8io/fabric8.git</developerConnection>
-        <url>http://github.com/fabric8io/fabric8/tree/master</url>
-      <tag>fabric8-2.0.0</tag>
-  </scm>
+        <url>http://github.com/fabric8io/fabric8/</url>
+    </scm>
 
     <properties>
         <license.dir>${project.parent.basedir}/etc</license.dir>
