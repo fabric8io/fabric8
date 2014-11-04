@@ -19,6 +19,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+      <groupId>org.sonatype.oss</groupId>
+      <artifactId>oss-parent</artifactId>
+      <version>9</version>
+    </parent>
+
     <groupId>io.fabric8</groupId>
     <artifactId>bom</artifactId>
     <version>2.0.1-SNAPSHOT</version>
@@ -121,5 +127,24 @@
         <developerConnection>scm:git:git@github.com:fabric8io/fabric8.git</developerConnection>
         <url>http://github.com/fabric8io/fabric8/</url>
     </scm>
+
+    <build>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.5</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>1.5</version>
+          <configuration>
+            <passphrase>${gpg.passphrase}</passphrase>
+            <useAgent>true</useAgent>
+          </configuration>
+        </plugin>
+      </plugins>
+    </build>
 
 </project>
