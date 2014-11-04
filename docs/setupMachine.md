@@ -63,6 +63,17 @@ You probably also want to add those 2 entries to your /etc/hosts inside your boo
 
 Now copy/paste those 2 lines you just added and add then to the /etc/hosts on your boot2docker vm.
 
+If you are using boot2docker 1.3.1, you should edit /var/lib/boot2docker/profile in boot2docker VM to disable TLS, so that can use 2375 as default DOCKER_HOST port and http connection for local registry.
+
+    boot2docker ssh
+    sudo vi /var/lib/boot2docker/profile
+    
+and add two lines 
+
+    DOCKER_TLS=no
+    EXTRA_ARGS="--insecure-registry 192.168.59.103:5000"
+    
+
 ### Testing your setup
 
 You should be able to ping the 2 host names:
