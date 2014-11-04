@@ -294,7 +294,7 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.jboss.jube</groupId>
+        <groupId>io.fabric8.jube</groupId>
         <artifactId>jube-maven-plugin</artifactId>
         <version>${jube.version}</version>
         <!-- the version of this plugin is not yet available on CI
@@ -413,7 +413,7 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.jboss.jube</groupId>
+            <groupId>io.fabric8.jube</groupId>
             <artifactId>jube-maven-plugin</artifactId>
             <version>${jube.version}</version>
             <executions>

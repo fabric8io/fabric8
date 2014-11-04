@@ -77,7 +77,7 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.jboss.jube</groupId>
+        <groupId>io.fabric8.jube</groupId>
         <artifactId>jube-maven-plugin</artifactId>
         <version>${jube.version}</version>
       </plugin>
@@ -111,7 +111,7 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.jboss.jube</groupId>
+            <groupId>io.fabric8.jube</groupId>
             <artifactId>jube-maven-plugin</artifactId>
             <version>${jube.version}</version>
             <executions>
