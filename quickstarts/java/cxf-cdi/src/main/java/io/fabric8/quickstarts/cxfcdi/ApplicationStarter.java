@@ -43,7 +43,6 @@ public class ApplicationStarter {
             port = "8586";
         }
         Integer num = Integer.parseInt(port);
-        System.out.println("Starting REST server on port: " + port);
         String service = System.getProperty("SERVICE");
         if (service == null) {
             // and fallback to use environment variable
@@ -53,6 +52,7 @@ public class ApplicationStarter {
             // and use 'java-cxf-cdi' by default
             service = "java-cxf-cdi";
         }
+        System.out.println("Starting REST server at http://localhost:" + port + "/" + service + "/");
 
         Map<String, String> env = System.getenv();
         for (String envName : env.keySet()) {
