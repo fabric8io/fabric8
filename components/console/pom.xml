@@ -1,0 +1,125 @@
+<!--
+
+     Copyright 2005-2014 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.fabric8</groupId>
+    <artifactId>components</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>console</artifactId>
+  <packaging>war</packaging>
+
+  <name>Fabric8 :: Console</name>
+
+  <properties>
+    <blueprint-web-version>1.0.0</blueprint-web-version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.hawt</groupId>
+      <artifactId>hawtio-default</artifactId>
+      <type>war</type>
+    </dependency>
+<!--
+    <dependency>
+      <groupId>io.hawt</groupId>
+      <artifactId>hawtio-kubernetes</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>io.hawt</groupId>
+          <artifactId>hawtio-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+-->
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-template</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.karaf.features</groupId>
+          <artifactId>org.apache.karaf.features.core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.core</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+<!--
+      <version>${servlet-api-version}</version>
+-->
+      <scope>provided</scope>
+    </dependency>
+
+<!--
+    <dependency>
+      <groupId>org.apache.aries.blueprint</groupId>
+      <artifactId>org.apache.aries.blueprint.web</artifactId>
+      <version>${blueprint-web-version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-servlet_2.5_spec</artifactId>
+        </exclusion>
+        &lt;!&ndash; ignore old versions &ndash;&gt;
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+-->
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>${jetty-plugin-groupId}</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <version>${jetty.version}</version>
+        <configuration>
+          <scanIntervalSeconds>1</scanIntervalSeconds>
+          <useTestScope>true</useTestScope>
+          <systemProperties>
+<!--
+            <systemProperty>
+              <key>karaf.data</key>
+              <value>${project.build.directory}/karaf-data</value>
+            </systemProperty>
+-->
+          </systemProperties>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
