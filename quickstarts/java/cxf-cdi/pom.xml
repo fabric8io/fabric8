@@ -54,7 +54,8 @@
     <http.port>9091</http.port>
     <!-- fabric8 configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
-    <fabric8.port.host.jolokia>9803</fabric8.port.host.jolokia>
+    <docker.port.container.http>${http.port}</docker.port.container.http>
+    <docker.port.host.jolokia>9803</docker.port.host.jolokia>
     <fabric8.label.container>java</fabric8.label.container>
     <fabric8.label.group>quickstarts</fabric8.label.group>
 
@@ -62,9 +63,6 @@
     <docker.baseImage>fabric8/java</docker.baseImage>
     <docker.env.MAIN>io.fabric8.quickstarts.cxfcdi.ApplicationStarter</docker.env.MAIN>
 
-    <!-- TODO we should rationalise these so there's only 1 required maven property -->
-    <docker.port.HTTP>${http.port}</docker.port.HTTP>
-    <fabric8.port.container.HTTP>${http.port}</fabric8.port.container.HTTP>
   </properties>
 
   <dependencyManagement>

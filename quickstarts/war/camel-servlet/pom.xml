@@ -49,8 +49,8 @@
 
     <!-- fabric8 configuration -->
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
-    <fabric8.port.host.http>9901</fabric8.port.host.http>
-    <fabric8.port.container.http>8080</fabric8.port.container.http>
+    <docker.port.host.http>9901</docker.port.host.http>
+    <docker.port.container.http>8080</docker.port.container.http>
   </properties>
 
   <licenses>

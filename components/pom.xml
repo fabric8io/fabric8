@@ -38,6 +38,7 @@
 
 
   <modules>
+    <module>console</module>
     <module>docker-api</module>
     <module>fabric-cxf</module>
     <!--
@@ -57,7 +58,6 @@
     <module>kubernetes-api</module>
     <module>kubernetes-jolokia</module>
     <module>kubernetes-template</module>
-    <module>kubernetes-war</module>
     <module>zookeeper-client</module>
   </modules>
 

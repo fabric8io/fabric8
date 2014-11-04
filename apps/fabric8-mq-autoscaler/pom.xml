@@ -35,7 +35,7 @@
         <!-- fabric8 configuration -->
         <docker.dataImage>${env.DOCKER_REGISTRY}/fabric8/${project.artifactId}:${project.version}</docker.dataImage>
         <fabric8.kubernetes.name>fabric8MQAutoScaler</fabric8.kubernetes.name>
-        <fabric8.port.host.jolokia>9603</fabric8.port.host.jolokia>
+        <docker.port.host.jolokia>9603</docker.port.host.jolokia>
         <fabric8.env.AMQ_SERVICE_ID>fabric8MQ</fabric8.env.AMQ_SERVICE_ID>
         <fabric8.env.AMQ_GROUP_NAME>defaultMQGroup</fabric8.env.AMQ_GROUP_NAME>
         <fabric8.env.MAX_GROUP_SIZE>5</fabric8.env.MAX_GROUP_SIZE>

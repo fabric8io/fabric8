@@ -34,10 +34,11 @@
     <properties>
         <!-- fabric8 configuration -->
         <docker.dataImage>${env.DOCKER_REGISTRY}/fabric8/${project.artifactId}:${project.version}</docker.dataImage>
-        <fabric8.port.containerPort>${activemq.container.port}</fabric8.port.containerPort>
-        <fabric8.port.hostPort>${activemq.host.port}</fabric8.port.hostPort>
+        <docker.port.container.amq>${activemq.container.port}</docker.port.container.amq>
+        <docker.port.host.amq>${activemq.host.port}</docker.port.host.amq>
+        <docker.port.host.jolokia>9602</docker.port.host.jolokia>
+
         <fabric8.kubernetes.name>fabric8MQCProducer</fabric8.kubernetes.name>
-        <fabric8.port.host.jolokia>9602</fabric8.port.host.jolokia>
         <fabric8.env.AMQ_SERVICE_ID>FABRIC8MQ</fabric8.env.AMQ_SERVICE_ID>
         <fabric8.label.container>java</fabric8.label.container>
         <fabric8.label.group>fabric8MQProducer</fabric8.label.group>

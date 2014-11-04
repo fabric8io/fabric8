@@ -51,8 +51,9 @@ import static io.fabric8.utils.PropertiesHelper.findPropertiesWithPrefix;
 @Mojo(name = "json", defaultPhase = LifecyclePhase.PACKAGE)
 public class JsonMojo extends AbstractFabric8Mojo {
 
-    public static final String FABRIC8_PORT_HOST_PREFIX = "fabric8.port.host.";
-    public static final String FABRIC8_PORT_CONTAINER_PREFIX = "fabric8.port.container.";
+    public static final String FABRIC8_PORT_HOST_PREFIX = "docker.port.host.";
+    public static final String FABRIC8_PORT_CONTAINER_PREFIX = "docker.port.container.";
+
     @Component
     private MavenProjectHelper projectHelper;
 
