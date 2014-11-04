@@ -58,4 +58,27 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>jube</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jboss.jube</groupId>
+            <artifactId>jube-maven-plugin</artifactId>
+            <version>${jube.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>

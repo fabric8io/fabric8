@@ -34,6 +34,7 @@
 
   <properties>
     <fabric8.iconRef>icons/karaf.svg</fabric8.iconRef>
+    <docker.baseImage>fabric8/karaf:${jube.version}</docker.baseImage>
   </properties>
 
   <modules>

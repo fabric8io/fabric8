@@ -42,6 +42,7 @@
     <maven.compiler.source>1.7</maven.compiler.source>
     <docker.maven.plugin.version>0.9.11</docker.maven.plugin.version>
     <docker.dataImage>${env.DOCKER_REGISTRY}/quickstart/${project.artifactId}:${project.version}</docker.dataImage>
+    <jube.version>2.0.0-SNAPSHOT</jube.version>
   </properties>
 
   <distributionManagement>
