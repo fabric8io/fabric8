@@ -41,8 +41,9 @@
     <maven.compiler.source>1.7</maven.compiler.source>
 
     <!-- the version of the BOM, defining all the dependency versions -->
-    <camel.version>2.13.2</camel.version>
     <fabric8.version>2.0.0-SNAPSHOT</fabric8.version>
+    <!-- need to declare the Camel version as features-maven-plugin needs this property (cannot inherit from BOM in maven plugin) -->
+    <camel.version>2.14.0</camel.version>
 
   </properties>
 
