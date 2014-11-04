@@ -19,6 +19,11 @@ export DOCKER_HOST=tcp://dockerhost:2375
 
 export PATH=$PATH:/home/vagrant/
 
+echo "DOCKER_IP:       $DOCKER_IP"
+echo "OPENSHIFT_HOST:  $OPENSHIFT_HOST"
+echo "DOCKER_REGISTRY: $DOCKER_REGISTRY"
+echo "DOCKER_HOST:     $DOCKER_HOST"
+
 echo "Updating /etc/hosts file on host machine (password may be required)..."
 
 if grep -Fxq "## Openshift-automated-script-start" /etc/hosts
