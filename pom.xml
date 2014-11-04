@@ -71,7 +71,7 @@
 
     <properties>
         <license.dir>${project.parent.basedir}/etc</license.dir>
-        <perfectus-build>379</perfectus-build>
+        <perfectus-build>042</perfectus-build>
         <perfectus.version>${perfectus-build}</perfectus.version>
         <forge-project-id>fabric</forge-project-id>
         <maven.compiler.source>1.7</maven.compiler.source>
@@ -127,7 +127,7 @@
         <!-- ServiceMix legal shared resources -->
         <servicemix.legal.version>1.0</servicemix.legal.version>
 
-        <activemq-version>5.10.0</activemq-version>
+        <activemq-version>5.10.0.redhat-620${perfectus-build}</activemq-version>
         <aether-version>0.9.0.M2</aether-version>
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <antlr-version>3.3</antlr-version>
