@@ -81,7 +81,7 @@ Or to push the docker image to your local docker registry
 
 **Note** if the above fails (we have seen it sometimes fail), perform a docker:build instead then use the command line:
 
-    docker push $DOCKER_REGISTRY/mydemo/war-camel-servlet:2.0.0-SNAPSHOT
+    docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0.0-SNAPSHOT
 
 ### Generating the JSON
 
@@ -189,11 +189,11 @@ From the distribution or source code perform these commands to push the docker i
 
     cd quickstarts/war/camel-servlet
     mvn clean install docker:build
-    docker push $DOCKER_REGISTRY/mydemo/war-camel-servlet:2.0.0-SNAPSHOT
+    docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0.0-SNAPSHOT
 
 Now lets deploy the image into the Kubernetes environment:
 
-    mvn fabric8:deploy
+    mvn fabric8:run
 
 You should now be able to view the running web application at [http://dockerhost:9901/war-camel-servlet-2.0.0-SNAPSHOT/](http://dockerhost:9901/war-camel-servlet-2.0.0-SNAPSHOT/)
 
