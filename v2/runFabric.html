@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1414976611247">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1415088080445">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -415,18 +415,11 @@ export OPENSHIFT_HOST=`grep openshifthost /etc/hosts | cut -d &quot; &quot; -f1`
 <pre><code>echo $OPENSHIFT_HOST
 </code></pre><p>which should look like a valid IP address and be reachable:</p>
 <pre><code>ping $OPENSHIFT_HOST
-</code></pre><h3 id="start-openshift"><a name="start-openshift" class="anchor" href="#start-openshift"><span class="fa fa-link"></span></a>Start OpenShift</h3>
-<p>Then you can start it up; you can run this anywhere you like really:</p>
-<pre><code>$ openshift start --listenAddr=$OPENSHIFT_HOST:8080
-</code></pre><p>You can then use the OpenShift command line tool or the OpenShift console.</p>
-<h3 id="start-fabric8"><a name="start-fabric8" class="anchor" href="#start-fabric8"><span class="fa fa-link"></span></a>Start fabric8</h3>
+</code></pre><h3 id="start-openshift-and-install-fabric8-v2"><a name="start-openshift-and-install-fabric8-v2" class="anchor" href="#start-openshift-and-install-fabric8-v2"><span class="fa fa-link"></span></a>Start OpenShift and install fabric8 v2</h3>
 <p>To make sure you&apos;ve got the latest and greatest hawtio console try this first:</p>
 <pre><code>docker pull fabric8/hawtio
-</code></pre><p>Now to install fabric8 apply the <a href="https://github.com/fabric8io/fabric8/blob/2.0/apps/fabric8.json" target="_blank">fabric8.json</a>:</p>
-<pre><code>openshift kube  apply -c https://raw.githubusercontent.com/fabric8io/fabric8/2.0/apps/fabric8.json
-</code></pre><p>Or if you have a clone of the <a href="https://github.com/fabric8io/fabric8/tree/2.0" target="_blank">fabric8 source code</a> you could try:</p>
-<pre><code>cd fabric8/apps
-openshift kube apply -c fabric8.json
+</code></pre><p>Then you can start it up; you can run this anywhere you like really:</p>
+<pre><code>$ ./bin/start
 </code></pre><p>This will run a local docker registry and the hawtio web console.</p>
 <p>You should be able to check if the docker registry is running OK via this command (which should return &apos;true&apos;):</p>
 <pre><code>curl http://$DOCKER_REGISTRY/v1/_ping
@@ -451,9 +444,10 @@ openshift kube apply -c fabric8.json
 <h3 id="resetting-openshift"><a name="resetting-openshift" class="anchor" href="#resetting-openshift"><span class="fa fa-link"></span></a>Resetting OpenShift</h3>
 <p>At any time you can Ctrl-C or kill the <em>openshift</em> process. This will leave around files from OpenShift and docker containers. So you can clear down your system via:</p>
 <pre><code>    rm -rf openshift.local.*
-    docker kill $(docker ps -q)
-    docker rm $(docker ps -a -q)
-</code></pre><h3 id="other-resources"><a name="other-resources" class="anchor" href="#other-resources"><span class="fa fa-link"></span></a>Other Resources</h3>
+    docker kill $(docker ps  | grep &quot;k8s_*&quot; | cut -c 1-12)
+    docker rm $(docker ps  | grep &quot;k8s_*&quot;
+</code></pre><p>or run <em>./bin/reset-openshift</em> to reset to a fresh installation.</p>
+<h3 id="other-resources"><a name="other-resources" class="anchor" href="#other-resources"><span class="fa fa-link"></span></a>Other Resources</h3>
 <h4 id="view-a-demo"><a name="view-a-demo" class="anchor" href="#view-a-demo"><span class="fa fa-link"></span></a>View a demo</h4>
 <p>To help you get started, you could watch one of the demos in the  <a class="btn btn-success" href="https://vimeo.com/album/2635012">JBoss Fuse and JBoss A-MQ demo album</a></p>
 <p>For example, try the <a class="btn btn-success" href="https://vimeo.com/80625940">JBoss Fuse 6.1 Demo</a></p>
