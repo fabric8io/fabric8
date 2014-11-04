@@ -301,6 +301,7 @@
         <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       </snapshotRepository>
     </distributionManagement>
+
     <repositories>
         <!-- Note: m2-snapshot is needed during CI builds -->
         <repository>
