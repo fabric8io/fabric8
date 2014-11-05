@@ -3787,7 +3787,7 @@
             <modules>
             </modules>
         </profile>
-        <profile>
+<!--        <profile>
             <id>release</id>
             <build>
                 <plugins>
@@ -3814,7 +3814,7 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
+        </profile>-->
         <profile>
             <id>hawtio-snapshot</id>
             <properties>
