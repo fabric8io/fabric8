@@ -16,6 +16,7 @@
 package io.fabric8.camel;
 
 import org.apache.camel.Consumer;
+import org.apache.camel.DelegateEndpoint;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
@@ -26,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Represents an endpoint which only becomes active when it obtains the master lock
  */
-public class MasterEndpoint extends DefaultEndpoint {
+public class MasterEndpoint extends DefaultEndpoint implements DelegateEndpoint {
     private static final transient Log LOG = LogFactory.getLog(MasterEndpoint.class);
 
     private final MasterComponent component;
@@ -78,5 +79,9 @@ public class MasterEndpoint extends DefaultEndpoint {
     //-------------------------------------------------------------------------
     Endpoint getChildEndpoint() {
         return getCamelContext().getEndpoint(child);
+    }
+
+    public Endpoint getEndpoint() {
+        return getChildEndpoint();
     }
 }
