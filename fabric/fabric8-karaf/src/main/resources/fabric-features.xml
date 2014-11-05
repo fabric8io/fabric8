@@ -40,8 +40,8 @@
         <bundle>mvn:io.fabric8/fabric-maven/${project.version}</bundle>
         <bundle>mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}/jar/uber</bundle>
 
-        <bundle>mvn:org.ops4j.pax.logging/pax-logging-api/${pax.logging.version}</bundle>
-        <bundle>mvn:org.ops4j.pax.logging/pax-logging-service/${pax.logging.version}</bundle>
+        <bundle start-level="8">mvn:org.ops4j.pax.logging/pax-logging-api/${pax.logging.version}</bundle>
+        <bundle start-level="8">mvn:org.ops4j.pax.logging/pax-logging-service/${pax.logging.version}</bundle>
 
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.console/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.osgi/${karaf-version}</bundle>
