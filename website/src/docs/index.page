@@ -7,7 +7,7 @@ title: read up on fabric8!
   <div class="row">
     <!-- begin column -->
     <div class="col-md-12">
-      <h1>Documentation for Version 2.0.0</h1>
+      <h1>Documentation for version 2.0.0</h1>
       <dl>
         <dt>
           <a href="http://fabric8.io/v2/getStarted.html">Getting Started</a>
@@ -70,7 +70,7 @@ title: read up on fabric8!
     </div>
 
     <div class="col-md-12">
-      <h1>Documentation for 1.x</h1>
+      <h2>Documentation for version 1.x</h2>
       <dl>
         <dt>
           <a href="/getstarted/index.html">Getting Started</a>
