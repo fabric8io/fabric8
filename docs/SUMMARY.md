@@ -8,6 +8,8 @@
   * [Builds](builds.md)
 * [Getting Started](getStarted.md)
     * [Get Started with Jube](getStartedJube.md)
+      * [Running a quickstart on Jube](jubeRunQuickstart.md)
+      * [Add a quickstart to the App Library](jubeAddQuickstartApp.md)
     * [Get Started With OpenShift V3](getStartedOpenShift.md)
       * [Get OpenShift V3](installOpenShift.md)
       * [Setup Your Machine](setupMachine.md)
