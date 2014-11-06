@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Forge Addons | Fabric8 Documentation</title>
+        <title>Tools | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./v2-changes.html" />
+        <link rel="next" href="./quickstarts.html" />
         
         
-        <link rel="prev" href="./mavenPlugin.html" />
+        <link rel="prev" href="./runFabric.html" />
         
 
-        <meta property="og:title" content="Forge Addons | Fabric8 Documentation">
+        <meta property="og:title" content="Tools | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.3" data-basepath="." data-revision="1415262958555">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3" data-basepath="." data-revision="1415262958555">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -391,7 +391,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 81.81818181818181%;min-width: 77.27272727272727%;"></div>
+        <div class="inner" style="width: 68.18181818181819%;min-width: 63.63636363636363%;"></div>
     </div>
     <div class="chapters">
     
@@ -427,11 +427,11 @@
     
         <a href="./tools.html" title="Tools" class="chapter done new-chapter" data-progress="3" style="left: 68.18181818181819%;"></a>
     
-        <a href="./quickstarts.html" title="QuickStarts" class="chapter done " data-progress="3.1" style="left: 72.72727272727273%;"></a>
+        <a href="./quickstarts.html" title="QuickStarts" class="chapter  " data-progress="3.1" style="left: 72.72727272727273%;"></a>
     
-        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter done " data-progress="3.2" style="left: 77.27272727272727%;"></a>
+        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter  " data-progress="3.2" style="left: 77.27272727272727%;"></a>
     
-        <a href="./forge.html" title="Forge Addons" class="chapter done " data-progress="3.3" style="left: 81.81818181818181%;"></a>
+        <a href="./forge.html" title="Forge Addons" class="chapter  " data-progress="3.3" style="left: 81.81818181818181%;"></a>
     
         <a href="./v2-changes.html" title="Changes from V1" class="chapter  new-chapter" data-progress="4" style="left: 86.36363636363636%;"></a>
     
@@ -446,31 +446,16 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_7">
+                    <section class="normal" id="section-gitbook_22">
                     
-                        <h2 id="forge-addons"><a name="forge-addons" class="anchor" href="#forge-addons"><span class="fa fa-link"></span></a>Forge Addons</h2>
-<p>fabric8 comes with various <a href="http://forge.jboss.org/" target="_blank">JBoss Forge</a> add ons to help improve your developer experience.</p>
-<p>First <a href="http://forge.jboss.org/download" target="_blank">install Forge</a> and run it:</p>
-<pre><code>forge
-</code></pre><p>you can install the Forge add ons via:</p>
-<pre><code>addon-install --coordinate io.fabric8.forge:camel,2.0.0-SNAPSHOT
-addon-install --coordinate io.fabric8.forge:kubernetes,2.0.0-SNAPSHOT
-</code></pre><p>You should be able to see the new commands that are installed via:</p>
-<pre><code>kube&lt;TAB&gt;
-camel&lt;TAB&gt;
-</code></pre><p>NOTE that you have to be a little patient; first time you try tab complete it can take a few seconds to figure out whats available :).</p>
-<h3 id="kubernetes"><a name="kubernetes" class="anchor" href="#kubernetes"><span class="fa fa-link"></span></a>Kubernetes</h3>
-<p>Before you run forge make sure your <strong>KUBERNETES_MASTER</strong> environment variable points to where OpenShift V3 is running.</p>
-<p>If you want to run Forge against a local <a href="http://fabric8.io/jube/getStarted.html" target="_blank">Jube</a> server then try this:</p>
-<pre><code>export KUBERNETES_MASTER=http://localhost:8585/
-</code></pre><p>You can now list pods / replication controllers / services via</p>
-<pre><code>kubernetes-pod-list
-kubernetes-replication-controller-list
-kubernetes-service-list
-</code></pre><h3 id="applying-json"><a name="applying-json" class="anchor" href="#applying-json"><span class="fa fa-link"></span></a>Applying JSON</h3>
-<p>If you are in a build which has <a href="mavenPlugin.html#generating-the-json">generated a kubernetes JSON file</a> <strong>target/classes/kubernetes.json</strong> you can apply this via...</p>
-<pre><code>kubernetes-apply --file target/classes/kubernetes.json
-</code></pre>
+                        <h2 id="tools"><a name="tools" class="anchor" href="#tools"><span class="fa fa-link"></span></a>Tools</h2>
+<p>There are various tools to help you work with fabric8:</p>
+<ul>
+<li><a href="quickstarts.html">QuickStarts</a> provide a really easy way to get started</li>
+<li><a href="mavenPlugin.html">Maven Plugin</a> helps you work with fabric8 and kubernetes from inside maven, your builds and releases</li>
+<li><a href="forge.html">Forge Addons</a> provides a universal command line shell for working with your projects and fabric8</li>
+</ul>
+
                     
                     </section>
                 
@@ -479,10 +464,10 @@ kubernetes-service-list
         </div>
 
         
-        <a href="./mavenPlugin.html" class="navigation navigation-prev " aria-label="Previous page: Maven Plugin"><i class="fa fa-angle-left"></i></a>
+        <a href="./runFabric.html" class="navigation navigation-prev " aria-label="Previous page: Run Fabric8"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./v2-changes.html" class="navigation navigation-next " aria-label="Next page: Changes from V1"><i class="fa fa-angle-right"></i></a>
+        <a href="./quickstarts.html" class="navigation navigation-next " aria-label="Next page: QuickStarts"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Forge Addons | Fabric8 Documentation</title>
+        <title>Jube | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./v2-changes.html" />
+        <link rel="next" href="./FAQ.html" />
         
         
-        <link rel="prev" href="./mavenPlugin.html" />
+        <link rel="prev" href="./v2-changes.html" />
         
 
-        <meta property="og:title" content="Forge Addons | Fabric8 Documentation">
+        <meta property="og:title" content="Jube | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.3" data-basepath="." data-revision="1415262958555">
+    <div class="book" data-github="fabric8io/fabric8" data-level="5" data-basepath="." data-revision="1415262958555">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -391,7 +391,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 81.81818181818181%;min-width: 77.27272727272727%;"></div>
+        <div class="inner" style="width: 90.9090909090909%;min-width: 86.36363636363636%;"></div>
     </div>
     <div class="chapters">
     
@@ -433,9 +433,9 @@
     
         <a href="./forge.html" title="Forge Addons" class="chapter done " data-progress="3.3" style="left: 81.81818181818181%;"></a>
     
-        <a href="./v2-changes.html" title="Changes from V1" class="chapter  new-chapter" data-progress="4" style="left: 86.36363636363636%;"></a>
+        <a href="./v2-changes.html" title="Changes from V1" class="chapter done new-chapter" data-progress="4" style="left: 86.36363636363636%;"></a>
     
-        <a href="./jube.html" title="Jube" class="chapter  new-chapter" data-progress="5" style="left: 90.9090909090909%;"></a>
+        <a href="./jube.html" title="Jube" class="chapter done new-chapter" data-progress="5" style="left: 90.9090909090909%;"></a>
     
         <a href="./FAQ.html" title="FAQ" class="chapter  new-chapter" data-progress="6" style="left: 95.45454545454545%;"></a>
     
@@ -446,31 +446,15 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_7">
+                    <section class="normal" id="section-gitbook_12">
                     
-                        <h2 id="forge-addons"><a name="forge-addons" class="anchor" href="#forge-addons"><span class="fa fa-link"></span></a>Forge Addons</h2>
-<p>fabric8 comes with various <a href="http://forge.jboss.org/" target="_blank">JBoss Forge</a> add ons to help improve your developer experience.</p>
-<p>First <a href="http://forge.jboss.org/download" target="_blank">install Forge</a> and run it:</p>
-<pre><code>forge
-</code></pre><p>you can install the Forge add ons via:</p>
-<pre><code>addon-install --coordinate io.fabric8.forge:camel,2.0.0-SNAPSHOT
-addon-install --coordinate io.fabric8.forge:kubernetes,2.0.0-SNAPSHOT
-</code></pre><p>You should be able to see the new commands that are installed via:</p>
-<pre><code>kube&lt;TAB&gt;
-camel&lt;TAB&gt;
-</code></pre><p>NOTE that you have to be a little patient; first time you try tab complete it can take a few seconds to figure out whats available :).</p>
-<h3 id="kubernetes"><a name="kubernetes" class="anchor" href="#kubernetes"><span class="fa fa-link"></span></a>Kubernetes</h3>
-<p>Before you run forge make sure your <strong>KUBERNETES_MASTER</strong> environment variable points to where OpenShift V3 is running.</p>
-<p>If you want to run Forge against a local <a href="http://fabric8.io/jube/getStarted.html" target="_blank">Jube</a> server then try this:</p>
-<pre><code>export KUBERNETES_MASTER=http://localhost:8585/
-</code></pre><p>You can now list pods / replication controllers / services via</p>
-<pre><code>kubernetes-pod-list
-kubernetes-replication-controller-list
-kubernetes-service-list
-</code></pre><h3 id="applying-json"><a name="applying-json" class="anchor" href="#applying-json"><span class="fa fa-link"></span></a>Applying JSON</h3>
-<p>If you are in a build which has <a href="mavenPlugin.html#generating-the-json">generated a kubernetes JSON file</a> <strong>target/classes/kubernetes.json</strong> you can apply this via...</p>
-<pre><code>kubernetes-apply --file target/classes/kubernetes.json
-</code></pre>
+                        <h2 id="jube"><a name="jube" class="anchor" href="#jube"><span class="fa fa-link"></span></a>Jube</h2>
+<p>For users who cannot use Linux or <a href="https://golang.org/" target="_blank">go lang</a> compiled binaries or are not ready to go with <a href="http://kubernetes.io/" target="_blank">Kubernetes</a> / <a href="http://openshift.com" target="_blank">OpenShift V3</a> or <a href="http://docker.com" target="_blank">Docker</a>, we have a pure Java implementation of Kubernetes called <a href="http://fabric8.io/jube/getStarted.html" target="_blank">Jube</a>.</p>
+<p>Jube supports the Kubernetes REST APIs for container orchestration using 100% pure Java; so runs on any platform which has a Java 7 runtime. The motivation for Jube is to primarily support running Java based application servers and services on non-Linux operating systems; we have no plans to try emulate the whole docker ecosystem :). We highly recommend you use Linux and Docker whenever you can; if you can&apos;t then Jube can help!</p>
+<p>Jube lets you develop all your applications on Kubernetes; even when you need to run Java middleware on operating systems that are not modern linux environments (e.g. AIX, Solaris, Windows) or when Go Lang or Docker are not natively supported.</p>
+<h3 id="get-started"><a name="get-started" class="anchor" href="#get-started"><span class="fa fa-link"></span></a>Get Started</h3>
+<p>Here&apos;s how to <a href="getStartedJube.html">Get Started with Fabric8 and Jube</a></p>
+
                     
                     </section>
                 
@@ -479,10 +463,10 @@ kubernetes-service-list
         </div>
 
         
-        <a href="./mavenPlugin.html" class="navigation navigation-prev " aria-label="Previous page: Maven Plugin"><i class="fa fa-angle-left"></i></a>
+        <a href="./v2-changes.html" class="navigation navigation-prev " aria-label="Previous page: Changes from V1"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./v2-changes.html" class="navigation navigation-next " aria-label="Next page: Changes from V1"><i class="fa fa-angle-right"></i></a>
+        <a href="./FAQ.html" class="navigation navigation-next " aria-label="Next page: FAQ"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
