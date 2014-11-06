@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Revision 1415267903732
+# Revision 1415269684616
 
 CACHE:
 getStarted.html
@@ -22,8 +22,8 @@ quickstarts.html
 replicationControllers.html
 runFabric.html
 services.html
-tools.html
 setupMachine.html
+tools.html
 v2-changes.html
 gitbook/app.js
 gitbook/fonts/fontawesome/FontAwesome.otf

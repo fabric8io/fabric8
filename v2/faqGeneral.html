@@ -48,7 +48,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="6.1" data-basepath="." data-revision="1415267903731">
+    <div class="book" data-github="fabric8io/fabric8" data-level="6.1" data-basepath="." data-revision="1415269684615">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -458,18 +458,23 @@
 <p>Try reading the <a href="/v2/overview.html">overview</a> to see if that helps give you an idea what fabric8 is.</p>
 <h4 id="what-value-does-fabric8-add-over-openshift-"><a name="what-value-does-fabric8-add-over-openshift-" class="anchor" href="#what-value-does-fabric8-add-over-openshift-"><span class="fa fa-link"></span></a>What value does fabric8 add over OpenShift?</h4>
 <ul>
-<li><a href="http://kubernetes.io" target="_blank">Kubernetes</a> provides a <a href="http://docker.io/" target="_blank">Docker</a> Container As A Service layer (orchestrates docker containers)</li>
-<li><a href="https://github.com/openshift/origin" target="_blank">OpenShift V3</a> extends Kubernetes to support a full Platform As A Service<ul>
+<li><a href="http://kubernetes.io" target="_blank">Kubernetes</a> provides a <a href="http://docker.io/" target="_blank">Docker</a> based <em>Container As A Service</em> (orchestrates docker containers)</li>
+<li><a href="https://github.com/openshift/origin" target="_blank">OpenShift V3</a> extends Kubernetes to support a full <em>Platform As A Service</em><ul>
 <li>hosting source code in git repositories</li>
 <li>performing builds and hosting private docker images</li>
 <li>supporting the git-push style model of kicking off new builds</li>
 </ul>
 </li>
-<li>Fabric8 is focused on being a <strong>Java Application Platform As A Service</strong> and an <strong>Integration Platform As A Service</strong> via:<ul>
+<li>Fabric8 is focused on:<ul>
+<li>being an <strong>Integration Platform As A Service</strong> and a <strong>Java Application Platform As A Service</strong></li>
+<li>adding extra services, tooling &amp; quickstarts to make the Kubernetes platform richer and more powerful for the Java ecosystem via:<ul>
 <li>deep and rich <a href="http://fabric8.io/v2/tools.html" target="_blank">tooling</a> to make it easy to develop Java applications on Kubernetes/OpenShift such as <a href="http://fabric8.io/v2/mavenPlugin.html" target="_blank">maven plugin</a> and <a href="http://fabric8.io/v2/forge.html" target="_blank">Forge Addons</a></li>
 <li><a href="http://hawt.io/" target="_blank">hawtio based console</a> so you can view your entire environment or zoom inside inside any Java container and see exactly whats going on</li>
+<li>libraries for working with <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api" target="_blank">kubernetes</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/components/docker-api" target="_blank">docker</a> along with <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia" target="_blank">kubernetes and jolokia</a> so its easier to develop Java based tools and services which work well with Kubernetes</li>
 <li>making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform</li>
 <li>to support non-Linux platforms which do not yet have native Go Lang or Docker support there&apos;s also <a href="jube.html">Jube</a> which is a pure Java implementation of Kubernetes and emulator of Docker for running Java middleware on any operating system that supports Java 7.</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

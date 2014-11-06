@@ -121,17 +121,20 @@
 <h4 id = "What_value_does_fabric8_add_over_OpenShift_">What value does fabric8 add over OpenShift?</h4>
 
 <ul>
-<li><a href="http://kubernetes.io">Kubernetes</a> provides a <a href="http://docker.io/">Docker</a> Container As A Service layer (orchestrates docker containers)</li>
-<li><a href="https://github.com/openshift/origin">OpenShift V3</a> extends Kubernetes to support a full Platform As A Service
+<li><a href="http://kubernetes.io">Kubernetes</a> provides a <a href="http://docker.io/">Docker</a> based <em>Container As A Service</em> (orchestrates docker containers)</li>
+<li><a href="https://github.com/openshift/origin">OpenShift V3</a> extends Kubernetes to support a full <em>Platform As A Service</em>
 <ul>
 <li>hosting source code in git repositories</li>
 <li>performing builds and hosting private docker images</li>
 <li>supporting the git-push style model of kicking off new builds</li>
 </ul></li>
-<li>Fabric8 is focused on being a <strong>Java Application Platform As A Service</strong> and an <strong>Integration Platform As A Service</strong> via:
+<li>Fabric8 is focused on:
 <ul>
+<li>being an <strong>Integration Platform As A Service</strong> and a <strong>Java Application Platform As A Service</strong></li>
+<li>adding extra services, tooling <span class="amp"><span class="amp">&amp;</span></span> quickstarts to make the Kubernetes platform richer and more powerful for the Java ecosystem via:</li>
 <li>deep and rich <a href="http://fabric8.io/v2/tools.html">tooling</a> to make it easy to develop Java applications on Kubernetes/OpenShift such as <a href="http://fabric8.io/v2/mavenPlugin.html">maven plugin</a> and <a href="http://fabric8.io/v2/forge.html">Forge Addons</a></li>
 <li><a href="http://hawt.io/">hawtio based console</a> so you can view your entire environment or zoom inside inside any Java container and see exactly whats going on</li>
+<li>libraries for working with <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api">kubernetes</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/components/docker-api">docker</a> along with <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia">kubernetes and jolokia</a> so its easier to develop Java based tools and services which work well with Kubernetes</li>
 <li>making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform</li>
 <li>to support non-Linux platforms which do not yet have native Go Lang or Docker support there's also <a href="jube.html">Jube</a> which is a pure Java implementation of Kubernetes and emulator of Docker for running Java middleware on any operating system that supports Java 7.</li>
 </ul></li>
