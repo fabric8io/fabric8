@@ -38,7 +38,7 @@ fabric8 runs on Java 7 and 8.
 
 Fabric8 is designed to work best on top of Kubernetes and Docker; it means fabric8 will work very well in any environment providing the Kubernetes platform such as RHEL Atomic, OpenShift, Google Compute Engine, Azure etc.
 
-However we need the [Emulator](http://fabric8.io/v2/emulation.html) to be able to work on platforms which don't support Docker; or where you wish to run Java processes directly on the underlying operating system rather than inside docker containers via the [Jube project](http://jubeio.github.io/jube/getStarted.html).
+However we need the [Emulator](http://fabric8.io/v2/emulation.html) to be able to work on platforms which don't support Docker; or where you wish to run Java processes directly on the underlying operating system rather than inside docker containers via the [Jube project](http://fabric8.io/jube/getStarted.html).
 
 #### Is Windows supported
 
@@ -78,7 +78,7 @@ No, not anymore. Starting from Fabric8 v2 Kubernetes is responsible for providin
 managed applications. It means that you don't have to start any dedicated Fabric8 deamon. Tools like [Fabric8 Maven plugin](http://fabric8.io/v2/mavenPlugin.html)
 or [Hawt.io](http://hawt.io) can connect directly to the Kubernetes and deploy/manage it.
 
-If you are using [Jube to emulate kubernetes](http://jubeio.github.io/jube/getStarted.html) then you will need to run a Jube server.
+If you are using [Jube to emulate kubernetes](http://fabric8.io/jube/getStarted.html) then you will need to run a Jube server.
 
 #### If there is no Fabric8 server, how can I use Fabric8 shell?
 

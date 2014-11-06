@@ -23,7 +23,7 @@ NOTE that you have to be a little patient; first time you try tab complete it ca
 
 Before you run forge make sure your **KUBERNETES_MASTER** environment variable points to where OpenShift V3 is running.
 
-If you want to run Forge against a local [Jube](http://jubeio.github.io/jube/getStarted.html) server then try this:
+If you want to run Forge against a local [Jube](http://fabric8.io/jube/getStarted.html) server then try this:
 
     export KUBERNETES_MASTER=http://localhost:8585/
 

@@ -1,7 +1,7 @@
 
 ### 2.0.0
 
-* First release of the [Kubernetes based Fabric8](http://fabric8.io/v2/overview.html) which reuses the standard [Kubernetes](http://kubernetes.io/) REST APIs for container orchestration and either [Docker container images](http://docker.com) or [Jube image zips](http://jubeio.github.io/jube/imageZips.html) for container provisioning.
+* First release of the [Kubernetes based Fabric8](http://fabric8.io/v2/overview.html) which reuses the standard [Kubernetes](http://kubernetes.io/) REST APIs for container orchestration and either [Docker container images](http://docker.com) or [Jube image zips](http://fabric8.io/jube/imageZips.html) for container provisioning.
 * Fixes [these 8 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.0)
 
 ### 1.2.0.Beta5
