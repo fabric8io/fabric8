@@ -16,6 +16,7 @@
     * [QuickStarts](quickstarts.md)
     * [Maven Plugin](mavenPlugin.md)
     * [Forge Addons](forge.md)
+    * [Java Libraries](javaLibraries.md)
 * [Changes from V1](v2-changes.md)
 * [Jube](jube.md)
 * [FAQ](FAQ.md)

@@ -1,8 +1,8 @@
 ## Overview
 
-Fabric8 provides an integration and management platform above the [Kubernetes Platform](http://kubernetes.io).
+Fabric8 provides an integration and management pltform above the [Kubernetes Platform](http://kubernetes.io).
 
-So Fabric8 works great with [Docker](http://docker.io/) and implementations of Kubernetes such as [OpenShift V3](http://openshift.github.io/), [Project Atomic](http://www.projectatomic.io/) and [Google Container Engine](https://cloud.google.com/container-engine/).
+So Fabric8 works great with [Docker](http://www.docker.com/) and implementations of Kubernetes such as [OpenShift V3](http://openshift.github.io/), [Project Atomic](http://www.projectatomic.io/) and [Google Container Engine](https://cloud.google.com/container-engine/).
 
 For non-linux platforms which don't yet support native Docker we have [Jube](jube.html) which is an open source pure Java implementation of Kubernetes.
 
