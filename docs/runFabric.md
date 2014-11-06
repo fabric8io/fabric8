@@ -82,8 +82,8 @@ For example, try the <a class="btn btn-success" href="https://vimeo.com/80625940
 
 #### Try QuickStarts
 
-New users to Fabric8 should try the [QuickStarts](/gitbook/quickstarts.html).
+New users to Fabric8 should try the [QuickStarts](/v2/quickstarts.html).
 
 #### Read the documentation
 
-Check out the [Overview](/gitbook/overview.html) and [User Guide](/gitbook/index.html).
+Check out the [Overview](/v2/overview.html) and [User Guide](/v2/index.html).
