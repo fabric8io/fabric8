@@ -40,6 +40,10 @@ Usually this means that Jube could not find the [image zip](http://fabric8.io/ju
 
 When you are running some [replication controllers](replicationControllers.html) you can use the [Replication Controllers tab](http://localhost:8585/hawtio/kubernetes/replicationControllers) and update the replica count (then hit **Save**) and in a few moments you should see Jube create or destroy pods so that the current running system matches your required number of replicas.
 
+Another approach is to specify the replica count in your pom.xml via the **fabric8.replicas** [property](mavenPlugin.html#properties-for-configuring-the-generation). For example to run 2 pods (containers) for a project try::
+
+    mvn fabric8:run -Dfabric8.replicas=2
+
 #### Stopping pods
 
 The easiest way to stop pods is to set the number of replicas to 0 on the [Replication Controllers tab](http://localhost:8585/hawtio/kubernetes/replicationControllers). Then delete the replication controller if you wish.
