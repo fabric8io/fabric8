@@ -1,8 +1,10 @@
 ### Running a quickstart on Jube
 
-Jube uses the Kubernetes API for orchestrating containers which uses JSON to define [Pods](http://localhost:8585/hawtio/kubernetes/pods), [Replication Controllers](http://localhost:8585/hawtio/kubernetes/replicationControllers) or [Services](http://localhost:8585/hawtio/kubernetes/services). In this example we are going generate the JSON for a quickstart and POST it to Jube via the Kubernetes REST API all using the maven tooling.
+Jube supports the Kubernetes REST API for orchestrating containers which uses JSON to define [pods](pods.html), [replication controllers](replicationControllers.html) or [services](services.html).
 
-We are going to use the [maven plugin's fabric8:run goal](mavenPlugin.html#running) to [generate the kubernetes JSON](mavenPlugin.html#generating-the-json) file using Jube and then POST it to the Jube server using the **KUBERNETES_MASTER** [environment variable](getStartedJube.html#setting-environment-variables).
+In this example we will use the maven tooling to generate the Kuberenetes JSON for a quickstart (to define [replication controller](replicationControllers.html) which will then create a [pod for the container](pods.html) and keep it running) and then POST the JSON to Jube via the Kubernetes REST API to create the [replication controller](replicationControllers.html).
+
+We are going to use the [maven plugin's fabric8:run goal](mavenPlugin.html#running) to [generate the kubernetes JSON](mavenPlugin.html#generating-the-json) and POST it to the Jube server at the URL defined by the **KUBERNETES_MASTER** [environment variable](getStartedJube.html#setting-environment-variables).
 
     git clone https://github.com/fabric8io/quickstarts.git
     cd quickstarts
@@ -16,7 +18,7 @@ Note if you are trying this on your own maven project you may wish to add the [j
 
 If the above fails it could be you have not setup your [environment variables](getStartedJube.html#setting-environment-variables) so that the maven plugin can communicate with kubernetes REST API.
 
-The build will [generated](mavenPlugin.html#generating-the-json) a **target/classes/kubernetes.json** file as part of the build (the **fabric8:json** goal does that), then the **fabric8:run** goal will use the Kubernetes REST API to create the necessary [pods](pods.html), [Replication Controllers](replicationControllers.html) or [services](services.html).
+The build will [generated](mavenPlugin.html#generating-the-json) a **target/classes/kubernetes.json** file as part of the build (the **fabric8:json** goal does that), then the **fabric8:run** goal will use the Kubernetes REST API to create the necessary [pods](pods.html), [replication controllers](replicationControllers.html) or [services](services.html).
 
 Once you have run the **mvn fabric8:run** command you should see it succeed. If you hit any issues check out the [FAQ](http://fabric8.io/v2/FAQ.html), [get in touch](http://fabric8.io/community/index.html) or [raise an issue](https://github.com/fabric8io/fabric8/issues)
 
