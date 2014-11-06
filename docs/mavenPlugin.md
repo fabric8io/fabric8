@@ -175,7 +175,7 @@ This defaults to using the [App JSON file](apps.html) file located at **src/main
 
 The following example shows you how to build and push a docker image to Kubernetes and deploy it and then use it.
 
-Make sure you have [installed OpenShift and Fabric8](http://fabric8.io/v2/getStarted.html) (which installs the web console and the local docker registry).
+Make sure you have followed the [Get Started Guide](http://fabric8.io/v2/getStarted.html) so you should have things running.
 
 You should be able to check if the docker registry is running OK via this command (which should return 'true'):
 
@@ -187,6 +187,7 @@ Now you are ready to build a quickstart!
 
 From the distribution or source code perform these commands to push the docker image:
 
+    git clone https://github.com/fabric8io/quickstarts.git
     cd quickstarts/war/camel-servlet
     mvn clean install docker:build
     docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0-SNAPSHOT
