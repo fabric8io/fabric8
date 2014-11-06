@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.2" data-basepath="." data-revision="1415262958555">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.2" data-basepath="." data-revision="1415267903731">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -511,7 +511,7 @@
 </code></pre><p>Or to push the docker image to your local docker registry</p>
 <pre><code>mvn install docker:push
 </code></pre><p><strong>Note</strong> if the above fails (we have seen it sometimes fail), perform a docker:build instead then use the command line:</p>
-<pre><code>docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0.0-SNAPSHOT
+<pre><code>docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0-SNAPSHOT
 </code></pre><h3 id="generating-the-json"><a name="generating-the-json" class="anchor" href="#generating-the-json"><span class="fa fa-link"></span></a>Generating the JSON</h3>
 <p>An <a href="apps.html">App</a> requires a <strong>kubernetes.json</strong> file which you can hand craft yourself; or you can put it into <strong>src/main/resources</strong> so that you can use Maven&apos;s default resource filtering to replace any project properties (e.g. the group ID, artifact ID, version number).</p>
 <p>The <strong>fabric8:json</strong> goal will either copy or generate the JSON and then add it to your build so that the JSON gets released along with your artifacts.</p>
@@ -590,10 +590,10 @@ cat target/classes/kubernetes.json
 <p>From the distribution or source code perform these commands to push the docker image:</p>
 <pre><code>cd quickstarts/war/camel-servlet
 mvn clean install docker:build
-docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0.0-SNAPSHOT
+docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0-SNAPSHOT
 </code></pre><p>Now lets deploy the image into the Kubernetes environment:</p>
 <pre><code>mvn fabric8:run
-</code></pre><p>You should now be able to view the running web application at <a href="http://dockerhost:9901/war-camel-servlet-2.0.0-SNAPSHOT/" target="_blank">http://dockerhost:9901/war-camel-servlet-2.0.0-SNAPSHOT/</a></p>
+</code></pre><p>You should now be able to view the running web application at <a href="http://dockerhost:9901/war-camel-servlet-2.0-SNAPSHOT/" target="_blank">http://dockerhost:9901/war-camel-servlet-2.0-SNAPSHOT/</a></p>
 <h3 id="property-reference"><a name="property-reference" class="anchor" href="#property-reference"><span class="fa fa-link"></span></a>Property Reference</h3>
 <p>The following maven property values are used to configure the behaviour of the maven plugin:</p>
 <table class="table table-striped">

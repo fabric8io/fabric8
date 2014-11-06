@@ -48,7 +48,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="6.1" data-basepath="." data-revision="1415262958555">
+    <div class="book" data-github="fabric8io/fabric8" data-level="6.1" data-basepath="." data-revision="1415267903731">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -455,20 +455,21 @@
 <p>Take a look <a href="http://www.christianposta.com/blog/?p=376" target="_blank">at this blog post</a> to see a more detailed treatment.</p>
 <h4 id="what-does-fabric8-do-"><a name="what-does-fabric8-do-" class="anchor" href="#what-does-fabric8-do-"><span class="fa fa-link"></span></a>What does fabric8 do?</h4>
 <p>fabric8 (pronounced <em>fabricate</em>) lets you create and manage fabrics (or clusters) of applications, integrations and middleware.</p>
-<p>Try reading the <a href="/gitbook/overview.html">overview</a> to see if that helps give you an idea what fabric8 is.</p>
+<p>Try reading the <a href="/v2/overview.html">overview</a> to see if that helps give you an idea what fabric8 is.</p>
 <h4 id="what-value-does-fabric8-add-over-openshift-"><a name="what-value-does-fabric8-add-over-openshift-" class="anchor" href="#what-value-does-fabric8-add-over-openshift-"><span class="fa fa-link"></span></a>What value does fabric8 add over OpenShift?</h4>
 <ul>
-<li><a href="http://kubernetes.io" target="_blank">Kubernetes</a> provides a <a href="http://docker.io/" target="_blank">Docker</a> Container As A Service layer</li>
+<li><a href="http://kubernetes.io" target="_blank">Kubernetes</a> provides a <a href="http://docker.io/" target="_blank">Docker</a> Container As A Service layer (orchestrates docker containers)</li>
 <li><a href="https://github.com/openshift/origin" target="_blank">OpenShift V3</a> extends Kubernetes to support a full Platform As A Service<ul>
 <li>hosting source code in git repositories</li>
 <li>performing builds and hosting private docker images</li>
 <li>supporting the git-push style model of kicking off new builds</li>
 </ul>
 </li>
-<li>Fabric8 is focussed on being a <strong>Java Application Platform As A Service</strong> and an <strong>Integration Platform As A Service</strong> via:<ul>
-<li>deep and rich tooling to make it easy to develop Java applications on Kubernetes/OpenShift</li>
+<li>Fabric8 is focused on being a <strong>Java Application Platform As A Service</strong> and an <strong>Integration Platform As A Service</strong> via:<ul>
+<li>deep and rich <a href="http://fabric8.io/v2/tools.html" target="_blank">tooling</a> to make it easy to develop Java applications on Kubernetes/OpenShift such as <a href="http://fabric8.io/v2/mavenPlugin.html" target="_blank">maven plugin</a> and <a href="http://fabric8.io/v2/forge.html" target="_blank">Forge Addons</a></li>
 <li><a href="http://hawt.io/" target="_blank">hawtio based console</a> so you can view your entire environment or zoom inside inside any Java container and see exactly whats going on</li>
 <li>making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform</li>
+<li>to support non-Linux platforms which do not yet have native Go Lang or Docker support there&apos;s also <a href="jube.html">Jube</a> which is a pure Java implementation of Kubernetes and emulator of Docker for running Java middleware on any operating system that supports Java 7.</li>
 </ul>
 </li>
 </ul>
@@ -476,11 +477,11 @@
 <p>fabric8 runs on Java 7 and 8.</p>
 <h4 id="are-docker-and-kubernetes-required-to-run-fabric8-"><a name="are-docker-and-kubernetes-required-to-run-fabric8-" class="anchor" href="#are-docker-and-kubernetes-required-to-run-fabric8-"><span class="fa fa-link"></span></a>Are Docker and Kubernetes required to run Fabric8?</h4>
 <p>Fabric8 is designed to work best on top of Kubernetes and Docker; it means fabric8 will work very well in any environment providing the Kubernetes platform such as RHEL Atomic, OpenShift, Google Compute Engine, Azure etc.</p>
-<p>However we need the <a href="http://fabric8.io/v2/emulation.html" target="_blank">Emulator</a> to be able to work on platforms which don&apos;t support Docker; or where you wish to run Java processes directly on the underlying operating system rather than inside docker containers via the <a href="http://fabric8.io/jube/getStarted.html" target="_blank">Jube project</a>.</p>
+<p>However we need to be able to work on platforms which don&apos;t support Docker; or where you wish to run Java processes directly on the underlying operating system rather than inside docker containers. For those platforms we have <a href="http://fabric8.io/jube/goals.html" target="_blank">Jube</a> which is a pure Java implementation of Kubernetes which emulates Docker.</p>
 <h4 id="is-windows-supported"><a name="is-windows-supported" class="anchor" href="#is-windows-supported"><span class="fa fa-link"></span></a>Is Windows supported</h4>
 <p>We recommend using a linux based system for production; preferably if you want a fully managed platform use <a href="http://docker.io/" target="_blank">Docker</a> and <a href="http://kubernetes.io" target="_blank">Kubernetes</a> or <a href="https://github.com/openshift/origin" target="_blank">OpenShift Origin V3</a>.</p>
 <p>Windows is currently only partially supported. Windows users may consider using <a href="http://docker.io/" target="_blank">Docker</a> so that all the fabric8 technologies run inside a linux VM in lightweight containers.</p>
-<p>If you need to run Java on real Windows processes then we recommend using the <a href="http://fabric8.io/v2/emulation.html" target="_blank">Emulator</a></p>
+<p>If you need to run Java on real Windows processes then we recommend using <a href="http://fabric8.io/v2/jube.html" target="_blank">Jube</a> which will run your Java containers as real windows processes.</p>
 <h4 id="does-fabric8-use-zookeeper-runtime-registry-"><a name="does-fabric8-use-zookeeper-runtime-registry-" class="anchor" href="#does-fabric8-use-zookeeper-runtime-registry-"><span class="fa fa-link"></span></a>Does Fabric8 use ZooKeeper runtime registry?</h4>
 <p>No, not anymore. Fabric8 1.x used ZooKeeper to share the runtime information between applications and to discover services. Kubernetes comes with the <a href="https://github.com/coreos/etcd" target="_blank">etcd</a> internally which serves much of the same purpose and has support for the services binding, so Fabric8 v2 doesn&apos;t need ZooKeeper registry anymore for general purpose provisioning of containers and services.</p>
 <p>However certain services will still require master slave election and partitioning functionality (such as running clusters of ActiveMQ); where either <a href="https://github.com/coreos/etcd" target="_blank">etcd</a> or <a href="http://zookeeper.apache.org/" target="_blank">Apache ZooKeeper</a> is required. If a Kubernetes environment allows it then fabric8 could reuse the underlying etcd cluster; otherwise an etcd or ZK clusters is required for things like ActiveMQ clustering.</p>
@@ -501,7 +502,7 @@ packaging format to distribute the configuration between the various environment
 <p>No, not anymore. Starting from Fabric8 v2 Kubernetes is responsible for providing the runtime registry for the
 managed applications. It means that you don&apos;t have to start any dedicated Fabric8 deamon. Tools like <a href="http://fabric8.io/v2/mavenPlugin.html" target="_blank">Fabric8 Maven plugin</a>
 or <a href="http://hawt.io" target="_blank">Hawt.io</a> can connect directly to the Kubernetes and deploy/manage it.</p>
-<p>If you are using <a href="http://fabric8.io/jube/getStarted.html" target="_blank">Jube to emulate kubernetes</a> then you will need to run a Jube server.</p>
+<p>If you are using <a href="http://fabric8.io/jube/getStarted.html" target="_blank">Jube as the Kubernetes implementation</a> and to emulate Docker then you will need to run a Jube server.</p>
 <h4 id="if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell-"><a name="if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell-" class="anchor" href="#if-there-is-no-fabric8-server-how-can-i-use-fabric8-shell-"><span class="fa fa-link"></span></a>If there is no Fabric8 server, how can I use Fabric8 shell?</h4>
 <p>For the Fabric8 v2 development activities, the recommended tool is <a href="http://forge.jboss.org" target="_blank">JBoss Forge</a> with the <a href="forge.html">Fabric8 add-on</a>.</p>
 <p>For provisioning purposes (like creating containers/services or changing the replica sizes) you can use the <a href="forge.html">Fabric8 add-on</a> or use the shell from OpenShift/Kubernetes.</p>

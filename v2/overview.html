@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="1" data-basepath="." data-revision="1415262958555">
+    <div class="book" data-github="fabric8io/fabric8" data-level="1" data-basepath="." data-revision="1415267903731">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -449,12 +449,14 @@
                     <section class="normal" id="section-gitbook_15">
                     
                         <h2 id="overview"><a name="overview" class="anchor" href="#overview"><span class="fa fa-link"></span></a>Overview</h2>
-<p>Fabric8 2.x provides an integration platform above <a href="http://docker.io/" target="_blank">Docker</a>, <a href="http://kubernetes.io" target="_blank">Kubernetes</a> and the <a href="http://openshift.github.io/" target="_blank">Kubernetes extensions defined in OpenShift Origin</a>. For non-linux platforms which don&apos;t support docker we have a <a href="emulation.html">Docker Emulation Layer</a>.</p>
-<p>Kubernetes is supported on Google &amp; Microsofts clouds, by OpenShift v3 (on premise and public cloud), by Project Atomic and VMware; so it&apos;s increasingly becoming the standard API to PaaS and Container As A Service on the hybrid clouds. So it makes sense for fabric8 to be optimised to run well on top of Kubernetes so it can reuse Container As A Service across the open hybrid cloud.</p>
+<p>Fabric8 provides an integration and management platform above the <a href="http://kubernetes.io" target="_blank">Kubernetes Platform</a>.</p>
+<p>So Fabric8 works great with <a href="http://docker.io/" target="_blank">Docker</a> and implementations of Kubernetes such as <a href="http://openshift.github.io/" target="_blank">OpenShift V3</a>, <a href="http://www.projectatomic.io/" target="_blank">Project Atomic</a> and <a href="https://cloud.google.com/container-engine/" target="_blank">Google Container Engine</a>.</p>
+<p>For non-linux platforms which don&apos;t yet support native Docker we have <a href="jube.html">Jube</a> which is an open source pure Java implementation of Kubernetes.</p>
+<p>Kubernetes is supported on Google and Microsofts clouds, by OpenShift V3 (on premise and public cloud), by Project Atomic and VMware; so it&apos;s increasingly becoming the standard API to PaaS and <em>Container As A Service</em> on the open hybrid clouds. <a href="jube.html">Jube</a> then helps extend Kubernetes to run Java based middleware on any operating system which supports Java 7.</p>
 <h4 id="how-it-all-fits-together"><a name="how-it-all-fits-together" class="anchor" href="#how-it-all-fits-together"><span class="fa fa-link"></span></a>How it all fits together</h4>
 <ul>
 <li>Docker provides the abstraction for packaging and creating Linux based lightweight containers</li>
-<li>Kubernetes provides the mechanism for running docker containers on multiple hosts (like a distributed systemd) together with networking them together</li>
+<li>Kubernetes provides the mechanism for orchestrating docker containers on multiple hosts (like a distributed systemd) together with networking them together</li>
 <li>Kubernetes extensions provides the packaging, templating and building mechanisms</li>
 </ul>
 <h4 id="kubernetes-model"><a name="kubernetes-model" class="anchor" href="#kubernetes-model"><span class="fa fa-link"></span></a>Kubernetes model</h4>
