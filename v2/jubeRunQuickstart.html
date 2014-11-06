@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.1.1" data-basepath="." data-revision="1415293082401">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.1.1" data-basepath="." data-revision="1415293566886">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -510,7 +510,9 @@ mvn clean install fabric8:run
 <p>Usually this means that Jube could not find the <a href="http://fabric8.io/jube/imageZips.html" target="_blank">image zip</a> in a maven repository for the docker container names referenced in your pod JSON. You may want to check that you properly built the associated image zip and its available in a maven repository at the maven coordinates that the exception reports it used.</p>
 <h4 id="scaling-your-replication-controllers"><a name="scaling-your-replication-controllers" class="anchor" href="#scaling-your-replication-controllers"><span class="fa fa-link"></span></a>Scaling your replication controllers</h4>
 <p>When you are running some <a href="replicationControllers.html">replication controllers</a> you can use the <a href="http://localhost:8585/hawtio/kubernetes/replicationControllers" target="_blank">Replication Controllers tab</a> and update the replica count (then hit <strong>Save</strong>) and in a few moments you should see Jube create or destroy pods so that the current running system matches your required number of replicas.</p>
-<h4 id="stopping-pods"><a name="stopping-pods" class="anchor" href="#stopping-pods"><span class="fa fa-link"></span></a>Stopping pods</h4>
+<p>Another approach is to specify the replica count in your pom.xml via the <strong>fabric8.replicas</strong> <a href="mavenPlugin.html#properties-for-configuring-the-generation">property</a>. For example to run 2 pods (containers) for a project try::</p>
+<pre><code>mvn fabric8:run -Dfabric8.replicas=2
+</code></pre><h4 id="stopping-pods"><a name="stopping-pods" class="anchor" href="#stopping-pods"><span class="fa fa-link"></span></a>Stopping pods</h4>
 <p>The easiest way to stop pods is to set the number of replicas to 0 on the <a href="http://localhost:8585/hawtio/kubernetes/replicationControllers" target="_blank">Replication Controllers tab</a>. Then delete the replication controller if you wish.</p>
 
                     
