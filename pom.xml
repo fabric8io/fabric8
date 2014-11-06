@@ -266,7 +266,7 @@
         <jna-version>3.3.0</jna-version>
         <jolokia-version>1.2.2</jolokia-version>
         <jgroups-version>3.4.4.Final</jgroups-version>
-        <jsch-smx-version>0.1.49_1</jsch-smx-version>
+        <jsch-smx-version>0.1.51_1</jsch-smx-version>
         <json4s-version>3.2.4_1</json4s-version>
         <junit-version>4.11</junit-version>
         <karaf-version>2.4.0.redhat-620038</karaf-version>
