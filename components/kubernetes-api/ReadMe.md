@@ -18,4 +18,12 @@ For example:
     Kubernetes kube = kubeFactory.createKubernetes();
     List pods = kube.getPods();
 
+The **KubernetesFactory** defaults to using the **KUBERNETES_MASTER** environment variable (which for a local OpenShift V3 is often **http://localhost:8080/** or if you are using [Jube](http://fabric8.io/jube/goals.html) will be http://localhost:8585/).
+
+If you wish to use a specific URL in your Java code just pass it into the factory constructor.
+
+    KubernetesFactory kubeFactory = new KubernetesFactory("http://localhost:8585/");
+    Kubernetes kube = kubeFactory.createKubernetes();
+    List pods = kube.getPods();
+
 To see more of the [Kubernetes API](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric-kubernetes-api/src/main/java/io/fabric8/kubernetes/api/Kubernetes.java#L46) in action [check out this example](https://github.com/fabric8io/fabric8/blob/master/fabric/fabric-kubernetes-api/src/test/java/io/fabric8/kubernetes/api/Example.java#L54)
