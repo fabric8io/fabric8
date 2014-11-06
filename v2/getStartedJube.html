@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.1" data-basepath="." data-revision="1415288682165">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.1" data-basepath="." data-revision="1415291499366">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -488,8 +488,11 @@
                     <section class="normal" id="section-gitbook_1">
                     
                         <h2 id="get-started-with-fabric8-and-jube"><a name="get-started-with-fabric8-and-jube" class="anchor" href="#get-started-with-fabric8-and-jube"><span class="fa fa-link"></span></a>Get Started with Fabric8 and Jube</h2>
-<p>First you need to get the latest <a href="jube.html">Jube</a> by <a href="http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.0.0/jube-2.0.0-image.zip" target="_blank">downloading jube-2.0.0-image.zip</a> and unzipping it.</p>
-<p>You can then startup Jube via:</p>
+<p>First you need to get the latest <a href="jube.html">Jube</a> by <a href="http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.0.0/jube-2.0.0-image.zip" target="_blank">downloading jube-2.0.0-image.zip</a> and unzipping it:</p>
+<pre><code>mkdir jube-2.0.0-image
+cd jube-2.0.0-image
+unzip ../jube-2.0.0-image.zip
+</code></pre><p>You can then startup Jube via:</p>
 <pre><code>cd jube-2.0.0-image
 ./run.sh
 </code></pre><p>If your operating system does&apos;t have the executable flag set on the run script; try</p>
@@ -508,7 +511,7 @@ export FABRIC8_CONSOLE=http://localhost:8585/hawtio/
 <li><a href="http://localhost:8585/hawtio/kubernetes/replicationControllers" target="_blank">Replication Controllers tab</a> views all the available <a href="replicationControllers.html">replication controllers</a> in your kubernetes environment</li>
 <li><a href="http://localhost:8585/hawtio/kubernetes/services" target="_blank">Services tab</a> views all the available <a href="services.html">services</a> in your kubernetes environment</li>
 </ul>
-<p>You can use any kubernetes client such as the <a href="http://fabric8.io/v2/forge.html" target="_blank">Forge Addons</a> to apply kubernetes JSON files for <a href="pods.html">pods</a>, <a href="replicationControllers.html">replication controllers</a> or <a href="services.html">services</a> - provided that any docker images referenced in the pods and pod templates have a suitable <a href="http://fabric8.io/jube/imageZips.html" target="_blank">image zip</a>.</p>
+<p>Jube implements the <a href="http://kubernetes.io/" target="_blank">Kubernetes</a> REST API so you can use any kubernetes tools with Jube such as the <a href="http://fabric8.io/v2/forge.html" target="_blank">Forge Addons</a> to work with <a href="pods.html">pods</a>, <a href="replicationControllers.html">replication controllers</a> or <a href="services.html">services</a> - provided that any docker images referenced in the pods and pod templates have a suitable <a href="http://fabric8.io/jube/imageZips.html" target="_blank">image zip</a>. For more detail on this see the <a href="http://fabric8.io/jube/goals.html" target="_blank">Jube Goals</a> details on <a href="http://fabric8.io/jube/imageZips.html" target="_blank">Jube Image Zips</a> and check out the <a href="http://fabric8.io/jube/differences.html" target="_blank">differences between Jube and Kubernetes</a></p>
 
                     
                     </section>
