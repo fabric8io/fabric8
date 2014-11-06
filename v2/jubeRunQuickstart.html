@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.1.1" data-basepath="." data-revision="1415291499366">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.1.1" data-basepath="." data-revision="1415293082401">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -488,20 +488,24 @@
                     <section class="normal" id="section-gitbook_15">
                     
                         <h3 id="running-a-quickstart-on-jube"><a name="running-a-quickstart-on-jube" class="anchor" href="#running-a-quickstart-on-jube"><span class="fa fa-link"></span></a>Running a quickstart on Jube</h3>
-<p>Jube uses the Kubernetes API for orchestrating containers which uses JSON to define <a href="http://localhost:8585/hawtio/kubernetes/pods" target="_blank">Pods</a>, <a href="http://localhost:8585/hawtio/kubernetes/replicationControllers" target="_blank">Replication Controllers</a> or <a href="http://localhost:8585/hawtio/kubernetes/services" target="_blank">Services</a>. In this example we are going generate the JSON for a quickstart and POST it to Jube via the Kubernetes REST API all using the maven tooling.</p>
-<p>We are going to use the <a href="mavenPlugin.html#running">maven plugin&apos;s fabric8:run goal</a> to <a href="mavenPlugin.html#generating-the-json">generate the kubernetes JSON</a> file using Jube and then POST it to the Jube server using the <strong>KUBERNETES_MASTER</strong> <a href="getStartedJube.html#setting-environment-variables">environment variable</a>.</p>
+<p>We are going to run a quickstart in Jube using the <a href="mavenPlugin.html#running">mvn fabric8:run goal</a>. Type the following:</p>
 <pre><code>git clone https://github.com/fabric8io/quickstarts.git
 cd quickstarts
 mvn install
 cd quickstarts/java/camel-spring
 mvn clean install fabric8:run
-</code></pre><p>Note if you are trying this on your own maven project you may wish to add the <a href="http://fabric8.io/jube/mavenPlugin.html#adding-the-plugin-to-your-project" target="_blank">jube:build goal to your projects package goal</a> or you can run the <strong>jube:build</strong> goal via</p>
-<pre><code>mvn clean install jube:build fabric8:run
 </code></pre><p>If the above fails it could be you have not setup your <a href="getStartedJube.html#setting-environment-variables">environment variables</a> so that the maven plugin can communicate with kubernetes REST API.</p>
-<p>The build will <a href="mavenPlugin.html#generating-the-json">generated</a> a <strong>target/classes/kubernetes.json</strong> file as part of the build (the <strong>fabric8:json</strong> goal does that), then the <strong>fabric8:run</strong> goal will use the Kubernetes REST API to create the necessary <a href="pods.html">pods</a>, <a href="replicationControllers.html">Replication Controllers</a> or <a href="services.html">services</a>.</p>
 <p>Once you have run the <strong>mvn fabric8:run</strong> command you should see it succeed. If you hit any issues check out the <a href="http://fabric8.io/v2/FAQ.html" target="_blank">FAQ</a>, <a href="http://fabric8.io/community/index.html" target="_blank">get in touch</a> or <a href="https://github.com/fabric8io/fabric8/issues" target="_blank">raise an issue</a></p>
 <p>Now you should be able to see any created kubernetes resources in the tabs: <a href="http://localhost:8585/hawtio/kubernetes/pods" target="_blank">Pods</a>, <a href="http://localhost:8585/hawtio/kubernetes/replicationControllers" target="_blank">Replication Controllers</a> or <a href="http://localhost:8585/hawtio/kubernetes/services" target="_blank">Services</a> in the web console. Note that the first thing to be created are the <a href="replicationControllers.html">replication controllers</a> which then try to start the pods.</p>
-<h4 id="if-a-pod-fails-to-start"><a name="if-a-pod-fails-to-start" class="anchor" href="#if-a-pod-fails-to-start"><span class="fa fa-link"></span></a>If a pod fails to start</h4>
+<h4 id="what-just-happened-"><a name="what-just-happened-" class="anchor" href="#what-just-happened-"><span class="fa fa-link"></span></a>What just happened?</h4>
+<p>Jube supports the Kubernetes REST API for orchestrating containers which uses JSON to define <a href="pods.html">pods</a>, <a href="replicationControllers.html">replication controllers</a> or <a href="services.html">services</a>.</p>
+<p>In the above example we used the maven tooling to generate the Kuberenetes JSON for a quickstart (to define <a href="replicationControllers.html">replication controller</a> which will then create a <a href="pods.html">pod for the container</a> and keep it running) and then POST the JSON to Jube via the Kubernetes REST API to create the <a href="replicationControllers.html">replication controller</a>.</p>
+<p>The <a href="mavenPlugin.html#running">mvn fabric8:run goal</a> then <a href="mavenPlugin.html#generating-the-json">generated the kubernetes JSON</a> and POSTed it to the Jube server at the URL defined by the <strong>KUBERNETES_MASTER</strong> <a href="getStartedJube.html#setting-environment-variables">environment variable</a>.</p>
+<p>The build will <a href="mavenPlugin.html#generating-the-json">generated</a> a <strong>target/classes/kubernetes.json</strong> file as part of the build (the <strong>fabric8:json</strong> goal does that), then the <strong>fabric8:run</strong> goal will use the Kubernetes REST API to create the necessary <a href="pods.html">pods</a>, <a href="replicationControllers.html">replication controllers</a> or <a href="services.html">services</a>.</p>
+<h4 id="using-another-maven-project"><a name="using-another-maven-project" class="anchor" href="#using-another-maven-project"><span class="fa fa-link"></span></a>Using another maven project</h4>
+<p>Note if you are trying this on your own maven project you may wish to add the <a href="http://fabric8.io/jube/mavenPlugin.html#adding-the-plugin-to-your-project" target="_blank">jube:build goal to your projects package goal</a> or you can run the <strong>jube:build</strong> goal via</p>
+<pre><code>mvn clean install jube:build fabric8:run
+</code></pre><h4 id="if-a-pod-fails-to-start"><a name="if-a-pod-fails-to-start" class="anchor" href="#if-a-pod-fails-to-start"><span class="fa fa-link"></span></a>If a pod fails to start</h4>
 <p>Sometimes you may see a pod not start; it may then try again and create more pods. If you hover over the status icon on the <a href="http://localhost:8585/hawtio/kubernetes/pods" target="_blank">Pods tab</a> you should see a tooltip explanation for the failure (or click on the pod and look at the detail view).</p>
 <p>Usually this means that Jube could not find the <a href="http://fabric8.io/jube/imageZips.html" target="_blank">image zip</a> in a maven repository for the docker container names referenced in your pod JSON. You may want to check that you properly built the associated image zip and its available in a maven repository at the maven coordinates that the exception reports it used.</p>
 <h4 id="scaling-your-replication-controllers"><a name="scaling-your-replication-controllers" class="anchor" href="#scaling-your-replication-controllers"><span class="fa fa-link"></span></a>Scaling your replication controllers</h4>
