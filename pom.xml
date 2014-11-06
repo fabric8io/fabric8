@@ -298,7 +298,7 @@
         <osgi-metadata-version>4.0.0.CR1</osgi-metadata-version>
         <osgi-version>5.0.0</osgi-version>
         <pax-runner-version>1.7.6</pax-runner-version>
-        <pax.logging.version>1.8.0</pax.logging.version>
+        <pax.logging.version>1.8.1</pax.logging.version>
         <pax.url.mvn.commons.version>${pax.url.version}</pax.url.mvn.commons.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
         <pax.url.version>2.2.0</pax.url.version>
