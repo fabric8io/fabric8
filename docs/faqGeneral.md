@@ -16,19 +16,20 @@ Take a look [at this blog post](http://www.christianposta.com/blog/?p=376) to se
 
 fabric8 (pronounced _fabricate_) lets you create and manage fabrics (or clusters) of applications, integrations and middleware.
 
-Try reading the [overview](/gitbook/overview.html) to see if that helps give you an idea what fabric8 is.
+Try reading the [overview](/v2/overview.html) to see if that helps give you an idea what fabric8 is.
 
 #### What value does fabric8 add over OpenShift?
 
-* [Kubernetes](http://kubernetes.io) provides a [Docker](http://docker.io/) Container As A Service layer
+* [Kubernetes](http://kubernetes.io) provides a [Docker](http://docker.io/) Container As A Service layer (orchestrates docker containers)
 * [OpenShift V3](https://github.com/openshift/origin) extends Kubernetes to support a full Platform As A Service
   * hosting source code in git repositories
   * performing builds and hosting private docker images
   * supporting the git-push style model of kicking off new builds
-* Fabric8 is focussed on being a **Java Application Platform As A Service** and an **Integration Platform As A Service** via:
-  * deep and rich tooling to make it easy to develop Java applications on Kubernetes/OpenShift
+* Fabric8 is focused on being a **Java Application Platform As A Service** and an **Integration Platform As A Service** via:
+  * deep and rich [tooling](http://fabric8.io/v2/tools.html) to make it easy to develop Java applications on Kubernetes/OpenShift such as [maven plugin](http://fabric8.io/v2/mavenPlugin.html) and [Forge Addons](http://fabric8.io/v2/forge.html)
   * [hawtio based console](http://hawt.io/) so you can view your entire environment or zoom inside inside any Java container and see exactly whats going on
   * making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform
+  * to support non-Linux platforms which do not yet have native Go Lang or Docker support there's also [Jube](jube.html) which is a pure Java implementation of Kubernetes and emulator of Docker for running Java middleware on any operating system that supports Java 7.
 
 #### What Java versions is supported?
 
