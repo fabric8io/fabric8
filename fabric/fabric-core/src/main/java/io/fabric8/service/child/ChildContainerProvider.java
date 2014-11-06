@@ -15,7 +15,6 @@
  */
 package io.fabric8.service.child;
 
-import static io.fabric8.utils.Ports.mapPortToRange;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerAutoScaler;
@@ -43,12 +42,6 @@ import io.fabric8.internal.Objects;
 import io.fabric8.service.ContainerTemplate;
 import io.fabric8.utils.AuthenticationUtils;
 import io.fabric8.utils.Ports;
-
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -61,6 +54,15 @@ import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.management.openmbean.CompositeDataSupport;
+import javax.management.openmbean.TabularData;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static io.fabric8.utils.Ports.mapPortToRange;
 
 @ThreadSafe
 @Component(name = "io.fabric8.container.provider.child", label = "Fabric8 Child Container Provider", immediate = true, metatype = false)
@@ -214,6 +216,26 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             public void start(final Container container) {
                 getContainerTemplateForChild(container).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
                     public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
+                        //update jvm options if they have have changed
+                        CreateChildContainerMetadata metadata = (CreateChildContainerMetadata) container.getMetadata();
+                        CreateChildContainerOptions createOptions = metadata.getCreateOptions();
+                        String jvmOpts = createOptions.getJvmOpts();
+                        TabularData instances = adminService.getInstances();
+                        Collection<CompositeDataSupport> values = (Collection<CompositeDataSupport>) instances.values();
+                        for(CompositeDataSupport o : values){
+                            if(container.getId().equals(o.get("Name"))){
+                                if(o.containsKey("JavaOpts")){
+                                    String oldJavaOpts = (String) o.get("JavaOpts");
+                                    StringBuilder stringBuilder = ChildContainerProvider.buildJvmOpts(createOptions);
+                                    String extendendJvmOpts = stringBuilder.toString();
+                                    if (jvmOpts != null && !extendendJvmOpts.equals(oldJavaOpts)){
+                                        adminService.changeJavaOpts(container.getId(), extendendJvmOpts);
+                                    }
+                                }
+                                break;
+                            }
+                        }
+
                         adminService.startInstance(container.getId(), null);
                         return null;
                     }
@@ -248,53 +270,10 @@ public final class ChildContainerProvider extends AbstractComponent implements C
                                                        CreateChildContainerOptions options,
                                                        CreationStateListener listener,
                                                        final Container parent) throws Exception {
-        StringBuilder jvmOptsBuilder = new StringBuilder();
-
-        String zkPasswordEncode = System.getProperty("zookeeper.password.encode", "true");
-        jvmOptsBuilder.append("-server -Dcom.sun.management.jmxremote -Dorg.jboss.gravia.repository.storage.dir=data/repository")
-                .append(options.getZookeeperUrl() != null ? " -Dzookeeper.url=\"" + options.getZookeeperUrl() + "\"" : "")
-                .append(zkPasswordEncode != null ? " -Dzookeeper.password.encode=\"" + zkPasswordEncode + "\"" : "")
-                .append(options.getZookeeperPassword() != null ? " -Dzookeeper.password=\"" + options.getZookeeperPassword() + "\"" : "");
-
-
-        if (options.getJvmOpts() == null || !options.getJvmOpts().contains("-Xmx")) {
-            jvmOptsBuilder.append(" -Xmx512m");
-        }
-        if (options.getJvmOpts() == null || !options.getJvmOpts().contains("-XX:MaxPermSize=")) {
-            jvmOptsBuilder.append(" -XX:MaxPermSize=256m");
-        }
-        if (options.isEnsembleServer()) {
-            jvmOptsBuilder.append(" ").append(CreateEnsembleOptions.ENSEMBLE_AUTOSTART + "=true");
-        }
-
-        if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
-            jvmOptsBuilder.append(" ").append(options.getJvmOpts());
-        }
-
-        if (options.getJvmOpts() == null || !options.getJvmOpts().contains("-XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass")) {
-            jvmOptsBuilder.append(" -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass");
-        }
-
-        if (options.getBindAddress() != null && !options.getBindAddress().isEmpty()) {
-            jvmOptsBuilder.append(" -D" + ZkDefs.BIND_ADDRESS + "=" + options.getBindAddress());
-        }
-
-        if (options.getResolver() != null && !options.getResolver().isEmpty()) {
-            jvmOptsBuilder.append(" -D" + ZkDefs.LOCAL_RESOLVER_PROPERTY + "=" + options.getResolver());
-        }
-
-        if (options.getManualIp() != null && !options.getManualIp().isEmpty()) {
-            jvmOptsBuilder.append(" -D" + ZkDefs.MANUAL_IP + "=" + options.getManualIp());
-        }
+        StringBuilder jvmOptsBuilder = ChildContainerProvider.buildJvmOpts(options);
 
         DataStore dataStore = fabricService.get().adapt(DataStore.class);
         ProfileService profileService = fabricService.get().adapt(ProfileService.class);
-
-        for (Map.Entry<String, String> dataStoreEntries : options.getDataStoreProperties().entrySet()) {
-            String key = dataStoreEntries.getKey();
-            String value = dataStoreEntries.getValue();
-            jvmOptsBuilder.append(" -D" + Constants.DATASTORE_PID + "." + key + "=" + value);
-        }
 
         Profile profile = parent.getVersion().getRequiredProfile("default");
         Profile effectiveProfile = Profiles.getEffectiveProfile(fabricService.get(), profileService.getOverlayProfile(profile));
@@ -355,6 +334,54 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             metadata.setFailure(t);
         }
         return metadata;
+    }
+
+    private static StringBuilder buildJvmOpts(CreateChildContainerOptions options) {
+        StringBuilder jvmOptsBuilder = new StringBuilder();
+
+        String zkPasswordEncode = System.getProperty("zookeeper.password.encode", "true");
+        jvmOptsBuilder.append("-server -Dcom.sun.management.jmxremote -Dorg.jboss.gravia.repository.storage.dir=data/repository")
+                .append(options.getZookeeperUrl() != null ? " -Dzookeeper.url=\"" + options.getZookeeperUrl() + "\"" : "")
+                .append(zkPasswordEncode != null ? " -Dzookeeper.password.encode=\"" + zkPasswordEncode + "\"" : "")
+                .append(options.getZookeeperPassword() != null ? " -Dzookeeper.password=\"" + options.getZookeeperPassword() + "\"" : "");
+
+
+        if (options.getJvmOpts() == null || !options.getJvmOpts().contains("-Xmx")) {
+            jvmOptsBuilder.append(" -Xmx512m");
+        }
+        if (options.getJvmOpts() == null || !options.getJvmOpts().contains("-XX:MaxPermSize=")) {
+            jvmOptsBuilder.append(" -XX:MaxPermSize=256m");
+        }
+        if (options.isEnsembleServer()) {
+            jvmOptsBuilder.append(" ").append(CreateEnsembleOptions.ENSEMBLE_AUTOSTART + "=true");
+        }
+
+        if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
+            jvmOptsBuilder.append(" ").append(options.getJvmOpts());
+        }
+
+        if (options.getJvmOpts() == null || !options.getJvmOpts().contains("-XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass")) {
+            jvmOptsBuilder.append(" -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass");
+        }
+
+        if (options.getBindAddress() != null && !options.getBindAddress().isEmpty()) {
+            jvmOptsBuilder.append(" -D" + ZkDefs.BIND_ADDRESS + "=" + options.getBindAddress());
+        }
+
+        if (options.getResolver() != null && !options.getResolver().isEmpty()) {
+            jvmOptsBuilder.append(" -D" + ZkDefs.LOCAL_RESOLVER_PROPERTY + "=" + options.getResolver());
+        }
+
+        if (options.getManualIp() != null && !options.getManualIp().isEmpty()) {
+            jvmOptsBuilder.append(" -D" + ZkDefs.MANUAL_IP + "=" + options.getManualIp());
+        }
+
+        for (Map.Entry<String, String> dataStoreEntries : options.getDataStoreProperties().entrySet()) {
+            String key = dataStoreEntries.getKey();
+            String value = dataStoreEntries.getValue();
+            jvmOptsBuilder.append(" -D" + Constants.DATASTORE_PID + "." + key + "=" + value);
+        }
+        return jvmOptsBuilder;
     }
 
     /**

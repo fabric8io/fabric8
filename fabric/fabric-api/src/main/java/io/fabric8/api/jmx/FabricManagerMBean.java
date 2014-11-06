@@ -76,6 +76,10 @@ public interface FabricManagerMBean {
 
     Map<String, Object> getContainer(String name, List<String> fields);
 
+    String getJvmOpts(String containerName);
+
+    void setJvmOpts(String containerName, String jvmOpts);
+
     void addProfilesToContainer(String container, List<String> profiles);
 
     void removeProfilesFromContainer(String container, List<String> profiles);
