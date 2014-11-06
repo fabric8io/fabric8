@@ -8,4 +8,5 @@ Jube lets you develop all your applications on Kubernetes; even when you need to
 
 ### Get Started
 
-Here's how to [Get Started with Fabric8 and Jube](getStartedJube.html)
+* Here's how to [Get Started with Fabric8 and Jube](getStartedJube.html)
+* [Jube Goals](http://fabric8.io/jube/goals.html)

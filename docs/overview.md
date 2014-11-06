@@ -1,13 +1,17 @@
 ## Overview
 
-Fabric8 2.x provides an integration platform above [Docker](http://docker.io/), [Kubernetes](http://kubernetes.io) and the [Kubernetes extensions defined in OpenShift Origin](http://openshift.github.io/). For non-linux platforms which don't support docker we have a [Docker Emulation Layer](emulation.html).
+Fabric8 provides an integration and management platform above the [Kubernetes Platform](http://kubernetes.io).
 
-Kubernetes is supported on Google & Microsofts clouds, by OpenShift v3 (on premise and public cloud), by Project Atomic and VMware; so it's increasingly becoming the standard API to PaaS and Container As A Service on the hybrid clouds. So it makes sense for fabric8 to be optimised to run well on top of Kubernetes so it can reuse Container As A Service across the open hybrid cloud.
+So Fabric8 works great with [Docker](http://docker.io/) and implementations of Kubernetes such as [OpenShift V3](http://openshift.github.io/), [Project Atomic](http://www.projectatomic.io/) and [Google Container Engine](https://cloud.google.com/container-engine/).
+
+For non-linux platforms which don't yet support native Docker we have [Jube](jube.html) which is an open source pure Java implementation of Kubernetes.
+
+Kubernetes is supported on Google and Microsofts clouds, by OpenShift V3 (on premise and public cloud), by Project Atomic and VMware; so it's increasingly becoming the standard API to PaaS and _Container As A Service_ on the open hybrid clouds. [Jube](jube.html) then helps extend Kubernetes to run Java based middleware on any operating system which supports Java 7.
 
 #### How it all fits together
 
 * Docker provides the abstraction for packaging and creating Linux based lightweight containers
-* Kubernetes provides the mechanism for running docker containers on multiple hosts (like a distributed systemd) together with networking them together
+* Kubernetes provides the mechanism for orchestrating docker containers on multiple hosts (like a distributed systemd) together with networking them together
 * Kubernetes extensions provides the packaging, templating and building mechanisms
 
 #### Kubernetes model
