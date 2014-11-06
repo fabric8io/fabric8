@@ -15,33 +15,6 @@
  */
 package io.fabric8.core.jmx;
 
-import java.io.BufferedInputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.regex.Pattern;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.StandardMBean;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -51,6 +24,7 @@ import io.fabric8.api.AutoScaleStatus;
 import io.fabric8.api.Constants;
 import io.fabric8.api.Container;
 import io.fabric8.api.ContainerProvider;
+import io.fabric8.api.CreateContainerBasicMetadata;
 import io.fabric8.api.CreateContainerBasicOptions;
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.CreateContainerOptions;
@@ -77,6 +51,33 @@ import org.apache.curator.framework.CuratorFramework;
 import org.jboss.gravia.utils.IllegalStateAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.StandardMBean;
+import java.io.BufferedInputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
 import static io.fabric8.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
@@ -370,6 +371,38 @@ public final class FabricManager implements FabricManagerMBean {
     public Map<String, Object> getContainer(String name, List<String> fields) {
         Container c = fabricService.getContainer(name);
         return BeanUtils.convertContainerToMap(fabricService, c, fields);
+    }
+
+    @Override
+    /**
+     * Returns configured jvmOpts only for (local and remote) Karaf containers.
+     */
+    public String getJvmOpts(String containerName) {
+        String result = "";
+
+        Container container = fabricService.getContainer(containerName);
+        CreateContainerBasicMetadata metadata = (CreateContainerBasicMetadata) container.getMetadata();
+        if(metadata == null){
+            return "Inapplicable";
+        }
+
+        switch( metadata.getCreateOptions().getProviderType()){
+            case "child":
+            case "ssh":
+                CreateContainerOptions createOptions = metadata.getCreateOptions();
+                result = createOptions.getJvmOpts();
+                break;
+            default:
+                result = "Inapplicable";
+        }
+
+        return result;
+    }
+
+    @Override
+    public void setJvmOpts(String containerName, String jvmOpts) {
+        Container container = fabricService.getContainer(containerName);
+        changeCreateOptionsField(container.getId(), "jvmOpts", jvmOpts);
     }
 
     @Override
