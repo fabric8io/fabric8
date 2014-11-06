@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Get OpenShift V3 | Fabric8 Documentation</title>
+        <title>Add a quickstart to the App Library | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./setupMachine.html" />
+        <link rel="next" href="./getStartedOpenShift.html" />
         
         
-        <link rel="prev" href="./getStartedOpenShift.html" />
+        <link rel="prev" href="./jubeRunQuickstart.html" />
         
 
-        <meta property="og:title" content="Get OpenShift V3 | Fabric8 Documentation">
+        <meta property="og:title" content="Add a quickstart to the App Library | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1415288682165">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.1.2" data-basepath="." data-revision="1415288682165">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -424,7 +424,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 56%;min-width: 52%;"></div>
+        <div class="inner" style="width: 48%;min-width: 44%;"></div>
     </div>
     <div class="chapters">
     
@@ -454,9 +454,9 @@
     
         <a href="./jubeAddQuickstartApp.html" title="Add a quickstart to the App Library" class="chapter done " data-progress="2.1.2" style="left: 48%;"></a>
     
-        <a href="./getStartedOpenShift.html" title="Get Started With OpenShift V3" class="chapter done " data-progress="2.2" style="left: 52%;"></a>
+        <a href="./getStartedOpenShift.html" title="Get Started With OpenShift V3" class="chapter  " data-progress="2.2" style="left: 52%;"></a>
     
-        <a href="./installOpenShift.html" title="Get OpenShift V3" class="chapter done " data-progress="2.2.1" style="left: 56%;"></a>
+        <a href="./installOpenShift.html" title="Get OpenShift V3" class="chapter  " data-progress="2.2.1" style="left: 56%;"></a>
     
         <a href="./setupMachine.html" title="Setup Your Machine" class="chapter  " data-progress="2.2.2" style="left: 60%;"></a>
     
@@ -485,29 +485,27 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_11">
+                    <section class="normal" id="section-gitbook_14">
                     
-                        <h2 id="install-openshift"><a name="install-openshift" class="anchor" href="#install-openshift"><span class="fa fa-link"></span></a>Install OpenShift</h2>
-<p>In order to start working with the Fabric8 on your laptop, you need to have
-<a href="https://github.com/GoogleCloudPlatform/kubernetes" target="_blank">Kubernetes</a> and
-<a href="https://github.com/coreos/etcd" target="_blank">etcd</a> services available.</p>
-<p>The quickest way to start Kube and etcd locally is to run OpenShift V3 on your machine.</p>
-<h3 id="get-openshift-v3"><a name="get-openshift-v3" class="anchor" href="#get-openshift-v3"><span class="fa fa-link"></span></a>Get OpenShift V3</h3>
-<p>You can download a <a href="https://github.com/openshift/origin/releases" target="_blank">distribution of OpenShift V3</a> if there is a download
-for your platform (currently OpenShift runs only on the 64-bit Linux). We recommend to download the <a href="https://github.com/openshift/origin/releases/download/20141003/openshift-origin-linux64-e4d4ecf.tar.gz">alpha nightly 20141003/e4d4ecf</a> version of the
-OpenShift 3 - Fabric8 has been tested against it.</p>
-<h3 id="building-openshift-v3"><a name="building-openshift-v3" class="anchor" href="#building-openshift-v3"><span class="fa fa-link"></span></a>Building OpenShift V3</h3>
-<p>Its actually pretty quick and easy to build OpenShift yourself:</p>
-<ul>
-<li>install <a href="http://golang.org/doc/install" target="_blank">go lang</a></li>
-<li><a href="https://github.com/jstrachan/origin/blob/master/README.md#getting-started" target="_blank">compile the OpenShift V3 code</a> via this command:</li>
-</ul>
-<pre><code>    hack/build-go.sh
+                        <h2 id="add-a-quickstart-to-the-app-library"><a name="add-a-quickstart-to-the-app-library" class="anchor" href="#add-a-quickstart-to-the-app-library"><span class="fa fa-link"></span></a>Add a quickstart to the App Library</h2>
+<p>The web console has a Wiki which acts as a place you can store any documentation or <a href="appzip.html">App Zips</a>.</p>
+<h3 id="adding-or-removing-apps"><a name="adding-or-removing-apps" class="anchor" href="#adding-or-removing-apps"><span class="fa fa-link"></span></a>Adding or removing Apps</h3>
+<p>You can add or remove an <a href="appzip.html">App Zip</a> by dragging folders from the wiki&apos;s view to your file system; or dragging an <a href="appzip.html">App Zip</a> from your file system and dropping it onto the file listing view in the Wiki.</p>
+<h3 id="using-mvn-fabric8-deploy"><a name="using-mvn-fabric8-deploy" class="anchor" href="#using-mvn-fabric8-deploy"><span class="fa fa-link"></span></a>Using mvn fabric8:deploy</h3>
+<p>You can use the <a href="mavenPlugin.html#deploying">mvn fabric8:deploy</a> goal to run the <strong>zip</strong> goal to make an <a href="appzip.html">App Zip</a> and then post it to the App Library in your web console using the <strong>FABRIC8_CONSOLE</strong> environment variable.</p>
+<p>e.g. run the following</p>
+<pre><code>git clone https://github.com/fabric8io/quickstarts.git
+cd quickstarts
+mvn install
+cd quickstarts/java/camel-spring
+mvn clean install fabric8:deploy
 </code></pre><ul>
-<li>Add the <strong>_output/go/bin</strong> folder to your <strong>PATH</strong> so that you can run the <strong>openshift</strong> command from any directory. e.g. add this to your ~/.bashrc</li>
+<li>Now if you look at the <a href="http://localhost:8585/hawtio/wiki/view" target="_blank">Library Tab in the web console</a> you should see a <strong>java-camel-spring</strong> folder with a nice camel icon on it.</li>
+<li>Click on the link, that should take you to the App page which should show the documentation</li>
+<li>On the top right you should see a <strong>Run</strong> button - click it to run the app</li>
+<li>Now you should be able to see any created kubernetes resources in the tabs: <a href="http://localhost:8585/hawtio/kubernetes/pods" target="_blank">Pods</a>, <a href="http://localhost:8585/hawtio/kubernetes/replicationControllers" target="_blank">Replication Controllers</a> or <a href="http://localhost:8585/hawtio/kubernetes/services" target="_blank">Services</a> in the web console. Note that the first thing to be created are the <a href="replicationControllers.html">replication controllers</a> which then try to start the pods.</li>
 </ul>
-<pre><code>    export PATH=$PATH:$GOPATH/src/github.com/openshift/origin/_output/go/bin
-</code></pre>
+
                     
                     </section>
                 
@@ -516,10 +514,10 @@ OpenShift 3 - Fabric8 has been tested against it.</p>
         </div>
 
         
-        <a href="./getStartedOpenShift.html" class="navigation navigation-prev " aria-label="Previous page: Get Started With OpenShift V3"><i class="fa fa-angle-left"></i></a>
+        <a href="./jubeRunQuickstart.html" class="navigation navigation-prev " aria-label="Previous page: Running a quickstart on Jube"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./setupMachine.html" class="navigation navigation-next " aria-label="Next page: Setup Your Machine"><i class="fa fa-angle-right"></i></a>
+        <a href="./getStartedOpenShift.html" class="navigation navigation-next " aria-label="Next page: Get Started With OpenShift V3"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
