@@ -1,6 +1,8 @@
 ### Running a quickstart on Jube
 
-In the following example we're going to use the [maven plugin's fabric8:run goal](mavenPlugin.html#running) to run the [generated kubernetes JSON](mavenPlugin.html#generating-the-json) file using Jube.
+Jube uses the Kubernetes API for orchestrating containers which uses JSON to define [Pods](http://localhost:8585/hawtio/kubernetes/pods), [Replication Controllers](http://localhost:8585/hawtio/kubernetes/replicationControllers) or [Services](http://localhost:8585/hawtio/kubernetes/services). In this example we are going generate the JSON for a quickstart and POST it to Jube via the Kubernetes REST API all using the maven tooling.
+
+We are going to use the [maven plugin's fabric8:run goal](mavenPlugin.html#running) to [generate the kubernetes JSON](mavenPlugin.html#generating-the-json) file using Jube and then POST it to the Jube server using the **KUBERNETES_MASTER** [environment variable](getStartedJube.html#setting-environment-variables).
 
     git clone https://github.com/fabric8io/quickstarts.git
     cd quickstarts
@@ -12,7 +14,7 @@ Note if you are trying this on your own maven project you may wish to add the [j
 
     mvn clean install jube:build fabric8:run
 
-If the above fails it could be you have not setup your [environment variables]() so that the maven plugin can communicate with kubernetes REST API.
+If the above fails it could be you have not setup your [environment variables](getStartedJube.html#setting-environment-variables) so that the maven plugin can communicate with kubernetes REST API.
 
 The build will [generated](mavenPlugin.html#generating-the-json) a **target/classes/kubernetes.json** file as part of the build (the **fabric8:json** goal does that), then the **fabric8:run** goal will use the Kubernetes REST API to create the necessary [pods](pods.html), [Replication Controllers](replicationControllers.html) or [services](services.html).
 

@@ -1,6 +1,10 @@
 ## Get Started with Fabric8 and Jube
 
-First you need to get the latest [Jube](jube.html) by [downloading jube-2.0.0-image.zip](http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.0.0/jube-2.0.0-image.zip) and unzipping it.
+First you need to get the latest [Jube](jube.html) by [downloading jube-2.0.0-image.zip](http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.0.0/jube-2.0.0-image.zip) and unzipping it:
+
+    mkdir jube-2.0.0-image
+    cd jube-2.0.0-image
+    unzip ../jube-2.0.0-image.zip
 
 You can then startup Jube via:
 
@@ -32,5 +36,5 @@ Once Jube has started up you should be able to open the web console at [http://l
  * [Replication Controllers tab](http://localhost:8585/hawtio/kubernetes/replicationControllers) views all the available [replication controllers](replicationControllers.html) in your kubernetes environment
  * [Services tab](http://localhost:8585/hawtio/kubernetes/services) views all the available [services](services.html) in your kubernetes environment
 
-You can use any kubernetes client such as the [Forge Addons](http://fabric8.io/v2/forge.html) to apply kubernetes JSON files for [pods](pods.html), [replication controllers](replicationControllers.html) or [services](services.html) - provided that any docker images referenced in the pods and pod templates have a suitable [image zip](http://fabric8.io/jube/imageZips.html).
+Jube implements the [Kubernetes](http://kubernetes.io/) REST API so you can use any kubernetes tools with Jube such as the [Forge Addons](http://fabric8.io/v2/forge.html) to work with [pods](pods.html), [replication controllers](replicationControllers.html) or [services](services.html) - provided that any docker images referenced in the pods and pod templates have a suitable [image zip](http://fabric8.io/jube/imageZips.html). For more detail on this see the [Jube Goals](http://fabric8.io/jube/goals.html) details on [Jube Image Zips](http://fabric8.io/jube/imageZips.html) and check out the [differences between Jube and Kubernetes](http://fabric8.io/jube/differences.html)
 
