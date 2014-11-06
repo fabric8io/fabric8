@@ -76,7 +76,7 @@
           <!-- begin navbar -->
           <div id="main-nav-collapse" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-              <li title="Get started with fabric8 now!"><a href="/getstarted/index.html">Get Started</a></li>
+              <li title="Get started with fabric8 now!"><a href="/v2/getStarted.html">Get Started</a></li>
               <li title="Check out the documentation"><a href="/docs/index.html">Documentation</a></li>
               <li title="Join the fabric8 community"><a href="/community/index.html">Community</a></li>
               <li title="View articles, demos and videos on using fabric8"><a href="/articles/index.html">Articles</a></li>
@@ -106,7 +106,7 @@
 
 <h4 id = "What_is_it_">What is it?</h4>
 
-<p>fabric8 is an integration platform based on Apache ActiveMQ, Apache Camel, Apache CXF, Apache Karaf, Hawtio and others.</p>
+<p>fabric8 is an integration platform based on Apache ActiveMQ, Apache Camel, Apache CXF, Hawtio and others.</p>
 
 <p>It provides automated configuration and deployment management to help make deployments easy, reproducible, and less human-error prone.</p>
 
@@ -116,153 +116,87 @@
 
 <p>fabric8 (pronounced <em>fabricate</em>) lets you create and manage fabrics (or clusters) of applications, integrations and middleware.</p>
 
-<p>Try reading the <a href="http://fabric8.io/gitbook/overview.html">overview</a> to see if that helps give you an idea what fabric8 is.</p>
+<p>Try reading the <a href="/gitbook/overview.html">overview</a> to see if that helps give you an idea what fabric8 is.</p>
+
+<h4 id = "What_value_does_fabric8_add_over_OpenShift_">What value does fabric8 add over OpenShift?</h4>
+
+<ul>
+<li><a href="http://kubernetes.io">Kubernetes</a> provides a <a href="http://docker.io/">Docker</a> Container As A Service layer</li>
+<li><a href="https://github.com/openshift/origin">OpenShift V3</a> extends Kubernetes to support a full Platform As A Service
+<ul>
+<li>hosting source code in git repositories</li>
+<li>performing builds and hosting private docker images</li>
+<li>supporting the git-push style model of kicking off new builds</li>
+</ul></li>
+<li>Fabric8 is focussed on being a <strong>Java Application Platform As A Service</strong> and an <strong>Integration Platform As A Service</strong> via:
+<ul>
+<li>deep and rich tooling to make it easy to develop Java applications on Kubernetes/OpenShift</li>
+<li><a href="http://hawt.io/">hawtio based console</a> so you can view your entire environment or zoom inside inside any Java container and see exactly whats going on</li>
+<li>making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform</li>
+</ul></li>
+</ul>
 
 <h4 id = "What_Java_versions_is_supported_">What Java versions is supported?</h4>
 
-<p>fabric8 runs on Java 7 and 8. </p>
+<p>fabric8 runs on Java 7 and 8.</p>
+
+<h4 id = "Are_Docker_and_Kubernetes_required_to_run_Fabric8_">Are Docker and Kubernetes required to run Fabric8?</h4>
+
+<p>Fabric8 is designed to work best on top of Kubernetes and Docker; it means fabric8 will work very well in any environment providing the Kubernetes platform such as RHEL Atomic, OpenShift, Google Compute Engine, Azure etc.</p>
+
+<p>However we need the <a href="http://fabric8.io/v2/emulation.html">Emulator</a> to be able to work on platforms which don't support Docker; or where you wish to run Java processes directly on the underlying operating system rather than inside docker containers via the <a href="http://jubeio.github.io/jube/getStarted.html">Jube project</a>.</p>
 
 <h4 id = "Is_Windows_supported">Is Windows supported</h4>
 
-<p>Windows is only partially supported. </p>
+<p>We recommend using a linux based system for production; preferably if you want a fully managed platform use <a href="http://docker.io/">Docker</a> and <a href="http://kubernetes.io">Kubernetes</a> or <a href="https://github.com/openshift/origin">OpenShift Origin V3</a>.</p>
 
-<p>For example the <a href="http://fabric8.io/gitbook/processManager.html#process-management">process manager</a> does not yet support windows; as it relies on running scripts which currently only supports linux systems. Likewise creaitng containers using <a href="http://fabric8.io/gitbook/sshContainers.html">SSH</a> is not supported by Windows. Neither is <a href="http://fabric8.io/gitbook/docker.html#docker-containers">docker</a> supported by Windows. </p>
+<p>Windows is currently only partially supported. Windows users may consider using <a href="http://docker.io/">Docker</a> so that all the fabric8 technologies run inside a linux VM in lightweight containers.</p>
 
-<p>We recommend using a linux based system for production. </p>
+<p>If you need to run Java on real Windows processes then we recommend using the <a href="http://fabric8.io/v2/emulation.html">Emulator</a></p>
 
-<p>For development using Windows can be used but there are these known limitations.
-Windows users may consider using a VM with a linux distribution for development.</p>
+<h4 id = "Does_Fabric8_use_ZooKeeper_runtime_registry_">Does Fabric8 use ZooKeeper runtime registry?</h4>
+
+<p>No, not anymore. Fabric8 1.x used ZooKeeper to share the runtime information between applications and to discover services. Kubernetes comes with the <a href="https://github.com/coreos/etcd">etcd</a> internally which serves much of the same purpose and has support for the services binding, so Fabric8 v2 doesn't need ZooKeeper registry anymore for general purpose provisioning of containers and services.</p>
+
+<p>However certain services will still require master slave election and partitioning functionality (such as running clusters of ActiveMQ); where either <a href="https://github.com/coreos/etcd">etcd</a> or <a href="http://zookeeper.apache.org/">Apache ZooKeeper</a> is required. If a Kubernetes environment allows it then fabric8 could reuse the underlying etcd cluster; otherwise an etcd or ZK clusters is required for things like ActiveMQ clustering.</p>
+
+<h4 id = "Does_Fabric8_still_use_profiles_to_configure_application_deployment_">Does Fabric8 still use profiles to configure application deployment?</h4>
+
+<p>No, not anymore. Starting from v2 Fabric8 uses <a href="http://fabric8.io/v2/apps.html">app</a> JSON files (i.e. Kubernetes extension proposed by OpenShift 3)
+to configure deployment of the managed application. More detailed configuration (like properties or YAML files) can be 
+added to the file system of the application's Docker image.</p>
+
+<h4 id = "Is_Git_repository_still_used_to_store_the_applications__configuration_">Is Git repository still used to store the applications' configuration?</h4>
+
+<p>Applications' configuration isn't stored in Git repository as it used to be in Fabric8 v1. As Fabric8 v2 doesn't use 
+profiles (but app templates instead), the Git repository is not needed anymore. You can just store application's configuration (app file)
+in the Maven project and use the <a href="http://fabric8.io/v2/mavenPlugin.html#running">Fabric8 Maven plugin to start</a> the application in Kubernetes 
+without keeping the configuration in any central repository (like Git).</p>
+
+<p>However keeping app files in Git for easier configuration management can be useful. That's why Hawt.io provides this
+functionality for you. You can push your configuration to the Hawt.io Git repository via 
+<a href="http://fabric8.io/v2/mavenPlugin.html#deploying">fabric8:deploy</a> Maven goal. Fabric8 uses <a href="http://fabric8.io/v2/appzip.html">App Zip</a>
+packaging format to distribute the configuration between the various environments.</p>
+
+<h4 id = "Is_Fabric8_server_required_to_provision_applications_">Is Fabric8 server required to provision applications?</h4>
+
+<p>No, not anymore. Starting from Fabric8 v2 Kubernetes is responsible for providing the runtime registry for the
+managed applications. It means that you don't have to start any dedicated Fabric8 deamon. Tools like <a href="http://fabric8.io/v2/mavenPlugin.html">Fabric8 Maven plugin</a>
+or <a href="http://hawt.io">Hawt.io</a> can connect directly to the Kubernetes and deploy/manage it.</p>
+
+<p>If you are using <a href="http://jubeio.github.io/jube/getStarted.html">Jube to emulate kubernetes</a> then you will need to run a Jube server.</p>
+
+<h4 id = "If_there_is_no_Fabric8_server__how_can_I_use_Fabric8_shell_">If there is no Fabric8 server, how can I use Fabric8 shell?</h4>
+
+<p>For the Fabric8 v2 development activities, the recommended tool is <a href="http://forge.jboss.org">JBoss Forge</a> with the <a href="forge.html">Fabric8 add-on</a>.</p>
+
+<p>For provisioning purposes (like creating containers/services or changing the replica sizes) you can use the <a href="forge.html">Fabric8 add-on</a> or use the shell from OpenShift/Kubernetes.</p>
+
+<p>Kubernetes will be included in <a href="http://www.redhat.com/en/technologies/linux-platforms/enterprise-linux">Red Hat Enterprise Linux</a> and OpenShift V3 and is the standard shell for provisioning any kind of the container.</p>
 
 <h4 id = "Deprecations">Deprecations</h4>
 
-<p>FAB (Fuse Application Bundles) has been deprecated for the 1.1 release, and will be removed in the 1.2 release.</p>
-
-<p>The long term replacement is the <a href="http://fabric8.io/gitbook/osgiResolver.html">OSGi Resolver</a> or if you wish to work with jars rather than bundles then use the <a href="(http://fabric8.io/gitbook/javaContainer.html">Java Container</a></p>
-
-<p>  ### Questions On Using Fabric8</p>
-
-<h4 id = "How_can_I_automate_the_creation_of_a_fabric_">How can I automate the creation of a fabric?</h4>
-
-<p>Many customers want an easy, repeatable way to spin up a fabric and all the various containers they need in an automated way such as for <a href="http://fabric8.io/gitbook/continuousDeployment.html">Continuous Deployment</a>.</p>
-
-<p>To do this fabric8 has an <a href="http://fabric8.io/gitbook/requirements.html">Auto Scaler</a> which allows you to define how many instances of each profile you need and the auto scaler will automatically create the containers you need; using the available resources and automatically create new containers if there is a hardware or software failure.</p>
-
-<h4 id = "How_should_I_compose_profiles_which_contain_blueprint_or_spring_XML_files_">How should I compose profiles which contain blueprint or spring XML files?</h4>
-
-<p><a href="http://fabric8.io/gitbook/profiles.html">Profiles</a> are designed so that they can be <em>combined</em> together into a container; or they can use inheritance to <em>override</em> properties.</p>
-
-<p>If you wish to combine profiles together you need to make sure that if you want to <em>combine</em> rather than <em>override</em> you need to ensure that the properties files in each profile use either different file names or different keys.</p>
-
-<p>For example if you have 3 different blueprint/spring XML files inside each profile which you want to combine so that all 3 will be executed; name each one differently and use a different key name in the <strong>io.fabric8.agent.properties</strong> files. e.g. the <a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/mq.bank1.profile">bank1</a>, <a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/mq.bank2.profile">bank2</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/mq.bank3.profile">bank3</a> profiles in the <a href="https://github.com/fabric8io/fabric8/tree/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/">MQ based loan broker example</a> all use a different blueprint XML file and key in the <a href="https://github.com/fabric8io/fabric8/blob/master/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/example/camel/loanbroker/mq.bank1.profile/io.fabric8.agent.properties#L22">io.fabric8.agent.properties file</a></p>
-
-<h4 id = "How_should_I_deploy_fabric8_in_a_2_data_centre_scenario_where_either_data_centre_can_fail_">How should I deploy fabric8 in a 2 data centre scenario where either data centre can fail?</h4>
-
-<p>A typical fabric8 installation has a ZooKeeper ensemble (a number of ZooKeeper servers connected together; either 1, 3, 5, 7 of them; usually 3 or 5) so that if there are failures or a network split, every node knows whether or not its part of the master split - to avoid the split brain problem. This lets fabric8 reliably create master
-/ slaves and federated clusters such that there's no split brain / network partition issues.</p>
-
-<p>If there are only exactly 2 data centres and either is allowed to fail and the other takes over; then there's no real way to solve this the single-ZooKeeper ensemble route automatically; since there's no way to achieve quorum in either data centre. (Its trivial to have, say, 2 ZK servers in one DC X and 1 in the DC Y; but then if DC X fails; you can't achieve quorum automatically.</p>
-
-<p>There’s a few ways this could work; it depends on trade-offs really. Our recommended approach is:</p>
-
-<ul>
-<li>run 2 ZK ensembles in each DC. This then means things work fine; either DC can fail at any time. It does mean that you cannot have one global master service any more; you can only have DC-local masters (e.g. a master broker in each DC). Then you store/forward between the DCs. There's a <a href="https://github.com/fabric8io/fabric8/issues/622">pending issue</a> to try make a 2-data centre and 2-fabric deployment appear more like a single logical fabric (by having a form of store/foward bridging at the ZK level).</li>
-</ul>
-
-<p>If you want to favour one DC so that its the master and have some manual recovery mechanism you could consider this approach (though its not really recommended):</p>
-
-<ul>
-<li>pick one DC as the master and run more ZK servers there. If that DC fails, you have to manually decide its down (and make sure the ZK servers are manually taken down) then run some more in the remaining DC. i.e. a manual failover process if the master fails (though automatic if the slave fails).</li>
-</ul>
-
-<h4 id = "How_should_I_use_Spring_4_with_fabric8_">How should I use Spring 4 with fabric8?</h4>
-
-<p>Fabric8 has awesome support for Spring 4 with the <a href="(http://fabric8.io/gitbook/springBootContainer.html">Spring Boot Container</a>.</p>
-
-<p>If you've been previously using OSGi or <a href="http://karaf.apache.org/">Apache Karaf</a> as your application server then Spring 4 poses a challenge as its not currently available as valid OSGi bundles. So to use Spring 4 we recommend you consider moving to the <a href="(http://fabric8.io/gitbook/javaContainer.html">Java Container</a> in particular the <a href="(http://fabric8.io/gitbook/springBootContainer.html">Spring Boot Container</a></p>
-
-<p>  ### Questions On OSGi and Fabric8</p>
-
-<h4 id = "How_can_I_add_my_bundle_and_all_its_required_bundles_and_features_to_fabric8_">How can I add my bundle and all its required bundles and features to fabric8?</h4>
-
-<p>The fabric8 approach to working with OSGi and fabric8 is to use the  <a href="http://fabric8.io/gitbook/mavenPlugin.html">Fabric8 Maven Plugin</a> to deploy directly into a <a href="http://fabric8.io/gitbook/profiles.html">profile</a> or to <a href="http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven">create a profile zip</a> which can then be <a href="http://fabric8.io/gitbook/continuousDeployment.html#importing-profile-zips">imported</a>.</p>
-
-<p>When using the <a href="http://fabric8.io/gitbook/mavenPlugin.html">Fabric8 Maven Plugin</a> if you use the <strong>bundle</strong> packaging type in your maven pom.xml then the <a href="http://fabric8.io/gitbook/osgiResolver.html">OSGi Resolver</a> will be used by default to add any dependent features or bundles to your profile.</p>
-
-<h4 id = "Should_I_use_features_">Should I use features?</h4>
-
-<p>If you're using OSGi or <a href="http://karaf.apache.org/">Apache Karaf</a> as your application server and you've already developed features XML files for grouping bundles together as a logical application; thats all cool and they work great in fabric8.</p>
-
-<p>However there's not really a big need to develop them going forward; as its easier to just create a <a href="http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven">profile zip file as part of your maven build</a> which can automatically include all your bundles for your project.</p>
-
-<p>In addition the <a href="http://fabric8.io/gitbook/osgiResolver.html">OSGi Resolver</a> provides a great way to automatically default the correct parent profiles, features and bundles to make it easier to get your OSGi bundles deploying correctly.</p>
-
-<h4 id = "How_do_I_install_a_pid_cfg_file_into_a_fabric_">How do I install a pid.cfg file into a fabric?</h4>
-
-<p>In a stand alone <a href="http://karaf.apache.org/">Apache Karaf</a> container you install configuration files (ending in .cfg) into the etc folder to configure things via OSGi Config Admin.</p>
-
-<p>The fabric8 approach is similar; but rather than an etc folder on a specific containers file system, you install the file into a <a href="http://fabric8.io/gitbook/profiles.html">profile</a>. You can think of a profile as being a virtual etc folder which can be used by many containers.</p>
-
-<p>The only difference is fabric8 uses the file name <strong>pid.properties</strong> rather than <strong>pid.cfg</strong>; so just rename the file and you should be good to go.</p>
-
-<p>To add the file you can either:</p>
-
-<ul>
-<li>In the web console, go to the profile page you want to change, click the <strong>Add</strong> button (top right button bar) and create a new Properties file named <strong>pid.properties</strong> and then edit it to suit.</li>
-<li>Use the <a href="http://fabric8.io/gitbook/mavenPlugin.html">Fabric8 Maven Plugin</a> to either deploy your profile or <a href="http://fabric8.io/gitbook/continuousDeployment.html#creating-profile-zips-via-maven">create a profile zip</a> and then <a href="http://fabric8.io/gitbook/continuousDeployment.html#importing-profile-zips">import it</a>. You just need to create a file <strong>src/main/fabric8/pid.properties</strong> in your maven project.</li>
-<li><p>Perform a <a href="http://fabric8.io/gitbook/git.html">git clone</a> and add the file into the profile's folder and git add / git commit / git push back the change;</p>
-
-<h3 id = "Configuration_Questions">Configuration Questions</h3></li>
-</ul>
-
-<h4 id = "How_can_I_edit_fabric8_s_configuration_via_git_">How can I edit fabric8's configuration via git?</h4>
-
-<p>Please see the <a href="http://fabric8.io/gitbook/git.html">these instructions on working with git and fabric8</a></p>
-
-<h4 id = "How_do_I_add_new_containers_to_an_ensemble_">How do I add new containers to an ensemble?</h4>
-
-<p>Check out <a href="http://fabric8.io/gitbook/registry.html#adding-containers-to-the-ensemble">this article on adding a new container to an ensemble</a></p>
-
-<h4 id = "How_do_I_configure_fabric8_to_use_my_local_maven_repository_or_a_custom_remote_repository_">How do I configure fabric8 to use my local maven repository or a custom remote repository?</h4>
-
-<p>If you are running a fabric right now then clicking on the <a href="http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/default.profile/io.fabric8.agent.properties">default profile's io.fabric8.agent.properties</a> should let you view the current maven repositories configuration. Edit that file to add whatever maven repositories you wish.</p>
-
-<p>The other option is to clone your git repository and edit this file then git push it back again. Please see the <a href="http://fabric8.io/gitbook/git.html">these instructions for how to work with git and fabric8</a></p>
-
-<p>If you haven't yet created a fabric, in the fabric8 distribution you can edit the file <strong>fabric/import/fabric/profiles/default.profile/io.fabric8.agent.properties</strong> then if you create a new fabric it should have this configuration included.</p>
-
-<h4 id = "Where_did_the_child_container_provider_go_">Where did the child container provider go?</h4>
-
-<p>if you enable the <a href="http://fabric8.io/gitbook/docker.html">docker</a> profile or run fabric8 via the <a href="https://registry.hub.docker.com/u/fabric8/fabric8/">docker image</a> then fabric8 disables the <strong>child</strong> container provider by deafult. This is because if docker is available it is better that you use that to manage starting and stopping containers than the child container provider (which is suited for environments which don't support docker yet).</p>
-
-<p>Similarly if you enable <a href="http://fabric8.io/gitbook/kubernetes.html">kubernetes</a> or <a href="http://fabric8.io/gitbook/openshift.html">OpenShift</a> container providers (or provision fabric8 within kubernetes/openshift) then fabric8 automatically disables <strong>docker</strong> and <strong>child</strong> container providers because if you are using kubernetes/OpenShift then its better we use that to start/stop containers than relying on local processes on a single machine.</p>
-
-<h4 id = "How_do_I_access_files_from_the_profile_inside_a_Java_Container_">How do I access files from the profile inside a Java Container?</h4>
-
-<p>Java Containers don't by default have access to the Java code from fabric8 to resolve URL handlers to reference files in a profile; unless you explicitly add that as a dependency.</p>
-
-<p>However an easy way to access files while keeping your Java Container code lean and mean; and just access profile files from the classpath or within the file system of the process; by putting the relevant files you need to access in an overlay folder.</p>
-
-<p>e.g. if you put files in the <strong>overlayFiles/classes</strong> folder within the profile, it'll get copied into the classes folder inside the folder:</p>
-
-<pre><code>&lt;fabric&#95;root&gt;/processes/&lt;container&gt;/classes</code></pre>
-
-<p>and so be on the CLASSPATH so you can access it that way (or you could access it relative to the current working directory if you prefer).</p>
-
-<p>Thats how the log4j.properties file gets added from the profile to the classpath:
-https://github.com/jstrachan/fabric8/tree/kube/fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/containers/java.profile/overlayFiles/classes
-  ### Known issues about using fabric8</p>
-
-<h3 id = "Using_captial_letters_in_Karaf_container_name">Using captial letters in Karaf container name</h3>
-
-<p>Fabric8 does not support using captial letters in the <code>karaf.name</code> property in the <code>etc\system.properties</code>. If you change the value, then only use lower case letters.</p>
-
-<h4 id = "I_cannot_start_fabric8_on_Windows">I cannot start fabric8 on Windows</h4>
-
-<p>There is a known issue with Java and Windows when using IP6 capable network. You may see errors such as <code>java.net.SocketException: Permission denied: no further information</code>. To resolve this set the <code>KARAF_OPTS</code> to the following in the <code>bin/setenv.bat</code> file.</p>
-
-<pre><code>KARAF_OPTS="-Djava.net.preferIPv4Stack=true"</code></pre>
-
-<p>For more details see the <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/net/ipv6&#95;guide/">IP6 Java network guide</a> and this <a href="https://access.redhat.com/site/solutions/757533">knowledgebase solution</a>.</p>
+<p>FAB (Fuse Application Bundles) has been deprecated for the 1.2 release and removed from 2.x.</p>
 
 <p>  </div>
     </div>

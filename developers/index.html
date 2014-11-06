@@ -76,7 +76,7 @@
           <!-- begin navbar -->
           <div id="main-nav-collapse" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-              <li title="Get started with fabric8 now!"><a href="/getstarted/index.html">Get Started</a></li>
+              <li title="Get started with fabric8 now!"><a href="/v2/getStarted.html">Get Started</a></li>
               <li title="Check out the documentation"><a href="/docs/index.html">Documentation</a></li>
               <li title="Join the fabric8 community"><a href="/community/index.html">Community</a></li>
               <li title="View articles, demos and videos on using fabric8"><a href="/articles/index.html">Articles</a></li>
@@ -120,48 +120,12 @@ artifactId: mydemo
 version:    1.0.0.SNAPSHOT
 package:    cool</code></pre>
 
-<p>And confirm with 'Y'. </p>
+<p>And confirm with 'Y'.</p>
 
-<h3 id = "Deploy_your_project_to_fabric8">Deploy your project to fabric8</h3>
+<h3 id = "Building_on_OpenShift">Building on OpenShift</h3>
 
-<p>Now type this in your shell:</p>
-
-<pre><code>cd mydemo
-mvn fabric8:deploy</code></pre>
-
-<p>The <a href="mavenPlugin.html">mvn fabric8:deploy</a> goal should build your project, upload your artefacts to <a href="mavenProxy.html">fabric's maven repository</a> and create a new <a href="profiles.html">Profile</a> for your maven project.</p>
-
-<p>Open the <a href="http://hawt.io/">hawtio web console</a> which by default is on <a href="http://locahost:8181/">http://locahost:8181/</a> and navigate to the <strong>Wiki</strong> tab in the <strong>Fabric</strong> perspective you should see a <strong>my</strong> folder and inside that a <strong>cbr</strong> profile. </p>
-
-<p>Or just click on <a href="http://localhost:8181/hawtio/index.html#/wiki/branch/1.0/view/fabric/profiles/my/cbr.profile">this link to the my-cbr profile</a> to go staight to the profile page.</p>
-
-<p>Now create a new container for this profile; by clicking the <strong>New</strong> button on the top right of the profile page. Enter a container name and hit <strong>Create and start container</strong></p>
-
-<p>Your new container should now be running; you should be able to connect into the new JVM and see the camel route diagram with real time metrics etc.</p>
-
-<h3 id = "RAD_Workflow">RAD Workflow</h3>
-
-<p>Now if you want to be able to change the code in an IDE and have it updated in fabric8, just run the following command in the fabric8 shell:</p>
-
-<pre><code>Fabric8:karaf@root&gt; fabric:watch *</code></pre>
-
-<p>This is like the Karaf command:</p>
-
-<pre><code>Fabric8:karaf@root&gt; dev:watch *</code></pre>
-
-<p>which has been around for a long time and is quite awesome at watching a single container and detect snapshot builds of its bundles being rebuilt. </p>
-
-<p>The <strong>fabric:watch</strong> version is even more awesome than <strong>dev:watch</strong>; it will watch the local maven repository for all bundles which are snapshots which are provisioned in any profile in any container in the fabric (whatever machine they are running on, including remote machines, OpenShift/Docker/EC2 etc). If a local maven build is done on your machine, it’ll detect that, upload the new artefacts into fabric8’s maven repository and update any container running that profile in your fabric.</p>
-
-<p>e.g. so just edit any code (e.g. the camel XML file) in your IDE; then just type:</p>
-
-<pre><code>mvn install</code></pre>
-
-<p>Or or setup your IDE to run the &ldquo;mvn install” goal whenever you save/compile the project.</p>
-
-<p>Now every time you save in your IDE or do a maven build, fabric8 auto-updates all containers running that profile and you can see the effects of the update in real time via <a href="http://hawt.io/">hawtio web console</a>. Pretty neat!</p>
-
-<p>  </div>
+<p>TODO
+  </div>
     </div>
       </div></p>
     </div>
