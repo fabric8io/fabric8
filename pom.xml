@@ -71,7 +71,7 @@
 
     <properties>
         <license.dir>${project.parent.basedir}/etc</license.dir>
-        <perfectus-build>042</perfectus-build>
+        <perfectus-build>045</perfectus-build>
         <perfectus.version>${perfectus-build}</perfectus.version>
         <forge-project-id>fabric</forge-project-id>
         <maven.compiler.source>1.7</maven.compiler.source>
@@ -155,7 +155,7 @@
         <bndlib-version>2.3.0</bndlib-version>
         <bouncycastle-version>1.49</bouncycastle-version>
         <camel-version-range>[2.14,3)</camel-version-range>
-        <camel-version>2.14.0</camel-version>
+        <camel-version>2.14.0.redhat-620${perfectus-build}</camel-version>
         <cassandra-version>2.0.7</cassandra-version>
         <codehaus-plexus-interpolation-version>1.4</codehaus-plexus-interpolation-version>
         <codehaus-plexus-version>1.5.5</codehaus-plexus-version>
