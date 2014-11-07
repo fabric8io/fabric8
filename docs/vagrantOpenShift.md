@@ -5,14 +5,18 @@ Lets run OpenShift V3 using Vagrant. Be sure to check the latest [OpenShift docs
 * You will need to [install vagrant](https://www.vagrantup.com/downloads.html) if you have not done so already
 * clone the [OpenShift Origin repository](https://github.com/openshift/origin)
 
-    git clone https://github.com/openshift/origin.git openshift-origin
-    cd openshift-origin
+```
+  git clone https://github.com/openshift/origin.git openshift-origin
+  cd openshift-origin
+```
 
 * vagrant up:
 
-    export OPENSHIFT_DEV_CLUSTER=true
-    export KUBERNETES_NUM_MINIONS=1
-    vagrant up
+```
+export OPENSHIFT_DEV_CLUSTER=true
+export KUBERNETES_NUM_MINIONS=1
+vagrant up
+```
 
 You now should have a master node running on **10.245.1.2**.
 
