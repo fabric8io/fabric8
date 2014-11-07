@@ -15,6 +15,7 @@
       * [Setup Your Machine](setupMachine.md)
       * [Run Fabric8](runFabric.md)
 * [Tools](tools.md)
+    * [Web Console](console.md)
     * [QuickStarts](quickstarts.md)
     * [Maven Plugin](mavenPlugin.md)
     * [Forge Addons](forge.md)
