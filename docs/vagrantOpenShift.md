@@ -14,7 +14,7 @@ Lets run OpenShift V3 using Vagrant. Be sure to check the latest [OpenShift docs
 
 ```
 export OPENSHIFT_DEV_CLUSTER=true
-export KUBERNETES_NUM_MINIONS=1
+export OPENSHIFT_NUM_MINIONS=1
 vagrant up
 ```
 
