@@ -153,7 +153,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
     /**
      * The name of the path inside the zip where the app is generated.
      */
-    @Parameter(property = "fabric8.pathInZip", defaultValue = "")
+    @Parameter(property = "fabric8.pathInZip", defaultValue = "${project.artifactId}")
     protected String pathInZip;
 
 
