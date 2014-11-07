@@ -43,4 +43,4 @@ Jube implements the [Kubernetes](http://kubernetes.io/) REST API so you can use 
 
 If maven builds fail it may be you have not setup the [environment variables](getStartedJube.html#setting-environment-variables) correctly; see above.
 
-Otherwise check out the [Jube Troubleshooting Guide](http:/fabric8.io/jube/troubleshooting.html) for details of how to check the logs and web console.
+Otherwise check out the [Jube Troubleshooting Guide](http://fabric8.io/jube/troubleshooting.html) for details of how to check the logs and web console.
