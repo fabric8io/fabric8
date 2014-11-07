@@ -19,6 +19,7 @@ import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
@@ -82,6 +83,9 @@ public class ZipMojo extends AbstractFabric8Mojo {
 
     @Component
     private MavenProjectHelper projectHelper;
+
+    @Parameter(defaultValue = "${project.distributionManagementArtifactRepository}", readonly = true, required = true)
+    private ArtifactRepository deploymentRepository;
 
     /**
      * The artifact type for attaching the generated app zip file to the project
@@ -277,7 +281,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
             }
         }
 
-        getLog().info("Attaching aggregated zip " + projectOutputFile + " to root project " + rootProjectArtifactId);
+        getLog().info("Attaching aggregated zip " + projectOutputFile + " to root project " + rootProject.getArtifactId());
         projectHelper.attachArtifact(rootProject, artifactType, artifactClassifier, projectOutputFile);
 
         // if we are doing an install goal, then also install the aggregated zip manually
@@ -311,6 +315,39 @@ public class ZipMojo extends AbstractFabric8Mojo {
                 }
             } catch (MavenInvocationException e) {
                 throw new MojoExecutionException("Error invoking Maven goal install:install-file", e);
+            }
+        }
+
+        if (rootProject.hasLifecyclePhase("deploy")) {
+            getLog().info("Deploying aggregated zip " + projectOutputFile + " to root project " + rootProject.getArtifactId());
+
+            InvocationRequest request = new DefaultInvocationRequest();
+            request.setBaseDirectory(rootProject.getBasedir());
+            request.setPomFile(new File("./pom.xml"));
+            request.setGoals(Collections.singletonList("deploy:deploy-file"));
+            request.setRecursive(false);
+            request.setInteractive(false);
+
+            Properties props = new Properties();
+            props.setProperty("file", aggregatedZipFileName);
+            props.setProperty("groupId", rootProjectGroupId);
+            props.setProperty("artifactId", rootProjectArtifactId);
+            props.setProperty("version", rootProjectVersion);
+            props.setProperty("classifier", "app");
+            props.setProperty("packaging", "zip");
+            props.setProperty("url", deploymentRepository.getUrl());
+            props.setProperty("repositoryId", deploymentRepository.getId());
+            request.setProperties(props);
+
+            getLog().info("Deploying aggregated zip using: mvn deploy:deploy-file" + serializeMvnProperties(props));
+            Invoker invoker = new DefaultInvoker();
+            try {
+                InvocationResult result = invoker.execute(request);
+                if (result.getExitCode() != 0) {
+                    throw new IllegalStateException("Error invoking Maven goal deploy:deploy-file");
+                }
+            } catch (MavenInvocationException e) {
+                throw new MojoExecutionException("Error invoking Maven goal deploy:deploy-file", e);
             }
         }
     }
