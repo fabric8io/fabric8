@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="jubeio/jube" data-level="2.2" data-basepath="." data-revision="1415352246325">
+    <div class="book" data-github="jubeio/jube" data-level="2.2" data-basepath="." data-revision="1415352558706">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -317,22 +317,33 @@
 <pre><code>export KUBERNETES_MASTER=http://localhost:8585/
 export FABRIC8_CONSOLE=http://localhost:8585/hawtio/
 </code></pre><h3 id="checking-whats-happening"><a name="checking-whats-happening" class="anchor" href="#checking-whats-happening"><span class="fa fa-link"></span></a>Checking whats happening</h3>
-<p>To check on what happens after each command you can watch the JSON in your browser:</p>
+<p>To check on what happens after each command you can use the web console at <a href="http://localhost:8585/hawtio/" target="_blank">http://localhost:8585/hawtio/</a> using these tabs:</p>
+<ul>
+<li><a href="http://localhost:8585/hawtio/kubernetes/pods" target="_blank">Pods tab</a> views all the available <a href="pods.html">pods</a> in your kubernetes environment</li>
+<li><a href="http://localhost:8585/hawtio/kubernetes/replicationControllers" target="_blank">Replication Controllers tab</a> views all the available <a href="replicationControllers.html">replication controllers</a> in your kubernetes environment</li>
+<li><a href="http://localhost:8585/hawtio/kubernetes/services" target="_blank">Services tab</a> views all the available <a href="services.html">services</a> in your kubernetes environment</li>
+</ul>
+<p>Or you could view the JSON directly in your browser:</p>
 <ul>
 <li><a href="http://localhost:8585/api/v1beta1/pods" target="_blank">http://localhost:8585/api/v1beta1/pods</a> for the pods</li>
 <li><a href="http://localhost:8585/api/v1beta1/replicationControllers" target="_blank">http://localhost:8585/api/v1beta1/replicationControllers</a> for replication controllers</li>
 <li><a href="http://localhost:8585/api/v1beta1/services" target="_blank">http://localhost:8585/api/v1beta1/services</a> for the services</li>
 </ul>
-<p>You can obviously browse the above in hawtio too plus you can use these commands</p>
+<p>Or you can use the <a href="http://fabric8.io/v2/forge.html" target="_blank">Fabric8 Forge Addon commands</a>:</p>
 <pre><code>kubernetes-pod-list
 kubernetes-replication-controller-list
 kubernetes-service-list
 </code></pre><h3 id="looking-at-the-log-files"><a name="looking-at-the-log-files" class="anchor" href="#looking-at-the-log-files"><span class="fa fa-link"></span></a>Looking at the log files</h3>
-<p>If you look in the <strong>jube/app/processes</strong> folder you should see a folder for each pod (so a broker, producer, consumer) and inside each of those folders you should see some useful files:</p>
+<p>If you look in the <strong>/processes</strong> folder inside your jube installation you should see a folder for each pod and inside each of those folders you should see some useful. The files depend on the kind of container being used.</p>
+<h4 id="for-java-containers-"><a name="for-java-containers-" class="anchor" href="#for-java-containers-"><span class="fa fa-link"></span></a>For Java containers:</h4>
 <ul>
 <li><strong>logs/cmd.out</strong> shows the standard output of the image zip command along with the environment variables passed into the process</li>
 <li><strong>logs/out.out</strong> standard output of the pod</li>
 <li><strong>logs/err.log</strong> standard error of the pod</li>
+</ul>
+<h4 id="for-karaf-based-containers-"><a name="for-karaf-based-containers-" class="anchor" href="#for-karaf-based-containers-"><span class="fa fa-link"></span></a>For Karaf based containers:</h4>
+<ul>
+<li><strong>data/logs/karaf.log</strong> the logs of the container</li>
 </ul>
 
                     
