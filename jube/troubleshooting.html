@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="jubeio/jube" data-level="2.2" data-basepath="." data-revision="1415350042460">
+    <div class="book" data-github="jubeio/jube" data-level="2.2" data-basepath="." data-revision="1415352246325">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -311,7 +311,12 @@
                     
                         <h2 id="troubleshooting"><a name="troubleshooting" class="anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h2>
 <p>There are a few different ways to try figure out whats going on if things don&apos;t behave as you expect:</p>
-<h3 id="checking-whats-happening"><a name="checking-whats-happening" class="anchor" href="#checking-whats-happening"><span class="fa fa-link"></span></a>Checking whats happening</h3>
+<h3 id="are-your-environment-variables-set-up-"><a name="are-your-environment-variables-set-up-" class="anchor" href="#are-your-environment-variables-set-up-"><span class="fa fa-link"></span></a>Are your environment variables set up?</h3>
+<p>A common cause of issues; particularly with maven and command line tools is not <a href="getStarted.html#setting-environment-variables">setting up the environment variables</a> correctly in your shell.</p>
+<p>You need to ensure any Fabric8, OpenShift or Kuberentes tools are pointing at your Jube installation:</p>
+<pre><code>export KUBERNETES_MASTER=http://localhost:8585/
+export FABRIC8_CONSOLE=http://localhost:8585/hawtio/
+</code></pre><h3 id="checking-whats-happening"><a name="checking-whats-happening" class="anchor" href="#checking-whats-happening"><span class="fa fa-link"></span></a>Checking whats happening</h3>
 <p>To check on what happens after each command you can watch the JSON in your browser:</p>
 <ul>
 <li><a href="http://localhost:8585/api/v1beta1/pods" target="_blank">http://localhost:8585/api/v1beta1/pods</a> for the pods</li>
