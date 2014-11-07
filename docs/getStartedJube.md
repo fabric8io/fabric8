@@ -2,6 +2,7 @@
 
 First you need to get the latest [Jube](jube.html) by [downloading jube-2.0.0-image.zip](http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.0.0/jube-2.0.0-image.zip) and unzipping it:
 
+    curl -O http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.0.0/jube-2.0.0-image.zip
     mkdir jube-2.0.0-image
     cd jube-2.0.0-image
     unzip ../jube-2.0.0-image.zip
@@ -11,7 +12,7 @@ You can then startup Jube via:
     cd jube-2.0.0-image
     ./run.sh
 
-If your operating system does't have the executable flag set on the run script; try
+If your operating system doesn't have the executable flag set on the run script; try
 
     chmod +x *.sh *.bat bin/*
 
