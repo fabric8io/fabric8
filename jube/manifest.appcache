@@ -1,16 +1,19 @@
 CACHE MANIFEST
-# Revision 1415338151828
+# Revision 1415350042461
 
 CACHE:
-faqGeneral.html
+forge.html
 FAQ.html
 differences.html
-example.html
+developing.html
+faqGeneral.html
 index.html
 getStarted.html
 goals.html
 imageZips.html
 mavenPlugin.html
+troubleshooting.html
+usingFabric8.html
 gitbook/app.js
 gitbook/fonts/fontawesome/FontAwesome.otf
 gitbook/fonts/fontawesome/fontawesome-webfont.eot

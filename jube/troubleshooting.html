@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Introduction | Jube Documentation</title>
+        <title>Troubleshooting | Jube Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,11 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./goals.html" />
+        <link rel="next" href="./mavenPlugin.html" />
         
+        
+        <link rel="prev" href="./usingFabric8.html" />
         
 
-        <meta property="og:title" content="Introduction | Jube Documentation">
+        <meta property="og:title" content="Troubleshooting | Jube Documentation">
         <meta property="og:site_name" content="Jube Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -48,7 +50,7 @@
 
 
         
-    <div class="book" data-github="jubeio/jube" data-level="0" data-basepath="." data-revision="1415350042460">
+    <div class="book" data-github="jubeio/jube" data-level="2.2" data-basepath="." data-revision="1415350042460">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -272,19 +274,19 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 0%;min-width: 0%;"></div>
+        <div class="inner" style="width: 36.36363636363637%;min-width: 27.272727272727273%;"></div>
     </div>
     <div class="chapters">
     
         <a href="./index.html" title="Introduction" class="chapter done new-chapter" data-progress="0" style="left: 0%;"></a>
     
-        <a href="./goals.html" title="Goals" class="chapter  new-chapter" data-progress="1" style="left: 9.090909090909092%;"></a>
+        <a href="./goals.html" title="Goals" class="chapter done new-chapter" data-progress="1" style="left: 9.090909090909092%;"></a>
     
-        <a href="./getStarted.html" title="Getting Started" class="chapter  new-chapter" data-progress="2" style="left: 18.181818181818183%;"></a>
+        <a href="./getStarted.html" title="Getting Started" class="chapter done new-chapter" data-progress="2" style="left: 18.181818181818183%;"></a>
     
-        <a href="./usingFabric8.html" title="Using Fabric8" class="chapter  " data-progress="2.1" style="left: 27.272727272727273%;"></a>
+        <a href="./usingFabric8.html" title="Using Fabric8" class="chapter done " data-progress="2.1" style="left: 27.272727272727273%;"></a>
     
-        <a href="./troubleshooting.html" title="Troubleshooting" class="chapter  " data-progress="2.2" style="left: 36.36363636363637%;"></a>
+        <a href="./troubleshooting.html" title="Troubleshooting" class="chapter done " data-progress="2.2" style="left: 36.36363636363637%;"></a>
     
         <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter  " data-progress="2.3" style="left: 45.45454545454545%;"></a>
     
@@ -305,9 +307,28 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_6">
+                    <section class="normal" id="section-gitbook_11">
                     
-                        <p>Jube the pure Java implementation of Kubernetes</p>
+                        <h2 id="troubleshooting"><a name="troubleshooting" class="anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h2>
+<p>There are a few different ways to try figure out whats going on if things don&apos;t behave as you expect:</p>
+<h3 id="checking-whats-happening"><a name="checking-whats-happening" class="anchor" href="#checking-whats-happening"><span class="fa fa-link"></span></a>Checking whats happening</h3>
+<p>To check on what happens after each command you can watch the JSON in your browser:</p>
+<ul>
+<li><a href="http://localhost:8585/api/v1beta1/pods" target="_blank">http://localhost:8585/api/v1beta1/pods</a> for the pods</li>
+<li><a href="http://localhost:8585/api/v1beta1/replicationControllers" target="_blank">http://localhost:8585/api/v1beta1/replicationControllers</a> for replication controllers</li>
+<li><a href="http://localhost:8585/api/v1beta1/services" target="_blank">http://localhost:8585/api/v1beta1/services</a> for the services</li>
+</ul>
+<p>You can obviously browse the above in hawtio too plus you can use these commands</p>
+<pre><code>kubernetes-pod-list
+kubernetes-replication-controller-list
+kubernetes-service-list
+</code></pre><h3 id="looking-at-the-log-files"><a name="looking-at-the-log-files" class="anchor" href="#looking-at-the-log-files"><span class="fa fa-link"></span></a>Looking at the log files</h3>
+<p>If you look in the <strong>jube/app/processes</strong> folder you should see a folder for each pod (so a broker, producer, consumer) and inside each of those folders you should see some useful files:</p>
+<ul>
+<li><strong>logs/cmd.out</strong> shows the standard output of the image zip command along with the environment variables passed into the process</li>
+<li><strong>logs/out.out</strong> standard output of the pod</li>
+<li><strong>logs/err.log</strong> standard error of the pod</li>
+</ul>
 
                     
                     </section>
@@ -317,8 +338,10 @@
         </div>
 
         
+        <a href="./usingFabric8.html" class="navigation navigation-prev " aria-label="Previous page: Using Fabric8"><i class="fa fa-angle-left"></i></a>
         
-        <a href="./goals.html" class="navigation navigation-next navigation-unique" aria-label="Next page: Goals"><i class="fa fa-angle-right"></i></a>
+        
+        <a href="./mavenPlugin.html" class="navigation navigation-next " aria-label="Next page: Maven Plugin"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Introduction | Jube Documentation</title>
+        <title>Using Forge | Jube Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,11 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./goals.html" />
+        <link rel="next" href="./imageZips.html" />
         
+        
+        <link rel="prev" href="./mavenPlugin.html" />
         
 
-        <meta property="og:title" content="Introduction | Jube Documentation">
+        <meta property="og:title" content="Using Forge | Jube Documentation">
         <meta property="og:site_name" content="Jube Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -48,7 +50,7 @@
 
 
         
-    <div class="book" data-github="jubeio/jube" data-level="0" data-basepath="." data-revision="1415350042460">
+    <div class="book" data-github="jubeio/jube" data-level="2.4" data-basepath="." data-revision="1415350042460">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -272,23 +274,23 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 0%;min-width: 0%;"></div>
+        <div class="inner" style="width: 54.54545454545455%;min-width: 45.45454545454545%;"></div>
     </div>
     <div class="chapters">
     
         <a href="./index.html" title="Introduction" class="chapter done new-chapter" data-progress="0" style="left: 0%;"></a>
     
-        <a href="./goals.html" title="Goals" class="chapter  new-chapter" data-progress="1" style="left: 9.090909090909092%;"></a>
+        <a href="./goals.html" title="Goals" class="chapter done new-chapter" data-progress="1" style="left: 9.090909090909092%;"></a>
     
-        <a href="./getStarted.html" title="Getting Started" class="chapter  new-chapter" data-progress="2" style="left: 18.181818181818183%;"></a>
+        <a href="./getStarted.html" title="Getting Started" class="chapter done new-chapter" data-progress="2" style="left: 18.181818181818183%;"></a>
     
-        <a href="./usingFabric8.html" title="Using Fabric8" class="chapter  " data-progress="2.1" style="left: 27.272727272727273%;"></a>
+        <a href="./usingFabric8.html" title="Using Fabric8" class="chapter done " data-progress="2.1" style="left: 27.272727272727273%;"></a>
     
-        <a href="./troubleshooting.html" title="Troubleshooting" class="chapter  " data-progress="2.2" style="left: 36.36363636363637%;"></a>
+        <a href="./troubleshooting.html" title="Troubleshooting" class="chapter done " data-progress="2.2" style="left: 36.36363636363637%;"></a>
     
-        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter  " data-progress="2.3" style="left: 45.45454545454545%;"></a>
+        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter done " data-progress="2.3" style="left: 45.45454545454545%;"></a>
     
-        <a href="./forge.html" title="Using Forge" class="chapter  " data-progress="2.4" style="left: 54.54545454545455%;"></a>
+        <a href="./forge.html" title="Using Forge" class="chapter done " data-progress="2.4" style="left: 54.54545454545455%;"></a>
     
         <a href="./imageZips.html" title="Image Zips" class="chapter  new-chapter" data-progress="3" style="left: 63.63636363636363%;"></a>
     
@@ -305,9 +307,32 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_6">
+                    <section class="normal" id="section-gitbook_1">
                     
-                        <p>Jube the pure Java implementation of Kubernetes</p>
+                        <h2 id="using-forge-commands"><a name="using-forge-commands" class="anchor" href="#using-forge-commands"><span class="fa fa-link"></span></a>Using Forge Commands</h2>
+<p>The following will show you how to run some examples from <a href="http://fabric8.io/v2/index.html" target="_blank">fabric8</a></p>
+<h3 id="prerequisites"><a name="prerequisites" class="anchor" href="#prerequisites"><span class="fa fa-link"></span></a>Prerequisites</h3>
+<ul>
+<li>follow the <a href="getStarted.html">get started guide</a> to ensure you have Jube up and running</li>
+<li>setup the <a href="http://fabric8.io/v2/forge.html" target="_blank">Fabric8 Forge Addons</a></li>
+<li>clone and build the <a href="https://github.com/fabric8io/quickstarts" target="_blank">fabric8 quickstarts repo</a></li>
+</ul>
+<pre><code>git clone https://github.com/fabric8io/quickstarts.git
+cd quickstarts
+mvn install
+</code></pre><h3 id="using-forge"><a name="using-forge" class="anchor" href="#using-forge"><span class="fa fa-link"></span></a>Using Forge</h3>
+<p>Now lets start Forge inside the fabric8-mq folder</p>
+<pre><code>cd quickstarts/apps/fabric8-mq
+forge
+</code></pre><p>Now the following commands all apply various kubernetes json to the Kubernetes environment.</p>
+<p>Start a broker (replication controller, pod and its service):</p>
+<pre><code>kubernetes-apply --file  target/classes/kubernetes-extra.json
+kubernetes-apply --file  target/classes/kubernetes.json
+</code></pre><p>Start a producer (replication controller and a pod):</p>
+<pre><code>kubernetes-apply --file  ../fabric8-mq-producer/target/classes/kubernetes.json
+</code></pre><p>Start a consumer (replication controller and a pod):</p>
+<pre><code>kubernetes-apply --file  ../fabric8-mq-consumer/target/classes/kubernetes.json
+</code></pre><p>Order isn&apos;t massively crucial; other than that the Fabric8 MQ service must be created first before producer/consumer pods.</p>
 
                     
                     </section>
@@ -317,8 +342,10 @@
         </div>
 
         
+        <a href="./mavenPlugin.html" class="navigation navigation-prev " aria-label="Previous page: Maven Plugin"><i class="fa fa-angle-left"></i></a>
         
-        <a href="./goals.html" class="navigation navigation-next navigation-unique" aria-label="Next page: Goals"><i class="fa fa-angle-right"></i></a>
+        
+        <a href="./imageZips.html" class="navigation navigation-next " aria-label="Next page: Image Zips"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

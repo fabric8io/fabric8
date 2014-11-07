@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Introduction | Jube Documentation</title>
+        <title>Developing | Jube Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,11 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./goals.html" />
+        <link rel="next" href="./FAQ.html" />
         
+        
+        <link rel="prev" href="./differences.html" />
         
 
-        <meta property="og:title" content="Introduction | Jube Documentation">
+        <meta property="og:title" content="Developing | Jube Documentation">
         <meta property="og:site_name" content="Jube Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -48,7 +50,7 @@
 
 
         
-    <div class="book" data-github="jubeio/jube" data-level="0" data-basepath="." data-revision="1415350042460">
+    <div class="book" data-github="jubeio/jube" data-level="5" data-basepath="." data-revision="1415350042460">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -272,29 +274,29 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 0%;min-width: 0%;"></div>
+        <div class="inner" style="width: 81.81818181818181%;min-width: 72.72727272727273%;"></div>
     </div>
     <div class="chapters">
     
         <a href="./index.html" title="Introduction" class="chapter done new-chapter" data-progress="0" style="left: 0%;"></a>
     
-        <a href="./goals.html" title="Goals" class="chapter  new-chapter" data-progress="1" style="left: 9.090909090909092%;"></a>
+        <a href="./goals.html" title="Goals" class="chapter done new-chapter" data-progress="1" style="left: 9.090909090909092%;"></a>
     
-        <a href="./getStarted.html" title="Getting Started" class="chapter  new-chapter" data-progress="2" style="left: 18.181818181818183%;"></a>
+        <a href="./getStarted.html" title="Getting Started" class="chapter done new-chapter" data-progress="2" style="left: 18.181818181818183%;"></a>
     
-        <a href="./usingFabric8.html" title="Using Fabric8" class="chapter  " data-progress="2.1" style="left: 27.272727272727273%;"></a>
+        <a href="./usingFabric8.html" title="Using Fabric8" class="chapter done " data-progress="2.1" style="left: 27.272727272727273%;"></a>
     
-        <a href="./troubleshooting.html" title="Troubleshooting" class="chapter  " data-progress="2.2" style="left: 36.36363636363637%;"></a>
+        <a href="./troubleshooting.html" title="Troubleshooting" class="chapter done " data-progress="2.2" style="left: 36.36363636363637%;"></a>
     
-        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter  " data-progress="2.3" style="left: 45.45454545454545%;"></a>
+        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter done " data-progress="2.3" style="left: 45.45454545454545%;"></a>
     
-        <a href="./forge.html" title="Using Forge" class="chapter  " data-progress="2.4" style="left: 54.54545454545455%;"></a>
+        <a href="./forge.html" title="Using Forge" class="chapter done " data-progress="2.4" style="left: 54.54545454545455%;"></a>
     
-        <a href="./imageZips.html" title="Image Zips" class="chapter  new-chapter" data-progress="3" style="left: 63.63636363636363%;"></a>
+        <a href="./imageZips.html" title="Image Zips" class="chapter done new-chapter" data-progress="3" style="left: 63.63636363636363%;"></a>
     
-        <a href="./differences.html" title="Differences" class="chapter  new-chapter" data-progress="4" style="left: 72.72727272727273%;"></a>
+        <a href="./differences.html" title="Differences" class="chapter done new-chapter" data-progress="4" style="left: 72.72727272727273%;"></a>
     
-        <a href="./developing.html" title="Developing" class="chapter  new-chapter" data-progress="5" style="left: 81.81818181818181%;"></a>
+        <a href="./developing.html" title="Developing" class="chapter done new-chapter" data-progress="5" style="left: 81.81818181818181%;"></a>
     
         <a href="./FAQ.html" title="FAQ" class="chapter  new-chapter" data-progress="6" style="left: 90.9090909090909%;"></a>
     
@@ -305,9 +307,20 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_6">
+                    <section class="normal" id="section-gitbook_4">
                     
-                        <p>Jube the pure Java implementation of Kubernetes</p>
+                        <h3 id="developing-jube"><a name="developing-jube" class="anchor" href="#developing-jube"><span class="fa fa-link"></span></a>Developing Jube</h3>
+<p>Clone jube and build it:</p>
+<pre><code>git clone https://github.com/jubeio/jube.git
+cd jube
+mvn install
+</code></pre><p>You can then run the local build in the jube module directly via its <strong>run.sh</strong> script for running in the foreground; or <strong>start.sh</strong> for running in the background</p>
+<pre><code>cd jube
+target/jube/run.sh
+</code></pre><p>Then hit Ctrl-C to terminate if you&apos;re using <strong>run.sh</strong> or <strong>stop.sh</strong> to stop if you started it with <strong>start.sh</strong></p>
+<h3 id="debugging"><a name="debugging" class="anchor" href="#debugging"><span class="fa fa-link"></span></a>Debugging</h3>
+<p>The easiest way to debug Jube is to just run the <a href="https://github.com/jubeio/jube/blob/master/jube/src/main/java/io/fabric8/jube/main/Main.java#L56" target="_blank">Main class</a> directly in your IDE in debug mode.</p>
+<p>You may find the embedded web console doesn&apos;t work when running the Main in your IDE. If that&apos;s the case you could always just use the <a href="http://fabric8.io/v2/mavenPlugin.html#running" target="_blank">mvn fabric8:run</a> goal to run projects and the <a href="http://fabric8.io/v2/forge.html" target="_blank">fabric8 Forge Addons</a> to list/stop resources in Jube.</p>
 
                     
                     </section>
@@ -317,8 +330,10 @@
         </div>
 
         
+        <a href="./differences.html" class="navigation navigation-prev " aria-label="Previous page: Differences"><i class="fa fa-angle-left"></i></a>
         
-        <a href="./goals.html" class="navigation navigation-next navigation-unique" aria-label="Next page: Goals"><i class="fa fa-angle-right"></i></a>
+        
+        <a href="./FAQ.html" class="navigation navigation-next " aria-label="Next page: FAQ"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
