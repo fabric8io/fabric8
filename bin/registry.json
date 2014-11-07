@@ -1,0 +1,61 @@
+{
+  "id": "fabric8-config",
+  "kind": "Config",
+  "apiVersion": "v1beta1",
+  "name": "fabric8-config",
+  "description": "Creates a hawtio console and private docker registry",
+  "items": [
+    {
+      "apiVersion": "v1beta1",
+      "containerPort": 0,
+      "creationTimestamp": null,
+      "id": "registryservice",
+      "kind": "Service",
+      "port": 5001,
+      "selector": {
+        "name": "registryPod"
+      }
+    },
+    {
+      "apiVersion": "v1beta1",
+      "creationTimestamp": null,
+      "desiredState": {
+        "podTemplate": {
+          "desiredState": {
+            "manifest": {
+              "containers": [
+                {
+                  "image": "registry",
+                  "name": "registry-container",
+                  "ports": [
+                    {
+                      "hostPort": 5000,
+                      "containerPort": 5000,
+                      "protocol": "TCP"
+                    }
+                  ]
+                }
+              ],
+              "id": "registryPod",
+              "version": "v1beta1",
+              "volumes": null
+            },
+            "restartpolicy": {}
+          },
+          "labels": {
+            "name": "registryPod"
+          }
+        },
+        "replicaSelector": {
+          "name": "registryPod"
+        },
+        "replicas": 1
+      },
+      "id": "registryController",
+      "kind": "ReplicationController",
+      "labels": {
+        "name": "registryController"
+      }
+    }
+  ]
+}
