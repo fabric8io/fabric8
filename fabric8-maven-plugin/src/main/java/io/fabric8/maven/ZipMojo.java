@@ -171,8 +171,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
         try {
             if (isIgnoreProject()) return;
 
-            generateZip();
-
+            boolean generatingAggregatedZip = false;
             if (reactorProjects != null) {
                 List<MavenProject> pomZipProjects = new ArrayList<>();
                 List<MavenProject> fabricZipGoalProjects = new ArrayList<>();
@@ -231,9 +230,14 @@ public class ZipMojo extends AbstractFabric8Mojo {
 
                     getLog().info("Choosing root project " + rootProject.getArtifactId() + " for generation of aggregated zip");
                     generateAggregatedZip(rootProject, fabricZipGoalProjects, projectsWithSameParent);
+                    generatingAggregatedZip = true;
                 }
             }
-
+            if (!generatingAggregatedZip && !isPom(getProject())) {
+                generateZip();
+            } else {
+                getLog().info("Not generating a zip right now - waiting until we generate the aggregated zip for all sub projects");
+            }
         } catch (MojoFailureException e) {
             throw e;
         } catch (MojoExecutionException e) {
