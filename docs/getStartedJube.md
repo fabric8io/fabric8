@@ -39,3 +39,8 @@ Once Jube has started up you should be able to open the web console at [http://l
 
 Jube implements the [Kubernetes](http://kubernetes.io/) REST API so you can use any kubernetes tools with Jube such as the [Forge Addons](http://fabric8.io/v2/forge.html) to work with [pods](pods.html), [replication controllers](replicationControllers.html) or [services](services.html) - provided that any docker images referenced in the pods and pod templates have a suitable [image zip](http://fabric8.io/jube/imageZips.html). For more detail on this see the [Jube Goals](http://fabric8.io/jube/goals.html) details on [Jube Image Zips](http://fabric8.io/jube/imageZips.html) and check out the [differences between Jube and Kubernetes](http://fabric8.io/jube/differences.html)
 
+### Troubleshooting
+
+If maven builds fail it may be you have not setup the [environment variables](getStartedJube.html#setting-environment-variables) correctly; see above.
+
+Otherwise check out the [Jube Troubleshooting Guide](http:/fabric8.io/jube/troubleshooting.html) for details of how to check the logs and web console.
