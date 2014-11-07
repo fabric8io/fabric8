@@ -5,6 +5,7 @@ There are 2 main ways to get started. The easiest as a Java developer is to star
 * [Get Started with Jube](getStartedJube.html)
   * [Running a quickstart on Jube](jubeRunQuickstart.html)
   * [Add a quickstart to the App Library](jubeAddQuickstartApp.html)
+* [Troubleshooting Jube](http:/fabric8.io/jube/troubleshooting.html)
 
 The ideal platform for running Fabric8 is OpenShift V3 which is a little harder to setup right now (we're hoping this will get much easier soon1)
 
