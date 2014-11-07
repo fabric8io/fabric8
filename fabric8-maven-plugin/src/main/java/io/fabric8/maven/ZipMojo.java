@@ -149,6 +149,12 @@ public class ZipMojo extends AbstractFabric8Mojo {
     protected boolean generateSummaryFile;
 
     /**
+     * Whether or not we should generate a <code>fabric8.properties</code> file from the pom.xml.
+     */
+    @Parameter(property = "fabric8.generateAppPropertiesFile", defaultValue = "true")
+    protected boolean generateAppPropertiesFile;
+
+    /**
      * The name of the path inside the zip where the app is generated.
      */
     @Parameter(property = "fabric8.pathInZip", defaultValue = "")
@@ -427,6 +433,27 @@ public class ZipMojo extends AbstractFabric8Mojo {
                         byte[] bytes = description.getBytes();
                         Files.copy(new ByteArrayInputStream(bytes), new FileOutputStream(summaryMd));
                     }
+                }
+            }
+
+            if (generateAppPropertiesFile) {
+                String name = project.getName();
+                if (Strings.isNullOrBlank(name)) {
+                    name = project.getArtifactId();
+                }
+                String description = project.getDescription();
+                Properties appProperties = new Properties();
+                appProperties.put("name", name);
+                if (Strings.isNotBlank(description)) {
+                    appProperties.put("description", description);
+                }
+                appProperties.put("groupId", project.getGroupId());
+                appProperties.put("artifactId", project.getArtifactId());
+                appProperties.put("version", project.getVersion());
+                File appPropertiesFile = new File(appBuildDir, "fabric8.properties");
+                appPropertiesFile.getParentFile().mkdirs();
+                if (!appPropertiesFile.exists()) {
+                    appProperties.store(new FileWriter(appPropertiesFile), "Fabric8 Properties");
                 }
             }
 
