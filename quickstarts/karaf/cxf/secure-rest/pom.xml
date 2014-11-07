@@ -196,6 +196,20 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric-cxf-plugins</artifactId>
+        <version>${fabric.version}</version>
+        <executions>
+            <execution>
+                <id>addswaggerannotation</id>
+                <phase>generate-sources</phase>
+                <goals>
+                    <goal>addswaggerannotation</goal>
+                </goals>
+            </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <!--
           this plugin will use the fabric.* properties to configure its behaviour
           see the Properties section here: http://fabric8.io/gitbook/mavenPlugin.html

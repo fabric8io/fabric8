@@ -29,6 +29,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@com.wordnik.swagger.annotations.Api(value="/customerservice", description="Operations about CustomerService")
+
 /**
  * This Java class with be hosted in the URI path defined by the @Path annotation. @Path annotations on the methods
  * of this class always refer to a path relative to the path defined at the class level.
@@ -59,10 +61,10 @@ public class CustomerService {
      * For example: surfing to 'http://localhost:8181/cxf/crm/customerservice/customers/123' will show you the information of
      * customer 123 in XML format.
      */
-    @GET
+    @com.wordnik.swagger.annotations.ApiOperation(value="getCustomer", notes="/** \n * This method is mapped to an HTTP GET of 'http://localhost:8181/cxf/crm/customerservice/customers/{id}'.  The value for {id} will be passed to this message as a parameter, using the @PathParam annotation. <p/> The method returns a Customer object - for creating the HTTP response, this object is marshaled into XML using JAXB. <p/> For example: surfing to 'http://localhost:8181/cxf/crm/customerservice/customers/123' will show you the information of customer 123 in XML format.\n */\n") @GET
     @Path("/customers/{id}/")
     @Produces("application/xml")
-    public Customer getCustomer(@PathParam("id") String id) {
+    public Customer getCustomer(@com.wordnik.swagger.annotations.ApiParam(value="id") @PathParam("id") String id) {
         LOG.info("Invoking getCustomer, Customer id is: {}", id);
         long idNumber = Long.parseLong(id);
         Customer c = customers.get(idNumber);
@@ -80,9 +82,9 @@ public class CustomerService {
      * Note how this method is using the same @Path value as our next method - the HTTP method used will determine which
      * method is being invoked.
      */
-    @PUT
+    @com.wordnik.swagger.annotations.ApiOperation(value="updateCustomer", notes="/** \n * Using HTTP PUT, we can can upload the XML representation of a customer object.  This operation will be mapped to the method below and the XML representation will get unmarshaled into a real Customer object using JAXB. <p/> The method itself just updates the customer object in our local data map and afterwards uses the Reponse class to build the appropriate HTTP response: either OK if the update succeeded (translates to HTTP Status 200/OK) or not modified if the method failed to update a customer object (translates to HTTP Status 304/Not Modified). <p/> Note how this method is using the same @Path value as our next method - the HTTP method used will determine which method is being invoked.\n */\n") @PUT
     @Path("/customers/")
-    public Response updateCustomer(Customer customer) {
+    public Response updateCustomer(@com.wordnik.swagger.annotations.ApiParam(value="customer") Customer customer) {
         LOG.info("Invoking updateCustomer, Customer name is: {}", customer.getName());
         Customer c = customers.get(customer.getId());
         Response r;
@@ -109,9 +111,9 @@ public class CustomerService {
      * Note how this method is using the same @Path value as our previous method - the HTTP method used will determine which
      * method is being invoked.
      */
-    @POST
+    @com.wordnik.swagger.annotations.ApiOperation(value="addCustomer", notes="/** \n * Using HTTP POST, we can add a new customer to the system by uploading the XML representation for the customer. This operation will be mapped to the method below and the XML representation will get unmarshaled into a real Customer object. <p/> After the method has added the customer to the local data map, it will use the Response class to build the HTTP reponse, sending back the inserted customer object together with a HTTP Status 200/OK.  This allows us to send back the new id for the customer object to the client application along with any other data that might have been updated in the process. <p/> Note how this method is using the same @Path value as our previous method - the HTTP method used will determine which method is being invoked.\n */\n") @POST
     @Path("/customers/")
-    public Response addCustomer(Customer customer) {
+    public Response addCustomer(@com.wordnik.swagger.annotations.ApiParam(value="customer") Customer customer) {
         LOG.info("Invoking addCustomer, Customer name is: {}", customer.getName());
         customer.setId(++currentId);
 
@@ -127,9 +129,9 @@ public class CustomerService {
      * The method uses the Response class to create the HTTP response: either HTTP Status 200/OK if the customer object was
      * successfully removed from the local data map or a HTTP Status 304/Not Modified if it failed to remove the object.
      */
-    @DELETE
+    @com.wordnik.swagger.annotations.ApiOperation(value="deleteCustomer", notes="/** \n * This method is mapped to an HTTP DELETE of 'http://localhost:8181/cxf/crm/customerservice/customers/{id}'.  The value for {id} will be passed to this message as a parameter, using the @PathParam annotation. <p/> The method uses the Response class to create the HTTP response: either HTTP Status 200/OK if the customer object was successfully removed from the local data map or a HTTP Status 304/Not Modified if it failed to remove the object.\n */\n") @DELETE
     @Path("/customers/{id}/")
-    public Response deleteCustomer(@PathParam("id") String id) {
+    public Response deleteCustomer(@com.wordnik.swagger.annotations.ApiParam(value="id") @PathParam("id") String id) {
         LOG.info("Invoking deleteCustomer, Customer id is: {}", id);
         long idNumber = Long.parseLong(id);
         Customer c = customers.get(idNumber);
@@ -154,8 +156,9 @@ public class CustomerService {
      * - display the order information itself in XML format
      * - display details about a product in the order in XML format in a path relative to the URI defined here
      */
+    @com.wordnik.swagger.annotations.ApiOperation(value="getOrder", notes="/** \n * This method is mapped to an HTTP GET of 'http://localhost:8181/cxf/crm/customerservice/orders/{id}'.  The value for {id} will be passed to this message as a parameter, using the @PathParam annotation. <p/> The method returns an Order object - the class for that object includes a few more JAX-RS annotations, allowing it to display one of these two outputs, depending on the actual URI path being used: - display the order information itself in XML format - display details about a product in the order in XML format in a path relative to the URI defined here\n */\n") @GET
     @Path("/orders/{orderId}/")
-    public Order getOrder(@PathParam("orderId") String orderId) {
+    public Order getOrder(@com.wordnik.swagger.annotations.ApiParam(value="orderId") @PathParam("orderId") String orderId) {
         LOG.info("Invoking getOrder, Order id is: {}", orderId);
         long idNumber = Long.parseLong(orderId);
         Order c = orders.get(idNumber);
