@@ -7,7 +7,7 @@
   "items": [
     {
       "apiVersion": "v1beta1",
-      "containerPort": 0,
+      "containerPort": 5000,
       "creationTimestamp": null,
       "id": "registryservice",
       "kind": "Service",
