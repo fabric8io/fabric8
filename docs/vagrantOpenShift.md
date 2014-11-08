@@ -44,6 +44,6 @@ If for any reason OpenShift stops running you can restart it via:
 If you wish you can run a docker hawtio console via:
 
     docker pull fabric8/hawtio
-    docker run -p 9282:8080 -it -e KUBERNETES_MASTER=$KUBERNETES_MASTER -e DOCKER_HOST $DOCKER_HOST fabric8/hawtio
+    docker run -p 9282:8080 -it -e KUBERNETES_MASTER=$KUBERNETES_MASTER -e DOCKER_HOST=$DOCKER_HOST fabric8/hawtio
 
 
