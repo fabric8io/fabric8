@@ -31,6 +31,14 @@ Add the following to your ~/.profile or ~./bashrc
 You now should be able to use the various [Tools](http://fabric8.io/v2/tools.html) such as the [Web Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html), the [Forge Addons](http://fabric8.io/v2/forge.html) and the [java libraries](javaLibraries.html) to work on your local OpenShift.
 
 
+### Adding the master and minion hosts to /etc/hosts
+
+You might find it easier working on your host machine and interacting with the master and minions by adding this to your **/etc/hosts**
+
+    10.245.1.2 openshift-master
+    10.245.2.2 openshift-minion-1
+    10.245.2.3 openshift-minion-2
+
 ### Re-starting OpenShift
 
 If for any reason OpenShift stops running you can restart it via:
