@@ -38,6 +38,11 @@ If for any reason OpenShift stops running you can restart it via:
     vagrant ssh master
     sudo systemctl start openshift-master.service
 
+### OpenShift logs
+
+To view the openshift logs in the master or minions use:
+
+    journalctl -f
 
 ### Running hawtio via docker
 
