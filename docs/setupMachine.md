@@ -25,4 +25,4 @@ If you are using boot2docker 1.3.1, you should edit /var/lib/boot2docker/profile
 and add two lines 
 
     DOCKER_TLS=no
-    EXTRA_ARGS="--insecure-registry 192.168.59.103:5000"
+    EXTRA_ARGS="--insecure-registry 192.168.59.103:5000 --insecure-registry dockerhost:5000 --insecure-registry 10.245.2.2:5000 --insecure-registry 10.245.2.3:5000"

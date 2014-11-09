@@ -39,12 +39,24 @@ You might find it easier working on your host machine and interacting with the m
     10.245.2.2 openshift-minion-1
     10.245.2.3 openshift-minion-2
 
+### Network routes
+
+Add a network route so you can connect to pods from your host
+
+	sudo route -n add  10.244.0.0/16 10.245.2.2
+
 ### Re-starting OpenShift
 
 If for any reason OpenShift stops running you can restart it via:
 
     vagrant ssh master
     sudo systemctl start openshift-master.service
+
+    vagrant ssh minion-1
+    sudo systemctl start openshift-node.service
+
+    vagrant ssh minion-2
+    sudo systemctl start openshift-node.service
 
 ### OpenShift logs
 
@@ -59,4 +71,15 @@ If you wish you can run a docker hawtio console via:
     docker pull fabric8/hawtio
     docker run -p 9282:8080 -it -e KUBERNETES_MASTER=$KUBERNETES_MASTER -e DOCKER_HOST=$DOCKER_HOST fabric8/hawtio
 
+### Working with OpenShift in a VM
+
+There are a few things we need to be aware of if running OpenShift in a VM and developing on our host.
+
+When pushing images make sure you have set the DOCKER_REGISTRY env var to the correct minion that is hosting the registry, for example..
+
+	export DOCKER_REGISTRY=10.245.2.2:5000
+
+If you are running a non Linux host and using boot2docker then you still need to follow the [Setup Machine](setupMachine.md) guide and set DOCKER_HOST so we can run docker commands (like docker push) on our host as usual ..
+
+	export DOCKER_HOST=tcp://192.168.59.103:2375 
 
