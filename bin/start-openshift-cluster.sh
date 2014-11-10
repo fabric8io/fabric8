@@ -17,12 +17,6 @@ if [ ! -f .vagrant-openshift.json ]; then
   echo '{"dev_cluster": true}' >  .vagrant-openshift.json
 fi
 
-#echo "You're trying to run master - going to have to build from source"
-#echo "This might take a while - not to build, but to download necessary docker image, if you don't already have it"
-#pushd ${KUBE_SOURCE_DIR}
-#./build/release.sh
-#popd
-
 vagrant up
 
 grep master /etc/hosts || echo '10.245.1.2 master' | sudo tee -a /etc/hosts
