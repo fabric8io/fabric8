@@ -22,7 +22,29 @@ You now should have a master node running on **10.245.1.2**.
 
 You can test this by querying the REST API for the pods at: [http://10.245.1.2:8080/api/v1beta1/pods](http://10.245.1.2:8080/api/v1beta1/pods). It should return some valid JSON (but be mostly empty).
 
-### Setting up your environment variables to use OpenShift
+## Setup your machine
+
+There's a few things that will make it easier for you to work with OpenShift on vagrant on your host machine:
+
+First you'll need to [install docker](https://docs.docker.com/installation/), the later the version generally the better it is!
+
+### If you are using a Mac, Windows or other platforms
+
+First we recommend you upgrade your boot2docker image so its the latest greatest.
+
+    boot2docker download
+    boot2docker up
+
+If you are using boot2docker 1.3.1, you should edit /var/lib/boot2docker/profile in boot2docker VM to disable TLS, so that can use 2375 as default DOCKER_HOST port and http connection for local registry.
+
+    boot2docker ssh
+    sudo vi /var/lib/boot2docker/profile
+
+and add two lines
+
+    DOCKER_TLS=no
+    EXTRA_ARGS="--insecure-registry 192.168.59.103:5000 --insecure-registry dockerhost:5000 --insecure-registry 10.245.2.2:5000 --insecure-registry 10.245.2.3:5000"
+    ### Setting up your environment variables to use OpenShift
 
 Add the following to your ~/.profile or ~./bashrc
 
@@ -44,6 +66,10 @@ You might find it easier working on your host machine and interacting with the m
 Add a network route so you can connect to pods from your host
 
 	sudo route -n add  10.244.0.0/16 10.245.2.2
+
+## Tips on working with OpenShift on Vagrant
+
+Here's a bunch of handy tips:
 
 ### Starting OpenShift
 
