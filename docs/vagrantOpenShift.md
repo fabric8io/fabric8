@@ -45,9 +45,9 @@ Add a network route so you can connect to pods from your host
 
 	sudo route -n add  10.244.0.0/16 10.245.2.2
 
-### Re-starting OpenShift
+### Starting OpenShift
 
-If for any reason OpenShift stops running you can restart it via:
+If for any reason OpenShift stops running you can start it again via:
 
     vagrant ssh master
     sudo systemctl start openshift-master.service
@@ -57,6 +57,17 @@ If for any reason OpenShift stops running you can restart it via:
 
     vagrant ssh minion-2
     sudo systemctl start openshift-node.service
+
+### Recreating OpenShift
+
+If you suspend your VMs or reboot your boxes; or just want to reset your OpenShift installation to a clean installation, just run...
+
+    vagrant-restart-openshift.sh
+
+which will reload your VMs, delete any temporary volumes and start up the services.
+
+Note you must have the **fabric8/bin** folder on your PATH to find the [vagrant-restart-openshift.sh script](https://github.com/fabric8io/fabric8/blob/master/bin/vagrant-restart-openshift.sh)
+
 
 ### OpenShift logs
 
