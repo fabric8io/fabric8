@@ -273,7 +273,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
                             return nonZeroReplicas.get(0);
                         }
                     }
-                    if (matchedSize > 1) {
+                    if (matchedSize >= 1) {
                         // otherwise lets pick the first one we found
                         return matched.get(0);
                     }
