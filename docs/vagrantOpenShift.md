@@ -65,8 +65,8 @@ You might find it easier working on your host machine and interacting with the m
 
 Add a network route so you can connect to pods from your host
 
-	sudo route -n add 10.244.1.0/24 10.245.2.2
-  sudo route -n add 10.244.2.0/24 10.245.2.3
+    sudo route -n add 10.244.1.0/24 10.245.2.2
+    sudo route -n add 10.244.2.0/24 10.245.2.3
 
 ## Tips on working with OpenShift on Vagrant
 
