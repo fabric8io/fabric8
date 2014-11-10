@@ -15,12 +15,16 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.model.ControllerCurrentState;
+import io.fabric8.kubernetes.api.model.ControllerDesiredState;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.api.model.ServiceListSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.utils.Filter;
+import io.fabric8.utils.Filters;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -30,6 +34,11 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.filterLabels;
 
 /**
  * A simple client interface abstracting away the details of working with
@@ -215,4 +224,63 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     public String createTemplateConfig(Object entity) throws Exception {
         return getKubernetesExtensions().createTemplateConfig(entity);
     }
+
+    // Helper methods
+    //-------------------------------------------------------------------------
+    public ReplicationControllerSchema getReplicationControllerForPod(String podId) {
+        PodSchema pod = getPod(podId);
+        return getReplicationControllerForPod(pod);
+    }
+
+    public ReplicationControllerSchema getReplicationControllerForPod(PodSchema pod) {
+        if (pod != null) {
+            Map<String, String> labels = pod.getLabels();
+            if (labels != null && labels.size() > 0) {
+                ReplicationControllerListSchema replicationControllers = getReplicationControllers();
+                List<ReplicationControllerSchema> items = replicationControllers.getItems();
+                if (items != null) {
+                    List<ReplicationControllerSchema> matched = new ArrayList<>();
+                    for (ReplicationControllerSchema item : items) {
+                        if (filterLabels(labels, item.getLabels())) {
+                            matched.add(item);
+                        }
+                    }
+                    int matchedSize = matched.size();
+                    if (matchedSize > 1) {
+                        // lets remove all the RCs with no current replicas and hope there's only 1 left
+                        List<ReplicationControllerSchema> nonZeroReplicas = Filters.filter(matched, new Filter<ReplicationControllerSchema>() {
+                            @Override
+                            public boolean matches(ReplicationControllerSchema replicationController) {
+                                ControllerDesiredState desiredState = replicationController.getDesiredState();
+                                if (desiredState != null) {
+                                    Integer desiredReplicas = desiredState.getReplicas();
+                                    if (desiredReplicas != null && desiredReplicas.intValue() > 0) {
+                                        ControllerCurrentState currentState = replicationController.getCurrentState();
+                                        if (currentState != null) {
+                                            Integer replicas = currentState.getReplicas();
+                                            if (replicas != null && replicas.intValue() > 0) {
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                }
+                                return false;
+                            }
+                        });
+                        int size = nonZeroReplicas.size();
+                        if (size > 0) {
+                            // lets pick the first one for now :)
+                            return nonZeroReplicas.get(0);
+                        }
+                    }
+                    if (matchedSize > 1) {
+                        // otherwise lets pick the first one we found
+                        return matched.get(0);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
 }

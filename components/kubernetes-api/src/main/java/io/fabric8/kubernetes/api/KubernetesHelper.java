@@ -439,7 +439,7 @@ public class KubernetesHelper {
     }
 
     /**
-     * Returns true if the given textFilter matches the actual labels
+     * Returns true if the given filterLabels matches the actual labels
      */
     public static boolean filterLabels(Map<String, String> filterLabels, Map<String, String> labels) {
         if (labels == null) {

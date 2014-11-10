@@ -15,6 +15,8 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.utils.JMXUtils;
 import io.fabric8.utils.Strings;
 
@@ -48,9 +50,10 @@ public class KubernetesManager implements KubernetesManagerMXBean {
 
     @Override
     public String apply(String json) throws IOException {
-        Controller controller = new Controller(kubernetes);
+        Controller controller = createController();
         return controller.applyJson(json);
     }
+
 
     @Override
     public String getDockerRegistry() {
@@ -65,11 +68,25 @@ public class KubernetesManager implements KubernetesManagerMXBean {
         return answer;
     }
 
+    @Override
+    public String getReplicationControllerIdForPod(String podId) {
+        ReplicationControllerSchema replicationController = kubernetes.getReplicationControllerForPod(podId);
+        if (replicationController != null) {
+            return replicationController.getId();
+        }
+        return null;
+    }
+
     public KubernetesClient getKubernetes() {
         return kubernetes;
     }
 
     public void setKubernetes(KubernetesClient kubernetes) {
         this.kubernetes = kubernetes;
+    }
+
+
+    protected Controller createController() {
+        return new Controller(kubernetes);
     }
 }

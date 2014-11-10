@@ -15,6 +15,8 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+
 import java.io.IOException;
 
 /**
@@ -28,4 +30,9 @@ public interface KubernetesManagerMXBean {
     String apply(String json) throws IOException;
 
     String getDockerRegistry();
+
+    /**
+     * Returns the replication controller ID for the given pod id if one can be found or null if not
+     */
+    String getReplicationControllerIdForPod(String podId);
 }
