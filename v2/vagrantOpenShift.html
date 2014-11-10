@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1.1" data-basepath="." data-revision="1415581435561">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1.1" data-basepath="." data-revision="1415617023669">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -563,8 +563,21 @@ export OPENSHIFT_NUM_MINIONS=1
 vagrant up
 </code></pre><p>You now should have a master node running on <strong>10.245.1.2</strong>.</p>
 <p>You can test this by querying the REST API for the pods at: <a href="http://10.245.1.2:8080/api/v1beta1/pods" target="_blank">http://10.245.1.2:8080/api/v1beta1/pods</a>. It should return some valid JSON (but be mostly empty).</p>
-<h3 id="setting-up-your-environment-variables-to-use-openshift"><a name="setting-up-your-environment-variables-to-use-openshift" class="anchor" href="#setting-up-your-environment-variables-to-use-openshift"><span class="fa fa-link"></span></a>Setting up your environment variables to use OpenShift</h3>
-<p>Add the following to your ~/.profile or ~./bashrc</p>
+<h2 id="setup-your-machine"><a name="setup-your-machine" class="anchor" href="#setup-your-machine"><span class="fa fa-link"></span></a>Setup your machine</h2>
+<p>There&apos;s a few things that will make it easier for you to work with OpenShift on vagrant on your host machine:</p>
+<p>First you&apos;ll need to <a href="https://docs.docker.com/installation/" target="_blank">install docker</a>, the later the version generally the better it is!</p>
+<h3 id="if-you-are-using-a-mac-windows-or-other-platforms"><a name="if-you-are-using-a-mac-windows-or-other-platforms" class="anchor" href="#if-you-are-using-a-mac-windows-or-other-platforms"><span class="fa fa-link"></span></a>If you are using a Mac, Windows or other platforms</h3>
+<p>First we recommend you upgrade your boot2docker image so its the latest greatest.</p>
+<pre><code>boot2docker download
+boot2docker up
+</code></pre><p>If you are using boot2docker 1.3.1, you should edit /var/lib/boot2docker/profile in boot2docker VM to disable TLS, so that can use 2375 as default DOCKER_HOST port and http connection for local registry.</p>
+<pre><code>boot2docker ssh
+sudo vi /var/lib/boot2docker/profile
+</code></pre><p>and add two lines</p>
+<pre><code>DOCKER_TLS=no
+EXTRA_ARGS=&quot;--insecure-registry 192.168.59.103:5000 --insecure-registry dockerhost:5000 --insecure-registry 10.245.2.2:5000 --insecure-registry 10.245.2.3:5000&quot;
+### Setting up your environment variables to use OpenShift
+</code></pre><p>Add the following to your ~/.profile or ~./bashrc</p>
 <pre><code>export KUBERNETES_MASTER=http://10.245.1.2:8080
 </code></pre><p>You now should be able to use the various <a href="http://fabric8.io/v2/tools.html" target="_blank">Tools</a> such as the <a href="console.html">Web Console</a>, <a href="http://fabric8.io/v2/mavenPlugin.html" target="_blank">Maven Plugin</a>, the <a href="http://fabric8.io/v2/forge.html" target="_blank">Forge Addons</a> and the <a href="javaLibraries.html">java libraries</a> to work on your local OpenShift.</p>
 <h3 id="adding-the-master-and-minion-hosts-to-etc-hosts"><a name="adding-the-master-and-minion-hosts-to-etc-hosts" class="anchor" href="#adding-the-master-and-minion-hosts-to-etc-hosts"><span class="fa fa-link"></span></a>Adding the master and minion hosts to /etc/hosts</h3>
@@ -575,8 +588,10 @@ vagrant up
 </code></pre><h3 id="network-routes"><a name="network-routes" class="anchor" href="#network-routes"><span class="fa fa-link"></span></a>Network routes</h3>
 <p>Add a network route so you can connect to pods from your host</p>
 <pre><code>sudo route -n add  10.244.0.0/16 10.245.2.2
-</code></pre><h3 id="re-starting-openshift"><a name="re-starting-openshift" class="anchor" href="#re-starting-openshift"><span class="fa fa-link"></span></a>Re-starting OpenShift</h3>
-<p>If for any reason OpenShift stops running you can restart it via:</p>
+</code></pre><h2 id="tips-on-working-with-openshift-on-vagrant"><a name="tips-on-working-with-openshift-on-vagrant" class="anchor" href="#tips-on-working-with-openshift-on-vagrant"><span class="fa fa-link"></span></a>Tips on working with OpenShift on Vagrant</h2>
+<p>Here&apos;s a bunch of handy tips:</p>
+<h3 id="starting-openshift"><a name="starting-openshift" class="anchor" href="#starting-openshift"><span class="fa fa-link"></span></a>Starting OpenShift</h3>
+<p>If for any reason OpenShift stops running you can start it again via:</p>
 <pre><code>vagrant ssh master
 sudo systemctl start openshift-master.service
 
@@ -585,7 +600,13 @@ sudo systemctl start openshift-node.service
 
 vagrant ssh minion-2
 sudo systemctl start openshift-node.service
-</code></pre><h3 id="openshift-logs"><a name="openshift-logs" class="anchor" href="#openshift-logs"><span class="fa fa-link"></span></a>OpenShift logs</h3>
+</code></pre><h3 id="recreating-openshift"><a name="recreating-openshift" class="anchor" href="#recreating-openshift"><span class="fa fa-link"></span></a>Recreating OpenShift</h3>
+<p>If you suspend your VMs or reboot your boxes; or just want to reset your OpenShift installation to a clean installation, just run this from your openshift-origin folder:</p>
+<pre><code>cd openshift-origin
+vagrant-restart-openshift.sh
+</code></pre><p>which will reload your VMs, delete any temporary volumes and start up the services.</p>
+<p>Note you must have the <strong>fabric8/bin</strong> folder on your PATH to find the <a href="https://github.com/fabric8io/fabric8/blob/master/bin/vagrant-restart-openshift.sh" target="_blank">vagrant-restart-openshift.sh script</a></p>
+<h3 id="openshift-logs"><a name="openshift-logs" class="anchor" href="#openshift-logs"><span class="fa fa-link"></span></a>OpenShift logs</h3>
 <p>To view the openshift logs in the master or minions use:</p>
 <pre><code>journalctl -f
 </code></pre><h3 id="running-hawtio-via-docker"><a name="running-hawtio-via-docker" class="anchor" href="#running-hawtio-via-docker"><span class="fa fa-link"></span></a>Running hawtio via docker</h3>
@@ -597,7 +618,10 @@ docker run -p 9282:8080 -it -e KUBERNETES_MASTER=$KUBERNETES_MASTER -e DOCKER_HO
 <p>When pushing images make sure you have set the DOCKER_REGISTRY env var to the correct minion that is hosting the registry, for example..</p>
 <pre><code>export DOCKER_REGISTRY=10.245.2.2:5000
 </code></pre><p>If you are running a non Linux host and using boot2docker then you still need to follow the <a href="setupMachine.html">Setup Machine</a> guide and set DOCKER_HOST so we can run docker commands (like docker push) on our host as usual ..</p>
-<pre><code>export DOCKER_HOST=tcp://192.168.59.103:2375 
+<pre><code>export DOCKER_HOST=tcp://192.168.59.103:2375
+</code></pre><h3 id="checking-your-docker_registry"><a name="checking-your-docker_registry" class="anchor" href="#checking-your-docker_registry"><span class="fa fa-link"></span></a>Checking your $DOCKER_REGISTRY</h3>
+<p>There&apos;s a handy script called  <a href="https://github.com/fabric8io/fabric8/blob/master/bin/ping-registry.sh" target="_blank">ping-registry.sh</a> which will check that you have your <strong>DOCKER_REGISTRY</strong> environment variable setup correctly to point to a valid docker registry so that you can create and push docker images:</p>
+<pre><code>ping-registry.sh
 </code></pre>
                     
                     </section>
