@@ -39,6 +39,15 @@
       "javaType": "java.util.Map<String,String>",
       "required": false
     },
+    "namespace": {
+      "type": "string",
+      "required": false
+    },
+    "annotations": {
+      "type": "object",
+      "javaType": "java.util.Map<String,String>",
+      "required": false
+    },
     "selector": {
       "type": "object",
       "javaType": "java.util.Map<String,String>",
