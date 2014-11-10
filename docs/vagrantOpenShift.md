@@ -60,8 +60,9 @@ If for any reason OpenShift stops running you can start it again via:
 
 ### Recreating OpenShift
 
-If you suspend your VMs or reboot your boxes; or just want to reset your OpenShift installation to a clean installation, just run...
+If you suspend your VMs or reboot your boxes; or just want to reset your OpenShift installation to a clean installation, just run this from your openshift-origin folder:
 
+    cd openshift-origin
     vagrant-restart-openshift.sh
 
 which will reload your VMs, delete any temporary volumes and start up the services.
