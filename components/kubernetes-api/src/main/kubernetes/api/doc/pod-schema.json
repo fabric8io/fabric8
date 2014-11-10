@@ -89,6 +89,11 @@
       "type": "object",
       "javaType": "java.util.Map<String,String>",
       "required": false
+    },
+    "annotations": {
+      "type": "object",
+      "javaType": "java.util.Map<String,String>",
+      "required": false
     }
   }
 }
