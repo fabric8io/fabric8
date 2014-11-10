@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1.2.1" data-basepath="." data-revision="1415495036907">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1.2.1" data-basepath="." data-revision="1415581435561">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -545,7 +545,7 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_24">
+                    <section class="normal" id="section-gitbook_25">
                     
                         <h2 id="setting-up-your-machine"><a name="setting-up-your-machine" class="anchor" href="#setting-up-your-machine"><span class="fa fa-link"></span></a>Setting up your machine</h2>
 <p>To simplify the documentation and configuration script for fabric8 we are going to setup 2 local host aliases, <strong>openshifthost</strong> and <strong>dockerhost</strong> then all the instructions that follow on this site will work whether you use Docker natively on linux or you run docker in a VM or you are on a Mac or Windows and are using boot2docker.</p>
@@ -562,7 +562,7 @@ boot2docker up
 sudo vi /var/lib/boot2docker/profile
 </code></pre><p>and add two lines </p>
 <pre><code>DOCKER_TLS=no
-EXTRA_ARGS=&quot;--insecure-registry 192.168.59.103:5000&quot;
+EXTRA_ARGS=&quot;--insecure-registry 192.168.59.103:5000 --insecure-registry dockerhost:5000 --insecure-registry 10.245.2.2:5000 --insecure-registry 10.245.2.3:5000&quot;
 </code></pre>
                     
                     </section>
