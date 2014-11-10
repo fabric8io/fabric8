@@ -93,5 +93,12 @@ When pushing images make sure you have set the DOCKER_REGISTRY env var to the co
 
 If you are running a non Linux host and using boot2docker then you still need to follow the [Setup Machine](setupMachine.md) guide and set DOCKER_HOST so we can run docker commands (like docker push) on our host as usual ..
 
-	export DOCKER_HOST=tcp://192.168.59.103:2375 
+	export DOCKER_HOST=tcp://192.168.59.103:2375
+
+### Checking your $DOCKER_REGISTRY
+
+There's a handy script called  [ping-registry.sh](https://github.com/fabric8io/fabric8/blob/master/bin/ping-registry.sh) which will check that you have your **DOCKER_REGISTRY** environment variable setup correctly to point to a valid docker registry so that you can create and push docker images:
+
+    ping-registry.sh
+
 
