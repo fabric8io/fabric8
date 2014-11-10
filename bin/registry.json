@@ -11,7 +11,7 @@
       "creationTimestamp": null,
       "id": "registryservice",
       "kind": "Service",
-      "port": 5001,
+      "port": 5000,
       "selector": {
         "name": "registryPod"
       }

@@ -11,7 +11,7 @@ vagrant ssh minion-2 -- sudo systemctl stop openshift-node.service
 
 echo "Stopping all running Docker containers"
 for m in master minion-1 minion-2; do
-  vagrant ssh $m -- sudo docker kill -q \$\(docker ps -ql\) \> /dev/null 2\>\&1
+  vagrant ssh $m -- docker rm -f \$\(docker ps -qa\) \> /dev/null 2\>\&1
 done
 
 echo "Clearing all the temporary files"

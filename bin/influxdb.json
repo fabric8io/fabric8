@@ -1,0 +1,43 @@
+{
+  "id": "influxdb-config",
+  "kind": "Config",
+  "apiVersion": "v1beta1",
+  "name": "influxdb-config",
+  "description": "Creates an influxdb pod & service",
+  "items": [{
+      "id": "influx-master",
+      "kind": "Service",
+      "apiVersion": "v1beta1",
+      "port": 8086,
+      "containerPort": 8086,
+      "selector": { "name": "influxdb" }
+    },
+    {
+      "id": "influx-grafana",
+      "kind": "Pod",
+      "apiVersion": "v1beta1",
+      "desiredState": {
+        "manifest": {
+          "version": "v1beta1",
+          "id": "influxdb",
+          "containers": [{
+            "name": "influxdb",
+            "image": "tutum/influxdb",
+            "ports": [
+              {"containerPort": 8083, "hostPort": 8083},
+              {"containerPort": 8086, "hostPort": 8086},
+              {"containerPort": 8090, "hostPort": 8090},
+              {"containerPort": 8099, "hostPort": 8099}
+            ],
+            "env": [
+              {"name": "PRE_CREATE_DB", "value": "cadvisor"}
+            ]
+          }]
+        },
+      },
+      "labels": {
+        "name": "influxdb",
+      }
+    }
+  ]
+}
