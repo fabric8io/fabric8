@@ -195,7 +195,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
+      <!--plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>fabric-cxf-plugins</artifactId>
         <version>${fabric.version}</version>
@@ -208,7 +208,7 @@
                 </goals>
             </execution>
         </executions>
-      </plugin>
+      </plugin-->
       <plugin>
         <!--
           this plugin will use the fabric.* properties to configure its behaviour
