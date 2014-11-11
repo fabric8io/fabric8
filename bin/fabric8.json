@@ -25,20 +25,16 @@
             "manifest": {
               "containers": [
                 {
-                  "image": "fabric8/hawtio",
+                  "image": "fabric8/hawtio:latest",
                   "name": "hawtio-container",
                   "env": [
                     {
                       "name": "KUBERNETES_MASTER",
-                      "value": "http://openshifthost:8080"
-                    },
-                    {
-                      "name": "DOCKER_HOST",
-                      "value": "tcp://dockerhost:2375"
+                      "value": "http://172.17.42.1:8080"
                     },
                     {
                       "name": "DOCKER_REGISTRY",
-                      "value": "dockerhost:5000"
+                      "value": "$REGISTRY_SERVICE_HOST:$REGISTRY_SERVICE_PORT"
                     },
                     {
                       "name": "hawtio_config_cloneOnStartup",
@@ -46,7 +42,7 @@
                     },
                     {
                       "name": "TODO_hawtio_config_importURLs",
-                      "value": "mvn:io.fabric8/wiki/2.0.0-SNAPSHOT/zip"
+                      "value": "mvn:io.fabric8/wiki/2.0.1/zip"
                     }
                   ],
                   "ports": [
@@ -77,59 +73,6 @@
       "kind": "ReplicationController",
       "labels": {
         "name": "hawtioController"
-      }
-    },
-
-    {
-      "apiVersion": "v1beta1",
-      "containerPort": 0,
-      "creationTimestamp": null,
-      "id": "registryservice",
-      "kind": "Service",
-      "port": 5001,
-      "selector": {
-        "name": "registryPod"
-      }
-    },
-    {
-      "apiVersion": "v1beta1",
-      "creationTimestamp": null,
-      "desiredState": {
-        "podTemplate": {
-          "desiredState": {
-            "manifest": {
-              "containers": [
-                {
-                  "image": "registry",
-                  "name": "registry-container",
-                  "ports": [
-                    {
-                      "hostPort": 5000,
-                      "containerPort": 5000,
-                      "protocol": "TCP"
-                    }
-                  ]
-                }
-              ],
-              "id": "registryPod",
-              "version": "v1beta1",
-              "volumes": null
-            },
-            "restartpolicy": {}
-          },
-          "labels": {
-            "name": "registryPod"
-          }
-        },
-        "replicaSelector": {
-          "name": "registryPod"
-        },
-        "replicas": 1
-      },
-      "id": "registryController",
-      "kind": "ReplicationController",
-      "labels": {
-        "name": "registryController"
       }
     }
   ]
