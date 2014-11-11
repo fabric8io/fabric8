@@ -1,12 +1,10 @@
-## Install OpenShift
+## Install OpenShift Natively
 
-In order to start working with the Fabric8 on your laptop, you need to have
-[Kubernetes](https://github.com/GoogleCloudPlatform/kubernetes) and
-[etcd](https://github.com/coreos/etcd) services available.
+These instructions walk you through natively installing OpenShift on your host operating system.
 
-The quickest way to start Kube and etcd locally is to run OpenShift V3 on your machine.
+**NOTE** OpenShift used to work in Linux, Windows and OS X; but recent networking/service changes only work on Linux. So until that is fixed if you don't use Linux we recommend you try using [OpenShift with Docker](openShiftDocker.md) or [OpenShift with Vagrant](openShiftVagrant.md)
 
-### Get OpenShift V3
+### Downloading Openshift V3
 
 You can download a [distribution of OpenShift V3](https://github.com/openshift/origin/releases) if there is a download
 for your platform (currently OpenShift runs only on the 64-bit Linux). We recommend to download the <a href="https://github.com/openshift/origin/releases/download/20141003/openshift-origin-linux64-e4d4ecf.tar.gz">alpha nightly 20141003/e4d4ecf</a> version of the
@@ -28,4 +26,11 @@ Its actually pretty quick and easy to build OpenShift yourself:
 ```
     export PATH=$PATH:$GOPATH/src/github.com/openshift/origin/_output/go/bin
 ```
+
+### Next Steps
+
+* [Setup Your Machine for a local OpenShift Installation](setupMachine.html)
+* [Run Fabric8 on your local OpenShift Installation](runFabric.html)
+
+
 

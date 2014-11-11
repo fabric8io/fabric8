@@ -15,8 +15,6 @@ If you want to test a multi-minion system then we recommend you try vagrant:
 Or you could try install OpenShift directly on your laptop. Note that this currently only works on Linux (but hopefully will be fixed soon!):
 
 * [Install OpenShift V3 locally](openShiftInstall.html)
-* [Setup Your Machine for local OpenShift](setupMachine.html)
-* [Run Fabric8](runFabric.html)
 
 ### Use OpenShift
 
