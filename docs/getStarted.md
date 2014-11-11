@@ -10,7 +10,7 @@ There are 2 main ways to get started. The easiest as a Java developer is to star
 The ideal platform for running Fabric8 is OpenShift V3:
 
 * [Get Started With OpenShift V3](getStartedOpenShift.html)
-* [Deploy an example quickstart project](http://fabric8.io/v2/mavenPlugin.html#example)
+* [Deploy an example quickstart project](http://fabric8.io/v2/example.html)
 * [Check out the Quickstarts](quickstarts.html)
 
 Hopefully that will get you started quickly; if you hit any issues check out the [FAQ](http://fabric8.io/v2/FAQ.html), [get in touch](http://fabric8.io/community/index.html) or [raise an issue](https://github.com/fabric8io/fabric8/issues)

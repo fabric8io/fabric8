@@ -18,6 +18,7 @@
             * [Setup Your Machine](setupMachine.md)
       * [Use OpenShift](getStartedOpenShift)
         * [Run Fabric8](runFabric.md)
+    * [Deploy an example](example.md)
 * [Tools](tools.md)
     * [Web Console](console.md)
     * [QuickStarts](quickstarts.md)

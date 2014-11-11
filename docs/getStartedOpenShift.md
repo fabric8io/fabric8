@@ -12,18 +12,17 @@ If you want to test a multi-minion system then we recommend you try vagrant:
 
 * [Start OpenShift V3 using Vagrant](openShiftVagrant.html)
 
-Or you could try install OpenShift directly on your laptop:
+Or you could try install OpenShift directly on your laptop. Note that this currently only works on Linux (but hopefully will be fixed soon!):
 
 * [Install OpenShift V3 locally](openShiftInstall.html)
 * [Setup Your Machine for local OpenShift](setupMachine.html)
-
+* [Run Fabric8](runFabric.html)
 
 ### Use OpenShift
 
 Now lets run the Fabric8 services and deploy an application:
 
-1. [Run Fabric8](runFabric.html)
-1. [Deploy an example quickstart project](http://fabric8.io/v2/mavenPlugin.html#example)
+1. [Deploy an example quickstart project](http://fabric8.io/v2/example.html)
 1. [Check out the Quickstarts](quickstarts.html)
 
 Steps 1 and 2 only need to be done once per machine.

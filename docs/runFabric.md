@@ -57,7 +57,7 @@ So you should have now an empty OpenShift environment with the core of fabric8 i
 
 Now you could try:
 
- * [deploying an example quickstart project](http://fabric8.io/v2/mavenPlugin.html#example)
+ * [deploying an example quickstart project](http://fabric8.io/v2/example.html)
 
 
 ### Resetting OpenShift
