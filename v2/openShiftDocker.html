@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1.1" data-basepath="." data-revision="1415691289710">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1.1" data-basepath="." data-revision="1415700950773">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -567,7 +567,7 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_21">
+                    <section class="normal" id="section-gitbook_19">
                     
                         <h2 id="run-openshift-v3-using-docker"><a name="run-openshift-v3-using-docker" class="anchor" href="#run-openshift-v3-using-docker"><span class="fa fa-link"></span></a>Run OpenShift V3 using Docker</h2>
 <p>Probably the easiest way to use OpenShift V3 on your laptop is to use <a href="https://docs.docker.com/" target="_blank">Docker</a> since thats the only thing you need to install and often developers already have it.</p>
@@ -577,7 +577,7 @@
 <pre><code>export DOCKER_IP=192.168.59.103
 export DOCKER_REGISTRY=$DOCKER_IP:5000
 export KUBERNETES_MASTER=http://$DOCKER_IP:8080
-export FABRIC8_CONSOLE=http://$DOCKER_IP:9282/hawtio
+export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
 </code></pre><h3 id="network-routes"><a name="network-routes" class="anchor" href="#network-routes"><span class="fa fa-link"></span></a>Network routes</h3>
 <p>To be able to connect to the pod IPs inside OpenShift (so that hawtio can connect into your JVMs) you&apos;ll need to run this once on your machine:</p>
 <p> sudo route -n add 172.17.0.0/24 $DOCKER_IP</p>
