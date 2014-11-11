@@ -75,14 +75,17 @@ You can use the openshift command line tool to list pods/replicationControllers/
 
     docker run -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin kube --help
 
-So you can create a pod as follows:
-
-    docker run -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin kube -c https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json create pods
-
 To simplify the command line you could alias this...
 
     alias kube="docker run -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin kube"
     kube --help
+
+So you can create a pod as follows:
+
     kube -c https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json create pods
+
+Or without using an alias:
+
+    docker run -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin kube -c https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json create pods
 
 **Note** that since we are using docker and you are typically running the docker commands from the host machine (your laptop), the kube command which runs in a linux container inside the boot2docker VM won't be able to access local files by default so you should default to using URLs when passing in JSON like above
