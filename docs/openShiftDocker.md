@@ -8,10 +8,12 @@ First you'll need to [install docker](https://docs.docker.com/installation/), th
 
 You'll need the following environment variables to be able use the [Tools](http://fabric8.io/v2/tools.html) such as the [Web Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html), the [Forge Addons](http://fabric8.io/v2/forge.html) and the [java libraries](javaLibraries.html):
 
-    export DOCKER_IP=192.168.59.103
+    export DOCKER_IP=`boot2docker ip 2> /dev/null`
     export DOCKER_REGISTRY=$DOCKER_IP:5000
     export KUBERNETES_MASTER=http://$DOCKER_IP:8080
     export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
+
+Usually your $DOCKER_IP is something like **192.168.59.103** if you are on Windows or a Mac and are using boot2docker.
 
 ### Network routes
 
