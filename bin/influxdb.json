@@ -13,7 +13,7 @@
       "selector": { "name": "influxdb" }
     },
     {
-      "id": "influx-grafana",
+      "id": "influxdb",
       "kind": "Pod",
       "apiVersion": "v1beta1",
       "desiredState": {
