@@ -10,7 +10,7 @@ There are 2 main ways to get started. The easiest as a Java developer is to star
 The ideal platform for running Fabric8 is OpenShift V3 which is a little harder to setup right now (we're hoping this will get much easier soon1)
 
 * [Get Started With OpenShift V3](getStartedOpenShift.html)
-  * [Get OpenShift V3](installOpenShift.html)
+  * [Get OpenShift V3](openShiftInstall.html)
   * [Setup Your Machine](setupMachine.html)
   * [Run Fabric8](runFabric.html)
 
