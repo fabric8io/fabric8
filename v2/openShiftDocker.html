@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Builds | Fabric8 Documentation</title>
+        <title>Docker | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./getStarted.html" />
+        <link rel="next" href="./openShiftVagrant.html" />
         
         
-        <link rel="prev" href="./appzip.html" />
+        <link rel="prev" href="./getStartedOpenShift.html" />
         
 
-        <meta property="og:title" content="Builds | Fabric8 Documentation">
+        <meta property="og:title" content="Docker | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="1.7" data-basepath="." data-revision="1415688949451">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1.1" data-basepath="." data-revision="1415688949451">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -487,7 +487,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 27.586206896551722%;min-width: 24.137931034482758%;"></div>
+        <div class="inner" style="width: 48.275862068965516%;min-width: 44.827586206896555%;"></div>
     </div>
     <div class="chapters">
     
@@ -509,17 +509,17 @@
     
         <a href="./builds.html" title="Builds" class="chapter done " data-progress="1.7" style="left: 27.586206896551722%;"></a>
     
-        <a href="./getStarted.html" title="Getting Started" class="chapter  new-chapter" data-progress="2" style="left: 31.03448275862069%;"></a>
+        <a href="./getStarted.html" title="Getting Started" class="chapter done new-chapter" data-progress="2" style="left: 31.03448275862069%;"></a>
     
-        <a href="./getStartedJube.html" title="Get Started with Jube" class="chapter  " data-progress="2.1" style="left: 34.48275862068966%;"></a>
+        <a href="./getStartedJube.html" title="Get Started with Jube" class="chapter done " data-progress="2.1" style="left: 34.48275862068966%;"></a>
     
-        <a href="./jubeRunQuickstart.html" title="Running a quickstart on Jube" class="chapter  " data-progress="2.1.1" style="left: 37.93103448275862%;"></a>
+        <a href="./jubeRunQuickstart.html" title="Running a quickstart on Jube" class="chapter done " data-progress="2.1.1" style="left: 37.93103448275862%;"></a>
     
-        <a href="./jubeAddQuickstartApp.html" title="Add a quickstart to the App Library" class="chapter  " data-progress="2.1.2" style="left: 41.37931034482759%;"></a>
+        <a href="./jubeAddQuickstartApp.html" title="Add a quickstart to the App Library" class="chapter done " data-progress="2.1.2" style="left: 41.37931034482759%;"></a>
     
-        <a href="./getStartedOpenShift.html" title="Run OpenShift" class="chapter  " data-progress="2.2.1" style="left: 44.827586206896555%;"></a>
+        <a href="./getStartedOpenShift.html" title="Run OpenShift" class="chapter done " data-progress="2.2.1" style="left: 44.827586206896555%;"></a>
     
-        <a href="./openShiftDocker.html" title="Docker" class="chapter  " data-progress="2.2.1.1" style="left: 48.275862068965516%;"></a>
+        <a href="./openShiftDocker.html" title="Docker" class="chapter done " data-progress="2.2.1.1" style="left: 48.275862068965516%;"></a>
     
         <a href="./openShiftVagrant.html" title="Vagrant" class="chapter  " data-progress="2.2.1.2" style="left: 51.724137931034484%;"></a>
     
@@ -556,15 +556,47 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_5">
+                    <section class="normal" id="section-gitbook_18">
                     
-                        <h2 id="builds"><a name="builds" class="anchor" href="#builds"><span class="fa fa-link"></span></a>Builds</h2>
-<p>Builds are a <a href="https://github.com/openshift/origin/blob/master/docs/builds.md" target="_blank">kubernetes extension in OpenShift 3</a> which support various mechanisms for building containers via</p>
-<ul>
-<li>supplying pre-built deployment units</li>
-<li>having source code in a git repository where a git push kicks off a build of the project artefacts along with creating a docker container</li>
-</ul>
-
+                        <h2 id="run-openshift-v3-using-docker"><a name="run-openshift-v3-using-docker" class="anchor" href="#run-openshift-v3-using-docker"><span class="fa fa-link"></span></a>Run OpenShift V3 using Docker</h2>
+<p>Probably the easiest way to use OpenShift V3 on your laptop is to use <a href="https://docs.docker.com/" target="_blank">Docker</a> since thats the only thing you need to install and often developers already have it.</p>
+<p>First you&apos;ll need to <a href="https://docs.docker.com/installation/" target="_blank">install docker</a>, the later the version generally the better it is!</p>
+<h3 id="environment-variables"><a name="environment-variables" class="anchor" href="#environment-variables"><span class="fa fa-link"></span></a>Environment variables</h3>
+<p>You&apos;ll need the following environment variables to be able use the <a href="http://fabric8.io/v2/tools.html" target="_blank">Tools</a> such as the <a href="console.html">Web Console</a>, <a href="http://fabric8.io/v2/mavenPlugin.html" target="_blank">Maven Plugin</a>, the <a href="http://fabric8.io/v2/forge.html" target="_blank">Forge Addons</a> and the <a href="javaLibraries.html">java libraries</a>:</p>
+<pre><code>export DOCKER_IP=192.168.59.103
+export DOCKER_REGISTRY=$DOCKER_IP:5000
+export KUBERNETES_MASTER=http://$DOCKER_IP:8080
+export FABRIC8_CONSOLE=http://$DOCKER_IP:9282/hawtio
+</code></pre><h3 id="network-routes"><a name="network-routes" class="anchor" href="#network-routes"><span class="fa fa-link"></span></a>Network routes</h3>
+<p>To be able to connect to the pod IPs inside OpenShift (so that hawtio can connect into your JVMs) you&apos;ll need to run this once on your machine:</p>
+<p> sudo route -n add 172.17.0.0/24 $DOCKER_IP</p>
+<h3 id="running-openshift"><a name="running-openshift" class="anchor" href="#running-openshift"><span class="fa fa-link"></span></a>Running OpenShift</h3>
+<pre><code>docker pull openshift/origin
+docker run -v /var/run/docker.sock:/var/run/docker.sock --net=host --privileged openshift/origin start
+</code></pre><p>You should now be able to access the REST API for OpenShift on the <strong>DOCKER_IP</strong> address at <a href="http://192.168.59.103:8080/api/v1beta1/pods" target="_blank">http://192.168.59.103:8080/api/v1beta1/pods</a></p>
+<h3 id="running-a-local-docker-registry"><a name="running-a-local-docker-registry" class="anchor" href="#running-a-local-docker-registry"><span class="fa fa-link"></span></a>Running a local docker registry</h3>
+<pre><code>docker run -p 5000:5000 registry
+</code></pre><p>There&apos;s a handy script called  <a href="https://github.com/fabric8io/fabric8/blob/master/bin/ping-registry.sh" target="_blank">ping-registry.sh</a> which will check that you have your <strong>DOCKER_REGISTRY</strong> environment variable setup correctly to point to a valid docker registry so that you can create and push docker images:</p>
+<pre><code>ping-registry.sh
+</code></pre><h3 id="running-a-hawtio-console"><a name="running-a-hawtio-console" class="anchor" href="#running-a-hawtio-console"><span class="fa fa-link"></span></a>Running a hawtio console</h3>
+<pre><code>docker run -p 8484:8080 -it -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 fabric8/hawtio
+</code></pre><p>You can now access the web console at <a href="http://192.168.59.103:8484/hawtio/kubernetes/pods" target="_blank">http://192.168.59.103:8484/hawtio/kubernetes/pods</a>.</p>
+<p>If you have setup the <strong>dockerhost</strong> alias in your /etc/hosts as described below you can use the simpler URL <a href="http://dockerhost:8484/hawtio/" target="_blank">http://dockerhost:8484/hawtio/</a></p>
+<h3 id="docker-configuration-if-you-are-using-a-mac-windows-or-other-platforms"><a name="docker-configuration-if-you-are-using-a-mac-windows-or-other-platforms" class="anchor" href="#docker-configuration-if-you-are-using-a-mac-windows-or-other-platforms"><span class="fa fa-link"></span></a>Docker configuration if you are using a Mac, Windows or other platforms</h3>
+<p>Here&apos;s some tips on how to setup docker on your machine.</p>
+<p>First we recommend you upgrade your boot2docker image so its the latest greatest.</p>
+<pre><code>boot2docker download
+boot2docker up
+</code></pre><p>If you are not on linux <a href="http://viget.com/extend/how-to-use-docker-on-os-x-the-missing-guide" target="_blank">this article</a> describes how its a good idea to define <strong>dockerhost</strong> to point to your boot2docker ip address via:</p>
+<pre><code>echo $(docker-ip) dockerhost | sudo tee -a /etc/hosts
+</code></pre><p>Then you can access the REST API for OpenShift on the easier to remember and type URL: <a href="http://dockerhost:8080/api/v1beta1/pods" target="_blank">http://dockerhost:8080/api/v1beta1/pods</a></p>
+<p>If you are using boot2docker 1.3.1, you should edit /var/lib/boot2docker/profile in boot2docker VM to disable TLS, so that can use 2375 as default DOCKER_HOST port and http connection for local registry.</p>
+<pre><code>boot2docker ssh
+sudo vi /var/lib/boot2docker/profile
+</code></pre><p>and add two lines</p>
+<pre><code>DOCKER_TLS=no
+EXTRA_ARGS=&quot;--insecure-registry 192.168.59.103:5000&quot;
+</code></pre>
                     
                     </section>
                 
@@ -573,10 +605,10 @@
         </div>
 
         
-        <a href="./appzip.html" class="navigation navigation-prev " aria-label="Previous page: App Zip"><i class="fa fa-angle-left"></i></a>
+        <a href="./getStartedOpenShift.html" class="navigation navigation-prev " aria-label="Previous page: Run OpenShift"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./getStarted.html" class="navigation navigation-next " aria-label="Next page: Getting Started"><i class="fa fa-angle-right"></i></a>
+        <a href="./openShiftVagrant.html" class="navigation navigation-next " aria-label="Next page: Vagrant"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

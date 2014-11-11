@@ -1,8 +1,8 @@
 CACHE MANIFEST
-# Revision 1415667832479
+# Revision 1415688949452
 
 CACHE:
-getStartedJube.html
+getStartedOpenShift.html
 FAQ.html
 apps.html
 appzip.html
@@ -11,15 +11,16 @@ console.html
 faqGeneral.html
 forge.html
 getStarted.html
+getStartedJube.html
 index.html
-getStartedOpenShift.html
-installOpenShift.html
 javaLibraries.html
 jube.html
 jubeAddQuickstartApp.html
 jubeRunQuickstart.html
 labels.html
 mavenPlugin.html
+openShiftDocker.html
+openShiftInstall.html
 overview.html
 pods.html
 quickstarts.html
@@ -29,7 +30,6 @@ services.html
 setupMachine.html
 tools.html
 v2-changes.html
-vagrantOpenShift.html
 gitbook/app.js
 gitbook/fonts/fontawesome/FontAwesome.otf
 gitbook/fonts/fontawesome/fontawesome-webfont.eot

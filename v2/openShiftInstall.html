@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Builds | Fabric8 Documentation</title>
+        <title>Install | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./getStarted.html" />
+        <link rel="next" href="./setupMachine.html" />
         
         
-        <link rel="prev" href="./appzip.html" />
+        <link rel="prev" href="./openShiftVagrant.html" />
         
 
-        <meta property="og:title" content="Builds | Fabric8 Documentation">
+        <meta property="og:title" content="Install | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="1.7" data-basepath="." data-revision="1415688949451">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1.3" data-basepath="." data-revision="1415688949451">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -487,7 +487,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 27.586206896551722%;min-width: 24.137931034482758%;"></div>
+        <div class="inner" style="width: 55.172413793103445%;min-width: 51.724137931034484%;"></div>
     </div>
     <div class="chapters">
     
@@ -509,21 +509,21 @@
     
         <a href="./builds.html" title="Builds" class="chapter done " data-progress="1.7" style="left: 27.586206896551722%;"></a>
     
-        <a href="./getStarted.html" title="Getting Started" class="chapter  new-chapter" data-progress="2" style="left: 31.03448275862069%;"></a>
+        <a href="./getStarted.html" title="Getting Started" class="chapter done new-chapter" data-progress="2" style="left: 31.03448275862069%;"></a>
     
-        <a href="./getStartedJube.html" title="Get Started with Jube" class="chapter  " data-progress="2.1" style="left: 34.48275862068966%;"></a>
+        <a href="./getStartedJube.html" title="Get Started with Jube" class="chapter done " data-progress="2.1" style="left: 34.48275862068966%;"></a>
     
-        <a href="./jubeRunQuickstart.html" title="Running a quickstart on Jube" class="chapter  " data-progress="2.1.1" style="left: 37.93103448275862%;"></a>
+        <a href="./jubeRunQuickstart.html" title="Running a quickstart on Jube" class="chapter done " data-progress="2.1.1" style="left: 37.93103448275862%;"></a>
     
-        <a href="./jubeAddQuickstartApp.html" title="Add a quickstart to the App Library" class="chapter  " data-progress="2.1.2" style="left: 41.37931034482759%;"></a>
+        <a href="./jubeAddQuickstartApp.html" title="Add a quickstart to the App Library" class="chapter done " data-progress="2.1.2" style="left: 41.37931034482759%;"></a>
     
-        <a href="./getStartedOpenShift.html" title="Run OpenShift" class="chapter  " data-progress="2.2.1" style="left: 44.827586206896555%;"></a>
+        <a href="./getStartedOpenShift.html" title="Run OpenShift" class="chapter done " data-progress="2.2.1" style="left: 44.827586206896555%;"></a>
     
-        <a href="./openShiftDocker.html" title="Docker" class="chapter  " data-progress="2.2.1.1" style="left: 48.275862068965516%;"></a>
+        <a href="./openShiftDocker.html" title="Docker" class="chapter done " data-progress="2.2.1.1" style="left: 48.275862068965516%;"></a>
     
-        <a href="./openShiftVagrant.html" title="Vagrant" class="chapter  " data-progress="2.2.1.2" style="left: 51.724137931034484%;"></a>
+        <a href="./openShiftVagrant.html" title="Vagrant" class="chapter done " data-progress="2.2.1.2" style="left: 51.724137931034484%;"></a>
     
-        <a href="./openShiftInstall.html" title="Install" class="chapter  " data-progress="2.2.1.3" style="left: 55.172413793103445%;"></a>
+        <a href="./openShiftInstall.html" title="Install" class="chapter done " data-progress="2.2.1.3" style="left: 55.172413793103445%;"></a>
     
         <a href="./setupMachine.html" title="Setup Your Machine" class="chapter  " data-progress="2.2.1.3.1" style="left: 58.62068965517241%;"></a>
     
@@ -556,15 +556,29 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_5">
+                    <section class="normal" id="section-gitbook_19">
                     
-                        <h2 id="builds"><a name="builds" class="anchor" href="#builds"><span class="fa fa-link"></span></a>Builds</h2>
-<p>Builds are a <a href="https://github.com/openshift/origin/blob/master/docs/builds.md" target="_blank">kubernetes extension in OpenShift 3</a> which support various mechanisms for building containers via</p>
+                        <h2 id="install-openshift"><a name="install-openshift" class="anchor" href="#install-openshift"><span class="fa fa-link"></span></a>Install OpenShift</h2>
+<p>In order to start working with the Fabric8 on your laptop, you need to have
+<a href="https://github.com/GoogleCloudPlatform/kubernetes" target="_blank">Kubernetes</a> and
+<a href="https://github.com/coreos/etcd" target="_blank">etcd</a> services available.</p>
+<p>The quickest way to start Kube and etcd locally is to run OpenShift V3 on your machine.</p>
+<h3 id="get-openshift-v3"><a name="get-openshift-v3" class="anchor" href="#get-openshift-v3"><span class="fa fa-link"></span></a>Get OpenShift V3</h3>
+<p>You can download a <a href="https://github.com/openshift/origin/releases" target="_blank">distribution of OpenShift V3</a> if there is a download
+for your platform (currently OpenShift runs only on the 64-bit Linux). We recommend to download the <a href="https://github.com/openshift/origin/releases/download/20141003/openshift-origin-linux64-e4d4ecf.tar.gz">alpha nightly 20141003/e4d4ecf</a> version of the
+OpenShift 3 - Fabric8 has been tested against it.</p>
+<h3 id="building-openshift-v3"><a name="building-openshift-v3" class="anchor" href="#building-openshift-v3"><span class="fa fa-link"></span></a>Building OpenShift V3</h3>
+<p>Its actually pretty quick and easy to build OpenShift yourself:</p>
 <ul>
-<li>supplying pre-built deployment units</li>
-<li>having source code in a git repository where a git push kicks off a build of the project artefacts along with creating a docker container</li>
+<li>install <a href="http://golang.org/doc/install" target="_blank">go lang</a></li>
+<li><a href="https://github.com/jstrachan/origin/blob/master/README.md#getting-started" target="_blank">compile the OpenShift V3 code</a> via this command:</li>
 </ul>
-
+<pre><code>    hack/build-go.sh
+</code></pre><ul>
+<li>Add the <strong>_output/go/bin</strong> folder to your <strong>PATH</strong> so that you can run the <strong>openshift</strong> command from any directory. e.g. add this to your ~/.bashrc</li>
+</ul>
+<pre><code>    export PATH=$PATH:$GOPATH/src/github.com/openshift/origin/_output/go/bin
+</code></pre>
                     
                     </section>
                 
@@ -573,10 +587,10 @@
         </div>
 
         
-        <a href="./appzip.html" class="navigation navigation-prev " aria-label="Previous page: App Zip"><i class="fa fa-angle-left"></i></a>
+        <a href="./openShiftVagrant.html" class="navigation navigation-prev " aria-label="Previous page: Vagrant"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./getStarted.html" class="navigation navigation-next " aria-label="Next page: Getting Started"><i class="fa fa-angle-right"></i></a>
+        <a href="./setupMachine.html" class="navigation navigation-next " aria-label="Next page: Setup Your Machine"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
