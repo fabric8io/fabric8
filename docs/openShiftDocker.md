@@ -11,7 +11,7 @@ You'll need the following environment variables to be able use the [Tools](http:
     export DOCKER_IP=192.168.59.103
     export DOCKER_REGISTRY=$DOCKER_IP:5000
     export KUBERNETES_MASTER=http://$DOCKER_IP:8080
-    export FABRIC8_CONSOLE=http://$DOCKER_IP:9282/hawtio
+    export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
 
 ### Network routes
 
