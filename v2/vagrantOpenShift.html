@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1.1" data-basepath="." data-revision="1415617023669">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1.1" data-basepath="." data-revision="1415667832477">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -587,7 +587,8 @@ EXTRA_ARGS=&quot;--insecure-registry 192.168.59.103:5000 --insecure-registry doc
 10.245.2.3 openshift-minion-2
 </code></pre><h3 id="network-routes"><a name="network-routes" class="anchor" href="#network-routes"><span class="fa fa-link"></span></a>Network routes</h3>
 <p>Add a network route so you can connect to pods from your host</p>
-<pre><code>sudo route -n add  10.244.0.0/16 10.245.2.2
+<pre><code>sudo route -n add 10.244.1.0/24 10.245.2.2
+sudo route -n add 10.244.2.0/24 10.245.2.3
 </code></pre><h2 id="tips-on-working-with-openshift-on-vagrant"><a name="tips-on-working-with-openshift-on-vagrant" class="anchor" href="#tips-on-working-with-openshift-on-vagrant"><span class="fa fa-link"></span></a>Tips on working with OpenShift on Vagrant</h2>
 <p>Here&apos;s a bunch of handy tips:</p>
 <h3 id="starting-openshift"><a name="starting-openshift" class="anchor" href="#starting-openshift"><span class="fa fa-link"></span></a>Starting OpenShift</h3>
