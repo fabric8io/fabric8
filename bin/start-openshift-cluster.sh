@@ -23,8 +23,8 @@ vagrant ssh minion-1 -- sudo ip route add 10.244.2.0/24 via 10.245.2.3 dev enp0s
 vagrant ssh minion-2 -- sudo ip route add 10.244.1.0/24 via 10.245.2.2 dev enp0s8
 
 grep openshift-master /etc/hosts || echo '10.245.1.2 openshift-master' | sudo tee -a /etc/hosts
-grep openshift-minion-1 /etc/hosts || echo '10.245.1.3 openshift-minion-1' |sudo tee -a /etc/hosts
-grep openshift-minion-2 /etc/hosts || echo '10.245.1.4 openshift-minion-2' | sudo tee -a /etc/hosts
+grep openshift-minion-1 /etc/hosts || echo '10.245.2.2 openshift-minion-1' | sudo tee -a /etc/hosts
+grep openshift-minion-2 /etc/hosts || echo '10.245.2.3 openshift-minion-2' | sudo tee -a /etc/hosts
 
 cp ../build-latest-cadvisor.sh .
 
