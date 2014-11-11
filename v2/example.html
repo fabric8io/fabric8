@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Run OpenShift | Fabric8 Documentation</title>
+        <title>Deploy an example | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./openShiftDocker.html" />
+        <link rel="next" href="./tools.html" />
         
         
-        <link rel="prev" href="./getStartedOpenShift.html" />
+        <link rel="prev" href="./runFabric.html" />
         
 
-        <meta property="og:title" content="Run OpenShift | Fabric8 Documentation">
+        <meta property="og:title" content="Deploy an example | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1415691289710">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1415691289710">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -496,7 +496,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 43.333333333333336%;min-width: 40%;"></div>
+        <div class="inner" style="width: 66.66666666666667%;min-width: 63.333333333333336%;"></div>
     </div>
     <div class="chapters">
     
@@ -528,19 +528,19 @@
     
         <a href="./getStartedOpenShift.html" title="Run OpenShift" class="chapter done " data-progress="2.2.1" style="left: 43.333333333333336%;"></a>
     
-        <a href="./openShiftDocker.html" title="Docker" class="chapter  " data-progress="2.2.1.1" style="left: 46.666666666666664%;"></a>
+        <a href="./openShiftDocker.html" title="Docker" class="chapter done " data-progress="2.2.1.1" style="left: 46.666666666666664%;"></a>
     
-        <a href="./openShiftVagrant.html" title="Vagrant" class="chapter  " data-progress="2.2.1.2" style="left: 50%;"></a>
+        <a href="./openShiftVagrant.html" title="Vagrant" class="chapter done " data-progress="2.2.1.2" style="left: 50%;"></a>
     
-        <a href="./openShiftInstall.html" title="Install" class="chapter  " data-progress="2.2.1.3" style="left: 53.333333333333336%;"></a>
+        <a href="./openShiftInstall.html" title="Install" class="chapter done " data-progress="2.2.1.3" style="left: 53.333333333333336%;"></a>
     
-        <a href="./setupMachine.html" title="Setup Your Machine" class="chapter  " data-progress="2.2.1.3.1" style="left: 56.666666666666664%;"></a>
+        <a href="./setupMachine.html" title="Setup Your Machine" class="chapter done " data-progress="2.2.1.3.1" style="left: 56.666666666666664%;"></a>
     
-        <a href="./getStartedOpenShift" title="Use OpenShift" class="chapter  " data-progress="2.2.2" style="left: 60%;"></a>
+        <a href="./getStartedOpenShift" title="Use OpenShift" class="chapter done " data-progress="2.2.2" style="left: 60%;"></a>
     
-        <a href="./runFabric.html" title="Run Fabric8" class="chapter  " data-progress="2.2.2.1" style="left: 63.333333333333336%;"></a>
+        <a href="./runFabric.html" title="Run Fabric8" class="chapter done " data-progress="2.2.2.1" style="left: 63.333333333333336%;"></a>
     
-        <a href="./example.html" title="Deploy an example" class="chapter  " data-progress="2.3" style="left: 66.66666666666667%;"></a>
+        <a href="./example.html" title="Deploy an example" class="chapter done " data-progress="2.3" style="left: 66.66666666666667%;"></a>
     
         <a href="./tools.html" title="Tools" class="chapter  new-chapter" data-progress="3" style="left: 70%;"></a>
     
@@ -567,33 +567,25 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_12">
+                    <section class="normal" id="section-gitbook_7">
                     
-                        <h2 id="get-started-with-openshift-v3-and-fabric8"><a name="get-started-with-openshift-v3-and-fabric8" class="anchor" href="#get-started-with-openshift-v3-and-fabric8"><span class="fa fa-link"></span></a>Get Started with OpenShift V3 and Fabric8</h2>
-<p>Here are the steps to get started using OpenShift V3 and Fabric8:</p>
-<h3 id="run-openshift"><a name="run-openshift" class="anchor" href="#run-openshift"><span class="fa fa-link"></span></a>Run OpenShift</h3>
-<p>There are a few ways you can do this part. If you are not running a modern Linux we recommend you start with docker:</p>
-<ul>
-<li><a href="openShiftDocker.html">Start OpenShift V3 using Docker</a></li>
-</ul>
-<p>If you want to test a multi-minion system then we recommend you try vagrant:</p>
-<ul>
-<li><a href="openShiftVagrant.html">Start OpenShift V3 using Vagrant</a></li>
-</ul>
-<p>Or you could try install OpenShift directly on your laptop. Note that this currently only works on Linux (but hopefully will be fixed soon!):</p>
-<ul>
-<li><a href="openShiftInstall.html">Install OpenShift V3 locally</a></li>
-<li><a href="setupMachine.html">Setup Your Machine for local OpenShift</a></li>
-<li><a href="runFabric.html">Run Fabric8</a></li>
-</ul>
-<h3 id="use-openshift"><a name="use-openshift" class="anchor" href="#use-openshift"><span class="fa fa-link"></span></a>Use OpenShift</h3>
-<p>Now lets run the Fabric8 services and deploy an application:</p>
-<ol>
-<li><a href="http://fabric8.io/v2/example.html" target="_blank">Deploy an example quickstart project</a></li>
-<li><a href="quickstarts.html">Check out the Quickstarts</a></li>
-</ol>
-<p>Steps 1 and 2 only need to be done once per machine.</p>
-<p>Hopefully that will get you started quickly; if you hit any issues check out the <a href="http://fabric8.io/v2/FAQ.html" target="_blank">FAQ</a>, <a href="http://fabric8.io/community/index.html" target="_blank">get in touch</a> or <a href="https://github.com/fabric8io/fabric8/issues" target="_blank">raise an issue</a></p>
+                        <h3 id="example"><a name="example" class="anchor" href="#example"><span class="fa fa-link"></span></a>Example</h3>
+<p>The following example shows you how to build and push a docker image to Kubernetes and deploy it and then use it.</p>
+<p>Make sure you have followed the <a href="http://fabric8.io/v2/getStarted.html" target="_blank">Get Started Guide</a> so you should have things running.</p>
+<p>You should be able to check if the docker registry is running OK via this command (which should return &apos;true&apos;):</p>
+<pre><code>curl http://$DOCKER_REGISTRY/v1/_ping
+</code></pre><p>Or you can use the <a href="https://github.com/fabric8io/fabric8/blob/master/bin/ping-registry.sh" target="_blank">ping-registry.sh</a> scriptwhich will check that you have your <strong>DOCKER_REGISTRY</strong> environment variable setup correctly to point to a valid docker registry:</p>
+<pre><code>ping-registry.sh
+</code></pre><p>If either of those return <strong>true</strong> you are ready to build a quickstart!</p>
+<h4 id="build-the-camel-servlet-web-application"><a name="build-the-camel-servlet-web-application" class="anchor" href="#build-the-camel-servlet-web-application"><span class="fa fa-link"></span></a>Build the camel-servlet web application</h4>
+<p>From the distribution or source code perform these commands to push the docker image:</p>
+<pre><code>git clone https://github.com/fabric8io/quickstarts.git
+cd quickstarts/war/camel-servlet
+mvn clean install docker:build
+docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0-SNAPSHOT
+</code></pre><p>Now lets deploy the image into the Kubernetes environment:</p>
+<pre><code>mvn fabric8:run
+</code></pre><p>You should now be able to view the running web application at <a href="http://dockerhost:9901/war-camel-servlet-2.0-SNAPSHOT/" target="_blank">http://dockerhost:9901/war-camel-servlet-2.0-SNAPSHOT/</a></p>
 
                     
                     </section>
@@ -603,10 +595,10 @@
         </div>
 
         
-        <a href="./getStartedOpenShift.html" class="navigation navigation-prev " aria-label="Previous page: Get Started With OpenShift V3"><i class="fa fa-angle-left"></i></a>
+        <a href="./runFabric.html" class="navigation navigation-prev " aria-label="Previous page: Run Fabric8"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./openShiftDocker.html" class="navigation navigation-next " aria-label="Next page: Docker"><i class="fa fa-angle-right"></i></a>
+        <a href="./tools.html" class="navigation navigation-next " aria-label="Next page: Tools"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
