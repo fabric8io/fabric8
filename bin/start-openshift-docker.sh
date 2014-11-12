@@ -66,7 +66,7 @@ getServiceIpAndPort()
   echo `echo "$1"|grep $2| sed 's/\s\+/ /g' | awk '{ print $3 ":" $4 }'`
 }
 
-K8S_SERVICES=`$KUBE list services`
+K8S_SERVICES=$(docker run --rm --net=host openshift/origin:latest kube list services)
 
 echo
 echo "Waiting for services to fully come up - shouldn't be too long for you to wait"
