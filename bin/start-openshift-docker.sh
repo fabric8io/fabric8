@@ -9,19 +9,22 @@ if [ -z "$APP_BASE" ] ; then
   export APP_BASE
 fi
 
-while getopts "fu" opt; do
+while getopts "fud:" opt; do
   case $opt in
     f)
       echo "Cleaning up all existing k8s containers"
-      docker rm -f openshift cadvisor || true
+      docker rm -f openshift cadvisor 2>/dev/null || true
       RUNNING_CONTAINERS=`docker ps -a | grep k8s | cut -c 1-12`
-      test -x "$RUNNING_CONTAINERS" || docker rm -f $RUNNING_CONTAINERS
+      test -z "$RUNNING_CONTAINERS" || docker rm -f $RUNNING_CONTAINERS
       ;;
     u)
       echo "Updating all necessary images"
       for image in google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest; do
         docker pull $image
       done
+      ;;
+    d)
+      DOCKER_IP=$OPTARG
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -44,7 +47,7 @@ docker run -d --name=cadvisor -p 4194:8080 \
   google/cadvisor:latest
 
 # using an env var but ideally we'd use an alias ;)
-KUBE="docker run --rm -i --net=host -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin:latest kube"
+KUBE="docker run --rm -i --net=host openshift/origin:latest kube"
 
 if [ -f "$APP_BASE/registry.json" ]; then
   cat $APP_BASE/registry.json | $KUBE apply -c -
@@ -57,3 +60,15 @@ else
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json
 fi
+
+getServiceIpAndPort()
+{
+  echo `$KUBE get services/$1|grep $1| sed 's/\s\+/ /g' | awk '{ print $3 ":" $4 }'`
+}
+echo
+echo "You now have the following services running:"
+echo
+echo "Fabric8: http://$(getServiceIpAndPort hawtio-service)"
+echo "Docker Registry: http://$(getServiceIpAndPort registry-service)"
+echo "Influxdb: http://$(getServiceIpAndPort influx-master)"
+echo "Elasticsearch: http://$(getServiceIpAndPort elasticsearch)"
