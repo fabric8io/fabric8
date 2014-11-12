@@ -12,8 +12,9 @@ fi
 while getopts "fu" opt; do
   case $opt in
     f)
-      echo "Cleaning up all existing containers"
-      RUNNING_CONTAINERS=`docker ps -qa`
+      echo "Cleaning up all existing k8s containers"
+      docker rm -f openshift cadvisor || true
+      RUNNING_CONTAINERS=`docker ps -a | grep k8s | cut -c 1-12`
       test -x "$RUNNING_CONTAINERS" || docker rm -f $RUNNING_CONTAINERS
       ;;
     u)
