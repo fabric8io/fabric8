@@ -38,10 +38,10 @@
               {"name": "KUBERNETES_PORT_9090_TCP", "value": "tcp://172.17.42.1:8080"}
             ]
           }]
-        },
+        }
       },
       "labels": {
-        "name": "kube-socat",
+        "name": "kube-socat"
       }
     }
   ]
