@@ -7,11 +7,11 @@
   "items": [
     {
       "apiVersion": "v1beta1",
-      "containerPort": 0,
+      "containerPort": 8080,
       "creationTimestamp": null,
       "id": "hawtio-service",
       "kind": "Service",
-      "port": 8383,
+      "port": 8080,
       "selector": {
         "name": "hawtioPod"
       }
@@ -47,7 +47,6 @@
                   ],
                   "ports": [
                     {
-                      "hostPort": 8484,
                       "containerPort": 8080,
                       "protocol": "TCP"
                     }

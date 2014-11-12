@@ -13,7 +13,7 @@ while getopts "fud:" opt; do
   case $opt in
     f)
       echo "Cleaning up all existing k8s containers"
-      docker rm -f openshift cadvisor 2>/dev/null || true
+      docker rm -f openshift cadvisor > /dev/null 2>&1 || true
       RUNNING_CONTAINERS=`docker ps -a | grep k8s | cut -c 1-12`
       test -z "$RUNNING_CONTAINERS" || docker rm -f $RUNNING_CONTAINERS
       ;;
@@ -63,12 +63,17 @@ fi
 
 getServiceIpAndPort()
 {
-  echo `$KUBE get services/$1|grep $1| sed 's/\s\+/ /g' | awk '{ print $3 ":" $4 }'`
+  echo `echo "$1"|grep $2| sed 's/\s\+/ /g' | awk '{ print $3 ":" $4 }'`
 }
+
+K8S_SERVICES=`$KUBE list services`
+
 echo
 echo "You now have the following services running:"
 echo
-echo "Fabric8: http://$(getServiceIpAndPort hawtio-service)"
-echo "Docker Registry: http://$(getServiceIpAndPort registry-service)"
-echo "Influxdb: http://$(getServiceIpAndPort influx-master)"
-echo "Elasticsearch: http://$(getServiceIpAndPort elasticsearch)"
+echo "Fabric8 console: http://$(getServiceIpAndPort "$K8S_SERVICES" hawtio-service)/hawtio"
+echo "Docker Registry: http://$(getServiceIpAndPort "$K8S_SERVICES" registry-service)"
+echo "Influxdb: http://$(getServiceIpAndPort "$K8S_SERVICES" influx-master)"
+echo "Elasticsearch: http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)"
+echo "Kubernetes master: http://$DOCKER_IP:8080"
+echo "Cadvisor: http://$DOCKER_IP:4194"
