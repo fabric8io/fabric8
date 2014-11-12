@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Revision 1415706690974
+# Revision 1415754236981
 
 CACHE:
 getStartedJube.html
@@ -15,8 +15,8 @@ getStarted.html
 index.html
 getStartedOpenShift.html
 javaLibraries.html
-jubeAddQuickstartApp.html
 jube.html
+jubeAddQuickstartApp.html
 jubeRunQuickstart.html
 labels.html
 mavenPlugin.html
