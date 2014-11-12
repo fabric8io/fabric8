@@ -89,6 +89,10 @@
           <artifactId>zookeeper-client</artifactId>
       </dependency>
       <dependency>
+          <groupId>io.fabric8</groupId>
+          <artifactId>kubernetes-api</artifactId>
+      </dependency>
+      <dependency>
           <groupId>org.jboss.weld.se</groupId>
           <artifactId>weld-se</artifactId>
       </dependency>

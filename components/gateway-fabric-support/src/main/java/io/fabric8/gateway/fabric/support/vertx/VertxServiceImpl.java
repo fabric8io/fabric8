@@ -23,7 +23,6 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.apache.curator.framework.CuratorFramework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
@@ -36,9 +35,6 @@ public class VertxServiceImpl implements VertxService {
     private static final transient Logger LOG = LoggerFactory.getLogger(VertxServiceImpl.class);
 
     @Inject
-    private CuratorFramework curator;
-
-    @Inject
     private FabricVertexFactory vertxFactory;
 
     private Vertx vertx;
@@ -48,11 +44,6 @@ public class VertxServiceImpl implements VertxService {
         vertx = vertxFactory.createVertx();
         Objects.notNull(vertx, "vertx");
     }
-
-//    @Modified
-//    public void updated() throws Exception {
-//        // lets reload the configuration and find all the groups to create if they are not already created
-//    }
 
     @PreDestroy
     public void deactivate() {
@@ -73,27 +64,5 @@ public class VertxServiceImpl implements VertxService {
 
     public void setVertx(Vertx vertx) {
         this.vertx = vertx;
-    }
-
-
-    @Override
-    public CuratorFramework getCurator() {
-        return curator;
-    }
-
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
-    }
-
-    public void unsetCurator(CuratorFramework curator) {
-        this.curator = null;
-    }
-
-    void bindVertxFactory(FabricVertexFactory service) {
-        this.vertxFactory = service;
-    }
-
-    void unbindVertxFactory(FabricVertexFactory service) {
-        this.vertxFactory = null;
     }
 }

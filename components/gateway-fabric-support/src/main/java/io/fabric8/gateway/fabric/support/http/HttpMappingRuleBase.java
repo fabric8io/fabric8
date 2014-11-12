@@ -67,7 +67,7 @@ public class HttpMappingRuleBase implements HttpMappingRule {
     public static void populateUrlParams(Map<String, String> params, String service) {
         try {
             URL url = new URL(service);
-            params.put("contextPath", url.getPath());
+            params.put("contextPath", url.getPath().replaceAll("/", ""));
             params.put("protocol", url.getProtocol());
             params.put("host", url.getHost());
             params.put("port", "" + url.getPort());
@@ -136,7 +136,7 @@ public class HttpMappingRuleBase implements HttpMappingRule {
                 if (remove) {
                     MappedServices rule = mappingRules.get(fullPath);
                     if (rule != null) {
-                        List<String> serviceUrls = rule.getServiceUrls();
+                        Set<String> serviceUrls = rule.getServiceUrls();
                         serviceUrls.remove(service);
                         if (serviceUrls.isEmpty()) {
                             mappingRules.remove(fullPath);

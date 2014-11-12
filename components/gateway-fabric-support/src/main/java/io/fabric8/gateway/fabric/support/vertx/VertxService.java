@@ -15,7 +15,6 @@
  */
 package io.fabric8.gateway.fabric.support.vertx;
 
-import org.apache.curator.framework.CuratorFramework;
 import org.vertx.java.core.Vertx;
 
 /**
@@ -23,5 +22,4 @@ import org.vertx.java.core.Vertx;
 public interface VertxService {
     Vertx getVertx();
 
-    CuratorFramework getCurator();
 }

@@ -18,12 +18,16 @@ package io.fabric8.gateway.handlers.http;
 import io.fabric8.gateway.ServiceDetails;
 import io.fabric8.gateway.handlers.http.policy.ReverseUriPolicy;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
+
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.http.HttpClientResponse;
 import org.vertx.java.core.http.HttpServerRequest;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * Represents the mapped services and the relevant mapping information so that a service implementation can be
@@ -33,7 +37,7 @@ public class MappedServices {
     private final ServiceDetails serviceDetails;
     private final LoadBalancer loadBalancer;
     private final boolean reverseHeaders;
-    private List<String> serviceUrls = new CopyOnWriteArrayList<String>();
+    private Set<String> serviceUrls = new CopyOnWriteArraySet<String>();
 
     public MappedServices(String service, ServiceDetails serviceDetails, LoadBalancer loadBalancer, boolean reverseHeaders) {
         this.serviceDetails = serviceDetails;
@@ -53,7 +57,7 @@ public class MappedServices {
      * Chooses a request to use
      */
     public String chooseService(HttpServerRequest request) {
-        return loadBalancer.choose(serviceUrls, new HttpClientRequestFacade(request));
+        return loadBalancer.choose(new ArrayList<String>(serviceUrls), new HttpClientRequestFacade(request));
     }
 
     /**
@@ -94,7 +98,7 @@ public class MappedServices {
         return serviceDetails;
     }
 
-    public List<String> getServiceUrls() {
+    public Set<String> getServiceUrls() {
         return serviceUrls;
     }
 }

@@ -50,6 +50,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
     private final Vertx vertx;
     private final HttpGateway httpGateway;
     private final ObjectMapper mapper = new ObjectMapper();
+    private HttpClient client;
 
     public HttpGatewayHandler(Vertx vertx, HttpGateway httpGateway) {
         this.vertx = vertx;
@@ -70,7 +71,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
 
         // lets map the request URI to map to the service URI and then the renaming URI
         // using mapping rules...
-        HttpClient client = null;
+        //HttpClient client = null;
         String remaining = null;
         String prefix = null;
         String proxyServiceUrl = null;
@@ -96,7 +97,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                     if (uri.startsWith(pathPrefix) || (uri2 != null && uri2.startsWith(pathPrefix))) {
                         int pathPrefixLength = pathPrefix.length();
                         if (pathPrefixLength < uri.length()) {
-                            remaining = uri.substring(pathPrefixLength);
+                            remaining = uri.substring(pathPrefixLength + 1);
                         } else {
                             remaining = null;
                         }
@@ -107,7 +108,9 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                             // lets create a client for this request...
                             try {
                                 clientURL = new URL(proxyServiceUrl);
-                                client = createClient(clientURL);
+                                if (client==null) {
+                                	client = createClient(clientURL);
+                                }
                                 prefix = clientURL.getPath();
                                 reverseServiceUrl = request.absoluteURI().resolve(pathPrefix).toString();
                                 if (reverseServiceUrl.endsWith("/")) {
@@ -120,7 +123,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                         }
                     }
                 }
-
+                
                 if (client != null) {
                     String servicePath = prefix != null ? prefix : "";
                     // we should usually end the prefix path with a slash for web apps at least
@@ -130,7 +133,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                     if (remaining != null) {
                         servicePath += remaining;
                     }
-
+                    //servicePath = servicePath.replaceAll("//", "/");
                     LOG.info("Proxying request " + uri + " to service path: " + servicePath + " on service: " + proxyServiceUrl + " reverseServiceUrl: " + reverseServiceUrl);
                     final HttpClient finalClient = client;
                     Handler<HttpClientResponse> responseHandler = new Handler<HttpClientResponse>() {
@@ -144,7 +147,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                             clientResponse.dataHandler(new Handler<Buffer>() {
                                 public void handle(Buffer data) {
                                     if (LOG.isDebugEnabled()) {
-                                        LOG.debug("Proxying response body:" + data);
+                                        LOG.debug("3. Proxying response body:" + data);
                                     }
                                     request.response().write(data);
                                 }
@@ -152,7 +155,10 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                             clientResponse.endHandler(new VoidHandler() {
                                 public void handle() {
                                     request.response().end();
-                                    finalClient.close();
+                                    //finalClient.close();
+                                    if (LOG.isDebugEnabled()) {
+                                        LOG.debug("4. Response end");
+                                    }
                                 }
                             });
                         }
@@ -167,7 +173,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                     request.dataHandler(new Handler<Buffer>() {
                         public void handle(Buffer data) {
                             if (LOG.isDebugEnabled()) {
-                                LOG.debug("Proxying request body:" + data);
+                                LOG.debug("1. Proxying request body:" + data);
                             }
                             clientRequest.write(data);
                         }
@@ -175,7 +181,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                     request.endHandler(new VoidHandler() {
                         public void handle() {
                             if (LOG.isDebugEnabled()) {
-                                LOG.debug("end of the request");
+                                LOG.debug("2. end of the request");
                             }
                             clientRequest.end();
                         }
@@ -185,7 +191,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
                     //  lets return a 404
                     LOG.info("Could not find matching proxy path for " + uri + " from paths: " + mappingRules.keySet());
                     request.response().setStatusCode(404);
-                    request.response().close();
+                    request.response().end();
                 }
             }
             CallDetailRecord cdr = new CallDetailRecord(System.nanoTime() - callStart, null);
@@ -225,7 +231,7 @@ public class HttpGatewayHandler implements Handler<HttpServerRequest> {
 
     protected HttpClient createClient(URL url) throws MalformedURLException {
         // lets create a client
-        HttpClient client = vertx.createHttpClient();
+        final HttpClient client = vertx.createHttpClient();
         client.setHost(url.getHost());
         client.setPort(url.getPort());
         return client;
