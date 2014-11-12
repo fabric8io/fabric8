@@ -19,7 +19,7 @@ Usually your $DOCKER_IP is something like **192.168.59.103** if you are on Windo
 
 Run this command or add it to your ~/.bashrc
 
-    alias kube="docker run -i -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin:latest kube"
+    alias kube="docker run --rm --net=host -i -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin:latest kube"
 
 You can now use the kube command line to list pods, replication controllers and services; delete or create resources etc:
 
