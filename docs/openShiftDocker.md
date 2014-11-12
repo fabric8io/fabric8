@@ -4,6 +4,12 @@ Probably the easiest way to use OpenShift V3 on your laptop is to use [Docker](h
 
 First you'll need to [install docker](https://docs.docker.com/installation/), the later the version generally the better it is!
 
+If you fancy starting OpenShift V3 the super-easy way, run this one-liner (after setting some [environment variables](#environment-variables) if you’re running on OS X):
+
+    bash <(curl -sSL https://bit.ly/get-fabric8)
+
+This will start up OpenShift in a Docker container, as well as the Fabric8 console (hawtio) & some supporting containers that are used for logging & metrics.
+
 ### Environment variables
 
 You'll need the following environment variables to be able use the [Tools](http://fabric8.io/v2/tools.html) such as the [Web Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html), the [Forge Addons](http://fabric8.io/v2/forge.html) and the [java libraries](javaLibraries.html):

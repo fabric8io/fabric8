@@ -15,7 +15,7 @@ while getopts "fud:" opt; do
       echo "Cleaning up all existing k8s containers"
       docker rm -f openshift cadvisor > /dev/null 2>&1 || true
       RUNNING_CONTAINERS=`docker ps -a | grep k8s | cut -c 1-12`
-      test -z "$RUNNING_CONTAINERS" || docker rm -f $RUNNING_CONTAINERS
+      test -z "$RUNNING_CONTAINERS" || docker rm -f $RUNNING_CONTAINERS > /dev/null 2>&1
       ;;
     u)
       echo "Updating all necessary images"
@@ -37,14 +37,17 @@ export DOCKER_REGISTRY=$DOCKER_IP:5000
 export KUBERNETES_MASTER=http://$DOCKER_IP:8080
 export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
 
-docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host openshift/origin:latest start
+OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host openshift/origin:latest start)
+RULE="INPUT -d 172.17.42.1 -s 172.17.0.0/16 -j ACCEPT"
+RULE_OUTPUT=$( { docker exec openshift iptables -C $RULE; } 2>&1)
+test -n "$RULE_OUTPUT" && docker exec openshift iptables -I $RULE
 
-docker run -d --name=cadvisor -p 4194:8080 \
+CADVISOR_CONTAINER=$(docker run -d --name=cadvisor -p 4194:8080 \
   --volume=/:/rootfs:ro \
   --volume=/var/run:/var/run:rw \
   --volume=/sys:/sys:ro \
   --volume=/var/lib/docker/:/var/lib/docker:ro \
-  google/cadvisor:latest
+  google/cadvisor:latest)
 
 # using an env var but ideally we'd use an alias ;)
 KUBE="docker run --rm -i --net=host openshift/origin:latest kube"
@@ -61,16 +64,16 @@ else
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json
 fi
 
-getServiceIpAndPort()
-{
-  echo `echo "$1"|grep $2| sed 's/\s\+/ /g' | awk '{ print $3 ":" $4 }'`
-}
-
-K8S_SERVICES=$(docker run --rm --net=host openshift/origin:latest kube list services)
+K8S_SERVICES=$($KUBE list services)
 
 echo
 echo "Waiting for services to fully come up - shouldn't be too long for you to wait"
 echo
+
+getServiceIpAndPort()
+{
+  echo `echo "$1"|grep $2| sed 's/\s\+/ /g' | awk '{ print $3 ":" $4 }'`
+}
 
 FABRIC8_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" hawtio-service)/hawtio/
 DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" registry-service)
