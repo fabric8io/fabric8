@@ -15,12 +15,34 @@ You'll need the following environment variables to be able use the [Tools](http:
 
 Usually your $DOCKER_IP is something like **192.168.59.103** if you are on Windows or a Mac and are using boot2docker.
 
+### Using the kube command line
+
+Run this command or add it to your ~/.bashrc
+
+    alias kube="docker run -i -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin:latest kube"
+
+You can now use the kube command line to list pods, replication controllers and services; delete or create resources etc:
+
+    kube list pods
+    kube list replicationControllers
+    kube list services
+
+To see all the available commands:
+
+    kube --help
+
+**Note** that since we are using docker and you are typically running the docker commands from the host machine (your laptop), the kube command which runs in a linux container (which on Windows or a Mac is inside the boot2docker VM) it won't be able to access local files by file name when supplying -c to apply.
+
+However you can pipe them into the command line via
+
+    cat mything.json | kube apply -c -
+
 ### Network routes
 
-To be able to connect to the pod IPs inside OpenShift (so that hawtio can connect into your JVMs) you'll need to run this once on your machine:
+To be able to connect to the pod or service IPs inside OpenShift (so that hawtio can connect into your JVMs) you'll need to run this once on your machine:
 
- sudo route -n add 172.17.0.0/24 $DOCKER_IP
-
+    sudo route -n add 172.17.0.0/24 $DOCKER_IP
+    sudo route -n add 172.121.17.0/24 $DOCKER_IP
 
 ### Running OpenShift
 
@@ -69,25 +91,3 @@ and add two lines
 
     DOCKER_TLS=no
     EXTRA_ARGS="--insecure-registry 192.168.59.103:5000"
-
-
-### Using the openshift kube command
-
-You can use the openshift command line tool to list pods/replicationControllers/services and so forth. You can do this as follows:
-
-    docker run -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin kube --help
-
-To simplify the command line you could alias this...
-
-    alias kube="docker run -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin kube"
-    kube --help
-
-So you can create a pod as follows:
-
-    kube -c https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json create pods
-
-Or without using an alias:
-
-    docker run -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin kube -c https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json create pods
-
-**Note** that since we are using docker and you are typically running the docker commands from the host machine (your laptop), the kube command which runs in a linux container inside the boot2docker VM won't be able to access local files by default so you should default to using URLs when passing in JSON like above
