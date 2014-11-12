@@ -44,11 +44,6 @@
         
         <!-- Provided Dependencies -->
         <dependency>
-            <groupId>org.jboss.gravia</groupId>
-            <artifactId>gravia-runtime-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric8-karaf</artifactId>
             <version>${project.version}</version>

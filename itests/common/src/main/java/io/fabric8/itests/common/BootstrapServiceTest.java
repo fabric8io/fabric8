@@ -17,6 +17,7 @@ package io.fabric8.itests.common;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterBootstrap;
+import io.fabric8.api.gravia.ServiceLocator;
 import io.fabric8.itests.support.CommandSupport;
 
 import java.io.InputStream;
@@ -24,16 +25,11 @@ import java.io.InputStream;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
-import org.jboss.gravia.Constants;
-import org.jboss.gravia.itests.support.AnnotatedContextListener;
-import org.jboss.gravia.itests.support.ArchiveBuilder;
-import org.jboss.gravia.resource.ManifestBuilder;
-import org.jboss.gravia.runtime.RuntimeLocator;
-import org.jboss.gravia.runtime.RuntimeType;
-import org.jboss.gravia.runtime.ServiceLocator;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,29 +45,20 @@ public class BootstrapServiceTest  {
     @Deployment
     @StartLevelAware(autostart = true)
     public static Archive<?> deployment() {
-        final ArchiveBuilder archive = new ArchiveBuilder("bootstrap-service-test");
-        archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
+        final JavaArchive archive = ShrinkWrap.create(JavaArchive.class, "bootstrap-service-test");
         archive.addPackage(CommandSupport.class.getPackage());
         archive.setManifest(new Asset() {
             @Override
             public InputStream openStream() {
-                if (ArchiveBuilder.getTargetContainer() == RuntimeType.KARAF) {
-                    OSGiManifestBuilder builder = OSGiManifestBuilder.newInstance();
-                    builder.addBundleManifestVersion(2);
-                    builder.addBundleSymbolicName(archive.getName());
-                    builder.addBundleVersion("1.0.0");
-                    builder.addManifestHeader(Constants.GRAVIA_ENABLED, Boolean.TRUE.toString());
-                    builder.addImportPackages(RuntimeLocator.class, FabricService.class);
-                    return builder.openStream();
-                } else {
-                    ManifestBuilder builder = new ManifestBuilder();
-                    builder.addIdentityCapability(archive.getName(), "1.0.0");
-                    builder.addManifestHeader("Dependencies", "org.jboss.gravia,io.fabric8.api");
-                    return builder.openStream();
-                }
+                OSGiManifestBuilder builder = OSGiManifestBuilder.newInstance();
+                builder.addBundleManifestVersion(2);
+                builder.addBundleSymbolicName(archive.getName());
+                builder.addBundleVersion("1.0.0");
+                builder.addImportPackages(ServiceLocator.class, FabricService.class);
+                return builder.openStream();
             }
         });
-        return archive.getArchive();
+        return archive;
     }
 
     @Test

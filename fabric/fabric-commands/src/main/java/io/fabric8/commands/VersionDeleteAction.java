@@ -25,7 +25,7 @@ import io.fabric8.api.Version;
 import io.fabric8.api.ProfileService;
 
 import org.apache.karaf.shell.console.AbstractAction;
-import org.jboss.gravia.utils.IllegalStateAssertion;
+import io.fabric8.api.gravia.IllegalStateAssertion;
 
 @Command(name = VersionDelete.FUNCTION_VALUE, scope = VersionDelete.SCOPE_VALUE, description = VersionDelete.DESCRIPTION)
 public class VersionDeleteAction extends AbstractAction {

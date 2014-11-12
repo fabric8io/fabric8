@@ -31,11 +31,8 @@
     <name>Fabric8 :: Runtime :: Container</name>
 
     <modules>
-        <module>agent</module>
         <module>common</module>
         <module>karaf</module>
-        <module>tomcat</module>
-        <module>wildfly</module>
     </modules>
 
 </project>

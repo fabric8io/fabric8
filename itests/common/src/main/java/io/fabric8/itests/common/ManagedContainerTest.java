@@ -20,7 +20,6 @@ import io.fabric8.runtime.container.ContainerConfiguration;
 import io.fabric8.runtime.container.ContainerConfigurationBuilder;
 import io.fabric8.runtime.container.ManagedContainer;
 
-import org.jboss.gravia.runtime.RuntimeType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,8 +32,7 @@ public class ManagedContainerTest {
 
     @Test
     public void testContainerLifecycle() throws Exception {
-        RuntimeType runtimeType = RuntimeType.getRuntimeType(System.getProperty("target.container"));
-        ContainerConfigurationBuilder builder = ContainerConfigurationBuilder.create(runtimeType);
+        ContainerConfigurationBuilder builder = ContainerConfigurationBuilder.create();
         ContainerConfiguration configuration = builder.setTargetDirectory("target/managed-container").getConfiguration();
         ManagedContainer<?> container = ManagedContainer.Factory.create(configuration);
         Assert.assertNotNull("ManagedContainer not null", container);

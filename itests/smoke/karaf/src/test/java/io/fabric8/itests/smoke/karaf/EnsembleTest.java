@@ -18,6 +18,7 @@ package io.fabric8.itests.smoke.karaf;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.api.gravia.ServiceLocator;
 import io.fabric8.itests.support.CommandSupport;
 import io.fabric8.itests.support.ContainerBuilder;
 import io.fabric8.itests.support.EnsembleSupport;
@@ -36,21 +37,17 @@ import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
-import org.jboss.gravia.Constants;
-import org.jboss.gravia.itests.support.AnnotatedContextListener;
-import org.jboss.gravia.itests.support.ArchiveBuilder;
-import org.jboss.gravia.resource.ManifestBuilder;
-import org.jboss.gravia.runtime.ModuleContext;
-import org.jboss.gravia.runtime.RuntimeLocator;
-import org.jboss.gravia.runtime.RuntimeType;
-import org.jboss.gravia.runtime.ServiceLocator;
 import org.jboss.osgi.metadata.OSGiManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 
 @RunWith(Arquillian.class)
@@ -59,39 +56,30 @@ public class EnsembleTest {
     @Deployment
     @StartLevelAware(autostart = true)
     public static Archive<?> deployment() {
-        final ArchiveBuilder archive = new ArchiveBuilder("ensemble-test");
-        archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
+        final JavaArchive archive = ShrinkWrap.create(JavaArchive.class, "ensemble-test");
         archive.addPackage(CommandSupport.class.getPackage());
         archive.setManifest(new Asset() {
             @Override
             public InputStream openStream() {
-                if (ArchiveBuilder.getTargetContainer() == RuntimeType.KARAF) {
-                    OSGiManifestBuilder builder = OSGiManifestBuilder.newInstance();
-                    builder.addBundleManifestVersion(2);
-                    builder.addBundleSymbolicName(archive.getName());
-                    builder.addBundleVersion("1.0.0");
-                    builder.addManifestHeader(Constants.GRAVIA_ENABLED, Boolean.TRUE.toString());
-                    builder.addImportPackages(RuntimeLocator.class, FabricService.class);
-                    builder.addImportPackages(AbstractCommand.class, Action.class);
-                    builder.addImportPackage("org.apache.felix.service.command;status=provisional");
-                    builder.addImportPackages(ConfigurationAdmin.class, Logger.class);
-                    return builder.openStream();
-                } else {
-                    ManifestBuilder builder = new ManifestBuilder();
-                    builder.addIdentityCapability(archive.getName(), "1.0.0");
-                    builder.addManifestHeader("Dependencies", "io.fabric8.api,org.apache.karaf,org.jboss.gravia");
-                    return builder.openStream();
-                }
+                OSGiManifestBuilder builder = OSGiManifestBuilder.newInstance();
+                builder.addBundleManifestVersion(2);
+                builder.addBundleSymbolicName(archive.getName());
+                builder.addBundleVersion("1.0.0");
+                builder.addImportPackages(ServiceLocator.class, FabricService.class);
+                builder.addImportPackages(AbstractCommand.class, Action.class);
+                builder.addImportPackage("org.apache.felix.service.command;status=provisional");
+                builder.addImportPackages(ConfigurationAdmin.class, ServiceTracker.class, Logger.class);
+                return builder.openStream();
             }
         });
-        return archive.getArchive();
+        return archive;
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testAddAndRemove() throws Exception {
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
-        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
+        BundleContext moduleContext = ServiceLocator.getSystemContext();
         ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
@@ -110,7 +98,7 @@ public class EnsembleTest {
 
                     System.err.println(CommandSupport.executeCommand("fabric:container-list"));
                     System.err.println(CommandSupport.executeCommand("fabric:ensemble-list"));
-                    ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.awaitService(moduleContext, ZooKeeperClusterService.class);
+                    ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.awaitService(ZooKeeperClusterService.class);
                     Assert.assertNotNull(zooKeeperClusterService);
                     List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                     Assert.assertTrue(ensembleContainersResult.contains(cnt1.getId()));
@@ -128,7 +116,7 @@ public class EnsembleTest {
 
                     System.err.println(CommandSupport.executeCommand("fabric:container-list"));
                     System.err.println(CommandSupport.executeCommand("fabric:ensemble-list"));
-                    ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.awaitService(moduleContext, ZooKeeperClusterService.class);
+                    ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.awaitService(ZooKeeperClusterService.class);
                     Assert.assertNotNull(zooKeeperClusterService);
                     List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                     Assert.assertFalse(ensembleContainersResult.contains(cnt1.getId()));

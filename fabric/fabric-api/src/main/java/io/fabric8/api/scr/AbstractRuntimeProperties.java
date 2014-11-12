@@ -22,8 +22,8 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jboss.gravia.utils.IllegalArgumentAssertion;
-import org.jboss.gravia.utils.IllegalStateAssertion;
+import io.fabric8.api.gravia.IllegalArgumentAssertion;
+import io.fabric8.api.gravia.IllegalStateAssertion;
 
 public abstract class AbstractRuntimeProperties extends AbstractComponent implements RuntimeProperties {
 

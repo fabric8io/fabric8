@@ -34,7 +34,6 @@
     
     <modules>
         <module>container</module>
-        <module>embedded</module>
     </modules>
 
 </project>

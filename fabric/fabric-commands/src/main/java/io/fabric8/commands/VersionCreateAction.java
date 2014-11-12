@@ -30,7 +30,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.AbstractAction;
-import org.jboss.gravia.utils.IllegalStateAssertion;
+import io.fabric8.api.gravia.IllegalStateAssertion;
 
 @Command(name = VersionCreate.FUNCTION_VALUE, scope = VersionCreate.SCOPE_VALUE, description = VersionCreate.DESCRIPTION)
 public class VersionCreateAction extends AbstractAction {

@@ -251,7 +251,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         StringBuilder jvmOptsBuilder = new StringBuilder();
 
         String zkPasswordEncode = System.getProperty("zookeeper.password.encode", "true");
-        jvmOptsBuilder.append("-server -Dcom.sun.management.jmxremote -Dorg.jboss.gravia.repository.storage.dir=data/repository")
+        jvmOptsBuilder.append("-server -Dcom.sun.management.jmxremote")
                 .append(options.getZookeeperUrl() != null ? " -Dzookeeper.url=\"" + options.getZookeeperUrl() + "\"" : "")
                 .append(zkPasswordEncode != null ? " -Dzookeeper.password.encode=\"" + zkPasswordEncode + "\"" : "")
                 .append(options.getZookeeperPassword() != null ? " -Dzookeeper.password=\"" + options.getZookeeperPassword() + "\"" : "");

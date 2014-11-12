@@ -69,32 +69,6 @@
                 <type>pom</type>
             </dependency> -->
 
-            <!-- Gravia Dependencies -->
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-provision</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-resource</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-repository</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-resolver</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-runtime-api</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.gravia</groupId>
-                <artifactId>gravia-runtime-osgi</artifactId>
-            </dependency>
-
            <!-- Fabric Dependencies -->
            <dependency>
                <groupId>io.fabric8</groupId>
@@ -555,7 +529,6 @@
                                    <feature>fabric-zookeeper-commands</feature>
                                    <feature>gateway-fabric</feature>
                                    <feature>gateway-haproxy</feature>
-                                   <feature>gravia</feature>
                                    <feature>hawtio-fabric8-branding</feature>
                                    <feature>hawtio-karaf-terminal</feature>
                                    <feature>insight-elasticsearch</feature>

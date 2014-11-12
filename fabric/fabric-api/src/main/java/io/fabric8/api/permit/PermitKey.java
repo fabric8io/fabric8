@@ -15,7 +15,7 @@
  */
 package io.fabric8.api.permit;
 
-import org.jboss.gravia.utils.IllegalArgumentAssertion;
+import io.fabric8.api.gravia.IllegalArgumentAssertion;
 
 /**
  * Represents a system state

@@ -19,9 +19,7 @@ import java.util.concurrent.Callable;
 
 import org.apache.karaf.admin.AdminService;
 import org.apache.karaf.admin.Instance;
-import org.jboss.gravia.runtime.ModuleContext;
-import org.jboss.gravia.runtime.RuntimeLocator;
-import org.jboss.gravia.runtime.ServiceLocator;
+import io.fabric8.api.gravia.ServiceLocator;
 
 /**
  * A {@link java.util.concurrent.Callable} that waits for the {@link io.fabric8.api.Container} to get created.
@@ -33,8 +31,7 @@ public class WaitForInstanceStartedTask implements Callable<Boolean> {
     private final String name;
 
     public WaitForInstanceStartedTask(String name, Long provisionTimeOut) {
-        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-        this.adminService = ServiceLocator.awaitService(moduleContext, AdminService.class);
+        this.adminService = ServiceLocator.awaitService(AdminService.class);
         this.provisionTimeOut = provisionTimeOut;
         this.name = name;
     }

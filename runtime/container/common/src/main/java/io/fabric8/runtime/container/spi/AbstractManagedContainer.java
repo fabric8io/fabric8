@@ -15,6 +15,7 @@
  */
 package io.fabric8.runtime.container.spi;
 
+import io.fabric8.api.gravia.MavenCoordinates;
 import io.fabric8.runtime.container.ContainerConfiguration;
 import io.fabric8.runtime.container.LifecycleException;
 import io.fabric8.runtime.container.ManagedContainer;
@@ -24,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import org.jboss.gravia.resource.MavenCoordinates;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ExplodedExporter;
