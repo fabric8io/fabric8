@@ -34,8 +34,8 @@
                 }
               ],
               "id": "registry-pod",
-              "version": "v1beta1",
-            },
+              "version": "v1beta1"
+            }
           },
           "labels": {
             "name": "registry-pod"
