@@ -33,10 +33,10 @@
               {"name": "PRE_CREATE_DB", "value": "cadvisor"}
             ]
           }]
-        },
+        }
       },
       "labels": {
-        "name": "influxdb",
+        "name": "influxdb"
       }
     }
   ]
