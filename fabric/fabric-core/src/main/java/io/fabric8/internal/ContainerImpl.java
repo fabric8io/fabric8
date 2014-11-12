@@ -49,7 +49,7 @@ import java.util.Properties;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
-import org.jboss.gravia.utils.IllegalArgumentAssertion;
+import io.fabric8.api.gravia.IllegalArgumentAssertion;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;

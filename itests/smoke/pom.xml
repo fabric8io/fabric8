@@ -31,7 +31,6 @@
     <name>Fabric8 :: Integration Tests :: Smoke</name>
 
     <modules>
-        <module>embedded</module>
         <module>karaf</module>
     </modules>
 

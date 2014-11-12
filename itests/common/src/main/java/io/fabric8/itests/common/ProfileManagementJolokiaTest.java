@@ -18,9 +18,10 @@ package io.fabric8.itests.common;
 import io.fabric8.api.mxbean.ProfileManagement;
 import io.fabric8.jolokia.client.JolokiaMXBeanProxy;
 
+import javax.management.ObjectName;
+
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.gravia.runtime.RuntimeType;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 
@@ -35,28 +36,12 @@ public class ProfileManagementJolokiaTest extends AbstractProfileManagementTest 
 
     static final String[] credentials = new String[] { "admin", "admin" };
     
-    static RuntimeType runtimeType;
     static ProfileManagement proxy;
     
     @BeforeClass
     public static void beforeClass() throws Exception {
-        String jmxServiceURL;
-        runtimeType = RuntimeType.getRuntimeType(System.getProperty("target.container"));
-        if (runtimeType == RuntimeType.KARAF) {
-            jmxServiceURL = "http://localhost:8181/jolokia";
-        } else if (runtimeType == RuntimeType.TOMCAT) {
-           jmxServiceURL = "http://localhost:8080/fabric/jolokia";
-        } else if (runtimeType == RuntimeType.WILDFLY) {
-            jmxServiceURL = "http://localhost:8080/fabric/jolokia";
-        } else {
-            throw new IllegalStateException("Unsupported target container: " + runtimeType);
-        }
-        proxy = JolokiaMXBeanProxy.getMXBeanProxy(jmxServiceURL, ProfileManagement.OBJECT_NAME, ProfileManagement.class, credentials[0], credentials[1]);
-    }
-
-    @Override
-    RuntimeType getRuntimeType() {
-        return runtimeType;
+        String jmxServiceURL = "http://localhost:8181/jolokia";
+        proxy = JolokiaMXBeanProxy.getMXBeanProxy(jmxServiceURL, new ObjectName(ProfileManagement.OBJECT_NAME), ProfileManagement.class, credentials[0], credentials[1]);
     }
 
     @Override

@@ -26,9 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.jboss.gravia.runtime.RuntimeType;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Test;
 
 /**
@@ -38,7 +36,6 @@ import org.junit.Test;
  */
 public abstract class AbstractProfileManagementTest {
 
-    abstract RuntimeType getRuntimeType();
     abstract ProfileManagement getProxy();
     
     @Test
@@ -49,10 +46,6 @@ public abstract class AbstractProfileManagementTest {
 
     @Test
     public void testGetVersion() throws Exception {
-        
-        // [FABRIC-1172] Jolokia exec operations fail on WildFly
-        Assume.assumeFalse(getRuntimeType() == RuntimeType.WILDFLY);
-        
         VersionState v10 = getProxy().getVersion("1.0");
         Assert.assertEquals("1.0", v10.getId());
         Assert.assertTrue("Expected empty, but was" + v10.getAttributes(), v10.getAttributes().isEmpty());
@@ -63,10 +56,6 @@ public abstract class AbstractProfileManagementTest {
 
     @Test
     public void testCreateVersion() throws Exception {
-        
-        // [FABRIC-1172] Jolokia exec operations fail on WildFly
-        Assume.assumeFalse(getRuntimeType() == RuntimeType.WILDFLY);
-        
         ProfileBuilder pbA11 = ProfileBuilder.Factory.create("1.1", "prfA");
         Profile prfA = pbA11.addConfiguration("pidA", Collections.singletonMap("keyA", "valA")).getProfile();
         VersionBuilder vb11 = VersionBuilder.Factory.create("1.1").addProfile(prfA);
@@ -82,10 +71,6 @@ public abstract class AbstractProfileManagementTest {
 
     @Test
     public void testCreateVersionFrom() throws Exception {
-        
-        // [FABRIC-1172] Jolokia exec operations fail on WildFly
-        Assume.assumeFalse(getRuntimeType() == RuntimeType.WILDFLY);
-        
         // [FABRIC-1169] Profile version attributes leak to other versions
         // VersionState v12 = getProxy().createVersion("1.0", "1.2", Collections.singletonMap("keyA", "valA"));
         VersionState v12 = getProxy().createVersionFrom("1.0", "1.2", null);
@@ -102,10 +87,6 @@ public abstract class AbstractProfileManagementTest {
 
     @Test
     public void testCreateUpdateDeleteProfile() throws Exception {
-        
-        // [FABRIC-1172] Jolokia exec operations fail on WildFly
-        Assume.assumeFalse(getRuntimeType() == RuntimeType.WILDFLY);
-        
         ProfileBuilder pbA10 = ProfileBuilder.Factory.create("1.0", "prfA");
         pbA10.addConfiguration("pidA", Collections.singletonMap("keyA", "valA"));
         ProfileState prfA = getProxy().createProfile(new ProfileState(pbA10.getProfile()));

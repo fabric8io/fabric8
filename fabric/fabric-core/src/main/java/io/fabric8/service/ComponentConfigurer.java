@@ -15,39 +15,34 @@
  */
 package io.fabric8.service;
 
+import io.fabric8.api.gravia.IllegalStateAssertion;
+import io.fabric8.api.gravia.MapPropertiesProvider;
+import io.fabric8.api.gravia.PropertiesProvider;
+import io.fabric8.api.gravia.SubstitutionPropertiesProvider;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
-import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.api.scr.support.ConfigInjection;
-
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.jboss.gravia.runtime.Runtime;
-import org.jboss.gravia.runtime.spi.CompositePropertiesProvider;
-import org.jboss.gravia.runtime.spi.EnvPropertiesProvider;
-import org.jboss.gravia.runtime.spi.MapPropertiesProvider;
-import org.jboss.gravia.runtime.spi.PropertiesProvider;
-import org.jboss.gravia.runtime.spi.SubstitutionPropertiesProvider;
-import org.jboss.gravia.runtime.spi.SystemPropertiesProvider;
-import org.jboss.gravia.utils.IllegalStateAssertion;
 
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Service;
+import org.osgi.framework.BundleContext;
+
 @Component(immediate = true)
 @Service(Configurer.class)
 public class ComponentConfigurer extends AbstractComponent implements Configurer {
 
-    @Reference(referenceInterface = Runtime.class)
-    private ValidatingReference<Runtime> runtime = new ValidatingReference<>();
+    private BundleContext bundleContext;
 
     @Activate
-    void activate() {
+    void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
         activateComponent();
     }
 
@@ -71,22 +66,24 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
     public <T> Map<String, ?> configure(final Map<String, ?> configuration, T target, String... ignorePrefix) throws Exception {
         assertValid();
         Map<String, Object> result = new HashMap<>();
-        final Runtime runtime = this.runtime.get();
 
         final PropertiesProvider runtimeProperties = new PropertiesProvider() {
             @Override
             public Object getProperty(String key) {
-                return runtime.getProperty(key);
+                return bundleContext.getProperty(key);
             }
 
             @Override
             public Object getRequiredProperty(String key) {
-                return runtime.getRequiredProperty(key);
+                String value = bundleContext.getProperty(key);
+                IllegalStateAssertion.assertNotNull(value, "Cannot obtain property: " + key);
+                return value;
             }
 
             @Override
             public Object getProperty(String key, Object defaultValue) {
-                return runtime.getProperty(key, defaultValue);
+                String value = bundleContext.getProperty(key);
+                return value != null ? value : defaultValue;
             }
         };
 
@@ -102,13 +99,5 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
         }
         ConfigInjection.applyConfiguration(result, target, ignorePrefix);
         return result;
-    }
-
-    void bindRuntime(Runtime service) {
-        runtime.bind(service);
-    }
-
-    void unbindRuntime(Runtime service) {
-        runtime.unbind(service);
     }
 }

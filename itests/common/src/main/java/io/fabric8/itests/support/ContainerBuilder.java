@@ -33,9 +33,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.gravia.runtime.ModuleContext;
-import org.jboss.gravia.runtime.RuntimeLocator;
-import org.jboss.gravia.runtime.ServiceLocator;
+import org.osgi.framework.BundleContext;
+
+import io.fabric8.api.gravia.ServiceLocator;
 
 public abstract class ContainerBuilder<T extends ContainerBuilder, B extends CreateContainerBasicOptions.Builder> {
 
@@ -132,8 +132,8 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
     }
 
     public Future<Set<Container>> prepareAsync(B builder) {
-        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(moduleContext, FabricService.class);
+        BundleContext syscontext = ServiceLocator.getSystemContext();
+        ServiceProxy<FabricService> fabricProxy = ServiceProxy.createServiceProxy(syscontext, FabricService.class);
         try {
             FabricService fabricService = fabricProxy.getService();
             CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);

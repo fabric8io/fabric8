@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.jboss.gravia.utils.IllegalStateAssertion;
+import io.fabric8.api.gravia.IllegalStateAssertion;
 
 
 /**

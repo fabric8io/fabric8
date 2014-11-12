@@ -26,8 +26,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-import org.jboss.gravia.utils.IllegalArgumentAssertion;
-import org.jboss.gravia.utils.IllegalStateAssertion;
+import io.fabric8.api.gravia.IllegalArgumentAssertion;
+import io.fabric8.api.gravia.IllegalStateAssertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

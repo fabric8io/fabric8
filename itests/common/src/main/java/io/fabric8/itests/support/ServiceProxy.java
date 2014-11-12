@@ -24,9 +24,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.gravia.runtime.ModuleContext;
-import org.jboss.gravia.runtime.ServiceReference;
-import org.jboss.gravia.runtime.ServiceTracker;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
 
 
 @ThreadSafe
@@ -37,16 +37,16 @@ public final class ServiceProxy<T> {
     private final Class<T> serviceClazz;
     private final DelegatingInvocationHandler<T> invocationHandler;
 
-    public static <T> ServiceProxy<T> createServiceProxy(ModuleContext context, Class<T> serviceClazz) {
+    public static <T> ServiceProxy<T> createServiceProxy(BundleContext context, Class<T> serviceClazz) {
         return new ServiceProxy<T>(context, serviceClazz, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
-    public static <T> ServiceProxy<T> createServiceProxy(ModuleContext context, Class<T> serviceClazz, long timeout, TimeUnit timeUnit) {
+    public static <T> ServiceProxy<T> createServiceProxy(BundleContext context, Class<T> serviceClazz, long timeout, TimeUnit timeUnit) {
         return new ServiceProxy<T>(context, serviceClazz, timeout, timeUnit);
     }
 
-    private ServiceProxy(ModuleContext moduleContext, Class<T> serviceClazz, long timeout, TimeUnit timeUnit) {
-        this.invocationHandler = new DelegatingInvocationHandler<T>(moduleContext, serviceClazz, timeout, timeUnit);
+    private ServiceProxy(BundleContext bundleContext, Class<T> serviceClazz, long timeout, TimeUnit timeUnit) {
+        this.invocationHandler = new DelegatingInvocationHandler<T>(bundleContext, serviceClazz, timeout, timeUnit);
         this.serviceClazz = serviceClazz;
     }
 
@@ -64,7 +64,7 @@ public final class ServiceProxy<T> {
         private final DynamicReference<T> dynamicReference;
         private final ServiceTracker<T, T> tracker;
 
-        DelegatingInvocationHandler(ModuleContext context, Class<T> type, long timeout, TimeUnit unit) {
+        DelegatingInvocationHandler(BundleContext context, Class<T> type, long timeout, TimeUnit unit) {
             dynamicReference = new DynamicReference<T>(type.getSimpleName(), timeout, unit);
             tracker = new ServiceTracker<T, T>(context, type, null) {
 

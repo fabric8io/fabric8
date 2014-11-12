@@ -18,6 +18,7 @@ package io.fabric8.itests.support;
 import io.fabric8.api.Container;
 import io.fabric8.api.FabricService;
 import io.fabric8.api.ProfileRegistry;
+import io.fabric8.api.gravia.ServiceLocator;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,10 +41,6 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-
-import org.jboss.gravia.runtime.ModuleContext;
-import org.jboss.gravia.runtime.RuntimeLocator;
-import org.jboss.gravia.runtime.ServiceLocator;
 
 public class ProvisionSupport {
 
@@ -210,8 +207,7 @@ public class ProvisionSupport {
     }
 
     public static Boolean profileAvailable(String profile, String version, Long timeout) throws Exception {
-        ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-        FabricService fabricService = ServiceLocator.awaitService(moduleContext, FabricService.class);
+        FabricService fabricService = ServiceLocator.awaitService(FabricService.class);
         ProfileRegistry profileRegistry = fabricService.adapt(ProfileRegistry.class);
         for (long t = 0; (!profileRegistry.hasProfile(version, profile)  && t < timeout); t += 2000L) {
             Thread.sleep(2000L);

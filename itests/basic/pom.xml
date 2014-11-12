@@ -32,9 +32,6 @@
 
     <modules>
         <module>karaf</module>
-        <!-- [FABRIC-1168] Tomcat ARQ tests may hang
-        <module>tomcat</module -->
-        <module>wildfly</module>
     </modules>
 
     <dependencies>

@@ -195,7 +195,6 @@
 
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">
         <feature>scr</feature>
-        <feature>gravia</feature>
         <feature>karaf</feature>
 
         <bundle dependency="true">mvn:javax.annotation/javax.annotation-api/1.2</bundle>
@@ -815,15 +814,6 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.swagger-jaxrs/${swagger-jaxrs-version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.reflections/${reflections-version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.json4s/${json4s-version}</bundle>
-    </feature>
-
-    <feature name="gravia" version="${project.version}" resolver="(obr)">
-        <bundle start-level="36">mvn:org.jboss.gravia/gravia-resource/${gravia-version}</bundle>
-        <bundle start-level="36">mvn:org.jboss.gravia/gravia-runtime-api/${gravia-version}</bundle>
-        <bundle start-level="36">mvn:org.jboss.gravia/gravia-runtime-osgi/${gravia-version}</bundle>
-        <bundle start-level="36">mvn:org.jboss.gravia/gravia-repository/${gravia-version}</bundle>
-        <bundle start-level="37">mvn:org.jboss.gravia/gravia-resolver/${gravia-version}</bundle>
-        <bundle start-level="38">mvn:org.jboss.gravia/gravia-provision/${gravia-version}</bundle>
     </feature>
 
 </features>

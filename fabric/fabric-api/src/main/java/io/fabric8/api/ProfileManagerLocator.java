@@ -15,7 +15,7 @@
  */
 package io.fabric8.api;
 
-import org.jboss.gravia.runtime.ServiceLocator;
+import io.fabric8.api.gravia.ServiceLocator;
 
 
 /**

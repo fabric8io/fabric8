@@ -21,7 +21,7 @@ import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.TabularType;
 
-import org.jboss.gravia.utils.IllegalStateAssertion;
+import io.fabric8.api.gravia.IllegalStateAssertion;
 import org.jolokia.converter.Converters;
 import org.jolokia.converter.json.JsonConvertOptions;
 import org.jolokia.converter.json.ObjectToJsonConverter;

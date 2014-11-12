@@ -41,7 +41,7 @@ import javax.management.openmbean.TabularData;
 import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
 
-import org.jboss.gravia.utils.IllegalStateAssertion;
+import io.fabric8.api.gravia.IllegalStateAssertion;
 
 /**
  * A utility that can marshal an MXBean compliant java type into an opendata type and vise versa.

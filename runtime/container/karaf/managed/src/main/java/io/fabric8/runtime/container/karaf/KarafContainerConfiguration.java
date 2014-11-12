@@ -15,13 +15,11 @@
  */
 package io.fabric8.runtime.container.karaf;
 
-import java.io.IOException;
-import java.util.Properties;
-
+import io.fabric8.api.gravia.MavenCoordinates;
 import io.fabric8.runtime.container.ContainerConfiguration;
 
-import org.jboss.gravia.resource.MavenCoordinates;
-import org.jboss.gravia.runtime.RuntimeType;
+import java.io.IOException;
+import java.util.Properties;
 
 
 /**
@@ -32,11 +30,6 @@ import org.jboss.gravia.runtime.RuntimeType;
 public final class KarafContainerConfiguration extends ContainerConfiguration {
 
     public static final String DEFAULT_JAVAVM_ARGUMENTS = "-Xmx512m ";
-
-    @Override
-    public RuntimeType getRuntimeType() {
-        return RuntimeType.KARAF;
-    }
 
     @Override
     protected void validate() {

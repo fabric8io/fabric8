@@ -38,7 +38,7 @@ import javax.management.openmbean.OpenMBeanOperationInfo;
 import javax.management.openmbean.OpenMBeanParameterInfo;
 import javax.management.openmbean.OpenType;
 
-import org.jboss.gravia.utils.IllegalStateAssertion;
+import io.fabric8.api.gravia.IllegalStateAssertion;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pReadRequest;
