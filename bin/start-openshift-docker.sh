@@ -19,7 +19,7 @@ while getopts "fud:" opt; do
       ;;
     u)
       echo "Updating all necessary images"
-      for image in google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest; do
+      for image in svendowideit/ambassador:latest google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest; do
         docker pull $image
       done
       ;;
@@ -53,11 +53,13 @@ CADVISOR_CONTAINER=$(docker run -d --name=cadvisor -p 4194:8080 \
 KUBE="docker run --rm -i --net=host openshift/origin:latest kube"
 
 if [ -f "$APP_BASE/registry.json" ]; then
+  cat $APP_BASE/kube-socat.json | $KUBE apply -c -
   cat $APP_BASE/fabric8.json | $KUBE apply -c -
   cat $APP_BASE/registry.json | $KUBE apply -c -
   cat $APP_BASE/influxdb.json | $KUBE apply -c -
   cat $APP_BASE/elasticsearch.json | $KUBE apply -c -
 else
+  $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kube-socat.json
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json
@@ -107,5 +109,5 @@ SERVICE_TABLE="$SERVICE_TABLE\nDocker Registry|$DOCKER_REGISTRY"
 SERVICE_TABLE="$SERVICE_TABLE\nInfluxdb|$INFLUXDB"
 SERVICE_TABLE="$SERVICE_TABLE\nElasticsearch|$ELASTICSEARCH"
 SERVICE_TABLE="$SERVICE_TABLE\nKubernetes master|$KUBERNETES"
-SERVICE_TABLE="$SERVICE_TABLE\nCadvisor:|$CADVISOR"
+SERVICE_TABLE="$SERVICE_TABLE\nCadvisor|$CADVISOR"
 printf "$SERVICE_TABLE" | column -t -s '|'

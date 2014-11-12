@@ -1,0 +1,48 @@
+{
+  "id": "kube-socat-config",
+  "kind": "Config",
+  "apiVersion": "v1beta1",
+  "name": "kube-socat-config",
+  "description": "Creates an socat container & service to replicate the KUBERNETS_MASTER_SERVICE available in core kuberenetes",
+  "items": [{
+      "id": "kubernetes-ro",
+      "kind": "Service",
+      "apiVersion": "v1beta1",
+      "port": 8080,
+      "containerPort": 9090,
+      "selector": { "name": "kube-socat" }
+    },
+    {
+      "id": "kubernetes",
+      "kind": "Service",
+      "apiVersion": "v1beta1",
+      "port": 8080,
+      "containerPort": 9090,
+      "selector": { "name": "kube-socat" }
+    },
+    {
+      "id": "kube-socat",
+      "kind": "Pod",
+      "apiVersion": "v1beta1",
+      "desiredState": {
+        "manifest": {
+          "version": "v1beta1",
+          "id": "kube-socat",
+          "containers": [{
+            "name": "kube-socat",
+            "image": "svendowideit/ambassador:latest",
+            "ports": [
+              {"containerPort": 9090 }
+            ],
+            "env": [
+              {"name": "KUBERNETES_PORT_9090_TCP", "value": "tcp://172.17.42.1:8080"}
+            ]
+          }]
+        },
+      },
+      "labels": {
+        "name": "kube-socat",
+      }
+    }
+  ]
+}
