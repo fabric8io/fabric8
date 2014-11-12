@@ -55,9 +55,9 @@ if [ -f "$APP_BASE/registry.json" ]; then
   cat $APP_BASE/fabric8.json | $KUBE apply -c -
   cat $APP_BASE/elasticsearch.json | $KUBE apply -c -
 else
+  $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json
-  $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json
 fi
 
@@ -69,11 +69,40 @@ getServiceIpAndPort()
 K8S_SERVICES=`$KUBE list services`
 
 echo
-echo "You now have the following services running:"
+echo "Waiting for services to fully come up - shouldn't be too long for you to wait"
 echo
-echo "Fabric8 console: http://$(getServiceIpAndPort "$K8S_SERVICES" hawtio-service)/hawtio"
-echo "Docker Registry: http://$(getServiceIpAndPort "$K8S_SERVICES" registry-service)"
-echo "Influxdb: http://$(getServiceIpAndPort "$K8S_SERVICES" influx-master)"
-echo "Elasticsearch: http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)"
-echo "Kubernetes master: http://$DOCKER_IP:8080"
-echo "Cadvisor: http://$DOCKER_IP:4194"
+
+FABRIC8_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" hawtio-service)/hawtio/
+DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" registry-service)
+INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influx-master)
+ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
+KUBERNETES=http://$DOCKER_IP:8080
+CADVISOR=http://$DOCKER_IP:4194
+
+validateService()
+{
+  echo "Waiting for $1"
+  while true; do
+    curl -s -o /dev/null --connect-timeout 1 $2 && break || sleep 1
+  done
+}
+
+validateService "Fabric8 console" $FABRIC8_CONSOLE
+validateService "Docker registry" $DOCKER_REGISTRY
+validateService "Influxdb" $INFLUXDB
+validateService "Elasticsearch" $ELASTICSEARCH
+validateService "Kubernetes master" $KUBERNETES
+validateService "cadvisor" $CADVISOR
+
+echo
+echo "You're all up & running! Here are the available services:"
+echo
+
+SERVICE_TABLE="Service|URL\n-------|---"
+SERVICE_TABLE="$SERVICE_TABLE\nFabric8 console|$FABRIC8_CONSOLE"
+SERVICE_TABLE="$SERVICE_TABLE\nDocker Registry|$DOCKER_REGISTRY"
+SERVICE_TABLE="$SERVICE_TABLE\nInfluxdb|$INFLUXDB"
+SERVICE_TABLE="$SERVICE_TABLE\nElasticsearch|$ELASTICSEARCH"
+SERVICE_TABLE="$SERVICE_TABLE\nKubernetes master|$KUBERNETES"
+SERVICE_TABLE="$SERVICE_TABLE\nCadvisor:|$CADVISOR"
+printf "$SERVICE_TABLE" | column -t -s '|'
