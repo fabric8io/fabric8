@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1415793382307">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1415816044046">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -512,6 +512,9 @@
                         <h2 id="run-openshift-v3-using-docker"><a name="run-openshift-v3-using-docker" class="anchor" href="#run-openshift-v3-using-docker"><span class="fa fa-link"></span></a>Run OpenShift V3 using Docker</h2>
 <p>Probably the easiest way to use OpenShift V3 on your laptop is to use <a href="https://docs.docker.com/" target="_blank">Docker</a> since thats the only thing you need to install and often developers already have it.</p>
 <p>First you&apos;ll need to <a href="https://docs.docker.com/installation/" target="_blank">install docker</a>, the later the version generally the better it is!</p>
+<p>If you fancy starting OpenShift V3 the super-easy way, run this one-liner (after setting some <a href="#environment-variables">environment variables</a> if you&#x2019;re running on OS X):</p>
+<pre><code>bash &lt;(curl -sSL https://bit.ly/get-fabric8)
+</code></pre><p>This will start up OpenShift in a Docker container, as well as the Fabric8 console (hawtio) &amp; some supporting containers that are used for logging &amp; metrics.</p>
 <h3 id="environment-variables"><a name="environment-variables" class="anchor" href="#environment-variables"><span class="fa fa-link"></span></a>Environment variables</h3>
 <p>You&apos;ll need the following environment variables to be able use the <a href="http://fabric8.io/v2/tools.html" target="_blank">Tools</a> such as the <a href="console.html">Web Console</a>, <a href="http://fabric8.io/v2/mavenPlugin.html" target="_blank">Maven Plugin</a>, the <a href="http://fabric8.io/v2/forge.html" target="_blank">Forge Addons</a> and the <a href="javaLibraries.html">java libraries</a>:</p>
 <pre><code>export DOCKER_IP=`boot2docker ip 2&gt; /dev/null`
