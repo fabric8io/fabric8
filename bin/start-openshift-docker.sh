@@ -46,7 +46,14 @@ docker run -d --name=cadvisor -p 4194:8080 \
 # using an env var but ideally we'd use an alias ;)
 KUBE="docker run --rm -i --net=host -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin:latest kube"
 
-cat $APP_BASE/registry.json | $KUBE apply -c -
-cat $APP_BASE/influxdb.json | $KUBE apply -c -
-cat $APP_BASE/fabric8.json | $KUBE apply -c -
-cat $APP_BASE/elasticsearch.json | $KUBE apply -c -
+if [ -f "$APP_BASE/registry.json" ]; then
+  cat $APP_BASE/registry.json | $KUBE apply -c -
+  cat $APP_BASE/influxdb.json | $KUBE apply -c -
+  cat $APP_BASE/fabric8.json | $KUBE apply -c -
+  cat $APP_BASE/elasticsearch.json | $KUBE apply -c -
+else
+  $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json
+  $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json
+  $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json
+  $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json
+fi
