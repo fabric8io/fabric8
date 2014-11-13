@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.3" data-basepath="." data-revision="1415816044046">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.3" data-basepath="." data-revision="1415871232356">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -564,16 +564,26 @@
       &lt;/execution&gt;
     &lt;/executions&gt;
   &lt;/plugin&gt;
-</code></pre><h3 id="building-and-pushing-your-docker-image"><a name="building-and-pushing-your-docker-image" class="anchor" href="#building-and-pushing-your-docker-image"><span class="fa fa-link"></span></a>Building and Pushing your docker image</h3>
+</code></pre><h3 id="building-your-docker-image"><a name="building-your-docker-image" class="anchor" href="#building-your-docker-image"><span class="fa fa-link"></span></a>Building your docker image</h3>
 <p>To create a container on Kubernetes you need to create a docker image.</p>
 <p>To enable the creation of a docker image use a maven plugin such as the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md" target="_blank">docker-maven-plugin</a></p>
 <p>Then to build the docker image locally its</p>
 <pre><code>mvn install docker:build
-</code></pre><p>Or to push the docker image to your local docker registry</p>
-<pre><code>mvn install docker:push
-</code></pre><p><strong>Note</strong> if the above fails (we have seen it sometimes fail), perform a docker:build instead then use the command line:</p>
-<pre><code>docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0-SNAPSHOT
-</code></pre><h3 id="generating-the-json"><a name="generating-the-json" class="anchor" href="#generating-the-json"><span class="fa fa-link"></span></a>Generating the JSON</h3>
+</code></pre><h3 id="pushing-your-docker-image"><a name="pushing-your-docker-image" class="anchor" href="#pushing-your-docker-image"><span class="fa fa-link"></span></a>Pushing your docker image</h3>
+<p>When running fabric8 on a number of machines your docker image needs to be in a docker registry so that it can be downloaded.</p>
+<p>To push your image you will need to run:</p>
+<pre><code>mvn install docker:build docker:push
+</code></pre><p>If you wish to push docker images to a private or public registry you will need to add a section to your <strong>~/.m2/settings.xml</strong> file with a dummy login and password where the server <strong>id</strong> matches the value of <strong>$DOCKER_REGISTRY</strong>. For example a local boot2docker based registry would look like this:</p>
+<pre><code>    &lt;servers&gt;
+       &lt;server&gt;
+           &lt;id&gt;192.168.59.103:5000&lt;/id&gt;
+           &lt;username&gt;jolokia&lt;/username&gt;
+           &lt;password&gt;jolokia&lt;/password&gt;
+       &lt;/server&gt;
+        ...
+  &lt;/servers&gt;
+</code></pre><p>For more details <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/doc/manual.md#authentication" target="_blank">see the docker maven plugin docs</a></p>
+<h3 id="generating-the-json"><a name="generating-the-json" class="anchor" href="#generating-the-json"><span class="fa fa-link"></span></a>Generating the JSON</h3>
 <p>An <a href="apps.html">App</a> requires a <strong>kubernetes.json</strong> file which you can hand craft yourself; or you can put it into <strong>src/main/resources</strong> so that you can use Maven&apos;s default resource filtering to replace any project properties (e.g. the group ID, artifact ID, version number).</p>
 <p>The <strong>fabric8:json</strong> goal will either copy or generate the JSON and then add it to your build so that the JSON gets released along with your artifacts.</p>
 <pre><code>mvn fabric8:json
