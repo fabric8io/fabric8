@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.3" data-basepath="." data-revision="1415898571674">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.3" data-basepath="." data-revision="1415900040057">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -507,7 +507,7 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_16">
+                    <section class="normal" id="section-gitbook_18">
                     
                         <h2 id="fabric8-maven-plugin"><a name="fabric8-maven-plugin" class="anchor" href="#fabric8-maven-plugin"><span class="fa fa-link"></span></a>Fabric8 Maven Plugin</h2>
 <p>This maven plugin makes it easy to create or deploy <a href="apps.html">Apps</a> as part of your maven project.</p>
@@ -582,7 +582,15 @@
        &lt;/server&gt;
         ...
   &lt;/servers&gt;
-</code></pre><p>For more details <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/doc/manual.md#authentication" target="_blank">see the docker maven plugin docs</a></p>
+</code></pre><pre><code>   &lt;server&gt;
+      &lt;id&gt;172.121.17.4:5000&lt;/id&gt;
+       &lt;username&gt;jolokia&lt;/username&gt;
+       &lt;password&gt;jolokia&lt;/password&gt;
+   &lt;/server&gt;
+    ...
+</code></pre><p>  
+```</p>
+<p>For more details <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/doc/manual.md#authentication" target="_blank">see the docker maven plugin docs</a></p>
 <h3 id="generating-the-json"><a name="generating-the-json" class="anchor" href="#generating-the-json"><span class="fa fa-link"></span></a>Generating the JSON</h3>
 <p>An <a href="apps.html">App</a> requires a <strong>kubernetes.json</strong> file which you can hand craft yourself; or you can put it into <strong>src/main/resources</strong> so that you can use Maven&apos;s default resource filtering to replace any project properties (e.g. the group ID, artifact ID, version number).</p>
 <p>The <strong>fabric8:json</strong> goal will either copy or generate the JSON and then add it to your build so that the JSON gets released along with your artifacts.</p>
