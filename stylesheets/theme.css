@@ -56,15 +56,13 @@ h2:first-child {
   position: relative;
 }
 
-.top-banner-logo {
-  position: absolute;
-  top: 50%;
-  left: 9em;
-  margin-top: -100px;
+.top-banner .jumbotron {
+  padding-top: 20px;
 }
 
 .top-banner-logo > img {
   height: 200px;
+  margin: 0 auto;
 }
 
 .navbar-header {
