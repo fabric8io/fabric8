@@ -65,7 +65,7 @@ To automatically generate an [App Zip](appzip.html) for your project then add th
         </executions>
       </plugin>
 
-### Building and Pushing your docker image
+### Building your docker image
 
 To create a container on Kubernetes you need to create a docker image.
 
@@ -75,13 +75,28 @@ Then to build the docker image locally its
 
     mvn install docker:build
 
-Or to push the docker image to your local docker registry
+### Pushing your docker image
 
-    mvn install docker:push
+When running fabric8 on a number of machines your docker image needs to be in a docker registry so that it can be downloaded.
 
-**Note** if the above fails (we have seen it sometimes fail), perform a docker:build instead then use the command line:
+To push your image you will need to run:
 
-    docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0-SNAPSHOT
+    mvn install docker:build docker:push
+
+If you wish to push docker images to a private or public registry you will need to add a section to your **~/.m2/settings.xml** file with a dummy login and password where the server **id** matches the value of **$DOCKER_REGISTRY**. For example a local boot2docker based registry would look like this:
+
+```
+	<servers>
+       <server>
+           <id>192.168.59.103:5000</id>
+           <username>jolokia</username>
+           <password>jolokia</password>
+       </server>
+        ...
+  </servers>
+```
+
+For more details [see the docker maven plugin docs](https://github.com/rhuss/docker-maven-plugin/blob/master/doc/manual.md#authentication)
 
 ### Generating the JSON
 
