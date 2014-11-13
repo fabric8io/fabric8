@@ -33,10 +33,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ZookeeperImportUtilsTest {
@@ -85,7 +82,7 @@ public class ZookeeperImportUtilsTest {
 
         ZookeeperImportUtils.importFromFileSystem(curator, source, target, null, null, false, false, false);
         assertThat(curator.getChildren().forPath("/fabric1/directory").size(), equalTo(0));
-        assertThat(new String(curator.getData().forPath("/fabric1/directory")), equalTo("property1=value1\n"));
+        assertThat(new String(curator.getData().forPath("/fabric1/directory")), endsWith("property1=value1\n"));
     }
 
     @Test
@@ -96,7 +93,7 @@ public class ZookeeperImportUtilsTest {
         ZookeeperImportUtils.importFromFileSystem(curator, source, target, null, null, false, false, false);
         assertThat(curator.getChildren().forPath("/fabric2").size(), equalTo(1));
         assertThat(curator.checkExists().forPath("/fabric2/directory"), nullValue());
-        assertThat(new String(curator.getData().forPath("/fabric2/directory.cfgx")), equalTo("property1=value1\n"));
+        assertThat(new String(curator.getData().forPath("/fabric2/directory.cfgx")), endsWith("property1=value1\n"));
     }
 
     @Test
