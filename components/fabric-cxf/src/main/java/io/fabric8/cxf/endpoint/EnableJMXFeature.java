@@ -27,6 +27,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
+import org.apache.cxf.endpoint.ManagedEndpoint;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerLifeCycleManager;
 import org.apache.cxf.endpoint.ServerRegistry;
@@ -42,6 +43,7 @@ public class EnableJMXFeature extends AbstractFeature {
     @Override
     public void initialize(Server server, Bus bus) {
         ManagedApi mApi = new ManagedApi(bus, server.getEndpoint(), server);
+        ManagedEndpoint mEndpoint = new ManagedEndpoint(bus, server.getEndpoint(), server);
         InstrumentationManager iMgr = bus.getExtension(InstrumentationManager.class);
         if (iMgr == null) {
             iMgr = new InstrumentationManagerImpl(bus);
@@ -53,10 +55,13 @@ public class EnableJMXFeature extends AbstractFeature {
         if (iMgr != null) {   
             try {
                 iMgr.register(mApi);
+                iMgr.register(mEndpoint);
                 ServerLifeCycleManager slcMgr = bus.getExtension(ServerLifeCycleManager.class);
                 if (slcMgr != null) {
                     slcMgr.registerListener(mApi);
-                    slcMgr.startServer(server);
+                    slcMgr.registerListener(mEndpoint);
+                    mApi.startServer(server);
+                    mEndpoint.startServer(server);
                 }
                     
             } catch (JMException jmex) {
@@ -76,6 +81,7 @@ public class EnableJMXFeature extends AbstractFeature {
         for (Iterator<Server> iter = servers.iterator(); iter.hasNext();) {
             Server server = (Server) iter.next();
             ManagedApi mApi = new ManagedApi(bus, server.getEndpoint(), server);
+            ManagedEndpoint mEndpoint = new ManagedEndpoint(bus, server.getEndpoint(), server);
             InstrumentationManager iMgr = bus.getExtension(InstrumentationManager.class);
             if (iMgr == null) {
                 iMgr = new InstrumentationManagerImpl(bus);
@@ -87,6 +93,7 @@ public class EnableJMXFeature extends AbstractFeature {
             if (iMgr != null) {   
                 try {
                     iMgr.register(mApi);
+                    iMgr.register(mEndpoint);
                 } catch (JMException jmex) {
                     jmex.printStackTrace();
                     LOG.log(Level.WARNING, "Registering ManagedApi failed.", jmex);
