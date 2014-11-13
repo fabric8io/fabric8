@@ -95,6 +95,14 @@ If you wish to push docker images to a private or public registry you will need 
         ...
   </servers>
 ```
+       <server>
+          <id>172.121.17.4:5000</id>
+           <username>jolokia</username>
+           <password>jolokia</password>
+       </server>
+        ...
+  </servers>
+```
 
 For more details [see the docker maven plugin docs](https://github.com/rhuss/docker-maven-plugin/blob/master/doc/manual.md#authentication)
 
