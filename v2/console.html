@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.1" data-basepath="." data-revision="1415884441836">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.1" data-basepath="." data-revision="1415897034096">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -511,6 +511,19 @@
                     
                         <h2 id="web-console"><a name="web-console" class="anchor" href="#web-console"><span class="fa fa-link"></span></a>Web Console</h2>
 <p>The Web Console is based on the <a href="http://hawt.io/" target="_blank">hawtio project</a> and provides a rich HTML5 based web application for working with Kubernetes and the underlying containers reusing the various <a href="http://hawt.io/plugins/index.html" target="_blank">hawtio plugins</a>.</p>
+<h3 id="getting-started"><a name="getting-started" class="anchor" href="#getting-started"><span class="fa fa-link"></span></a>Getting Started</h3>
+<p>The console has a number of tabs that let you look around Kubernetes. We&apos;ll highlight the main ones you &apos;ll need to use:</p>
+<h4 id="controllers"><a name="controllers" class="anchor" href="#controllers"><span class="fa fa-link"></span></a>Controllers</h4>
+<p>The main tab to get a feel for whats running in your system is the <strong>Controllers</strong> tab which shows all the <a href="replicationControllers.html">replication controllers</a>.</p>
+<p>To scale up or down a controller to run more or less <a href="pods.html">pods</a> (containers) just increase or decrease the <strong>Desired Replicas</strong> value and hit <strong>Save</strong> and hey presto pods are created or destroyed.</p>
+<p><img src="images/controllers.png" alt="controllers tab screenshot"></p>
+<h4 id="overview"><a name="overview" class="anchor" href="#overview"><span class="fa fa-link"></span></a>Overview</h4>
+<p>The <strong>Overview</strong> tab gives you a feel for how all the various <a href="services.html">services</a> and  <a href="replicationControllers.html">replication controllers</a> interact:</p>
+<p><img src="images/overview.png" alt="overview tab screenshot"></p>
+<h4 id="library"><a name="library" class="anchor" href="#library"><span class="fa fa-link"></span></a>Library</h4>
+<p>The <strong>Library</strong> tab lets you drag and drop <a href="apps.html">Apps</a> into your library from downloaded <a href="appzip.html">App Zips</a> so that you can see all the available applications you can run. Click on an app then hit <strong>Run</strong> to run them.</p>
+<p>You can also drag folder from the Library to your desktop and local file system to save them.</p>
+<p><img src="images/library.png" alt="library tab screenshot"></p>
 <h3 id="using-jube"><a name="using-jube" class="anchor" href="#using-jube"><span class="fa fa-link"></span></a>Using Jube</h3>
 <p>If you are using Jube then the web console should be visible at <a href="http://localhost:8585/hawtio/" target="_blank">http://localhost:8585/hawtio/</a>. You can then view these tabs:</p>
 <ul>
