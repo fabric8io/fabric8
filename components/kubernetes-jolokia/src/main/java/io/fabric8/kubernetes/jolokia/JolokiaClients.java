@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getDockerIp;
 
@@ -66,7 +67,13 @@ public class JolokiaClients {
             for (Port port : ports) {
                 Integer containerPort = port.getContainerPort();
                 if (containerPort != null) {
-                    if (containerPort == 8778) {
+                    String name = port.getName();
+                    if (containerPort == 8778 || (Objects.equals("jolokia", name) && containerPort.intValue() > 0)) {
+                        CurrentState currentState = pod.getCurrentState();
+                        String podIP = currentState.getPodIP();
+                        if (Strings.isNotBlank(podIP)) {
+                            return createJolokiaClientFromHostAndPort(container, podIP, containerPort);
+                        }
                         Integer hostPort = port.getHostPort();
                         if (hostPort != null && hasDocker(pod)) {
                             // if Kubernetes is running locally on a platform which doesn't support docker natively
@@ -79,13 +86,19 @@ public class JolokiaClients {
                                 }
                             }
                         }
-                        String jolokiaUrl = "http://" + host + ":" + hostPort + "/jolokia/";
-                        return createJolokiaClient(container, jolokiaUrl);
+                        if (Strings.isNotBlank(host)) {
+                            return createJolokiaClientFromHostAndPort(container, host, hostPort);
+                        }
                     }
                 }
             }
         }
         return null;
+    }
+
+    protected J4pClient createJolokiaClientFromHostAndPort(ManifestContainer container, String host, Integer hostPort) {
+        String jolokiaUrl = "http://" + host + ":" + hostPort + "/jolokia/";
+        return createJolokiaClient(container, jolokiaUrl);
     }
 
     /**
