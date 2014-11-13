@@ -58,7 +58,7 @@ public class KubernetesFactory {
 
     public KubernetesFactory(String address) {
         this.address = address;
-        if (isEmpty(address)) {
+        if (Strings.isNullOrBlank(address)) {
             this.address = findKubernetesMaster();
         }
         init();
@@ -164,32 +164,36 @@ public class KubernetesFactory {
 
     public void setAddress(String address) {
         this.address = address;
-        if (isEmpty(address)) {
+        if (Strings.isNullOrBlank(address)) {
             findKubernetesMaster();
         }
-    }
-
-    protected static boolean isEmpty(String text) {
-        return text == null || text.length() == 0;
     }
 
     // Helpers
 
     public static String resolveHttpKubernetesMaster() {
-        String dockerHost = resolveKubernetesMaster();
-        if (dockerHost.startsWith("tcp:")) {
-            return "http:" + dockerHost.substring(4);
+        String kubernetesMaster = resolveKubernetesMaster();
+        if (kubernetesMaster.startsWith("tcp:")) {
+            return "http:" + kubernetesMaster.substring(4);
         }
-        return dockerHost;
+        return kubernetesMaster;
     }
 
     public static String resolveKubernetesMaster() {
-        String dockerHost = System.getenv("KUBERNETES_MASTER");
-        if (isEmpty(dockerHost)) {
-            dockerHost = System.getProperty("kubernetes.master");
+        // First let's check if it's available as a kubernetes service like it should be...
+        String kubernetesMaster = System.getenv("KUBERNETES_SERVICE_HOST");
+        if (Strings.isNotBlank(kubernetesMaster)) {
+            kubernetesMaster = "http://" + kubernetesMaster + ":" + System.getenv("KUBERNETES_SERVICE_PORT");
+        } else {
+            // If not then fall back to KUBERNETES_MASTER env var
+            kubernetesMaster = System.getenv("KUBERNETES_MASTER");
         }
-        if (!isEmpty(dockerHost)) {
-            return dockerHost;
+
+        if (Strings.isNullOrBlank(kubernetesMaster)) {
+            kubernetesMaster = System.getProperty("kubernetes.master");
+        }
+        if (Strings.isNotBlank(kubernetesMaster)) {
+            return kubernetesMaster;
         }
         return DEFAULT_KUBERNETES_MASTER;
     }
