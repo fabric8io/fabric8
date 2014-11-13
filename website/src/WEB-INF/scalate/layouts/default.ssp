@@ -57,9 +57,18 @@
 
     <!-- begin top banner -->
     <div class="top-banner visible-md visible-lg visible-sm">
-      <a class="top-banner-logo" href="/">
-        <img class="logo-brand" src="/images/fabric8_logo.svg" />
-      </a>
+      <div class="jumbotron text-center">
+        <div class="container">
+          <div class="col-lg-6 col-xs-12 text-center">
+            <a class="top-banner-logo" href="/">
+              <img class="logo-brand" src="/images/fabric8_logo.svg">
+            </a>
+          </div>
+          <div class="col-lg-6 text-center visible-lg">
+            <h1>an open source integration platform</h1>
+          </div>
+        </div>
+      </div>
     </div>
     <!--
     <div class="container visible-md visible-lg visible-sm">
