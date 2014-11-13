@@ -111,3 +111,9 @@ SERVICE_TABLE="$SERVICE_TABLE\nElasticsearch|$ELASTICSEARCH"
 SERVICE_TABLE="$SERVICE_TABLE\nKubernetes master|$KUBERNETES"
 SERVICE_TABLE="$SERVICE_TABLE\nCadvisor|$CADVISOR"
 printf "$SERVICE_TABLE" | column -t -s '|'
+
+if [[ $OSTYPE == darwin* ]]; then
+  open "${FABRIC8_CONSOLE}kubernetes/overview" &> /dev/null &
+else
+  xdg-open "${FABRIC8_CONSOLE}kubernetes/overview" &> /dev/null &
+fi
