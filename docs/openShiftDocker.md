@@ -12,7 +12,7 @@ This will start up OpenShift in a Docker container, as well as the Fabric8 conso
 
 ### Environment variables
 
-You'll need the following environment variables to be able use the [Tools](http://fabric8.io/v2/tools.html) such as the [Web Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html), the [Forge Addons](http://fabric8.io/v2/forge.html) and the [java libraries](javaLibraries.html):
+You'll need the following environment variables to be able use the [Tools](http://fabric8.io/v2/tools.html) such as the [Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html), the [Forge Addons](http://fabric8.io/v2/forge.html) and the [java libraries](javaLibraries.html):
 
     export DOCKER_IP=`boot2docker ip 2> /dev/null`
     export DOCKER_REGISTRY=$DOCKER_IP:5000

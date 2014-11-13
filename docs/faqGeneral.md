@@ -28,8 +28,8 @@ Try reading the [overview](/v2/overview.html) to see if that helps give you an i
 * Fabric8 is focused on:
  * being an **Integration Platform As A Service** and a **Java Application Platform As A Service**
  * adding extra services, tooling &amp; quickstarts to make the Kubernetes platform richer and more powerful for the Java ecosystem via:
-    * deep and rich [tooling](http://fabric8.io/v2/tools.html) to make it easy to develop Java applications on Kubernetes/OpenShift such as the [Web Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html) and [Forge Addons](http://fabric8.io/v2/forge.html)
-    * [Kubernetes Web Console](console.html) based on [hawtio](http://hawt.io/) so you can view your entire environment or zoom inside inside any Java container and see exactly whats going on
+    * deep and rich [tooling](http://fabric8.io/v2/tools.html) to make it easy to develop Java applications on Kubernetes/OpenShift such as the [Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html) and [Forge Addons](http://fabric8.io/v2/forge.html)
+    * [Kubernetes Console](console.html) based on [hawtio](http://hawt.io/) so you can view your entire environment or zoom inside inside any Java container and see exactly whats going on
     * [Java libraries](javaLibraries.html) for working with [kubernetes](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api) and [docker](https://github.com/fabric8io/fabric8/tree/master/components/docker-api) along with [kubernetes and jolokia](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia) so its easier to develop Java based tools and services which work well with Kubernetes
     * making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform
     * to support non-Linux platforms which do not yet have native Go Lang or Docker support there's also [Jube](jube.html) which is a pure Java implementation of Kubernetes and emulator of Docker for running Java middleware on any operating system that supports Java 7.

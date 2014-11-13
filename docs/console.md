@@ -1,6 +1,6 @@
-## Web Console
+## Console
 
-The Web Console is based on the [hawtio project](http://hawt.io/) and provides a rich HTML5 based web application for working with Kubernetes and the underlying containers reusing the various [hawtio plugins](http://hawt.io/plugins/index.html).
+The Console is based on the [hawtio project](http://hawt.io/) and provides a rich HTML5 based web application for working with Kubernetes and the underlying containers reusing the various [hawtio plugins](http://hawt.io/plugins/index.html).
 
 ### Getting Started
 

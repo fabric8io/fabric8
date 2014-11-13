@@ -16,7 +16,7 @@
         * [Install Natively](openShiftInstall.md)
     * [Deploy an example](example.md)
 * [Tools](tools.md)
-    * [Web Console](console.md)
+    * [Console](console.md)
     * [QuickStarts](quickstarts.md)
     * [Maven Plugin](mavenPlugin.md)
     * [Forge Addons](forge.md)
