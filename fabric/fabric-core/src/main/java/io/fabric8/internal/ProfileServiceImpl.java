@@ -191,15 +191,15 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
                 overlayProfile = builder.getProfile();
 
                 // Log the overlay profile difference
-                if (LOGGER.isInfoEnabled()) {
+                if (LOGGER.isDebugEnabled()) {
                     OverlayAudit audit = getOverlayAudit();
                     synchronized (audit) {
                         Profile lastOverlay = audit.overlayProfiles.get(profileId);
                         if (lastOverlay == null) {
-                            LOGGER.info("Overlay" + Profiles.getProfileInfo(overlayProfile));
+                            LOGGER.debug("Overlay" + Profiles.getProfileInfo(overlayProfile));
                             audit.overlayProfiles.put(profileId, overlayProfile);
                         } else if (!lastOverlay.equals(overlayProfile)) {
-                            LOGGER.info("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
+                            LOGGER.debug("Overlay" + Profiles.getProfileDifference(lastOverlay, overlayProfile));
                             audit.overlayProfiles.put(profileId, overlayProfile);
                         }
                     }
