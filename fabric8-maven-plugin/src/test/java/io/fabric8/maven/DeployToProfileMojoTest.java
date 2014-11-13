@@ -140,7 +140,7 @@ public class DeployToProfileMojoTest extends Assert {
         String decodedConfig = decodeSentConfig();
 
         // Then
-        assertEquals("artifactId = " + "fabric8-maven-plugin", decodedConfig);
+        assertTrue(decodedConfig.contains("artifactId = " + "fabric8-maven-plugin"));
     }
 
     // Helpers
