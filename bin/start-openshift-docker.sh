@@ -45,7 +45,8 @@ RULE="INPUT -d 172.17.42.1 -s 172.17.0.0/16 -j ACCEPT"
 RULE_OUTPUT=$( { docker run --rm --privileged --net=host busybox:latest iptables -C $RULE; } 2>&1)
 test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host busybox:latest iptables -I $RULE
 
-CADVISOR_CONTAINER=$(docker run -d --name=cadvisor -p 4194:8080 \
+# Have to run it privileged otherwise not working on CentOS7
+CADVISOR_CONTAINER=$(docker run -d --name=cadvisor --privileged -p 4194:8080 \
   --volume=/:/rootfs:ro \
   --volume=/var/run:/var/run:rw \
   --volume=/sys:/sys:ro \
@@ -102,7 +103,6 @@ validateService "cadvisor" $CADVISOR
 echo
 echo "You're all up & running! Here are the available services:"
 echo
-
 SERVICE_TABLE="Service|URL\n-------|---"
 SERVICE_TABLE="$SERVICE_TABLE\nFabric8 console|$FABRIC8_CONSOLE"
 SERVICE_TABLE="$SERVICE_TABLE\nDocker Registry|$DOCKER_REGISTRY"
