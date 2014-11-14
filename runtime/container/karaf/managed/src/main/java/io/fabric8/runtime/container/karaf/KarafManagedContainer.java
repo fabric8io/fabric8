@@ -20,8 +20,6 @@ import io.fabric8.runtime.container.spi.AbstractManagedContainer;
 import java.io.File;
 import java.util.Map;
 
-import org.jboss.gravia.runtime.RuntimeType;
-
 
 /**
  * The managed root container
@@ -29,11 +27,6 @@ import org.jboss.gravia.runtime.RuntimeType;
  * @since 26-Feb-2014
  */
 public final class KarafManagedContainer extends AbstractManagedContainer<KarafContainerConfiguration> {
-
-    @Override
-    public RuntimeType getRuntimeType() {
-        return RuntimeType.KARAF;
-    }
 
     @Override
     protected void doConfigure(KarafContainerConfiguration config) {

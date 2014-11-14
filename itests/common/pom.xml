@@ -31,14 +31,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.jboss.gravia</groupId>
-            <artifactId>gravia-runtime-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.gravia</groupId>
-            <artifactId>gravia-itests-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
         </dependency>
@@ -93,12 +85,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.fabric8.runtime</groupId>
-            <artifactId>fabric-runtime-container-wildfly-connector</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
             <scope>provided</scope>
@@ -111,11 +97,6 @@
         <dependency>
             <groupId>org.jboss.arquillian.testenricher</groupId>
             <artifactId>arquillian-testenricher-osgi</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.gravia</groupId>
-            <artifactId>gravia-container-tomcat-extension</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

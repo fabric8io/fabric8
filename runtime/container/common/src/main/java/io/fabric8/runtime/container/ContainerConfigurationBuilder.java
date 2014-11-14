@@ -15,12 +15,11 @@
  */
 package io.fabric8.runtime.container;
 
+import io.fabric8.api.gravia.MavenCoordinates;
+
 import java.io.File;
 import java.util.Iterator;
 import java.util.ServiceLoader;
-
-import org.jboss.gravia.resource.MavenCoordinates;
-import org.jboss.gravia.runtime.RuntimeType;
 
 
 /**
@@ -30,17 +29,14 @@ import org.jboss.gravia.runtime.RuntimeType;
  */
 public abstract class ContainerConfigurationBuilder {
 
-    public static ContainerConfigurationBuilder create(RuntimeType type) {
+    public static ContainerConfigurationBuilder create() {
         ServiceLoader<ContainerConfigurationBuilder> loader = ServiceLoader.load(ContainerConfigurationBuilder.class);
         Iterator<ContainerConfigurationBuilder> iterator = loader.iterator();
         while(iterator.hasNext()) {
             ContainerConfigurationBuilder configurationBuilder = iterator.next();
-            ContainerConfiguration auxconfig = configurationBuilder.internalConfiguration();
-            if (auxconfig.getRuntimeType() == type) {
-                return configurationBuilder;
-            }
+            return configurationBuilder;
         }
-        throw new IllegalStateException("Cannot obtain container configuration service for: " + type);
+        throw new IllegalStateException("Cannot obtain container configuration service");
     }
 
     protected abstract ContainerConfiguration internalConfiguration();

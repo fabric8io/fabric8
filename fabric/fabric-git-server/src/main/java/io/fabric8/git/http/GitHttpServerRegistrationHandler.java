@@ -17,7 +17,6 @@ package io.fabric8.git.http;
 
 import io.fabric8.api.FabricService;
 import io.fabric8.api.RuntimeProperties;
-import io.fabric8.api.TargetContainer;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.ValidatingReference;
@@ -34,9 +33,7 @@ import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -66,15 +63,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     private static final String REALM_PROPERTY_NAME = "realm";
     private static final String ROLE_PROPERTY_NAME = "role";
     private static final String DEFAULT_ROLE = "admin";
-
-    private static final Map<TargetContainer, String> defaultRealms;
-    static {
-        Map<TargetContainer, String> realms = new HashMap<TargetContainer, String>();
-        realms.put(TargetContainer.KARAF, "karaf");
-        realms.put(TargetContainer.TOMCAT, "fabric");
-        realms.put(TargetContainer.WILDFLY, "fabric-domain");
-        defaultRealms = Collections.unmodifiableMap(realms);
-    }
+    private static final String DEFAULT_REALM = "karaf";
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
@@ -145,8 +134,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     private String getConfiguredRealm(RuntimeProperties sysprops, Map<String, ?> configuration) {
         String realm = (String)configuration.get(REALM_PROPERTY_NAME);
         if (realm == null) {
-            TargetContainer targetContainer = TargetContainer.getTargetContainer(sysprops);
-            realm = defaultRealms.get(targetContainer);
+            realm = DEFAULT_REALM;
         }
         return realm;
     }
@@ -226,9 +214,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         String runtimeIdentity = sysprops.getRuntimeIdentity();
         GitNode state = new GitNode("fabric-repo", runtimeIdentity);
         if (group != null && group.isMaster()) {
-            TargetContainer runtimeType = TargetContainer.getTargetContainer(sysprops);
-            String context = runtimeType == TargetContainer.KARAF ? "" : "/fabric";
-            String fabricRepoUrl = "${zk:" + runtimeIdentity + "/http}" + context + "/git/fabric/";
+            String fabricRepoUrl = "${zk:" + runtimeIdentity + "/http}/git/fabric/";
             state.setUrl(fabricRepoUrl);
         }
         return state;

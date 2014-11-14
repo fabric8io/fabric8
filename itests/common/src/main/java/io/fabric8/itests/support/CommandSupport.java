@@ -15,10 +15,11 @@
  */
 package io.fabric8.itests.support;
 
+import io.fabric8.api.gravia.ServiceLocator;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -28,14 +29,9 @@ import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.felix.service.command.Function;
-import org.jboss.gravia.runtime.Module;
-import org.jboss.gravia.runtime.ModuleContext;
-import org.jboss.gravia.runtime.Runtime;
-import org.jboss.gravia.runtime.RuntimeLocator;
-import org.jboss.gravia.runtime.RuntimeType;
-import org.jboss.gravia.runtime.ServiceLocator;
-import org.jboss.gravia.runtime.ServiceRegistration;
 import org.junit.Assert;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,25 +80,10 @@ public final class CommandSupport {
 
     private static CommandSession getCommandSession(PrintStream printStream) {
         CommandSession commandSession;
-        if (RuntimeType.getRuntimeType() == RuntimeType.KARAF) {
-            ModuleContext moduleContext = RuntimeLocator.getRequiredRuntime().getModuleContext();
-            CommandProcessor commandProcessor = ServiceLocator.awaitService(moduleContext, CommandProcessor.class);
-            commandSession = commandProcessor.createSession(System.in, printStream, printStream);
-            commandSession.put("APPLICATION", System.getProperty("runtime.id"));
-            commandSession.put("USER", "karaf");
-        } else {
-            commandSession = new SessionSupport(System.in, printStream) {
-                @Override
-                public Object execute(CharSequence cmdstr) throws Exception {
-                    List<String> tokens = Arrays.asList(cmdstr.toString().split("\\s"));
-                    List<Object> args = new ArrayList<Object>(tokens);
-                    args.remove(0);
-                    AbstractCommand command =  (AbstractCommand) get(AbstractCommand.class.getName());
-                    command.execute(this, args);
-                    return null;
-                }
-            };
-        }
+        CommandProcessor commandProcessor = ServiceLocator.awaitService(CommandProcessor.class);
+        commandSession = commandProcessor.createSession(System.in, printStream, printStream);
+        commandSession.put("APPLICATION", System.getProperty("runtime.id"));
+        commandSession.put("USER", "karaf");
         return commandSession;
     }
 
@@ -112,9 +93,8 @@ public final class CommandSupport {
         
         // When using the ssh:ssh command, the current ssh client calls KarafAgentFactory which expects the SSH_AUTH_SOCK env variable to be set, 
         // so work around the problem by registering the CommandSession in OSGi so that this variable is correctly initialised
-        Runtime runtime = RuntimeLocator.getRequiredRuntime();
-        Module module = runtime.getModule(CommandSupport.class.getClassLoader());
-        ServiceRegistration<CommandSession> reg = module.getModuleContext().registerService(CommandSession.class, commandSession, null);
+        BundleContext syscontext = ServiceLocator.getSystemContext();
+        ServiceRegistration<CommandSession> reg = syscontext.registerService(CommandSession.class, commandSession, null);
 
         try {
             // Get the command service

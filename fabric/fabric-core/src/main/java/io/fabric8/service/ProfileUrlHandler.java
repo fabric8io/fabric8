@@ -39,7 +39,7 @@ import io.fabric8.api.scr.Validatable;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.api.scr.ValidationSupport;
 
-import org.jboss.gravia.utils.IllegalStateAssertion;
+import io.fabric8.api.gravia.IllegalStateAssertion;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.osgi.service.url.URLStreamHandlerService;
 

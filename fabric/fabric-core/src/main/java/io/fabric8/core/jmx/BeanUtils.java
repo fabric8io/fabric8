@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.jboss.gravia.utils.IllegalArgumentAssertion;
+import io.fabric8.api.gravia.IllegalArgumentAssertion;
 
 /**
  */

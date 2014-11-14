@@ -15,14 +15,13 @@
  */
 package io.fabric8.runtime.container;
 
+import io.fabric8.api.gravia.IllegalStateAssertion;
+import io.fabric8.api.gravia.MavenCoordinates;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.jboss.gravia.resource.MavenCoordinates;
-import org.jboss.gravia.runtime.RuntimeType;
-import org.jboss.gravia.utils.IllegalStateAssertion;
 
 
 /**
@@ -37,8 +36,6 @@ public abstract class ContainerConfiguration {
     private String javaVmArguments;
     private boolean outputToConsole;
     private boolean mutable = true;
-
-    public abstract RuntimeType getRuntimeType();
 
     /**
      * Get the array of maven artefacts that are getting unpacked

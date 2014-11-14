@@ -21,15 +21,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.management.MXBean;
-import javax.management.ObjectName;
-
-import org.jboss.gravia.utils.ObjectNameFactory;
 
 @MXBean
 public interface ProfileManagement {
 
-    ObjectName OBJECT_NAME = ObjectNameFactory.create(Constants.MANAGEMENT_DOMAIN + ":type=" + ProfileManagement.class.getSimpleName());
-
+    String OBJECT_NAME = Constants.MANAGEMENT_DOMAIN + ":type=" + ProfileManagement.class.getSimpleName();
+    
     List<String> getVersions();
     
     VersionState getVersion(String versionId);

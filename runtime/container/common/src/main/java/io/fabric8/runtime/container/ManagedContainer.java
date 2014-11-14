@@ -19,9 +19,6 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-import org.jboss.gravia.runtime.RuntimeType;
-
-
 /**
  * The managed root container
  *
@@ -35,8 +32,6 @@ public interface ManagedContainer<T extends ContainerConfiguration> {
         STOPPED,
         DESTROYED
     }
-
-    RuntimeType getRuntimeType();
 
     File getContainerHome();
 
@@ -54,17 +49,14 @@ public interface ManagedContainer<T extends ContainerConfiguration> {
 
         @SuppressWarnings({ "rawtypes", "unchecked" })
         public static <T extends ContainerConfiguration> ManagedContainer<T> create(T configuration) throws LifecycleException {
-            RuntimeType type = configuration.getRuntimeType();
             ServiceLoader<ManagedContainer> loader = ServiceLoader.load(ManagedContainer.class);
             Iterator<ManagedContainer> iterator = loader.iterator();
             while(iterator.hasNext()) {
                 ManagedContainer<T> service = iterator.next();
-                if (service.getRuntimeType() == type) {
-                    service.create(configuration);
-                    return service;
-                }
+                service.create(configuration);
+                return service;
             }
-            throw new IllegalStateException("Cannot obtain managed container service for: " + type);
+            throw new IllegalStateException("Cannot obtain managed container service");
         }
     }
 }

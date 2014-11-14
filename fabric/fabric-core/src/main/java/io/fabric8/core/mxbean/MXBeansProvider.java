@@ -21,6 +21,7 @@ import io.fabric8.api.scr.ValidatingReference;
 
 import javax.management.JMException;
 import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import javax.management.StandardMBean;
 
 import org.apache.felix.scr.annotations.Activate;
@@ -56,7 +57,7 @@ public final class MXBeansProvider extends AbstractComponent {
         MBeanServer server = mbeanServer.get();
         try {
             ProfileManagement profileMXBean = new ProfileManagementImpl();
-            server.registerMBean(new StandardMBean(profileMXBean, ProfileManagement.class, true), ProfileManagement.OBJECT_NAME);
+            server.registerMBean(new StandardMBean(profileMXBean, ProfileManagement.class, true), new ObjectName(ProfileManagement.OBJECT_NAME));
         } catch (JMException ex) {
             throw new IllegalStateException(ex);
         }
@@ -65,7 +66,7 @@ public final class MXBeansProvider extends AbstractComponent {
     private void deactivateInternal() {
         MBeanServer server = mbeanServer.get();
         try {
-            server.unregisterMBean(ProfileManagement.OBJECT_NAME);
+            server.unregisterMBean(new ObjectName(ProfileManagement.OBJECT_NAME));
         } catch (JMException ex) {
             throw new IllegalStateException(ex);
         }
