@@ -37,10 +37,13 @@ export DOCKER_REGISTRY=$DOCKER_IP:5000
 export KUBERNETES_MASTER=http://$DOCKER_IP:8080
 export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
 
+# using an env var but ideally we'd use an alias ;)
+KUBE="docker run --rm -i --net=host openshift/origin:latest kube"
+
 OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host openshift/origin:latest start)
 RULE="INPUT -d 172.17.42.1 -s 172.17.0.0/16 -j ACCEPT"
-RULE_OUTPUT=$( { docker exec openshift iptables -C $RULE; } 2>&1)
-test -n "$RULE_OUTPUT" && docker exec openshift iptables -I $RULE
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host busybox:latest iptables -C $RULE; } 2>&1)
+test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host busybox:latest iptables -I $RULE
 
 CADVISOR_CONTAINER=$(docker run -d --name=cadvisor -p 4194:8080 \
   --volume=/:/rootfs:ro \
@@ -48,9 +51,6 @@ CADVISOR_CONTAINER=$(docker run -d --name=cadvisor -p 4194:8080 \
   --volume=/sys:/sys:ro \
   --volume=/var/lib/docker/:/var/lib/docker:ro \
   google/cadvisor:latest)
-
-# using an env var but ideally we'd use an alias ;)
-KUBE="docker run --rm -i --net=host openshift/origin:latest kube"
 
 if [ -f "$APP_BASE/registry.json" ]; then
   cat $APP_BASE/kube-socat.json | $KUBE apply -c -
