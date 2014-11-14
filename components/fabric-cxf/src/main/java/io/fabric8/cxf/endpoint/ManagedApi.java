@@ -68,7 +68,9 @@ public class ManagedApi implements ManagedComponent, ServerLifeCycleListener {
     public static final String INDENTION = "    ";
     public static final String DOMAIN_NAME = "io.fabric8.cxf";
     private static final Logger LOG = LogUtils.getL7dLogger(ManagedApi.class);
-    
+
+    private static String singletonCxfServletContext;
+
     private final String eol = System.getProperty("line.separator");
 
     private Bus bus;
@@ -78,7 +80,24 @@ public class ManagedApi implements ManagedComponent, ServerLifeCycleListener {
     private State state = State.CREATED;
     
     private ConfigurationAdmin configurationAdmin;
-    
+
+    public static String getSingletonCxfServletContext() {
+        if (singletonCxfServletContext == null) {
+            singletonCxfServletContext = System.getenv("CXF_SERVLET_CONTEXT");
+            if (singletonCxfServletContext == null) {
+                singletonCxfServletContext = System.getProperty("CXF_SERVLET_CONTEXT");
+                if (singletonCxfServletContext == null) {
+                    singletonCxfServletContext = "/cxf";
+                }
+            }
+        }
+        return singletonCxfServletContext;
+    }
+
+    public static void setSingletonCxfServletContext(String singletonCxfServletContext) {
+        ManagedApi.singletonCxfServletContext = singletonCxfServletContext;
+    }
+
     public ManagedApi(Bus b, Endpoint ep, Server s) {
         bus = b;
         endpoint = ep;
@@ -99,7 +118,7 @@ public class ManagedApi implements ManagedComponent, ServerLifeCycleListener {
     public String getServletContext() {
         if (!isInOSGi()) {
             LOG.log(Level.FINE, "Not In OSGi.");
-            return null; //not in OSGi container
+            return getSingletonCxfServletContext();
         }
         String ret = "/cxf"; //if can't get it from configAdmin use the default value
         if (getConfigurationAdmin() != null) {
