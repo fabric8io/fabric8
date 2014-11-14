@@ -101,9 +101,18 @@ public class FailOverTargetSelector extends LoadBalanceTargetSelector {
                 Exception prevExchangeFault =
                     (Exception)exchange.remove(Exception.class.getName());
                 Message outMessage = exchange.getOutMessage();
-                Exception prevMessageFault =
+                Exception prevOutMessageFault =
                     outMessage.getContent(Exception.class);
+                Message inFaultMessage = exchange.getInFaultMessage();
+                Exception prevInFaultMessageFault = null;
+                if (inFaultMessage != null) {
+                    prevInFaultMessageFault =
+                        inFaultMessage.getContent(Exception.class);
+                    inFaultMessage.setContent(Exception.class, null);
+                }
+                
                 outMessage.setContent(Exception.class, null);
+                
                 overrideAddressProperty(invocation.getContext());
                 Retryable retry = exchange.get(Retryable.class);
                 exchange.clear();
@@ -120,7 +129,11 @@ public class FailOverTargetSelector extends LoadBalanceTargetSelector {
                         }
                         if (outMessage.getContent(Exception.class) != null) {
                             outMessage.setContent(Exception.class,
-                                                  prevMessageFault);
+                                                  prevOutMessageFault);
+                        }
+                        if (inFaultMessage!= null && inFaultMessage.getContent(Exception.class) != null) {
+                            inFaultMessage.setContent(Exception.class,
+                                                  prevInFaultMessageFault);
                         }
                     }
                 }
@@ -137,12 +150,16 @@ public class FailOverTargetSelector extends LoadBalanceTargetSelector {
         }
     }
 
-    // Now we just fail over with the IOException
+    // Now we just fail over on the exceptions
     protected boolean requiresFailOver(Exchange exchange) {
-        Message outMessage = exchange.getOutMessage();
-        Exception ex = outMessage.get(Exception.class) != null
-                       ? outMessage.get(Exception.class)
-                       : exchange.get(Exception.class);
+        Exception ex = null;
+        if (exchange.getOutMessage().getContent(Exception.class) != null) {
+            ex = exchange.getOutMessage().getContent(Exception.class);
+        } else if (exchange.get(Exception.class) != null) {
+            ex = exchange.get(Exception.class);
+        } else if (exchange.getInFaultMessage() != null) {
+            ex = exchange.getInFaultMessage().getContent(Exception.class);
+        }
         getLogger().log(Level.FINE,
                         "Check last invoke failed " + ex);
         Throwable curr = ex;

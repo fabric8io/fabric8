@@ -55,7 +55,16 @@ public class FabricServerListener implements ServerLifeCycleListener {
         if (LOG.isDebugEnabled()) {
             LOG.debug("The CXF server is start with address " + address);
         }
-        services.add(address);
+        boolean exists = false;
+        for (String uri : services) {
+            if (uri.compareTo(address) == 0) {
+                exists = true;
+                break;
+            }
+        }
+        if (!exists) {
+            services.add(address);
+        }
         group.update(createState());
     }
 
