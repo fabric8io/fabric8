@@ -310,6 +310,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
             props.setProperty("version", rootProjectVersion);
             props.setProperty("classifier", "app");
             props.setProperty("packaging", "zip");
+            props.setProperty("generatePom", "false");
             request.setProperties(props);
 
             getLog().info("Installing aggregated zip using: mvn install:install-file" + serializeMvnProperties(props));
@@ -343,6 +344,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
             props.setProperty("packaging", "zip");
             props.setProperty("url", deploymentRepository.getUrl());
             props.setProperty("repositoryId", deploymentRepository.getId());
+            props.setProperty("generatePom", "false");
             request.setProperties(props);
 
             getLog().info("Deploying aggregated zip using: mvn deploy:deploy-file" + serializeMvnProperties(props));
