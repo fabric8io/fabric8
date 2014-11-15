@@ -1,7 +1,12 @@
 
+### 2.0.2
+
+* Nicer layouts and icons in the [Console](http://fabric8.io/v2/console.html) (and the Wiki tab is now called Library as in an Application Library)
+* Fixes [these 5 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.2+is%3Aclosed)
+
 ### 2.0.1
 
-* Improve the appearance of [App Zips](http://fabric8.io/v2/appzip.html) when deployed (or dragged and dropped) into the [Web Console](http://fabric8.io/v2/console.html) Wiki tab
+* Improve the appearance of [App Zips](http://fabric8.io/v2/appzip.html) when deployed (or dragged and dropped) into the [Console](http://fabric8.io/v2/console.html) Wiki tab
 * Fixes [these 5 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.1+is%3Aclosed)
 
 ### 2.0.0
