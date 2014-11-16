@@ -23,6 +23,7 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
+import org.apache.maven.model.Profile;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
@@ -301,6 +302,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
         // as maven will install the root project first, and then build the reactor projects, and at this point
         // it does not help to attach artifact to root project, as those artifacts will not be installed
         // so we need to install manually
+        List<Profile> activeProfiles = rootProject.getActiveProfiles();
         if (rootProject.hasLifecyclePhase("install")) {
             getLog().info("Installing aggregated zip " + projectOutputFile);
             InvocationRequest request = new DefaultInvocationRequest();
@@ -309,6 +311,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
             request.setGoals(Collections.singletonList("install:install-file"));
             request.setRecursive(false);
             request.setInteractive(false);
+            request.setProfiles(activeProfiles);
 
             Properties props = new Properties();
             props.setProperty("file", aggregatedZipFileName);
@@ -334,6 +337,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
 
         if (rootProject.hasLifecyclePhase("deploy")) {
             getLog().info("Deploying aggregated zip " + projectOutputFile + " to root project " + rootProject.getArtifactId());
+            getLog().info("Using deploy goal: " + deployFileGoal + " with active profiles: " + activeProfiles);
 
             InvocationRequest request = new DefaultInvocationRequest();
             request.setBaseDirectory(rootProject.getBasedir());
@@ -341,6 +345,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
             request.setGoals(Collections.singletonList(deployFileGoal));
             request.setRecursive(false);
             request.setInteractive(false);
+            request.setProfiles(activeProfiles);
 
             Properties props = new Properties();
             props.setProperty("file", aggregatedZipFileName);
