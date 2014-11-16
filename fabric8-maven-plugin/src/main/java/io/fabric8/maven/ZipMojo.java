@@ -302,7 +302,16 @@ public class ZipMojo extends AbstractFabric8Mojo {
         // as maven will install the root project first, and then build the reactor projects, and at this point
         // it does not help to attach artifact to root project, as those artifacts will not be installed
         // so we need to install manually
+        List<String> activeProfileIds = new ArrayList<>();
         List<Profile> activeProfiles = rootProject.getActiveProfiles();
+        if (activeProfiles != null) {
+            for (Profile profile : activeProfiles) {
+                String id = profile.getId();
+                if (Strings.isNotBlank(id)) {
+                    activeProfileIds.add(id);
+                }
+            }
+        }
         if (rootProject.hasLifecyclePhase("install")) {
             getLog().info("Installing aggregated zip " + projectOutputFile);
             InvocationRequest request = new DefaultInvocationRequest();
@@ -311,7 +320,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
             request.setGoals(Collections.singletonList("install:install-file"));
             request.setRecursive(false);
             request.setInteractive(false);
-            request.setProfiles(activeProfiles);
+            request.setProfiles(activeProfileIds);
 
             Properties props = new Properties();
             props.setProperty("file", aggregatedZipFileName);
@@ -337,7 +346,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
 
         if (rootProject.hasLifecyclePhase("deploy")) {
             getLog().info("Deploying aggregated zip " + projectOutputFile + " to root project " + rootProject.getArtifactId());
-            getLog().info("Using deploy goal: " + deployFileGoal + " with active profiles: " + activeProfiles);
+            getLog().info("Using deploy goal: " + deployFileGoal + " with active profiles: " + activeProfileIds);
 
             InvocationRequest request = new DefaultInvocationRequest();
             request.setBaseDirectory(rootProject.getBasedir());
@@ -345,7 +354,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
             request.setGoals(Collections.singletonList(deployFileGoal));
             request.setRecursive(false);
             request.setInteractive(false);
-            request.setProfiles(activeProfiles);
+            request.setProfiles(activeProfileIds);
 
             Properties props = new Properties();
             props.setProperty("file", aggregatedZipFileName);
