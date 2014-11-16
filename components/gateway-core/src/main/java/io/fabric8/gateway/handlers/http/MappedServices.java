@@ -15,7 +15,9 @@
  */
 package io.fabric8.gateway.handlers.http;
 
-import io.fabric8.gateway.ServiceDetails;
+import io.fabric8.gateway.api.ServiceDetails;
+import io.fabric8.gateway.api.handlers.http.IMappedServices;
+import io.fabric8.gateway.api.handlers.http.ProxyMappingDetails;
 import io.fabric8.gateway.handlers.http.policy.ReverseUriPolicy;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
 
@@ -33,7 +35,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * Represents the mapped services and the relevant mapping information so that a service implementation can be
  * chosen using a load balancer together with wrapping the client in whatever policies are required.
  */
-public class MappedServices {
+public class MappedServices implements IMappedServices {
     private final ServiceDetails serviceDetails;
     private final LoadBalancer loadBalancer;
     private final boolean reverseHeaders;
@@ -65,7 +67,10 @@ public class MappedServices {
      * as to reverse the URIs {@link io.fabric8.gateway.handlers.http.policy.ReverseUriPolicy} or
      * add metering, limits, security or contract checks etc.
      */
-    public Handler<HttpClientResponse> wrapResponseHandlerInPolicies(HttpServerRequest request, Handler<HttpClientResponse> responseHandler, ProxyMappingDetails proxyMappingDetails) {
+    public Handler<HttpClientResponse> wrapResponseHandlerInPolicies(
+    		HttpServerRequest request, 
+    		Handler<HttpClientResponse> responseHandler, 
+    		ProxyMappingDetails proxyMappingDetails) {
         if (reverseHeaders) {
             responseHandler = new ReverseUriPolicy(this, request, responseHandler, proxyMappingDetails);
         }

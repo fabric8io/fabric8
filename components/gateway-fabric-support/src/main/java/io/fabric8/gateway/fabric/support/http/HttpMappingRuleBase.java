@@ -17,10 +17,12 @@ package io.fabric8.gateway.fabric.support.http;
 
 import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.internal.SimplePathTemplate;
-import io.fabric8.gateway.ServiceDetails;
-import io.fabric8.gateway.handlers.http.HttpMappingRule;
+import io.fabric8.gateway.api.ServiceDetails;
+import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
+import io.fabric8.gateway.api.handlers.http.IMappedServices;
 import io.fabric8.gateway.handlers.http.MappedServices;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +92,7 @@ public class HttpMappingRuleBase implements HttpMappingRule {
 
 
     @Override
-    public void appendMappedServices(Map<String, MappedServices> rules) {
+    public void appendMappedServices(Map<String, IMappedServices> rules) {
         rules.putAll(mappingRules);
     }
 

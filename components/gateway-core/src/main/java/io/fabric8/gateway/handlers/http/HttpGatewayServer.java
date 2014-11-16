@@ -15,11 +15,14 @@
  */
 package io.fabric8.gateway.handlers.http;
 
+import io.fabric8.gateway.api.handlers.http.HttpGatewayHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.http.HttpServer;
+import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.ServerWebSocket;
 
 /**
@@ -28,17 +31,17 @@ public class HttpGatewayServer {
     private static final transient Logger LOG = LoggerFactory.getLogger(HttpGatewayServer.class);
 
     private final Vertx vertx;
-    private final HttpGatewayHandler handler;
     private final int port;
+    private Handler<HttpServerRequest> handler;
     private String host;
     private HttpServer server;
     private Handler<ServerWebSocket> websocketHandler;
 
-    public HttpGatewayServer(Vertx vertx, HttpGatewayHandler handler, Handler<ServerWebSocket> websocketHandler, int port) {
+    public HttpGatewayServer(Vertx vertx, Handler<ServerWebSocket> websocketHandler, int port, Handler<HttpServerRequest> handler) {
         this.vertx = vertx;
-        this.handler = handler;
         this.websocketHandler = websocketHandler;
         this.port = port;
+        this.handler = handler;
     }
 
     @Override

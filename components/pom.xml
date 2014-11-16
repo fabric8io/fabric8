@@ -44,6 +44,8 @@
     <module>fabric-groups</module>
     <module>fabric-utils</module>
     <module>fabric-vertx</module>
+    <module>gateway-api</module>
+    <module>gateway-apiman</module>
     <module>gateway-core</module>
     <module>gateway-fabric-support</module>
     <module>gateway-model</module>

@@ -17,6 +17,8 @@ package io.fabric8.gateway;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.fabric8.gateway.api.ServiceDetails;
+
 import java.util.Collections;
 import java.util.List;
 

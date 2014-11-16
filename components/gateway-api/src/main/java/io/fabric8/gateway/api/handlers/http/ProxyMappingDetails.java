@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.gateway.handlers.http;
+package io.fabric8.gateway.api.handlers.http;
 
 /**
  * The details of the mapping from the front end gateway to the back end service implementation so that

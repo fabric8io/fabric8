@@ -1,0 +1,26 @@
+{
+  "services" : [ {
+    "organizationId" : "Fabric8OrgId",
+    "serviceId" : "GatewayService",
+    "version" : "1.0",
+    "endpointType" : null,
+    "endpoint" : "http://localhost:${port}/",
+    "endpointProperties" : { }
+  } ],
+  "applications" : [ {
+    "organizationId" : "Fabric8OrgId",
+    "applicationId" : "OverlordApiMan",
+    "version" : "1.0",
+    "contracts" : [ {
+      "apiKey" : "apiman-config-key",
+      "serviceOrgId" : "Fabric8OrgId",
+      "serviceId" : "GatewayService",
+      "serviceVersion" : "1.0",
+      "policies" : [ {
+        "policyJsonConfig" : "{ \"ipList\" : [ \"127.0.0.1\", \"localhost\" ] }",
+        "policyImpl" : "class:org.overlord.apiman.engine.policies.IPWhitelistPolicy",
+        "policyConfig" : null
+      } ]
+    } ]
+  } ]
+}

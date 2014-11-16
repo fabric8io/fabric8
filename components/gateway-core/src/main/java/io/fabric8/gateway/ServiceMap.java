@@ -15,6 +15,8 @@
  */
 package io.fabric8.gateway;
 
+import io.fabric8.gateway.api.ServiceDetails;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

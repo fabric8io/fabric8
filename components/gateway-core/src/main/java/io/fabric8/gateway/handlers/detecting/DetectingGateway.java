@@ -17,15 +17,16 @@ package io.fabric8.gateway.handlers.detecting;
 
 import io.fabric8.utils.ShutdownTracker;
 import io.fabric8.utils.Strings;
-import io.fabric8.gateway.ServiceDetails;
 import io.fabric8.gateway.ServiceMap;
 import io.fabric8.gateway.SocketWrapper;
+import io.fabric8.gateway.api.ServiceDetails;
 import io.fabric8.gateway.handlers.detecting.protocol.ssl.SslConfig;
 import io.fabric8.gateway.handlers.detecting.protocol.ssl.SslSocketWrapper;
 import io.fabric8.gateway.handlers.loadbalancer.ClientRequestFacadeFactory;
 import io.fabric8.gateway.handlers.loadbalancer.ConnectionParameters;
 import io.fabric8.gateway.loadbalancer.ClientRequestFacade;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.AsyncResult;
@@ -39,6 +40,7 @@ import org.vertx.java.core.streams.Pump;
 import org.vertx.java.core.streams.ReadStream;
 
 import javax.net.ssl.SSLContext;
+
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;

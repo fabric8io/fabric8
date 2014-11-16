@@ -15,8 +15,9 @@
  */
 package io.fabric8.gateway.handlers.http.policy;
 
+import io.fabric8.gateway.api.handlers.http.ProxyMappingDetails;
 import io.fabric8.gateway.handlers.http.MappedServices;
-import io.fabric8.gateway.handlers.http.ProxyMappingDetails;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;

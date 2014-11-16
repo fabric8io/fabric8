@@ -89,11 +89,20 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
+            <artifactId>gateway-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
             <artifactId>gateway-model</artifactId>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-vertx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>gateway-api</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- for MQTT support -->
@@ -195,6 +204,37 @@
           <version>${slf4j.version}</version>
           <scope>test</scope>
         </dependency>
+        <dependency>
+          <groupId>io.fabric8</groupId>
+          <artifactId>gateway-apiman</artifactId>
+          <scope>runtime</scope>
+        </dependency>
+        <!--  API Man -->
+        <dependency>
+           <groupId>org.overlord.apiman</groupId>
+           <artifactId>apiman-rt-api-rest</artifactId>
+           <scope>test</scope>
+        </dependency>
+        <dependency>
+           <groupId>org.overlord.apiman</groupId>
+           <artifactId>apiman-rt-engine-core</artifactId>
+           <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.overlord.apiman</groupId>
+          <artifactId>apiman-rt-engine-beans</artifactId>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.overlord.apiman</groupId>
+          <artifactId>apiman-rt-engine-policies</artifactId>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>commons-httpclient</groupId>
+          <artifactId>commons-httpclient</artifactId>
+        </dependency>
+        
 
     </dependencies>
 

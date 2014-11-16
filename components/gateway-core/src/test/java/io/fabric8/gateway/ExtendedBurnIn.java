@@ -16,7 +16,16 @@
 package io.fabric8.gateway;
 
 
-import io.fabric8.utils.ShutdownTracker;
+import io.fabric8.gateway.api.CallDetailRecord;
+import io.fabric8.gateway.api.apimanager.ApiManager;
+import io.fabric8.gateway.api.apimanager.ApiManagerService;
+import io.fabric8.gateway.api.handlers.http.HttpGateway;
+import io.fabric8.gateway.api.handlers.http.HttpGatewayHandler;
+import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
+import io.fabric8.gateway.api.handlers.http.IMappedServices;
+import io.fabric8.gateway.apiman.ApiManService;
+import io.fabric8.gateway.ServiceDTO;
+import io.fabric8.gateway.ServiceMap;
 import io.fabric8.gateway.handlers.detecting.DetectingGateway;
 import io.fabric8.gateway.handlers.detecting.DetectingGatewayWebSocketHandler;
 import io.fabric8.gateway.handlers.detecting.FutureHandler;
@@ -32,6 +41,8 @@ import io.fabric8.gateway.handlers.http.*;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.loadbalancer.LoadBalancers;
 import io.fabric8.gateway.loadbalancer.RoundRobinLoadBalancer;
+import io.fabric8.utils.ShutdownTracker;
+
 import org.apache.activemq.apollo.broker.Broker;
 import org.apache.activemq.apollo.dto.AcceptingConnectorDTO;
 import org.apache.activemq.apollo.dto.BrokerDTO;
@@ -54,6 +65,7 @@ import javax.jms.*;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -197,8 +209,9 @@ public class ExtendedBurnIn {
         return brokers.get(brokerIdx).connections().size();
     }
 
-    final HashMap<String, MappedServices> mappedServices = new HashMap<String, MappedServices>();
-
+    final HashMap<String, IMappedServices> mappedServices = new HashMap<String, IMappedServices>();
+    final ApiManager apiManager = new ApiManager();
+    
     HttpGatewayServer httpGatewayServer;
     public HttpGatewayServer startHttpGateway() {
 
@@ -214,7 +227,9 @@ public class ExtendedBurnIn {
         }
 
         DetectingGatewayWebSocketHandler websocketHandler = new DetectingGatewayWebSocketHandler();
-        HttpGatewayHandler handler = new HttpGatewayHandler(vertx, new HttpGateway(){
+        	
+        final HttpGateway httpGateway = new HttpGateway(){
+        	
             @Override
             public void addMappingRuleConfiguration(HttpMappingRule mappingRule) {
             }
@@ -224,7 +239,7 @@ public class ExtendedBurnIn {
             }
 
             @Override
-            public Map<String, MappedServices> getMappedServices() {
+            public Map<String, IMappedServices> getMappedServices() {
                 return mappedServices;
             }
 
@@ -241,9 +256,29 @@ public class ExtendedBurnIn {
 			@Override
 			public void addCallDetailRecord(CallDetailRecord cdr) {
 			}
-        });
+
+			@Override
+			public ApiManager getApiManager() {
+//				ApiManagerService apiManagerService = new ApiManService();
+//				Map<String, Object> config = new HashMap<String,Object>();
+//		        config.put("vertx", vertx);
+//		        config.put("httpGateway", this);
+//				apiManagerService.init(config);
+//				apiManager.setService(apiManagerService);
+				return apiManager;
+			}
+
+        };
         websocketHandler.setPathPrefix("");
-        httpGatewayServer = new HttpGatewayServer(vertx, handler, websocketHandler, 8080);
+        
+        Handler<HttpServerRequest> requestHandler = null;
+        if (apiManager.isApiManagerEnabled()) {
+        	requestHandler = ((ApiManagerService) apiManager.getService()).createApiManagerHttpGatewayHandler();
+		} else {
+			requestHandler = new HttpGatewayHandler(vertx, httpGateway);
+		}
+        
+        httpGatewayServer = new HttpGatewayServer(vertx, websocketHandler, 8080, requestHandler);
         httpGatewayServer.setHost("localhost");
         httpGatewayServer.init();
         return httpGatewayServer;

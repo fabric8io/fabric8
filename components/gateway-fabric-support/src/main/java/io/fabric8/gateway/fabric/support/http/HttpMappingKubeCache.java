@@ -2,7 +2,7 @@ package io.fabric8.gateway.fabric.support.http;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import io.fabric8.gateway.ServiceDTO;
-import io.fabric8.gateway.handlers.http.HttpMappingRule;
+import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.model.ServiceListSchema;
