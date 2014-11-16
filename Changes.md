@@ -1,4 +1,8 @@
 
+### 2.0.3
+
+* Fixes [these issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.3+is%3Aclosed)
+
 ### 2.0.2
 
 * Nicer layouts and icons in the [Console](http://fabric8.io/v2/console.html) (and the Wiki tab is now called Library as in an Application Library)
