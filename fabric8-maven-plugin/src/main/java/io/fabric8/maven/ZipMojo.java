@@ -160,6 +160,13 @@ public class ZipMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.pathInZip", defaultValue = "${project.artifactId}")
     protected String pathInZip;
 
+    /**
+     * The maven goal used to deploy aggregated zips. Could be <code>deploy:deploy-file</code> to perform a regular deploy
+     * or <code>gpg:sign-and-deploy-file</code> to sign and deploy the file
+     */
+    @Parameter(property = "fabric8.deployFileGoal", defaultValue = "gpg:sign-and-deploy-file")
+    protected String deployFileGoal;
+
 
     /**
      * Whether or not we should ignoreProject this maven project from this goal
@@ -331,7 +338,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
             InvocationRequest request = new DefaultInvocationRequest();
             request.setBaseDirectory(rootProject.getBasedir());
             request.setPomFile(new File("./pom.xml"));
-            request.setGoals(Collections.singletonList("deploy:deploy-file"));
+            request.setGoals(Collections.singletonList(deployFileGoal));
             request.setRecursive(false);
             request.setInteractive(false);
 
