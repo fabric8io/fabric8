@@ -1,7 +1,7 @@
 
-### 2.0.3
+### 2.0.4
 
-* Fixes [these issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.3+is%3Aclosed)
+* Fixes [these issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.4+is%3Aclosed)
 
 ### 2.0.2
 
