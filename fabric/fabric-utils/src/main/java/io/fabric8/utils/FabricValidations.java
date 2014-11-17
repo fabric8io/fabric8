@@ -24,7 +24,7 @@ public final class FabricValidations {
     // container name must be lower case only, and without dots
     private static final Pattern ALLOWED_CONTAINER_NAMES_PATTERN = Pattern.compile("^[a-z0-9]+[a-z0-9_-]*$");
 
-    // we allow using dot in profile names, and also mixed case
+    // we allow using dot in profile names
     private static final Pattern ALLOWED_PROFILE_NAMES_PATTERN = Pattern.compile("^[a-z0-9]+[\\.a-z0-9_-]*$");
 
     private FabricValidations() {

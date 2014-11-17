@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import io.fabric8.utils.FabricValidations;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
@@ -102,6 +103,7 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
     public Version createVersionFrom(String sourceId, String targetId, Map<String, String> attributes) {
         assertValid();
         LOGGER.info("createVersion: {} => {}", sourceId, targetId);
+        FabricValidations.validateProfileName(targetId);
         profileRegistry.get().createVersion(sourceId, targetId, attributes);
         return getRequiredVersion(targetId);
     }
