@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 #
 # Discover the APP_BASE from the location of this script.
@@ -13,9 +13,9 @@ while getopts "fud:" opt; do
   case $opt in
     f)
       echo "Cleaning up all existing k8s containers"
-      docker rm -f openshift cadvisor > /dev/null 2>&1 || true
+      docker rm -f openshift cadvisor || true
       RUNNING_CONTAINERS=`docker ps -a | grep k8s | cut -c 1-12`
-      test -z "$RUNNING_CONTAINERS" || docker rm -f $RUNNING_CONTAINERS > /dev/null 2>&1
+      test -z "$RUNNING_CONTAINERS" || docker rm -f $RUNNING_CONTAINERS
       ;;
     u)
       echo "Updating all necessary images"
@@ -41,8 +41,16 @@ export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
 KUBE="docker run --rm -i --net=host openshift/origin:latest kube"
 
 OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host openshift/origin:latest start)
+
+echo "Updating firewall rules if necessary"
 RULE="INPUT -d 172.17.42.1 -s 172.17.0.0/16 -j ACCEPT"
-RULE_OUTPUT=$( { docker run --rm --privileged --net=host busybox:latest iptables -C $RULE; } 2>&1)
+RULE_OUTPUT=$(docker run --rm --privileged --net=host busybox:latest iptables -C $RULE)
+test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host busybox:latest iptables -I $RULE
+RULE="INPUT -d 172.17.0.0/16 -s 172.121.0.0/16 -j ACCEPT"
+RULE_OUTPUT=$(docker run --rm --privileged --net=host busybox:latest iptables -C $RULE)
+test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host busybox:latest iptables -I $RULE
+RULE="INPUT -d 172.121.0.0/16 -s 172.17.0.0/16 -j ACCEPT"
+RULE_OUTPUT=$(docker run --rm --privileged --net=host busybox:latest iptables -C $RULE)
 test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host busybox:latest iptables -I $RULE
 
 # Have to run it privileged otherwise not working on CentOS7
