@@ -30,7 +30,7 @@
         The POM file tests whether the artifact bundle type can be overridden
         from the default of the POM packaging type.
 
-        So in this case we want the bundle type to be 'zip' and not 'mule'.
+        So in this case we want the bundle type to be 'zip'.
     </description>
 
     <build>
