@@ -6,7 +6,7 @@ We are going to run a quickstart in Jube using the [mvn fabric8:run goal](mavenP
     cd quickstarts
     mvn install
     cd quickstarts/java/camel-spring
-    mvn clean install fabric8:run
+    mvn clean install fabric8:json fabric8:run
 
 If the above fails it could be you have not setup your [environment variables](getStartedJube.html#setting-environment-variables) so that the maven plugin can communicate with kubernetes REST API.
 
