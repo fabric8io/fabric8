@@ -18,7 +18,6 @@ package io.fabric8.maven;
 
 import io.fabric8.maven.stubs.CreateProfileZipBundleProjectStub;
 import io.fabric8.maven.stubs.CreateProfileZipJarProjectStub;
-import io.fabric8.maven.stubs.CreateProfileZipMuleProjectStub;
 import io.fabric8.maven.stubs.CreateProfileZipProjectStub;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -125,26 +124,6 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
 
     }
 
-    public void testMuleOverrideType() throws Exception {
-
-        // GIVEN
-
-        pomWithMulePackaging();
-
-        // WHEN
-
-        CreateProfileZipMojo mojo = createProfileZipMojoWithBasicConfig();
-
-        artifactBundleTypeIsOverridden(mojo, "zip");
-
-        mojo.execute();
-
-        // THEN
-
-        bundleReferencesHaveZipExtension();
-
-    }
-
     public void testExplicitJarType() throws Exception {
 
         // GIVEN
@@ -242,14 +221,6 @@ public class CreateProfileZipMojoTest extends AbstractMojoTestCase {
         Assert.assertEquals("bundle", getPackaging());
 
         Assert.assertEquals("bundle", getArtifactType());
-    }
-
-    private void pomWithMulePackaging() {
-        projectStub = new CreateProfileZipMuleProjectStub();
-
-        Assert.assertEquals("mule", getPackaging());
-
-        Assert.assertEquals("mule", getArtifactType());
     }
 
 

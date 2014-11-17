@@ -1,7 +1,0 @@
-{
-    "launchScript": "bin/mule",
-    "pidFile": "bin/.mule.pid",
-    "stopCommand": "stop",
-    "deployPath": "apps",
-    "sharedLibraryPath": "lib/user"
-}

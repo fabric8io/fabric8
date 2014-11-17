@@ -32,7 +32,6 @@ Most of these containers have limited management done externally from the proces
 * [keycloak](/fabric/profiles/containers/keycloak.profile) using a stand alone [Keycloak](http://keycloak.jboss.org//) authentication server running on [Wildfly](http://wildfly.org/).
 * [karaf](/fabric/profiles/containers/karaf.profile) provisions a stand alone [Karaf](http://karaf.apache.org//) container.
 * [liveoak](/fabric/profiles/containers/liveoak.profile) using a stand alone [LiveOak](http://liveoak.io/) container to run whatever services you wish to deploy.
-* [mule.ce](/fabric/profiles/containers/mule.ce.profile) using a stand alone [Mule Community Edition](http://mulesoft.org/) container to run whatever integration services you wish to deploy.
 
 ### Services
 
