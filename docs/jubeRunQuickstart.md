@@ -24,11 +24,17 @@ The [mvn fabric8:run goal](mavenPlugin.html#running) then [generated the kuberne
 
 The build will [generated](mavenPlugin.html#generating-the-json) a **target/classes/kubernetes.json** file as part of the build (the **fabric8:json** goal does that), then the **fabric8:run** goal will use the Kubernetes REST API to create the necessary [pods](pods.html), [replication controllers](replicationControllers.html) or [services](services.html).
 
+### Troubleshooting
+
+If maven builds fail it may be you have not setup the [environment variables](getStartedJube.html#setting-environment-variables) correctly; see above.
+
+Otherwise check out the [Jube Troubleshooting Guide](http://fabric8.io/jube/troubleshooting.html) for details of how to check the logs and web console.
+
 #### Using another maven project
 
 Note if you are trying this on your own maven project you may wish to add the [jube:build goal to your projects package goal](http://fabric8.io/jube/mavenPlugin.html#adding-the-plugin-to-your-project) or you can run the **jube:build** goal via
 
-    mvn clean install jube:build fabric8:run
+    mvn clean install jube:build fabric8:json fabric8:run
 
 #### If a pod fails to start
 
