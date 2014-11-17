@@ -68,9 +68,7 @@
   </repositories>
 
   <modules>
-    <module>java</module>
     <module>karaf</module>
-    <module>spring-boot</module>
     <module>war</module>
   </modules>
 
