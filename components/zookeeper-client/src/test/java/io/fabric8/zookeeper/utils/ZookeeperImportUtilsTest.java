@@ -43,6 +43,7 @@ public class ZookeeperImportUtilsTest {
 
     private CuratorFramework curator;
     private NIOServerCnxnFactory cnxnFactory;
+    private String crlf;
 
     @Before
     public void init() throws Exception {
@@ -56,6 +57,8 @@ public class ZookeeperImportUtilsTest {
 
         cnxnFactory = startZooKeeper(port);
         curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
+
+        crlf = System.lineSeparator();
     }
 
     @After
@@ -85,7 +88,7 @@ public class ZookeeperImportUtilsTest {
 
         ZookeeperImportUtils.importFromFileSystem(curator, source, target, null, null, false, false, false);
         assertThat(curator.getChildren().forPath("/fabric1/directory").size(), equalTo(0));
-        assertThat(new String(curator.getData().forPath("/fabric1/directory")), equalTo("property1=value1\n"));
+        assertThat(new String(curator.getData().forPath("/fabric1/directory")), equalTo("property1=value1" + crlf));
     }
 
     @Test
@@ -96,7 +99,7 @@ public class ZookeeperImportUtilsTest {
         ZookeeperImportUtils.importFromFileSystem(curator, source, target, null, null, false, false, false);
         assertThat(curator.getChildren().forPath("/fabric2").size(), equalTo(1));
         assertThat(curator.checkExists().forPath("/fabric2/directory"), nullValue());
-        assertThat(new String(curator.getData().forPath("/fabric2/directory.cfgx")), equalTo("property1=value1\n"));
+        assertThat(new String(curator.getData().forPath("/fabric2/directory.cfgx")), equalTo("property1=value1" + crlf));
     }
 
     @Test
