@@ -31,11 +31,6 @@
 
   <name>Fabric8 :: Components</name>
 
-  <properties>
-    <docker.dataImage>${env.DOCKER_REGISTRY}/fabric8/${project.artifactId}:${project.version}</docker.dataImage>
-  </properties>
-
-
   <modules>
     <module>console</module>
     <module>docker-api</module>

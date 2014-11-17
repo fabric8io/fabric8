@@ -125,7 +125,7 @@ You can use maven properties to customize the generation of the JSON:
 <th>Description</th>
 </tr>
 <tr>
-<td>docker.dataImage</td>
+<td>docker.image</td>
 <td>Used by the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md">docker-maven-plugin</a> to define the output docker image name.</td>
 </tr>
 <tr>
@@ -208,7 +208,7 @@ The following maven property values are used to configure the behaviour of the m
 <th>Description</th>
 </tr>
 <tr>
-<td>docker.dataImage</td>
+<td>docker.image</td>
 <td>Used by the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md">docker-maven-plugin</a> to define the output docker image name.</td>
 </tr>
 <tr>

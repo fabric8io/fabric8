@@ -15,7 +15,7 @@
           "containers": [
             {
               "name": "@{containerName}",
-              "image": "@{docker_dataImage}",
+              "image": "@{docker_image}",
               "env": [@foreach{env : environmentVariables}
                 {
 @if{env.name != null}                  "name": "@{env.name}"@if{env.value != null},@end{}@end{}

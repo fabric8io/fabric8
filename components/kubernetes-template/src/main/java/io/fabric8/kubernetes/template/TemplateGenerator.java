@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public class TemplateGenerator {
     public static final String DEFAULT_TEMPLATE = "io/fabric8/templates/default.mvel";
-    public static final String DOCKER_DATA_IMAGE = "docker_dataImage";
+    public static final String DOCKER_DATA_IMAGE = "docker_image";
 
     private final GenerateTemplateDTO config;
     private final List<ClassLoader> classLoaders;
@@ -74,7 +74,7 @@ public class TemplateGenerator {
             if (Strings.isNotBlank(dockerImage)) {
                 addIfNotDefined(variables, DOCKER_DATA_IMAGE, dockerImage);
             }
-            Objects.notNull(variables.get(DOCKER_DATA_IMAGE), "no docker.dataImage property specified!");
+            Objects.notNull(variables.get(DOCKER_DATA_IMAGE), "no docker.image property specified!");
             String name = config.getName();
             addIfNotDefined(variables, "name", name);
             addIfNotDefined(variables, "containerName", config.getContainerName());
