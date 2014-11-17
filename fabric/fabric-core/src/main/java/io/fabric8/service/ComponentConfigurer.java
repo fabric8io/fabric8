@@ -28,6 +28,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.fabric8.api.visibility.VisibleForExternal;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -41,7 +42,8 @@ public class ComponentConfigurer extends AbstractComponent implements Configurer
     private BundleContext bundleContext;
 
     @Activate
-    void activate(BundleContext bundleContext) {
+    @VisibleForExternal
+    public void activate(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
         activateComponent();
     }

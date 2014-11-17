@@ -18,6 +18,7 @@ package io.fabric8.api.scr;
 import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.permit.PermitKey;
 import io.fabric8.api.permit.PermitManager;
+import io.fabric8.api.visibility.VisibleForExternal;
 
 
 /**
@@ -49,7 +50,8 @@ public abstract class AbstractProtectedComponent<T> extends AbstractComponent {
         throw new UnsupportedOperationException();
     }
 
-    protected void bindPermitManager(PermitManager service) {
+    @VisibleForExternal
+    public void bindPermitManager(PermitManager service) {
         permitManager.bind(service);
     }
     protected void unbindPermitManager(PermitManager service) {

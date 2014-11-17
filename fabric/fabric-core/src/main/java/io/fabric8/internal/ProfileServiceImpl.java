@@ -31,6 +31,7 @@ import io.fabric8.api.Version;
 import io.fabric8.api.permit.PermitManager;
 import io.fabric8.api.scr.AbstractProtectedComponent;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.api.visibility.VisibleForExternal;
 import io.fabric8.utils.DataStoreUtils;
 
 import java.io.IOException;
@@ -67,7 +68,8 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
     }
 
     @Activate
-    void activate() throws Exception {
+    @VisibleForExternal
+    public void activate() throws Exception {
         getOverlayAudit();
         activateComponent(PERMIT, this);
     }
@@ -395,7 +397,8 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
         }
     }
 
-    void bindProfileRegistry(ProfileRegistry service) {
+    @VisibleForExternal
+    public void bindProfileRegistry(ProfileRegistry service) {
         this.profileRegistry.bind(service);
     }
 
@@ -403,7 +406,8 @@ public final class ProfileServiceImpl extends AbstractProtectedComponent<Profile
         this.profileRegistry.unbind(service);
     }
 
-    void bindRuntimeProperties(RuntimeProperties service) {
+    @VisibleForExternal
+    public void bindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.bind(service);
     }
 

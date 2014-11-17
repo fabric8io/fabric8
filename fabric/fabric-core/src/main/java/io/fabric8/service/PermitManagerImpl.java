@@ -23,6 +23,7 @@ import io.fabric8.api.scr.AbstractComponent;
 
 import java.util.concurrent.TimeUnit;
 
+import io.fabric8.api.visibility.VisibleForExternal;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -35,7 +36,8 @@ public final class PermitManagerImpl extends AbstractComponent implements Permit
     private final PermitManager delegate = new DefaultPermitManager();
 
     @Activate
-    void activate() {
+    @VisibleForExternal
+    public void activate() {
         activateComponent();
     }
 

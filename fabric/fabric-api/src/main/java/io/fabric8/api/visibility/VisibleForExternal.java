@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 /**
  * Documents, that a method is visible for access from external systems (e.g. Fuse IDE).
  */
-@Target({ElementType.METHOD})
+@Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface VisibleForExternal {
 }

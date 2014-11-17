@@ -16,6 +16,7 @@
 package io.fabric8.git.internal;
 
 import io.fabric8.api.GitContext;
+import io.fabric8.api.visibility.VisibleForExternal;
 import io.fabric8.git.PullPushPolicy;
 
 import java.util.ArrayList;
@@ -62,8 +63,9 @@ public final class DefaultPullPushPolicy implements PullPushPolicy  {
     private final Git git;
     private final String remoteRef;
     private final int gitTimeout;
-    
-    DefaultPullPushPolicy(Git git, String remoteRef, int gitTimeout) {
+
+    @VisibleForExternal
+    public DefaultPullPushPolicy(Git git, String remoteRef, int gitTimeout) {
         this.git = git;
         this.remoteRef = remoteRef;
         this.gitTimeout = gitTimeout;
