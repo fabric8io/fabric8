@@ -34,7 +34,7 @@ For example:
 
     KubernetesFactory kubeFactory = new KubernetesFactory();
     Kubernetes kube = kubeFactory.createKubernetes();
-    List pods = kube.getPods();
+    PodListSchema pods = kube.getPods();
 
 The **KubernetesFactory** defaults to using the **KUBERNETES_MASTER** environment variable.
 
@@ -44,6 +44,6 @@ If you wish to use a specific URL in your Java code just pass it into the factor
 
     KubernetesFactory kubeFactory = new KubernetesFactory("http://localhost:8585/");
     Kubernetes kube = kubeFactory.createKubernetes();
-    List pods = kube.getPods();
+    PodListSchema pods = kube.getPods();
 
 To see more of the [Kubernetes API](https://github.com/fabric8io/fabric8/blob/master/components/kubernetes-api/src/main/java/io/fabric8/kubernetes/api/Kubernetes.java#L46) in action [check out this example](https://github.com/fabric8io/fabric8/blob/master/components/kubernetes-api/src/test/java/io/fabric8/kubernetes/api/Example.java#L48)
