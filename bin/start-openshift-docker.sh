@@ -87,7 +87,7 @@ getServiceIpAndPort()
 }
 
 FABRIC8_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" hawtio-service)/hawtio/
-DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" registry-service)
+DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" registry)
 INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influx-master)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
 KUBERNETES=http://$DOCKER_IP:8080
