@@ -34,6 +34,7 @@ import io.fabric8.api.jcip.ThreadSafe;
 import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.api.scr.Configurer;
 import io.fabric8.api.scr.ValidatingReference;
+import io.fabric8.api.visibility.VisibleForExternal;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
 import io.fabric8.common.util.Zips;
@@ -181,7 +182,8 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private final Set<String> versions = new HashSet<String>();
 
     @Activate
-    void activate(Map<String, ?> configuration) throws Exception {
+    @VisibleForExternal
+    public void activate(Map<String, ?> configuration) throws Exception {
         configurer.configure(configuration, this);
 
         // Remove non-String values from the configuration
@@ -1182,49 +1184,49 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
         versions.remove(versionId);
     }
     
-    void bindConfigurer(Configurer service) {
+    @VisibleForExternal public void bindConfigurer(Configurer service) {
         this.configurer = service;
     }
     void unbindConfigurer(Configurer service) {
         this.configurer = null;
     }
 
-    void bindCurator(CuratorFramework service) {
+    @VisibleForExternal public void bindCurator(CuratorFramework service) {
         this.curator.bind(service);
     }
     void unbindCurator(CuratorFramework service) {
         this.curator.unbind(service);
     }
 
-    void bindDataStore(DataStore service) {
+    @VisibleForExternal public void bindDataStore(DataStore service) {
         this.dataStore.bind(service);
     }
     void unbindDataStore(DataStore service) {
         this.dataStore.unbind(service);
     }
 
-    void bindGitProxyService(GitProxyService service) {
+    @VisibleForExternal public void bindGitProxyService(GitProxyService service) {
         this.gitProxyService.bind(service);
     }
     void unbindGitProxyService(GitProxyService service) {
         this.gitProxyService.unbind(service);
     }
 
-    void bindGitService(GitService service) {
+    @VisibleForExternal public void bindGitService(GitService service) {
         this.gitService.bind(service);
     }
     void unbindGitService(GitService service) {
         this.gitService.unbind(service);
     }
 
-    void bindProfileBuilders(ProfileBuilders service) {
+    @VisibleForExternal public void bindProfileBuilders(ProfileBuilders service) {
         this.profileBuilders.bind(service);
     }
     void unbindProfileBuilders(ProfileBuilders service) {
         this.profileBuilders.unbind(service);
     }
-    
-    void bindRuntimeProperties(RuntimeProperties service) {
+
+    @VisibleForExternal public void bindRuntimeProperties(RuntimeProperties service) {
         this.runtimeProperties.bind(service);
     }
     void unbindRuntimeProperties(RuntimeProperties service) {
