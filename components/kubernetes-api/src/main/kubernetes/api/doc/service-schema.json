@@ -25,6 +25,10 @@
       "type": "string",
       "required": false
     },
+    "portalIP": {
+      "type": "string",
+      "required": false
+    },
     "port": {
       "type": "integer",
       "required": false
