@@ -65,6 +65,14 @@ public class KubernetesManager implements KubernetesManagerMXBean {
                 answer = "http://" + answer;
             }
         }
+        if (Strings.isNullOrBlank(answer)) {
+            // lets use the registry service
+            String registryHost = System.getenv("REGISTRY_SERVICE_HOST");
+            String registryPort = System.getenv("REGISTRY_SERVICE_PORT");
+            if (Strings.isNotBlank(registryHost) && Strings.isNotBlank(registryPort)) {
+                return registryHost + ":" + registryPort;
+            }
+        }
         return answer;
     }
 
