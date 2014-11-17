@@ -703,7 +703,15 @@ public class ZipMojo extends AbstractFabric8Mojo {
             return;
         }
         log.info("Copying apps from " + outDir.getAbsolutePath() + " into the output directory: " + buildDir);
-        appendAppConfigFiles(outDir, buildDir);
+
+        File[] files = outDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    appendAppConfigFiles(file, buildDir);
+                }
+            }
+        }
     }
 
     /**
