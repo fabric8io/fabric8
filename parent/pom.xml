@@ -367,65 +367,6 @@
                 </plugins>
             </build>
         </profile>
-
-        <profile>
-            <id>snapshots</id>
-            <properties>
-                <snapshot-build>redhat-610-SNAPSHOT</snapshot-build>
-                <activemq.version>5.10.0.${snapshot-build}</activemq.version>
-                <aries.blueprint.version>1.0.1.${snapshot-build}</aries.blueprint.version>
-                <aries.jmx.version>1.0.1.${snapshot-build}</aries.jmx.version>
-                <aries.transaction.version>1.0.1.${snapshot-build}</aries.transaction.version>
-                <aries.util.version>1.0.1.${snapshot-build}</aries.util.version>
-                <aries.proxy.version>1.0.1.${snapshot-build}</aries.proxy.version>
-                <camel.version>2.12.0.${snapshot-build}</camel.version>
-                <cxf.version>2.7.0.${snapshot-build}</cxf.version>
-                <felix-configadmin.version>1.4.0.${snapshot-build}</felix-configadmin.version>
-                <felix-eventadmin.version>1.3.0.${snapshot-build}</felix-eventadmin.version>
-                <felix-fileinstall.version>3.3.11.${snapshot-build}</felix-fileinstall.version>
-                <felix-framework.version>4.0.3.${snapshot-build}</felix-framework.version>
-                <felix-framework-security.version>2.0.1.${snapshot-build}</felix-framework-security.version>
-                <felix-gogo.version>0.11.0.${snapshot-build}</felix-gogo.version>
-                <karaf.version>2.3.0.${snapshot-build}</karaf.version>
-                <servicemix.components.version>2013.01.0.${snapshot-build}</servicemix.components.version>
-                <servicemix.features.version>4.5.0.${snapshot-build}</servicemix.features.version>
-                <servicemix-nmr.version>1.6.0.${snapshot-build}</servicemix-nmr.version>
-                <servicemix-specs.version>2.3.0.${snapshot-build}</servicemix-specs.version>
-                <servicemix.utils.version>1.6.0.${snapshot-build}</servicemix.utils.version>
-            </properties>
-        </profile>
-
-        <profile>
-            <!-- builds using the FuseSource private release proxy to test builds before we ship them -->
-            <id>rp</id>
-
-            <repositories>
-                <repository>
-                    <id>fusesource.rp</id>
-                    <name>FuseSource Community Early Access Release Repository</name>
-                    <url>https://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </repository>
-            </repositories>
-            <pluginRepositories>
-                <pluginRepository>
-                    <id>fusesource.rp</id>
-                    <name>FuseSource Community Early Access Release Repository</name>
-                    <url>https://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </pluginRepository>
-            </pluginRepositories>
-        </profile>
-    </profiles>
-
+   </profiles>
+  
 </project>

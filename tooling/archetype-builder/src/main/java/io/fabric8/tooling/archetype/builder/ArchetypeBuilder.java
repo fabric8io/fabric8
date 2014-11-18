@@ -616,6 +616,7 @@ public class ArchetypeBuilder {
             version = archetypeUtils.firstElementText(root, "version", "");
         }
 
+        // TODO: remove me
         String repo = "https://repo.fusesource.com/nexus/content/groups/public";
 
         printWriter.println(String.format(indent + indent + "<archetype>\n" +
