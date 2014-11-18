@@ -1,4 +1,12 @@
 
+### 2.0.7
+
+* Fixes [these 4 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.7+is%3Aclosed)
+
+### 2.0.6
+
+* Fixes [this issue](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.6)
+
 ### 2.0.5
 
 * Fixes [these issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.5+is%3Aclosed)
