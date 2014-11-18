@@ -9,6 +9,28 @@ if [ -z "$APP_BASE" ] ; then
   export APP_BASE
 fi
 
+echo "Validating your environment..."
+echo
+
+for image in busybox:latest svendowideit/ambassador:latest google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest; do
+  (
+    IFS=':' read -a splitimage <<< "$image"
+    docker images | grep -qEo "${splitimage[0]}\W+${splitimage[1]}" || (echo "Missing necessary Docker image: $image" && docker pull $image && echo)
+  )
+done
+
+echo "Validating firewall rules"
+RULE="INPUT -d 172.17.42.1 -s 172.17.0.0/16 -j ACCEPT"
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host busybox:latest iptables -C $RULE; } 2>/dev/null )
+test -n "$RULE_OUTPUT" && echo "Inserting firewall rule to allow containers to communicate to Docker daemon" && docker run --rm --privileged --net=host busybox:latest iptables -I $RULE
+RULE="INPUT -d 172.17.0.0/16 -s 172.121.0.0/16 -j ACCEPT"
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host busybox:latest iptables -C $RULE; } 2>/dev/null )
+test -n "$RULE_OUTPUT" && echo "Inserting firewall rule to allow containers to communicate with Kubernetes services" && docker run --rm --privileged --net=host busybox:latest iptables -I $RULE
+RULE="INPUT -d 172.121.0.0/16 -s 172.17.0.0/16 -j ACCEPT"
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host busybox:latest iptables -C $RULE; } 2>/dev/null )
+test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host busybox:latest iptables -I $RULE
+echo
+
 while getopts "fud:" opt; do
   case $opt in
     f)
@@ -16,18 +38,21 @@ while getopts "fud:" opt; do
       docker rm -f openshift cadvisor || true
       RUNNING_CONTAINERS=`docker ps -a | grep k8s | cut -c 1-12`
       test -z "$RUNNING_CONTAINERS" || docker rm -f $RUNNING_CONTAINERS
+      echo
       ;;
     u)
       echo "Updating all necessary images"
       for image in svendowideit/ambassador:latest google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest; do
         docker pull $image
       done
+      echo
       ;;
     d)
       DOCKER_IP=$OPTARG
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
+      echo
       ;;
   esac
 done
@@ -41,17 +66,6 @@ export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
 KUBE="docker run --rm -i --net=host openshift/origin:latest kube"
 
 OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host openshift/origin:latest start)
-
-echo "Updating firewall rules if necessary"
-RULE="INPUT -d 172.17.42.1 -s 172.17.0.0/16 -j ACCEPT"
-RULE_OUTPUT=$(docker run --rm --privileged --net=host busybox:latest iptables -C $RULE)
-test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host busybox:latest iptables -I $RULE
-RULE="INPUT -d 172.17.0.0/16 -s 172.121.0.0/16 -j ACCEPT"
-RULE_OUTPUT=$(docker run --rm --privileged --net=host busybox:latest iptables -C $RULE)
-test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host busybox:latest iptables -I $RULE
-RULE="INPUT -d 172.121.0.0/16 -s 172.17.0.0/16 -j ACCEPT"
-RULE_OUTPUT=$(docker run --rm --privileged --net=host busybox:latest iptables -C $RULE)
-test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host busybox:latest iptables -I $RULE
 
 # Have to run it privileged otherwise not working on CentOS7
 CADVISOR_CONTAINER=$(docker run -d --name=cadvisor --privileged -p 4194:8080 \
