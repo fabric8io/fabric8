@@ -1,0 +1,31 @@
+apiVersion: v1beta1
+kind: Config
+id: conf
+items:
+  - apiVersion: v1beta1
+    kind: Pod
+    id: fluentd-elasticsearch-pod
+    desiredState:
+      manifest:
+        version: v1beta2
+        id: fluentd-to-elasticsearch
+        containers:
+          - name: fluentd-es
+            image: kubernetes/fluentd-elasticsearch
+            volumeMounts:
+              - name: containers
+                mountPath: /var/lib/docker/containers
+              - name: hosts
+                mountPath: /outerhost
+                readOnly: true
+        volumes:
+          - name: containers
+            source:
+              hostDir:
+                path: /var/lib/docker/containers
+          - name: hosts
+            source:
+              hostDir:
+                path: /etc/hosts
+    labels:
+      app: fluentd-elasticsearch
