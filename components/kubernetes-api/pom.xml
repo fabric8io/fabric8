@@ -34,8 +34,6 @@
   <properties>
     <clone-kube>true</clone-kube>
     <kube.dir>${basedir}/src/main/kubernetes</kube.dir>
-    <resteasy.version>3.0.8.Final</resteasy.version>
-    <cxf.version>3.0.1</cxf.version>
   </properties>
 
   <dependencies>
