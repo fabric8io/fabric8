@@ -196,38 +196,5 @@
       </build>
     </profile>
 
-    <profile>
-      <id>raml-to-jaxrs</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.raml.plugins</groupId>
-            <artifactId>raml-jaxrs-maven-plugin</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <configuration>
-              <!-- Use sourcePaths if you want to provide a single RAML file or a list of RAML files -->
-              <sourceDirectory>${kube.dir}/api</sourceDirectory>
-              <!-- Optionally configure outputDirectory if you don't like the default value: ${project.build.directory}/generated-sources/raml-jaxrs -->
-              <!-- Replace with your package name -->
-              <basePackageName>io.fabric8.kubernetes.api</basePackageName>
-              <!-- Valid values: 1.1 2.0 -->
-              <jaxrsVersion>2.0</jaxrsVersion>
-              <useJsr303Annotations>true</useJsr303Annotations>
-              <!-- Valid values: jackson1 jackson2 gson none -->
-              <jsonMapper>jackson2</jsonMapper>
-              <removeOldOutput>true</removeOldOutput>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>generate</goal>
-                </goals>
-                <phase>generate-sources</phase>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
   </profiles>
 </project>
