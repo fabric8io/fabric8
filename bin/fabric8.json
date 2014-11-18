@@ -29,10 +29,6 @@
                   "name": "hawtio-container",
                   "env": [
                     {
-                      "name": "KUBERNETES_MASTER",
-                      "value": "http://172.17.42.1:8080"
-                    },
-                    {
                       "name": "DOCKER_REGISTRY",
                       "value": "$REGISTRY_SERVICE_HOST:$REGISTRY_SERVICE_PORT"
                     },
@@ -41,8 +37,8 @@
                       "value": "false"
                     },
                     {
-                      "name": "TODO_hawtio_config_importURLs",
-                      "value": "mvn:io.fabric8/wiki/2.0.1/zip"
+                      "name": "hawtio_config_importURLs",
+                      "value": "mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/LATEST/zip/app,mvn:io.fabric8.jube.images.fabric8/apps/LATEST/zip/app"
                     }
                   ],
                   "ports": [
