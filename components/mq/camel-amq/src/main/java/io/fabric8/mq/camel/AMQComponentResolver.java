@@ -13,24 +13,23 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.mq.fabric.camel;
+package io.fabric8.mq.camel;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.camel.component.ActiveMQComponent;
 import org.apache.camel.CamelContext;
+import org.apache.camel.spi.ComponentResolver;
 import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 
 /**
- * A Camel component for A-MQ which uses the Fabric MQ {@link ActiveMQConnectionFactory} service
- * for connecting to the correct broker group in the fabric.
+ * A {@link ComponentResolver} for the {@link AMQComponent}
  */
-public class AMQComponent extends ActiveMQComponent {
-
-    public AMQComponent(CamelContext camelContext, ActiveMQConnectionFactory connectionFactory) {
-        super(camelContext);
-        setConfiguration(new AMQConfiguration(connectionFactory));
-    }
+@Service(ComponentResolver.class)
+@Property(name = "component", value = "amq")
+@Component(name = "io.fabric8.mq.camel.resolver", label = "Fabric8 MQ Camel Component Resolver", immediate = true, metatype = false)
+public class AMQComponentResolver implements ComponentResolver {
 
     @Activate
     void activate() throws Exception {
@@ -38,6 +37,14 @@ public class AMQComponent extends ActiveMQComponent {
 
     @Deactivate
     void deactivate() {
+    }
+
+    @Override
+    public org.apache.camel.Component resolveComponent(String name, CamelContext camelContext) throws Exception {
+        if (name.equals("amq") || name.equals("activemq")) {
+            return new AMQComponent(camelContext);
+        }
+        return null;
     }
 
 }
