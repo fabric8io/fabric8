@@ -62,8 +62,8 @@
         <connection>scm:git:git@github.com:fabric8io/fabric8.git</connection>
         <developerConnection>scm:git:git@github.com:fabric8io/fabric8.git</developerConnection>
         <url>http://github.com/fabric8io/fabric8/</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <license.dir>${project.parent.basedir}/etc</license.dir>
@@ -312,104 +312,11 @@
       </snapshotRepository>
     </distributionManagement>
 
+    <!-- lets try not to add any 3rd party repositories, we want fabric8 to be nible and only use whats in Maven Central -->
     <repositories>
-        <repository>
-            <id>jboss.fs.public</id>
-            <name>JBoss FS Public Repository Group</name>
-            <url>http://repository.jboss.org/nexus/content/repositories/fs-public/</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jboss-thirdparty-uploads</id>
-            <name>JBoss Thirdparty Uploads</name>
-            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-uploads</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jboss-public-repository-group</id>
-            <name>JBoss Public Repository Group</name>
-            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-        </repository>
-        <!-- Java.net Maven Repository, required by javax.mail -->
-        <repository>
-            <id>java.net</id>
-            <name>Java.net Maven2 Repository</name>
-            <url>http://download.java.net/maven/2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <!-- Scriptengines Google Maven Repository, required by scriptengines -->
-        <repository>
-            <id>scriptengines</id>
-            <name>Scriptengines Google Code Maven Repository</name>
-            <url>http://scriptengines.googlecode.com/svn/m2-repo</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>maven-restlet</id>
-            <name>Public online Restlet repository</name>
-            <url>http://maven.restlet.org</url>
-        </repository>
-        <repository>
-            <id>conjars</id>
-            <name>Conjars Maven Repository</name>
-            <url>http://conjars.org/repo</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
     </repositories>
 
     <pluginRepositories>
-        <pluginRepository>
-            <id>jboss.fs.public</id>
-            <name>JBoss FS Public Repository Group</name>
-            <url>http://repository.jboss.org/nexus/content/repositories/fs-public/</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
     </pluginRepositories>
 
     <dependencyManagement>
