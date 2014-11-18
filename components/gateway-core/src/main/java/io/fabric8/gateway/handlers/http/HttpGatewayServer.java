@@ -15,8 +15,6 @@
  */
 package io.fabric8.gateway.handlers.http;
 
-import io.fabric8.gateway.api.handlers.http.HttpGatewayHandler;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
@@ -37,7 +35,10 @@ public class HttpGatewayServer {
     private HttpServer server;
     private Handler<ServerWebSocket> websocketHandler;
 
-    public HttpGatewayServer(Vertx vertx, Handler<ServerWebSocket> websocketHandler, int port, Handler<HttpServerRequest> handler) {
+    public HttpGatewayServer(Vertx vertx, 
+                             Handler<ServerWebSocket> websocketHandler,
+                             int port, 
+                             Handler<HttpServerRequest> handler) {
         this.vertx = vertx;
         this.websocketHandler = websocketHandler;
         this.port = port;

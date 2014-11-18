@@ -3,6 +3,7 @@ package io.fabric8.gateway.fabric.support.http;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import io.fabric8.gateway.ServiceDTO;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
+import io.fabric8.gateway.fabric.http.HTTPGatewayConfig;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.model.ServiceListSchema;
@@ -35,14 +36,9 @@ public class HttpMappingKubeCache implements Runnable {
        this.serviceSelectors = serviceSelectors;
     }
     
-    public void init() {
-        String kubernetesMaster = Systems.getEnvVarOrSystemProperty("KUBERNETES_MASTER", "KUBERNETES_MASTER", null);
-        KubernetesFactory factory;
-        if (kubernetesMaster==null) {
-            factory = new KubernetesFactory("http://localhost:8585/");
-        } else {
-            factory = new KubernetesFactory(kubernetesMaster);
-        }
+    public void init(HTTPGatewayConfig configuation) {
+        String kubernetesMaster = configuation.getKubernetesMaster();
+        KubernetesFactory factory = new KubernetesFactory(kubernetesMaster);
         contextPathsCache = new ArrayList<String>();
         client = new KubernetesClient(factory);
         //for now simply check in with kubernetes every 5 seconds

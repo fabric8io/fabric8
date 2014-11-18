@@ -13,23 +13,22 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.gateway;
-
-import java.util.List;
+package io.fabric8.gateway.fabric.http;
 
 /**
- * Represents the details of a service
+ * An MBean to retrieve usage for the http gateway
  */
-public interface ServiceDetails {
-    String getId();
+public interface FabricGatewayInfoMBean {
 
-    String getContainer();
-
-    String getVersion();
-
-    List<String> getServices();
-
-    String getBundleName();
-
-    String getBundleVersion();
+    long getNumberOfInvocations();
+    int getPort();
+    String getHost();
+    String getLocalAddress();
+    String getGatewayVersion();
+    boolean isEnableIndex();
+    String getMappedServices();
+    String getLastError();
+    String getLastCallDate();
+    long getAvarageCallTimeNanos();
+    void resetStatistics();
 }

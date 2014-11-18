@@ -101,7 +101,7 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>gateway-api</artifactId>
+            <artifactId>gateway-apiman</artifactId>
             <scope>runtime</scope>
         </dependency>
 
