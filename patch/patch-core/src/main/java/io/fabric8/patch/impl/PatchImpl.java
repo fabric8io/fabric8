@@ -16,17 +16,19 @@
 package io.fabric8.patch.impl;
 
 import java.util.Collection;
+import java.util.Map;
 
 import io.fabric8.patch.Patch;
 import io.fabric8.patch.Result;
+import io.fabric8.patch.Service;
 
 public class PatchImpl implements Patch {
 
-    private final ServiceImpl service;
+    private final Service service;
     private final PatchData patch;
     private Result result;
 
-    public PatchImpl(ServiceImpl service, PatchData patch) {
+    public PatchImpl(Service service, PatchData patch) {
         this.service = service;
         this.patch = patch;
     }
@@ -94,4 +96,7 @@ public class PatchImpl implements Patch {
         return "Patch[id=" + patch.getId() + ", installed=" + isInstalled() + "]";
     }
 
+    public Collection<String> getFiles() {
+        return patch.getFiles();
+    }
 }

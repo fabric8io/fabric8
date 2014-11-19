@@ -16,6 +16,7 @@
 package io.fabric8.patch;
 
 import java.util.Collection;
+import java.util.Map;
 
 public interface Patch {
     
@@ -29,6 +30,11 @@ public interface Patch {
      * Get the collection of required patches. These patches need to be installed before installing this patch.
      */
     Collection<String> getRequirements();
+
+    /**
+     * Get the collection of plain files that will get patched.
+     */
+    Collection<String> getFiles();
 
     /**
      * Get the version range specified for updating the bundle or <code>null</code> if no version range is specified explicitly.

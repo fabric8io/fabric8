@@ -17,12 +17,7 @@ package io.fabric8.patch.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class PatchData {
 
@@ -30,6 +25,9 @@ public class PatchData {
     private static final String DESCRIPTION = "description";
     private static final String BUNDLES = "bundle";
     private static final String REQUIREMENTS = "requirement";
+    private static final String FILES = "file";
+    private static final String SOURCE = "source";
+    private static final String TARGET = "target";
     private static final String COUNT = "count";
     private static final String RANGE = "range";
 
@@ -38,7 +36,7 @@ public class PatchData {
     private final Collection<String> bundles;
     private final Map<String, String> versionRanges;
     private final Collection<String> requirements;
-
+    private final Collection<String> files = new LinkedList<String>();
 
     public PatchData(String id, String description, Collection<String> bundles, Map<String, String> versionRanges, Collection<String> requirements) {
         this.id = id;
@@ -68,6 +66,10 @@ public class PatchData {
         return requirements;
     }
 
+    public Collection<String> getFiles() {
+        return files;
+    }
+
     public static PatchData load(InputStream is) throws IOException {
         Properties props = new Properties();
         props.load(is);
@@ -92,7 +94,13 @@ public class PatchData {
             String requirement = props.getProperty(key);
             requirements.add(requirement);
         }
-        return new PatchData(id, desc, bundles, ranges, requirements);
+        PatchData result = new PatchData(id, desc, bundles, ranges, requirements);
+        // add info for patched files
+        count = Integer.parseInt(props.getProperty(FILES + "." + COUNT, "0"));
+        for (int i = 0; i < count; i++) {
+            result.files.add(props.getProperty(FILES + "." + Integer.toString(i)));
+        }
+        return result;
     }
 
 }

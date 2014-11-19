@@ -1,0 +1,5 @@
+id=files1
+bundle.0=mvn:io.fabric8.test/test1/1.0.0
+bundle.count=1
+file.0=bin/karaf
+file.count=1
