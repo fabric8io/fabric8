@@ -24,7 +24,10 @@ import org.apache.karaf.shell.console.AbstractAction;
 @Command(name = ContainerDefaultJvmOptions.FUNCTION_VALUE, scope = ContainerDefaultJvmOptions.SCOPE_VALUE, description = ContainerDefaultJvmOptions.DESCRIPTION)
 public class ContainerDefaultJvmOptionsAction extends AbstractAction {
 
-    @Argument(index = 0, name = "jvmOptions", description = "The default JVM options to use, or empty to show the default", required = false, multiValued = false)
+    @Argument(index = 0, name = "default", description = "Allowed values: ALL", required = true, multiValued = false)
+    private String commandTermination;
+
+    @Argument(index = 1, name = "jvmOptions", description = "The default JVM options to use, or empty to show the default", required = false, multiValued = false)
     private String options;
 
     private final FabricService fabricService;
