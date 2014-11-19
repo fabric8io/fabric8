@@ -31,6 +31,7 @@
 
   <properties>
     <blueprint-web-version>1.0.0</blueprint-web-version>
+    <fabric8.release.version>2.0.7</fabric8.release.version>
   </properties>
 
   <dependencies>
@@ -115,8 +116,6 @@
             </connector>
           </connectors>
           <systemProperties>
-            <hawtio.config.dir>target/hawtioConfig</hawtio.config.dir>
-<!--
             <systemProperty>
               <key>hawtio.config.dir</key>
               <value>target/hawtioConfig</value>
@@ -125,13 +124,14 @@
               <key>hawtio.config.repo</key>
               <value></value>
             </systemProperty>
--->
-<!--
             <systemProperty>
               <key>hawtio.config.cloneOnStartup</key>
               <value>false</value>
             </systemProperty>
--->
+            <systemProperty>
+              <key>hawtio.config.importURLs</key>
+              <value>mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${fabric8.release.version}/zip/app,mvn:io.fabric8.jube.images.fabric8/apps/${fabric8.release.version}/zip/app</value>
+            </systemProperty>
           </systemProperties>
           <webApp>
             <contextPath>/hawtio</contextPath>
