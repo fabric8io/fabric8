@@ -33,9 +33,11 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.nio.entity.NFileEntity;
 import org.junit.Assert;
 import org.junit.Test;
@@ -84,14 +86,16 @@ public class FabricMavenProxyTest extends FabricTestSupport {
 
                 String uploadUrl = targetUrl + "itest/itest/1.0/itest-1.0-features.xml";
                 System.out.println("Using URI: " + uploadUrl);
-                DefaultHttpClient client = new DefaultHttpClient();
+                BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("admin", "admin"));
+                CloseableHttpClient client = HttpClientBuilder.create()
+                        .setDefaultCredentialsProvider(credentialsProvider)
+                        .build();
                 HttpPut put = new HttpPut(uploadUrl);
-                client.getCredentialsProvider().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("admin", "admin"));
 
-                NFileEntity entity = new NFileEntity(new File(featureLocation), "text/xml");
+                NFileEntity entity = new NFileEntity(new File(featureLocation), ContentType.TEXT_XML);
                 put.setEntity(entity);
-                HttpClient c = client;
-                HttpResponse response = c.execute(put);
+                HttpResponse response = client.execute(put);
                 System.out.println("Response:" + response.getStatusLine());
                 Assert.assertTrue(response.getStatusLine().getStatusCode() == 200 || response.getStatusLine().getStatusCode() == 202);
 

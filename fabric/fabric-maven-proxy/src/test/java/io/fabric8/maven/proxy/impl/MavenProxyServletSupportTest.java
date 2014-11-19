@@ -18,7 +18,6 @@ package io.fabric8.maven.proxy.impl;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -61,7 +60,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.ops4j.util.property.DictionaryPropertyResolver;
-import org.ops4j.util.property.PropertiesPropertyResolver;
 
 import static io.fabric8.common.util.Strings.join;
 import static org.junit.Assert.assertEquals;

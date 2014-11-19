@@ -25,7 +25,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;
@@ -122,14 +121,14 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
             public void operationComplete(ArtifactDownloadFuture future) {
                 Object value = future.getValue();
                 if (value instanceof Throwable) {
-                    LOGGER.warning("Error while downloading artifact:" + value);
+                    LOGGER.warn("Error while downloading artifact: {}", ((Throwable) value).getMessage(), value);
                     resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 } else if (value instanceof File) {
                     File artifactFile = (File) value;
                     InputStream is = null;
                     try {
                         is = new FileInputStream(artifactFile);
-                        LOGGER.log(Level.INFO, String.format("Writing response for file : %s", path));
+                        LOGGER.info("Writing response for file : {}", path);
                         resp.setStatus(HttpServletResponse.SC_OK);
                         resp.setContentType("application/octet-stream");
                         resp.setDateHeader("Date", System.currentTimeMillis());
@@ -143,7 +142,7 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
                         }
                         resp.getOutputStream().flush();
                     } catch (Exception e) {
-                        LOGGER.log(Level.WARNING,"Error while sending artifact:" + e.getMessage(), e);
+                        LOGGER.warn("Error while sending artifact: {}", e.getMessage(), e);
                         resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     } finally {
                         Closeables.closeQuietly(is);

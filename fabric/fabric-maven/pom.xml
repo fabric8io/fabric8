@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
      Copyright 2005-2014 Red Hat, Inc.
@@ -15,7 +16,8 @@
      permissions and limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -29,9 +31,6 @@
 
     <name>Fabric8 :: Maven Bundle</name>
 
-    <properties>
-    </properties>
-
     <dependencies>
 
         <dependency>
@@ -44,12 +43,22 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-provider-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-aether-provider</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-connector-wagon</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.maven.wagon</groupId>
+                    <artifactId>wagon-provider-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.sonatype.plexus</groupId>
@@ -65,7 +74,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
-            <artifactId>wagon-http-lightweight</artifactId>
+            <artifactId>wagon-http</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -101,6 +110,12 @@
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -122,21 +137,19 @@
                         <Import-Package>
                             javax.inject.*;
                             javax.enterprise.inject.*;
-                                resolution:=optional,
+                            resolution:=optional,
                             javax.*,
                             io.fabric8.common.util.*,
                             org.osgi.*,
                             org.slf4j.*,
                             org.ops4j.util.property.*,
-							org.apache.commons.lang.*
+                            org.apache.commons.lang.*
                         </Import-Package>
                         <Export-Package>
                             io.fabric8.maven*;version=${project.version},
                             org.eclipse.*,
-                            org.apache.maven.*,
-                            org.codehaus.*,
-                            org.sonatype.*
-                            org.apache.maven*;version=${maven-version},
+                            org.apache.maven.*;version=${maven-version};-split-package:=merge-first,
+                            org.codehaus.*
                         </Export-Package>
                         <Private-Package>
                             org.sonatype.plexus.components.cipher.*,
