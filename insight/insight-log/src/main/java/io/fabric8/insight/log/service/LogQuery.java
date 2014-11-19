@@ -18,13 +18,16 @@ package io.fabric8.insight.log.service;
 import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.fabric8.common.util.JMXUtils;
 import io.fabric8.insight.log.LogFilter;
 import io.fabric8.insight.log.LogResults;
 import io.fabric8.insight.log.service.support.MavenCoordinates;
 import io.fabric8.insight.log.support.LogQuerySupport;
 import io.fabric8.insight.log.support.Predicate;
+import org.apache.felix.scr.annotations.*;
 import org.apache.karaf.shell.log.LruList;
 import org.apache.karaf.shell.log.VmLogAppender;
+import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -34,52 +37,46 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
 /**
  * An implementation of {@link LogQueryMBean} using the embedded pax appender used by karaf
  */
-public class LogQuery extends LogQuerySupport implements LogQueryMBean, BundleListener {
+@Component
+public class LogQuery extends LogQuerySupport implements LogQueryMBean {
     private transient Logger LOG = LoggerFactory.getLogger(LogQuery.class);
 
-    private BundleContext bundleContext;
+    @Reference
+    private MBeanServer mbeanServer;
+
+    @Reference(referenceInterface = PaxAppender.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, bind = "bindAppender", unbind = "unbindAppender")
     private VmLogAppender appender;
-    private ServiceTracker serviceTracker;
 
     public LogQuery() {
         mapper.getSerializationConfig().withSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     }
 
-    public void init() throws Exception {
-        if (bundleContext == null) {
-            throw new IllegalArgumentException("No bundleContext injected!");
-        }
-        ServiceTrackerCustomizer customizer = null;
-        serviceTracker = new ServiceTracker(bundleContext, "org.ops4j.pax.logging.spi.PaxAppender", customizer);
-        serviceTracker.open();
-
-        bundleContext.addBundleListener(this);
+    @Activate
+    public void activate() {
+        registerMBeanServer(mbeanServer);
     }
 
-    public void destroy() throws Exception {
-        bundleContext.removeBundleListener(this);
-        if (serviceTracker != null) {
-            serviceTracker.close();
-            serviceTracker = null;
+    @Deactivate
+    public void deactivate() {
+        unregisterMBeanServer(mbeanServer);
+    }
+
+    public void bindAppender(PaxAppender paxAppender) {
+        if (paxAppender instanceof VmLogAppender) {
+            appender = (VmLogAppender) paxAppender;
         }
     }
 
-    @Override
-    public void bundleChanged(BundleEvent event) {
-        if (event.getType() == BundleEvent.UNRESOLVED) {
-            mapper.getTypeFactory().clearCache();
+    public void unbindAppender(PaxAppender paxAppender) {
+        if (paxAppender.equals(appender)) {
+            appender = null;
         }
-    }
-
-    public BundleContext getBundleContext() {
-        return bundleContext;
-    }
-
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
     }
 
     @Override
@@ -109,9 +106,8 @@ public class LogQuery extends LogQuerySupport implements LogQueryMBean, BundleLi
 
         long from = Long.MAX_VALUE;
         long to = Long.MIN_VALUE;
-        VmLogAppender a = getAppender();
-        if (a != null) {
-            LruList events = a.getEvents();
+        if (appender != null) {
+            LruList events = appender.getEvents();
             if (events != null) {
                 Iterable<PaxLoggingEvent> iterable =  events.getElements();
                 if (iterable != null) {
@@ -142,23 +138,5 @@ public class LogQuery extends LogQuerySupport implements LogQueryMBean, BundleLi
         answer.setFromTimestamp(from);
         answer.setToTimestamp(to);
         return answer;
-    }
-
-    public VmLogAppender getAppender() {
-        if (appender == null && serviceTracker != null) {
-            Object[] services = serviceTracker.getServices();
-            if (services != null) {
-                for (Object service : services) {
-                    if (service instanceof VmLogAppender) {
-                        return (VmLogAppender) service;
-                    }
-                }
-            }
-        }
-        return appender;
-    }
-
-    public void setAppender(VmLogAppender appender) {
-        this.appender = appender;
     }
 }

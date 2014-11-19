@@ -44,7 +44,6 @@
     <fuse.osgi.private.pkg>
     </fuse.osgi.private.pkg>
     <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=insight-log-core</fuse.osgi.embed.dependency>
-    <fuse.osgi.activator>io.fabric8.insight.log.service.LogQueryActivator</fuse.osgi.activator>
   </properties>
 
   <dependencies>
