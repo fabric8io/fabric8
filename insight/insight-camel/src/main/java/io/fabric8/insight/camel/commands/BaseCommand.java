@@ -15,7 +15,7 @@
  */
 package io.fabric8.insight.camel.commands;
 
-import io.fabric8.insight.camel.base.Activator;
+import io.fabric8.insight.camel.base.InsightCamel;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.felix.service.command.CommandSession;
@@ -119,7 +119,7 @@ public abstract class BaseCommand extends OsgiCommandSupport {
     }
 
     protected Configuration getConfiguration() throws IOException {
-        return getConfigAdmin().getConfiguration(Activator.INSIGHT_CAMEL_PID, null);
+        return getConfigAdmin().getConfiguration(InsightCamel.INSIGHT_CAMEL_PID, null);
     }
 
     protected ConfigurationAdmin getConfigAdmin() {

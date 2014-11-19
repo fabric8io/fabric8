@@ -135,7 +135,7 @@ public abstract class SwitchableContainerStrategy implements ContainerStrategy, 
             ServiceReference<ConfigurationAdmin> sr = bundleContext.getServiceReference(ConfigurationAdmin.class);
             ConfigurationAdmin ca = bundleContext.getService(sr);
             if (ca != null) {
-                Configuration config = ca.getConfiguration(Activator.INSIGHT_CAMEL_PID);
+                Configuration config = ca.getConfiguration(InsightCamel.INSIGHT_CAMEL_PID);
                 Dictionary<String, Object> dic = config.getProperties();
                 if (dic == null) {
                     dic = new Hashtable<String, Object>();

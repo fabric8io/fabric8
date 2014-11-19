@@ -15,7 +15,7 @@
  */
 package io.fabric8.insight.camel.commands;
 
-import io.fabric8.insight.camel.base.Activator;
+import io.fabric8.insight.camel.base.InsightCamel;
 import org.apache.felix.gogo.commands.Command;
 
 @Command(scope = "camel", name = "tracer")
@@ -23,7 +23,7 @@ public class TracerCommand extends BaseCommand {
 
     @Override
     public String getStrategy() {
-        return Activator.TRACER;
+        return InsightCamel.TRACER;
     }
 
 }

@@ -15,6 +15,7 @@
  */
 package io.fabric8.insight.camel.audit;
 
+import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.common.util.IOHelpers;
 import io.fabric8.insight.camel.base.SwitchableContainerStrategy;
 import org.apache.camel.CamelContext;
@@ -46,11 +47,11 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  */
 @ManagedResource(description = "Auditor")
-public class Auditor extends SwitchableContainerStrategy implements EventNotifier, ManagedService, AuditorMBean {
+public class Auditor extends SwitchableContainerStrategy implements EventNotifier, AuditorMBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Auditor.class);
 
-    private StorageService storage;
+    private ValidatingReference<StorageService> storage;
     private String type = "camel";
 
     private boolean ignoreExchangeCreatedEvent;
@@ -60,7 +61,6 @@ public class Auditor extends SwitchableContainerStrategy implements EventNotifie
     private boolean ignoreExchangeSendingEvents;
     private boolean ignoreExchangeSentEvents;
 
-    private Dictionary<String, ?> properties;
     private ParserContext context;
     private Map<String, CompiledTemplate> templates = new ConcurrentHashMap<String, CompiledTemplate>();
     private Map<URL, String> sources = new ConcurrentHashMap<URL, String>();
@@ -70,7 +70,7 @@ public class Auditor extends SwitchableContainerStrategy implements EventNotifie
         this(null);
     }
 
-    public Auditor(StorageService storage) {
+    public Auditor(ValidatingReference<StorageService> storage) {
         super(false);
         this.storage = storage;
         context = new ParserContext();
@@ -87,10 +87,10 @@ public class Auditor extends SwitchableContainerStrategy implements EventNotifie
     }
 
     public StorageService getStorage() {
-        return storage;
+        return storage.getOptional();
     }
 
-    public void setStorage(StorageService storage) {
+    public void setStorage(ValidatingReference<StorageService> storage) {
         this.storage = storage;
     }
 
@@ -103,11 +103,6 @@ public class Auditor extends SwitchableContainerStrategy implements EventNotifie
     }
 
     @Override
-    public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
-        this.properties = properties;
-    }
-
-    @Override
     public void notify(EventObject eventObject) throws Exception {
         if (eventObject instanceof AbstractExchangeEvent) {
             AbstractExchangeEvent aee = (AbstractExchangeEvent) eventObject;
@@ -116,7 +111,9 @@ public class Auditor extends SwitchableContainerStrategy implements EventNotifie
                     aee.getExchange().getIn().setHeader("AuditCallId", aee.getExchange().getContext().getUuidGenerator().generateUuid());
                 }
                 String json = toJson(aee);
-                storage.store(type, System.currentTimeMillis(), json);
+                if (getStorage() != null) {
+                    getStorage().store(type, System.currentTimeMillis(), json);
+                }
             }
         }
     }
