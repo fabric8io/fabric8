@@ -30,8 +30,6 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,10 +58,12 @@ import org.eclipse.aether.metadata.Metadata;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.MetadataRequest;
 import org.eclipse.aether.resolution.MetadataResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MavenProxyServletSupport extends HttpServlet implements MavenProxy {
 
-    protected static final Logger LOGGER = Logger.getLogger(MavenProxyServletSupport.class.getName());
+    public static Logger LOGGER = LoggerFactory.getLogger(MavenProxyServletSupport.class);
 
     private static final String SNAPSHOT_TIMESTAMP_REGEX = "^([0-9]{8}.[0-9]{6}-[0-9]+).*";
     private static final Pattern SNAPSHOT_TIMESTAMP_PATTENR = Pattern.compile(SNAPSHOT_TIMESTAMP_REGEX);
@@ -135,7 +135,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         Matcher metdataMatcher = ARTIFACT_METADATA_URL_REGEX.matcher(path);
 
         if (metdataMatcher.matches()) {
-            LOGGER.log(Level.INFO, String.format("Received request for maven metadata : %s", path));
+            LOGGER.info("Received request for maven metadata : {}", path);
             Metadata metadata = null;
             try {
                 metadata = convertPathToMetadata(path);
@@ -188,13 +188,13 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
                     return tmpFile;
                 }
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING, String.format("Could not find metadata : %s due to %s", metadata, e));
+                LOGGER.warn(String.format("Could not find metadata : %s due to %s", metadata, e.getMessage()), e);
                 return null;
             }
             //If no matching metadata found return nothing
             return null;
         } else if (artifactMatcher.matches()) {
-            LOGGER.log(Level.INFO, String.format("Received request for maven artifact : %s", path));
+            LOGGER.info("Received request for maven artifact : {}", path);
             Artifact artifact = convertPathToArtifact(path);
             try {
                 File download = resolver.resolveFile(artifact);
@@ -202,7 +202,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
                 Files.copy(download, tmpFile);
                 return tmpFile;
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING, String.format("Could not find artifact : %s due to %s", artifact, e), e);
+                LOGGER.warn(String.format("Could not find artifact : %s due to %s", artifact, e.getMessage()), e);
                 return null;
             }
         }
@@ -287,7 +287,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
                     return result;
                 }
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING, String.format("Failed to deploy artifact : %s due to %s", filename, e));
+                LOGGER.warn(String.format("Failed to deploy artifact : %s due to %s", filename, e.getMessage()), e);
                 return UploadContext.ERROR;
             }
         }
@@ -296,21 +296,21 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         Matcher metadataMatcher = ARTIFACT_METADATA_URL_REGEX.matcher(path);
 
         if (metadataMatcher.matches()) {
-            LOGGER.log(Level.INFO, String.format("Received upload request for maven metadata : %s", path));
+            LOGGER.info("Received upload request for maven metadata : {}", path);
             try {
                 Metadata metadata = convertPathToMetadata(path);
                 metadata = metadata.setFile(file);
                 InstallRequest request = new InstallRequest();
                 request.addMetadata(metadata);
                 system.install(session, request);
-                LOGGER.log(Level.INFO, "Maven metadata installed: " + request.toString());
+                LOGGER.info("Maven metadata installed: {}", request.toString());
             } catch (Exception e) {
                 result = UploadContext.ERROR;
-                LOGGER.log(Level.WARNING, String.format("Failed to upload metadata: %s due to %s", path, e), e);
+                LOGGER.warn(String.format("Failed to upload metadata: %s due to %s", path, e.getMessage()), e);
             }
             //If no matching metadata found return nothing
         } else if (artifactMatcher.matches()) {
-            LOGGER.log(Level.INFO, String.format("Received upload request for maven artifact : %s", path));
+            LOGGER.info("Received upload request for maven artifact : {}", path);
             Artifact artifact = null;
             try {
                 artifact = convertPathToArtifact(path);
@@ -324,10 +324,10 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
                 result.setVersion(artifact.getVersion());
                 result.setType(artifact.getExtension());
 
-                LOGGER.log(Level.INFO, "Artifact installed: " + artifact.toString());
+                LOGGER.info("Artifact installed: {}", artifact.toString());
             } catch (Exception e) {
                 result = UploadContext.ERROR;
-                LOGGER.log(Level.WARNING, String.format("Failed to upload artifact : %s due to %s", artifact, e), e);
+                LOGGER.warn(String.format("Failed to upload artifact : %s due to %s", artifact, e.getMessage()), e);
             }
         }
         return result;
