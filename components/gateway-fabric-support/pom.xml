@@ -85,6 +85,11 @@
       </dependency>
       <dependency>
           <groupId>io.fabric8</groupId>
+          <artifactId>gateway-apiman</artifactId>
+          <scope>runtime</scope>
+      </dependency>
+      <dependency>
+          <groupId>io.fabric8</groupId>
           <artifactId>gateway-core</artifactId>
       </dependency>
       <dependency>

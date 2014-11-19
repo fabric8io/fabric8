@@ -18,6 +18,7 @@ package io.fabric8.gateway.fabric.http;
 
 import io.fabric8.gateway.api.CallDetailRecord;
 import io.fabric8.gateway.api.apimanager.ApiManager;
+import io.fabric8.gateway.api.apimanager.ApiManagerService;
 import io.fabric8.gateway.api.handlers.http.HttpGateway;
 import io.fabric8.gateway.api.handlers.http.HttpGatewayHandler;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
@@ -40,7 +41,9 @@ import javax.management.MBeanServer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
+import org.vertx.java.core.http.HttpServerRequest;
 
 /**
  * An HTTP gateway which listens on a port and applies a number of {@link HttpMappingRuleConfiguration} instances to bind
@@ -52,10 +55,12 @@ public class FabricHTTPGateway implements HttpGateway {
         
     @Inject VertxService vertxService;
     
-    HTTPGatewayConfig gatewayConfig;
+    @Inject ApiManagerService apiManagerService;
     
+    HTTPGatewayConfig gatewayConfig;
+    private ApiManager apiManager;
     private HttpGatewayServer server;
-    private HttpGatewayHandler handler;
+    
     //private DetectingGatewayWebSocketHandler websocketHandler = new DetectingGatewayWebSocketHandler();
     private MBeanServer mbeanServer;
     private Set<HttpMappingRule> mappingRuleConfigurations = new CopyOnWriteArraySet<HttpMappingRule>();
@@ -80,9 +85,24 @@ public class FabricHTTPGateway implements HttpGateway {
 
     private void updateConfiguration() throws Exception {
         Vertx vertx = getVertx();
-        handler = new HttpGatewayHandler(vertx, this);
+        
+        apiManager = new ApiManager();
+        
+        Handler<HttpServerRequest> requestHandler = null;
+        if (gatewayConfig.isApiManagerEnabled()) {
+            Map<String, Object> config = new HashMap<String,Object>();
+            config.put(ApiManagerService.VERTX, getVertx());
+            config.put(ApiManagerService.HTTP_GATEWAY, (HttpGateway) this);
+            config.put(ApiManagerService.PORT, String.valueOf(gatewayConfig.getPort()));
+            getApiManager().setService(apiManagerService);
+            getApiManager().getService().init(config);
+            requestHandler = getApiManager().getService().createApiManagerHttpGatewayHandler();
+        } else {
+            requestHandler = new HttpGatewayHandler(getVertx(), this);
+        }
+        
         //websocketHandler.setPathPrefix(websocketGatewayPrefix);
-        server = new HttpGatewayServer(vertx, null, gatewayConfig.getPort(), handler);
+        server = new HttpGatewayServer(vertx, null, gatewayConfig.getPort(), requestHandler);
         server.init();
     }
 
@@ -174,8 +194,7 @@ public class FabricHTTPGateway implements HttpGateway {
 
 	@Override
 	public ApiManager getApiManager() {
-		// TODO Auto-generated method stub
-		return null;
+		return apiManager;
 	}
 
 	

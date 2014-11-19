@@ -124,10 +124,10 @@ public class HttpMappingRuleConfiguration {
     public void configure(HTTPGatewayConfig httpGatewayConfig) throws Exception {
         
         serviceSelectors = httpGatewayConfig.getServiceSelectors();
-        LOG.info("activating http mapping rule " + httpGatewayConfig.get(HTTPGatewayConfig.SELECTOR) + " on " + httpGatewayConfig.get(HTTPGatewayConfig.HTTP_PORT));
+        LOG.info("activating http mapping rule " + httpGatewayConfig.get(HTTPGatewayConfig.SELECTORS) + " on " + httpGatewayConfig.get(HTTPGatewayConfig.HTTP_PORT));
         loadBalancerType = httpGatewayConfig.getLoadBalancerType();
         uriTemplate = httpGatewayConfig.getUriTemplate();
-        enabledVersion = httpGatewayConfig.getEnabledVersiond();
+        enabledVersion = httpGatewayConfig.getEnabledVersion();
         reverseHeaders = httpGatewayConfig.isReverseHeaders();
         
         LoadBalancer loadBalancer = LoadBalancers.createLoadBalancer(loadBalancerType, stickyLoadBalancerCacheSize);
@@ -148,6 +148,7 @@ public class HttpMappingRuleConfiguration {
         mappingTree.init(httpGatewayConfig);
 
         gateway.addMappingRuleConfiguration(httpMappingRuleBase);
+        gateway.configure(httpGatewayConfig);
     }
 
     private void deactivateInternal() {

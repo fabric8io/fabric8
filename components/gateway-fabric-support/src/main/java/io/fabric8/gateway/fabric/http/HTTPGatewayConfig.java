@@ -35,13 +35,15 @@ public class HTTPGatewayConfig extends HashMap<String, String> {
     /** Url to the Kubernetes Master */
     public final static String KUBERNETES_MASTER = "KUBERNETES_MASTER";
     /** The selector in Kubernetes which is monitored to discover the available web services or web applications */
-    public final static String SELECTOR = "GATEWAY_SERVICES_SELECTOR";
+    public final static String SELECTORS = "GATEWAY_SERVICES_SELECTORS";
     /** The url template to use, for example: '/api/{contextPath}' */
     public final static String URI_TEMPLATE = "URI_TEMPLATE";
     /** Specify the exact profile version to expose; if none is specified then the 
      * gateway's current profile version is used. If a {version} URI template 
      * is used then all versions are exposed. */
     public final static String ENABLED_VERSION = "ENABLED_VERSION";
+    
+    public final static String IS_API_MANAGER_ENABLED = "IS_API_MANAGER_ENABLED";
     /** If enabled then the URL in the Location, Content-Location and URI headers from 
      * the proxied HTTP responses are rewritten from the back end service URL to match the 
      * front end URL on the gateway.This is equivalent to the ProxyPassReverse directive
@@ -74,7 +76,7 @@ public class HTTPGatewayConfig extends HashMap<String, String> {
      * @throws IOException 
      */
     public List<Map<String,String>> getServiceSelectors() throws IOException {
-        return parseSelectorConfig(get(SELECTOR));
+        return parseSelectorConfig(get(SELECTORS));
     }
     
     public String getLoadBalancerType() {
@@ -85,8 +87,11 @@ public class HTTPGatewayConfig extends HashMap<String, String> {
         return get(URI_TEMPLATE);
     }
     
-    public String getEnabledVersiond() {
+    public String getEnabledVersion() {
         return get(ENABLED_VERSION);
+    }
+    public boolean isApiManagerEnabled() {
+        return Boolean.parseBoolean(get(IS_API_MANAGER_ENABLED));
     }
     public boolean isReverseHeaders() {
         return Boolean.parseBoolean(get(REVERSE_HEADERS));
