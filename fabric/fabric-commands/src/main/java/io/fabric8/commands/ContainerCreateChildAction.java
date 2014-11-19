@@ -74,7 +74,7 @@ public class ContainerCreateChildAction extends AbstractContainerCreateAction {
                 .number(number)
                 .zookeeperUrl(fabricService.getZookeeperUrl())
                 .zookeeperPassword(fabricService.getZookeeperPassword())
-                .jvmOpts(jvmOpts)
+                .jvmOpts(jvmOpts != null ? jvmOpts : fabricService.getDefaultJvmOptions())
                 .jmxUser(jmxUser)
                 .jmxPassword(jmxPassword)
                 .version(version)
