@@ -438,6 +438,7 @@
             #
           cluster.name=insight
         </config>
+        <feature>eventadmin</feature>
         <feature>insight-log</feature>
         <feature version="${project.version}">insight-metrics</feature>
         <feature>fabric-zookeeper</feature>
@@ -453,6 +454,7 @@
 
     <feature name="insight-elasticsearch-log-storage" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">insight-elasticsearch</feature>
+        <bundle>mvn:io.fabric8.insight/insight-log-storage/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-elasticsearch-log-storage/${project.version}</bundle>
     </feature>
 
@@ -461,36 +463,6 @@
         <feature version="${project.version}">insight-metrics</feature>
         <bundle>mvn:io.fabric8.insight/insight-metrics/${project.version}</bundle>
         <bundle>mvn:io.fabric8.insight/insight-elasticsearch-metrics-storage/${project.version}</bundle>
-    </feature>
-
-    <feature name="insight-log-storage" version="${project.version}" resolver="(obr)">
-        <config name="io.fabric8.insight.log.storage">
-            #
-            # Copyright (C) Red Hat, Inc.
-            # http://redhat.com
-            #
-            # Licensed under the Apache License, Version 2.0 (the "License");
-            # you may not use this file except in compliance with the License.
-            # You may obtain a copy of the License at
-            #
-            # http://www.apache.org/licenses/LICENSE-2.0
-            #
-            # Unless required by applicable law or agreed to in writing, software
-            # distributed under the License is distributed on an "AS IS" BASIS,
-            # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-            # See the License for the specific language governing permissions and
-            # limitations under the License.
-            #
-
-            es.log.index=insight
-            es.log.type=log
-            es.evt.index=insight
-            es.evt.type=evt
-        </config>
-        <feature>eventadmin</feature>
-        <feature>insight-log</feature>
-        <bundle>mvn:io.fabric8.insight/insight-storage/${project.version}</bundle>
-        <bundle>mvn:io.fabric8.insight/insight-log-storage/${project.version}</bundle>
     </feature>
 
     <feature name="insight-camel" version="${project.version}" resolver="(obr)">

@@ -532,7 +532,6 @@
                                    <feature>hawtio-fabric8-branding</feature>
                                    <feature>hawtio-karaf-terminal</feature>
                                    <feature>insight-elasticsearch</feature>
-                                   <feature>insight-log-storage</feature>
                                    <feature>jolokia</feature>
                                    <feature>mq-fabric-http-discovery</feature>
                                    <feature>mq-fabric</feature>
