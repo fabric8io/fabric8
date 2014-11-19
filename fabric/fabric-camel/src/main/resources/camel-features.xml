@@ -944,30 +944,6 @@
     <bundle dependency='true'>wrap:mvn:com.openshift/openshift-java-client/2.5.0.Final</bundle>
     <bundle>mvn:org.apache.camel/camel-openshift/${camel-version}</bundle>
   </feature>
-  <feature name='camel-optaplanner' version='${camel-version}' resolver='(obr)' start-level='50'>
-    <details>The camel-optaplanner feature can only run on a SUN JVM. You need to add the package com.sun.tools.xjc to the java platform packages in the etc/jre.properties file.</details>
-    <feature version='${camel-version}'>camel-core</feature>
-    <bundle dependency='true'>mvn:com.google.guava/guava/17.0</bundle>
-    <bundle dependency='true'>mvn:org.apache.commons/commons-math3/3.3</bundle>
-    <bundle dependency='true'>mvn:commons-lang/commons-lang/2.6</bundle>
-    <bundle dependency='true'>mvn:commons-io/commons-io/1.4</bundle>
-    <bundle dependency='true'>mvn:commons-collections/commons-collections/3.2.1</bundle>
-    <bundle dependency='true'>mvn:org.optaplanner/optaplanner-core/6.1.0.Final</bundle>
-    <bundle dependency='true'>mvn:org.kie/kie-api/6.1.0.Final</bundle>
-    <bundle dependency='true'>mvn:org.kie/kie-internal/6.1.0.Final</bundle>
-    <bundle dependency='true'>mvn:org.drools/drools-core/6.1.0.Final</bundle>
-    <bundle dependency='true'>mvn:org.drools/drools-compiler/6.1.0.Final</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-xjc/2.2.1.1_2</bundle>
-    <!-- the ecj bundle on the central is malformed as both 'META-INF' and 'META-INF/MANIFEST.MF' entries are NOT the first 2 entries inside the jar when -->
-    <!-- one verifies this through 'jar -tf ecj-4.2.2.jar'. one possible workaround for this is to make use of the wrap protocol. -->
-    <bundle dependency='true'>wrap:mvn:org.eclipse.jdt.core.compiler/ecj/4.2.2</bundle>
-    <bundle dependency='true'>mvn:org.mvel/mvel2/2.2.1.Final</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/1.4.7_1</bundle>
-    <bundle dependency='true'>mvn:com.google.protobuf/protobuf-java/2.5.0</bundle>
-    <bundle dependency='true'>mvn:com.google.guava/guava/17.0</bundle>
-    <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-inject/1_2</bundle>
-    <bundle>mvn:org.apache.camel/camel-optaplanner/${camel-version}</bundle>
-  </feature>
   <feature name='camel-paxlogging' version='${camel-version}' resolver='(obr)' start-level='50'>
     <feature version='${camel-version}'>camel-core</feature>
     <bundle>mvn:org.apache.camel/camel-paxlogging/${camel-version}</bundle>
