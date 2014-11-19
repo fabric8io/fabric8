@@ -16,39 +16,51 @@
 package io.fabric8.insight.log.storage;
 
 import io.fabric8.insight.storage.StorageService;
+import org.apache.felix.scr.annotations.*;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 import static io.fabric8.insight.log.storage.InsightUtils.formatDate;
 import static io.fabric8.insight.log.storage.InsightUtils.quote;
 
+@Component(immediate = true, name = "io.fabric8.insight.log.storage.events")
+@Service(EventHandler.class)
+@Properties({
+        @Property(name = "event.topics", value = "*")
+})
 public class InsightEventHandler implements EventHandler {
+
+    public static final String LOG_TYPE = "es.evt.type";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InsightLogAppender.class);
 
     private String name;
-    private String index;
-    private String type;
-    private StorageService storage;
 
+    private String type = "events";
 
-    public void setName(String name) {
-        this.name = name;
+    @Reference
+    private StorageService storageService;
+
+    @Activate
+    public void activate(Map<String, ?> configuration) {
+        name = System.getProperty("runtime.id");
+        if (configuration.containsKey(LOG_TYPE)) {
+            type = (String) configuration.get(LOG_TYPE);
+        }
     }
 
-    public void setIndex(String index) {
-        this.index = index;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public void setStorage(StorageService storage) {
-        this.storage = storage;
+    @Modified
+    public void modified(Map<String, ?> configuration) {
+        if (configuration.containsKey(LOG_TYPE)) {
+            type = (String) configuration.get(LOG_TYPE);
+        } else {
+            type = "log";
+        }
     }
 
     public void handleEvent(final Event event) {
@@ -98,7 +110,9 @@ public class InsightEventHandler implements EventHandler {
             if (timestamp == 0) {
                 timestamp = System.currentTimeMillis();
             }
-            storage.store(type, timestamp, writer.toString());
+            if (type != null && storageService != null) {
+                storageService.store(type, timestamp, writer.toString());
+            }
         } catch (Exception e) {
             LOGGER.warn("Error appending log to elastic search", e);
         }

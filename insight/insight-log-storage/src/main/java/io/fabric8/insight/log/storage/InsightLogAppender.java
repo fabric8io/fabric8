@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.fabric8.insight.storage.StorageService;
+import org.apache.felix.scr.annotations.*;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.slf4j.Logger;
@@ -29,33 +30,46 @@ import static io.fabric8.insight.log.service.support.MavenCoordinates.addMavenCo
 import static io.fabric8.insight.log.storage.InsightUtils.formatDate;
 import static io.fabric8.insight.log.storage.InsightUtils.quote;
 
+@Component(immediate = true, name = "io.fabric8.insight.log.storage.logs")
+@Service(PaxAppender.class)
+@Properties({
+        @Property(name = "org.ops4j.pax.logging.appender.name", value = "InsightLogAppender")
+})
 public class InsightLogAppender implements PaxAppender {
+
+    public static final String LOG_TYPE = "es.log.type";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InsightLogAppender.class);
 
     private String name;
-    private String type;
-    private StorageService storage;
 
+    private String type = "log";
 
-    public void setName(String name) {
-        this.name = name;
+    @Reference
+    private StorageService storageService;
+
+    @Activate
+    public void activate(Map<String, ?> configuration) {
+        name = System.getProperty("runtime.id");
+        if (configuration.containsKey(LOG_TYPE)) {
+            type = (String) configuration.get(LOG_TYPE);
+        }
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public void setStorage(StorageService storage) {
-        this.storage = storage;
+    @Modified
+    public void modified(Map<String, ?> configuration) {
+        if (configuration.containsKey(LOG_TYPE)) {
+            type = (String) configuration.get(LOG_TYPE);
+        } else {
+            type = "log";
+        }
     }
 
     public void doAppend(final PaxLoggingEvent paxLoggingEvent) {
         try {
-
             // Only store TRACE events which have a trace-id.
-            if ( "TRACE".equals(paxLoggingEvent.getLevel().toString().toUpperCase()) &&
-                  !paxLoggingEvent.getProperties().containsKey("trace-id") ) {
+            if ("TRACE".equals(paxLoggingEvent.getLevel().toString().toUpperCase()) &&
+                    !paxLoggingEvent.getProperties().containsKey("trace-id")) {
                 return;
             }
             StringBuilder writer = new StringBuilder();
@@ -73,11 +87,11 @@ public class InsightLogAppender implements PaxAppender {
             quote(paxLoggingEvent.getMessage(), writer);
 
             String[] throwable = paxLoggingEvent.getThrowableStrRep();
-            if( throwable!=null ) {
+            if (throwable != null) {
                 throwable = addMavenCoord(throwable);
                 writer.append(",\n  \"exception\" : [");
                 for (int i = 0; i < throwable.length; i++) {
-                    if(i!=0)
+                    if (i != 0)
                         writer.append(", ");
                     quote(throwable[i], writer);
                 }
@@ -110,7 +124,9 @@ public class InsightLogAppender implements PaxAppender {
             writer.append(" }");
             writer.append("\n}");
 
-            storage.store(type, paxLoggingEvent.getTimeStamp(), writer.toString());
+            if (type != null && storageService != null) {
+                storageService.store(type, paxLoggingEvent.getTimeStamp(), writer.toString());
+            }
         } catch (Exception e) {
             LOGGER.warn("Error appending log to storage", e);
         }
