@@ -90,11 +90,17 @@ public class InsightCamel implements Container {
             }
         }
         Container.Instance.set(this);
-        commandRegistrations = Arrays.asList(
-                SimpleCommand.export(bundleContext, AuditorCommand.class),
-                SimpleCommand.export(bundleContext, BreadcrumbsCommand.class),
-                SimpleCommand.export(bundleContext, ProfilerCommand.class),
-                SimpleCommand.export(bundleContext, TracerCommand.class));
+
+        try {
+
+            commandRegistrations = Arrays.asList(
+                    SimpleCommand.export(bundleContext, AuditorCommand.class),
+                    SimpleCommand.export(bundleContext, BreadcrumbsCommand.class),
+                    SimpleCommand.export(bundleContext, ProfilerCommand.class),
+                    SimpleCommand.export(bundleContext, TracerCommand.class));
+        } catch (Exception e) {
+            LOG.debug("Not registering commands - probably not running in Karaf runtime");
+        }
 
         modified(configuration);
     }
