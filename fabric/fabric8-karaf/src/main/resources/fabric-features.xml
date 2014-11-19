@@ -467,7 +467,7 @@
 
     <feature name="insight-camel" version="${project.version}" resolver="(obr)">
         <feature version="${camel-version-range}">camel</feature>
-        <feature>insight-elasticsearch</feature>
+        <feature>insight-elasticsearch-log-storage</feature>
         <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
         <bundle>mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
         <bundle>mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
