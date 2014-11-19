@@ -44,6 +44,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.framework.BundleContext;
@@ -78,6 +79,7 @@ public class ExtendedEnsembleTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    @Ignore
     public void testAddAndRemoveWithVersions() throws Exception {
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
         BundleContext moduleContext = ServiceLocator.getSystemContext();
@@ -143,6 +145,7 @@ public class ExtendedEnsembleTest {
      */
     @Test
     @SuppressWarnings("unchecked")
+    @Ignore
     public void testAddAndRemoveWithPartialVersionUpgrades() throws Exception {
         System.out.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
         //System.out.println(executeCommand("shell:info"));
