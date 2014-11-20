@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 
-@Ignore("[FABRIC-938] Fix watcher-dynamic-jaxb CamelSpringXjcTest")
 public class CamelSpringXjcTest {
     private static final transient Logger LOG = LoggerFactory.getLogger(CamelSpringXjcTest.class);
 
