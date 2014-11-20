@@ -15,6 +15,8 @@
  */
 package io.fabric8.cxf;
 
+import java.net.InetAddress;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,7 +33,16 @@ public class ServerAddressResolverTest extends Assert {
 
         address = listener.getFullAddress("http://test1");
         assertEquals("Get a wrong address.", "http://test1", address);
+    }
 
+    @Test
+    public void testLocalAddresses() throws Exception {
+        assertTrue(InetAddress.getByName("localhost").isLoopbackAddress());
+        assertTrue(InetAddress.getByName("127.0.0.1").isLoopbackAddress());
+        assertTrue(InetAddress.getByName("127.0.10.1").isLoopbackAddress());
+        assertTrue(InetAddress.getByName("[::1]").isLoopbackAddress());
+        assertFalse(InetAddress.getByName("192.168.0.1").isLoopbackAddress());
+        assertFalse(InetAddress.getByName("0.0.0.0").isLoopbackAddress());
     }
 
 }

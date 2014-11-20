@@ -25,8 +25,10 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerLifeCycleListener;
 import io.fabric8.groups.Group;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -155,13 +157,21 @@ public class FabricServerListener implements ServerLifeCycleListener {
             while (path.startsWith("/")) {
                 path = path.substring(1);
             }
+
+            answer =  uri.getScheme() + "://" + uri.getHost() + ":" + port + "/" + path;
+            try {
+                if (InetAddress.getByName(uri.getHost()).isLoopbackAddress()) {
+                    return answer;
+                }
+            } catch (UnknownHostException e) {
+                LOG.warn(e.getMessage());
+                // ignore - fail later when retrieving address from ZK
+            }
             if (curator != null) {
                 String hostname = "${zk:" + containerId + "/ip}";
                 answer =  uri.getScheme() + "://" + hostname + ":" + port + "/" + path;
                 curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
                 answer = ZooKeeperUtils.getSubstitutedData(curator, answer);
-            } else {
-                answer =  uri.getScheme() + "://" + uri.getHost() + ":" + port + "/" + path;
             }
             return answer;
         } catch (InterruptedException e) {
