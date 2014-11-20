@@ -15,8 +15,6 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-
 import java.io.IOException;
 
 /**
@@ -28,6 +26,10 @@ public interface KubernetesManagerMXBean {
      * and applies it to the runtime environment so that any changes or new items take effect
      */
     String apply(String json) throws IOException;
+
+    String getServiceUrl(String serviceName);
+
+    String getPodIP(String name);
 
     String getDockerRegistry();
 

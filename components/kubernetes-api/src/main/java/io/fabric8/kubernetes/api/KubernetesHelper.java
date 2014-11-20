@@ -687,4 +687,22 @@ public class KubernetesHelper {
         }
     }
 
+    /**
+     * Returns the URL to access the service; using the service portalIP and port
+     */
+    public static String getServiceURL(ServiceSchema service) {
+        if (service != null) {
+            String portalIP = service.getPortalIP();
+            if (portalIP != null) {
+                Integer port = service.getPort();
+                if (port != null && port.intValue() > 0) {
+                    portalIP += ":" + port;
+                }
+            }
+            // TODO use metadata on a service to decide if its HTTP or HTTPS?
+            String protocol = "http://";
+            return protocol + portalIP;
+        }
+        return null;
+    }
 }

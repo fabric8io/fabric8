@@ -15,14 +15,17 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
+import io.fabric8.kubernetes.api.model.CurrentState;
+import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.ServiceSchema;
 import io.fabric8.utils.JMXUtils;
 import io.fabric8.utils.Strings;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * A simple MBean for performing custom operations on kubernetes
@@ -54,6 +57,36 @@ public class KubernetesManager implements KubernetesManagerMXBean {
         return controller.applyJson(json);
     }
 
+    /**
+     * Returns the service URL of the given service name
+     */
+    @Override
+    public String getServiceUrl(String serviceName) {
+        // TODO we could cache these and update them in the background!
+        Map<String, ServiceSchema> serviceMap = KubernetesHelper.getServiceMap(kubernetes);
+        ServiceSchema service = serviceMap.get(serviceName);
+        return KubernetesHelper.getServiceURL(service);
+    }
+
+    /**
+     * Returns the pod IP of the given pod name
+     */
+    @Override
+    public String getPodIP(String name) {
+        // TODO we could cache these and update them in the background!
+        Map<String, PodSchema> podMap = KubernetesHelper.getPodMap(kubernetes);
+        PodSchema pod = podMap.get(name);
+        if (pod != null) {
+            CurrentState currentState = pod.getCurrentState();
+            if (currentState != null) {
+                String podIP = currentState.getPodIP();
+                if (podIP != null) {
+                    return podIP;
+                }
+            }
+        }
+        return null;
+    }
 
     @Override
     public String getDockerRegistry() {
