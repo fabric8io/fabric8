@@ -180,10 +180,6 @@
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
-               <artifactId>fabric-partition</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>io.fabric8</groupId>
                <artifactId>fabric-process-container</artifactId>
            </dependency>
            <dependency>

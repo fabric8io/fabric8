@@ -20,10 +20,6 @@
 
 ### Containers
 
-* <a href="microServices.md">Micro Services</a>
-* <a href="javaContainer.md">Java Container</a>
-* <a href="springBootContainer.md">Spring Boot Container</a>
-* <a href="docker.md">Docker</a>
 * <a href="sshContainers.md">SSH Containers</a>
 * <a href="cloudContainers.md">Cloud Containers</a>
 
@@ -33,8 +29,6 @@
 * <a href="requirements.md">Requirements</a>
 * <a href="rollingUpgrade.md">Rolling Upgrade</a>
 * <a href="offlineRepo.md">Offline Repository</a>
-* <a href="partition.md">Partition</a>
-* <a href="processManager.md">Process Manager</a>
 * <a href="security.md">Security</a>
 * <a href="propertyResolver.md">Property Resolver</a>
 * <a href="urlHandlers.md">URL Handlers</a>
