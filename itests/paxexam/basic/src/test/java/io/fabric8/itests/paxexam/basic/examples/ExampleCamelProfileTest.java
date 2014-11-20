@@ -25,6 +25,7 @@ import io.fabric8.itests.paxexam.support.ContainerCondition;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.itests.paxexam.support.Provision;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -38,6 +39,7 @@ import org.ops4j.pax.exam.spi.reactors.PerMethod;
 @ExamReactorStrategy(PerMethod.class)
 public class ExampleCamelProfileTest extends FabricTestSupport {
 
+    @Ignore("ENTESB-2124")
     @Test
     public void testExample() throws Exception {
         System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
