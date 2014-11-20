@@ -31,7 +31,7 @@
 
   <properties>
     <blueprint-web-version>1.0.0</blueprint-web-version>
-    <fabric8.release.version>2.0.7</fabric8.release.version>
+    <fabric8.release.version>2.0.8</fabric8.release.version>
   </properties>
 
   <dependencies>
@@ -100,6 +100,24 @@
           </webApp>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.tomcat.maven</groupId>
+        <artifactId>tomcat7-maven-plugin</artifactId>
+        <version>${tomcat-plugin.version}</version>
+        <configuration>
+          <port>8484</port>
+          <path>/hawtio</path>
+          <systemProperties>
+            <hawtio.config.dir>target/hawtioConfig</hawtio.config.dir>
+            <hawtio.config.repo></hawtio.config.repo>
+            <hawtio.config.cloneOnStartup>false</hawtio.config.cloneOnStartup>
+            <hawtio.config.importURLs>mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${fabric8.release.version}/zip/app,mvn:io.fabric8.jube.images.fabric8/apps/${fabric8.release.version}/zip/app</hawtio.config.importURLs>
+          </systemProperties>
+          <useTestClasspath>false</useTestClasspath>
+        </configuration>
+      </plugin>
+
     </plugins>
   </build>
 
