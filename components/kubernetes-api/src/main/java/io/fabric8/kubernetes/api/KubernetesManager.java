@@ -16,7 +16,10 @@
 package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.CurrentState;
+import io.fabric8.kubernetes.api.model.ManifestContainer;
+import io.fabric8.kubernetes.api.model.PodContainerManifest;
 import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
 import io.fabric8.utils.JMXUtils;
@@ -25,6 +28,7 @@ import io.fabric8.utils.Strings;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -72,21 +76,45 @@ public class KubernetesManager implements KubernetesManagerMXBean {
      * Returns the pod IP of the given pod name
      */
     @Override
-    public String getPodIP(String name) {
+    public String getPodUrl(String name, String portNumberOrName) {
         // TODO we could cache these and update them in the background!
         Map<String, PodSchema> podMap = KubernetesHelper.getPodMap(kubernetes);
         PodSchema pod = podMap.get(name);
         if (pod != null) {
             CurrentState currentState = pod.getCurrentState();
             if (currentState != null) {
+                String protocol = "http://";
+
+                // find the port either by port number or name
+                Port port = KubernetesHelper.findContainerPortByNumberOrName(pod, portNumberOrName);
+                Integer containerPort = port != null ? port.getContainerPort() : null;
+                // TODO if we can detect HTTPS then add that too...
+
+                // try use the Pod IP if we can
                 String podIP = currentState.getPodIP();
-                if (podIP != null) {
-                    return podIP;
+                if (Strings.isNotBlank(podIP)) {
+                    return addPortToIP(protocol + podIP, containerPort);
+                }
+
+                // lets default to host name for cases where we are on Jube and use the host port too
+                String host = currentState.getHost();
+                if (Strings.isNotBlank(host) && port != null) {
+                    return addPortToIP(protocol + host, port.getHostPort());
                 }
             }
         }
         return null;
     }
+
+    protected String addPortToIP(String podIP, Integer containerPort) {
+        if (containerPort != null) {
+            if (containerPort > 0 && containerPort != 80) {
+                return podIP + ":" + containerPort;
+            }
+        }
+        return podIP;
+    }
+
 
     @Override
     public String getDockerRegistry() {

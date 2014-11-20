@@ -29,7 +29,10 @@ public interface KubernetesManagerMXBean {
 
     String getServiceUrl(String serviceName);
 
-    String getPodIP(String name);
+    /**
+     * Returns the URL to access the given port name and the port number or port name
+     */
+    String getPodUrl(String name, String port);
 
     String getDockerRegistry();
 

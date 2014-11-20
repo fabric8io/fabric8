@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
@@ -702,6 +703,67 @@ public class KubernetesHelper {
             // TODO use metadata on a service to decide if its HTTP or HTTPS?
             String protocol = "http://";
             return protocol + portalIP;
+        }
+        return null;
+    }
+
+    /**
+     * Returns the port for the given port number on the pod
+     */
+    public static Port findContainerPort(PodSchema pod, Integer portNumber) {
+        List<ManifestContainer> containers = KubernetesHelper.getContainers(pod);
+        for (ManifestContainer container : containers) {
+            List<Port> ports = container.getPorts();
+            for (Port port : ports) {
+                if (Objects.equal(portNumber, port.getContainerPort())) {
+                    return port;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the port for the given port name
+     */
+    public static Port findContainerPortByName(PodSchema pod, String name) {
+        List<ManifestContainer> containers = KubernetesHelper.getContainers(pod);
+        for (ManifestContainer container : containers) {
+            List<Port> ports = container.getPorts();
+            for (Port port : ports) {
+                if (Objects.equal(name, port.getName())) {
+                    return port;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * Returns the port for the given port number or name
+     */
+    public static Port findContainerPortByNumberOrName(PodSchema pod, String numberOrName) {
+        Integer portNumber = toOptionalNumber(numberOrName);
+        Port port;
+        if (portNumber != null) {
+            return findContainerPort(pod, portNumber);
+        } else {
+            return findContainerPortByName(pod, numberOrName);
+        }
+    }
+
+
+    /**
+     * Returns the number if it can be parsed or null
+     */
+    protected static Integer toOptionalNumber(String text) {
+        if (Strings.isNotBlank(text)) {
+            try {
+                return Integer.parseInt(text);
+            } catch (NumberFormatException e) {
+                // ignore parse errors
+            }
         }
         return null;
     }
