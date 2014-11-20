@@ -26,7 +26,6 @@ import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import io.fabric8.tooling.testing.pax.exam.karaf.ServiceLocator;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -46,13 +45,16 @@ import static org.ops4j.pax.exam.OptionUtils.combine;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
-@Ignore("[FABRIC-1095] Fix basic ExampleCxfProfileLongTest")
-//CXF Server fails provision cleanly in Karaf (restart the container and it works) due: Caused by: java.io.IOException: Cannot find any registered HttpDestinationFactory from the Bus.")
 public class ExampleCxfProfileLongTest extends FabricTestSupport {
 
     @Before
     public void setUp() throws Exception {
         System.out.println(executeCommand("fabric:create -n --wait-for-provisioning"));
+        // see:
+        // https://github.com/fabric8io/fabric8/commit/8557d03019785181af8bbed263cc28c79156ff31
+        // https://github.com/jboss-fuse/fabric8/commit/4c7a5c7e232f8412cee969a81fbbf4452b0d0377
+        // with above commits "fabric:create --non-managed" doesn't let features to be installed manually using "features:install"
+        System.out.println(executeCommand("scr:deactivate io.fabric8.features"));
     }
 
     @Test
@@ -76,6 +78,7 @@ public class ExampleCxfProfileLongTest extends FabricTestSupport {
                 System.out.println(executeCommand("features:install fabric-cxf", 600000, false));
                 String projectVersion = System.getProperty("fabricitest.version");
                 // install bundle of CXF demo client
+                System.out.println(executeCommand("osgi:install -s mvn:io.fabric8.examples/fabric-cxf-demo-common/" + projectVersion));
                 System.out.println(executeCommand("osgi:install -s mvn:io.fabric8.examples/fabric-cxf-demo-client/" + projectVersion));
                 System.out.println(executeCommand("osgi:list"));
 
