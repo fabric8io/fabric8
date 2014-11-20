@@ -12,7 +12,7 @@ fi
 echo "Validating your environment..."
 echo
 
-for image in busybox:latest svendowideit/ambassador:latest google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest; do
+for image in busybox:latest svendowideit/ambassador:latest google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest kubernetes/fluentd-elasticsearch:latest; do
   (
     IFS=':' read -a splitimage <<< "$image"
     docker images | grep -qEo "${splitimage[0]}\W+${splitimage[1]}" || (echo "Missing necessary Docker image: $image" && docker pull $image && echo)
@@ -42,7 +42,7 @@ while getopts "fud:" opt; do
       ;;
     u)
       echo "Updating all necessary images"
-      for image in svendowideit/ambassador:latest google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest; do
+      for image in svendowideit/ambassador:latest google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest kubernetes/fluentd-elasticsearch:latest; do
         docker pull $image
       done
       echo
@@ -104,16 +104,10 @@ getServiceIpAndPort()
   echo `echo "$1"|grep $2| sed 's/\s\+/ /g' | awk '{ print $3 ":" $4 }'`
 }
 
-getServiceIp()
-{
-  echo `echo "$1"|grep $2| sed 's/\s\+/ /g' | awk '{ print $3 }'`
-}
-
 FABRIC8_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" hawtio-service)/hawtio/
 DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" registry)
 INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influx-master)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
-ELASTICSEARCH_HOST=$(getServiceIp "$K8S_SERVICES" elasticsearch)
 KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
 KUBERNETES=http://$DOCKER_IP:8080
 CADVISOR=http://$DOCKER_IP:4194
@@ -135,8 +129,10 @@ validateService "cadvisor" $CADVISOR
 #validateService "Kibana console" $KIBANA_CONSOLE
 
 # temorary workaround to update the fluentd config with the Elastic Search service ip see https://github.com/GoogleCloudPlatform/kubernetes/blob/master/contrib/logging/fluentd-es-image/td-agent.conf#L8
-docker exec -ti $(docker ps | grep kubernetes/fluentd-elasticsearch | cut -c 1-12) sed -i 's/host/host '$ELASTICSEARCH_HOST'/g' /etc/td-agent/td-agent.conf > /dev/null 2>&1
-docker restart $(docker ps | grep kubernetes/fluentd-elasticsearch | cut -c 1-12) > /dev/null 2>&1
+ELASTICSEARCH_CID=$(docker ps | grep kubernetes/fluentd-elasticsearch | cut -c 1-12)
+docker exec $ELASTICSEARCH_CID bash -c 'sed -i "s/host.*$/host\ $ELASTICSEARCH_SERVICE_HOST/" /etc/td-agent/td-agent.conf'
+docker exec $ELASTICSEARCH_CID bash -c 'sed -i "s/port.*$/port\ $ELASTICSEARCH_SERVICE_PORT/" /etc/td-agent/td-agent.conf'
+docker restart $ELASTICSEARCH_CID > /dev/null 2>&1
 # annoying hack finished
 
 echo
