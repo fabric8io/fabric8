@@ -40,22 +40,6 @@
       <artifactId>hawtio-default</artifactId>
       <type>war</type>
     </dependency>
-<!--
-    <dependency>
-      <groupId>io.hawt</groupId>
-      <artifactId>hawtio-kubernetes</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>io.hawt</groupId>
-          <artifactId>hawtio-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
--->
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-template</artifactId>
@@ -74,30 +58,8 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
-<!--
-      <version>${servlet-api-version}</version>
--->
       <scope>provided</scope>
     </dependency>
-
-<!--
-    <dependency>
-      <groupId>org.apache.aries.blueprint</groupId>
-      <artifactId>org.apache.aries.blueprint.web</artifactId>
-      <version>${blueprint-web-version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.geronimo.specs</groupId>
-          <artifactId>geronimo-servlet_2.5_spec</artifactId>
-        </exclusion>
-        &lt;!&ndash; ignore old versions &ndash;&gt;
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
--->
   </dependencies>
 
   <build>
