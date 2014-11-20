@@ -473,66 +473,6 @@
         <bundle>mvn:io.fabric8.insight/insight-camel/${project.version}</bundle>
     </feature>
 
-    <feature name="fabric-hadoop" version="${project.version}" resolver="(obr)">
-        <config name="io.fabric8.hadoop">
-            #
-            # Copyright (C) Red Hat, Inc.
-            # http://redhat.com
-            #
-            # Licensed under the Apache License, Version 2.0 (the "License");
-            # you may not use this file except in compliance with the License.
-            # You may obtain a copy of the License at
-            #
-            #    http://www.apache.org/licenses/LICENSE-2.0
-            #
-            # Unless required by applicable law or agreed to in writing, software
-            # distributed under the License is distributed on an "AS IS" BASIS,
-            # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-            # See the License for the specific language governing permissions and
-            # limitations under the License.
-            #
-
-            fs.default.name=hdfs\://localhost\:9000
-            dfs.replication=1
-            mapred.job.tracker=localhost\:9001
-            dfs.name.dir=${runtime.data}/hadoop/dfs/name
-            dfs.http.address=localhost\:9002
-            dfs.data.dir=${runtime.data}/hadoop/dfs/data
-            dfs.name.edits.dir=${runtime.data}/hadoop/dfs/name
-            #dataNode = true
-            #nameNode = true
-        </config>
-        <feature>karaf</feature>
-        <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
-        <bundle dependency='true'>mvn:commons-cli/commons-cli/1.2</bundle>
-        <bundle dependency='true'>mvn:commons-codec/commons-codec/1.6</bundle>
-        <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.commons/commons-jexl/${commons-jexl-version}</bundle>
-        <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils-version}</bundle>
-        <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-digester/${commons-digester-version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-configuration/${commons-configuration-version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-jxpath/${commons-jxpath-version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${xmlresolver-version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-servlet_2.5_spec/1.2</bundle>
-        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jsp_2.1_spec/1.0.1</bundle>
-        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-el_2.2_spec/1.0.3</bundle>
-        <bundle dependency='true'>mvn:org.mortbay.jetty/jetty/6.1.26</bundle>
-        <bundle dependency='true'>mvn:org.mortbay.jetty/jetty-util/6.1.26</bundle>
-        <bundle dependency='true'>mvn:com.sun.jersey/jersey-core/1.10</bundle>
-        <bundle dependency='true'>mvn:com.sun.jersey/jersey-server/1.10</bundle>
-        <bundle dependency='true'>mvn:com.sun.jersey/jersey-servlet/1.10</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasper/6.0.36_1</bundle>
-        <bundle dependency='true'>wrap:mvn:org.apache.tomcat/jasper-el/6.0.20</bundle>
-        <bundle dependency='true'>wrap:mvn:tomcat/commons-el/5.5.23$Import-Package=*;resolution:=optional&amp;Export-Package=org.apache.commons.el*;-noimport:=true&amp;overwrite=merge</bundle>
-        <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
-        <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
-        <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-jaxrs/${jackson-version}</bundle>
-        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
-        <bundle>mvn:io.fabric8/fabric-hadoop/${project.version}</bundle>
-    </feature>
-
     <feature name="fabric-ldap-apacheds" version="${project.version}" resolver="(obr)">
         <configfile finalname="/data/ldap/default/fabric.ldif">mvn:io.fabric8/fabric-ldap/${project.version}/ldif/default</configfile>
         <configfile finalname="/etc/fabric-ldap-apacheds-${project.version}.xml">mvn:io.fabric8/fabric-ldap/${project.version}/xml/apacheds</configfile>

@@ -89,9 +89,6 @@ The command will display all the profiles and also display their parents and the
         example-mq-cluster                       0              example-mq-base
         fabric                                   1              karaf
         fmc                                      0              default
-        hadoop                                   0              karaf
-        hadoop-datanode                          0              hadoop
-        hadoop-namenode                          0              hadoop
         hawtio                                   0              default
         insight                                  0              default
         insight-hdfs                             0              insight

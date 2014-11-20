@@ -74,7 +74,6 @@
         <module>fabric-git-server</module>
         <module>fabric-groovy</module>
         <module>fabric-groups</module>
-        <module>fabric-hadoop</module>
         <module>fabric-jaas</module>
         <module>fabric-jolokia</module>
         <module>fabric-jolokia-client</module>
