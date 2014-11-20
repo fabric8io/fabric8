@@ -94,7 +94,6 @@
         <module>fabric-vertx</module>
         <module>fabric-web</module>
         <module>fabric-webapp-agent</module>
-        <module>fabric-zeroconf</module>
         <module>fabric-zookeeper</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-zookeeper-commands</module>
