@@ -77,7 +77,7 @@ public class DynamicXJC {
         SchemaCompiler compiler = createSchemaCompiler();
 
         // our hashcode + timestamp ought to be enough.
-        String stem = toString() + "-" + System.currentTimeMillis();
+        String stem = toString().replaceAll("@", "_") + "-" + System.currentTimeMillis();
         File src = new File(tmpdir, stem + "-src");
         if (!src.mkdir()) {
             throw new IllegalStateException("Unable to create working directory " + src.getPath());
