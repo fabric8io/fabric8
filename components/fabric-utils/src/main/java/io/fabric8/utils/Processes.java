@@ -29,9 +29,12 @@ import java.util.StringTokenizer;
 import static java.lang.String.format;
 
 /**
+ * Platform, Java and Docker specific process utilities.
  */
 public class Processes {
     private static final transient Logger LOG = LoggerFactory.getLogger(Processes.class);
+
+    private static boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
 
     /**
      * Returns true if the given PID is still alive
@@ -46,23 +49,46 @@ public class Processes {
     }
 
     /**
-     * Returns the list of current active PIDs on a platform that supports such a thing (e.g. unix)
+     * Returns the list of current active PIDs
      */
     public static List<Long> getProcessIds() {
-        // TODO we should use a nice library like Sigar really
-        // here's a simple unix only workaround for now...
+        if (isWindows) {
+            return getProcessIdsWindows();
+        } else {
+            return getProcessIdsUnix();
+        }
+    }
+
+    private static List<Long> getProcessIdsWindows() {
+        String commands = "tasklist /NH";
+        String message = commands;
+        LOG.debug("Executing commands: " + message);
+        List<Long> answer = new ArrayList<Long>();
+        try {
+            Process process = Runtime.getRuntime().exec(commands);
+            // on windows the tasklist returns memory usage as numbers, so we need to chop the line so we only include
+            // the pid numbers
+            parseProcesses(process.getInputStream(), answer, message, Filters.<String>trueFilter(), Functions.chopLength(50));
+            processErrors(process.getErrorStream(), message);
+        } catch (Exception e) {
+            LOG.error("Failed to execute process " + "stdin" + " for " +
+                    message + ": " + e, e);
+        }
+        return answer;
+    }
+
+    private static List<Long> getProcessIdsUnix() {
         String commands = "ps -e";
         String message = commands;
         LOG.debug("Executing commands: " + message);
         List<Long> answer = new ArrayList<Long>();
         try {
             Process process = Runtime.getRuntime().exec(commands);
-            parseProcesses(process.getInputStream(), answer, message, Filters.<String>trueFilter());
+            parseProcesses(process.getInputStream(), answer, message, Filters.<String>trueFilter(), null);
             processErrors(process.getErrorStream(), message);
         } catch (Exception e) {
             LOG.error("Failed to execute process " + "stdin" + " for " +
-                    message +
-                    ": " + e, e);
+                    message + ": " + e, e);
         }
         return answer;
     }
@@ -70,7 +96,6 @@ public class Processes {
     /**
      * Returns the list of current active PIDs for any java based process
      * that has a main class which contains any of the given bits of text
-     *
      */
     public static List<Long> getJavaProcessIds(String... classNameFilter) {
         String commands = "jps -l";
@@ -80,12 +105,11 @@ public class Processes {
         Filter<String> filter = Filters.containsAnyString(classNameFilter);
         try {
             Process process = Runtime.getRuntime().exec(commands);
-            parseProcesses(process.getInputStream(), answer, message, filter);
+            parseProcesses(process.getInputStream(), answer, message, filter, null);
             processErrors(process.getErrorStream(), message);
         } catch (Exception e) {
             LOG.error("Failed to execute process " + "stdin" + " for " +
-                    message +
-                    ": " + e, e);
+                    message + ": " + e, e);
         }
         return answer;
     }
@@ -138,8 +162,7 @@ public class Processes {
             processErrors(process.getErrorStream(), message);
         } catch (Exception e) {
             LOG.error("Failed to execute process " + "stdin" + " for " +
-                    message +
-                    ": " + e, e);
+                    message + ": " + e, e);
         }
         return answer;
     }
@@ -163,8 +186,7 @@ public class Processes {
             processErrors(process.getErrorStream(), commands);
         } catch (Exception e) {
             LOG.error("Failed to execute process " + "stdin" + " for " +
-                    message +
-                    ": " + e, e);
+                    message + ": " + e, e);
         }
         return process != null ? process.exitValue() : -1;
     }
@@ -197,8 +219,38 @@ public class Processes {
             return 0;
         }
 
-        // TODO we should use a nice library like Sigar really
-        // here's a simple unix only workaround for now...
+        if (isWindows) {
+            if ("-9".equals(params)) {
+                params = "/F";
+            }
+            return killProcessWindows(pid, params);
+        } else {
+            return killProcessUnix(pid, params);
+        }
+    }
+
+    protected static int killProcessWindows(Long pid, String params) {
+        String commands = "taskkill " + (params != null ? params + " " : "") + "/PID " + pid;
+        Process process = null;
+        Runtime runtime = Runtime.getRuntime();
+        LOG.debug("Executing commands: " + commands);
+        try {
+            process = runtime.exec(commands);
+            processInput(process.getInputStream(), commands);
+            processErrors(process.getErrorStream(), commands);
+        } catch (Exception e) {
+            LOG.error("Failed to execute process " + "stdin" + " for " +
+                    commands + ": " + e, e);
+        }
+        try {
+            return process != null ? process.waitFor() : 1;
+        } catch (InterruptedException e) {
+            String message = format("Interrupted while waiting for 'taskkill /PID %d ' command to finish", pid);
+            throw new RuntimeException(message, e);
+        }
+    }
+
+    protected static int killProcessUnix(Long pid, String params) {
         String commands = "kill " + (params != null ? params + " " : "") + pid;
         Process process = null;
         Runtime runtime = Runtime.getRuntime();
@@ -209,8 +261,7 @@ public class Processes {
             processErrors(process.getErrorStream(), commands);
         } catch (Exception e) {
             LOG.error("Failed to execute process " + "stdin" + " for " +
-                    commands +
-                    ": " + e, e);
+                    commands + ": " + e, e);
         }
         try {
             return process != null ? process.waitFor() : 1;
@@ -220,19 +271,26 @@ public class Processes {
         }
     }
 
-    protected static void parseProcesses(InputStream inputStream, List<Long> answer, String message, Filter<String> lineFilter) throws Exception {
+    protected static void parseProcesses(InputStream inputStream, List<Long> answer, String message,
+                                         Filter<String> lineFilter, Function<String, String> preFunction) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         try {
             while (true) {
                 String line = reader.readLine();
                 if (line == null) break;
+                if (preFunction != null) {
+                    line = preFunction.apply(line);
+                }
                 if (lineFilter.matches(line)) {
                     StringTokenizer tokenizer = new StringTokenizer(line);
-                    if (tokenizer.hasMoreTokens()) {
+                    boolean found = false;
+                    // find the first number which is the pid
+                    while (tokenizer.hasMoreTokens() && !found) {
                         String pidText = tokenizer.nextToken();
                         try {
                             long pid = Long.parseLong(pidText);
                             answer.add(pid);
+                            found = true;
                         } catch (NumberFormatException e) {
                             LOG.debug("Could not parse pid " + pidText + " from command: " + message);
                         }
@@ -241,9 +299,7 @@ public class Processes {
             }
 
         } catch (Exception e) {
-            LOG.debug("Failed to process stdin for " +
-                    message +
-                    ": " + e, e);
+            LOG.debug("Failed to process stdin for " + message + ": " + e, e);
             throw e;
         } finally {
             Closeables.closeQuietly(reader);
@@ -262,15 +318,11 @@ public class Processes {
         Function<String, Void> function = new Function<String, Void>() {
             @Override
             public Void apply(String line) {
-                LOG.debug("Error " +
-                        prefix +
-                                message +
-                        ": " + line);
+                LOG.debug("Error " + prefix + message + ": " + line);
                 return null;
             }
         };
-        processOutput(inputStream, function, prefix +
-                message);
+        processOutput(inputStream, function, prefix + message);
     }
 
     protected static void processOutput(InputStream inputStream, Function<String, Void> function, String errrorMessage) throws IOException {
