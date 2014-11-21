@@ -1,15 +1,15 @@
 ## Get Started with Fabric8 and Jube
 
-First you need to get the latest [Jube](jube.html) by [downloading jube-2.0.7-image.zip](http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.0.7/jube-2.0.7-image.zip) and unzipping it:
+First you need to get the latest [Jube](jube.html) by [downloading jube-2.0.8-image.zip](http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.0.8/jube-2.0.8-image.zip) and unzipping it:
 
-    curl -O http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.0.7/jube-2.0.7-image.zip
-    mkdir jube-2.0.7-image
-    cd jube-2.0.7-image
-    unzip ../jube-2.0.7-image.zip
+    curl -O http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.0.8/jube-2.0.8-image.zip
+    mkdir jube-2.0.8-image
+    cd jube-2.0.8-image
+    unzip ../jube-2.0.8-image.zip
 
 You can then startup Jube via:
 
-    cd jube-2.0.7-image
+    cd jube-2.0.8-image
     ./run.sh
 
 If your operating system doesn't have the executable flag set on the run script; try
