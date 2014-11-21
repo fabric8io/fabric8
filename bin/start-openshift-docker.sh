@@ -57,17 +57,22 @@ while getopts "fud:" opt; do
   esac
 done
 
-export DOCKER_IP=${DOCKER_IP:-127.0.0.1}
-export DOCKER_REGISTRY=$DOCKER_IP:5000
-export KUBERNETES_MASTER=http://$DOCKER_IP:8080
-export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
 
 # TODO it would be nice if we could tell easily if these routes have already been applied so we don't have to do this each time
 if [[ $OSTYPE == darwin* ]]; then
+    if [ -z "$DOCKER_IP" ] ; then
+      export DOCKER_IP=`boot2docker ip 2> /dev/null`
+    fi
+
     echo "Adding network routes to 172.17.0.0/24 & 172.121.17.0/24 via $DOCKER_IP so that the host operating system can see pods and services inside OpenShift"
     sudo route -n add 172.17.0.0/24 $DOCKER_IP
     sudo route -n add 172.121.17.0/24 $DOCKER_IP
 fi
+
+export DOCKER_IP=${DOCKER_IP:-127.0.0.1}
+export DOCKER_REGISTRY=$DOCKER_IP:5000
+export KUBERNETES_MASTER=http://$DOCKER_IP:8080
+export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
 
 
 # using an env var but ideally we'd use an alias ;)
