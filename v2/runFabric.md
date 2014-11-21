@@ -25,9 +25,11 @@ To make sure you've got the latest and greatest hawtio console try this first:
 
     docker pull fabric8/hawtio
 
-Then you can start it up; you can run this anywhere you like really:
+Then you can start it up; you can run this anywhere you like really using the [bin/start script](https://github.com/fabric8io/fabric8/blob/master/bin/start):
 
-    $ ./bin/start
+    git clone https://github.com/fabric8io/fabric8.git
+    cd fabric8
+    ./bin/start
 
 This will run a local docker registry and the hawtio web console.
 
