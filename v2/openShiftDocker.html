@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1416328195466">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1416578693526">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -535,10 +535,11 @@ kube list services
 <p>However you can pipe them into the command line via</p>
 <pre><code>cat mything.json | kube apply -c -
 </code></pre><h3 id="network-routes"><a name="network-routes" class="anchor" href="#network-routes"><span class="fa fa-link"></span></a>Network routes</h3>
-<p>To be able to connect to the pod or service IPs inside OpenShift (so that hawtio can connect into your JVMs) you&apos;ll need to run this once on your machine:</p>
+<p>To be able to connect to the pod or service IPs inside OpenShift (so that hawtio can connect into your JVMs) these routes will need to be defined on your machine:</p>
 <pre><code>sudo route -n add 172.17.0.0/24 $DOCKER_IP
 sudo route -n add 172.121.17.0/24 $DOCKER_IP
-</code></pre><h3 id="running-openshift"><a name="running-openshift" class="anchor" href="#running-openshift"><span class="fa fa-link"></span></a>Running OpenShift</h3>
+</code></pre><p>The above single install script will add these automatically for you.</p>
+<h3 id="running-openshift"><a name="running-openshift" class="anchor" href="#running-openshift"><span class="fa fa-link"></span></a>Running OpenShift</h3>
 <pre><code>docker pull openshift/origin
 docker run -v /var/run/docker.sock:/var/run/docker.sock --net=host --privileged openshift/origin start
 </code></pre><p>You should now be able to access the REST API for OpenShift on the <strong>DOCKER_IP</strong> address at <a href="http://192.168.59.103:8080/api/v1beta1/pods" target="_blank">http://192.168.59.103:8080/api/v1beta1/pods</a></p>
