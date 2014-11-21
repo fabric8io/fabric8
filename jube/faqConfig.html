@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>General Questions | Jube Documentation</title>
+        <title>Configuration Questions | Jube Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,11 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./faqConfig.html" />
         
-        
-        <link rel="prev" href="./FAQ.html" />
+        <link rel="prev" href="./faqGeneral.html" />
         
 
-        <meta property="og:title" content="General Questions | Jube Documentation">
+        <meta property="og:title" content="Configuration Questions | Jube Documentation">
         <meta property="og:site_name" content="Jube Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +48,7 @@
 
 
         
-    <div class="book" data-github="jubeio/jube" data-level="6.1" data-basepath="." data-revision="1416583763483">
+    <div class="book" data-github="jubeio/jube" data-level="6.2" data-basepath="." data-revision="1416583763483">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -292,7 +290,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 92.3076923076923%;min-width: 84.61538461538461%;"></div>
+        <div class="inner" style="width: 100%;min-width: 92.3076923076923%;"></div>
     </div>
     <div class="chapters">
     
@@ -322,29 +320,33 @@
     
         <a href="./faqGeneral.html" title="General Questions" class="chapter done " data-progress="6.1" style="left: 92.3076923076923%;"></a>
     
-        <a href="./faqConfig.html" title="Configuration Questions" class="chapter  " data-progress="6.2" style="left: 100%;"></a>
+        <a href="./faqConfig.html" title="Configuration Questions" class="chapter done " data-progress="6.2" style="left: 100%;"></a>
     
     </div>
 </div>
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_1">
+                    <section class="normal" id="section-gitbook_6">
                     
-                        <h3 id="general-questions"><a name="general-questions" class="anchor" href="#general-questions"><span class="fa fa-link"></span></a>General Questions</h3>
-<h4 id="what-is-the-license-"><a name="what-is-the-license-" class="anchor" href="#what-is-the-license-"><span class="fa fa-link"></span></a>What is the license?</h4>
-<p>Jube uses the <a href="http://www.apache.org/licenses/LICENSE-2.0.txt" target="_blank">Apache 2.0 License</a>.</p>
-<h4 id="what-is-it-"><a name="what-is-it-" class="anchor" href="#what-is-it-"><span class="fa fa-link"></span></a>What is it?</h4>
-<p>Jube is a pure Java open source emulator of <a href="http://kubernetes.io/" target="_blank">Kubernetes</a> for use on non-Linux platforms.</p>
-<p>If you are using Linux we highly recommend you use <a href="http://kubernetes.io/" target="_blank">Kubernetes</a>! However if you must run Java middleware on non-Linux platforms then Jube can help provide a kubernetes-like experience on platforms where <a href="https://golang.org/" target="_blank">golang</a>, <a href="http://kubernetes.io/" target="_blank">Kubernetes</a> or <a href="http://docker.com" target="_blank">Docker</a> are not supported,</p>
-<p>Jube lets you use <a href="http://fabric8.io/v2/index.html" target="_blank">fabric8</a> on any platform that supports a JVM.</p>
-<h4 id="what-does-jube-do-"><a name="what-does-jube-do-" class="anchor" href="#what-does-jube-do-"><span class="fa fa-link"></span></a>What does jube do?</h4>
-<p>Jube orchestrates creating Java processes from <a href="imageZips.html">Image Zips</a>.</p>
-<h4 id="what-java-versions-is-supported-"><a name="what-java-versions-is-supported-" class="anchor" href="#what-java-versions-is-supported-"><span class="fa fa-link"></span></a>What Java versions is supported?</h4>
-<p>Jube runs on Java 7 and 8.</p>
-<h4 id="which-platforms-are-supported-"><a name="which-platforms-are-supported-" class="anchor" href="#which-platforms-are-supported-"><span class="fa fa-link"></span></a>Which platforms are supported?</h4>
-<p>Any platform that has a Java Virtual Machine</p>
-
+                        <h3 id="configuration-questions"><a name="configuration-questions" class="anchor" href="#configuration-questions"><span class="fa fa-link"></span></a>Configuration Questions</h3>
+<h4 id="how-do-i-configure-remote-repositories-"><a name="how-do-i-configure-remote-repositories-" class="anchor" href="#how-do-i-configure-remote-repositories-"><span class="fa fa-link"></span></a>How do I configure remote repositories?</h4>
+<p>Jube loads its <a href="imageZips.html">image zips</a> from Maven repositories in a similar way to Docker loading its images from Docker Registries. Using maven means that Java developers can easily release <a href="imageZips.html">image zips</a> along with their other artifacts (jars, wars, bundles, ears etc).</p>
+<p>Many folks use internal maven repositories for making internal releases of software. Jube can use those repositories; though it needs configuring to know where to look.</p>
+<p>You can configure the list of remote maven repositories to use via the <strong>$JUBE_REMOTE_MAVEN_REPOS</strong> environment variable</p>
+<pre><code>export JUBE_REMOTE_MAVEN_REPOS=http://repo1.maven.org/maven2@id=central,http://repository.jboss.org/nexus/content/groups/public@id=jboss-public
+</code></pre><p>The format is a list of comma separated URLs. You can append the URL with @key-value to further configure the URLs; for example you can add <strong>@id=foo</strong> so that the repository is given a server ID of <em>foo</em> which can then be used to associate login and passwords from the <strong>~/.m2/settings.xml</strong> file.</p>
+<h4 id="how-do-i-run-jube-on-multiple-hosts-"><a name="how-do-i-run-jube-on-multiple-hosts-" class="anchor" href="#how-do-i-run-jube-on-multiple-hosts-"><span class="fa fa-link"></span></a>How do I run Jube on multiple hosts?</h4>
+<p>To run Jube on multiple hosts you just need to point each Jube node at the ZooKeeper ensemble to use to connect all the nodes together.</p>
+<p>You can run your own ZooKeeper ensemble then point each Jube node at it via the <strong>$ZOOKEEPER_URL</strong> environment variable:</p>
+<pre><code>export ZOOKEEPER_URL=somehost:2181
+</code></pre><p>If no <strong>ZOOKEEPER_URL</strong> environment variable is specified, Jube will create a default ZooKeeper server and use that. If you then want to connect a second Jube node to the first, just note the host and port that Jube created the ZooKeeper server on (it writes this to its logs), then set the <strong>$ZOOKEEPER_URL</strong> environment variable for each other Jube node you want to connect:</p>
+<pre><code>export ZOOKEEPER_URL=somehost:2181
+</code></pre><h4 id="how-do-i-specify-a-different-processes-folder-"><a name="how-do-i-specify-a-different-processes-folder-" class="anchor" href="#how-do-i-specify-a-different-processes-folder-"><span class="fa fa-link"></span></a>How do I specify a different <strong>processes</strong> folder?</h4>
+<p>Jube uses a folder called <em>*processes</em> inside the Jube installation by default.</p>
+<p>You can configure where this folder lives on the file system using the <strong>JUBE_PROCESS_DIR</strong> environment variable</p>
+<pre><code>export JUBE_PROCESS_DIR=/var/local/myjube/processes
+</code></pre>
                     
                     </section>
                 
@@ -353,10 +355,8 @@
         </div>
 
         
-        <a href="./FAQ.html" class="navigation navigation-prev " aria-label="Previous page: FAQ"><i class="fa fa-angle-left"></i></a>
+        <a href="./faqGeneral.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page: General Questions"><i class="fa fa-angle-left"></i></a>
         
-        
-        <a href="./faqConfig.html" class="navigation navigation-next " aria-label="Next page: Configuration Questions"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
