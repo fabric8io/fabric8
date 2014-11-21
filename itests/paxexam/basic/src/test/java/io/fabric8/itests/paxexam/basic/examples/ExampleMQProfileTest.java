@@ -32,7 +32,6 @@ import java.util.Set;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -43,7 +42,7 @@ import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
-@Ignore("FABRIC-1156")
+//@Ignore("FABRIC-1156")
 public class ExampleMQProfileTest extends FabricTestSupport {
 
     @Test
