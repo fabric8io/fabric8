@@ -93,26 +93,30 @@ public class KubernetesManager implements KubernetesManagerMXBean {
                 // try use the Pod IP if we can
                 String podIP = currentState.getPodIP();
                 if (Strings.isNotBlank(podIP)) {
-                    return addPortToIP(protocol + podIP, containerPort);
+                    return addPortToIP(protocol + podIP, containerPort, portNumberOrName);
                 }
 
                 // lets default to host name for cases where we are on Jube and use the host port too
                 String host = currentState.getHost();
-                if (Strings.isNotBlank(host) && port != null) {
-                    return addPortToIP(protocol + host, port.getHostPort());
+                if (Strings.isNotBlank(host)) {
+                    return addPortToIP(protocol + host, port != null ? port.getHostPort() : null, portNumberOrName);
                 }
             }
         }
         return null;
     }
 
-    protected String addPortToIP(String podIP, Integer containerPort) {
+    protected String addPortToIP(String podIP, Integer containerPort, String portNumberOrName) {
         if (containerPort != null) {
             if (containerPort > 0 && containerPort != 80) {
                 return podIP + ":" + containerPort;
             }
         }
-        return podIP;
+        if (Strings.isNotBlank(portNumberOrName)) {
+            return podIP + ":" + portNumberOrName;
+        } else {
+            return podIP;
+        }
     }
 
 
