@@ -324,5 +324,22 @@
         </dependencies>
       </profile>
     </profiles>
-      
+    <!--  the APIMan artifact are not yet in central, so until then we need the
+    JBoss Nexus repo -->
+    <repositories>
+        <repository>
+          <id>jboss-public-repository-group</id>
+          <name>JBoss Public Maven Repository Group</name>
+          <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+          <layout>default</layout>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+            <updatePolicy>never</updatePolicy>
+          </snapshots>
+        </repository>
+    </repositories>
 </project>
