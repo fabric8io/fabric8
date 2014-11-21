@@ -45,10 +45,12 @@ However you can pipe them into the command line via
 
 ### Network routes
 
-To be able to connect to the pod or service IPs inside OpenShift (so that hawtio can connect into your JVMs) you'll need to run this once on your machine:
+To be able to connect to the pod or service IPs inside OpenShift (so that hawtio can connect into your JVMs) these routes will need to be defined on your machine:
 
     sudo route -n add 172.17.0.0/24 $DOCKER_IP
     sudo route -n add 172.121.17.0/24 $DOCKER_IP
+
+The above single install script will add these automatically for you.
 
 ### Running OpenShift
 
