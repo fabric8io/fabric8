@@ -43,6 +43,15 @@ public class Systems {
         }
     }
 
+    public static String getEnvVarOrSystemProperty(String envVarName, String defaultValue) {
+        return getEnvVarOrSystemProperty(envVarName,envVarName,defaultValue);
+    }
+
+    public static String getEnvVarOrSystemProperty(final String name, final Number defaultValue) {
+        return getEnvVarOrSystemProperty(name, defaultValue.toString());
+    }
+
+
     /**
      * Returns the value of the given environment variable if its not blank or the given default value
      */
