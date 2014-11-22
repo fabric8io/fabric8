@@ -12,7 +12,7 @@ fi
 echo "Validating your environment..."
 echo
 
-for image in google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest kubernetes/fluentd-elasticsearch:latest; do
+for image in google/cadvisor:latest openshift/origin:latest openshift/origin-haproxy-router:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest kubernetes/fluentd-elasticsearch:latest; do
   (
     IFS=':' read -a splitimage <<< "$image"
     docker images | grep -qEo "${splitimage[0]}\W+${splitimage[1]}" || (echo "Missing necessary Docker image: $image" && docker pull $image && echo)
@@ -42,7 +42,7 @@ while getopts "fud:" opt; do
       ;;
     u)
       echo "Updating all necessary images"
-      for image in google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest kubernetes/fluentd-elasticsearch:latest; do
+      for image in google/cadvisor:latest openshift/origin:latest openshift/origin-haproxy-router:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest kubernetes/fluentd-elasticsearch:latest; do
         docker pull $image
       done
       echo
@@ -95,6 +95,7 @@ if [ -f "$APP_BASE/registry.json" ]; then
   cat $APP_BASE/elasticsearch.json | $KUBE apply -c -
   cat $APP_BASE/fluentd.yml | $KUBE apply -c -
   cat $APP_BASE/kibana.yml | $KUBE apply -c -
+  cat $APP_BASE/router.json | $KUBE create pods -c -
 else
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json
@@ -102,6 +103,7 @@ else
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fluentd.yml
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml
+  $KUBE create pods -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/router.json
 fi
 
 K8S_SERVICES=$($KUBE list services)
