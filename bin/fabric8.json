@@ -70,6 +70,13 @@
       "labels": {
         "name": "hawtioController"
       }
+    },
+    {
+      "id": "hawtio-route",
+      "apiVersion": "v1beta1",
+      "kind": "Route",
+      "host": "hawtio.local",
+      "serviceName": "hawtio-service"
     }
   ]
 }
