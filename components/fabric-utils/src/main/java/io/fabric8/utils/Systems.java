@@ -47,8 +47,14 @@ public class Systems {
         return getEnvVarOrSystemProperty(envVarName,envVarName,defaultValue);
     }
 
-    public static String getEnvVarOrSystemProperty(final String name, final Number defaultValue) {
-        return getEnvVarOrSystemProperty(name, defaultValue.toString());
+    public static Number getEnvVarOrSystemProperty(final String name, final Number defaultValue) {
+        String result =  getEnvVarOrSystemProperty(name, defaultValue.toString());
+        return Integer.parseInt(result);
+    }
+
+    public static Boolean getEnvVarOrSystemProperty(final String name, final Boolean defaultValue) {
+        String result =  getEnvVarOrSystemProperty(name, defaultValue.toString());
+        return Boolean.parseBoolean(result);
     }
 
 
