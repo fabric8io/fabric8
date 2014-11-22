@@ -16,6 +16,7 @@
           {
             "name": "elasticsearch",
             "image": "dockerfile/elasticsearch",
+            "imagePullPolicy": "PullIfNotPresent",
             "ports": [
               {
                 "name": "es-port",

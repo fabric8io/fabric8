@@ -12,6 +12,7 @@ items:
         containers:
           - name: fluentd-es
             image: kubernetes/fluentd-elasticsearch
+            imagePullPolicy: PullIfNotPresent
             volumeMounts:
               - name: containers
                 mountPath: /var/lib/docker/containers

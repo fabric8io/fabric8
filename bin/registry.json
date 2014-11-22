@@ -25,6 +25,7 @@
                 {
                   "image": "registry",
                   "name": "registry-container",
+                  "imagePullPolicy": "PullIfNotPresent",
                   "ports": [
                     {
                       "containerPort": 5000,

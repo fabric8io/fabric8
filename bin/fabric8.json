@@ -27,6 +27,7 @@
                 {
                   "image": "fabric8/hawtio:latest",
                   "name": "hawtio-container",
+                  "imagePullPolicy": "PullIfNotPresent",
                   "env": [
                     {
                       "name": "DOCKER_REGISTRY",

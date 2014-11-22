@@ -23,6 +23,7 @@
           "containers": [{
             "name": "influxdb",
             "image": "tutum/influxdb",
+            "imagePullPolicy": "PullIfNotPresent",
             "ports": [
               {"containerPort": 8083, "hostPort": 8083},
               {"containerPort": 8086, "hostPort": 8086},

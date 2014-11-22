@@ -11,7 +11,8 @@ items:
         id: kibana-server
         containers:
           - name: kibana-image
-            image: kubernetes/kibana:latest            
+            image: kubernetes/kibana:latest       
+            imagePullPolicy: PullIfNotPresent     
             ports:
               - name: kibana-port
                 containerPort: 80
