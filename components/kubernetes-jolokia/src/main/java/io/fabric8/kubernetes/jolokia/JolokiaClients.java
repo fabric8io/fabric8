@@ -24,6 +24,7 @@ import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.Port;
+import io.fabric8.utils.Systems;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.J4pClientBuilder;
 import org.slf4j.Logger;
@@ -43,8 +44,8 @@ public class JolokiaClients {
     private static final transient Logger LOG = LoggerFactory.getLogger(JolokiaClients.class);
 
     private final Kubernetes kubernetes;
-    private String user;
-    private String password;
+    private String user = Systems.getEnvVarOrSystemProperty("JOLOKIA_USER", "JOLOKIA_USER", "admin");
+    private String password = Systems.getEnvVarOrSystemProperty("JOLOKIA_PASSWORD", "JOLOKIA_PASSWORD", "admin");;
 
     public JolokiaClients() {
         this(new KubernetesFactory().createKubernetes());
