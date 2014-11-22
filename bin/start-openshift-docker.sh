@@ -12,7 +12,7 @@ fi
 echo "Validating your environment..."
 echo
 
-for image in busybox:latest svendowideit/ambassador:latest google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest kubernetes/fluentd-elasticsearch:latest; do
+for image in google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest kubernetes/fluentd-elasticsearch:latest; do
   (
     IFS=':' read -a splitimage <<< "$image"
     docker images | grep -qEo "${splitimage[0]}\W+${splitimage[1]}" || (echo "Missing necessary Docker image: $image" && docker pull $image && echo)
@@ -21,14 +21,14 @@ done
 
 echo "Validating firewall rules"
 RULE="INPUT -d 172.17.42.1 -s 172.17.0.0/16 -j ACCEPT"
-RULE_OUTPUT=$( { docker run --rm --privileged --net=host busybox:latest iptables -C $RULE; } 2>/dev/null )
-test -n "$RULE_OUTPUT" && echo "Inserting firewall rule to allow containers to communicate to Docker daemon" && docker run --rm --privileged --net=host busybox:latest iptables -I $RULE
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host google/cadvisor:latest iptables -C $RULE; } 2>/dev/null )
+test -n "$RULE_OUTPUT" && echo "Inserting firewall rule to allow containers to communicate to Docker daemon" && docker run --rm --privileged --net=host google/cadvisor:latest -I $RULE
 RULE="INPUT -d 172.17.0.0/16 -s 172.121.0.0/16 -j ACCEPT"
-RULE_OUTPUT=$( { docker run --rm --privileged --net=host busybox:latest iptables -C $RULE; } 2>/dev/null )
-test -n "$RULE_OUTPUT" && echo "Inserting firewall rule to allow containers to communicate with Kubernetes services" && docker run --rm --privileged --net=host busybox:latest iptables -I $RULE
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host google/cadvisor:latest iptables -C $RULE; } 2>/dev/null )
+test -n "$RULE_OUTPUT" && echo "Inserting firewall rule to allow containers to communicate with Kubernetes services" && docker run --rm --privileged --net=host google/cadvisor:latest iptables -I $RULE
 RULE="INPUT -d 172.121.0.0/16 -s 172.17.0.0/16 -j ACCEPT"
-RULE_OUTPUT=$( { docker run --rm --privileged --net=host busybox:latest iptables -C $RULE; } 2>/dev/null )
-test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host busybox:latest iptables -I $RULE
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host google/cadvisor:latest iptables -C $RULE; } 2>/dev/null )
+test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host google/cadvisor:latest iptables -I $RULE
 echo
 
 while getopts "fud:" opt; do
@@ -42,7 +42,7 @@ while getopts "fud:" opt; do
       ;;
     u)
       echo "Updating all necessary images"
-      for image in svendowideit/ambassador:latest google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest kubernetes/fluentd-elasticsearch:latest; do
+      for image in google/cadvisor:latest openshift/origin:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest kubernetes/fluentd-elasticsearch:latest; do
         docker pull $image
       done
       echo
@@ -89,7 +89,6 @@ CADVISOR_CONTAINER=$(docker run -d --name=cadvisor --privileged -p 4194:8080 \
   google/cadvisor:latest)
 
 if [ -f "$APP_BASE/registry.json" ]; then
-  cat $APP_BASE/kube-socat.json | $KUBE apply -c -
   cat $APP_BASE/fabric8.json | $KUBE apply -c -
   cat $APP_BASE/registry.json | $KUBE apply -c -
   cat $APP_BASE/influxdb.json | $KUBE apply -c -
@@ -97,7 +96,6 @@ if [ -f "$APP_BASE/registry.json" ]; then
   cat $APP_BASE/fluentd.yml | $KUBE apply -c -
   cat $APP_BASE/kibana.yml | $KUBE apply -c -
 else
-  $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kube-socat.json
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json
