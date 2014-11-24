@@ -21,7 +21,7 @@
   <parent>
     <groupId>io.fabric8</groupId>
     <artifactId>components</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0.9</version>
   </parent>
 
   <artifactId>console</artifactId>
@@ -110,7 +110,7 @@
           <path>/hawtio</path>
           <systemProperties>
             <hawtio.config.dir>target/hawtioConfig</hawtio.config.dir>
-            <hawtio.config.repo></hawtio.config.repo>
+            <hawtio.config.repo />
             <hawtio.config.cloneOnStartup>false</hawtio.config.cloneOnStartup>
             <hawtio.config.importURLs>mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/${fabric8.release.version}/zip/app,mvn:io.fabric8.jube.images.fabric8/apps/${fabric8.release.version}/zip/app</hawtio.config.importURLs>
           </systemProperties>
