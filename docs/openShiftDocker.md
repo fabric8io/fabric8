@@ -10,6 +10,19 @@ If you fancy starting OpenShift V3 the super-easy way, run this one-liner (after
 
 This will start up OpenShift in a Docker container, as well as the Fabric8 console (hawtio) & some supporting containers that are used for logging & metrics.
 
+If you want to start from scratch, deleting all previously created Kubernetes containers, you can pass in the `-f` flag:
+
+    bash <(curl -sSL https://bit.ly/get-fabric8) -f
+
+With this configuration, OpenShift will use existing images if they are already present locally. To update all the relevant images to this quickstart installation, you can pass
+in the `-u` flag:
+
+    bash <(curl -sSL https://bit.ly/get-fabric8) -u
+
+And of course flags can be combined. To start from scratch & update all images at once:
+
+    bash <(curl -sSL https://bit.ly/get-fabric8) -fu
+
 ### Environment variables
 
 You'll need the following environment variables to be able use the [Tools](http://fabric8.io/v2/tools.html) such as the [Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html), the [Forge Addons](http://fabric8.io/v2/forge.html) and the [java libraries](javaLibraries.html):
