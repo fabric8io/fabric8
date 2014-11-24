@@ -145,4 +145,27 @@ public class URLUtils {
         return conn.getInputStream();
     }
 
+
+    /**
+     * Joins two parts of a URL together to ensure there is a / in between the strings but ensuring there is not a "//".
+     */
+    public static String urlPathJoin(String first, String second) {
+        if (Strings.isNullOrBlank(second)) {
+            return first;
+        }
+        if (first.endsWith("/")) {
+            if (second.startsWith("/")) {
+                return first + second.substring(1);
+            } else {
+                return first + second;
+            }
+        } else {
+            if (second.startsWith("/")) {
+                return first + second;
+            } else {
+                return first + "/" + second;
+            }
+        }
+    }
+
 }
