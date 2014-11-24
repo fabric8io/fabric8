@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1416611678725">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1416825266676">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -515,7 +515,14 @@
 <p>If you fancy starting OpenShift V3 the super-easy way, run this one-liner (after setting some <a href="#environment-variables">environment variables</a> if you&#x2019;re running on OS X):</p>
 <pre><code>bash &lt;(curl -sSL https://bit.ly/get-fabric8)
 </code></pre><p>This will start up OpenShift in a Docker container, as well as the Fabric8 console (hawtio) &amp; some supporting containers that are used for logging &amp; metrics.</p>
-<h3 id="environment-variables"><a name="environment-variables" class="anchor" href="#environment-variables"><span class="fa fa-link"></span></a>Environment variables</h3>
+<p>If you want to start from scratch, deleting all previously created Kubernetes containers, you can pass in the <code>-f</code> flag:</p>
+<pre><code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -f
+</code></pre><p>With this configuration, OpenShift will use existing images if they are already present locally. To update all the relevant images to this quickstart installation, you can pass
+in the <code>-u</code> flag:</p>
+<pre><code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -u
+</code></pre><p>And of course flags can be combined. To start from scratch &amp; update all images at once:</p>
+<pre><code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -fu
+</code></pre><h3 id="environment-variables"><a name="environment-variables" class="anchor" href="#environment-variables"><span class="fa fa-link"></span></a>Environment variables</h3>
 <p>You&apos;ll need the following environment variables to be able use the <a href="http://fabric8.io/v2/tools.html" target="_blank">Tools</a> such as the <a href="console.html">Console</a>, <a href="http://fabric8.io/v2/mavenPlugin.html" target="_blank">Maven Plugin</a>, the <a href="http://fabric8.io/v2/forge.html" target="_blank">Forge Addons</a> and the <a href="javaLibraries.html">java libraries</a>:</p>
 <pre><code>export DOCKER_IP=`boot2docker ip 2&gt; /dev/null`
 export DOCKER_REGISTRY=$DOCKER_IP:5000
