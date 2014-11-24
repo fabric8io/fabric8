@@ -1,6 +1,6 @@
 apiVersion: v1beta1
 kind: Config
-id: conf3
+id: kibana-config
 items:
   - apiVersion: v1beta1
     kind: Pod
@@ -11,11 +11,14 @@ items:
         id: kibana-server
         containers:
           - name: kibana-image
-            image: kubernetes/kibana:latest       
-            imagePullPolicy: PullIfNotPresent     
+            image: jimmidyson/kibana4:latest
+            imagePullPolicy: PullIfNotPresent
             ports:
               - name: kibana-port
-                containerPort: 80
+                containerPort: 5601
+            env:
+              - name: ELASTICSEARCH_SERVICE_NAME
+                value: ELASTICSEARCH
     labels:
       app: kibana-viewer
   - apiVersion: v1beta1

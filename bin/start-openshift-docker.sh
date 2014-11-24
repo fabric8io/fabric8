@@ -12,7 +12,7 @@ fi
 echo "Validating your environment..."
 echo
 
-for image in google/cadvisor:latest openshift/origin:latest openshift/origin-haproxy-router:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest kubernetes/fluentd-elasticsearch:latest; do
+for image in google/cadvisor:latest openshift/origin:latest openshift/origin-haproxy-router:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest jimmidyson/kibana4:latest dockerfile/elasticsearch:latest kubernetes/fluentd-elasticsearch:latest; do
   (
     IFS=':' read -a splitimage <<< "$image"
     docker images | grep -qEo "${splitimage[0]}\W+${splitimage[1]}" || (echo "Missing necessary Docker image: $image" && docker pull $image && echo)
@@ -42,7 +42,7 @@ while getopts "fud:" opt; do
       ;;
     u)
       echo "Updating all necessary images"
-      for image in google/cadvisor:latest openshift/origin:latest openshift/origin-haproxy-router:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest kubernetes/fluentd-elasticsearch:latest; do
+      for image in google/cadvisor:latest openshift/origin:latest openshift/origin-haproxy-router:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest jimmidyson/kibana4:latest dockerfile/elasticsearch:latest kubernetes/fluentd-elasticsearch:latest; do
         docker pull $image
       done
       echo
