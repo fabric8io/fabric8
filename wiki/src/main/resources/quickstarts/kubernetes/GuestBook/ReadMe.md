@@ -1,6 +1,4 @@
-## Guestbook
-
-This example demonstrates how to use a template to generate the shared passwords for an application.
+The **Guestbook example**  demonstrates how to use a template to generate the shared passwords for an application.
 
 Templates let you parameterize a set of Kubernetes and OpenShift objects all at once, and then **apply** them.
 
