@@ -74,4 +74,35 @@ public class Systems {
             return defaultValue;
         }
     }
+
+    /**
+     * Returns the service host and port for the given environment variable name.
+     *
+     * @param serviceNameEnvVar the name of the environment variable used to configure the name of the service to connect to
+     * @param defaultServiceName the default name of the service to use if the environment variable is not set
+     * @param defaultHost the default host to use if not injected via an environment variable (e.g. localhost)
+     * @parma defaultPort the default port to use to connect to the service if there is not an environment variable defined
+     */
+    public static String getServiceHostAndPort(String serviceNameEnvVar, String defaultServiceName, String defaultHost, String defaultPort) {
+        String serviceName = Systems.getEnvVarOrSystemProperty(serviceNameEnvVar, serviceNameEnvVar, defaultServiceName);
+        String serviceEnvVarPrefix = getServiceEnvVarPrefix(serviceName);
+        String hostEnvVar = serviceEnvVarPrefix + "_HOST";
+        String portEnvVar = serviceEnvVarPrefix + "_PORT";
+
+        String host = Systems.getEnvVarOrSystemProperty(hostEnvVar, hostEnvVar, defaultHost);
+        String port = Systems.getEnvVarOrSystemProperty(portEnvVar, portEnvVar, defaultPort);
+
+        String answer = host + ":" + port;
+
+        LOG.info("Connecting to service " + serviceName + " on " + answer
+                + " from $" + hostEnvVar + " and $" + portEnvVar
+                + ". To use a different service address please specify $" + serviceNameEnvVar + "=someServiceName where 'someServiceName' is the id of a service in Kubernetes");
+        return answer;
+    }
+
+
+    protected static String getServiceEnvVarPrefix(String serviceName) {
+        return serviceName.toUpperCase() + "_SERVICE";
+    }
+
 }
