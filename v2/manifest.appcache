@@ -1,9 +1,9 @@
 CACHE MANIFEST
-# Revision 1416913444294
+# Revision 1416936800040
 
 CACHE:
-getStartedOpenShift.html
 FAQ.html
+getStartedOpenShift.html
 apps.html
 appzip.html
 builds.html

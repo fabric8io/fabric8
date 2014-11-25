@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2" data-basepath="." data-revision="1416913444294">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2" data-basepath="." data-revision="1416936800039">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -510,7 +510,9 @@
                     <section class="normal" id="section-gitbook_10">
                     
                         <h2 id="getting-started"><a name="getting-started" class="anchor" href="#getting-started"><span class="fa fa-link"></span></a>Getting Started</h2>
-<p>There are 2 main ways to get started. The easiest as a Java developer is to start with <a href="jube.html">Jube</a>; since you&apos;ve probably already got Java and Maven installed so you&apos;re almost ready to go:</p>
+<p>There are 2 main ways to get started.</p>
+<h3 id="jube"><a name="jube" class="anchor" href="#jube"><span class="fa fa-link"></span></a>Jube</h3>
+<p>The easiest as a Java developer is to start with <a href="jube.html">Jube</a>; since you&apos;ve probably already got Java and Maven installed so you&apos;re almost ready to go:</p>
 <ul>
 <li><a href="getStartedJube.html">Get Started with Jube</a><ul>
 <li><a href="jubeRunQuickstart.html">Running a quickstart on Jube</a></li>
@@ -519,12 +521,27 @@
 </li>
 <li><a href="http://fabric8.io/jube/troubleshooting.html" target="_blank">Troubleshooting Jube</a></li>
 </ul>
-<p>The ideal platform for running Fabric8 is OpenShift V3:</p>
+<h3 id="openshift"><a name="openshift" class="anchor" href="#openshift"><span class="fa fa-link"></span></a>OpenShift</h3>
+<p>The ideal linux based platform for running Fabric8 is OpenShift V3:</p>
+<p>If you are not running a modern Linux we recommend you start with OpenShift on docker:</p>
 <ul>
-<li><a href="getStartedOpenShift.html">Get Started With OpenShift V3</a></li>
+<li><a href="openShiftDocker.html">Start OpenShift V3 using Docker</a></li>
+</ul>
+<p>If you want to test a multi-minion system then we recommend you try vagrant:</p>
+<ul>
+<li><a href="openShiftVagrant.html">Start OpenShift V3 using Vagrant</a></li>
+</ul>
+<p>Or you could try install OpenShift directly on your laptop. Note that this currently only works on Linux (but hopefully will be fixed soon!):</p>
+<ul>
+<li><a href="openShiftInstall.html">Install OpenShift V3 locally</a></li>
+</ul>
+<h4 id="deploy-a-quickstart"><a name="deploy-a-quickstart" class="anchor" href="#deploy-a-quickstart"><span class="fa fa-link"></span></a>Deploy a quickstart</h4>
+<p>Once you have OpenShift running from one of the above methods you can now try to deploy an application:</p>
+<ol>
 <li><a href="http://fabric8.io/v2/example.html" target="_blank">Deploy an example quickstart project</a></li>
 <li><a href="quickstarts.html">Check out the Quickstarts</a></li>
-</ul>
+</ol>
+<h3 id="troubleshooting"><a name="troubleshooting" class="anchor" href="#troubleshooting"><span class="fa fa-link"></span></a>Troubleshooting</h3>
 <p>Hopefully that will get you started quickly; if you hit any issues check out the <a href="http://fabric8.io/v2/FAQ.html" target="_blank">FAQ</a>, <a href="http://fabric8.io/community/index.html" target="_blank">get in touch</a> or <a href="https://github.com/fabric8io/fabric8/issues" target="_blank">raise an issue</a></p>
 
                     
