@@ -28,7 +28,7 @@
   <artifactId>mq-client</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 MQ :: Client</name>
+  <name>Fabric8 :: MQ :: Client</name>
 
   <properties>
     <fuse.osgi.export>io.fabric8.mq.core;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
