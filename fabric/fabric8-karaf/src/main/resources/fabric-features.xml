@@ -24,8 +24,7 @@
     CXF 3 version of JAXRS 2.0 client for fabric-docker-api
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-3-version}/xml/features</repository>
 -->
-    <!--repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository-->
-    <repository>mvn:io.fabric8/fabric-camel/${project.version}/xml/features</repository>
+    <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
     <repository>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features-core</repository>
     <repository>mvn:org.apache.jclouds.karaf/jclouds-karaf/${jclouds-karaf-version}/xml/features</repository>
     <repository>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</repository>
