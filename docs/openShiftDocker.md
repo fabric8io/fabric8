@@ -8,7 +8,11 @@ If you fancy starting OpenShift V3 the super-easy way, run this one-liner (after
 
     bash <(curl -sSL https://bit.ly/get-fabric8)
 
-This will start up OpenShift in a Docker container, as well as the Fabric8 console (hawtio) & some supporting containers that are used for logging & metrics.
+This will start up OpenShift in a Docker container, as well as the Fabric8 console (hawtio).
+
+If you would like to try out a fully-featured installation, including aggregated logs & metrics, you can pass in the `-k` ("kitchen sink") flag:
+
+    bash <(curl -sSL https://bit.ly/get-fabric8) -k
 
 If you want to start from scratch, deleting all previously created Kubernetes containers, you can pass in the `-f` flag:
 
@@ -21,7 +25,7 @@ in the `-u` flag:
 
 And of course flags can be combined. To start from scratch & update all images at once:
 
-    bash <(curl -sSL https://bit.ly/get-fabric8) -fu
+    bash <(curl -sSL https://bit.ly/get-fabric8) -fku
 
 ### Environment variables
 

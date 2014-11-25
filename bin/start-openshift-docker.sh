@@ -9,30 +9,28 @@ if [ -z "$APP_BASE" ] ; then
   export APP_BASE
 fi
 
-echo "Validating your environment..."
-echo
+OPENSHIFT_IMAGE=openshift/origin:latest
+OPENSHIFT_ROUTER_IMAGE=openshift/origin-haproxy-router:latest
+REGISTRY_IMAGE=registry:latest
+CADVISOR_IMAGE=google/cadvisor:0.6.2
+INFLUXDB_IMAGE=tutum/influxdb:latest
+FABRIC8_CONSOLE_IMAGE=fabric8/hawtio:latest
+KIBANA_IMAGE=jimmidyson/kibana4:latest
+ELASTICSEARCH_IMAGE=dockerfile/elasticsearch:latest
+FLUENTD_IMAGE=kubernetes/fluentd-elasticsearch:latest
 
-for image in google/cadvisor:latest openshift/origin:latest openshift/origin-haproxy-router:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest jimmidyson/kibana4:latest dockerfile/elasticsearch:latest kubernetes/fluentd-elasticsearch:latest; do
-  (
-    IFS=':' read -a splitimage <<< "$image"
-    docker images | grep -qEo "${splitimage[0]}\W+${splitimage[1]}" || (echo "Missing necessary Docker image: $image" && docker pull $image && echo)
-  )
-done
+MINIMUM_IMAGES="${OPENSHIFT_IMAGE} ${FABRIC8_CONSOLE_IMAGE}"
+ALL_IMAGES="${MINIMUM_IMAGES} ${OPENSHIFT_ROUTER_IMAGE} ${REGISTRY_IMAGE} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${FLUENTD_IMAGE}"
+DEPLOY_IMAGES="${MINIMUM_IMAGES}"
+UPDATE_IMAGES=0
+DEPLOY_ALL=0
 
-echo "Validating firewall rules"
-RULE="INPUT -d 172.17.42.1 -s 172.17.0.0/16 -j ACCEPT"
-RULE_OUTPUT=$( { docker run --rm --privileged --net=host google/cadvisor:latest iptables -C $RULE; } 2>/dev/null )
-test -n "$RULE_OUTPUT" && echo "Inserting firewall rule to allow containers to communicate to Docker daemon" && docker run --rm --privileged --net=host google/cadvisor:latest -I $RULE
-RULE="INPUT -d 172.17.0.0/16 -s 172.121.0.0/16 -j ACCEPT"
-RULE_OUTPUT=$( { docker run --rm --privileged --net=host google/cadvisor:latest iptables -C $RULE; } 2>/dev/null )
-test -n "$RULE_OUTPUT" && echo "Inserting firewall rule to allow containers to communicate with Kubernetes services" && docker run --rm --privileged --net=host google/cadvisor:latest iptables -I $RULE
-RULE="INPUT -d 172.121.0.0/16 -s 172.17.0.0/16 -j ACCEPT"
-RULE_OUTPUT=$( { docker run --rm --privileged --net=host google/cadvisor:latest iptables -C $RULE; } 2>/dev/null )
-test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host google/cadvisor:latest iptables -I $RULE
-echo
-
-while getopts "fud:" opt; do
+while getopts "fud:k" opt; do
   case $opt in
+    k)
+      DEPLOY_IMAGES="${ALL_IMAGES}"
+      DEPLOY_ALL=1
+      ;;
     f)
       echo "Cleaning up all existing k8s containers"
       docker rm -f openshift cadvisor || true
@@ -41,11 +39,7 @@ while getopts "fud:" opt; do
       echo
       ;;
     u)
-      echo "Updating all necessary images"
-      for image in google/cadvisor:latest openshift/origin:latest openshift/origin-haproxy-router:latest registry:latest tutum/influxdb:latest fabric8/hawtio:latest jimmidyson/kibana4:latest dockerfile/elasticsearch:latest kubernetes/fluentd-elasticsearch:latest; do
-        docker pull $image
-      done
-      echo
+      UPDATE_IMAGES=1
       ;;
     d)
       DOCKER_IP=$OPTARG
@@ -57,6 +51,35 @@ while getopts "fud:" opt; do
   esac
 done
 
+echo "Validating your environment..."
+echo
+
+if [ ${UPDATE_IMAGES} -eq 1 ]; then
+  echo "Updating all necessary images"
+  for image in ${DEPLOY_IMAGES}; do
+    docker pull $image
+  done
+  echo
+fi
+
+for image in ${DEPLOY_IMAGES}; do
+  (
+    IFS=':' read -a splitimage <<< "$image"
+    docker images | grep -qEo "${splitimage[0]}\W+${splitimage[1]}" || (echo "Missing necessary Docker image: $image" && docker pull $image && echo)
+  )
+done
+
+echo "Validating firewall rules"
+RULE="INPUT -d 172.17.42.1 -s 172.17.0.0/16 -j ACCEPT"
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host ${FABRIC8_CONSOLE_IMAGE} iptables -C $RULE; } 2>/dev/null )
+test -n "$RULE_OUTPUT" && echo "Inserting firewall rule to allow containers to communicate to Docker daemon" && docker run --rm --privileged --net=host ${FABRIC8_CONSOLE_IMAGE} -I $RULE
+RULE="INPUT -d 172.17.0.0/16 -s 172.121.0.0/16 -j ACCEPT"
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host ${FABRIC8_CONSOLE_IMAGE} iptables -C $RULE; } 2>/dev/null )
+test -n "$RULE_OUTPUT" && echo "Inserting firewall rule to allow containers to communicate with Kubernetes services" && docker run --rm --privileged --net=host ${FABRIC8_CONSOLE_IMAGE} iptables -I $RULE
+RULE="INPUT -d 172.121.0.0/16 -s 172.17.0.0/16 -j ACCEPT"
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host ${FABRIC8_CONSOLE_IMAGE} iptables -C $RULE; } 2>/dev/null )
+test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host ${FABRIC8_CONSOLE_IMAGE} iptables -I $RULE
+echo
 
 # TODO it would be nice if we could tell easily if these routes have already been applied so we don't have to do this each time
 if [[ $OSTYPE == darwin* ]]; then
@@ -74,36 +97,41 @@ export DOCKER_REGISTRY=$DOCKER_IP:5000
 export KUBERNETES_MASTER=http://$DOCKER_IP:8080
 export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
 
-
 # using an env var but ideally we'd use an alias ;)
-KUBE="docker run --rm -i --net=host openshift/origin:latest kube"
+KUBE="docker run --rm -i --net=host ${OPENSHIFT_IMAGE} kube"
 
-OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host openshift/origin:latest start)
+OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host ${OPENSHIFT_IMAGE} start)
 
-# Have to run it privileged otherwise not working on CentOS7
-CADVISOR_CONTAINER=$(docker run -d --name=cadvisor --privileged -p 4194:8080 \
-  --volume=/:/rootfs:ro \
-  --volume=/var/run:/var/run:rw \
-  --volume=/sys:/sys:ro \
-  --volume=/var/lib/docker/:/var/lib/docker:ro \
-  google/cadvisor:latest)
+if [ ${DEPLOY_ALL} -eq 1 ]; then
+  # Have to run it privileged otherwise not working on CentOS7
+  CADVISOR_CONTAINER=$(docker run -d --name=cadvisor --privileged -p 4194:8080 \
+    --volume=/:/rootfs:ro \
+    --volume=/var/run:/var/run:rw \
+    --volume=/sys:/sys:ro \
+    --volume=/var/lib/docker/:/var/lib/docker:ro \
+    ${CADVISOR_IMAGE})
+fi
 
-if [ -f "$APP_BASE/registry.json" ]; then
+if [ -f "$APP_BASE/fabric8.json" ]; then
   cat $APP_BASE/fabric8.json | $KUBE apply -c -
-  cat $APP_BASE/registry.json | $KUBE apply -c -
-  cat $APP_BASE/influxdb.json | $KUBE apply -c -
-  cat $APP_BASE/elasticsearch.json | $KUBE apply -c -
-  cat $APP_BASE/fluentd.yml | $KUBE apply -c -
-  cat $APP_BASE/kibana.yml | $KUBE apply -c -
-  cat $APP_BASE/router.json | $KUBE create pods -c -
+  if [ ${DEPLOY_ALL} -eq 1 ]; then
+    cat $APP_BASE/registry.json | $KUBE apply -c -
+    cat $APP_BASE/influxdb.json | $KUBE apply -c -
+    cat $APP_BASE/elasticsearch.json | $KUBE apply -c -
+    cat $APP_BASE/fluentd.yml | $KUBE apply -c -
+    cat $APP_BASE/kibana.yml | $KUBE apply -c -
+    cat $APP_BASE/router.json | $KUBE create pods -c -
+  fi
 else
   $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json
-  $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json
-  $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json
-  $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json
-  $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fluentd.yml
-  $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml
-  $KUBE create pods -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/router.json
+  if [ ${DEPLOY_ALL} -eq 1 ]; then
+    $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json
+    $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json
+    $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json
+    $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fluentd.yml
+    $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml
+    $KUBE create pods -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/router.json
+  fi
 fi
 
 K8S_SERVICES=$($KUBE list services)
@@ -134,31 +162,35 @@ validateService()
 }
 
 validateService "Fabric8 console" $FABRIC8_CONSOLE
-validateService "Docker registry" $DOCKER_REGISTRY
-validateService "Influxdb" $INFLUXDB
-validateService "Elasticsearch" $ELASTICSEARCH
-validateService "Kubernetes master" $KUBERNETES
-validateService "cadvisor" $CADVISOR
-#validateService "Kibana console" $KIBANA_CONSOLE
+if [ ${DEPLOY_ALL} -eq 1 ]; then
+  validateService "Docker registry" $DOCKER_REGISTRY
+  validateService "Influxdb" $INFLUXDB
+  validateService "Elasticsearch" $ELASTICSEARCH
+  validateService "Kubernetes master" $KUBERNETES
+  validateService "cadvisor" $CADVISOR
+  validateService "Kibana console" $KIBANA_CONSOLE
 
-# temorary workaround to update the fluentd config with the Elastic Search service ip see https://github.com/GoogleCloudPlatform/kubernetes/blob/master/contrib/logging/fluentd-es-image/td-agent.conf#L8
-ELASTICSEARCH_CID=$(docker ps | grep kubernetes/fluentd-elasticsearch | cut -c 1-12)
-docker exec $ELASTICSEARCH_CID bash -c 'sed -i "s/host.*$/host\ $ELASTICSEARCH_SERVICE_HOST/" /etc/td-agent/td-agent.conf'
-docker exec $ELASTICSEARCH_CID bash -c 'sed -i "s/port.*$/port\ $ELASTICSEARCH_SERVICE_PORT/" /etc/td-agent/td-agent.conf'
-docker restart $ELASTICSEARCH_CID > /dev/null 2>&1
-# annoying hack finished
+  # temorary workaround to update the fluentd config with the Elastic Search service ip see https://github.com/GoogleCloudPlatform/kubernetes/blob/master/contrib/logging/fluentd-es-image/td-agent.conf#L8
+  ELASTICSEARCH_CID=$(docker ps | grep kubernetes/fluentd-elasticsearch | cut -c 1-12)
+  docker exec $ELASTICSEARCH_CID bash -c 'sed -i "s/host.*$/host\ $ELASTICSEARCH_SERVICE_HOST/" /etc/td-agent/td-agent.conf'
+  docker exec $ELASTICSEARCH_CID bash -c 'sed -i "s/port.*$/port\ $ELASTICSEARCH_SERVICE_PORT/" /etc/td-agent/td-agent.conf'
+  docker restart $ELASTICSEARCH_CID > /dev/null 2>&1
+  # annoying hack finished
+fi
 
 echo
 echo "You're all up & running! Here are the available services:"
 echo
 SERVICE_TABLE="Service|URL\n-------|---"
 SERVICE_TABLE="$SERVICE_TABLE\nFabric8 console|$FABRIC8_CONSOLE"
-SERVICE_TABLE="$SERVICE_TABLE\nKibana console|$KIBANA_CONSOLE"
-SERVICE_TABLE="$SERVICE_TABLE\nDocker Registry|$DOCKER_REGISTRY"
-SERVICE_TABLE="$SERVICE_TABLE\nInfluxdb|$INFLUXDB"
-SERVICE_TABLE="$SERVICE_TABLE\nElasticsearch|$ELASTICSEARCH"
-SERVICE_TABLE="$SERVICE_TABLE\nKubernetes master|$KUBERNETES"
-SERVICE_TABLE="$SERVICE_TABLE\nCadvisor|$CADVISOR"
+if [ ${DEPLOY_ALL} -eq 1 ]; then
+  SERVICE_TABLE="$SERVICE_TABLE\nKibana console|$KIBANA_CONSOLE"
+  SERVICE_TABLE="$SERVICE_TABLE\nDocker Registry|$DOCKER_REGISTRY"
+  SERVICE_TABLE="$SERVICE_TABLE\nInfluxdb|$INFLUXDB"
+  SERVICE_TABLE="$SERVICE_TABLE\nElasticsearch|$ELASTICSEARCH"
+  SERVICE_TABLE="$SERVICE_TABLE\nKubernetes master|$KUBERNETES"
+  SERVICE_TABLE="$SERVICE_TABLE\nCadvisor|$CADVISOR"
+fi
 
 printf "$SERVICE_TABLE" | column -t -s '|'
 
