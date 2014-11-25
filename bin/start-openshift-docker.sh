@@ -176,6 +176,23 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
   docker exec $ELASTICSEARCH_CID bash -c 'sed -i "s/port.*$/port\ $ELASTICSEARCH_SERVICE_PORT/" /etc/td-agent/td-agent.conf'
   docker restart $ELASTICSEARCH_CID > /dev/null 2>&1
   # annoying hack finished
+
+  # Set up Kibana default index
+  if [ "404" == $(curl -I "${ELASTICSEARCH}/.kibana/index-pattern/\[logstash-\]YYYY.MM.DD" -w "%{http_code}" -o /dev/null -s) ]; then
+    curl -s -XPUT "${ELASTICSEARCH}/.kibana/index-pattern/\[logstash-\]YYYY.MM.DD" -d '{
+      "title": "[logstash-]YYYY.MM.DD",
+      "timeFieldName": "@timestamp",
+      "intervalName": "days",
+      "customFormats": "{}",
+      "fields": "[{\"type\":\"string\",\"indexed\":true,\"analyzed\":true,\"doc_values\":false,\"name\":\"stream\",\"count\":0},{\"type\":\"string\",\"indexed\":false,\"analyzed\":false,\"name\":\"_source\",\"count\":0},{\"type\":\"string\",\"indexed\":true,\"analyzed\":true,\"doc_values\":false,\"name\":\"tag\",\"count\":0},{\"type\":\"string\",\"indexed\":false,\"analyzed\":false,\"name\":\"_index\",\"count\":0},{\"type\":\"string\",\"indexed\":true,\"analyzed\":true,\"doc_values\":false,\"name\":\"log\",\"count\":0},{\"type\":\"date\",\"indexed\":true,\"analyzed\":false,\"doc_values\":false,\"name\":\"@timestamp\",\"count\":0},{\"type\":\"string\",\"indexed\":true,\"analyzed\":false,\"name\":\"_type\",\"count\":0},{\"type\":\"string\",\"indexed\":true,\"analyzed\":false,\"name\":\"_id\",\"count\":0}]"
+    }' > /dev/null
+  fi
+
+  if [ "404" == $(curl -I "${ELASTICSEARCH}/.kibana/config/4.0.0-BETA2" -w "%{http_code}" -o /dev/null -s) ]; then
+    curl -s -XPUT "${ELASTICSEARCH}/.kibana/config/4.0.0-BETA2" -d '{
+      "defaultIndex": "[logstash-]YYYY.MM.DD"
+    }' > /dev/null
+  fi
 fi
 
 echo
