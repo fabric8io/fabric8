@@ -17,10 +17,10 @@ INFLUXDB_IMAGE=tutum/influxdb:latest
 FABRIC8_CONSOLE_IMAGE=fabric8/hawtio:latest
 KIBANA_IMAGE=jimmidyson/kibana4:latest
 ELASTICSEARCH_IMAGE=dockerfile/elasticsearch:latest
-FLUENTD_IMAGE=kubernetes/fluentd-elasticsearch:latest
+LOGSPOUT_IMAGE=jimmidyson/logspout-kube:latest
 
 MINIMUM_IMAGES="${OPENSHIFT_IMAGE} ${FABRIC8_CONSOLE_IMAGE}"
-ALL_IMAGES="${MINIMUM_IMAGES} ${OPENSHIFT_ROUTER_IMAGE} ${REGISTRY_IMAGE} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${FLUENTD_IMAGE}"
+ALL_IMAGES="${MINIMUM_IMAGES} ${OPENSHIFT_ROUTER_IMAGE} ${REGISTRY_IMAGE} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${LOGSPOUT_IMAGE}"
 DEPLOY_IMAGES="${MINIMUM_IMAGES}"
 UPDATE_IMAGES=0
 DEPLOY_ALL=0
@@ -118,7 +118,7 @@ if [ -f "$APP_BASE/fabric8.json" ]; then
     cat $APP_BASE/registry.json | $KUBE apply -c -
     cat $APP_BASE/influxdb.json | $KUBE apply -c -
     cat $APP_BASE/elasticsearch.json | $KUBE apply -c -
-    cat $APP_BASE/fluentd.yml | $KUBE apply -c -
+    cat $APP_BASE/logspout.yml | $KUBE apply -c -
     cat $APP_BASE/kibana.yml | $KUBE apply -c -
     cat $APP_BASE/router.json | $KUBE create pods -c -
   fi
@@ -128,7 +128,7 @@ else
     $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json
     $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json
     $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json
-    $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fluentd.yml
+    $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml
     $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml
     $KUBE create pods -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/router.json
   fi
@@ -169,13 +169,6 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
   validateService "Kubernetes master" $KUBERNETES
   validateService "cadvisor" $CADVISOR
   validateService "Kibana console" $KIBANA_CONSOLE
-
-  # temorary workaround to update the fluentd config with the Elastic Search service ip see https://github.com/GoogleCloudPlatform/kubernetes/blob/master/contrib/logging/fluentd-es-image/td-agent.conf#L8
-  ELASTICSEARCH_CID=$(docker ps | grep kubernetes/fluentd-elasticsearch | cut -c 1-12)
-  docker exec $ELASTICSEARCH_CID bash -c 'sed -i "s/host.*$/host\ $ELASTICSEARCH_SERVICE_HOST/" /etc/td-agent/td-agent.conf'
-  docker exec $ELASTICSEARCH_CID bash -c 'sed -i "s/port.*$/port\ $ELASTICSEARCH_SERVICE_PORT/" /etc/td-agent/td-agent.conf'
-  docker restart $ELASTICSEARCH_CID > /dev/null 2>&1
-  # annoying hack finished
 
   # Set up Kibana default index
   if [ "404" == $(curl -I "${ELASTICSEARCH}/.kibana/index-pattern/\[logstash-\]YYYY.MM.DD" -w "%{http_code}" -o /dev/null -s) ]; then
