@@ -71,14 +71,14 @@ done
 
 echo "Validating firewall rules"
 RULE="INPUT -d 172.17.42.1 -s 172.17.0.0/16 -j ACCEPT"
-RULE_OUTPUT=$( { docker run --rm --privileged --net=host ${FABRIC8_CONSOLE_IMAGE} iptables -C $RULE; } 2>/dev/null )
-test -n "$RULE_OUTPUT" && echo "Inserting firewall rule to allow containers to communicate to Docker daemon" && docker run --rm --privileged --net=host ${FABRIC8_CONSOLE_IMAGE} -I $RULE
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host --entrypoint=iptables ${OPENSHIFT_IMAGE} -C $RULE; } 2>&1 )
+test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host --entrypoint=iptables ${OPENSHIFT_IMAGE} -I $RULE
 RULE="INPUT -d 172.17.0.0/16 -s 172.121.0.0/16 -j ACCEPT"
-RULE_OUTPUT=$( { docker run --rm --privileged --net=host ${FABRIC8_CONSOLE_IMAGE} iptables -C $RULE; } 2>/dev/null )
-test -n "$RULE_OUTPUT" && echo "Inserting firewall rule to allow containers to communicate with Kubernetes services" && docker run --rm --privileged --net=host ${FABRIC8_CONSOLE_IMAGE} iptables -I $RULE
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host --entrypoint=iptables ${OPENSHIFT_IMAGE} -C $RULE; } 2>&1 )
+test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host --entrypoint=iptables ${OPENSHIFT_IMAGE} -I $RULE
 RULE="INPUT -d 172.121.0.0/16 -s 172.17.0.0/16 -j ACCEPT"
-RULE_OUTPUT=$( { docker run --rm --privileged --net=host ${FABRIC8_CONSOLE_IMAGE} iptables -C $RULE; } 2>/dev/null )
-test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host ${FABRIC8_CONSOLE_IMAGE} iptables -I $RULE
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host --entrypoint=iptables ${OPENSHIFT_IMAGE} -C $RULE; } 2>&1 )
+test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host --entrypoint=iptables ${OPENSHIFT_IMAGE} -I $RULE
 echo
 
 # TODO it would be nice if we could tell easily if these routes have already been applied so we don't have to do this each time
