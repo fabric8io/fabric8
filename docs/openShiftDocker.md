@@ -41,6 +41,7 @@ Then add this line to the top of the file:
 
 Then save by typing ":qw" and then type
 
+    sudo /etc/init.d/docker restart
     exit
     boot2docker restart
     boot2docker poweroff
