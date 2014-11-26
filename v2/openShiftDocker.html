@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1416936800039">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1416987290036">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -524,6 +524,24 @@ in the <code>-u</code> flag:</p>
 <pre><code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -u
 </code></pre><p>And of course flags can be combined. To start from scratch &amp; update all images at once:</p>
 <pre><code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -fku
+</code></pre><h4 id="trouble-shooting-boot2docker"><a name="trouble-shooting-boot2docker" class="anchor" href="#trouble-shooting-boot2docker"><span class="fa fa-link"></span></a>Trouble shooting boot2docker</h4>
+<p>If you are using OS X or a Mac and using boot2docker then sometimes you might see that boot2docker struggles to see index.docker.io when downloading images. A work around is as follows:</p>
+<pre><code>boot2docker ssh
+sudo vi /etc/hosts
+</code></pre><p>Then add this line to the file:</p>
+<pre><code>162.242.195.84 index.docker.io
+</code></pre><p>Then save by typing &quot;:qw&quot; and then type</p>
+<pre><code>exit
+boot2docker restart
+boot2docker poweroff
+boot2docker up
+</code></pre><p>Also you probably need to disable TLS if you use boot2docker as follows:</p>
+<p>If you are using boot2docker 1.3.1, you should edit /var/lib/boot2docker/profile in boot2docker VM to disable TLS, so that can use 2375 as default DOCKER_HOST port and http connection for local registry.</p>
+<pre><code>boot2docker ssh
+sudo vi /var/lib/boot2docker/profile
+</code></pre><p>and add two lines</p>
+<pre><code>DOCKER_TLS=no
+EXTRA_ARGS=&quot;--insecure-registry 192.168.59.103:5000 --insecure-registry 172.121.17.4:5000&quot;
 </code></pre><h3 id="environment-variables"><a name="environment-variables" class="anchor" href="#environment-variables"><span class="fa fa-link"></span></a>Environment variables</h3>
 <p>You&apos;ll need the following environment variables to be able use the <a href="http://fabric8.io/v2/tools.html" target="_blank">Tools</a> such as the <a href="console.html">Console</a>, <a href="http://fabric8.io/v2/mavenPlugin.html" target="_blank">Maven Plugin</a>, the <a href="http://fabric8.io/v2/forge.html" target="_blank">Forge Addons</a> and the <a href="javaLibraries.html">java libraries</a>:</p>
 <pre><code>export DOCKER_IP=`boot2docker ip 2&gt; /dev/null`
@@ -568,13 +586,7 @@ boot2docker up
 </code></pre><p>If you are not on linux <a href="http://viget.com/extend/how-to-use-docker-on-os-x-the-missing-guide" target="_blank">this article</a> describes how its a good idea to define <strong>dockerhost</strong> to point to your boot2docker ip address via:</p>
 <pre><code>echo $(docker-ip) dockerhost | sudo tee -a /etc/hosts
 </code></pre><p>Then you can access the REST API for OpenShift on the easier to remember and type URL: <a href="http://dockerhost:8080/api/v1beta1/pods" target="_blank">http://dockerhost:8080/api/v1beta1/pods</a></p>
-<p>If you are using boot2docker 1.3.1, you should edit /var/lib/boot2docker/profile in boot2docker VM to disable TLS, so that can use 2375 as default DOCKER_HOST port and http connection for local registry.</p>
-<pre><code>boot2docker ssh
-sudo vi /var/lib/boot2docker/profile
-</code></pre><p>and add two lines</p>
-<pre><code>DOCKER_TLS=no
-EXTRA_ARGS=&quot;--insecure-registry 192.168.59.103:5000 --insecure-registry 172.121.17.4:5000&quot;
-</code></pre>
+
                     
                     </section>
                 
