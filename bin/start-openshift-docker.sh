@@ -120,8 +120,8 @@ fi
 
 if [ -f "$APP_BASE/fabric8.json" ]; then
   cat $APP_BASE/fabric8.json | $KUBE apply -c -
+  cat $APP_BASE/registry.json | $KUBE apply -c -
   if [ ${DEPLOY_ALL} -eq 1 ]; then
-    cat $APP_BASE/registry.json | $KUBE apply -c -
     cat $APP_BASE/influxdb.json | $KUBE apply -c -
     cat $APP_BASE/elasticsearch.json | $KUBE apply -c -
     cat $APP_BASE/logspout.yml | $KUBE apply -c -
@@ -130,8 +130,8 @@ if [ -f "$APP_BASE/fabric8.json" ]; then
   fi
 else
   curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE apply -c -
+  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json | $KUBE apply -c -
   if [ ${DEPLOY_ALL} -eq 1 ]; then
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json | $KUBE apply -c -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE apply -c -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE apply -c -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE apply -c -
