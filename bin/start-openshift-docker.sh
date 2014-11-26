@@ -19,8 +19,8 @@ KIBANA_IMAGE=jimmidyson/kibana4:latest
 ELASTICSEARCH_IMAGE=dockerfile/elasticsearch:latest
 LOGSPOUT_IMAGE=jimmidyson/logspout-kube:latest
 
-MINIMUM_IMAGES="${OPENSHIFT_IMAGE} ${FABRIC8_CONSOLE_IMAGE}"
-ALL_IMAGES="${MINIMUM_IMAGES} ${OPENSHIFT_ROUTER_IMAGE} ${REGISTRY_IMAGE} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${LOGSPOUT_IMAGE}"
+MINIMUM_IMAGES="${OPENSHIFT_IMAGE} ${FABRIC8_CONSOLE_IMAGE} ${REGISTRY_IMAGE}"
+ALL_IMAGES="${MINIMUM_IMAGES} ${OPENSHIFT_ROUTER_IMAGE} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${LOGSPOUT_IMAGE}"
 DEPLOY_IMAGES="${MINIMUM_IMAGES}"
 UPDATE_IMAGES=0
 DEPLOY_ALL=0
@@ -216,15 +216,18 @@ fi
 echo
 echo "You're all up & running! Here are the available services:"
 echo
-SERVICE_TABLE="Service|URL\n-------|---"
-SERVICE_TABLE="$SERVICE_TABLE\nFabric8 console|$FABRIC8_CONSOLE"
+header="%-20s | %-60s\n"
+format="%-20s | %-60s\n"
+printf "${header}" Service URL
+printf "${header}" "-------" "---"
+printf "${format}" "Fabric8 console" $FABRIC8_CONSOLE
+printf "${format}" "Docker Registry" $DOCKER_REGISTRY
 if [ ${DEPLOY_ALL} -eq 1 ]; then
-  SERVICE_TABLE="$SERVICE_TABLE\nKibana console|$KIBANA_CONSOLE"
-  SERVICE_TABLE="$SERVICE_TABLE\nDocker Registry|$DOCKER_REGISTRY"
-  SERVICE_TABLE="$SERVICE_TABLE\nInfluxdb|$INFLUXDB"
-  SERVICE_TABLE="$SERVICE_TABLE\nElasticsearch|$ELASTICSEARCH"
-  SERVICE_TABLE="$SERVICE_TABLE\nKubernetes master|$KUBERNETES"
-  SERVICE_TABLE="$SERVICE_TABLE\nCadvisor|$CADVISOR"
+  printf "${format}" "Kibana console" $KIBANA_CONSOLE
+  printf "${format}" "Influxdb" $INFLUXDB
+  printf "${format}" "Elasticsearch" $ELASTICSEARCH
+  printf "${format}" "Kubernetes master" $KUBERNETES
+  printf "${format}" "Cadvisor" $CADVISOR
 fi
 
 printf "$SERVICE_TABLE" | column -t -s '|'
