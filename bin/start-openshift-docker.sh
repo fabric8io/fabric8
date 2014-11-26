@@ -187,9 +187,9 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
     }' > /dev/null
   fi
 
-  if [ "404" == $(curl -s -I "${ELASTICSEARCH}/.kibana/search/Container-messages" -w "%{http_code}" -o /dev/null) ]; then
-      curl -s -XPUT "${ELASTICSEARCH}/.kibana/search/Container-messages" -d '{
-      "title": "Container messages",
+  if [ "404" == $(curl -s -I "${ELASTICSEARCH}/.kibana/search/Fabric8" -w "%{http_code}" -o /dev/null) ]; then
+      curl -s -XPUT "${ELASTICSEARCH}/.kibana/search/Fabric8" -d '{
+      "title": "Fabric8",
       "description": "",
       "hits": 0,
       "columns": [
