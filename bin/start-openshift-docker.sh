@@ -123,14 +123,14 @@ if [ -f "$APP_BASE/fabric8.json" ]; then
     cat $APP_BASE/router.json | $KUBE create pods -c -
   fi
 else
-  curl https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE apply -c -
+  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE apply -c -
   if [ ${DEPLOY_ALL} -eq 1 ]; then
-    curl https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json | $KUBE apply -c -
-    curl https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE apply -c -
-    curl https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE apply -c -
-    curl https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE apply -c -
-    curl https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE apply -c -
-    curl https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/router.json | $KUBE create pods -c -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json | $KUBE apply -c -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE apply -c -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE apply -c -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE apply -c -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE apply -c -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/router.json | $KUBE create pods -c -
   fi
 fi
 
@@ -157,7 +157,7 @@ validateService()
 {
   echo "Waiting for $1"
   while true; do
-    curl -s -o /dev/null --connect-timeout 1 $2 && break || sleep 1
+    curl -s -s -o /dev/null --connect-timeout 1 $2 && break || sleep 1
   done
 }
 
@@ -171,8 +171,8 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
   validateService "Kibana console" $KIBANA_CONSOLE
 
   # Set up Kibana default index
-  if [ "404" == $(curl -I "${ELASTICSEARCH}/.kibana/index-pattern/\[logstash-\]YYYY.MM.DD" -w "%{http_code}" -o /dev/null -s) ]; then
-    curl -s -XPUT "${ELASTICSEARCH}/.kibana/index-pattern/\[logstash-\]YYYY.MM.DD" -d '{
+  if [ "404" == $(curl -s -I "${ELASTICSEARCH}/.kibana/index-pattern/\[logstash-\]YYYY.MM.DD" -w "%{http_code}" -o /dev/null -s) ]; then
+    curl -s -s -XPUT "${ELASTICSEARCH}/.kibana/index-pattern/\[logstash-\]YYYY.MM.DD" -d '{
       "title": "[logstash-]YYYY.MM.DD",
       "timeFieldName": "@timestamp",
       "intervalName": "days",
@@ -181,8 +181,8 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
     }' > /dev/null
   fi
 
-  if [ "404" == $(curl -I "${ELASTICSEARCH}/.kibana/config/4.0.0-BETA2" -w "%{http_code}" -o /dev/null -s) ]; then
-    curl -s -XPUT "${ELASTICSEARCH}/.kibana/config/4.0.0-BETA2" -d '{
+  if [ "404" == $(curl -s -I "${ELASTICSEARCH}/.kibana/config/4.0.0-BETA2" -w "%{http_code}" -o /dev/null -s) ]; then
+    curl -s -s -XPUT "${ELASTICSEARCH}/.kibana/config/4.0.0-BETA2" -d '{
       "defaultIndex": "[logstash-]YYYY.MM.DD"
     }' > /dev/null
   fi
