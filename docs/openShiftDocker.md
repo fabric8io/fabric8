@@ -29,14 +29,15 @@ And of course flags can be combined. To start from scratch & update all images a
 
 #### Trouble shooting boot2docker
 
-If you are using OS X or a Mac and using boot2docker then sometimes you might see that boot2docker struggles to see index.docker.io when downloading images. A work around is as follows:
+If you are using OS X or a Mac and using boot2docker then sometimes you might see that boot2docker struggles to see index.docker.io when downloading images due to DNS issues. A [work around](http://stackoverflow.com/questions/24060099/docker-failed-to-pull-images-from-registry) is as follows:
 
     boot2docker ssh
-    sudo vi /etc/hosts
+    sudo vi /etc/resolv.conf
 
-Then add this line to the file:
+Then add this line to the top of the file:
 
-    162.242.195.84 index.docker.io
+    nameserver 8.8.8.8
+    nameserver 8.8.4.4
 
 Then save by typing ":qw" and then type
 
