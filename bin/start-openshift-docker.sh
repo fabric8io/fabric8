@@ -123,14 +123,14 @@ if [ -f "$APP_BASE/fabric8.json" ]; then
     cat $APP_BASE/router.json | $KUBE create pods -c -
   fi
 else
-  $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json
+  curl https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE create pods -c -
   if [ ${DEPLOY_ALL} -eq 1 ]; then
-    $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json
-    $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json
-    $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json
-    $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml
-    $KUBE apply -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml
-    $KUBE create pods -c https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/router.json
+    curl https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json | $KUBE create pods -c -
+    curl https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE create pods -c -
+    curl https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE create pods -c -
+    curl https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE create pods -c -
+    curl https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE create pods -c -
+    curl https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/router.json | $KUBE create pods -c -
   fi
 fi
 
