@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1416987290036">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1417005856380">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -525,13 +525,15 @@ in the <code>-u</code> flag:</p>
 </code></pre><p>And of course flags can be combined. To start from scratch &amp; update all images at once:</p>
 <pre><code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -fku
 </code></pre><h4 id="trouble-shooting-boot2docker"><a name="trouble-shooting-boot2docker" class="anchor" href="#trouble-shooting-boot2docker"><span class="fa fa-link"></span></a>Trouble shooting boot2docker</h4>
-<p>If you are using OS X or a Mac and using boot2docker then sometimes you might see that boot2docker struggles to see index.docker.io when downloading images. A work around is as follows:</p>
+<p>If you are using OS X or a Mac and using boot2docker then sometimes you might see that boot2docker struggles to see index.docker.io when downloading images due to DNS issues. A <a href="http://stackoverflow.com/questions/24060099/docker-failed-to-pull-images-from-registry" target="_blank">work around</a> is as follows:</p>
 <pre><code>boot2docker ssh
-sudo vi /etc/hosts
-</code></pre><p>Then add this line to the file:</p>
-<pre><code>162.242.195.84 index.docker.io
+sudo vi /etc/resolv.conf
+</code></pre><p>Then add this line to the top of the file:</p>
+<pre><code>nameserver 8.8.8.8
+nameserver 8.8.4.4
 </code></pre><p>Then save by typing &quot;:qw&quot; and then type</p>
-<pre><code>exit
+<pre><code>sudo /etc/init.d/docker restart
+exit
 boot2docker restart
 boot2docker poweroff
 boot2docker up
