@@ -27,6 +27,37 @@ And of course flags can be combined. To start from scratch & update all images a
 
     bash <(curl -sSL https://bit.ly/get-fabric8) -fku
 
+#### Trouble shooting boot2docker
+
+If you are using OS X or a Mac and using boot2docker then sometimes you might see that boot2docker struggles to see index.docker.io when downloading images. A work around is as follows:
+
+    boot2docker ssh
+    sudo vi /etc/hosts
+
+Then add this line to the file:
+
+    162.242.195.84 index.docker.io
+
+Then save by typing ":qw" and then type
+
+    exit
+    boot2docker restart
+    boot2docker poweroff
+    boot2docker up
+
+Also you probably need to disable TLS if you use boot2docker as follows:
+
+If you are using boot2docker 1.3.1, you should edit /var/lib/boot2docker/profile in boot2docker VM to disable TLS, so that can use 2375 as default DOCKER_HOST port and http connection for local registry.
+
+    boot2docker ssh
+    sudo vi /var/lib/boot2docker/profile
+
+and add two lines
+
+    DOCKER_TLS=no
+    EXTRA_ARGS="--insecure-registry 192.168.59.103:5000 --insecure-registry 172.121.17.4:5000"
+
+
 ### Environment variables
 
 You'll need the following environment variables to be able use the [Tools](http://fabric8.io/v2/tools.html) such as the [Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html), the [Forge Addons](http://fabric8.io/v2/forge.html) and the [java libraries](javaLibraries.html):
@@ -106,13 +137,3 @@ If you are not on linux [this article](http://viget.com/extend/how-to-use-docker
     echo $(docker-ip) dockerhost | sudo tee -a /etc/hosts
 
 Then you can access the REST API for OpenShift on the easier to remember and type URL: [http://dockerhost:8080/api/v1beta1/pods](http://dockerhost:8080/api/v1beta1/pods)
-
-If you are using boot2docker 1.3.1, you should edit /var/lib/boot2docker/profile in boot2docker VM to disable TLS, so that can use 2375 as default DOCKER_HOST port and http connection for local registry.
-
-    boot2docker ssh
-    sudo vi /var/lib/boot2docker/profile
-
-and add two lines
-
-    DOCKER_TLS=no
-    EXTRA_ARGS="--insecure-registry 192.168.59.103:5000 --insecure-registry 172.121.17.4:5000"
