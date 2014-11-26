@@ -24,6 +24,7 @@ ALL_IMAGES="${MINIMUM_IMAGES} ${OPENSHIFT_ROUTER_IMAGE} ${REGISTRY_IMAGE} ${CADV
 DEPLOY_IMAGES="${MINIMUM_IMAGES}"
 UPDATE_IMAGES=0
 DEPLOY_ALL=0
+CLEANUP=0
 
 while getopts "fud:k" opt; do
   case $opt in
@@ -36,6 +37,7 @@ while getopts "fud:k" opt; do
       docker rm -f openshift cadvisor || true
       RUNNING_CONTAINERS=`docker ps -a | grep k8s | cut -c 1-12`
       test -z "$RUNNING_CONTAINERS" || docker rm -f $RUNNING_CONTAINERS
+      CLEANUP=1
       echo
       ;;
     u)
@@ -68,6 +70,10 @@ for image in ${DEPLOY_IMAGES}; do
     docker images | grep -qEo "${splitimage[0]}\W+${splitimage[1]}" || (echo "Missing necessary Docker image: $image" && docker pull $image && echo)
   )
 done
+
+if [ ${CLEANUP} -eq 1 ]; then
+  docker run --rm -v /var/lib/openshift:/var/lib/openshift ${FABRIC8_CONSOLE_IMAGE} rm -rf /var/lib/openshift/*
+fi
 
 echo "Validating firewall rules"
 RULE="INPUT -d 172.17.42.1 -s 172.17.0.0/16 -j ACCEPT"
