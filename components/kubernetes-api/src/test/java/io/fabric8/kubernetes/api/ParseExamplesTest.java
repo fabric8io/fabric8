@@ -113,7 +113,10 @@ public class ParseExamplesTest {
     }
 
     public static File getKubernetesSourceDir() {
-        String path = System.getProperty(SYSTEM_PROPERTY_KUBE_DIR, "../../../kubernetes");
+        //String path = System.getProperty(SYSTEM_PROPERTY_KUBE_DIR, "../../../kubernetes");
+        String basedir = System.getProperty("basedir", ".");
+        String kubeSourceDir = basedir + "/src/main/kubernetes";
+        String path = System.getProperty(SYSTEM_PROPERTY_KUBE_DIR, kubeSourceDir);
         File kubeDir = new File(path);
         assertTrue("Kube directory " + kubeDir
                 + " does not exist! Please supply the correct value in the " + SYSTEM_PROPERTY_KUBE_DIR + " system property value",
