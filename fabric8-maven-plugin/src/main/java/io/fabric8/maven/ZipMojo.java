@@ -254,6 +254,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
                     }
                 }
             }
+
             boolean isPomProject = isPom(getProject());
             if (!generatingAggregatedZip && (!isPomProject || !aggregateZip)) {
                 generateZip();
@@ -268,6 +269,27 @@ public class ZipMojo extends AbstractFabric8Mojo {
                 getLog().info("Choosing root project " + rootProject.getArtifactId() + " for generation of aggregated zip");
                 generateAggregatedZip(rootProject, fabricZipGoalProjects, projectsWithSameParent);
             }
+
+
+            // we need special logic if its the very last project
+            boolean isLastProject = getProject() == reactorProjects.get(reactorProjects.size() - 1);
+            getLog().info("Is last project? " + isLastProject + " -> " + getProject().getName());
+            if (isLastProject) {
+                // find the upper parent project
+                MavenProject zipRoot = reactorProjects.get(0);
+                // find that zipRoot which has it as same parent
+                projectsWithSameParent.clear();
+                for (MavenProject zipGoalProject : fabricZipGoalProjects) {
+                    MavenProject zipGoalProjectParent = zipGoalProject.getParent();
+                    if (Objects.equal(zipRoot, zipGoalProjectParent)) {
+                        projectsWithSameParent.add(zipGoalProject);
+                    }
+                }
+
+                getLog().info("Re-Choosing root project " + zipRoot.getArtifactId() + " for generation of aggregated zip");
+                generateAggregatedZip(zipRoot, fabricZipGoalProjects, projectsWithSameParent);
+            }
+
         } catch (MojoFailureException e) {
             throw e;
         } catch (MojoExecutionException e) {
