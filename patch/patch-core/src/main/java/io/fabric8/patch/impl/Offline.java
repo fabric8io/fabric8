@@ -15,30 +15,24 @@
  */
 package io.fabric8.patch.impl;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import io.fabric8.common.util.IOHelpers;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
 import org.osgi.framework.Version;
 
 import static io.fabric8.patch.impl.Offline.Artifact.isSameButVersion;
 import static io.fabric8.common.util.IOHelpers.close;
-import static io.fabric8.common.util.IOHelpers.copy;
 import static io.fabric8.common.util.IOHelpers.readLines;
 import static io.fabric8.common.util.IOHelpers.writeLines;
 
 public class Offline {
 
+    private static final String PATCH_BACKUPS = "data/patch/backups";
     private static final String OVERRIDE_RANGE = ";range=";
 
     public static final int DEBUG = 0;
@@ -87,6 +81,29 @@ public class Offline {
             }
         } finally {
             close(zipFile);
+        }
+    }
+
+    public void rollback(File patchZip) throws IOException {
+        ZipFile zipFile = new ZipFile(patchZip);
+        try {
+            List<PatchData> patches = extractPatch(zipFile);
+            if (patches.isEmpty()) {
+                log(WARN, "No patch to apply");
+            } else {
+                for (PatchData data : patches) {
+                    rollbackPatch(data);
+                }
+            }
+        } finally {
+            close(zipFile);
+        }
+    }
+
+    public void rollbackPatch(PatchData patch) throws IOException {
+        log(DEBUG, String.format("Rolling back patch %s / %s", patch.getId(), patch.getDescription()));
+        for (String file : patch.getFiles()) {
+            restore(patch, file);
         }
     }
 
@@ -232,9 +249,9 @@ public class Offline {
                     InputStream fis = zipFile.getInputStream(entry);
                     FileOutputStream fos = new FileOutputStream(f);
                     try {
-                        copy(fis, fos);
+                        IOHelpers.copy(fis, fos);
                     } finally {
-                        close(fis, fos);
+                        IOHelpers.close(fis, fos);
                     }
                 }
             }
@@ -255,6 +272,59 @@ public class Offline {
         writeLines(overridesFile, overrides);
         writeLines(startupFile, startup);
 
+        for (String file : patch.getFiles()) {
+
+            ZipEntry entry = zipFile.getEntry(file);
+            if (entry == null) {
+                log(ERROR, "Could not find file in patch zip: " + file);
+                continue;
+            }
+            File f = new File(karafBase, file);
+            if (f.isFile()) {
+                backup(patch, file);
+                f.delete();
+                log(DEBUG, String.format("Updating file: %s", file));
+            } else {
+                log(DEBUG, String.format("Adding file: %s", file));
+            }
+            if (!f.isFile()) {
+                f.getParentFile().mkdirs();
+                InputStream fis = zipFile.getInputStream(entry);
+                FileOutputStream fos = new FileOutputStream(f);
+                try {
+                    IOHelpers.copy(fis, fos);
+                } finally {
+                    IOHelpers.close(fis, fos);
+                }
+            }
+        }
+    }
+
+    private void backup(PatchData patch, String file) throws IOException {
+        File backupDir = new File(new File(karafBase, PATCH_BACKUPS), patch.getId());
+
+        File backup = new File(backupDir, file);
+        backup.getParentFile().mkdirs();
+
+        File source = new File(karafBase, file);
+        copy(source, backup);
+    }
+
+    private void restore(PatchData patch, String file) throws IOException {
+        File backupDir = new File(new File(karafBase, PATCH_BACKUPS), patch.getId());
+        try {
+            File backup = new File(backupDir, file);
+            File original = new File(karafBase, file);
+            if (backup.exists()) {
+                log(DEBUG, String.format("Restoring previous version of file: %s", file));
+                copy(backup, original);
+            } else {
+                log(DEBUG, String.format("Removing file: %s", file));
+                original.delete();
+            }
+        } finally {
+            backupDir.delete();
+        }
     }
 
     protected void log(int level, String message) {
@@ -346,6 +416,23 @@ public class Offline {
             return new Artifact(groupId, artifactId, version, type, classifier);
         }
         throw new IllegalArgumentException("Bad maven url: " + resourceLocation);
+    }
+
+    /*
+     * Copy file
+     */
+    private static void copy(File from, File to) throws IOException {
+        FileInputStream fis = null;
+        FileOutputStream fos = null;
+
+        try {
+            fis = new FileInputStream(from);
+            fos = new FileOutputStream(to);
+
+            IOHelpers.copy(fis, fos);
+        } finally {
+            close(fis, fos);
+        }
     }
 
     public static class Artifact {

@@ -53,6 +53,7 @@ import static io.fabric8.common.util.IOHelpers.copy;
 import static io.fabric8.common.util.IOHelpers.readFully;
 import static io.fabric8.common.util.IOHelpers.writeFully;
 import static org.junit.Assert.*;
+import static io.fabric8.patch.impl.PatchTestSupport.getDirectoryForResource;
 
 public class ServiceImplTest {
 
@@ -549,6 +550,7 @@ public class ServiceImplTest {
         new File(karaf, "etc").mkdir();
         new File(karaf, "etc/startup.properties").createNewFile();
         System.setProperty("karaf.base", karaf.getAbsolutePath());
+        System.setProperty("karaf.home", karaf.getAbsolutePath());
 
         storage = new File(baseDir, "storage");
         delete(storage);
@@ -646,24 +648,7 @@ public class ServiceImplTest {
         return f2.toURI().toURL();
     }
 
-    /*
-     * Get the directory where a test resource has been stored
-     */
-    private static File getDirectoryForResource(String name) {
-        return getFileForResource(name).getParentFile();
-    }
 
-    /*
-     * Get the File object for a test resource
-     */
-    private static File getFileForResource(String name) {
-        URL base = ServiceImpl.class.getClassLoader().getResource(name);
-        try {
-            return new File(base.toURI());
-        } catch(URISyntaxException e) {
-            return new File(base.getPath());
-        }
-    }
 
 
     public static void jarDir(File directory, OutputStream os) throws IOException

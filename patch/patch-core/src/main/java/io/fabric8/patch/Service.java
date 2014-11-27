@@ -15,6 +15,8 @@
  */
 package io.fabric8.patch;
 
+import io.fabric8.patch.impl.PatchImpl;
+
 import java.net.URL;
 
 public interface Service {
@@ -27,4 +29,9 @@ public interface Service {
     
     Iterable<Patch> download(URL url);
 
+    Result install(Patch patch, boolean simulate);
+
+    Result install(Patch patch, boolean force, boolean synchronous);
+
+    void rollback(Patch patch, boolean force);
 }
