@@ -251,6 +251,9 @@ public final class FabricManager implements FabricManagerMBean {
             List profiles = mapper.convertValue(profileObject, List.class);
             builder.profiles(profiles);
         }
+        if (builder.getProxyUri() == null) {
+            builder.proxyUri(fabricService.getMavenRepoURI());
+        }
 
         CreateContainerOptions build = builder.build();
 

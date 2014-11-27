@@ -486,7 +486,7 @@
                                <descriptors>
                                    <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.karaf.assemblies.features/spring/${karaf-version}/xml/features</descriptor>
-                                   <descriptor>mvn:io.fabric8/fabric-camel/${project.version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor>
                                    <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</descriptor>
@@ -690,7 +690,7 @@
                        <replacements>
                            <replacement>
                                <token>href="bundle-report.xslt"</token>
-                               <value>href="${artifactId}-${version}-bundle-report.xslt"</value>
+                               <value>href="${project.artifactId}-${project.version}-bundle-report.xslt"</value>
                            </replacement>
                        </replacements>
                    </configuration>

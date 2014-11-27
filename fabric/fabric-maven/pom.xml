@@ -61,6 +61,14 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sonatype.plexus</groupId>
             <artifactId>plexus-cipher</artifactId>
         </dependency>
@@ -143,7 +151,8 @@
                             org.osgi.*,
                             org.slf4j.*,
                             org.ops4j.util.property.*,
-                            org.apache.commons.lang.*
+                            org.apache.commons.lang.*,
+                            org.apache.commons.logging.*
                         </Import-Package>
                         <Export-Package>
                             io.fabric8.maven*;version=${project.version},
@@ -152,6 +161,7 @@
                             org.codehaus.*
                         </Export-Package>
                         <Private-Package>
+                            org.apache.http*,
                             org.sonatype.plexus.components.cipher.*,
                             org.sonatype.plexus.components.sec.*
                         </Private-Package>

@@ -16,7 +16,7 @@
      permissions and limitations under the License.
 
 -->
-<features>
+<features name="fabric-camel-dosgi-demo-${project.version}">
 
     <feature name="fabric-example-camel-dosgi">
         <feature>fabric-dosgi</feature>
