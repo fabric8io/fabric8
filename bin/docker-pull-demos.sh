@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export FABRIC8_VERSION=2.0.9.1
+export FABRIC8_VERSION=2.0.10
 
 echo "pulling demo images...."
 
