@@ -233,6 +233,8 @@
         <hawtio-kibana-version>3.1.0_2</hawtio-kibana-version>
         <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
         <hawtio-version>1.5-redhat-${perfectus-build}</hawtio-version>
+        <http-client-version>4.3.6</http-client-version>
+        <http-core-version>4.3.3</http-core-version>
         <influxdb-version>1.2</influxdb-version>
         <jackson-version>1.9.2</jackson-version>
         <jackson2-version>2.4.1</jackson2-version>
@@ -3143,6 +3145,16 @@
                 <groupId>commons-httpclient</groupId>
                 <artifactId>commons-httpclient</artifactId>
                 <version>${commons-httpclient-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>${http-core-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${http-client-version}</version>
             </dependency>
 
             <dependency>
