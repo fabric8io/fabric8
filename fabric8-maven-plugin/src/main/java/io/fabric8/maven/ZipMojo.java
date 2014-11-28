@@ -15,6 +15,30 @@
  */
 package io.fabric8.maven;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
@@ -41,29 +65,6 @@ import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Generates a ZIP file of the App for the current maven project.
@@ -334,18 +335,35 @@ public class ZipMojo extends AbstractFabric8Mojo {
 
             // are there 2 or more projects with the same parent
             // then we need to aggregate them to their parent (if we have not done so before)
-            List<MavenProject> group = sameParent(parent, zipGoalProjects);
+            Set<MavenProject> group = sameParent(parent, zipGoalProjects);
             if (group.size() >= 2 && !doneParents.contains(parent)) {
                 doneParents.add(parent);
+
+                // find transitive sub groups
+                Set<MavenProject> nested = sameParentTransitive(parent, zipGoalProjects);
+                if (!nested.isEmpty()) {
+                    group.addAll(nested);
+                }
+
                 generateAggregatedZip(parent, reactorProjects, group);
             }
         }
     }
 
-    private List<MavenProject> sameParent(MavenProject parent, List<MavenProject> projects) {
-        List<MavenProject> answer = new ArrayList<>();
+    private Set<MavenProject> sameParent(MavenProject parent, List<MavenProject> projects) {
+        Set<MavenProject> answer = new LinkedHashSet<>();
         for (MavenProject zip : projects) {
             if (Objects.equal(parent, zip.getParent())) {
+                answer.add(zip);
+            }
+        }
+        return answer;
+    }
+
+    private Set<MavenProject> sameParentTransitive(MavenProject parent, List<MavenProject> projects) {
+        Set<MavenProject> answer = new LinkedHashSet<>();
+        for (MavenProject zip : projects) {
+            if (hasAncestor(parent, zip)) {
                 answer.add(zip);
             }
         }
@@ -385,7 +403,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
         return answer;
     }
 
-    protected void generateAggregatedZip(MavenProject rootProject, List<MavenProject> reactorProjects, List<MavenProject> pomZipProjects) throws IOException, MojoExecutionException {
+    protected void generateAggregatedZip(MavenProject rootProject, List<MavenProject> reactorProjects, Set<MavenProject> pomZipProjects) throws IOException, MojoExecutionException {
         File projectBaseDir = rootProject.getBasedir();
         String rootProjectGroupId = rootProject.getGroupId();
         String rootProjectArtifactId = rootProject.getArtifactId();
@@ -609,7 +627,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
 
     protected void createAggregatedZip(File projectBaseDir, File projectBuildDir,
                                        String reactorProjectOutputPath, File projectOutputFile,
-                                       boolean includeReadMe, List<MavenProject> pomZipProjects) throws IOException {
+                                       boolean includeReadMe, Set<MavenProject> pomZipProjects) throws IOException {
         projectBuildDir.mkdirs();
 
         for (MavenProject reactorProject : pomZipProjects) {
