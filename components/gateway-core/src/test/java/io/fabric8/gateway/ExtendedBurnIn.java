@@ -15,7 +15,6 @@
  */
 package io.fabric8.gateway;
 
-
 import io.fabric8.gateway.api.CallDetailRecord;
 import io.fabric8.gateway.api.apimanager.ApiManager;
 import io.fabric8.gateway.api.apimanager.ApiManagerService;
@@ -23,9 +22,6 @@ import io.fabric8.gateway.api.handlers.http.HttpGateway;
 import io.fabric8.gateway.api.handlers.http.HttpGatewayHandler;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.api.handlers.http.IMappedServices;
-import io.fabric8.gateway.apiman.ApiManService;
-import io.fabric8.gateway.ServiceDTO;
-import io.fabric8.gateway.ServiceMap;
 import io.fabric8.gateway.handlers.detecting.DetectingGateway;
 import io.fabric8.gateway.handlers.detecting.DetectingGatewayWebSocketHandler;
 import io.fabric8.gateway.handlers.detecting.FutureHandler;
@@ -423,8 +419,7 @@ public class ExtendedBurnIn {
             Runtime.getRuntime().gc();
             Thread.sleep(100);
             long usedMB = ((Long)((CompositeData)mBeanServer.getAttribute(new ObjectName("java.lang:type=Memory"), "HeapMemoryUsage")).get("used")).longValue()/(1024*1024);
-            System.out.println("Using "+usedMB+" MB of heap.");
-
+            LOG.info("Using {} MB of heap.", usedMB);
         }
         tracker.stop();
 

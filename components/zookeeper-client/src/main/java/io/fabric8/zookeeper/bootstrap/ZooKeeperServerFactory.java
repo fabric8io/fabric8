@@ -15,9 +15,13 @@
  */
 package io.fabric8.zookeeper.bootstrap;
 
-import org.apache.deltaspike.core.api.config.ConfigProperty;
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.util.Properties;
+
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
-import org.apache.zookeeper.server.ServerCnxnFactory;
 import org.apache.zookeeper.server.ServerConfig;
 import org.apache.zookeeper.server.ServerStats;
 import org.apache.zookeeper.server.ZKDatabase;
@@ -30,12 +34,6 @@ import org.apache.zookeeper.server.quorum.QuorumStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.util.Properties;
-
 public class ZooKeeperServerFactory  {
     static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperServerFactory.class);
 
@@ -44,13 +42,6 @@ public class ZooKeeperServerFactory  {
 
     private SimpleServer simplerServer;
     private ClusteredServer clusteredServer;
-
-/*
-    @Reference(referenceInterface = RuntimeProperties.class)
-    private final ValidatingReference<RuntimeProperties> runtimeProperties = new ValidatingReference<RuntimeProperties>();
-    @Reference(referenceInterface = BootstrapConfiguration.class)
-    private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
-*/
 
     private Destroyable destroyable;
     private String zooKeeperUrl;
@@ -135,7 +126,7 @@ public class ZooKeeperServerFactory  {
     }
 
     private void updateZooKeeperURL(InetSocketAddress localAddress, int localPort) {
-        System.out.println("localAddress: " + localAddress + " localPort " + localPort);
+        LOGGER.debug("localAddress: {} localPost: {}", localAddress, localPort);
         if (localAddress != null) {
             InetAddress address = localAddress.getAddress();
             String hostName;

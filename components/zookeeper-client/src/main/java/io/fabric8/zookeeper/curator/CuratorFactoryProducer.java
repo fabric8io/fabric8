@@ -15,6 +15,12 @@
  */
 package io.fabric8.zookeeper.curator;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.enterprise.inject.Produces;
+import javax.inject.Singleton;
+
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import io.fabric8.zookeeper.bootstrap.ZooKeeperServerFactory;
@@ -23,17 +29,14 @@ import org.apache.curator.framework.api.ACLProvider;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.deltaspike.core.api.config.ConfigProperty;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
-
-import javax.enterprise.inject.Produces;
-import javax.inject.Singleton;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
 public class CuratorFactoryProducer {
 
+    private static final transient Logger LOG = LoggerFactory.getLogger(CuratorFactoryProducer.class);
     private ZooKeeperServerFactory serverFactory;
 
     @Produces
@@ -44,16 +47,16 @@ public class CuratorFactoryProducer {
                                                    @ConfigProperty(name = "ZOOKEEPER_SERVER_ID", defaultValue = "singleRootZkNode") String serverId
                                                    ) throws IOException, InterruptedException {
         String zookeeperUrl = curatorConfig.getZookeeperUrl();
-        System.out.println("ZK URL: " + zookeeperUrl);
-        System.out.println("ZK config: " + curatorConfig);
+
         if (Strings.isNullOrBlank(zookeeperUrl)) {
-            System.out.println("No ZooKeeper URL has been configured so creating a local ensemble server");
+            LOG.info("No ZooKeeper URL has been configured so creating a local ensemble server");
             serverFactory = new ZooKeeperServerFactory(peerConfig, "rootEnsembleNode");
             zookeeperUrl = serverFactory.getZooKeeperUrl();
             Objects.notNull(zookeeperUrl, "zookeeperUrl");
-            System.out.println("======= connecting to: " + zookeeperUrl);
             curatorConfig.setZookeeperUrl(zookeeperUrl);
         }
+
+        LOG.info("Connecting to ZooKeeper URL: {}", zookeeperUrl);
         List<ConnectionStateListener> connectionListenerList = new ArrayList<>();
         CuratorFramework curatorFramework = ManagedCuratorFramework.createCuratorFramework(curatorConfig, aclProvider, connectionListenerList);
         curatorFramework.start();

@@ -18,22 +18,27 @@
 package io.fabric8.mq.camel;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.Component;
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Asserts that in a plain JVM we can instantiate the AMQ component
  */
 public class AmqTest {
+
+    static final Logger LOG = LoggerFactory.getLogger(AmqTest.class);
+
     @Test
     public void testComponent() throws Exception {
         CamelContext camelContext = new DefaultCamelContext();
         Endpoint endpoint = camelContext.getEndpoint("amq:someQueue");
-        System.out.println("Found endpoint: " + endpoint);
+
+        LOG.info("Found endpoint: " + endpoint);
         AMQComponent amq = (AMQComponent) camelContext.getComponent("amq");
-        System.out.println("BrokerURL: " + amq.getConfiguration().getBrokerURL());
+        LOG.info("BrokerURL: " + amq.getConfiguration().getBrokerURL());
     }
 
 }

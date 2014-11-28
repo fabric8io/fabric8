@@ -73,7 +73,7 @@ public class TemplateManager implements TemplateManagerMXBean {
     @Override
     public String createAppByJson(String json) throws Exception {
         CreateAppDTO dto = objectMapper.reader(CreateAppDTO.class).readValue(json);
-        System.out.println("Generating App from data: " + dto);
+        LOG.debug("Generating App from data: {}", dto);
         return createApp(dto);
     }
 
@@ -118,8 +118,9 @@ public class TemplateManager implements TemplateManagerMXBean {
                 String.class.getName(),
                 String.class.getName()
         };
-        System.out.println("About to invoke " + GIT_FACADE_OBJECT_NAME + " uploadFile" + Arrays.asList(params) + " signature" + Arrays.asList(signature));
-
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("About to invoke " + GIT_FACADE_OBJECT_NAME + " uploadFile" + Arrays.asList(params) + " signature" + Arrays.asList(signature));
+        }
         Object answer = beanServer.invoke(GIT_FACADE_OBJECT_NAME, "uploadFile", params, signature);
         if (answer != null) {
             return answer.toString();

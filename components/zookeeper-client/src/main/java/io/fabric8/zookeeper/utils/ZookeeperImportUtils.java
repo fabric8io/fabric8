@@ -15,9 +15,6 @@
  */
 package io.fabric8.zookeeper.utils;
 
-import org.apache.curator.framework.CuratorFramework;
-import io.fabric8.utils.Closeables;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,10 +28,17 @@ import java.util.Properties;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+import io.fabric8.utils.Closeables;
+import org.apache.curator.framework.CuratorFramework;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static io.fabric8.zookeeper.utils.RegexSupport.getPatterns;
 import static io.fabric8.zookeeper.utils.RegexSupport.matches;
 
 public class ZookeeperImportUtils {
+
+    private static final transient Logger LOG = LoggerFactory.getLogger(ZookeeperImportUtils.class);
 
     private ZookeeperImportUtils() {
         //Utility Class
@@ -69,12 +73,12 @@ public class ZookeeperImportUtils {
             if (!dryRun) {
                 if (data != null) {
                     if (verbose) {
-                        System.out.println("importing: " + key);
+                        LOG.info("Importing: {}", key);
                     }
                     ZooKeeperUtils.setData(curator, key, data);
                 }
             } else {
-                System.out.printf("Creating path \"%s\" with value \"%s\"\n", key, data);
+                LOG.debug("Creating path: {} with value: {}", key, data);
             }
         }
 
@@ -107,7 +111,7 @@ public class ZookeeperImportUtils {
                 if (!dryRun) {
                     ZooKeeperUtils.setData(curator, name, value);
                 } else {
-                    System.out.printf("Creating path \"%s\" with value \"%s\"\n", name, value);
+                    LOG.debug("Creating path: {} with value: {}", name, value);
                 }
             }
         } finally {
@@ -153,7 +157,7 @@ public class ZookeeperImportUtils {
                 if (!dryRun) {
                     curator.delete().guaranteed().forPath(path);
                 } else {
-                    System.out.printf("Deleting path %s and everything under it\n", path);
+                    LOG.debug("Deleting path {} and everything under it", path);
                 }
             }
         }

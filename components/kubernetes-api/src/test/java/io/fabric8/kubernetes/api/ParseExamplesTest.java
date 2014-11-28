@@ -15,26 +15,35 @@
  */
 package io.fabric8.kubernetes.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.kubernetes.api.model.*;
-import org.junit.Test;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.kubernetes.api.model.DesiredState;
+import io.fabric8.kubernetes.api.model.Manifest;
+import io.fabric8.kubernetes.api.model.ManifestContainer;
+import io.fabric8.kubernetes.api.model.PodListSchema;
+import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.ServiceSchema;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.fabric8.utils.Files.assertDirectoryExists;
 import static io.fabric8.utils.Files.assertFileExists;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Parses the example JSON
  */
 public class ParseExamplesTest {
+
+    private static final transient Logger LOG = LoggerFactory.getLogger(ParseExamplesTest.class);
+
     public static final String SYSTEM_PROPERTY_KUBE_DIR = "kube.dir";
 
     @Test
@@ -57,10 +66,10 @@ public class ParseExamplesTest {
         assertEquals("pod1.desiredState.manifest.container[0].name", "nginx", container.getName());
         assertEquals("pod1.desiredState.manifest.container[0].image", "dockerfile/nginx", container.getImage());
 
-        System.out.println("pod1 container1 " + container);
+        LOG.info("pod1 container1 " + container);
 
         String json = KubernetesHelper.toJson(podList);
-        System.out.println("Got JSON: " + json);
+        LOG.info("Got JSON: " + json);
     }
 
     @Test
@@ -73,8 +82,6 @@ public class ParseExamplesTest {
         assertNotNull("pod1", pod);
         assertEquals("127.0.0.1", pod.getDesiredState().getHost());
         assertEquals("pod1.desiredState.manifest.version", "__EMPTY__",pod.getDesiredState().getManifest().getVersion().name());
-
-
     }
 
     @Test
@@ -107,8 +114,7 @@ public class ParseExamplesTest {
         assertFileExists(exampleFile);
         T answer = mapper.reader(clazz).readValue(exampleFile);
         assertNotNull("Null returned while unmarshalling " + exampleFile, answer);
-        System.out.println("Parsed: " + fileName + " as: " + answer);
-        System.out.println();
+        LOG.info("Parsed: " + fileName + " as: " + answer);
         return answer;
     }
 

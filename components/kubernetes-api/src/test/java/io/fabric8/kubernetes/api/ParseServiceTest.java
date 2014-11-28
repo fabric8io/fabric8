@@ -15,15 +15,15 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.ServiceSchema;
-import org.junit.Test;
-
 import java.io.File;
 import java.io.IOException;
 
+import io.fabric8.kubernetes.api.model.ServiceSchema;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static io.fabric8.utils.Files.assertFileExists;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -31,6 +31,9 @@ import static org.junit.Assert.assertTrue;
  * Parses the example JSON
  */
 public class ParseServiceTest {
+
+    private static final transient Logger LOG = LoggerFactory.getLogger(ParseServiceTest.class);
+
     @Test
     public void testParseFabric8MQService() throws Exception {
         ServiceSchema service = assertParseTestFile("fmq-service.json", ServiceSchema.class);
@@ -40,7 +43,7 @@ public class ParseServiceTest {
         assertNotNull("containerPort", containerPort);
 
         String json = KubernetesHelper.toJson(service);
-        System.out.println("Got JSON: " + json);
+        LOG.info("Got JSON: " + json);
     }
 
     public <T> T assertParseTestFile(String relativePath, Class<T> clazz) throws IOException {
@@ -51,8 +54,7 @@ public class ParseServiceTest {
 
         Object answer =  KubernetesHelper.loadJson(json);
         assertNotNull("Null returned while unmarshalling " + json, answer);
-        System.out.println("Parsed: " + json + " as: " + answer);
-        System.out.println();
+        LOG.info("Parsed: " + json + " as: " + answer);
         assertTrue("Result " + answer + " is not an instance of " +  clazz.getName() + " but was " + (answer == null ? "null" : answer.getClass().getName()),
                 clazz.isInstance(answer));
         return clazz.cast(answer);

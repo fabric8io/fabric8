@@ -16,7 +16,13 @@
 package io.fabric8.gateway.apiman;
 
 
-import static org.junit.Assert.assertEquals;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.gateway.ServiceDTO;
 import io.fabric8.gateway.api.CallDetailRecord;
 import io.fabric8.gateway.api.apimanager.ApiManager;
 import io.fabric8.gateway.api.apimanager.ApiManagerService;
@@ -24,22 +30,12 @@ import io.fabric8.gateway.api.handlers.http.HttpGateway;
 import io.fabric8.gateway.api.handlers.http.HttpGatewayHandler;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.api.handlers.http.IMappedServices;
-import io.fabric8.gateway.apiman.ApiManService;
-import io.fabric8.gateway.apiman.FileBackedRegistry;
-import io.fabric8.gateway.ServiceDTO;
-import io.fabric8.gateway.ServiceMap;
 import io.fabric8.gateway.handlers.detecting.DetectingGatewayWebSocketHandler;
 import io.fabric8.gateway.handlers.detecting.FutureHandler;
 import io.fabric8.gateway.handlers.http.HttpGatewayServer;
 import io.fabric8.gateway.handlers.http.MappedServices;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.loadbalancer.RoundRobinLoadBalancer;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
@@ -56,6 +52,8 @@ import org.overlord.apiman.rt.engine.beans.Application;
 import org.overlord.apiman.rt.engine.beans.Contract;
 import org.overlord.apiman.rt.engine.beans.Policy;
 import org.overlord.apiman.rt.engine.beans.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
@@ -63,14 +61,14 @@ import org.vertx.java.core.VertxFactory;
 import org.vertx.java.core.http.HttpServer;
 import org.vertx.java.core.http.HttpServerRequest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.junit.Assert.assertEquals;
 
 /**
  */
 public class HTTPGatewayApiManTest {
 
+    private static final transient Logger LOG = LoggerFactory.getLogger(HTTPGatewayApiManTest.class);
 	final static HashMap<String, IMappedServices> mappedServices = new HashMap<String, IMappedServices>();
-    ServiceMap serviceMap = new ServiceMap();
 
     // Setup Vertx
     protected static Vertx vertx;
@@ -119,7 +117,7 @@ public class HTTPGatewayApiManTest {
         FutureHandler<AsyncResult<HttpServer>> future = new FutureHandler<>();
         restApplication.listen(18181, "localhost", future);
         future.await();
-        System.out.println("Rest Application is up and listening at http://localhost:18181");
+        LOG.info("Rest Application is up and listening at http://localhost:18181");
         return restApplication;
     }
 
@@ -135,7 +133,7 @@ public class HTTPGatewayApiManTest {
      */
     public static HttpGatewayServer startHttpGateway() throws HttpException, IOException {
 
-    	System.out.println("Starting HttpGateway with a mapping of /hello/world to the Rest Application");
+    	LOG.info("Starting HttpGateway with a mapping of /hello/world to the Rest Application");
         if( restApplication!=null ) {
             LoadBalancer loadBalancer=new RoundRobinLoadBalancer();
 
@@ -207,7 +205,7 @@ public class HTTPGatewayApiManTest {
         httpGatewayServer = new HttpGatewayServer(vertx, websocketHandler, 18080, requestHandler);
         httpGatewayServer.setHost("0.0.0.0");
         httpGatewayServer.init();
-        System.out.println("HttpGateway started");
+        LOG.info("HttpGateway started");
         
         configureEngine();
       
@@ -281,7 +279,7 @@ public class HTTPGatewayApiManTest {
         
         String serviceJson = mapper.writeValueAsString(service);
         
-        System.out.println("Publishing HelloWorld Service");
+        LOG.info("Publishing HelloWorld Service");
         PutMethod method = new PutMethod("http://127.0.0.1:" + httpPort + "/rest/apimanager/api/services/?apikey=apiman-config-key");
         RequestEntity requestEntity = new StringRequestEntity(serviceJson, "application/json", "UTF-8");
         method.setRequestEntity(requestEntity);
@@ -314,7 +312,7 @@ public class HTTPGatewayApiManTest {
         
         String clientAppJson = mapper.writeValueAsString(clientApp);
         
-        System.out.println("Register clientApp Application");
+        LOG.info("Register clientApp Application");
         method = new PutMethod("http://127.0.0.1:" + httpPort + "/rest/apimanager/api/applications/?apikey=apiman-config-key");
         requestEntity = new StringRequestEntity(clientAppJson, "application/json", "UTF-8");
         method.setRequestEntity(requestEntity);
@@ -327,12 +325,12 @@ public class HTTPGatewayApiManTest {
     	int httpPort = httpGatewayServer.getPort();
         HttpClient httpClient = new HttpClient();
     	//Removing applications
-    	System.out.println("Unregister clientApp Application");
+    	LOG.info("Unregister clientApp Application");
         DeleteMethod method = new DeleteMethod("http://127.0.0.1:" + httpPort + "/rest/apimanager/api/applications/?apikey=apiman-config-key&organizationId=ClientOrg&applicationId=clientApp&version=1.0");
         httpClient.executeMethod(method);
         
         //Removing services
-        System.out.println("Retire Hello World Service");
+        LOG.info("Retire Hello World Service");
         method = new DeleteMethod("http://127.0.0.1:" + httpPort + "/rest/apimanager/api/services/?apikey=apiman-config-key&organizationId=Kurt&serviceId=HelloWorld&version=1.0");
         httpClient.executeMethod(method);
     }

@@ -15,7 +15,6 @@
  */
 package io.fabric8.cxf.endpoint.jaxrs;
 
-
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,10 +56,8 @@ public class BookStoreSpring {
     
     public BookStoreSpring() {
         init();
-        //System.out.println("----books: " + books.size());
     }
-    
-    
+
     @PostConstruct
     public void postConstruct() {
         postConstructCalled = true;
@@ -68,7 +65,6 @@ public class BookStoreSpring {
     
     @PreDestroy
     public void preDestroy() {
-        //System.out.println("PreDestroy called");
     }
     
     @GET
@@ -88,11 +84,7 @@ public class BookStoreSpring {
     public Books getBookAsJsonList(@PathParam("id") Long id) {
         return new Books(books.get(id));
     }
-    
-    
-    
-   
-   
+
     @POST
     @Path("/books/xsitype")
     @Produces("application/xml")
@@ -158,8 +150,7 @@ public class BookStoreSpring {
         b.append(values[0]).append(values[1]);        
         return books.get(Long.valueOf(b.toString()));
     }
-    
-    
+
     @GET
     public Book getDefaultBook() {
         return books.get(mainId);
@@ -230,8 +221,7 @@ public class BookStoreSpring {
         b.setName("CXF in Action - 2");
         return b;
     }
-    
-   
+
     @GET
     @Path("books/xslt/{id}")
     @Produces({"text/html", "application/xhtml+xml", "application/xml" })

@@ -15,7 +15,6 @@
  */
 package io.fabric8.cxf.endpoint.jaxrs;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -74,19 +73,15 @@ import org.apache.cxf.jaxrs.impl.ResourceContextImpl;
 import org.apache.cxf.jaxrs.utils.InjectionUtils;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 
-
 @Path("/bookstore")
 @GZIP(threshold = 1)
 public class BookStore {
 
     private Map<Long, Book> books = new HashMap<Long, Book>();
     private long bookId = 123;
-   
-    
     private String defaultName;
     private long defaultId;
-    
-    
+
     @PathParam("CDId")
     private String currentCdId;
     @Context
@@ -104,17 +99,14 @@ public class BookStore {
     private Book2 book2Sub = new Book2();
     
     public BookStore() {
-        
     }
     
     @PostConstruct
     public void postConstruct() {
-        //System.out.println("PostConstruct called");
     }
     
     @PreDestroy
     public void preDestroy() {
-        //System.out.println("PreDestroy called");
     }
 
     @GET
@@ -178,8 +170,7 @@ public class BookStore {
     public String getCustomBookTest() {
         return "Good book";
     }
-    
-    
+
     @GET
     @Path("/httpresponse")
     public void getBookDesciptionHttpResponse(@Context HttpServletResponse response) {
@@ -190,9 +181,7 @@ public class BookStore {
             throw new WebApplicationException(ex);
         }
     }
-    
-    
-    
+
     @DELETE
     @Path("/deletebody")
     @Produces("application/xml")
@@ -224,13 +213,10 @@ public class BookStore {
     @Path("/beanparam/{id}")
     @Produces("application/xml")
     public Book getBeanParamBook(@BeanParam BookBean bean) {
-        
-        long id = bean.getId() + bean.getId2() + bean.getId3(); 
-        
+        long id = bean.getId() + bean.getId2() + bean.getId3();
         return books.get(id);
     }
-    
-    
+
     @GET
     @Path("/beanparam2/{id}")
     @Produces("application/xml")
@@ -271,14 +257,11 @@ public class BookStore {
     public Book getDefaultBook() {
         return new Book(defaultName, defaultId);
     }
-    
-    
-    
+
     @POST
     @Path("emptypost")
     public void emptypost() {
         String uri = ui.getAbsolutePath().toString();
-        //System.out.println(uri);
         if (uri.endsWith("/")) {
             throw new WebApplicationException(400);
         }
@@ -297,7 +280,6 @@ public class BookStore {
     @GET
     @Path("webappexception")
     public Book throwException() {
-        
         Response response = Response.serverError().entity("This is a WebApplicationException").build();
         throw new WebApplicationException(response);
     }
@@ -305,7 +287,6 @@ public class BookStore {
     @GET
     @Path("webappexceptionXML")
     public Book throwExceptionXML() {
-        
         Response response = Response.status(406).type("application/xml")
                             .entity("<Book><name>Exception</name><id>999</id></Book>")
                             .build();
@@ -340,9 +321,7 @@ public class BookStore {
             .header("Set-Cookie", "COOKIETWO=dummy2; expires=Sat, 20-Nov-2010 19:11:32 GMT; Path=/")
             .build();
     }
-    
-   
-    
+
     @GET
     @Path("name-in-query")
     @Produces("application/xml")
@@ -351,8 +330,7 @@ public class BookStore {
     public Book getBookFromQuery(@QueryParam("name") String name) {
         return new Book(name, 321L);
     }
-    
-    
+
     @GET
     @Path("books/check/{id}")
     @Produces("text/plain")
@@ -376,8 +354,7 @@ public class BookStore {
     public Boolean checkBook2(Long id) {
         return books.containsKey(id);
     }
-    
-    
+
     @GET
     @Path("timetable")
     public Calendar getTimetable() {
@@ -402,8 +379,7 @@ public class BookStore {
     public String unsupportedContentType() {
         throw new IllegalStateException("This op is not expected to be invoked");
     }
-    
-    
+
     @OPTIONS
     @Path("/options")
     public Response getOptions() throws Exception {
@@ -469,9 +445,7 @@ public class BookStore {
         }
         return bs.get(0);
     }
-    
-    
-    
+
     @GET
     @Path("/collections")
     @Produces({"application/xml", "application/json" })
@@ -489,11 +463,7 @@ public class BookStore {
         }
         return bs;
     }
-    
-    
-    
-    
-    
+
     @GET
     @Path("/books/buffer")
     @Produces("application/bar")
@@ -514,9 +484,7 @@ public class BookStore {
     public StreamingOutput writeToStreamAndFail() {
         return new StreamingOutputImpl(false);
     }
-    
-    
-    
+
     @Path("/booksubresource/context")
     public Book2 getBookSubResourceRC() {
         return resourceContext.getResource(Book2.class);
@@ -527,8 +495,6 @@ public class BookStore {
         // This cast is temporarily
         return ((ResourceContextImpl)rc).initResource(book2Sub);
     }
-    
-    
 
     @POST
     @Path("/books/null")
@@ -637,7 +603,6 @@ public class BookStore {
     @PUT
     @Path("/bookswithdom/")
     public DOMSource updateBook(DOMSource ds) {
-        //XMLUtils.printDOM(ds.getNode());
         return ds;
     }
     
@@ -710,9 +675,7 @@ public class BookStore {
     public BookStore echoThroughBookStoreSub() {
         return this;
     }
-    
-    
-    
+
     @POST
     @Path("/booksecho2")
     @Consumes("text/plain")
@@ -728,9 +691,6 @@ public class BookStore {
     public Response echoBookNameAndHeader3(String name) {
         return echoBookNameAndHeader(httpHeaders.getRequestHeader("customheader").get(0), name);
     }
-        
-    
-    
 
     @GET
     @Path("quotedheaders")
@@ -775,7 +735,6 @@ public class BookStore {
         return rb.build();
     }
 
-    
     @XmlJavaTypeAdapter(BookInfoAdapter2.class)
     interface BookInfoInterface {
         String getName();
@@ -877,9 +836,7 @@ public class BookStore {
         } 
         
     }
-    
-    
-    
+
     public static class BookBean {
         private long id;
         private long id2;
@@ -915,7 +872,6 @@ public class BookStore {
             return id3;
         }
 
-        
     }
     
     public static class BookNotReturnedException extends RuntimeException {
@@ -927,9 +883,7 @@ public class BookStore {
         }
         
     }
-    
-   
-    
+
     public static class StringArrayBodyReaderWriter 
         implements MessageBodyReader<String[]>, MessageBodyWriter<String[]> {
         public boolean isReadable(Class<?> arg0, Type arg1, Annotation[] arg2, MediaType arg3) {

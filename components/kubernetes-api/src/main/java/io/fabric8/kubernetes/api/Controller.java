@@ -134,7 +134,7 @@ public class Controller {
                 // lets parse into a new object
                 // TODO the apply method should deal with the item direct?
                 String json = item.toString();
-                System.out.println("Got item: "+ json);
+                LOG.debug("Got item: {}", json);
                 Object dto = null;
                 try {
                     dto = loadJson(json);

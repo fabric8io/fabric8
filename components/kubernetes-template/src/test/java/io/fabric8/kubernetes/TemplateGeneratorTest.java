@@ -24,6 +24,8 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.template.CreateAppDTO;
 import io.fabric8.kubernetes.template.TemplateGenerator;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,12 +40,14 @@ import static org.junit.Assert.assertTrue;
 /**
  */
 public class TemplateGeneratorTest {
+
+    private static final transient Logger LOG = LoggerFactory.getLogger(TemplateGeneratorTest.class);
+
     @Test
     public void testGenerateJson() throws Exception {
         String basedir = System.getProperty("basedir", ".");
         File jsonFile = new File(basedir + "/target/templateGenerator/sample.json").getCanonicalFile();
         recursiveDelete(jsonFile);
-
 
         String name = "MyApp";
         int replicaCount = 3;
@@ -91,10 +95,10 @@ public class TemplateGeneratorTest {
         labels.put("name", name);
 
         String json = IOHelpers.readFully(jsonFile);
-        System.out.println("Generated: " + json);
+        LOG.info("Generated: " + json);
 
         Object loadedDTO = KubernetesHelper.loadJson(json);
-        System.out.println("Loaded json DTO: " + loadedDTO);
+        LOG.info("Loaded json DTO: " + loadedDTO);
         assertTrue("Loaded DTO should be a ReplicationControllerSchema but was " + loadedDTO, loadedDTO instanceof ReplicationControllerSchema);
         ReplicationControllerSchema rc = (ReplicationControllerSchema) loadedDTO;
 
@@ -106,6 +110,5 @@ public class TemplateGeneratorTest {
         // TODO expose labels on pod template
         //assertThat(desiredState.getPodTemplate()).isEqualTo(labels);
     }
-
 
 }
