@@ -102,6 +102,18 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test-blueprint</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>org.apache.felix.fileinstall</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
