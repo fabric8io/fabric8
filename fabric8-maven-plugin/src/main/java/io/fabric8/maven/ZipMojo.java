@@ -55,6 +55,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -168,18 +169,11 @@ public class ZipMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.deployFileGoal", defaultValue = "gpg:sign-and-deploy-file")
     protected String deployFileGoal;
 
-
     /**
      * Whether or not we should ignoreProject this maven project from this goal
      */
     @Parameter(property = "fabric8.ignoreProject", defaultValue = "false")
     private boolean ignoreProject;
-
-    /**
-     * For pom packaging projects should we aggregate child modules; or still create a stand alone app zip for this project?
-     */
-    @Parameter(property = "fabric8.aggregateZip", defaultValue = "true")
-    private boolean aggregateZip;
 
     /**
      * The Maven Session.
@@ -193,90 +187,8 @@ public class ZipMojo extends AbstractFabric8Mojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            if (isIgnoreProject()) return;
-
-            MavenProject rootProject = null;
-            boolean generatingAggregatedZip = false;
-            int projectsWithSameParentSize = 0;
-            List<MavenProject> fabricZipGoalProjects = new ArrayList<>();
-            List<MavenProject> projectsWithSameParent = new ArrayList<>();
-            if (reactorProjects != null) {
-                List<MavenProject> pomZipProjects = new ArrayList<>();
-                for (MavenProject reactorProject : reactorProjects) {
-                    if (isPom(reactorProject)) {
-                        pomZipProjects.add(reactorProject);
-                    }
-
-                    List<Plugin> buildPlugins = reactorProject.getBuildPlugins();
-                    for (Plugin buildPlugin : buildPlugins) {
-                        String artifactId = buildPlugin.getArtifactId();
-                        // TODO I guess we could try find if the "zip" goal is being invoked?
-                        if ("fabric8-maven-plugin".equals(artifactId)) {
-                            // TODO should we only consider reactorProjects which have a fabric8:zip goal?
-                            Object goals = buildPlugin.getGoals();
-                            boolean hasZipGoal = goals != null && goals.toString().contains("zip");
-                            List<PluginExecution> executions = buildPlugin.getExecutions();
-                            for (PluginExecution execution : executions) {
-                                List<String> execGoals = execution.getGoals();
-                                if (execGoals.contains("zip")) {
-                                    hasZipGoal = true;
-                                }
-                            }
-                            getLog().debug("project " + reactorProject.getArtifactId() + " has zip goal: " + hasZipGoal);
-
-                            fabricZipGoalProjects.add(reactorProject);
-                        }
-                    }
-                }
-
-                // we want a list of projects which has a parent that has a zip goal too
-                // as that helps us detect the 'last' project when we do a full build from the entire project
-                MavenProject project = getProject();
-                MavenProject parentProject = project.getParent();
-
-                for (MavenProject zipGoalProject : fabricZipGoalProjects) {
-                    MavenProject zipGoalProjectParent = zipGoalProject.getParent();
-                    if (parentProject != null && Objects.equal(parentProject, zipGoalProjectParent)) {
-                        projectsWithSameParent.add(zipGoalProject);
-                    }
-                }
-
-                // first step is to find out if the current project is a root project of zips
-                projectsWithSameParentSize = projectsWithSameParent.size();
-                if (projectsWithSameParentSize > 1) {
-                    MavenProject lastProject = projectsWithSameParent.get(projectsWithSameParentSize - 1);
-                    if (Objects.equal(lastProject, project)) {
-                        rootProject = parentProject;
-                    }
-                }
-
-                // then if we are coming to the end of a group, then we need more maven magic to figure out if we are
-                // really done with that group, as we trigger at this point at the beginning and ending of a group
-                // so yeah unfortunately we need more of this magic code to find out of we are done, and should then
-                // do a aggregate zip of the entire group
-                if (rootProject != null) {
-                    boolean found = false;
-                    // now we need to find all the maven projects that are from the same ancestor as the root project
-                    List<MavenProject> group = new ArrayList<>();
-                    for (MavenProject reactor : reactorProjects) {
-                        // we can only start matching the group from the point in the list where the root project began
-                        if (!found && Objects.equal(reactor, rootProject)) {
-                            found = true;
-                        }
-                        if (found && hasAncestor(rootProject, reactor)) {
-                            group.add(reactor);
-                        }
-                    }
-
-                    // should we aggregate
-                    if (group.isEmpty() || group.get(group.size() - 1) == project) {
-                        // yes force generating the aggregated zip
-                        generatingAggregatedZip = true;
-                    } else {
-                        // no do not do that
-                        generatingAggregatedZip = false;
-                    }
-                }
+            if (isIgnoreProject()) {
+                return;
             }
 
             boolean isPomProject = isPom(getProject());
@@ -284,38 +196,13 @@ public class ZipMojo extends AbstractFabric8Mojo {
                 // generate app zip (which we cannot do for a pom project)
                 generateZip();
             }
-            // generate aggregated zip if enabled, and we have a root project for a group of projects (having same parent)
-            if (rootProject != null && generatingAggregatedZip && aggregateZip) {
-                getLog().info("");
-                getLog().info("Creating aggregated app zip");
-                getLog().info("built the last fabric8:zip project so generating a combined zip for all " + projectsWithSameParentSize + " projects with a fabric8:zip goal: " + projectsWithSameParent);
 
-                getLog().info("Choosing root project " + rootProject.getArtifactId() + " for generation of aggregated zip");
-                generateAggregatedZip(rootProject, fabricZipGoalProjects, projectsWithSameParent);
-            }
-
-            // TODO: we should only aggregate one time at the end and if aggregateZip is enabled
-            // the trick is to wait for the last reactor project, and then find the root project
-            // also we must generate zip for each project and not skip as we do above
-
-
-            // we need special logic if its the very last project
             boolean isLastProject = getProject() == reactorProjects.get(reactorProjects.size() - 1);
-            getLog().info("Is last project? " + isLastProject + " -> " + getProject().getName());
-            if (isLastProject) {
-                // find the upper parent project
-                MavenProject zipRoot = reactorProjects.get(0);
-                // find that zipRoot which has it as same parent
-                projectsWithSameParent.clear();
-                for (MavenProject zipGoalProject : fabricZipGoalProjects) {
-                    MavenProject zipGoalProjectParent = zipGoalProject.getParent();
-                    if (Objects.equal(zipRoot, zipGoalProjectParent)) {
-                        projectsWithSameParent.add(zipGoalProject);
-                    }
-                }
+            getLog().debug("Is last project? " + isLastProject + " -> " + getProject().getArtifactId());
 
-                getLog().info("Re-Choosing root project " + zipRoot.getArtifactId() + " for generation of aggregated zip");
-                generateAggregatedZip(zipRoot, fabricZipGoalProjects, projectsWithSameParent);
+            if (isLastProject) {
+                getLog().info("Last project done. Now generating aggregated zips for the entire project(s).");
+                generateAggregatedZips();
             }
 
         } catch (MojoFailureException | MojoExecutionException e) {
@@ -325,15 +212,177 @@ public class ZipMojo extends AbstractFabric8Mojo {
         }
     }
 
-    protected boolean hasAncestor(MavenProject root, MavenProject target) {
-        if (target.getParent() == null) {
-            return false;
+    protected void generateZip() throws DependencyTreeBuilderException, MojoExecutionException, IOException,
+            MojoFailureException {
+
+        File appBuildDir = buildDir;
+        if (Strings.isNotBlank(pathInZip)) {
+            appBuildDir = new File(buildDir, pathInZip);
         }
-        if (Objects.equal(root, target.getParent())) {
-            return true;
+        appBuildDir.mkdirs();
+
+        boolean hasConfigDir = appConfigDir.isDirectory();
+        if (hasConfigDir) {
+            copyAppConfigFiles(appBuildDir, appConfigDir);
+
         } else {
-            return hasAncestor(root, target.getParent());
+            getLog().info("The app configuration files directory " + appConfigDir + " doesn't exist, so not copying any additional project documentation or configuration files");
         }
+        MavenProject project = getProject();
+
+        if (!ignoreProject) {
+            File kubernetesJson = getKubernetesJson();
+            if (kubernetesJson != null && kubernetesJson.isFile() && kubernetesJson.exists()) {
+                File jsonFile = new File(appBuildDir, "kubernetes.json");
+                jsonFile.getParentFile().mkdirs();
+                Files.copy(kubernetesJson, jsonFile);
+            }
+
+            // TODO if no iconRef is specified we could try guess based on the project?
+
+            // lets check if we can use an icon reference
+            if (Strings.isNotBlank(iconRef)) {
+                File[] icons = appBuildDir.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        if (name == null) {
+                            return false;
+                        }
+                        String lower = name.toLowerCase();
+                        return lower.startsWith("icon.") &&
+                                (lower.endsWith(".svg") || lower.endsWith(".png") || lower.endsWith(".gif") || lower.endsWith(".jpg") || lower.endsWith(".jpeg"));
+                    }
+                });
+                if (icons == null || icons.length == 0) {
+                    // lets copy the iconRef
+                    InputStream in = loadPluginResource(iconRef);
+                    if (in == null) {
+                        getLog().warn("Could not find icon: " + iconRef + " on the ClassPath!");
+                    } else {
+                        String fileName = "icon." + Files.getFileExtension(iconRef);
+                        File outFile = new File(appBuildDir, fileName);
+                        Files.copy(in, new FileOutputStream(outFile));
+                        getLog().info("Generated icon file " + outFile + " from icon reference: " + iconRef);
+                    }
+                }
+            }
+
+        }
+
+        // lets only generate a app zip if we have a requirement (e.g. we're not a parent pom packaging project) and
+        // we have defined some configuration files or dependencies
+        // to avoid generating dummy apps for parent poms
+        if (hasConfigDir || !ignoreProject) {
+
+            if (includeReadMe) {
+                copyReadMe(project.getFile().getParentFile(), appBuildDir);
+            }
+
+            if (generateSummaryFile) {
+                String description = project.getDescription();
+                if (Strings.isNotBlank(description)) {
+                    File summaryMd = new File(appBuildDir, "Summary.md");
+                    summaryMd.getParentFile().mkdirs();
+                    if (!summaryMd.exists()) {
+                        byte[] bytes = description.getBytes();
+                        Files.copy(new ByteArrayInputStream(bytes), new FileOutputStream(summaryMd));
+                    }
+                }
+            }
+
+            if (generateAppPropertiesFile) {
+                String name = project.getName();
+                if (Strings.isNullOrBlank(name)) {
+                    name = project.getArtifactId();
+                }
+                String description = project.getDescription();
+                Properties appProperties = new Properties();
+                appProperties.put("name", name);
+                if (Strings.isNotBlank(description)) {
+                    appProperties.put("description", description);
+                }
+                appProperties.put("groupId", project.getGroupId());
+                appProperties.put("artifactId", project.getArtifactId());
+                appProperties.put("version", project.getVersion());
+                File appPropertiesFile = new File(appBuildDir, "fabric8.properties");
+                appPropertiesFile.getParentFile().mkdirs();
+                if (!appPropertiesFile.exists()) {
+                    appProperties.store(new FileWriter(appPropertiesFile), "Fabric8 Properties");
+                }
+            }
+
+            File outputZipFile = getZipFile();
+            Zips.createZipFile(getLog(), buildDir, outputZipFile);
+
+            projectHelper.attachArtifact(project, artifactType, artifactClassifier, outputZipFile);
+            getLog().info("Created app zip file: " + outputZipFile);
+        }
+    }
+
+    protected void generateAggregatedZips() throws IOException, MojoExecutionException {
+        List<MavenProject> zipGoalProjects = fabricZipGoalProjects();
+        // we want to walk backwards
+        Collections.reverse(zipGoalProjects);
+
+        Set<MavenProject> doneParents = new HashSet<>();
+        for (MavenProject zipProject : zipGoalProjects) {
+
+            MavenProject parent = zipProject.getParent();
+            if (parent == null) {
+                continue;
+            }
+
+            // are there 2 or more projects with the same parent
+            // then we need to aggregate them to their parent (if we have not done so before)
+            List<MavenProject> group = sameParent(parent, zipGoalProjects);
+            if (group.size() >= 2 && !doneParents.contains(parent)) {
+                doneParents.add(parent);
+                generateAggregatedZip(parent, reactorProjects, group);
+            }
+        }
+    }
+
+    private List<MavenProject> sameParent(MavenProject parent, List<MavenProject> projects) {
+        List<MavenProject> answer = new ArrayList<>();
+        for (MavenProject zip : projects) {
+            if (Objects.equal(parent, zip.getParent())) {
+                answer.add(zip);
+            }
+        }
+        return answer;
+    }
+
+    private List<MavenProject> fabricZipGoalProjects() {
+        List<MavenProject> answer = new ArrayList<>();
+        if (reactorProjects != null) {
+            List<MavenProject> pomZipProjects = new ArrayList<>();
+            for (MavenProject reactorProject : reactorProjects) {
+                if (isPom(reactorProject)) {
+                    pomZipProjects.add(reactorProject);
+                }
+
+                List<Plugin> buildPlugins = reactorProject.getBuildPlugins();
+                for (Plugin buildPlugin : buildPlugins) {
+                    String artifactId = buildPlugin.getArtifactId();
+                    if ("fabric8-maven-plugin".equals(artifactId)) {
+                        Object goals = buildPlugin.getGoals();
+                        boolean hasZipGoal = goals != null && goals.toString().contains("zip");
+                        List<PluginExecution> executions = buildPlugin.getExecutions();
+                        for (PluginExecution execution : executions) {
+                            List<String> execGoals = execution.getGoals();
+                            if (execGoals.contains("zip")) {
+                                hasZipGoal = true;
+                            }
+                        }
+                        getLog().debug("Project " + reactorProject.getArtifactId() + " has zip goal: " + hasZipGoal);
+                        if (hasZipGoal) {
+                            answer.add(reactorProject);
+                        }
+                    }
+                }
+            }
+        }
+        return answer;
     }
 
     protected void generateAggregatedZip(MavenProject rootProject, List<MavenProject> reactorProjects, List<MavenProject> pomZipProjects) throws IOException, MojoExecutionException {
@@ -452,115 +501,18 @@ public class ZipMojo extends AbstractFabric8Mojo {
         }
     }
 
-    protected void generateZip() throws DependencyTreeBuilderException, MojoExecutionException, IOException,
-            MojoFailureException {
-
-        File appBuildDir = buildDir;
-        if (Strings.isNotBlank(pathInZip)) {
-            appBuildDir = new File(buildDir, pathInZip);
+    private static boolean hasAncestor(MavenProject root, MavenProject target) {
+        if (target.getParent() == null) {
+            return false;
         }
-        appBuildDir.mkdirs();
-
-        boolean hasConfigDir = appConfigDir.isDirectory();
-        if (hasConfigDir) {
-            copyAppConfigFiles(appBuildDir, appConfigDir);
-
+        if (Objects.equal(root, target.getParent())) {
+            return true;
         } else {
-            getLog().info("The app configuration files directory " + appConfigDir + " doesn't exist, so not copying any additional project documentation or configuration files");
-        }
-        MavenProject project = getProject();
-
-        if (!ignoreProject) {
-            File kubernetesJson = getKubernetesJson();
-            if (kubernetesJson != null && kubernetesJson.isFile() && kubernetesJson.exists()) {
-                    File jsonFile = new File(appBuildDir, "kubernetes.json");
-                    jsonFile.getParentFile().mkdirs();
-                    Files.copy(kubernetesJson, jsonFile);
-                }
-
-            // TODO if no iconRef is specified we could try guess based on the project?
-
-            // lets check if we can use an icon reference
-            if (Strings.isNotBlank(iconRef)) {
-                File[] icons = appBuildDir.listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        if (name == null) {
-                            return false;
-                        }
-                        String lower = name.toLowerCase();
-                        return lower.startsWith("icon.") &&
-                                (lower.endsWith(".svg") || lower.endsWith(".png") || lower.endsWith(".gif") || lower.endsWith(".jpg") || lower.endsWith(".jpeg"));
-                    }
-                });
-                if (icons == null || icons.length == 0) {
-                    // lets copy the iconRef
-                    InputStream in = loadPluginResource(iconRef);
-                    if (in == null) {
-                        getLog().warn("Could not find icon: " + iconRef + " on the ClassPath!");
-                    } else {
-                        String fileName = "icon." + Files.getFileExtension(iconRef);
-                        File outFile = new File(appBuildDir, fileName);
-                        Files.copy(in, new FileOutputStream(outFile));
-                        getLog().info("Generated icon file " + outFile + " from icon reference: " + iconRef);
-                    }
-                }
-            }
-
-        }
-
-        // lets only generate a app zip if we have a requirement (e.g. we're not a parent pom packaging project) and
-        // we have defined some configuration files or dependencies
-        // to avoid generating dummy apps for parent poms
-        if (hasConfigDir || !ignoreProject) {
-
-            if (includeReadMe) {
-                copyReadMe(project.getFile().getParentFile(), appBuildDir);
-            }
-
-            if (generateSummaryFile) {
-                String description = project.getDescription();
-                if (Strings.isNotBlank(description)) {
-                    File summaryMd = new File(appBuildDir, "Summary.md");
-                    summaryMd.getParentFile().mkdirs();
-                    if (!summaryMd.exists()) {
-                        byte[] bytes = description.getBytes();
-                        Files.copy(new ByteArrayInputStream(bytes), new FileOutputStream(summaryMd));
-                    }
-                }
-            }
-
-            if (generateAppPropertiesFile) {
-                String name = project.getName();
-                if (Strings.isNullOrBlank(name)) {
-                    name = project.getArtifactId();
-                }
-                String description = project.getDescription();
-                Properties appProperties = new Properties();
-                appProperties.put("name", name);
-                if (Strings.isNotBlank(description)) {
-                    appProperties.put("description", description);
-                }
-                appProperties.put("groupId", project.getGroupId());
-                appProperties.put("artifactId", project.getArtifactId());
-                appProperties.put("version", project.getVersion());
-                File appPropertiesFile = new File(appBuildDir, "fabric8.properties");
-                appPropertiesFile.getParentFile().mkdirs();
-                if (!appPropertiesFile.exists()) {
-                    appProperties.store(new FileWriter(appPropertiesFile), "Fabric8 Properties");
-                }
-            }
-
-            File outputZipFile = getZipFile();
-            Zips.createZipFile(getLog(), buildDir, outputZipFile);
-
-            projectHelper.attachArtifact(project, artifactType, artifactClassifier, outputZipFile);
-            getLog().info("Created app zip file: " + outputZipFile);
+            return hasAncestor(root, target.getParent());
         }
     }
 
-
-    protected static File copyReadMe(File src, File appBuildDir) throws IOException {
+    private static File copyReadMe(File src, File appBuildDir) throws IOException {
         File[] files = src.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
@@ -577,7 +529,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
         return null;
     }
 
-    private String getReadMeFileKey(String relativePath) {
+    private static String getReadMeFileKey(String relativePath) {
         String answer = relativePath;
 
         if (Strings.isNullOrBlank(answer)) {
@@ -722,14 +674,13 @@ public class ZipMojo extends AbstractFabric8Mojo {
         getLog().info("Created app zip file: " + relativePath);
     }
 
-    protected String getChildProjectRelativePath(File projectBaseDir, MavenProject pomProject) throws IOException {
+    protected static String getChildProjectRelativePath(File projectBaseDir, MavenProject pomProject) throws IOException {
         // must include first dir as prefix
         String root = projectBaseDir.getName();
         String relativePath = Files.getRelativePath(projectBaseDir, pomProject.getBasedir());
         relativePath = root + File.separator + relativePath;
         return relativePath;
     }
-
 
     /**
      * Combines any files from the appSourceDir into the output directory
@@ -757,12 +708,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
         }
     }
 
-
-    protected static boolean isFile(File file) {
-        return file != null && file.exists() && file.isFile();
-    }
-
-    public static void combineAppFilesToFolder(MavenProject reactorProject, File buildDir, Log log, String reactorProjectOutputPath) throws IOException {
+    protected static void combineAppFilesToFolder(MavenProject reactorProject, File buildDir, Log log, String reactorProjectOutputPath) throws IOException {
         File basedir = reactorProject.getBasedir();
         if (!basedir.exists()) {
             log.warn("No basedir " + basedir.getAbsolutePath() + " for project + " + reactorProject);
@@ -788,7 +734,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
     /**
      * For 2 properties files the source and dest file, lets combine the values so that all the values of the sourceFile are in the dest file
      */
-    public static void combinePropertiesFiles(File sourceFile, File destFile) throws IOException {
+    protected static void combinePropertiesFiles(File sourceFile, File destFile) throws IOException {
         Properties source = loadProperties(sourceFile);
         Properties dest = loadProperties(destFile);
         Set<Map.Entry<Object, Object>> entries = source.entrySet();
@@ -820,17 +766,11 @@ public class ZipMojo extends AbstractFabric8Mojo {
         return answer;
     }
 
-    public static boolean notEmpty(List<?> list) {
-        return list != null && !list.isEmpty();
-    }
-
     /**
      * Copies any local configuration files into the app directory
      */
     protected void copyAppConfigFiles(File appBuildDir, File appConfigDir) throws IOException {
-
         File[] files = appConfigDir.listFiles();
-
         if (files != null) {
             appBuildDir.mkdirs();
             for (File file : files) {
@@ -844,19 +784,6 @@ public class ZipMojo extends AbstractFabric8Mojo {
                 }
             }
         }
-
-    }
-
-    protected ArrayList<String> removePath(List<String> filesToBeExcluded) {
-        ArrayList<String> fileName = new ArrayList<String>();
-        for (String name : filesToBeExcluded) {
-            int pos = name.lastIndexOf("/");
-            if (pos > 0) {
-                String fname = name.substring(0, pos);
-                fileName.add(fname);
-            }
-        }
-        return fileName;
     }
 
     protected boolean toBeExclude(String fileName) {
@@ -864,7 +791,6 @@ public class ZipMojo extends AbstractFabric8Mojo {
         Boolean result = excludedFilesList.contains(fileName);
         return result;
     }
-
 
     protected String escapeAgentPropertiesKey(String text) {
         return text.replaceAll("\\:", "\\\\:");
@@ -874,7 +800,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
         return escapeAgentPropertiesKey(text);
     }
 
-    protected static String leadingSlash(String path) {
+    private static String leadingSlash(String path) {
         if (path.startsWith("/")) {
             return path;
         } else {
