@@ -15,12 +15,15 @@
  */
 package io.fabric8.kubernetes.api;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
-
 import org.junit.Test;
+
+import java.util.HashMap;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class KubernetesHelperTest {
 
@@ -40,6 +43,17 @@ public class KubernetesHelperTest {
 		
 		assertNotNull(podSchema);
 		assertEquals(1, podSchema.getItems().size());
+	}
+
+	@Test
+	public void testfilterMatchesIdOrLabels() throws Exception {
+		String text = "container=java,name=foo,food=cheese";
+		String id = "foo";
+		HashMap<String,String>map = new HashMap<>();
+		map.put("container","java");
+		map.put("name","foo");
+		map.put("food","cheese");
+		assertTrue(text + " should = " + map,KubernetesHelper.filterMatchesIdOrLabels(text, id, map));
 	}
 	
 }

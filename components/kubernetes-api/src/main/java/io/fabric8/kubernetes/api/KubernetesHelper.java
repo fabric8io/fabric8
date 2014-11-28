@@ -317,6 +317,26 @@ public class KubernetesHelper {
         return buffer.toString();
     }
 
+    public static Map<String,String> toLabelsMap(String labels){
+        Map<String,String> map = new HashMap<>();
+        if (labels != null && !labels.isEmpty()) {
+            String[] elements = labels.split(",");
+            if (elements.length > 0){
+                for (String str:elements){
+                    String[] keyValue = str.split("=");
+                    if (keyValue.length==2){
+                        String key = keyValue[0];
+                        String value = keyValue[1];
+                        if (key != null && value != null){
+                            map.put(key.trim(),value.trim());
+                        }
+                    }
+                }
+            }
+        }
+        return map;
+    }
+
     /**
      * Creates a filter on a pod using the given text string
      */
@@ -436,7 +456,23 @@ public class KubernetesHelper {
      */
     public static boolean filterMatchesIdOrLabels(String textFilter, String id, Map<String, String> labels) {
         String text = toLabelsString(labels);
-        return (text != null && text.contains(textFilter)) || (id != null && id.contains(textFilter));
+        boolean result =  (text != null && text.contains(textFilter)) || (id != null && id.contains(textFilter));
+        if (!result){
+            //labels can be in different order to selector
+            Map<String,String> selectorMap = toLabelsMap(textFilter);
+
+            if (!selectorMap.isEmpty()){
+                result = true;
+                for(Map.Entry<String,String> entry:selectorMap.entrySet()){
+                    String value = labels.get(entry.getKey());
+                    if (value == null || !value.equals(entry.getValue())){
+                        result = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     /**
