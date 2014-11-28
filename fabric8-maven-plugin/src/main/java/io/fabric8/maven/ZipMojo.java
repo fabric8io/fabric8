@@ -240,6 +240,8 @@ public class ZipMojo extends AbstractFabric8Mojo {
                         projectsWithSameParent.add(zipGoalProject);
                     }
                 }
+
+                // first step is to find out if the current project is a root project of zips
                 projectsWithSameParentSize = projectsWithSameParent.size();
                 if (projectsWithSameParentSize > 1) {
                     MavenProject lastProject = projectsWithSameParent.get(projectsWithSameParentSize - 1);
@@ -248,20 +250,42 @@ public class ZipMojo extends AbstractFabric8Mojo {
                     }
                 }
 
+                // then if we are coming to the end of a group, then we need more maven magic to figure out if we are
+                // really done with that group, as we trigger at this point at the beginning and ending of a group
+                // so yeah unfortunately we need more of this magic code to find out of we are done, and should then
+                // do a aggregate zip of the entire group
                 if (rootProject != null) {
-                    if (aggregateZip) {
+                    boolean found = false;
+                    // now we need to find all the maven projects that are from the same ancestor as the root project
+                    List<MavenProject> group = new ArrayList<>();
+                    for (MavenProject reactor : reactorProjects) {
+                        // we can only start matching the group from the point in the list where the root project began
+                        if (!found && Objects.equal(reactor, rootProject)) {
+                            found = true;
+                        }
+                        if (found && hasAncestor(rootProject, reactor)) {
+                            group.add(reactor);
+                        }
+                    }
+
+                    // should we aggregate
+                    if (group.isEmpty() || group.get(group.size() - 1) == project) {
+                        // yes force generating the aggregated zip
                         generatingAggregatedZip = true;
+                    } else {
+                        // no do not do that
+                        generatingAggregatedZip = false;
                     }
                 }
             }
 
             boolean isPomProject = isPom(getProject());
-            if (!generatingAggregatedZip && (!isPomProject || !aggregateZip)) {
+            if (!isPomProject) {
+                // generate app zip (which we cannot do for a pom project)
                 generateZip();
-            } else {
-                getLog().info("Not generating a zip right now - waiting until we generate the aggregated zip for all sub projects");
             }
-            if (rootProject != null) {
+            // generate aggregated zip if enabled, and we have a root project for a group of projects (having same parent)
+            if (rootProject != null && generatingAggregatedZip && aggregateZip) {
                 getLog().info("");
                 getLog().info("Creating aggregated app zip");
                 getLog().info("built the last fabric8:zip project so generating a combined zip for all " + projectsWithSameParentSize + " projects with a fabric8:zip goal: " + projectsWithSameParent);
@@ -269,6 +293,10 @@ public class ZipMojo extends AbstractFabric8Mojo {
                 getLog().info("Choosing root project " + rootProject.getArtifactId() + " for generation of aggregated zip");
                 generateAggregatedZip(rootProject, fabricZipGoalProjects, projectsWithSameParent);
             }
+
+            // TODO: we should only aggregate one time at the end and if aggregateZip is enabled
+            // the trick is to wait for the last reactor project, and then find the root project
+            // also we must generate zip for each project and not skip as we do above
 
 
             // we need special logic if its the very last project
@@ -290,12 +318,21 @@ public class ZipMojo extends AbstractFabric8Mojo {
                 generateAggregatedZip(zipRoot, fabricZipGoalProjects, projectsWithSameParent);
             }
 
-        } catch (MojoFailureException e) {
-            throw e;
-        } catch (MojoExecutionException e) {
+        } catch (MojoFailureException | MojoExecutionException e) {
             throw e;
         } catch (Exception e) {
             throw new MojoExecutionException("Error executing", e);
+        }
+    }
+
+    protected boolean hasAncestor(MavenProject root, MavenProject target) {
+        if (target.getParent() == null) {
+            return false;
+        }
+        if (Objects.equal(root, target.getParent())) {
+            return true;
+        } else {
+            return hasAncestor(root, target.getParent());
         }
     }
 
