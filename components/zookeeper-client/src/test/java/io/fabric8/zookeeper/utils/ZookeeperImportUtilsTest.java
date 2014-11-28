@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 
+import io.fabric8.utils.AvailablePortFinder;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;

@@ -15,6 +15,14 @@
  */
 package io.fabric8.groups;
 
+import java.io.File;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import io.fabric8.groups.internal.ZooKeeperGroup;
+import io.fabric8.utils.AvailablePortFinder;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryNTimes;
@@ -22,20 +30,16 @@ import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ServerConfig;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
-import io.fabric8.groups.internal.ZooKeeperGroup;
 import org.junit.Test;
-
-import java.io.File;
-import java.net.ServerSocket;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class GroupTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(GroupTest.class);
 
     private GroupListener listener = new GroupListener<NodeState>() {
         @Override
@@ -44,19 +48,12 @@ public class GroupTest {
             boolean master = group.isMaster();
             if (connected) {
                 Collection<NodeState> members = group.members().values();
-                System.err.println("GroupEvent: " + event + " (connected=" + connected + ", master=" + master + ", members=" + members + ")");
+                LOG.info("GroupEvent: " + event + " (connected=" + connected + ", master=" + master + ", members=" + members + ")");
             } else {
-                System.err.println("GroupEvent: " + event + " (connected=" + connected + ", master=false)");
+                LOG.info("GroupEvent: " + event + " (connected=" + connected + ", master=false)");
             }
         }
     };
-
-    private int findFreePort() throws Exception {
-        ServerSocket ss = new ServerSocket(0);
-        int port = ss.getLocalPort();
-        ss.close();
-        return port;
-    }
 
     private NIOServerCnxnFactory startZooKeeper(int port) throws Exception {
         ServerConfig cfg = new ServerConfig();
@@ -76,7 +73,7 @@ public class GroupTest {
 
     @Test
     public void testJoinAfterConnect() throws Exception {
-        int port = findFreePort();
+        int port = AvailablePortFinder.getNextAvailable(3000);
 
         CuratorFramework curator = CuratorFrameworkFactory.builder()
                 .connectString("localhost:" + port)
@@ -104,7 +101,6 @@ public class GroupTest {
         group.update(new NodeState("foo"));
         assertTrue(groupCondition.waitForMaster(5, TimeUnit.SECONDS));
 
-
         group.close();
         curator.close();
         cnxnFactory.shutdown();
@@ -113,7 +109,7 @@ public class GroupTest {
 
     @Test
     public void testJoinBeforeConnect() throws Exception {
-        int port = findFreePort();
+        int port = AvailablePortFinder.getNextAvailable(3010);
 
         CuratorFramework curator = CuratorFrameworkFactory.builder()
                 .connectString("localhost:" + port)
@@ -139,7 +135,6 @@ public class GroupTest {
         assertTrue(groupCondition.waitForConnected(5, TimeUnit.SECONDS));
         assertTrue(groupCondition.waitForMaster(5, TimeUnit.SECONDS));
 
-
         group.close();
         curator.close();
         cnxnFactory.shutdown();
@@ -148,7 +143,7 @@ public class GroupTest {
 
     @Test
     public void testRejoinAfterDisconnect() throws Exception {
-        int port = findFreePort();
+        int port = AvailablePortFinder.getNextAvailable(3020);
 
         CuratorFramework curator = CuratorFrameworkFactory.builder()
                 .connectString("localhost:" + port)
@@ -188,7 +183,6 @@ public class GroupTest {
         assertTrue(groupCondition.waitForConnected(5, TimeUnit.SECONDS));
         assertTrue(groupCondition.waitForMaster(5, TimeUnit.SECONDS));
 
-
         group.close();
         curator.close();
         cnxnFactory.shutdown();
@@ -199,7 +193,8 @@ public class GroupTest {
     //(see  https://github.com/jboss-fuse/fuse/issues/133)
     @Test
     public void testGroupClose() throws Exception {
-        int port = findFreePort();
+        int port = AvailablePortFinder.getNextAvailable(3030);
+
         NIOServerCnxnFactory cnxnFactory = startZooKeeper(port);
 
         CuratorFramework curator = CuratorFrameworkFactory.builder()
