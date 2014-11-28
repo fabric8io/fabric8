@@ -48,7 +48,7 @@
 
 
         
-    <div class="book" data-github="jubeio/jube" data-level="6.2" data-basepath="." data-revision="1416913760533">
+    <div class="book" data-github="jubeio/jube" data-level="6.2" data-basepath="." data-revision="1417190367672">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -327,7 +327,7 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_5">
+                    <section class="normal" id="section-gitbook_6">
                     
                         <h3 id="configuration-questions"><a name="configuration-questions" class="anchor" href="#configuration-questions"><span class="fa fa-link"></span></a>Configuration Questions</h3>
 <h4 id="how-do-i-configure-remote-repositories-"><a name="how-do-i-configure-remote-repositories-" class="anchor" href="#how-do-i-configure-remote-repositories-"><span class="fa fa-link"></span></a>How do I configure remote repositories?</h4>
@@ -346,7 +346,12 @@
 <p>Jube uses a folder called <em>*processes</em> inside the Jube installation by default.</p>
 <p>You can configure where this folder lives on the file system using the <strong>JUBE_PROCESS_DIR</strong> environment variable</p>
 <pre><code>export JUBE_PROCESS_DIR=/var/local/myjube/processes
-</code></pre>
+</code></pre><h4 id="how-do-i-configure-http-port-for-hawtio-web-application-"><a name="how-do-i-configure-http-port-for-hawtio-web-application-" class="anchor" href="#how-do-i-configure-http-port-for-hawtio-web-application-"><span class="fa fa-link"></span></a>How do I configure HTTP port for hawtio web application?</h4>
+<p>Jube embeds hawtio as the web console. By default port 8585 is used.</p>
+<p>The port number can be configured as an environment variable, for example to use port 8282:</p>
+<pre><code>export HTTP_PORT=8282
+</code></pre><p>Alternative the port number can also be configured in the <code>env.sh</code> / <code>env.bat</code> script file, which setup the environment variables.</p>
+
                     
                     </section>
                 
