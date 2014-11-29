@@ -1,4 +1,8 @@
 
+### 2.0.10
+
+* Fixes [these 12 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.10+is%3Aclosed)
+
 ### 2.0.9
 
 * Ported the [API console to work on Kubernetes](https://github.com/hawtio/hawtio/issues/1743) so that the APIs tab appears on the [Fabric8 Console](http://fabric8.io/v2/console.html) if you run hawtio inside Kubernetes and are running the [API Registry service](https://github.com/fabric8io/quickstarts/tree/master/apps/api-registry)
