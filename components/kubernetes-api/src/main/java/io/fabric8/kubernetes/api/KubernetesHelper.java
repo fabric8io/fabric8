@@ -465,7 +465,7 @@ public class KubernetesHelper {
                 result = true;
                 for(Map.Entry<String,String> entry:selectorMap.entrySet()){
                     String value = labels.get(entry.getKey());
-                    if (value == null || !value.equals(entry.getValue())){
+                    if (value == null || !value.matches(entry.getValue())){
                         result = false;
                         break;
                     }
@@ -500,7 +500,7 @@ public class KubernetesHelper {
      */
     public static String toPositiveNonZeroText(Integer port) {
         if (port != null) {
-            int value = port.intValue();
+            int value = port;
             if (value > 0) {
                 return "" + value;
             }
@@ -639,10 +639,10 @@ public class KubernetesHelper {
         String id = service.getId();
         IntOrString containerPort = service.getContainerPort();
         Objects.notNull(containerPort, "containerPort for service " + id);
-        int answer = 0;
+        int answer;
         Integer intValue = containerPort.getIntValue();
         if (intValue != null) {
-            answer = intValue.intValue();
+            answer = intValue;
         } else {
             String containerPortText = containerPort.getStringValue();
             if (Strings.isNullOrBlank(containerPortText)) {
@@ -666,7 +666,7 @@ public class KubernetesHelper {
     public static JsonNode combineJson(Object... objects) throws IOException {
         JsonNode config = findOrCreateConfig(objects);
         JsonNode items = config.get("items");
-        ArrayNode itemArray = null;
+        ArrayNode itemArray;
         if (items instanceof ArrayNode) {
             itemArray = (ArrayNode) items;
         } else {
@@ -732,7 +732,7 @@ public class KubernetesHelper {
             String portalIP = service.getPortalIP();
             if (portalIP != null) {
                 Integer port = service.getPort();
-                if (port != null && port.intValue() > 0) {
+                if (port != null && port > 0) {
                     portalIP += ":" + port;
                 }
             }
@@ -781,7 +781,6 @@ public class KubernetesHelper {
      */
     public static Port findContainerPortByNumberOrName(PodSchema pod, String numberOrName) {
         Integer portNumber = toOptionalNumber(numberOrName);
-        Port port;
         if (portNumber != null) {
             return findContainerPort(pod, portNumber);
         } else {
