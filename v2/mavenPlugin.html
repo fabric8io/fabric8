@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.3" data-basepath="." data-revision="1417258452807">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.3" data-basepath="." data-revision="1417445652239">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -608,6 +608,10 @@ cat target/classes/kubernetes.json
 <td>Used by the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md">docker-maven-plugin</a> to define the output docker image name.</td>
 </tr>
 <tr>
+<td>fabric8.imagePullPolicy</td>
+<td>Specifies the image pull policy; one of <code>PullAlways</code>,  <code>PullNever</code> or <code>PullIfNotPresent</code>, . Defaults to <code>PullAlways</code> if the project version ends with <code>SNAPSHOT</code> otherwise it is left blank. On newer OpenShift / Kubernetes versions a blank value implies <code>PullIfNotPresent</code></td>
+</tr>
+<tr>
 <td>fabric8.kubernetes.name</td>
 <td>The name of the application used in the id of the JSON and as a label.</td>
 </tr>
@@ -626,6 +630,18 @@ cat target/classes/kubernetes.json
 <tr>
 <td>fabric8.replicas</td>
 <td>The number of pods to create for the <a href="http://fabric8.io/v2/replicationControllers.html">Replication Controller</a> if the plugin is generating the App JSON file.</td>
+</tr>
+<tr>
+<td>fabric8.service.name</td>
+<td>The name of the Service to generate (if a kubernetes service is required).</td>
+</tr>
+<tr>
+<td>fabric8.service.port</td>
+<td>The port of the Service to generate (if a kubernetes service is required).</td>
+</tr>
+<tr>
+<td>fabric8.service.containerPort</td>
+<td>The container port of the Service to generate (if a kubernetes service is required).</td>
 </tr>
 <tr>
 <td>fabric8.env.FOO = BAR</td>
