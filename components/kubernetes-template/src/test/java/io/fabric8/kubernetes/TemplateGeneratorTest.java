@@ -21,7 +21,11 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Config;
 import io.fabric8.kubernetes.api.model.ControllerDesiredState;
 import io.fabric8.kubernetes.api.model.Env;
+import io.fabric8.kubernetes.api.model.ManifestContainer;
+import io.fabric8.kubernetes.api.model.PodTemplate;
+import io.fabric8.kubernetes.api.model.PodTemplateDesiredState;
 import io.fabric8.kubernetes.api.model.Port;
+import io.fabric8.kubernetes.api.model.PullPolicy;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
 import io.fabric8.kubernetes.template.CreateAppDTO;
@@ -49,6 +53,7 @@ import static org.junit.Assert.assertTrue;
 public class TemplateGeneratorTest {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(TemplateGeneratorTest.class);
+    protected String imagePullPolicy = "PullIfNotPresent";
 
     @Test
     public void testGenerateControllerJson() throws Exception {
@@ -110,6 +115,14 @@ public class TemplateGeneratorTest {
         assertThat(desiredState.getReplicas()).isEqualTo(dto.getReplicaCount());
         assertThat(desiredState.getReplicaSelector()).isEqualTo(dto.getLabels());
 
+        List<ManifestContainer> containers = KubernetesHelper.getContainers(rc);
+        assertEquals("PodTemplate desired containers", 1, containers.size());
+
+        ManifestContainer manifestContainer = containers.get(0);
+        PullPolicy pullPolicy = manifestContainer.getImagePullPolicy();
+        assertNotNull(pullPolicy);
+        assertEquals("pullPolicy", dto.getImagePullPolicy(), pullPolicy.toString());
+
         // TODO expose labels on pod template
         //assertThat(desiredState.getPodTemplate()).isEqualTo(labels);
     }
@@ -166,6 +179,8 @@ public class TemplateGeneratorTest {
         envs.add(env2);
 
         dto.setEnvironmentVariables(envs);
+
+        dto.setImagePullPolicy(imagePullPolicy);
 
         labels.put("name", name);
         return dto;

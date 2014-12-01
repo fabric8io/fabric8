@@ -129,6 +129,10 @@ You can use maven properties to customize the generation of the JSON:
 <td>Used by the <a href="https://github.com/rhuss/docker-maven-plugin/blob/master/README.md">docker-maven-plugin</a> to define the output docker image name.</td>
 </tr>
 <tr>
+<td>fabric8.imagePullPolicy</td>
+<td>Specifies the image pull policy; one of <code>PullAlways</code>,  <code>PullNever</code> or <code>PullIfNotPresent</code>, . Defaults to <code>PullAlways</code> if the project version ends with <code>SNAPSHOT</code> otherwise it is left blank. On newer OpenShift / Kubernetes versions a blank value implies <code>PullIfNotPresent</code></td>
+</tr>
+<tr>
 <td>fabric8.kubernetes.name</td>
 <td>The name of the application used in the id of the JSON and as a label.</td>
 </tr>

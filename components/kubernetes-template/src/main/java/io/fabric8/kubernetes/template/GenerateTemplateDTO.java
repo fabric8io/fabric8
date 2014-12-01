@@ -30,6 +30,7 @@ import java.util.Map;
 public class GenerateTemplateDTO {
     protected String name;
     protected String dockerImage;
+    private String imagePullPolicy;
     protected String containerName;
     protected String template;
     protected Map<String, String> labels;
@@ -157,5 +158,13 @@ public class GenerateTemplateDTO {
 
     public void setServiceContainerPort(Integer serviceContainerPort) {
         this.serviceContainerPort = serviceContainerPort;
+    }
+
+    public String getImagePullPolicy() {
+        return imagePullPolicy;
+    }
+
+    public void setImagePullPolicy(String imagePullPolicy) {
+        this.imagePullPolicy = imagePullPolicy;
     }
 }

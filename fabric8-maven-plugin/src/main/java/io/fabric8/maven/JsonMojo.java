@@ -155,6 +155,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
     @Parameter(property = "fabric8.service.containerPort")
     private Integer serviceContainerPort;
 
+    /**
+     * The docker image pull policy. If a SNAPSHOT dependency is used then this value defaults to <code>"PullAlways"</code>
+     */
+    @Parameter(property = "fabric8.imagePullPolicy")
+    private String imagePullPolicy;
+
 
 
     @Override
@@ -232,6 +238,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
             config.setServiceName(serviceName);
             config.setServicePort(servicePort);
             config.setServiceContainerPort(serviceContainerPort);
+            String pullPolicy = getImagePullPolicy();
+            config.setImagePullPolicy(pullPolicy);
+
 
             List<ClassLoader> classLoaders = Lists.newArrayList(Thread.currentThread().getContextClassLoader(),
                     getTestClassLoader(),
@@ -241,6 +250,20 @@ public class JsonMojo extends AbstractFabric8Mojo {
             TemplateGenerator generator = new TemplateGenerator(config, classLoaders);
             generator.generate(kubernetesJson);
         }
+    }
+
+    public String getImagePullPolicy() {
+        MavenProject project = getProject();
+        String pullPolicy = imagePullPolicy;
+        if (project != null) {
+            String version = project.getVersion();
+            if (Strings.isNullOrBlank(pullPolicy)) {
+                if (version != null && version.endsWith("SNAPSHOT")) {
+                    pullPolicy = "PullAlways";
+                }
+            }
+        }
+        return pullPolicy;
     }
 
     public String getKubernetesContainerName() {

@@ -30,6 +30,15 @@
             "type": "string",
             "description" : "The container image to run."
           }, 
+          "imagePullPolicy": {
+            "type": "string",
+            "description" : "Policy for pulling images for this container.",
+            "required": false,
+            "javaType": "io.fabric8.kubernetes.api.model.PullPolicy",
+            "enum": [
+              "", "PullAlways", "PullNever", "PullIfNotPresent"
+            ]
+          },
           "command": {
             "type": "array",
             "description" : "The command line to run. If this is omitted, the container is assumed to have a command embedded in it.",

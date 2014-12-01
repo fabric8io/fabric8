@@ -34,6 +34,7 @@
                 {
                   "name": "@{containerName}",
                   "image": "@{docker_image}",
+@if{imagePullPolicy != null}                  "imagePullPolicy": "@{imagePullPolicy}",@end{}
                   "env": [@foreach{env : environmentVariables}
                     {
     @if{env.name != null}                  "name": "@{env.name}"@if{env.value != null},@end{}@end{}

@@ -87,6 +87,7 @@ public class TemplateGenerator {
             variables.put("serviceName", config.getServiceName());
             variables.put("servicePort", config.getServicePort());
             variables.put("serviceContainerPort", config.getServiceContainerPort());
+            variables.put("imagePullPolicy", config.getImagePullPolicy());
 
             try {
                 CompiledTemplate compiledTemplate = TemplateCompiler.compileTemplate(in, parserContext);
