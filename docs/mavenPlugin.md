@@ -149,6 +149,18 @@ You can use maven properties to customize the generation of the JSON:
 <td>The number of pods to create for the <a href="http://fabric8.io/v2/replicationControllers.html">Replication Controller</a> if the plugin is generating the App JSON file.</td>
 </tr>
 <tr>
+<td>fabric8.service.name</td>
+<td>The name of the Service to generate (if a kubernetes service is required).</td>
+</tr>
+<tr>
+<td>fabric8.service.port</td>
+<td>The port of the Service to generate (if a kubernetes service is required).</td>
+</tr>
+<tr>
+<td>fabric8.service.containerPort</td>
+<td>The container port of the Service to generate (if a kubernetes service is required).</td>
+</tr>
+<tr>
 <td>fabric8.env.FOO = BAR</td>
 <td>Defines the environment variable FOO and value BAR.</td>
 </tr>
