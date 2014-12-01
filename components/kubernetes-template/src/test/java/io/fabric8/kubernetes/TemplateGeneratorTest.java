@@ -15,19 +15,24 @@
  */
 package io.fabric8.kubernetes;
 
-import io.fabric8.utils.IOHelpers;
+import io.fabric8.kubernetes.api.Entity;
+import io.fabric8.kubernetes.api.IntOrString;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.Config;
 import io.fabric8.kubernetes.api.model.ControllerDesiredState;
 import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.ServiceSchema;
 import io.fabric8.kubernetes.template.CreateAppDTO;
 import io.fabric8.kubernetes.template.TemplateGenerator;
+import io.fabric8.utils.IOHelpers;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +40,8 @@ import java.util.Map;
 
 import static io.fabric8.utils.Files.recursiveDelete;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -44,13 +51,84 @@ public class TemplateGeneratorTest {
     private static final transient Logger LOG = LoggerFactory.getLogger(TemplateGeneratorTest.class);
 
     @Test
-    public void testGenerateJson() throws Exception {
+    public void testGenerateControllerJson() throws Exception {
+        CreateAppDTO dto = createAppDto(3);
+        File jsonFile = generateJsonFile("controllerOnly", dto);
+
+        List<Entity> entities = generateTemplateAndLoadEntities(jsonFile);
+        assertEquals("Entities size", 1, entities.size());
+
+        Entity entity = entities.get(0);
+        assertGeneratedReplicationController(entity, dto);
+    }
+
+    @Test
+    public void testGenerateControllerAndServicesJson() throws Exception {
+        String serviceName = "my-service";
+        Integer servicePort = 80;
+        Integer serviceContainerPort = 8080;
+        CreateAppDTO dto = createAppDto(4);
+        dto.setServiceName(serviceName);
+        dto.setServicePort(servicePort);
+        dto.setServiceContainerPort(serviceContainerPort);
+
+        File jsonFile = generateJsonFile("controllerAnd", dto);
+
+        List<Entity> entities = generateTemplateAndLoadEntities(jsonFile);
+        assertEquals("Entities size", 2, entities.size());
+
+        Entity serviceEntity = entities.get(0);
+        assertThat(serviceEntity).isInstanceOf(ServiceSchema.class);
+        ServiceSchema service = (ServiceSchema) serviceEntity;
+        assertEquals("serviceName", serviceName, service.getId());
+        assertEquals("servicePort", servicePort, service.getPort());
+        IntOrString containerPortNameOrNumber = service.getContainerPort();
+        assertNotNull("containerPortNameOrNumber", containerPortNameOrNumber);
+        assertEquals("serviceContainerPort", serviceContainerPort, containerPortNameOrNumber.getIntValue());
+        assertEquals("selector", dto.getLabels(), service.getSelector());
+
+        Entity entity = entities.get(1);
+        assertGeneratedReplicationController(entity, dto);
+    }
+
+    protected File generateJsonFile(String testName, CreateAppDTO dto) throws IOException {
         String basedir = System.getProperty("basedir", ".");
-        File jsonFile = new File(basedir + "/target/templateGenerator/sample.json").getCanonicalFile();
+        File jsonFile = new File(basedir + "/target/templateGenerator/" + testName + ".json").getCanonicalFile();
         recursiveDelete(jsonFile);
 
+        TemplateGenerator generator = new TemplateGenerator(dto);
+        generator.generate(jsonFile);
+        return jsonFile;
+    }
+
+    protected static void assertGeneratedReplicationController(Entity entity, CreateAppDTO dto) {
+        assertTrue("First entity should be a ReplicationControllerSchema but was " + entity, entity instanceof ReplicationControllerSchema);
+        ReplicationControllerSchema rc = (ReplicationControllerSchema) entity;
+
+        assertThat(rc.getLabels()).isEqualTo(dto.getLabels());
+        ControllerDesiredState desiredState = rc.getDesiredState();
+        assertThat(desiredState.getReplicas()).isEqualTo(dto.getReplicaCount());
+        assertThat(desiredState.getReplicaSelector()).isEqualTo(dto.getLabels());
+
+        // TODO expose labels on pod template
+        //assertThat(desiredState.getPodTemplate()).isEqualTo(labels);
+    }
+
+    protected List<Entity> generateTemplateAndLoadEntities(File jsonFile) throws IOException {
+        String json = IOHelpers.readFully(jsonFile);
+        LOG.info("Generated: " + json);
+
+        Object loadedDTO = KubernetesHelper.loadJson(json);
+        LOG.info("Loaded json DTO: " + loadedDTO);
+
+
+        assertTrue("Loaded DTO should be an ObjectNode but was " + loadedDTO, loadedDTO instanceof Config);
+        Config config = (Config) loadedDTO;
+        return KubernetesHelper.getEntities(config);
+    }
+
+    protected CreateAppDTO createAppDto(int replicaCount) {
         String name = "MyApp";
-        int replicaCount = 3;
 
         CreateAppDTO dto = new CreateAppDTO();
         dto.setName(name);
@@ -89,26 +167,8 @@ public class TemplateGeneratorTest {
 
         dto.setEnvironmentVariables(envs);
 
-        TemplateGenerator generator = new TemplateGenerator(dto);
-        generator.generate(jsonFile);
-
         labels.put("name", name);
-
-        String json = IOHelpers.readFully(jsonFile);
-        LOG.info("Generated: " + json);
-
-        Object loadedDTO = KubernetesHelper.loadJson(json);
-        LOG.info("Loaded json DTO: " + loadedDTO);
-        assertTrue("Loaded DTO should be a ReplicationControllerSchema but was " + loadedDTO, loadedDTO instanceof ReplicationControllerSchema);
-        ReplicationControllerSchema rc = (ReplicationControllerSchema) loadedDTO;
-
-        assertThat(rc.getLabels()).isEqualTo(labels);
-        ControllerDesiredState desiredState = rc.getDesiredState();
-        assertThat(desiredState.getReplicas()).isEqualTo(replicaCount);
-        assertThat(desiredState.getReplicaSelector()).isEqualTo(labels);
-
-        // TODO expose labels on pod template
-        //assertThat(desiredState.getPodTemplate()).isEqualTo(labels);
+        return dto;
     }
 
 }

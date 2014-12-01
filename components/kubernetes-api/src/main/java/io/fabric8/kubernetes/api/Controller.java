@@ -16,6 +16,7 @@
 package io.fabric8.kubernetes.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.fabric8.kubernetes.api.model.Config;
 import io.fabric8.utils.Objects;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
@@ -26,8 +27,10 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.getEntities;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getReplicationControllerMap;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getServiceMap;
@@ -92,13 +95,11 @@ public class Controller {
     /**
      * Applies the given DTOs onto the Kubernetes master
      */
-    public void apply(Object dto, String sourceName) {
-        if (dto instanceof PodSchema) {
-            applyPod((PodSchema) dto, sourceName);
-        } else if (dto instanceof ReplicationControllerSchema) {
-            applyReplicationController((ReplicationControllerSchema) dto, sourceName);
-        } else if (dto instanceof ServiceSchema) {
-            applyService((ServiceSchema) dto, sourceName);
+    public void apply(Object dto, String sourceName) throws IOException {
+        if (dto instanceof Config) {
+            applyConfig((Config) dto, sourceName);
+        } else if (dto instanceof Entity) {
+            applyEntity((Entity) dto, sourceName);
         } else if (dto instanceof JsonNode) {
             JsonNode tree = (JsonNode) dto;
             JsonNode kindNode = tree.get("kind");
@@ -119,6 +120,21 @@ public class Controller {
         }
     }
 
+    /**
+     * Applies the given DTOs onto the Kubernetes master
+     */
+    public void applyEntity(Entity dto, String sourceName) {
+        if (dto instanceof PodSchema) {
+            applyPod((PodSchema) dto, sourceName);
+        } else if (dto instanceof ReplicationControllerSchema) {
+            applyReplicationController((ReplicationControllerSchema) dto, sourceName);
+        } else if (dto instanceof ServiceSchema) {
+            applyService((ServiceSchema) dto, sourceName);
+        } else {
+            throw new IllegalArgumentException("Unknown entity type " + dto);
+        }
+    }
+
     public void applyTemplateConfig(JsonNode entity, String sourceName) {
         try {
             kubernetes.createTemplate(entity);
@@ -127,7 +143,14 @@ public class Controller {
         }
     }
 
-    public void applyConfig(JsonNode entity, String sourceName) {
+    public void applyConfig(Config config, String sourceName) throws IOException {
+        List<Entity> entities = getEntities(config);
+        for (Entity entity : entities) {
+            applyEntity(entity, sourceName);
+        }
+    }
+
+    public void applyConfig(JsonNode entity, String sourceName) throws IOException {
         JsonNode items = entity.get("items");
         if (items != null) {
             for (JsonNode item : items) {

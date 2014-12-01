@@ -137,6 +137,25 @@ public class JsonMojo extends AbstractFabric8Mojo {
     @Parameter(property = "kubernetesExtraJson", defaultValue = "${basedir}/target/classes/kubernetes-extra.json")
     private File kubernetesExtraJson;
 
+    /**
+     * The service name
+     */
+    @Parameter(property = "fabric8.service.name", defaultValue = "${project.artifactId}")
+    private String serviceName;
+
+    /**
+     * The service port
+     */
+    @Parameter(property = "fabric8.service.port")
+    private Integer servicePort;
+
+    /**
+     * The service container port
+     */
+    @Parameter(property = "fabric8.service.containerPort")
+    private Integer serviceContainerPort;
+
+
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -210,6 +229,9 @@ public class JsonMojo extends AbstractFabric8Mojo {
             config.setContainerName(getKubernetesContainerName());
             config.setReplicaCount(replicaCount);
             config.setEnvironmentVariables(getEnvironmentVariables());
+            config.setServiceName(serviceName);
+            config.setServicePort(servicePort);
+            config.setServiceContainerPort(serviceContainerPort);
 
             List<ClassLoader> classLoaders = Lists.newArrayList(Thread.currentThread().getContextClassLoader(),
                     getTestClassLoader(),

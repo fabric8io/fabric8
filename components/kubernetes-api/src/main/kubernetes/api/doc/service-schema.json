@@ -2,6 +2,7 @@
   "$schema": "http://json-schema.org/draft-03/schema",
   "type": "object",
   "javaType": "io.fabric8.kubernetes.api.model.ServiceSchema",
+  "javaInterfaces": ["io.fabric8.kubernetes.api.Entity"],
   "required": false,
   "description": "A service resource.",
   "properties": {

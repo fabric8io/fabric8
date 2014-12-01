@@ -37,6 +37,9 @@ public class GenerateTemplateDTO {
     protected List<Port> ports;
     protected Map<String, Object> templateVariables;
     private Integer replicaCount;
+    private String serviceName;
+    private Integer servicePort;
+    private Integer serviceContainerPort;
 
     public String getDockerImage() {
         return dockerImage;
@@ -130,5 +133,29 @@ public class GenerateTemplateDTO {
 
     public void setPorts(List<Port> ports) {
         this.ports = ports;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public Integer getServicePort() {
+        return servicePort;
+    }
+
+    public void setServicePort(Integer servicePort) {
+        this.servicePort = servicePort;
+    }
+
+    public Integer getServiceContainerPort() {
+        return serviceContainerPort;
+    }
+
+    public void setServiceContainerPort(Integer serviceContainerPort) {
+        this.serviceContainerPort = serviceContainerPort;
     }
 }

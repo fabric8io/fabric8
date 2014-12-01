@@ -1,43 +1,63 @@
 {
-  "id": "@{name}",
-  "kind": "ReplicationController",
+  "id": "@{name}-config",
+  "kind": "Config",
   "apiVersion": "v1beta1",
-  "desiredState": {
-    "replicas": @{replicaCount},
-    "replicaSelector": {@foreach{label : labels.entrySet()}
-      "@{label.key}": "@{label.value}"@end{", "}
-    },
-    "podTemplate": {
+  "name": "@{name}-config",
+  "description": "Configuration for @{name}",
+  "items": [
+@if{serviceName != null && servicePort != null && serviceContainerPort != null}
+    {
+      "id": "@{serviceName}",
+      "apiVersion": "v1beta1",
+      "kind": "Service",
+      "containerPort": @{serviceContainerPort},
+      "port": @{servicePort},
+      "selector": {@foreach{label : labels.entrySet()}
+        "@{label.key}": "@{label.value}"@end{", "}
+      }
+    },@end{}
+    {
+      "id": "@{name}",
+      "kind": "ReplicationController",
+      "apiVersion": "v1beta1",
       "desiredState": {
-        "manifest": {
-          "version": "v1beta1",
-          "id": "@{name}Pod",
-          "containers": [
-            {
-              "name": "@{containerName}",
-              "image": "@{docker_image}",
-              "env": [@foreach{env : environmentVariables}
+        "replicas": @{replicaCount},
+        "replicaSelector": {@foreach{label : labels.entrySet()}
+          "@{label.key}": "@{label.value}"@end{", "}
+        },
+        "podTemplate": {
+          "desiredState": {
+            "manifest": {
+              "version": "v1beta1",
+              "id": "@{name}Pod",
+              "containers": [
                 {
-@if{env.name != null}                  "name": "@{env.name}"@if{env.value != null},@end{}@end{}
-@if{env.value != null}                  "value": "@{env.value}"@end{}
-                }@end{", "}
-              ],
-              "ports": [@foreach{port : ports}
-                {
-@if{port.containerPort != null}                  "containerPort": @{port.containerPort}@if{port.hostPort != null},@end{}@end{}
-@if{port.hostPort != null}                  "hostPort": @{port.hostPort}@end{}
-                }@end{", "}
+                  "name": "@{containerName}",
+                  "image": "@{docker_image}",
+                  "env": [@foreach{env : environmentVariables}
+                    {
+    @if{env.name != null}                  "name": "@{env.name}"@if{env.value != null},@end{}@end{}
+    @if{env.value != null}                  "value": "@{env.value}"@end{}
+                    }@end{", "}
+                  ],
+                  "ports": [@foreach{port : ports}
+                    {
+    @if{port.containerPort != null}                  "containerPort": @{port.containerPort}@if{port.hostPort != null},@end{}@end{}
+    @if{port.hostPort != null}                  "hostPort": @{port.hostPort}@end{}
+                    }@end{", "}
+                  ]
+                }
               ]
             }
-          ]
+          },
+          "labels": {@foreach{label : labels.entrySet()}
+            "@{label.key}": "@{label.value}"@end{", "}
+          }
         }
       },
       "labels": {@foreach{label : labels.entrySet()}
         "@{label.key}": "@{label.value}"@end{", "}
       }
     }
-  },
-  "labels": {@foreach{label : labels.entrySet()}
-    "@{label.key}": "@{label.value}"@end{", "}
-  }
+  ]
 }

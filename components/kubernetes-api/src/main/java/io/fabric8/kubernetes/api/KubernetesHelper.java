@@ -22,7 +22,10 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.fabric8.kubernetes.api.model.Config;
+import io.fabric8.kubernetes.api.model.Item;
 import io.fabric8.kubernetes.api.model.Port;
+import io.fabric8.kubernetes.api.model.Template;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
@@ -142,15 +145,7 @@ public class KubernetesHelper {
                 JsonNode kindNode = tree.get("kind");
                 if (kindNode != null) {
                     String kind = kindNode.asText();
-                    if (Objects.equal("Pod", kind)) {
-                        return objectMapper.reader(PodSchema.class).readValue(json);
-                    } else if (Objects.equal("ReplicationController", kind)) {
-                        return objectMapper.reader(ReplicationControllerSchema.class).readValue(json);
-                    } else if (Objects.equal("Service", kind)) {
-                        return objectMapper.reader(ServiceSchema.class).readValue(json);
-                    } else {
-                        return tree;
-                    }
+                    return loadEntity(json, kind, tree);
                 } else {
                     LOG.warn("No JSON type for: " + tree);
                 }
@@ -158,6 +153,59 @@ public class KubernetesHelper {
             }
         }
         return null;
+    }
+
+    protected static Object loadEntity(byte[] json, String kind, Object defaultValue) throws IOException {
+        if (Objects.equal("Pod", kind)) {
+            return objectMapper.reader(PodSchema.class).readValue(json);
+        } else if (Objects.equal("ReplicationController", kind)) {
+            return objectMapper.reader(ReplicationControllerSchema.class).readValue(json);
+        } else if (Objects.equal("Service", kind)) {
+            return objectMapper.reader(ServiceSchema.class).readValue(json);
+        } else if (Objects.equal("Config", kind)) {
+            return objectMapper.reader(Config.class).readValue(json);
+        } else if (Objects.equal("Template", kind)) {
+            return objectMapper.reader(Template.class).readValue(json);
+        } else {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Loads the entity for the given item
+     */
+    public static Entity getEntity(Item item) throws IOException {
+        if (item != null) {
+            String kind = item.getKind();
+            if (kind != null) {
+                String json = toJson(item);
+                byte[] bytes = json.getBytes();
+                Object entity = loadEntity(bytes, kind, null);
+                if (entity instanceof Entity) {
+                    return (Entity) entity;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the items inside the config as a list of {@link Entity} objects
+     */
+    public static List<Entity> getEntities(Config config) throws IOException {
+        List<Entity> entities = new ArrayList<>();
+        if (config != null) {
+            List<Item> items = config.getItems();
+            if (items != null) {
+                for (Item item : items) {
+                    Entity entity = getEntity(item);
+                    if (entity != null) {
+                        entities.add(entity);
+                    }
+                }
+            }
+        }
+        return entities;
     }
 
 
