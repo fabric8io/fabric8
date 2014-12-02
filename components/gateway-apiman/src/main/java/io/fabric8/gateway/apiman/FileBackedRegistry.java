@@ -34,6 +34,8 @@ import org.overlord.apiman.rt.engine.beans.exceptions.InvalidContractException;
 import org.overlord.apiman.rt.engine.beans.exceptions.PublishingException;
 import org.overlord.apiman.rt.engine.beans.exceptions.RegistrationException;
 import org.overlord.apiman.rt.engine.i18n.Messages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A File-Backed implementation of the registry.
@@ -41,14 +43,40 @@ import org.overlord.apiman.rt.engine.i18n.Messages;
  */
 public class FileBackedRegistry implements IRegistry {
 
+	private static final transient Logger LOG = LoggerFactory.getLogger(FileBackedRegistry.class);
 	private static File registryFile = null;
 	private Map<String, Service> services = new HashMap<String, Service>();
 	private Map<String, Application> applications = new HashMap<String, Application>();
 	private Map<String, ServiceContract> contracts = new HashMap<String, ServiceContract>();
 	
-	public static File getRegistryFile() {
+	public static File getRegistryFile() throws IOException {
 		if (registryFile==null) {
-			registryFile = new File(System.getProperty("user.home") + "/registry.json");
+			String appDir = null;
+			//1. Jube - Check if System param APP_BASE exists
+			if (System.getenv("APP_BASE")!=null) {
+				appDir = System.getenv("APP_BASE");
+			} else if (System.getProperty("APP_BASE")!=null) {
+				appDir = System.getProperty("APP_BASE");
+			}
+			//2. Kube&Docker - 
+			File mavenDir = new File("/maven");
+			if (mavenDir.exists()) appDir = mavenDir.getAbsolutePath();
+			//3. Fall back to using the user's home directory if not Jube or Kube
+			if (appDir == null ) {
+				appDir = System.getProperty("user.home");
+				LOG.info("Cannot find 'APP_BASE' system param or '/maven' dir,"
+						+ " defaulting to user's home dir " + appDir);
+			}
+			File apiManDataDir = new File(appDir + "/data/apiman");
+			if (! apiManDataDir.exists()) {
+				apiManDataDir.mkdirs();
+			}
+			registryFile = new File(apiManDataDir.getAbsolutePath() + "/registry.json");
+			if (! registryFile.exists()) {
+				LOG.info("Creating new APIMan JSON Datafile " + registryFile.getAbsolutePath());
+				registryFile.createNewFile(); 
+			}
+			LOG.info("ApiMan is using data file " + registryFile.getAbsolutePath());
 		}
 		return registryFile;
 	}
@@ -59,7 +87,10 @@ public class FileBackedRegistry implements IRegistry {
 		if (getRegistryFile().exists()) {
 			json = IOUtils.toString(getRegistryFile().toURI(), "UTF-8");
 		}
+		//if there is no data, then bootstrap with default data
 		if (json == null || json.length() == 0) {
+			LOG.info(registryFile.getAbsolutePath() + " has no content which can happen on first use."
+					+ " Running ApiMan bootstrap process");
 			getRegistryFile().createNewFile();
 			InputStream is = getClass().getResourceAsStream("RegistryInfo.json");
 			json = IOUtils.toString(is);
