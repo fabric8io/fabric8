@@ -31,18 +31,10 @@
     <name>Fabric8 :: Archetypes :: Parent</name>
 
     <modules>
-        <module>java-simple-archetype</module>
-        <module>java-camel-cdi-archetype</module>
-        <module>java-camel-spring-archetype</module>
-        <module>java-cxf-cdi-archetype</module>
         <module>karaf-camel-amq-archetype</module>
         <module>karaf-camel-cbr-archetype</module>
         <module>karaf-camel-cxf-code-first-archetype</module>
         <module>karaf-camel-cxf-contract-first-archetype</module>
-<!-- dozer and drools are not yet ready
-        <module>karaf-camel-dozer-wiki-archetype</module>
-        <module>karaf-camel-drools-archetype</module>
--->
         <module>karaf-camel-eips-archetype</module>
         <module>karaf-camel-errorhandler-archetype</module>
         <module>karaf-camel-log-archetype</module>
@@ -51,9 +43,6 @@
         <module>karaf-secure-rest-archetype</module>
         <module>karaf-secure-soap-archetype</module>
         <module>karaf-soap-archetype</module>
-        <module>springboot-activemq-archetype</module>
-        <module>springboot-camel-archetype</module>
-        <module>springboot-webmvc-archetype</module>
         <module>war-camel-servlet-archetype</module>
         <module>war-rest-archetype</module>
     </modules>
