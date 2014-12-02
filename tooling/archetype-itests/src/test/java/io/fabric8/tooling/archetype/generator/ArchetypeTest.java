@@ -79,26 +79,31 @@ public class ArchetypeTest {
     }
 
     @Test
+    @Ignore
     public void testGenerateActiveMQArchetype() throws Exception {
         assertArchetypeCreated("camel-archetype-activemq");
     }
 
     @Test
+    @Ignore
     public void testGenerateSpringArchetype() throws Exception {
         assertArchetypeCreated("camel-archetype-spring");
     }
 
     @Test
+    @Ignore
     public void testGenerateJavaArchetype() throws Exception {
         assertArchetypeCreated("camel-archetype-java");
     }
 
     @Test
+    @Ignore
     public void testGenerateComponentArchetype() throws Exception {
         assertArchetypeCreated("camel-archetype-component", "org.apache.camel.archetypes", camelVersion);
     }
 
     @Test
+    @Ignore
     public void testGenerateDataformatArchetype() throws Exception {
         assertArchetypeCreated("camel-archetype-dataformat");
     }

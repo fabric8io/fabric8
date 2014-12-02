@@ -38,6 +38,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -75,6 +76,7 @@ public class ExtendedJoinTest {
 	 * This is a test for FABRIC-353.
 	 */
 	@Test
+	@Ignore
 	public void testJoinAndAddToEnsemble() throws Exception {
         System.err.println(CommandSupport.executeCommand("fabric:create --force --clean -n"));
         //System.out.println(executeCommand("shell:info"));
