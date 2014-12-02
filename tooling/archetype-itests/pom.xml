@@ -37,27 +37,6 @@
 
         <dependency>
             <groupId>io.fabric8.archetypes</groupId>
-            <artifactId>java-camel-cdi-archetype</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8.archetypes</groupId>
-            <artifactId>java-camel-spring-archetype</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8.archetypes</groupId>
-            <artifactId>java-cxf-cdi-archetype</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8.archetypes</groupId>
             <artifactId>karaf-camel-amq-archetype</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -127,21 +106,6 @@
         <dependency>
             <groupId>io.fabric8.archetypes</groupId>
             <artifactId>karaf-soap-archetype</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8.archetypes</groupId>
-            <artifactId>springboot-activemq-archetype</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8.archetypes</groupId>
-            <artifactId>springboot-camel-archetype</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8.archetypes</groupId>
-            <artifactId>springboot-webmvc-archetype</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
