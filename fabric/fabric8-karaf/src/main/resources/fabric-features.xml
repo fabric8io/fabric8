@@ -356,12 +356,6 @@
         <bundle>mvn:io.fabric8/fabric-core-agent-jclouds/${project.version}</bundle>
     </feature>
 
-    <feature name="fabric-zeroconf" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-core</feature>
-        <feature version="${project.version}">fabric-configadmin</feature>
-        <bundle>mvn:io.fabric8/fabric-zeroconf/${project.version}</bundle>
-    </feature>
-
     <feature name="insight-kibana" version="${project.version}" resolver="(obr)">
         <feature>war</feature>
         <bundle>mvn:io.hawt.kibana/hawtio-kibana/${hawtio-kibana-version}/war</bundle>
