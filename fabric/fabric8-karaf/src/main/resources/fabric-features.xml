@@ -724,15 +724,6 @@
         <bundle>mvn:io.fabric8/fabric-vertx/${project.version}</bundle>
     </feature>
 
-    <feature name="fabric-dns" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-vertx</feature>
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dnsjava/${org.apache.servicemix.bundles.dnsjava.version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
-        <bundle>mvn:io.fabric8/fabric-dns/${project.version}</bundle>
-    </feature>
-
     <feature name="jolokia" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-core</feature>
         <feature>http</feature>
