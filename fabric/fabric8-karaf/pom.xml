@@ -164,10 +164,6 @@
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
-               <artifactId>fabric-process-container</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>io.fabric8</groupId>
                <artifactId>fabric-project-deployer</artifactId>
            </dependency>
            <dependency>
@@ -237,14 +233,6 @@
            <dependency>
                <groupId>io.fabric8.insight</groupId>
                <artifactId>insight-camel</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>io.fabric8</groupId>
-               <artifactId>process-fabric</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>io.fabric8</groupId>
-               <artifactId>process-manager</artifactId>
            </dependency>
            <dependency>
                <groupId>io.fabric8</groupId>
@@ -490,7 +478,6 @@
                                    <feature>fabric-jaas</feature>
                                    <feature>fabric-maven-proxy</feature>
                                    <feature>fabric-openshift</feature>
-                                   <feature>fabric-process-container</feature>
                                    <feature>fabric-project-deployer</feature>
                                    <feature>fabric-redirect</feature>
                                    <feature>fabric-rest</feature>
@@ -505,7 +492,6 @@
                                    <feature>jolokia</feature>
                                    <feature>mq-fabric-http-discovery</feature>
                                    <feature>mq-fabric</feature>
-                                   <feature>process-manager</feature>
                                    <feature>swagger</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
