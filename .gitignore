@@ -16,3 +16,4 @@ overlays
 dependency-reduced-pom.xml
 apps/modifiedFabric8.json
 bin/openshift*/
+.vagrant/
