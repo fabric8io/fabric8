@@ -93,7 +93,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     /**
      * The name label used in the generated Kubernetes JSON template
      */
-    @Parameter(property = "fabric8.kubernetes.containerName")
+    @Parameter(property = "fabric8.container.name")
     private String kubernetesContainerName;
 
 
@@ -170,7 +170,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         if (json == null) {
             throw new MojoExecutionException("No kubernetes json file is specified!");
         }
-        if (!isPom(getProject()) && !isIgnoreProject() && generateJson) {
+        if (shouldGenerateForThisProject() && !isIgnoreProject() && generateJson) {
             generateKubernetesJson(json);
 
             if (kubernetesExtraJson != null && kubernetesExtraJson.exists()) {

@@ -79,7 +79,6 @@ public class TemplateGenerator {
             addIfNotDefined(variables, "name", name);
             addIfNotDefined(variables, "containerName", config.getContainerName());
             Map<String, String> labels = config.getLabels();
-            addIfNotDefined(labels, "name", name);
             variables.put("labels", labels);
             variables.put("ports", config.getPorts());
             variables.put("replicaCount", config.getReplicaCount());

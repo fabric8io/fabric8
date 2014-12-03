@@ -41,6 +41,13 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
     protected File zipFile;
 
     /**
+     * The folder used for defining project specific files
+     */
+    @Parameter(property = "appConfigDir", defaultValue = "${basedir}/src/main/fabric8")
+    protected File appConfigDir;
+
+
+    /**
      * The custom kubernetes JSON file
      */
     @Parameter(property = "kubernetesJson", defaultValue = "${basedir}/target/classes/kubernetes.json")
@@ -118,5 +125,17 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
             throw new MojoExecutionException("Failed to resolve classpath: " + e, e);
         }
         return createURLClassLoader(urls);
+    }
+
+    protected boolean hasConfigDir() {
+        return appConfigDir.isDirectory();
+    }
+
+    protected boolean isPomProject() {
+        return isPom(getProject());
+    }
+
+    protected boolean shouldGenerateForThisProject() {
+        return !isPomProject() || hasConfigDir();
     }
 }

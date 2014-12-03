@@ -122,12 +122,6 @@ public class ZipMojo extends AbstractFabric8Mojo {
     private String reactorProjectOutputPath;
 
     /**
-     * The folder used for defining project specific files
-     */
-    @Parameter(property = "appConfigDir", defaultValue = "${basedir}/src/main/fabric8")
-    protected File appConfigDir;
-
-    /**
      * Whether or not we should upload the project readme file if no specific readme file exists in the {@link #appConfigDir}
      */
     @Parameter(property = "fabric8.includeReadMe", defaultValue = "true")
@@ -192,8 +186,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
                 return;
             }
 
-            boolean isPomProject = isPom(getProject());
-            if (!isPomProject) {
+            if (shouldGenerateForThisProject()) {
                 // generate app zip (which we cannot do for a pom project)
                 generateZip();
             }
@@ -222,8 +215,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
         }
         appBuildDir.mkdirs();
 
-        boolean hasConfigDir = appConfigDir.isDirectory();
-        if (hasConfigDir) {
+        if (hasConfigDir()) {
             copyAppConfigFiles(appBuildDir, appConfigDir);
 
         } else {
@@ -273,7 +265,7 @@ public class ZipMojo extends AbstractFabric8Mojo {
         // lets only generate a app zip if we have a requirement (e.g. we're not a parent pom packaging project) and
         // we have defined some configuration files or dependencies
         // to avoid generating dummy apps for parent poms
-        if (hasConfigDir || !ignoreProject) {
+        if (hasConfigDir() || !ignoreProject) {
 
             if (includeReadMe) {
                 copyReadMe(project.getFile().getParentFile(), appBuildDir);
