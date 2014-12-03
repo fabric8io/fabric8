@@ -23,17 +23,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.fabric8.kubernetes.api.model.Config;
-import io.fabric8.kubernetes.api.model.Item;
-import io.fabric8.kubernetes.api.model.Port;
-import io.fabric8.kubernetes.api.model.Template;
-import io.fabric8.utils.Files;
-import io.fabric8.utils.Filter;
-import io.fabric8.utils.Filters;
-import io.fabric8.utils.Objects;
-import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.model.ControllerDesiredState;
 import io.fabric8.kubernetes.api.model.CurrentState;
 import io.fabric8.kubernetes.api.model.DesiredState;
+import io.fabric8.kubernetes.api.model.Item;
 import io.fabric8.kubernetes.api.model.Manifest;
 import io.fabric8.kubernetes.api.model.ManifestContainer;
 import io.fabric8.kubernetes.api.model.PodCurrentContainerInfo;
@@ -41,10 +34,17 @@ import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.PodTemplate;
 import io.fabric8.kubernetes.api.model.PodTemplateDesiredState;
+import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.api.model.ServiceListSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.Template;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Filter;
+import io.fabric8.utils.Filters;
+import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +56,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -728,11 +729,23 @@ public class KubernetesHelper {
         }
         for (Object object : objects) {
             if (object != config) {
-                JsonNode node = toJsonNode(object);
-                itemArray.add(node);
+                addObjectsToItemArray(itemArray, object);
             }
         }
         return config;
+    }
+
+    protected static void addObjectsToItemArray(ArrayNode itemArray, Object object) throws IOException {
+        JsonNode node = toJsonNode(object);
+        JsonNode items = node.get("items");
+        if (items != null && items.isArray()) {
+            Iterator<JsonNode> iter = items.iterator();
+            for (JsonNode item : items) {
+                itemArray.add(item);
+            }
+        } else {
+            itemArray.add(node);
+        }
     }
 
     protected static JsonNodeFactory createNodeFactory() {
