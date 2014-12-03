@@ -113,6 +113,7 @@ public class DeploymentAgent implements ManagedService {
     private volatile String provisioningStatus;
     private volatile Throwable provisioningError;
     private volatile Collection<Resource> provisionList;
+    private volatile boolean fabricNotAvailableLogged;
 
     private final State state = new State();
 
@@ -250,6 +251,7 @@ public class DeploymentAgent implements ManagedService {
             provisionList = resources;
 
             if (fs != null) {
+                fabricNotAvailableLogged = false;
                 Container container = fs.getCurrentContainer();
                 String e;
                 if (result == null) {
@@ -283,7 +285,10 @@ public class DeploymentAgent implements ManagedService {
 */
                 container.setProvisionChecksums(provisionChecksums);
             } else {
-                LOGGER.info("FabricService not available");
+                if (!fabricNotAvailableLogged) {
+                    fabricNotAvailableLogged = true;
+                    LOGGER.info("Unable to set provisioning status as FabricService is not available");
+                }
             }
         } catch (Throwable e) {
             LOGGER.warn("Unable to set provisioning result");
