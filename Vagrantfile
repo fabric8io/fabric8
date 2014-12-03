@@ -1,0 +1,22 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "ubuntu/trusty64"
+
+  config.vm.network "private_network", ip: "172.28.128.4"
+
+  config.vm.provision "docker" do |d|
+    d.run "openshift",
+      image: "openshift/origin:latest",
+      cmd: "start",
+      args: "-v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host"
+
+    d.run "cadvisor",
+      image: "google/cadvisor:0.6.2",
+      args: "-p 4194:8080 --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro"
+  end
+end
