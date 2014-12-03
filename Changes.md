@@ -1,4 +1,12 @@
 
+### 2.0.11
+
+* Much nicer console which now has
+  * deep linking of Pods to Kibana logs if kibana is running
+  * allows you to view the number of pods and their status on the Controllers and Services pages
+  * links on the Controllers and Services pages to the pods running for a single Controller or Service
+* Fixes [these issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.11+is%3Aclosed)
+
 ### 2.0.10
 
 * Fixes [these 12 issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.10+is%3Aclosed)
