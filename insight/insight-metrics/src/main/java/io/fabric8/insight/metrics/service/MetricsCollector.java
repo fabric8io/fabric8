@@ -346,7 +346,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
                 }
 
                 Subject subject = new Subject();
-                subject.getPrincipals().add(new RolePrincipal("viewer"));
+                subject.getPrincipals().add(new RolePrincipal("admin"));
 
                 QueryResult qrs = Subject.doAsPrivileged(subject, new PrivilegedAction<QueryResult>() {
                     @Override
