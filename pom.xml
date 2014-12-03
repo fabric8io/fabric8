@@ -913,11 +913,6 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>fabric-partition</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
                 <artifactId>fabric-process-container</artifactId>
                 <version>${project.version}</version>
             </dependency>

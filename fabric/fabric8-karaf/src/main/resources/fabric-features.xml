@@ -540,12 +540,6 @@
         <bundle>mvn:io.hawt.swagger/hawtio-swagger-ui/${hawtio-swagger-version}/war</bundle>
     </feature>
 
-    <feature name="fabric-partition" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-groups</feature>
-        <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
-        <bundle>mvn:io.fabric8/fabric-partition/${project.version}</bundle>
-    </feature>
-
     <feature name="fabric-dynamic-jaxb" version="${project.version}" resolver="(obr)">
         <feature version="${cxf-version-range}">cxf-core</feature>
         <feature version="${camel-version-range}">camel-jaxb</feature>
