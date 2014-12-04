@@ -18,9 +18,10 @@ FABRIC8_CONSOLE_IMAGE=fabric8/hawtio:latest
 KIBANA_IMAGE=jimmidyson/kibana4:latest
 ELASTICSEARCH_IMAGE=dockerfile/elasticsearch:latest
 LOGSPOUT_IMAGE=jimmidyson/logspout-kube:latest
+GRAFANA_IMAGE=jimmidyson/grafana:latest
 
 MINIMUM_IMAGES="${OPENSHIFT_IMAGE} ${FABRIC8_CONSOLE_IMAGE} ${REGISTRY_IMAGE}"
-ALL_IMAGES="${MINIMUM_IMAGES} ${OPENSHIFT_ROUTER_IMAGE} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${LOGSPOUT_IMAGE}"
+ALL_IMAGES="${MINIMUM_IMAGES} ${OPENSHIFT_ROUTER_IMAGE} ${CADVISOR_IMAGE} ${INFLUXDB_IMAGE} ${KIBANA_IMAGE} ${ELASTICSEARCH_IMAGE} ${LOGSPOUT_IMAGE} ${GRAFANA_IMAGE}"
 DEPLOY_IMAGES="${MINIMUM_IMAGES}"
 UPDATE_IMAGES=0
 DEPLOY_ALL=0
@@ -126,6 +127,7 @@ if [ -f "$APP_BASE/fabric8.json" ]; then
     cat $APP_BASE/elasticsearch.json | $KUBE apply -c -
     cat $APP_BASE/logspout.yml | $KUBE apply -c -
     cat $APP_BASE/kibana.yml | $KUBE apply -c -
+    cat $APP_BASE/grafana.yml | $KUBE apply -c -
     cat $APP_BASE/router.json | $KUBE create pods -c -
   fi
 else
@@ -136,6 +138,7 @@ else
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE apply -c -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE apply -c -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE apply -c -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE apply -c -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/router.json | $KUBE create pods -c -
   fi
 fi
@@ -156,6 +159,7 @@ DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" registry)
 INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influx-master)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
 KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
+GRAFANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" grafana-service)
 KUBERNETES=http://$DOCKER_IP:8080
 CADVISOR=http://$DOCKER_IP:4194
 
@@ -175,6 +179,7 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
   validateService "Kubernetes master" $KUBERNETES
   validateService "cadvisor" $CADVISOR
   validateService "Kibana console" $KIBANA_CONSOLE
+  validateService "Grafana console" $GRAFANA_CONSOLE
 
   # Set up Kibana default index
   if [ "404" == $(curl -s -I "${ELASTICSEARCH}/.kibana/index-pattern/\[logstash-\]YYYY.MM.DD" -w "%{http_code}" -o /dev/null) ]; then
@@ -224,6 +229,7 @@ printf "${format}" "Fabric8 console" $FABRIC8_CONSOLE
 printf "${format}" "Docker Registry" $DOCKER_REGISTRY
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   printf "${format}" "Kibana console" $KIBANA_CONSOLE
+  printf "${format}" "Grafana console" $GRAFANA_CONSOLE
   printf "${format}" "Influxdb" $INFLUXDB
   printf "${format}" "Elasticsearch" $ELASTICSEARCH
   printf "${format}" "Kubernetes master" $KUBERNETES

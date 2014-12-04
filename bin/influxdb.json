@@ -31,7 +31,7 @@
               {"containerPort": 8099, "hostPort": 8099}
             ],
             "env": [
-              {"name": "PRE_CREATE_DB", "value": "cadvisor"}
+              {"name": "PRE_CREATE_DB", "value": "cadvisor;k8s;grafana"}
             ]
           }]
         }
