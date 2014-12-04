@@ -22,6 +22,9 @@ items:
                     containerPort: 6000
                   - name: gogs-ssh-port
                     containerPort: 22
+                volumeMounts:
+                  - mountPath: /home/gogs
+                    name: gogs-home
               - name: mysql-image
                 image: mysql:5.7
                 imagePullPolicy: PullIfNotPresent
@@ -37,6 +40,12 @@ items:
                     value: gogs
                   - name: MYSQL_DATABASE
                     value: gogs
+                volumeMounts:
+                  - mountPath: /var/lib/mysql
+                    name: mysql-data
+            volumes:
+              - name: gogs-home
+              - name: mysql-data
         labels:
           app: gogs
   - apiVersion: v1beta1
