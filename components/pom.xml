@@ -55,6 +55,7 @@
     <module>kubernetes-jolokia</module>
     <module>kubernetes-template</module>
     <module>mq</module>
+    <module>swagger-model</module>
     <module>zookeeper-client</module>
   </modules>
 
