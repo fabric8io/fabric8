@@ -94,7 +94,7 @@ public class HttpGatewayClient {
                     if (uri.startsWith(pathPrefix) || (uri2 != null && uri2.startsWith(pathPrefix))) {
                         int pathPrefixLength = pathPrefix.length();
                         if (pathPrefixLength < uri.length()) {
-                            remaining = uri.substring(pathPrefixLength);
+                            remaining = uri.substring(pathPrefixLength+1);
                         } else {
                             remaining = null;
                         }

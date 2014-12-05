@@ -8,7 +8,6 @@ import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.model.ServiceListSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
-import io.fabric8.utils.Systems;
 
 import java.util.ArrayList;
 import java.util.Arrays;
