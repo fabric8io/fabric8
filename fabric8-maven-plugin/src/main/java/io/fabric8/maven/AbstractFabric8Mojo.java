@@ -48,10 +48,16 @@ public abstract class AbstractFabric8Mojo extends AbstractMojo {
 
 
     /**
-     * The custom kubernetes JSON file
+     * The generated kubernetes JSON file
      */
     @Parameter(property = "kubernetesJson", defaultValue = "${basedir}/target/classes/kubernetes.json")
     private File kubernetesJson;
+
+    /**
+     * The source kubernetes JSON file
+     */
+    @Parameter(property = "kubernetesSourceJson", defaultValue = "${basedir}/src/main/fabric8/kubernetes.json")
+    protected File kubernetesSourceJson;
 
     @Component
     private MavenProject project;

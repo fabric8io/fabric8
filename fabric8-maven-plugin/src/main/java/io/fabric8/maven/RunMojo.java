@@ -39,7 +39,11 @@ public class RunMojo extends AbstractFabric8Mojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         File json = getKubernetesJson();
         if (!Files.isFile(json)) {
-            throw new MojoFailureException("No such kubernetes json file: " + json);
+            if (Files.isFile(kubernetesSourceJson)) {
+                json = kubernetesSourceJson;
+            } else {
+                throw new MojoFailureException("No such generated kubernetes json file: " + json + " or source json file " + kubernetesSourceJson);
+            }
         }
         KubernetesClient api = getKubernetes();
         getLog().info("Deploying " + json + " to " + api.getAddress());
