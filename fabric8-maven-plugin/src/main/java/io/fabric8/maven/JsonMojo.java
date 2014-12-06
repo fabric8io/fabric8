@@ -228,10 +228,16 @@ public class JsonMojo extends AbstractFabric8Mojo {
                     variables.put(keyText, value);
                 }
             }
-            config.setLabels(getLabels());
+            Map<String, String> labelMap = getLabels();
+            String name = getKubernetesName();
+            if (labelMap.isEmpty() && Strings.isNotBlank(name)) {
+                // lets add a default label
+                labelMap.put("component", name);
+            }
+            config.setLabels(labelMap);
             config.setTemplateVariables(variables);
             config.setPorts(getPorts());
-            config.setName(getKubernetesName());
+            config.setName(name);
             config.setContainerName(getKubernetesContainerName());
             config.setReplicaCount(replicaCount);
             config.setEnvironmentVariables(getEnvironmentVariables());
