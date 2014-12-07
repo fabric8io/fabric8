@@ -1,4 +1,8 @@
 
+### 2.0.14
+
+* Fixes [these issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.14+is%3Aclosed)
+
 ### 2.0.12
 
 * Added a quickstart for camel-sql which uses the Camel REST API and shows up in the API Registry / API console
