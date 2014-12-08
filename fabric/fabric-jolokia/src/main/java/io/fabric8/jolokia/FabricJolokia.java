@@ -43,8 +43,8 @@ public class FabricJolokia extends AbstractComponent {
     @Property(name = "realm", label = "Jaas Realm", description = "Jaas Realm", value = "karaf")
     private String realm;
 
-    @Property(name = "role", label = "Jaas Role", description = "Jaas Role", value = "admin")
-    private String role;
+    @Property(name = "role", label = "Jaas Role", description = "Jaas Role", value = "admin,manager,viewer, Monitor, Operator, Maintainer, Deployer, Auditor, Administrator, SuperUser")
+    private String[] role;
 
     private HttpContext context;
 
@@ -60,7 +60,6 @@ public class FabricJolokia extends AbstractComponent {
         context = new JolokiaSecureHttpContext(realm, role);
         httpService.get().registerServlet(getServletAlias(), new JolokiaServlet(bundleContext), new Hashtable(), context);
         activateComponent();
-
     }
 
     @Deactivate
