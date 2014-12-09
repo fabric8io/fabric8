@@ -22,9 +22,10 @@ import java.util.regex.Pattern;
 
 import io.fabric8.api.CreateContainerMetadata;
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ZooKeeperClusterService;
+import io.fabric8.boot.commands.support.AbstractContainerCreateAction;
 import io.fabric8.common.util.Strings;
 import io.fabric8.openshift.CreateOpenshiftContainerOptions;
-import io.fabric8.openshift.commands.support.ContainerCreateSupport;
 import io.fabric8.utils.FabricValidations;
 import io.fabric8.utils.shell.ShellUtils;
 
@@ -33,7 +34,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 
 @Command(name = "container-create-openshift", scope = "fabric", description = "Creates one or more new containers on Openshift")
-public class ContainerCreateOpenshiftAction extends ContainerCreateSupport {
+public class ContainerCreateOpenshiftAction extends AbstractContainerCreateAction {
 
     private static final Pattern ALLOWED_NAMES_PATTERN = Pattern.compile("[a-z0-9]+");
     private static final String OPENSHIFT_USER = "OPENSHIFT_USER";
@@ -60,10 +61,10 @@ public class ContainerCreateOpenshiftAction extends ContainerCreateSupport {
     @Argument(index = 1, required = false, description = "The number of containers that should be created")
     protected int number = 0;
 
-    ContainerCreateOpenshiftAction(FabricService fabricService) {
-        this.fabricService = fabricService;
+    ContainerCreateOpenshiftAction(FabricService fabricService, ZooKeeperClusterService clusterService) {
+        super(fabricService, clusterService);
     }
-
+    
     @Override
     protected Object doExecute() throws Exception {
         // validate input before creating containers
@@ -86,7 +87,7 @@ public class ContainerCreateOpenshiftAction extends ContainerCreateSupport {
                 .serverUrl(serverUrl)
                 .login(login)
                 .password(password)
-                .version(versionId)
+                .version(version)
                 .number(number)
                 .resolver("publichostname")  // must use publichostname as resolver on OpenShift
                 .ensembleServer(isEnsembleServer)

@@ -16,8 +16,10 @@
 package io.fabric8.openshift.commands;
 
 import io.fabric8.api.FabricService;
+import io.fabric8.api.ZooKeeperClusterService;
 import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
+
 import org.apache.felix.gogo.commands.Action;
 import org.apache.felix.gogo.commands.basic.AbstractCommand;
 import org.apache.felix.scr.annotations.Activate;
@@ -42,6 +44,8 @@ public class ContainerCreateOpenshift extends AbstractCommandComponent {
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ZooKeeperClusterService.class)
+    private final ValidatingReference<ZooKeeperClusterService> clusterService = new ValidatingReference<ZooKeeperClusterService>();
 
     @Activate
     void activate() {
@@ -56,7 +60,7 @@ public class ContainerCreateOpenshift extends AbstractCommandComponent {
     @Override
     public Action createNewAction() {
         assertValid();
-        return new ContainerCreateOpenshiftAction(fabricService.get());
+        return new ContainerCreateOpenshiftAction(fabricService.get(), clusterService.get());
     }
 
     void bindFabricService(FabricService fabricService) {
