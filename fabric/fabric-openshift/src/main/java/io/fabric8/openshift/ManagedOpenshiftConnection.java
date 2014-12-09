@@ -31,7 +31,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-@Component(name = "io.fabric8.openshift",
+@Component(name = "io.fabric8.openshift.connection",
         description = "Fabric Openshift Connection",
         policy = ConfigurationPolicy.REQUIRE,
         immediate = true, metatype = true)

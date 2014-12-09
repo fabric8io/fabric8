@@ -71,4 +71,11 @@ public class ContainerCreateOpenshift extends AbstractCommandComponent {
         this.fabricService.unbind(fabricService);
     }
 
+    void bindClusterService(ZooKeeperClusterService clusterService) {
+        this.clusterService.bind(clusterService);
+    }
+
+    void unbindClusterService(ZooKeeperClusterService clusterService) {
+        this.clusterService.unbind(clusterService);
+    }
 }
