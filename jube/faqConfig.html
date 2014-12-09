@@ -48,7 +48,7 @@
 
 
         
-    <div class="book" data-github="jubeio/jube" data-level="6.2" data-basepath="." data-revision="1417949343469">
+    <div class="book" data-github="jubeio/jube" data-level="6.2" data-basepath="." data-revision="1418125157297">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -351,7 +351,11 @@
 <p>The port number can be configured as an environment variable, for example to use port 8282:</p>
 <pre><code>export HTTP_PORT=8282
 </code></pre><p>Alternative the port number can also be configured in the <code>env.sh</code> / <code>env.bat</code> script file, which setup the environment variables.</p>
-<h4 id="how-do-i-debug-the-jube-process-"><a name="how-do-i-debug-the-jube-process-" class="anchor" href="#how-do-i-debug-the-jube-process-"><span class="fa fa-link"></span></a>How do I debug the Jube process?</h4>
+<h4 id="how-do-i-configure-the-port-range-allocations-for-processes-"><a name="how-do-i-configure-the-port-range-allocations-for-processes-" class="anchor" href="#how-do-i-configure-the-port-range-allocations-for-processes-"><span class="fa fa-link"></span></a>How do I configure the port range allocations for processes?</h4>
+<p>Jube allocate ports to processes using port ranges starting from 48000 to 65536.</p>
+<p>The minimum starting port number can be configured, for example to start from 30000:</p>
+<pre><code>export JUBE_PORT_START=30000
+</code></pre><h4 id="how-do-i-debug-the-jube-process-"><a name="how-do-i-debug-the-jube-process-" class="anchor" href="#how-do-i-debug-the-jube-process-"><span class="fa fa-link"></span></a>How do I debug the Jube process?</h4>
 <p>You can enable remote debugging of the Jube process via the environment variable:</p>
 <pre><code>export JVM_DEBUG=TRUE
 </code></pre><p>You can now perform a remote debug in your IDE to connect to Jube and set breakpoints etc.</p>
