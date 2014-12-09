@@ -38,7 +38,14 @@ import static io.fabric8.insight.log.service.support.MavenCoordinates.addMavenCo
 public class Logs {
     public static LogEvent newInstance(PaxLoggingEvent event) {
         LogEvent answer = new LogEvent();
-        answer.setLevel(toString(event.getLevel()));
+        try {
+            answer.setLevel(toString(event.getLevel()));
+        } catch (NoClassDefFoundError error) {
+            // ENTESB-2234, KARAF-3350: Ignore NoClassDefFoundError exceptions
+            // Those exceptions may happen if the underlying pax-logging service
+            // bundle has been refreshed somehow.
+            answer.setLevel("LOG");
+        }
         answer.setMessage(event.getMessage());
         answer.setLogger(event.getLoggerName());
         answer.setTimestamp(new Date(event.getTimeStamp()));
