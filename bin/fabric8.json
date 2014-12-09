@@ -9,11 +9,11 @@
       "apiVersion": "v1beta1",
       "containerPort": 8080,
       "creationTimestamp": null,
-      "id": "hawtio-service",
+      "id": "fabric8-console",
       "kind": "Service",
       "port": 8080,
       "selector": {
-        "name": "hawtioPod"
+        "component": "fabric8Console"
       }
     },
     {
@@ -26,7 +26,7 @@
               "containers": [
                 {
                   "image": "fabric8/hawtio:latest",
-                  "name": "hawtio-container",
+                  "name": "fabric8-console-container",
                   "imagePullPolicy": "PullIfNotPresent",
                   "env": [
                     {
@@ -57,11 +57,11 @@
             "restartpolicy": {}
           },
           "labels": {
-            "name": "hawtioPod"
+            "component": "fabric8Console"
           }
         },
         "replicaSelector": {
-          "name": "hawtioPod"
+          "component": "fabric8Console"
         },
         "replicas": 1
       },
@@ -76,7 +76,7 @@
       "apiVersion": "v1beta1",
       "kind": "Route",
       "host": "hawtio.local",
-      "serviceName": "hawtio-service"
+      "serviceName": "fabric8-console"
     }
   ]
 }

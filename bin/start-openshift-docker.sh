@@ -154,7 +154,7 @@ getServiceIpAndPort()
   echo `echo "$1"|grep $2| sed 's/\s\+/ /g' | awk '{ print $3 ":" $4 }'`
 }
 
-FABRIC8_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" hawtio-service)/hawtio/
+FABRIC8_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" fabric8-console)/hawtio/
 DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" registry)
 INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influx-master)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
