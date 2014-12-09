@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<order xmlns="http://fabric.com/examples/order/v7">
+<order xmlns="http://fabric8.com/examples/order/v7">
 
     <customer id="B0002">
         <name>Bristol Zoo Gardens</name>
