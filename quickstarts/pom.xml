@@ -68,8 +68,9 @@
   </repositories>
 
   <modules>
-    <module>karaf</module>
-    <module>war</module>
+    <module>beginner</module>
+    <module>camel-amq</module>
+    <module>cxf</module>
   </modules>
 
   <build>

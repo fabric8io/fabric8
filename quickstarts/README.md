@@ -1,12 +1,13 @@
 Quickstarts
 ===========
 
-Welcome the fabric quickstarts which demonstrates how to use fabric with various technologies.
+Welcome the Fuse quickstarts which demonstrate how to use fuse with various technologies.
 
-The quickstarts are categorized accordingly to the container being used:
+The following quickstarts are provided out of the box:
 
-* [karaf](karaf) - many examples for Apache Karaf containers (OSGi)
-* [war](war) - examples as WAR deployment which can run on containers such as Apache Tomcat, Jetty, and Wildfly
+* [beginner](beginner) - a set of beginner quickstarts that new users to fabric, is recommended to try first.
+* [camel.amq](camel-amq) - demonstrates using Apache Camel to send and receive messages to an Apache ActiveMQ message broker, using the Camel [amq](http://fabric8.io/gitbook/camelEndpointAmq.html) component.
+* [cxf](cxf) - is a set of web service and REST examples using Apache CXF.
 
 Each quickstart has extensive documentation, organized as follows:
 
