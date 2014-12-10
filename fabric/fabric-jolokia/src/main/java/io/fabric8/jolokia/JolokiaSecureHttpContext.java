@@ -50,11 +50,11 @@ final class JolokiaSecureHttpContext implements HttpContext {
     private static final String AUTHENTICATION_SCHEME_BASIC = "Basic";
 
     private final String realm;
-    private final String role;
+    private final String[] roles;
 
-    JolokiaSecureHttpContext(String realm, String role) {
+    JolokiaSecureHttpContext(String realm, String[] role) {
         this.realm = realm;
-        this.role = role;
+        this.roles = role;
 
     }
 
@@ -91,23 +91,28 @@ final class JolokiaSecureHttpContext implements HttpContext {
                 }
             });
             loginContext.login();
-            if (role != null && role.length() > 0) {
-                String roleName = role;
-                int idx = roleName.indexOf(':');
-                if (idx > 0) {
-                    roleName = roleName.substring(idx + 1);
-                }
-                boolean found = false;
-                for (Principal p : subject.getPrincipals()) {
-                    if (p.getName().equals(roleName)) {
-                        found = true;
-                        break;
+            boolean found = false;
+            for (String role : roles) {
+                if (role != null && role.length() > 0 && !found) {
+                    String roleName = role;
+                    int idx = roleName.indexOf(':');
+                    if (idx > 0) {
+                        roleName = roleName.substring(idx + 1);
                     }
-                }
-                if (!found) {
-                    throw new FailedLoginException("User does not have the required role " + role);
+                    
+                    for (Principal p : subject.getPrincipals()) {
+                        if (p.getName().equals(roleName)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    
                 }
             }
+            if (!found) {
+                throw new FailedLoginException("User does not have the required role " + roles);
+            }
+
             return subject;
         } catch (AccountException e) {
             LOGGER.warn("Account failure", e);
@@ -180,8 +185,8 @@ final class JolokiaSecureHttpContext implements HttpContext {
         return realm;
     }
 
-    public String getRole() {
-        return role;
+    public String[] getRole() {
+        return roles;
     }
 
     public String toString() {
