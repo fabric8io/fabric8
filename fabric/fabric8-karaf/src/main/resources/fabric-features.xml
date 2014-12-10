@@ -213,7 +213,7 @@
         <bundle dependency='true'>mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
         <bundle dependency='true'>mvn:org.ops4j.base/ops4j-base-util-property/${ops4j-base.version}</bundle>
         <bundle dependency='true'>mvn:org.ops4j.pax.swissbox/pax-swissbox-property/${ops4j-pax-swissbox-property.version}</bundle>
-        <bundle dependency='true'>mvn:org.ops4j.pax.url/pax-url-commons/${pax.url.version}</bundle>
+        <bundle dependency='true'>mvn:org.ops4j.pax.url/pax-url-commons/${pax.url.mvn.commons.version}</bundle>
 
         <bundle>mvn:org.apache.felix/org.apache.felix.metatype/${felix-metatype-version}</bundle>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
