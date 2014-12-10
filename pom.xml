@@ -287,10 +287,10 @@
         <netty.version>4.0.23.Final</netty.version>
         <openshift.client.groupId>com.openshift</openshift.client.groupId>
         <openshift.client.version>2.5.0.Final</openshift.client.version>
-        <ops4j-base.version>1.5.0</ops4j-base.version>
+        <ops4j-base.version>1.4.0</ops4j-base.version>
         <ops4j-pax-exam-version>3.4.0</ops4j-pax-exam-version>
         <ops4j-pax-swissbox-bnd.version>1.8.0</ops4j-pax-swissbox-bnd.version>
-        <ops4j-pax-swissbox-property.version>1.8.0</ops4j-pax-swissbox-property.version>
+        <ops4j-pax-swissbox-property.version>1.7.0</ops4j-pax-swissbox-property.version>
         <ops4j-pax-web-version>3.1.2</ops4j-pax-web-version>
         <org.apache.servicemix.bundles.jzlib.version>1.1.3_2</org.apache.servicemix.bundles.jzlib.version>
         <org.apache.servicemix.bundles.dnsjava.version>2.1.1_1</org.apache.servicemix.bundles.dnsjava.version>
@@ -300,7 +300,7 @@
         <osgi-version>5.0.0</osgi-version>
         <pax-runner-version>1.7.6</pax-runner-version>
         <pax.logging.version>1.8.1</pax.logging.version>
-        <pax.url.mvn.commons.version>${pax.url.version}</pax.url.mvn.commons.version>
+        <pax.url.mvn.commons.version>1.4.2</pax.url.mvn.commons.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
         <pax.url.version>2.2.0</pax.url.version>
         <plexus-utils-version>3.0.17</plexus-utils-version>
@@ -2296,7 +2296,7 @@
             <dependency>
                 <groupId>org.ops4j.pax.url</groupId>
                 <artifactId>pax-url-commons</artifactId>
-                <version>${pax.url.version}</version>
+                <version>${pax.url.mvn.commons.version}</version>
             </dependency>
 
             <!-- Spring -->
