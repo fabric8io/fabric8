@@ -1,4 +1,0 @@
-<Customer xmlns="http://rest.fabric.quickstarts.fabric8.io/">
-    <name>Mary</name>
-    <id>123</id>
-</Customer>
