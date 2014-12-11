@@ -1,6 +1,11 @@
-# Camel error handler QuickStart
-
-This quickstart demonstrates how to handle exceptions that occur while routing messages with Camel.
+camel-errorhandler: demonstrates how to handle exceptions in Camel.
+======================================================
+Author: Fuse Team  
+Level: Beginner  
+Technologies: Camel  
+Summary: This quickstart demonstrates how to handle exceptions that can occur while routing messages with Camel.  
+Target Product: Fuse  
+Source: <https://github.com/jboss-fuse/quickstarts>  
 
 This quickstart show you how to add a default error handler to your Camel context for all uncaught exceptions. Additionally, it will show you how to add exception handling routines for dealing with specific exception types.
 

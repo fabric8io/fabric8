@@ -1,6 +1,11 @@
-# Camel Log QuickStart
-
-This quickstart shows a simple Apache Camel application that logs a message to the server log every 5th second.
+camel-log: Demonstrates how to use logging with Camel
+======================================================
+Author: Fuse Team  
+Level: Beginner  
+Technologies: Camel  
+Summary: This quickstart shows a simple Apache Camel application that logs a message to the server log every 5th second.  
+Target Product: Fuse  
+Source: <https://github.com/jboss-fuse/quickstarts>  
 
 This example is implemented using solely the XML DSL (there is no Java code). The source code is provided in the following XML file `src/main/resources/OSGI-INF/blueprint/camel-log.xml`, which can be viewed from [github](https://github.com/fabric8io/fabric8/blob/master/quickstarts/beginner/camel-log/src/main/resources/OSGI-INF/blueprint/camel-log.xml).
 

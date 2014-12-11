@@ -1,3 +1,13 @@
+camel-log-wiki: Demonstrates how to use logging with Camel
+======================================================
+Author: Fuse Team  
+Level: Beginner  
+Technologies: Camel  
+Summary: This quickstart is the wiki example of the Camel Log quickstart which shows how to use logging in a simple Camel application  
+Target Product: Fuse  
+Source: <https://github.com/jboss-fuse/quickstarts>  
+
+
 # Camel Log (wiki) QuickStart
 
 This quickstart is the wiki example of the Camel Log quickstart. 

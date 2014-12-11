@@ -1,38 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
+    JBoss, Home of Professional Open Source
+    Copyright 2014, Red Hat, Inc. and/or its affiliates, and individual
+    contributors by the @authors tag. See the copyright.txt in the
+    distribution for a full listing of individual contributors.
 
-     Copyright 2005-2014 Red Hat, Inc.
-
-     Red Hat licenses this file to you under the Apache License, version
-     2.0 (the "License"); you may not use this file except in compliance
-     with the License.  You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-     implied.  See the License for the specific language governing
-     permissions and limitations under the License.
-
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
+    <parent>
     <groupId>io.fabric8.quickstarts</groupId>
-    <artifactId>fabric8-quickstarts-cxf-parent</artifactId>
+    <artifactId>jboss-cxf</artifactId>
     <version>1.2.0-SNAPSHOT</version>
   </parent>
+    <groupId>io.fabric8.quickstarts</groupId>
+    <artifactId>jboss-cxf-camel-cxf-code-first</artifactId>
+    <version>1.2.0-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+    <name>JBoss Fuse Quickstart: camel-cxf-code-first</name>
+    <description>Creates a web service using Java code first</description>
 
-  <groupId>io.fabric8.quickstarts</groupId>
-  <artifactId>cxf-camel-cxf-code-first</artifactId>
-  <version>1.2.0-SNAPSHOT</version>
-  <packaging>bundle</packaging>
-  <name>Fabric8 :: Quickstarts :: CXF :: Camel CXF Code First</name>
-  <description>Creates a web service using Java code first</description>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <distribution>repo</distribution>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+        </license>
+    </licenses>
 
-  <properties>
+    <repositories>
+    <repository>
+      <id>fuse-public-repository</id>
+      <name>FuseSource Community Release Repository</name>
+      <url>https://repo.fusesource.com/nexus/content/groups/public</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </repository>
+  </repositories>
+
+    <pluginRepositories>
+    <pluginRepository>
+      <id>fuse-public-repository</id>
+      <name>FuseSource Community Release Repository</name>
+      <url>https://repo.fusesource.com/nexus/content/groups/public</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </pluginRepository>
+  </pluginRepositories>
+
+    <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <version.compiler.plugin>2.3.1</version.compiler.plugin>
     <version.maven-bundle-plugin>2.3.7</version.maven-bundle-plugin>
@@ -42,15 +78,11 @@
     <!-- the version of the BOM, defining all the dependency versions -->
     <fabric8.bom.version>1.2.0-SNAPSHOT</fabric8.bom.version>
     <fabric.version>1.2.0-SNAPSHOT</fabric.version>
-
-    <!-- fabric8 deploy profile configuration -->
-    <fabric8.profile>quickstarts-cxf-camel.cxf.code.first</fabric8.profile>
-    <fabric8.parentProfiles>feature-camel feature-cxf</fabric8.parentProfiles>
-    <fabric8.features>camel-cxf camel-blueprint</fabric8.features>
   </properties>
 
-  <dependencyManagement>
+    <dependencyManagement>
     <dependencies>
+
       <dependency>
         <groupId>io.fabric8.bom</groupId>
         <artifactId>fabric8-bom</artifactId>
@@ -58,20 +90,20 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+
+      <!-- assuming camel is pulling aries 1.0.0, pull asm 4.0 first -->
+      <!-- this is needed when unit testing camel-cxf with camel-test-blueprint -->
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-all</artifactId>
+        <version>4.0</version>
+        <scope>test</scope>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
-  <dependencies>
-
-    <!-- assuming camel is pulling aries 1.0.0, pull asm 4.0 first -->
-    <!-- this is needed when unit testing camel-cxf with camel-test-blueprint -->
-    <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm-all</artifactId>
-      <version>4.0</version>
-      <scope>test</scope>
-    </dependency>
-
+    <dependencies>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-blueprint</artifactId>
@@ -164,55 +196,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <repositories>
-    <repository>
-      <id>fusesource.m2</id>
-      <name>FuseSource Community Release Repository</name>
-      <url>https://repo.fusesource.com/nexus/content/groups/public</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-    <repository>
-      <id>fusesource.ea</id>
-      <name>FuseSource Community Early Access Release Repository</name>
-      <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-  </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>fusesource.m2</id>
-      <name>FuseSource Community Release Repository</name>
-      <url>https://repo.fusesource.com/nexus/content/groups/public</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </pluginRepository>
-    <pluginRepository>
-      <id>fusesource.ea</id>
-      <name>FuseSource Community Early Access Release Repository</name>
-      <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </pluginRepository>
-  </pluginRepositories>
-
 </project>

@@ -1,6 +1,11 @@
-# Camel AMQ QuickStart
-
-This quickstart demonstrates how to connect to the local A-MQ broker and use JMS messaging between two Camel routes.
+camel-amq: Demonstrates how to use the camel-amq component
+======================================================
+Author: Fuse Team  
+Level: Beginner  
+Technologies: Camel, ActiveMQ  
+Summary: This quickstart demonstrates how to use the camel-amq component o connect to the local A-MQ broker and use JMS messaging between two Camel routes.  
+Target Product: Fuse  
+Source: <https://github.com/jboss-fuse/quickstarts>  
 
 In this quickstart, orders from zoos all over the world will be copied from the input directory into a specific
 output directory per country.

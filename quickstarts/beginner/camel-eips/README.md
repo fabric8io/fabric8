@@ -1,6 +1,11 @@
-# Camel EIPs QuickStart
-
-This quickstart demonstrates how to combine multiple EIPs to solve integration problems.
+camel-eips: Demonstrates how to combine multiple EIPS in Camel
+======================================================
+Author: Fuse Team  
+Level: Beginner  
+Technologies: Camel  
+Summary: This quickstart demonstrates how to combine multiple EIPs in Camel in order to solve integration problems.  
+Target Product: Fuse  
+Source: <https://github.com/jboss-fuse/quickstarts>  
 
 In this example, an orders file containing several orders for zoos around the world is sent to us. We first want to make sure we retain a copy of the original file. This is done using the Wiretap EIP. After saving the original, we want to split the file up into the individual orders. This is done using the Splitter EIP. Then we want to store the orders in separate directories by geographical region. This is done using a Recipient List EIP. Finally, we want to filter out the orders that contain more than 100 animals and generate a message for the strategic account team. This is done using a Filter EIP.
 

@@ -1,6 +1,11 @@
-# Camel Content Based Router QuickStart
-
-This quickstart shows how to use Apache Camel to route messages using the Content Based Router (cbr) pattern.
+camel-cbr: Demonstrates the Camel CBR Pattern
+======================================================
+Author: Fuse Team  
+Level: Beginner  
+Technologies: Camel  
+Summary: This quickstart demonstrates how to use Apache Camel to route messages using the Content Based Router (cbr) pattern.  
+Target Product: Fuse  
+Source: <https://github.com/jboss-fuse/quickstarts>  
 
 This example is implemented using solely the XML DSL (there is no Java code). The source code is provided in the following XML file `src/main/resources/OSGI-INF/blueprint/cbr.xml`, which can be viewed from [github](https://github.com/fabric8io/fabric8/blob/master/quickstarts/beginner/camel-cbr/src/main/resources/OSGI-INF/blueprint/cbr.xml).
 

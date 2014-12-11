@@ -1,7 +1,11 @@
-# Secure SOAP web service with CXF
-
-This quickstart demonstrates how to create a secure SOAP Web service with Apache CXF and expose it through the OSGi HTTP Service.
-
+secure-soap: Demonstrates a Secure SOAP Web service
+======================================================
+Author: Fuse Team  
+Level: Beginner  
+Technologies: Camel, CXF, SOAP  
+Summary: This quickstart demonstrates how to create a secure SOAP Web service with Apache CXF and expose it through the OSGi HTTP Service.  
+Target Product: Fuse  
+Source: <https://github.com/jboss-fuse/quickstarts>  
 
 ### Building this example
 
