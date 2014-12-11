@@ -156,7 +156,7 @@ getServiceIpAndPort()
 
 FABRIC8_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" fabric8-console)/hawtio/
 DOCKER_REGISTRY=http://$(getServiceIpAndPort "$K8S_SERVICES" registry)
-INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influx-master)
+INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influxdb-service)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
 KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
 GRAFANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" grafana-service)
