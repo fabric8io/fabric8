@@ -15,6 +15,8 @@
  */
 package io.fabric8.commands;
 
+import io.fabric8.api.FabricService;
+import io.fabric8.api.scr.ValidatingReference;
 import io.fabric8.boot.commands.support.AbstractCommandComponent;
 import io.fabric8.zookeeper.curator.CuratorFrameworkLocator;
 import org.apache.curator.framework.CuratorFramework;
@@ -24,6 +26,7 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.service.command.Function;
 
@@ -38,6 +41,9 @@ public class EncryptionAlgorithmGet extends AbstractCommandComponent {
     public static final String SCOPE_VALUE = "fabric";
     public static final String FUNCTION_VALUE = "crypt-algorithm-get";
     public static final String DESCRIPTION = "Displays the current encryption algorithm";
+
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     @Activate
     void activate() {
