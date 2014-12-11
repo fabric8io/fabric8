@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Deploy an example | Fabric8 Documentation</title>
+        <title>API Registry | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./tools.html" />
+        <link rel="next" href="./fabric8MQ.html" />
         
         
-        <link rel="prev" href="./openShiftInstall.html" />
+        <link rel="prev" href="./fabric8Apps.html" />
         
 
-        <meta property="og:title" content="Deploy an example | Fabric8 Documentation">
+        <meta property="og:title" content="API Registry | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1418298855295">
+    <div class="book" data-github="fabric8io/fabric8" data-level="4.1" data-basepath="." data-revision="1418298855295">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -475,7 +475,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 56.666666666666664%;min-width: 53.333333333333336%;"></div>
+        <div class="inner" style="width: 83.33333333333333%;min-width: 80%;"></div>
     </div>
     <div class="chapters">
     
@@ -515,21 +515,21 @@
     
         <a href="./example.html" title="Deploy an example" class="chapter done " data-progress="2.3" style="left: 56.666666666666664%;"></a>
     
-        <a href="./tools.html" title="Tools" class="chapter  new-chapter" data-progress="3" style="left: 60%;"></a>
+        <a href="./tools.html" title="Tools" class="chapter done new-chapter" data-progress="3" style="left: 60%;"></a>
     
-        <a href="./console.html" title="Console" class="chapter  " data-progress="3.1" style="left: 63.333333333333336%;"></a>
+        <a href="./console.html" title="Console" class="chapter done " data-progress="3.1" style="left: 63.333333333333336%;"></a>
     
-        <a href="./quickstarts.html" title="QuickStarts" class="chapter  " data-progress="3.2" style="left: 66.66666666666667%;"></a>
+        <a href="./quickstarts.html" title="QuickStarts" class="chapter done " data-progress="3.2" style="left: 66.66666666666667%;"></a>
     
-        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter  " data-progress="3.3" style="left: 70%;"></a>
+        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter done " data-progress="3.3" style="left: 70%;"></a>
     
-        <a href="./forge.html" title="Forge Addons" class="chapter  " data-progress="3.4" style="left: 73.33333333333333%;"></a>
+        <a href="./forge.html" title="Forge Addons" class="chapter done " data-progress="3.4" style="left: 73.33333333333333%;"></a>
     
-        <a href="./javaLibraries.html" title="Java Libraries" class="chapter  " data-progress="3.5" style="left: 76.66666666666667%;"></a>
+        <a href="./javaLibraries.html" title="Java Libraries" class="chapter done " data-progress="3.5" style="left: 76.66666666666667%;"></a>
     
-        <a href="./fabric8Apps.html" title="Fabric8 Apps" class="chapter  new-chapter" data-progress="4" style="left: 80%;"></a>
+        <a href="./fabric8Apps.html" title="Fabric8 Apps" class="chapter done new-chapter" data-progress="4" style="left: 80%;"></a>
     
-        <a href="./apiRegistry.html" title="API Registry" class="chapter  " data-progress="4.1" style="left: 83.33333333333333%;"></a>
+        <a href="./apiRegistry.html" title="API Registry" class="chapter done " data-progress="4.1" style="left: 83.33333333333333%;"></a>
     
         <a href="./fabric8MQ.html" title="MQ" class="chapter  " data-progress="4.2" style="left: 86.66666666666667%;"></a>
     
@@ -546,25 +546,24 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_8">
+                    <section class="normal" id="section-gitbook_3">
                     
-                        <h3 id="example"><a name="example" class="anchor" href="#example"><span class="fa fa-link"></span></a>Example</h3>
-<p>The following example shows you how to build and push a docker image to Kubernetes and deploy it and then use it.</p>
-<p>Make sure you have followed the <a href="http://fabric8.io/v2/getStarted.html" target="_blank">Get Started Guide</a> so you should have things running.</p>
-<p>You should be able to check if the docker registry is running OK via this command (which should return &apos;true&apos;):</p>
-<pre><code>curl http://$DOCKER_REGISTRY/v1/_ping
-</code></pre><p>Or you can use the <a href="https://github.com/fabric8io/fabric8/blob/master/bin/ping-registry.sh" target="_blank">ping-registry.sh</a> scriptwhich will check that you have your <strong>DOCKER_REGISTRY</strong> environment variable setup correctly to point to a valid docker registry:</p>
-<pre><code>ping-registry.sh
-</code></pre><p>If either of those return <strong>true</strong> you are ready to build a quickstart!</p>
-<h4 id="build-the-camel-servlet-web-application"><a name="build-the-camel-servlet-web-application" class="anchor" href="#build-the-camel-servlet-web-application"><span class="fa fa-link"></span></a>Build the camel-servlet web application</h4>
-<p>From the distribution or source code perform these commands to push the docker image:</p>
-<pre><code>git clone https://github.com/fabric8io/quickstarts.git
-cd quickstarts/war/camel-servlet
-mvn clean install docker:build
-docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0-SNAPSHOT
-</code></pre><p>Now lets deploy the image into the Kubernetes environment:</p>
-<pre><code>mvn fabric8:run
-</code></pre><p>You should now be able to view the running web application at <a href="http://dockerhost:9901/war-camel-servlet-2.0-SNAPSHOT/" target="_blank">http://dockerhost:9901/war-camel-servlet-2.0-SNAPSHOT/</a></p>
+                        <h2 id="api-registry"><a name="api-registry" class="anchor" href="#api-registry"><span class="fa fa-link"></span></a>API Registry</h2>
+<p>The API Registry implements a highly available RESTful <a href="services.html">service</a> using a <a href="replicationControllers.html">replication controller</a> to provide a global view of all of your RESTful and web service APIs.</p>
+<p>It currently discovers all <a href="http://swagger.io/" target="_blank">Swagger</a>, <a href="http://www.w3.org/Submission/wadl/" target="_blank">WADL</a> and <a href="http://www.w3.org/TR/wsdl" target="_blank">WSDL</a> contracts used by any <a href="http://cxf.apache.org/" target="_blank">Apache CXF</a> based REST or web services or any <a href="http://camel.apache.org/rest-dsl.html" target="_blank">Camel REST DSL routes</a>. Any JVM is supported; so your CXF and Camel can be running inside Karaf, Tomcat, Wildfly or a vanilla JVM or Spring Boot etc.</p>
+<h3 id="requirements"><a name="requirements" class="anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h3>
+<p>For the API Registry to be able to discover the API contracts and endpoints then JMX must be enabled in your JVM (which it tends to be by default), then JMX needs to be enabled in CXF and Camel.</p>
+<p>In addition the JVM needs to expose its <a href="http://jolokia.org/" target="_blank">Jolokia port</a> which it does by default in the base container images used in in the various <a href="quickstarts.html">quickstarts</a>.</p>
+<p>For CXF you need to ensure that JMX is properly enabled and that the <strong>fabric-cxf</strong> library is included in your CXF application which adds the necessary JMX operations so that we can remotely discover the correct endpoints inside the JVM.</p>
+<h3 id="using-the-api-registry"><a name="using-the-api-registry" class="anchor" href="#using-the-api-registry"><span class="fa fa-link"></span></a>Using the API Registry</h3>
+<ul>
+<li>In the <a href="console.html">Console</a> click on the <strong>Library</strong> tab and then navigate into <strong>apps</strong> and then click on <strong>API Registry</strong></li>
+<li>Click on the <strong>Run</strong> button on the top right to run the <strong>API Registry</strong> service</li>
+<li>Now run any <a href="quickstart.html">Quickstart</a> which uses CXF REST or web services or the <strong>Camel Rest SQL</strong> quickstart.</li>
+<li>Wait a minute or so for everything to be up and running</li>
+<li>You should see a new <strong>APIs</strong> tab in the <a href="console.html">Console</a> click on it</li>
+<li>You should now see the <strong>API Console</strong> which lets you view, search and navigate to all the APIs defined in your environment for <a href="http://cxf.apache.org/" target="_blank">CXF</a> or <a href="http://camel.apache.org/rest-dsl.html" target="_blank">Camel REST DSL routes</a>.</li>
+</ul>
 
                     
                     </section>
@@ -574,10 +573,10 @@ docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0-SNAPSHOT
         </div>
 
         
-        <a href="./openShiftInstall.html" class="navigation navigation-prev " aria-label="Previous page: Install Natively"><i class="fa fa-angle-left"></i></a>
+        <a href="./fabric8Apps.html" class="navigation navigation-prev " aria-label="Previous page: Fabric8 Apps"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./tools.html" class="navigation navigation-next " aria-label="Next page: Tools"><i class="fa fa-angle-right"></i></a>
+        <a href="./fabric8MQ.html" class="navigation navigation-next " aria-label="Next page: MQ"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
