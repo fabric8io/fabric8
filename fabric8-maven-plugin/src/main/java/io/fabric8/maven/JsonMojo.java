@@ -273,7 +273,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
     }
 
     public String getKubernetesContainerName() {
-        if (Strings.isNullOrBlank(kubernetesName)) {
+        if (Strings.isNullOrBlank(kubernetesContainerName)) {
             // lets generate it from the docker user and the camelCase artifactId
             String groupPrefix = null;
             MavenProject project = getProject();
