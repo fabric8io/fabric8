@@ -1,17 +1,18 @@
-/**
- *  Copyright 2005-2014 Red Hat, Inc.
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2014, Red Hat, Inc. and/or its affiliates, and individual
+ * contributors by the @authors tag. See the copyright.txt in the
+ * distribution for a full listing of individual contributors.
  *
- *  Red Hat licenses this file to you under the Apache License, version
- *  2.0 (the "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
- *  permissions and limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.fabric8.quickstarts.rest;
 
@@ -151,7 +152,6 @@ public final class CrmTest {
 
     }
 
-
     /**
      * HTTP POST http://localhost:8181/cxf/crm/customerservice/customers is used to upload the contents of
      * the add_customer.xml file to add a new customer to the system.
@@ -203,7 +203,6 @@ public final class CrmTest {
     @Test
     public void putCustomerTest() throws IOException {
 
-
         LOG.info("Sent HTTP PUT request to update customer info");
 
         String inputFile = this.getClass().getResource("/update_customer.xml").getFile();
@@ -231,6 +230,5 @@ public final class CrmTest {
 
         Assert.assertEquals(result, 200);
     }
-
 
 }

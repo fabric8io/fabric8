@@ -1,6 +1,11 @@
-# SOAP contract first web service with CXF and Camel
-
-This quickstart demonstrates how to create a SOAP Web service, using contract first style, with Apache CXF and Camel and expose it through the OSGi HTTP Service.
+camel-cxf-contract-first: Demonstrates how to create a SOAP Web service
+======================================================
+Author: Fuse Team  
+Level: Beginner  
+Technologies: Camel, CXF, SOAP  
+Summary: This quickstart demonstrates creating a SOAP Web service in contract first style with Apache CXF and Camel and exposing it through the OSGi HTTP Service.  
+Target Product: Fuse  
+Source: <https://github.com/jboss-fuse/quickstarts>  
 
 We are using contract first style, which means the web service is defined in a `.wsdl` file, and then the sourc code is generated. The web service is then exposed as an enpoint in a Camel route.
 

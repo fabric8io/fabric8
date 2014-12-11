@@ -1,7 +1,11 @@
-# Secure RESTful web services with CXF
-
-This quickstart demonstrates how to create a secure RESTful (JAX-RS) web service using CXF and expose it through the OSGi HTTP Service.
-
+secure-rest: Demonstrates a Secure REST Web service
+======================================================
+Author: Fuse Team  
+Level: Beginner  
+Technologies: Camel, CXF, REST  
+Summary: This quickstart demonstrates how to create a secure RESTful (JAX-RS) web service using CXF and expose it through the OSGi HTTP Service.  
+Target Product: Fuse  
+Source: <https://github.com/jboss-fuse/quickstarts>  
 
 ### Building this example
 

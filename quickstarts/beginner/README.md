@@ -1,9 +1,13 @@
-Beginner Quickstarts
-====================
+beginner: Fuse Quickstarts for new Fuse users.
+======================================================
+Author: Fuse Team
+Level: Beginner
+Technologies: Fuse
+Summary: This directory contains the beginner quickstarts which demonstrate how to use fuse with various technologies.
+Target Product: Fuse
+Source: <https://github.com/jboss-fuse/quickstarts>
 
-Welcome to the beginner quickstarts. These quickstarts demonstrates how to build Apache Camel integrations with fabric8.
-
-The following two quickstarts is the _hello world_ beginner level examples, which we recommand first time users to try.
+The following two quickstarts are the _hello world_ beginner level examples, which we recommend tha first time users try.
 
 * [camel.log](camel-log) - is a very simple Camel application using a timer to trigger a message every 5th second which is then written to the server log.
 * [camel.log.wiki](camel-log-wiki) - wiki based example of [camel.log](camel-log) where the Camel routes are stored in an <a fabric-version-link="/camel/canvas/fabric/profiles/quickstarts/beginner/camel.log.wiki.profile/camel-log.xml">XML file inside the wiki</a> so you can edit it via the browser and use <a href="/fabric/profiles/docs/fabric/rollingUpgrade.md">rolling upgrades</a> to update it and roll forward/backward changes to containers without having to release any Java artifacts.

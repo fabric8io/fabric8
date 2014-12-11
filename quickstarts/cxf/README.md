@@ -1,9 +1,13 @@
-CXF Quickstarts
-===============
+cxf: Various quickstart projects using CXF.
+======================================================
+Author: Fuse Team
+Level: Beginner
+Technologies: Camel, CXF, REST
+Summary: This directory contains various quickstart projects using [Apache CXF](http://cxf.apache.org) for web services and REST.
+Target Product: Fuse
+Source: <https://github.com/jboss-fuse/quickstarts>
 
-Various quickstart projects using [Apache CXF](http://cxf.apache.org) for web services and REST.
-
-The following quickstarts is provided out of the box:
+The following quickstarts are provided out of the box:
 
 * [camel.cxf.code.first](camel-cxf-code-first) - demonstrates how to expose a CXF web service from a Camel route using _code first_ approach.
 * [camel.cxf.contract.first](camel-cxf-contract-first) - demonstrates how to expose a CXF web service from a Camel route using _contract first_ approach.

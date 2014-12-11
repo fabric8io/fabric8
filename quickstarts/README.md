@@ -1,5 +1,11 @@
-Quickstarts
-===========
+quickstarts: Various quickstart projects using Fuse.
+======================================================
+Author: Fuse Team
+Level: Beginner
+Technologies: Fuse
+Summary: This directory contains the Fuse quickstarts which demonstrate how to use fuse with various technologies.
+Target Product: Fuse
+Source: <https://github.com/jboss-fuse/quickstarts>
 
 Welcome the Fuse quickstarts which demonstrate how to use fuse with various technologies.
 

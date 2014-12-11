@@ -1,7 +1,11 @@
-# RESTful web services with CXF
-
-This quickstart demonstrates how to create a RESTful (JAX-RS) web service using CXF and expose it through the OSGi HTTP Service.
-
+rest: Demonstrates how to create a REST Web service
+======================================================
+Author: Fuse Team  
+Level: Beginner  
+Technologies: Camel, CXF, REST  
+Summary: This quickstart demonstrates how to create a RESTful (JAX-RS) web service using CXF and expose it through the OSGi HTTP Service.  
+Target Product: Fuse  
+Source: <https://github.com/jboss-fuse/quickstarts>  
 
 ### Building this example
 
@@ -26,7 +30,7 @@ And then store this information in the local Maven settings file. You can find m
 
 ## How to run this example
 
-The following information is divded into two sections, whether you are using the command line shell in fabric, or using the web console
+The following information is divided into two sections, whether you are using the command line shell in fabric, or using the web console
 
 ### Using the command line shell
 
