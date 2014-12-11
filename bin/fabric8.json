@@ -9,7 +9,7 @@
       "apiVersion": "v1beta1",
       "containerPort": 8080,
       "creationTimestamp": null,
-      "id": "fabric8-console",
+      "id": "fabric8-console-service",
       "kind": "Service",
       "port": 8080,
       "selector": {
