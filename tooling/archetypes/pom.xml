@@ -43,8 +43,6 @@
         <module>karaf-secure-rest-archetype</module>
         <module>karaf-secure-soap-archetype</module>
         <module>karaf-soap-archetype</module>
-        <module>war-camel-servlet-archetype</module>
-        <module>war-rest-archetype</module>
     </modules>
 
     <dependencies>
