@@ -39,6 +39,7 @@
         <module>archetype-commands</module>
         <module>camel-tooling-util</module>
         <module>examples</module>
+        <module>rh-support</module>
         <module>testing</module>
         <module>tooling-activemq-facade</module>
         <module>tooling-camel-facade</module>

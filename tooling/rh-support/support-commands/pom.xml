@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+     Copyright 2005-2014 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>io.fabric8.support</groupId>
+        <artifactId>support-project</artifactId>
+        <version>6.2.0.redhat-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <version>${fabric.version}</version>
+    <groupId>io.fabric8.support</groupId>
+    <artifactId>support-commands</artifactId>
+    <packaging>bundle</packaging>
+    
+    <name>JBoss Fuse :: Support :: Commands</name>
+
+    <properties>
+        <fuse.osgi.export>
+        </fuse.osgi.export>
+        <fuse.osgi.import>
+            org.apache.felix.gogo.commands,
+            org.apache.felix.service.command;status=provisional,
+            org.apache.karaf.shell.console,
+            *
+        </fuse.osgi.import>
+        <fuse.osgi.private.pkg>
+            io.fabric8.support.commands*,
+        </fuse.osgi.private.pkg>
+        <fuse.osgi.service.component>
+            <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
+            OSGI-INF/io.fabric8.support.commands.Check.xml,
+            OSGI-INF/io.fabric8.support.commands.Collect.xml
+        </fuse.osgi.service.component>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.fabric8.support</groupId>
+            <artifactId>support-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-boot-commands</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.console</artifactId>
+            <version>${karaf-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Gravia-Enabled>true</Gravia-Enabled>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>scr</goal>
+                        </goals>
+                        <configuration>
+                            <specVersion>1.2</specVersion>
+                            <strictMode>false</strictMode>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

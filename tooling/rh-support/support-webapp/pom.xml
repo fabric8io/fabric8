@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Copyright 2005-2014 Red Hat, Inc.
+
+Red Hat licenses this file to you under the Apache License, version
+2.0 (the "License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied.  See the License for the specific language governing
+permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.fabric8.support</groupId>
+        <artifactId>support-project</artifactId>
+        <version>6.2.0.redhat-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <version>${fabric.version}</version>
+    <groupId>io.fabric8.support</groupId>
+    <packaging>war</packaging>
+
+    <artifactId>support-webapp</artifactId>
+    <name>JBoss Fuse :: Support :: Webapp</name>
+
+    <properties>
+        <!-- this lets this plugin deploy nicely into karaf, these get used
+          for the ImportPackage directive for maven-bundle-plugin -->
+        <fuse.osgi.import>
+            javax.servlet,
+            javax.servlet.http,
+            io.fabric8.api,
+            *;resolution:=optional
+        </fuse.osgi.import>
+        <fuse.osgi.export></fuse.osgi.export>
+        <servlet-api-version>2.5</servlet-api-version>
+        <slf4j-version>1.6.6</slf4j-version>
+        <maven-antrun-plugin-version>1.7</maven-antrun-plugin-version>
+        <maven-resources-plugin-version>2.6</maven-resources-plugin-version>
+        <maven-bundle-plugin-version>2.3.7</maven-bundle-plugin-version>
+        <war-plugin-version>2.1.1</war-plugin-version>
+
+
+        <!--<redhat-support-lib.version>1.0.4.jbossorg-1</redhat-support-lib.version>-->
+        <redhat-support-lib.version>2.0</redhat-support-lib.version>
+
+        <webapp-dir>${project.artifactId}-${project.version}</webapp-dir>
+        <webapp-outdir>${basedir}/target/${webapp-dir}</webapp-outdir>
+        <plugin-context>/rhaccess-web</plugin-context>
+    </properties>
+
+    <dependencies>
+
+        <!-- servlet API is provided by the container -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${servlet-api-version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j-version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j-version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20090211</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>fabric-api</artifactId>
+            <version>${fabric.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>io.hawt</groupId>
+            <artifactId>hawtio-system</artifactId>
+            <version>1.4.18</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.redhat.gss</groupId>
+            <artifactId>redhat-support-lib-java</artifactId>
+            <version>${redhat-support-lib.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+
+        <!-- we want to ensure src/main/resources/WEB-INF/web.xml is being filtered
+          so that it picks up all of our javascript files -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+
+            <!-- We use maven-antrun-plugin to build up a list of
+                 javascript files for our plugin mbean, this means
+                 it needs to run before the maven-resources-plugin
+                 copies and filters the web.xml, since for this
+                 example we use contextParam settings to configure
+                 our plugin mbean -->
+
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin-version}</version>
+                <executions>
+                    <execution>
+                        <!-- defining this maven plugin in the same phase as the
+                          maven-antrun-plugin but *after* we've configured the
+                          maven-antrun-plugin ensures we filter resources *after*
+                          we've discovered the plugin .js files. -->
+                        <id>copy-resources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- maven-bundle-plugin config, needed to make this war
+              deployable in karaf, defines the context that this bundle
+              should handle requests on -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>${maven-bundle-plugin-version}</version>
+                <executions>
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <manifestLocation>${webapp-outdir}/META-INF</manifestLocation>
+                    <supportedProjectTypes>
+                        <supportedProjectType>jar</supportedProjectType>
+                        <supportedProjectType>bundle</supportedProjectType>
+                        <supportedProjectType>war</supportedProjectType>
+                    </supportedProjectTypes>
+                    <instructions>
+                        <Webapp-Context>${plugin-context}</Webapp-Context>
+                        <Web-ContextPath>${plugin-context}</Web-ContextPath>
+
+                        <Embed-Directory>WEB-INF/lib</Embed-Directory>
+                        <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
+
+                        <Export-Package>${fuse.osgi.export}</Export-Package>
+                        <Import-Package>${fuse.osgi.import}</Import-Package>
+                        <DynamicImport-Package>${fuse.osgi.dynamic}</DynamicImport-Package>
+                        <Private-Package>${fuse.osgi.private.pkg}</Private-Package>
+
+                        <Bundle-ClassPath>.,WEB-INF/classes</Bundle-ClassPath>
+
+                        <Bundle-Name>${project.description}</Bundle-Name>
+                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+                        <Implementation-Title>RHAccess</Implementation-Title>
+                        <Implementation-Version>${project.version}</Implementation-Version>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+
+            <!-- We define the maven-war-plugin here and make sure it uses
+              the manifest file generated by the maven-bundle-plugin.  We
+              also ensure it picks up our filtered web.xml and not the one
+              in src/main/resources -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${war-plugin-version}</version>
+                <configuration>
+                    <outputFileNameMapping>@{artifactId}@-@{baseVersion}@@{dashClassifier?}@.@{extension}@
+                    </outputFileNameMapping>
+                    <packagingExcludes>**/classes/OSGI-INF/**</packagingExcludes>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <archive>
+                        <manifestFile>${webapp-outdir}/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
+                    <webResources>
+                        <resource>
+                            <filtering>true</filtering>
+                            <directory>src/main/resources</directory>
+                            <includes>
+                                <include>**/*.*</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>
