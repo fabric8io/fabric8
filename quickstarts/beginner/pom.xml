@@ -21,11 +21,12 @@
 
     <parent>
     <groupId>io.fabric8.quickstarts</groupId>
-    <artifactId>jboss-quickstart-parent</artifactId>
+    <artifactId>fabric8-quickstarts-parent</artifactId>
     <version>1.2.0-SNAPSHOT</version>
   </parent>
+
     <groupId>io.fabric8.quickstarts</groupId>
-    <artifactId>jboss-beginner</artifactId>
+    <artifactId>fabric8-quickstarts-beginner-parent</artifactId>
     <version>1.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>JBoss  Quickstart: beginner</name>
