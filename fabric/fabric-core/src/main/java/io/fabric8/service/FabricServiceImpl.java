@@ -84,6 +84,7 @@ import io.fabric8.utils.DataStoreUtils;
 import io.fabric8.utils.PasswordEncoder;
 import io.fabric8.api.SystemProperties;
 import io.fabric8.zookeeper.ZkPath;
+import io.fabric8.zookeeper.bootstrap.BootstrapConfiguration;
 import io.fabric8.zookeeper.utils.InterpolationHelper;
 import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 import org.apache.curator.framework.CuratorFramework;
@@ -152,6 +153,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     private ZookeeperPlaceholderResolver zookeeperPlaceholderResolver;
     @Reference
     private ContainerRegistration containerRegistration;
+    @Reference
+    private BootstrapConfiguration bootstrapConfig;
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
@@ -504,6 +507,17 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
             optionsMap.put("version", versionId);
             optionsMap.put("profiles", profileIds);
             optionsMap.put("number", 0);
+
+            // inject global resolver configuration
+            if(bootstrapConfig != null) {
+                String configuredGlobalResolver = bootstrapConfig.getGlobalResolver();
+                if (!Strings.isNullOrEmpty(configuredGlobalResolver)) {
+                    optionsMap.put("globalResolver", configuredGlobalResolver);
+                    if (optionsMap.get("resolver") == null) {
+                        optionsMap.put("resolver", configuredGlobalResolver);
+                    }
+                }
+            }
 
             final List<CreateContainerMetadata> metadatas = new CopyOnWriteArrayList<CreateContainerMetadata>();
             int orgNumber = options.getNumber();
