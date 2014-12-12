@@ -32,6 +32,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.memory = 8192
     v.cpus = 4
 #        config.ssh.pty= true
+
+    v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
   end
 
   config.vm.provision "shell", inline: $provisionScript
