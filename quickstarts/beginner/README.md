@@ -1,11 +1,11 @@
 beginner: Fuse Quickstarts for new Fuse users.
 ======================================================
-Author: Fuse Team
-Level: Beginner
-Technologies: Fuse
-Summary: This directory contains the beginner quickstarts which demonstrate how to use fuse with various technologies.
-Target Product: Fuse
-Source: <https://github.com/jboss-fuse/quickstarts>
+Author: Fuse Team  
+Level: Beginner  
+Technologies: Fuse  
+Summary: This directory contains the beginner quickstarts which demonstrate how to use fuse with various technologies.  
+Target Product: Fuse  
+Source: <https://github.com/jboss-fuse/quickstarts>  
 
 The following two quickstarts are the _hello world_ beginner level examples, which we recommend tha first time users try.
 
