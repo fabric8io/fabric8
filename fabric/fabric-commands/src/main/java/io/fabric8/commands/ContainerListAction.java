@@ -106,7 +106,7 @@ public class ContainerListAction extends AbstractAction {
     }
 
     protected static String aliveText(Container container) {
-        return container.isAlive() ? "yes" : "";
+        return container.isAlive() ? "yes" : "no";
     }
 
     private void printContainersVerbose(Container[] containers, Version version, PrintStream out) {
