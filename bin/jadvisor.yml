@@ -1,0 +1,25 @@
+apiVersion: v1beta1
+kind: Config
+id: jadvisor-config
+items:
+  - apiVersion: v1beta1
+    kind: ReplicationController
+    id: jadvisor-rc
+    desiredState:
+      replicas: 1
+      replicaSelector:
+        app: jadvisor
+      podTemplate:
+        desiredState:
+          manifest:
+            version: v1beta1
+            containers:
+              - name: jadvisor-container
+                image: jimmidyson/jadvisor:latest
+                imagePullPolicy: PullIfNotPresent
+                command:
+                  - -kubernetes_master=${KUBERNETES_RO_SERVICE_HOST}:${KUBERNETES_RO_SERVICE_PORT}
+                  - -sink=influxdb
+                  - -sink_influxdb_host=${INFLUXDB_SERVICE_HOST}:${INFLUXDB_SERVICE_PORT}
+        labels:
+          app: jadvisor
