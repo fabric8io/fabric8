@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Deploy an example | Fabric8 Documentation</title>
+        <title>MQ AutoScaler | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./tools.html" />
+        <link rel="next" href="./v2-changes.html" />
         
         
-        <link rel="prev" href="./openShiftInstall.html" />
+        <link rel="prev" href="./fabric8MQ.html" />
         
 
-        <meta property="og:title" content="Deploy an example | Fabric8 Documentation">
+        <meta property="og:title" content="MQ AutoScaler | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1418400873230">
+    <div class="book" data-github="fabric8io/fabric8" data-level="4.3" data-basepath="." data-revision="1418400873230">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -484,7 +484,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 54.83870967741935%;min-width: 51.61290322580645%;"></div>
+        <div class="inner" style="width: 87.09677419354838%;min-width: 83.87096774193549%;"></div>
     </div>
     <div class="chapters">
     
@@ -524,25 +524,25 @@
     
         <a href="./example.html" title="Deploy an example" class="chapter done " data-progress="2.3" style="left: 54.83870967741935%;"></a>
     
-        <a href="./tools.html" title="Tools" class="chapter  new-chapter" data-progress="3" style="left: 58.064516129032256%;"></a>
+        <a href="./tools.html" title="Tools" class="chapter done new-chapter" data-progress="3" style="left: 58.064516129032256%;"></a>
     
-        <a href="./console.html" title="Console" class="chapter  " data-progress="3.1" style="left: 61.29032258064516%;"></a>
+        <a href="./console.html" title="Console" class="chapter done " data-progress="3.1" style="left: 61.29032258064516%;"></a>
     
-        <a href="./quickstarts.html" title="QuickStarts" class="chapter  " data-progress="3.2" style="left: 64.51612903225806%;"></a>
+        <a href="./quickstarts.html" title="QuickStarts" class="chapter done " data-progress="3.2" style="left: 64.51612903225806%;"></a>
     
-        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter  " data-progress="3.3" style="left: 67.74193548387096%;"></a>
+        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter done " data-progress="3.3" style="left: 67.74193548387096%;"></a>
     
-        <a href="./forge.html" title="Forge Addons" class="chapter  " data-progress="3.4" style="left: 70.96774193548387%;"></a>
+        <a href="./forge.html" title="Forge Addons" class="chapter done " data-progress="3.4" style="left: 70.96774193548387%;"></a>
     
-        <a href="./javaLibraries.html" title="Java Libraries" class="chapter  " data-progress="3.5" style="left: 74.19354838709677%;"></a>
+        <a href="./javaLibraries.html" title="Java Libraries" class="chapter done " data-progress="3.5" style="left: 74.19354838709677%;"></a>
     
-        <a href="./fabric8Apps.html" title="Fabric8 Apps" class="chapter  new-chapter" data-progress="4" style="left: 77.41935483870968%;"></a>
+        <a href="./fabric8Apps.html" title="Fabric8 Apps" class="chapter done new-chapter" data-progress="4" style="left: 77.41935483870968%;"></a>
     
-        <a href="./apiRegistry.html" title="API Registry" class="chapter  " data-progress="4.1" style="left: 80.64516129032258%;"></a>
+        <a href="./apiRegistry.html" title="API Registry" class="chapter done " data-progress="4.1" style="left: 80.64516129032258%;"></a>
     
-        <a href="./fabric8MQ.html" title="MQ" class="chapter  " data-progress="4.2" style="left: 83.87096774193549%;"></a>
+        <a href="./fabric8MQ.html" title="MQ" class="chapter done " data-progress="4.2" style="left: 83.87096774193549%;"></a>
     
-        <a href="./fabric8MQAutoScaler.html" title="MQ AutoScaler" class="chapter  " data-progress="4.3" style="left: 87.09677419354838%;"></a>
+        <a href="./fabric8MQAutoScaler.html" title="MQ AutoScaler" class="chapter done " data-progress="4.3" style="left: 87.09677419354838%;"></a>
     
         <a href="./v2-changes.html" title="Changes from V1" class="chapter  new-chapter" data-progress="5" style="left: 90.3225806451613%;"></a>
     
@@ -557,25 +557,13 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_8">
+                    <section class="normal" id="section-gitbook_11">
                     
-                        <h3 id="example"><a name="example" class="anchor" href="#example"><span class="fa fa-link"></span></a>Example</h3>
-<p>The following example shows you how to build and push a docker image to Kubernetes and deploy it and then use it.</p>
-<p>Make sure you have followed the <a href="http://fabric8.io/v2/getStarted.html" target="_blank">Get Started Guide</a> so you should have things running.</p>
-<p>You should be able to check if the docker registry is running OK via this command (which should return &apos;true&apos;):</p>
-<pre><code>curl http://$DOCKER_REGISTRY/v1/_ping
-</code></pre><p>Or you can use the <a href="https://github.com/fabric8io/fabric8/blob/master/bin/ping-registry.sh" target="_blank">ping-registry.sh</a> scriptwhich will check that you have your <strong>DOCKER_REGISTRY</strong> environment variable setup correctly to point to a valid docker registry:</p>
-<pre><code>ping-registry.sh
-</code></pre><p>If either of those return <strong>true</strong> you are ready to build a quickstart!</p>
-<h4 id="build-the-camel-servlet-web-application"><a name="build-the-camel-servlet-web-application" class="anchor" href="#build-the-camel-servlet-web-application"><span class="fa fa-link"></span></a>Build the camel-servlet web application</h4>
-<p>From the distribution or source code perform these commands to push the docker image:</p>
-<pre><code>git clone https://github.com/fabric8io/quickstarts.git
-cd quickstarts/war/camel-servlet
-mvn clean install docker:build
-docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0-SNAPSHOT
-</code></pre><p>Now lets deploy the image into the Kubernetes environment:</p>
-<pre><code>mvn fabric8:run
-</code></pre><p>You should now be able to view the running web application at <a href="http://dockerhost:9901/war-camel-servlet-2.0-SNAPSHOT/" target="_blank">http://dockerhost:9901/war-camel-servlet-2.0-SNAPSHOT/</a></p>
+                        <h2 id="fabric8-mq-auto-scaler"><a name="fabric8-mq-auto-scaler" class="anchor" href="#fabric8-mq-auto-scaler"><span class="fa fa-link"></span></a>Fabric8 MQ Auto Scaler</h2>
+<p>The Fabric8 MQ Auto Scaler <a href="apps.html">App</a> monitors and scales the <a href="http://activemq.apache.org/" target="_blank">Apache ActiveMQ</a> brokers running on Kubernetes.</p>
+<p>The MQ autoscaler uses <a href="services.html">kubernetes servicse</a> to monitor a group of MQ brokers, matching a group of labels defined by ENV variables <strong>AMQ_SERVICE_ID</strong> (default is <em>fabricMQ</em>), and <strong>AMQ_GROUP_NAME</strong> (default is <em>default</em>).</p>
+<p>The MQ Auto Scaler will examine all MQ brokers run in the group defined by the <strong>AMQ_GROUP_NAME</strong> and spin up additional brokers, or remove them.</p>
+<p>After changing the number of running MQ brokers, the auto scaler will request some clients reconnect, to balance the load.</p>
 
                     
                     </section>
@@ -585,10 +573,10 @@ docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0-SNAPSHOT
         </div>
 
         
-        <a href="./openShiftInstall.html" class="navigation navigation-prev " aria-label="Previous page: Install Natively"><i class="fa fa-angle-left"></i></a>
+        <a href="./fabric8MQ.html" class="navigation navigation-prev " aria-label="Previous page: MQ"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./tools.html" class="navigation navigation-next " aria-label="Next page: Tools"><i class="fa fa-angle-right"></i></a>
+        <a href="./v2-changes.html" class="navigation navigation-next " aria-label="Next page: Changes from V1"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>

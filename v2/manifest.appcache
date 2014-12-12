@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Revision 1418298855296
+# Revision 1418400873232
 
 CACHE:
 getStarted.html
@@ -12,10 +12,11 @@ console.html
 example.html
 fabric8Apps.html
 fabric8MQ.html
-faqGeneral.html
+fabric8MQAutoScaler.html
 forge.html
 index.html
 getStartedJube.html
+faqGeneral.html
 getStartedOpenShift.html
 javaLibraries.html
 jube.html
