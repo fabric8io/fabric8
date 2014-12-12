@@ -24,6 +24,7 @@
 * [Fabric8 Apps](fabric8Apps.md)
     * [API Registry](apiRegistry.md)
     * [MQ](fabric8MQ.md)
+    * [MQ AutoScaler](fabric8MQAutoScaler.md)
 * [Changes from V1](v2-changes.md)
 * [Jube](jube.md)
 * [FAQ](FAQ.md)

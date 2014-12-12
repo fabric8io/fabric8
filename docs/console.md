@@ -1,11 +1,10 @@
 ## Console
 
-The Console is based on the [hawtio project](http://hawt.io/) and provides a rich HTML5 based web application for working with Kubernetes and the underlying containers reusing the various [hawtio plugins](http://hawt.io/plugins/index.html).
+The Fabric8 Console provides a rich HTML5 web application for working with [Kubernetes](http://kubernetes.io/). The front end code is based on the [hawtio project](http://hawt.io/) which supports Kubernetes and reuses the various [hawtio plugins](http://hawt.io/plugins/index.html).
 
 ### Getting Started
 
-
-The console has a number of tabs that let you look around Kubernetes. We'll highlight the main ones you 'll need to use:
+The console has a number of tabs that let you work with the various Kubernetes resources. We'll highlight the main ones you 'll need to use:
 
 #### Controllers
 
