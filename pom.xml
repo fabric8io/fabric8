@@ -858,26 +858,6 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>process-fabric</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>process-spring-boot-container</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>process-spring-boot-starter-activemq</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>process-spring-boot-starter-camel</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
                 <artifactId>fabric-docker-provider</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -913,11 +893,6 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>fabric-process-container</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
                 <artifactId>fabric-project-deployer</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -929,16 +904,6 @@
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>fabric-agent-commands</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>process-manager</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>process-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -3684,7 +3649,6 @@
         <module>insight</module>
         <module>mq</module>
         <module>patch</module>
-        <module>process</module>
         <module>runtime</module>
         <module>security</module>
         <module>tooling</module>

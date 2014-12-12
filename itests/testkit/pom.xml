@@ -40,6 +40,11 @@
       <artifactId>fabric-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 <!--
     <dependency>
       <groupId>io.fabric8</groupId>
@@ -64,11 +69,6 @@
       <groupId>org.jolokia</groupId>
       <artifactId>jolokia-client-java</artifactId>
       <version>${jolokia-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>process-manager</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

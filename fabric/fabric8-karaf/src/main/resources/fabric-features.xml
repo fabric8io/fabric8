@@ -103,26 +103,6 @@
         <bundle>mvn:javax.ws.rs/jsr311-api/1.1.1</bundle>
     </feature>
 
-    <feature name="process-manager" version="${project.version}" resolver="(obr)">
-        <feature>fabric-commands</feature>
-        <feature>camel-mvel</feature>
-        <bundle>mvn:biz.aQute.bnd/bndlib/${bndlib-version}</bundle>
-        <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
-        <bundle>mvn:io.fabric8/fabric-maven/${project.version}</bundle>
-        <bundle>mvn:io.fabric8/process-manager/${project.version}</bundle>
-        <bundle dependency='true'>mvn:org.ops4j.base/ops4j-base-net/${ops4j-base.version}</bundle>
-        <bundle dependency='true'>mvn:org.ops4j.base/ops4j-base-monitors/${ops4j-base.version}</bundle>
-        <bundle dependency='true'>mvn:org.ops4j.base/ops4j-base-util-property/${ops4j-base.version}</bundle>
-        <bundle dependency='true'>mvn:org.ops4j.pax.swissbox/pax-swissbox-property/${ops4j-pax-swissbox-property.version}</bundle>
-        <bundle dependency='true'>mvn:com.google.guava/guava/${guava-version}</bundle>
-    </feature>
-
-    <feature name="process-fabric" version="${project.version}" resolver="(obr)">
-        <feature>process-manager</feature>
-        <feature>fabric-project-deployer</feature>
-        <bundle>mvn:io.fabric8/process-fabric/${project.version}</bundle>
-    </feature>
-
     <feature name="fabric-zookeeper" version="${project.version}" resolver="(obr)">
         <feature>fabric-core</feature>
     </feature>
@@ -563,15 +543,6 @@
         <feature version="${project.version}">fabric-core</feature>
         <bundle>mvn:io.fabric8/common-util/${project.version}</bundle>
         <bundle>mvn:io.fabric8/fabric-autoscale/${project.version}</bundle>
-    </feature>
-
-    <feature name="fabric-process-container" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-core</feature>
-        <feature version="${project.version}">fabric-project-deployer</feature>
-        <feature version="${project.version}">process-manager</feature>
-        <feature version="${project.version}">fabric-groovy</feature>
-        <feature version="${project.version}">fabric-commands</feature>
-        <bundle>mvn:io.fabric8/fabric-process-container/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-vertx" version="${project.version}" resolver="(obr)">

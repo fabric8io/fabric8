@@ -1,5 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-io.fabric8.process.spring.boot.registry.ProcessRegistryAutoConfiguration
-
-org.springframework.context.ApplicationContextInitializer=\
-io.fabric8.process.spring.boot.registry.ProcessRegistryPropertySourceApplicationContextInitializer
