@@ -13,11 +13,12 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.kubernetes.api;
+package io.fabric8.kubernetes.api.mbeans;
 
+import io.fabric8.kubernetes.api.Controller;
+import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.CurrentState;
-import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.PodContainerManifest;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
@@ -28,7 +29,6 @@ import io.fabric8.utils.Strings;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 /**

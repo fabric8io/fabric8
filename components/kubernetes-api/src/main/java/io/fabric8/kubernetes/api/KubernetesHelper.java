@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.fabric8.kubernetes.api.model.Config;
+import io.fabric8.kubernetes.api.model.ControllerCurrentState;
 import io.fabric8.kubernetes.api.model.ControllerDesiredState;
 import io.fabric8.kubernetes.api.model.CurrentState;
 import io.fabric8.kubernetes.api.model.DesiredState;
@@ -862,5 +863,67 @@ public class KubernetesHelper {
             }
         }
         return null;
+    }
+
+    public static PodTemplateDesiredState getPodTemplateDesiredState(ReplicationControllerSchema replicationController) {
+        if (replicationController != null) {
+            return getPodTemplateDesiredState(replicationController.getDesiredState());
+        }
+        return null;
+    }
+
+    public static PodTemplateDesiredState getPodTemplateDesiredState(ControllerDesiredState desiredState) {
+        PodTemplate podTemplate;
+        PodTemplateDesiredState podTemplateDesiredState = null;
+        if (desiredState != null) {
+            podTemplate = desiredState.getPodTemplate();
+            if (podTemplate != null) {
+                podTemplateDesiredState = podTemplate.getDesiredState();
+            }
+        }
+        return podTemplateDesiredState;
+    }
+
+    public static PodStatus getPodStatus(PodSchema pod) {
+        String text = getPodStatusText(pod);
+        if (Strings.isNotBlank(text)) {
+            text = text.toLowerCase();
+            if (text.startsWith("run")) {
+                return PodStatus.OK;
+            } else if (text.startsWith("wait")) {
+                return PodStatus.WAIT;
+            } else {
+                return PodStatus.ERROR;
+            }
+        }
+        return PodStatus.WAIT;
+    }
+
+    public static String getPodStatusText(PodSchema pod) {
+        if (pod != null) {
+            CurrentState currentState = pod.getCurrentState();
+            if (currentState != null) {
+                return currentState.getStatus();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the pods for the given replication controller
+     */
+    public static List<PodSchema> getPodsForReplicationController(ReplicationControllerSchema replicationController, Iterable<PodSchema> pods) {
+        PodTemplateDesiredState podTemplateDesiredState = getPodTemplateDesiredState(replicationController);
+        if (podTemplateDesiredState == null) {
+            LOG.warn("Cannot instantiate replication controller: " + replicationController.getId() + " due to missing PodTemplate.DesiredState!");
+        } else {
+            ControllerDesiredState desiredState = replicationController.getDesiredState();
+            if (desiredState != null) {
+                Map<String, String> replicaSelector = desiredState.getReplicaSelector();
+                Filter<PodSchema> podFilter = KubernetesHelper.createPodFilter(replicaSelector);
+                return Filters.filter(pods, podFilter);
+            }
+        }
+        return Collections.EMPTY_LIST;
     }
 }

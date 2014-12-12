@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.kubernetes.api;
+package io.fabric8.kubernetes.api.mbeans;
 
 import java.io.IOException;
 

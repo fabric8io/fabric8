@@ -82,7 +82,7 @@ public class TemplateManager implements TemplateManagerMXBean {
         MBeanServer beanServer = getMBeanServer();
         Objects.notNull(beanServer, "MBeanServer");
         if (!beanServer.isRegistered(GIT_FACADE_OBJECT_NAME)) {
-            throw new InstanceNotFoundException("No MBeab is available for: " + GIT_FACADE_OBJECT_NAME);
+            throw new InstanceNotFoundException("No MBean is available for: " + GIT_FACADE_OBJECT_NAME);
         }
 
         TemplateGenerator generator = new TemplateGenerator(dto);

@@ -54,8 +54,8 @@ public class Apply {
                 return;
             }
             Controller controller = new Controller(kube);
-            controller.applyJson(file);
-            System.out.println("Applied!");
+            Object answer = controller.applyJson(file);
+            System.out.println("Applied!: " + answer);
         } catch (Exception e) {
             System.out.println("FAILED: " + e);
             e.printStackTrace();

@@ -72,6 +72,26 @@
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
     </dependency>
+
+    <!-- testing -->
+    <dependency>
+      <groupId>io.hawt</groupId>
+      <artifactId>hawtio-kubernetes</artifactId>
+      <version>${hawtio.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.hawt</groupId>
+      <artifactId>hawtio-aether</artifactId>
+      <version>${hawtio.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.hawt</groupId>
+      <artifactId>hawtio-git</artifactId>
+      <version>${hawtio.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -125,7 +145,10 @@
           </execution>
         </executions>
         <configuration>
+<!--
           <mainClass>io.fabric8.kubernetes.api.Example</mainClass>
+-->
+          <mainClass>io.fabric8.kubernetes.api.ViewAppSummaries</mainClass>
           <classpathScope>test</classpathScope>
         </configuration>
       </plugin>

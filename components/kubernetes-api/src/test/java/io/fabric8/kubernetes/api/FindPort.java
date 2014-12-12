@@ -15,6 +15,8 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.mbeans.KubernetesManager;
+
 /**
  * Simple test program for looking up the port of a pod
  */
