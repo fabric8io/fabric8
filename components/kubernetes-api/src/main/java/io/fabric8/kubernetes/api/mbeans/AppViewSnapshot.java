@@ -30,7 +30,7 @@ import java.util.Map;
  * Represents a snapshot of the entire system and how they relate to apps
  */
 public class AppViewSnapshot {
-    private final Map<String, AppViewDetails> apps = new HashMap<>();
+    private final Map<NamespaceAndAppPath, AppViewDetails> apps = new HashMap<>();
     private final Map<String, ServiceSchema> servicesMap;
     private final Map<String, ReplicationControllerSchema> controllerMap;
     private final Map<String, PodSchema> podMap;
@@ -42,16 +42,17 @@ public class AppViewSnapshot {
     }
 
 
-    public AppViewDetails getOrCreateAppView(String appPath) {
-        AppViewDetails answer = apps.get(appPath);
+    public AppViewDetails getOrCreateAppView(String appPath, String namespace) {
+        NamespaceAndAppPath key = new NamespaceAndAppPath(namespace, appPath);
+        AppViewDetails answer = apps.get(key);
         if (answer == null) {
-            answer = new AppViewDetails(this, appPath);
-            apps.put(appPath, answer);
+            answer = new AppViewDetails(this, appPath, namespace);
+            apps.put(key, answer);
         }
         return answer;
     }
 
-    public Map<String, AppViewDetails> getApps() {
+    public Map<NamespaceAndAppPath, AppViewDetails> getApps() {
         return apps;
     }
 

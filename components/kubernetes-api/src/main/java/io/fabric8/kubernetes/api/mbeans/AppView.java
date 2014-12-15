@@ -149,14 +149,14 @@ public class AppView implements AppViewMXBean {
         for (ServiceSchema service : servicesMap.values()) {
             String appPath = getAppPath(service.getId());
             if (appPath != null) {
-                AppViewDetails dto = snapshot.getOrCreateAppView(appPath);
+                AppViewDetails dto = snapshot.getOrCreateAppView(appPath, service.getNamespace());
                 dto.addService(service);
             }
         }
         for (ReplicationControllerSchema controller : controllerMap.values()) {
             String appPath = getAppPath(controller.getId());
             if (appPath != null) {
-                AppViewDetails dto = snapshot.getOrCreateAppView(appPath);
+                AppViewDetails dto = snapshot.getOrCreateAppView(appPath, controller.getNamespace());
                 dto.addController(controller);
             }
         }

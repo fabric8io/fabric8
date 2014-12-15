@@ -19,6 +19,8 @@ package io.fabric8.kubernetes.api.mbeans;
 
 import io.fabric8.kubernetes.api.model.ServiceSchema;
 
+import java.util.Map;
+
 
 /**
  */
@@ -26,11 +28,17 @@ public class AppServiceSummaryDTO {
     private final String id;
     private final String name;
     private final String namespace;
+    private final String portalIP;
+    private final Integer port;
+    private final Map<String, String> labels;
 
     public AppServiceSummaryDTO(ServiceSchema service) {
         this.id = service.getId();
         this.name = service.getName();
         this.namespace = service.getNamespace();
+        this.portalIP = service.getPortalIP();
+        this.port = service.getPort();
+        this.labels = service.getLabels();
     }
 
     @Override
@@ -52,5 +60,17 @@ public class AppServiceSummaryDTO {
 
     public String getNamespace() {
         return namespace;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public String getPortalIP() {
+        return portalIP;
+    }
+
+    public Map<String, String> getLabels() {
+        return labels;
     }
 }

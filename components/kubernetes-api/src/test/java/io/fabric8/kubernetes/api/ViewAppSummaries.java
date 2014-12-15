@@ -19,6 +19,7 @@ import io.fabric8.kubernetes.api.mbeans.AppSummaryDTO;
 import io.fabric8.kubernetes.api.mbeans.AppView;
 import io.fabric8.kubernetes.api.mbeans.AppViewDetails;
 import io.fabric8.kubernetes.api.mbeans.AppViewSnapshot;
+import io.fabric8.kubernetes.api.mbeans.NamespaceAndAppPath;
 import io.fabric8.utils.Files;
 import io.hawt.aether.AetherFacade;
 import io.hawt.git.GitFacade;
@@ -83,7 +84,7 @@ public class ViewAppSummaries {
             if (snapshot == null) {
                 return;
             }
-            Map<String, AppViewDetails> apps = snapshot.getApps();
+            Map<NamespaceAndAppPath, AppViewDetails> apps = snapshot.getApps();
             System.out.println("Services: " + snapshot.getServicesMap().size());
             System.out.println("Controllers: " + snapshot.getControllerMap().size());
             System.out.println("Pods: " + snapshot.getPodMap().size());

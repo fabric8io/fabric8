@@ -24,6 +24,7 @@ import java.util.List;
  */
 public class AppSummaryDTO {
     private String appPath;
+    private String namespace;
     private List<AppServiceSummaryDTO> services = new ArrayList<>();
     private List<AppReplicationControllerSummaryDTO> replicationControllers = new ArrayList<>();
     private List<AppPodSummaryDTO> pods = new ArrayList<>();
@@ -31,18 +32,20 @@ public class AppSummaryDTO {
     public AppSummaryDTO() {
     }
 
+    public AppSummaryDTO(String appPath, String namespace) {
+        this.appPath = appPath;
+        this.namespace = namespace;
+    }
+
     @Override
     public String toString() {
         return "AppSummaryDTO{" +
-                "appPath='" + appPath + '\'' +
+                "namespace='" + namespace + '\'' +
+                ", appPath='" + appPath + '\'' +
                 ", services=" + services +
                 ", replicationControllers=" + replicationControllers +
                 ", pods=" + pods +
                 '}';
-    }
-
-    public AppSummaryDTO(String appPath) {
-        this.appPath = appPath;
     }
 
     public void addServiceSummary(AppServiceSummaryDTO dto) {
@@ -59,6 +62,18 @@ public class AppSummaryDTO {
 
     public String getAppPath() {
         return appPath;
+    }
+
+    public void setAppPath(String appPath) {
+        this.appPath = appPath;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 
     public List<AppPodSummaryDTO> getPods() {

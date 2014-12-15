@@ -17,17 +17,29 @@
  */
 package io.fabric8.kubernetes.api.mbeans;
 
+import io.fabric8.kubernetes.api.model.ControllerDesiredState;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+
+import java.util.Map;
 
 /**
  */
 public class AppReplicationControllerSummaryDTO {
     private final String id;
     private final String namespace;
+    private final Map<String, String> labels;
+    private Integer replicas;
+    private Map<String, String> replicaSelector;
 
     public AppReplicationControllerSummaryDTO(ReplicationControllerSchema controller) {
         this.id = controller.getId();
         this.namespace = controller.getNamespace();
+        this.labels = controller.getLabels();
+        ControllerDesiredState desiredState = controller.getDesiredState();
+        if (desiredState != null) {
+            this.replicas = desiredState.getReplicas();
+            this.replicaSelector = desiredState.getReplicaSelector();
+        }
     }
 
     @Override
@@ -44,5 +56,17 @@ public class AppReplicationControllerSummaryDTO {
 
     public String getNamespace() {
         return namespace;
+    }
+
+    public Map<String, String> getLabels() {
+        return labels;
+    }
+
+    public Integer getReplicas() {
+        return replicas;
+    }
+
+    public Map<String, String> getReplicaSelector() {
+        return replicaSelector;
     }
 }

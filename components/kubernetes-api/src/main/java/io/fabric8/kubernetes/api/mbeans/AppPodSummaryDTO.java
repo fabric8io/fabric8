@@ -22,17 +22,21 @@ import io.fabric8.kubernetes.api.PodStatus;
 import io.fabric8.kubernetes.api.model.CurrentState;
 import io.fabric8.kubernetes.api.model.PodSchema;
 
+import java.util.Map;
+
 /**
  */
 public class AppPodSummaryDTO {
     private final String id;
     private final String namespace;
     private final PodStatus status;
+    private final Map<String, String> labels;
 
     public AppPodSummaryDTO(PodSchema pod) {
         this.id = pod.getId();
         this.namespace = pod.getNamespace();
         this.status = KubernetesHelper.getPodStatus(pod);
+        this.labels = pod.getLabels();
     }
 
     @Override
@@ -54,5 +58,9 @@ public class AppPodSummaryDTO {
 
     public String getNamespace() {
         return namespace;
+    }
+
+    public Map<String, String> getLabels() {
+        return labels;
     }
 }

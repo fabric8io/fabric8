@@ -32,13 +32,15 @@ import java.util.Map;
 public class AppViewDetails {
     private final AppViewSnapshot snapshot;
     private final String appPath;
+    private final String namespace;
     private final Map<String, ServiceSchema> services = new HashMap<>();
     private final Map<String, ReplicationControllerSchema> controllers = new HashMap<>();
     private final Map<String, PodSchema> pods = new HashMap<>();
 
-    public AppViewDetails(AppViewSnapshot snapshot, String appPath) {
+    public AppViewDetails(AppViewSnapshot snapshot, String appPath, String namespace) {
         this.snapshot = snapshot;
         this.appPath = appPath;
+        this.namespace = namespace;
     }
 
     public AppViewSnapshot getSnapshot() {
@@ -47,6 +49,10 @@ public class AppViewDetails {
 
     public String getAppPath() {
         return appPath;
+    }
+
+    public String getNamespace() {
+        return namespace;
     }
 
     public Map<String, ServiceSchema> getServices() {
@@ -90,7 +96,7 @@ public class AppViewDetails {
     }
 
     public AppSummaryDTO getSummary() {
-        AppSummaryDTO answer = new AppSummaryDTO(appPath);
+        AppSummaryDTO answer = new AppSummaryDTO(appPath, namespace);
         for (ServiceSchema service : getServices().values()) {
             answer.addServiceSummary(new AppServiceSummaryDTO(service));
         }
