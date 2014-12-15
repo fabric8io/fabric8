@@ -37,12 +37,10 @@ public class Main {
             File karafProfilesDir = new File(basedir, "../../fabric/fabric8-karaf/src/main/resources/distro/fabric/import/fabric/profiles/").getCanonicalFile();
 
             File catalogFile = new File(basedir, "target/classes/archetype-catalog.xml").getCanonicalFile();
-            File quickStartJavaSrcDir = new File(basedir, "../../quickstarts/java").getCanonicalFile();
-            File quickStartKarafSrcDir = new File(basedir, "../../quickstarts/karaf").getCanonicalFile();
-            File quickStartKarafBeginnerSrcDir = new File(basedir, "../../quickstarts/karaf/beginner").getCanonicalFile();
-            File quickStartKarafCxfSrcDir = new File(basedir, "../../quickstarts/karaf/cxf").getCanonicalFile();
-            File quickStartSpringBootSrcDir = new File(basedir, "../../quickstarts/spring-boot").getCanonicalFile();
-            File quickStartWarSrcDir = new File(basedir, "../../quickstarts/war").getCanonicalFile();
+            File quickStartKarafSrcDir = new File(basedir, "../../quickstarts").getCanonicalFile();
+            File quickStartKarafBeginnerSrcDir = new File(basedir, "../../quickstarts/beginner").getCanonicalFile();
+            File quickStartKarafCxfSrcDir = new File(basedir, "../../quickstarts/cxf").getCanonicalFile();
+//            File quickStartWarSrcDir = new File(basedir, "../../quickstarts/war").getCanonicalFile();
             File outputDir = args.length > 0 ? new File(args[0]) : new File(basedir, "../archetypes");
 
             ArchetypeBuilder builder = new ArchetypeBuilder(catalogFile);
@@ -51,12 +49,10 @@ public class Main {
 
             List<String> dirs = new ArrayList<>();
             try {
-                builder.generateArchetypes("java", quickStartJavaSrcDir, outputDir, false, dirs, karafProfilesDir);
                 builder.generateArchetypes("karaf", quickStartKarafSrcDir, outputDir, false, dirs, karafProfilesDir);
                 builder.generateArchetypes("karaf", quickStartKarafBeginnerSrcDir, outputDir, false, dirs, karafProfilesDir);
                 builder.generateArchetypes("karaf", quickStartKarafCxfSrcDir, outputDir, false, dirs, karafProfilesDir);
-                builder.generateArchetypes("springboot", quickStartSpringBootSrcDir, outputDir, false, dirs, karafProfilesDir);
-                builder.generateArchetypes("war", quickStartWarSrcDir, outputDir, false, dirs, karafProfilesDir);
+//                builder.generateArchetypes("war", quickStartWarSrcDir, outputDir, false, dirs, karafProfilesDir);
             } finally {
                 LOG.debug("Completed the generation. Closing!");
                 builder.close();
