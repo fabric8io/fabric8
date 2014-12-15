@@ -39,14 +39,14 @@ public class ContextListCommand extends AbstractJolokiaCommand {
     }
 
     @Override
-    public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
+    public Result execute(UIExecutionContext context) throws Exception {
         String url = getJolokiaUrl();
         if (url == null) {
             return Results.fail("Not connected to remote jolokia agent. Use camel-connect command first");
         }
 
         org.apache.camel.commands.ContextListCommand command = new org.apache.camel.commands.ContextListCommand();
-        command.execute(getController(), getOut(), getOut());
+        command.execute(getController(), getOutput(context), getError(context));
 
         return Results.success();
     }

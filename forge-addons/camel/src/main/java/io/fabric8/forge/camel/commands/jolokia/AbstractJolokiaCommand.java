@@ -23,9 +23,8 @@ import org.apache.camel.commands.jolokia.JolokiaCamelController;
 import org.jboss.forge.addon.configuration.Configuration;
 import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
-import org.jboss.forge.addon.ui.UIProvider;
 import org.jboss.forge.addon.ui.context.UIBuilder;
-import org.jboss.forge.addon.ui.output.UIOutput;
+import org.jboss.forge.addon.ui.context.UIExecutionContext;
 
 /**
  * Base class for all Jolokia Camel commands.
@@ -40,8 +39,6 @@ public abstract class AbstractJolokiaCommand extends AbstractProjectCommand {
     @Inject
     protected Configuration configuration;
 
-    protected UIProvider uiProvider;
-
     @Override
     protected boolean isProjectRequired() {
         return false;
@@ -50,24 +47,6 @@ public abstract class AbstractJolokiaCommand extends AbstractProjectCommand {
     @Override
     protected ProjectFactory getProjectFactory() {
         return projectFactory;
-    }
-
-    protected UIProvider getUiProvider() {
-        return uiProvider;
-    }
-
-    protected UIOutput getOutput() {
-        UIProvider provider = getUiProvider();
-        return provider != null ? provider.getOutput() : null;
-    }
-
-    protected PrintStream getOut() {
-        UIOutput output = getOutput();
-        if (output != null) {
-            return output.out();
-        } else {
-            return System.out;
-        }
     }
 
     @Override
@@ -82,6 +61,14 @@ public abstract class AbstractJolokiaCommand extends AbstractProjectCommand {
         JolokiaCamelController controller = new DefaultJolokiaCamelController();
         controller.connect(getJolokiaUrl(), null, null);
         return controller;
+    }
+
+    protected PrintStream getOutput(UIExecutionContext context) {
+        return context.getUIContext().getProvider().getOutput().out();
+    }
+
+    protected PrintStream getError(UIExecutionContext context) {
+        return context.getUIContext().getProvider().getOutput().err();
     }
 
 }
