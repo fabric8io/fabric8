@@ -18,10 +18,7 @@
 package io.fabric8.kubernetes.api.mbeans;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
@@ -55,7 +52,7 @@ public class AppView implements AppViewMXBean {
     public static ObjectName KUBERNETES_OBJECT_NAME;
 
     private final AtomicReference<AppViewSnapshot> snapshotCache = new AtomicReference<>();
-    private long pollPeriod = 2000;
+    private long pollPeriod = 3000;
     private Timer timer = new Timer();
     private MBeanServer mbeanServer;
 
@@ -82,7 +79,7 @@ public class AppView implements AppViewMXBean {
 
     public void init() {
         if (pollPeriod > 0) {
-            timer.schedule(task, pollPeriod);
+            timer.schedule(task, pollPeriod, pollPeriod);
 
             JMXUtils.registerMBean(this, OBJECT_NAME);
         }
@@ -95,6 +92,10 @@ public class AppView implements AppViewMXBean {
         JMXUtils.unregisterMBean(OBJECT_NAME);
     }
 
+    @Override
+    public String getKubernetesAddress() {
+        return kubernetes.getAddress();
+    }
 
     public long getPollPeriod() {
         return pollPeriod;
@@ -159,6 +160,7 @@ public class AppView implements AppViewMXBean {
                 dto.addController(controller);
             }
         }
+        snapshotCache.set(snapshot);
         return snapshot;
     }
 

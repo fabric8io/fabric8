@@ -28,5 +28,7 @@ public interface AppViewMXBean {
     List<AppSummaryDTO> getAppSummaries();
 */
 
+    String getKubernetesAddress();
+
     String findAppSummariesJson() throws JsonProcessingException;
 }

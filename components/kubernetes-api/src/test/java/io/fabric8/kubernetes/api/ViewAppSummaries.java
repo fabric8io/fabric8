@@ -19,6 +19,8 @@ import io.fabric8.kubernetes.api.mbeans.AppSummaryDTO;
 import io.fabric8.kubernetes.api.mbeans.AppView;
 import io.fabric8.kubernetes.api.mbeans.AppViewDetails;
 import io.fabric8.kubernetes.api.mbeans.AppViewSnapshot;
+import io.fabric8.utils.Files;
+import io.hawt.aether.AetherFacade;
 import io.hawt.git.GitFacade;
 import io.hawt.kubernetes.KubernetesService;
 
@@ -34,16 +36,21 @@ public class ViewAppSummaries {
         KubernetesService kubeService = new KubernetesService();
         AppView appView = new AppView();
         GitFacade git = new GitFacade();
+        AetherFacade aether = new AetherFacade();
         try {
-            boolean testTimer = true;
+            boolean testTimer = false;
             String fabric8Version = getFabric8Version();
 
             kubeService.init();
+            aether.init();
 
             git.setInitialImportURLs("mvn:io.fabric8.quickstarts/fabric8-quickstarts-parent/" + fabric8Version
                     + "/zip/app,mvn:io.fabric8.jube.images.fabric8/apps/" + fabric8Version + "/zip/app");
             git.setCloneRemoteRepoOnStartup(false);
-            File configDir = new File(getBasedir() + "/target/hawtioConfig");
+            File configDir = new File(getBasedir() + "/target/viewAppConfig");
+            if (configDir.exists()) {
+                Files.recursiveDelete(configDir);
+            }
             configDir.mkdirs();
 
             git.setConfigDirectory(configDir);
@@ -52,7 +59,9 @@ public class ViewAppSummaries {
             System.out.println("Created testing hawtio wiki at: " + configDir.getAbsolutePath());
 
             appView.init();
-            Thread.sleep(5000);
+
+            System.out.println("Querying kubernetes at: " + appView.getKubernetesAddress());
+
             AppViewSnapshot snapshot = null;
             if (testTimer) {
                 for (int i = 0; i < 20; i++) {
@@ -75,11 +84,15 @@ public class ViewAppSummaries {
                 return;
             }
             Map<String, AppViewDetails> apps = snapshot.getApps();
+            System.out.println("Services: " + snapshot.getServicesMap().size());
+            System.out.println("Controllers: " + snapshot.getControllerMap().size());
+            System.out.println("Pods: " + snapshot.getPodMap().size());
             System.out.println("Has running apps: " + apps.keySet());
             List<AppSummaryDTO> appSummaries = appView.getAppSummaries();
             for (AppSummaryDTO appSummary : appSummaries) {
                 System.out.println("app: " + appSummary);
             }
+            System.out.println("JSON: " + appView.findAppSummariesJson());
         } catch (Exception e) {
             System.out.println("FAILED: " + e);
             e.printStackTrace();
@@ -97,6 +110,7 @@ public class ViewAppSummaries {
                 e.printStackTrace();
             }
             try {
+                aether.destroy();
                 kubeService.destroy();
             } catch (Exception e) {
                 System.out.println("FAILED: " + e);
