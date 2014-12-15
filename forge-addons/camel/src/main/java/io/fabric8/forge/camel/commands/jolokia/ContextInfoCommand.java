@@ -17,8 +17,7 @@ package io.fabric8.forge.camel.commands.jolokia;
 
 import javax.inject.Inject;
 
-import org.apache.camel.commands.jolokia.DefaultJolokiaCamelController;
-import org.apache.camel.commands.jolokia.JolokiaCamelController;
+import org.apache.camel.commands.jolokia.NoopStringEscape;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -30,39 +29,42 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-public class ConnectCommand extends AbstractJolokiaCommand {
+public class ContextInfoCommand extends AbstractJolokiaCommand {
 
     @Inject
-    @WithAttributes(label = "Url", required = true,
-            description = "url to remote jolokia agent",
-            requiredMessage = "You must provide an url to connect to the remote jolokia agent")
-    private UIInput<String> url;
+    @WithAttributes(label = "name", required = true,
+            description = "The name of the Camel context")
+    private UIInput<String> name;
+
+    @Inject
+    @WithAttributes(label = "verbose", required = false, defaultValue = "false", description = "Verbose output")
+    private UIInput<String> verbose;
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
-                "camel-connect").category(Categories.create(CATEGORY))
-                .description("Connects to a Jolokia agent");
+                "camel-context-info").category(Categories.create(CATEGORY))
+                .description("Display detailed information about a Camel context.");
     }
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
-        builder.add(url);
+        builder.add(name).add(verbose);
     }
 
     @Override
     public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
-        configuration.setProperty("CamelJolokiaUrl", url.getValue());
-
-        // ping to see if the connection works
-        JolokiaCamelController controller = new DefaultJolokiaCamelController();
-        controller.connect(url.getValue(), null, null);
-
-        boolean ok = controller.ping();
-        if (ok) {
-            return Results.success("Connected to " + url.getValue());
-        } else {
-            return Results.fail("Error connecting to " + url.getValue());
+        String url = getJolokiaUrl();
+        if (url == null) {
+            return Results.fail("Not connected to remote jolokia agent. Use camel-connect command first");
         }
+
+        boolean val = "true".equals(verbose.getValue());
+
+        org.apache.camel.commands.ContextInfoCommand command = new org.apache.camel.commands.ContextInfoCommand(name.getValue(), val);
+        command.setStringEscape(new NoopStringEscape());
+
+        command.execute(getController(), getOut(), getOut());
+        return Results.success();
     }
 }

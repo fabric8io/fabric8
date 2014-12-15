@@ -15,8 +15,6 @@
  */
 package io.fabric8.forge.camel.commands.jolokia;
 
-import org.apache.camel.commands.jolokia.JolokiaCamelController;
-import org.apache.camel.commands.jolokia.RemoteCamelController;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -47,11 +45,8 @@ public class ContextListCommand extends AbstractJolokiaCommand {
             return Results.fail("Not connected to remote jolokia agent. Use camel-connect command first");
         }
 
-        RemoteCamelController controller = new JolokiaCamelController();
-        controller.connect(url, null, null);
-
         org.apache.camel.commands.ContextListCommand command = new org.apache.camel.commands.ContextListCommand();
-        command.execute(controller, getOut(), getOut());
+        command.execute(getController(), getOut(), getOut());
 
         return Results.success();
     }

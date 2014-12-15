@@ -18,6 +18,8 @@ package io.fabric8.forge.camel.commands.jolokia;
 import java.io.PrintStream;
 import javax.inject.Inject;
 
+import org.apache.camel.commands.jolokia.DefaultJolokiaCamelController;
+import org.apache.camel.commands.jolokia.JolokiaCamelController;
 import org.jboss.forge.addon.configuration.Configuration;
 import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
@@ -74,6 +76,12 @@ public abstract class AbstractJolokiaCommand extends AbstractProjectCommand {
 
     protected String getJolokiaUrl() {
         return configuration.getString("CamelJolokiaUrl");
+    }
+
+    protected JolokiaCamelController getController() throws Exception {
+        JolokiaCamelController controller = new DefaultJolokiaCamelController();
+        controller.connect(getJolokiaUrl(), null, null);
+        return controller;
     }
 
 }
