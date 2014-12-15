@@ -13,32 +13,44 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands;
+package io.fabric8.forge.camel.commands.jolokia;
 
+import javax.inject.Inject;
+
+import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
+import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
+import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-public class CamelListComponentsCommand extends AbstractCamelCommand {
+public class ConnectCommand extends AbstractJolokiaCommand {
+
+    @Inject
+    @WithAttributes(label = "Url", required = true,
+            description = "url to remote jolokia agent",
+            requiredMessage = "You must provide an url to connect to the remote jolokia agent")
+    private UIInput<String> url;
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelListComponentsCommand.class).name(
-                "camel-list-components").category(Categories.create(CATEGORY))
-                .description("List Camel components currently in use in the project");
+        return Metadata.forCommand(ConnectCommand.class).name(
+                "camel-connect").category(Categories.create(CATEGORY))
+                .description("Connects to a Jolokia agent");
     }
 
     @Override
-    public Result execute(UIExecutionContext context) throws Exception {
-        for (String s : camelDepsInUse) {
-            getOut().println(s);
-        }
-
-        return Results.success();
+    public void initializeUI(UIBuilder builder) throws Exception {
+        builder.add(url);
     }
 
+    @Override
+    public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
+        configuration.setProperty("CamelJolokiaUrl", url.getValue());
+        return Results.success("Connected to " + url.getValue());
+    }
 }

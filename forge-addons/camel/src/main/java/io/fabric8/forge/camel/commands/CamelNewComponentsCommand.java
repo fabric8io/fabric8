@@ -15,6 +15,25 @@
  */
 package io.fabric8.forge.camel.commands;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import javax.inject.Inject;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.MediaType;
+
 import com.jcabi.xml.XML;
 import com.jcabi.xml.XMLDocument;
 import io.fabric8.forge.camel.api.CamelSupportedTechnologyEnum;
@@ -53,17 +72,6 @@ import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.validate.UIValidator;
 import org.jboss.forge.roaster.model.source.JavaClassSource;
 import org.jboss.forge.roaster.model.source.JavaSource;
-
-import javax.inject.Inject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.MediaType;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 public class CamelNewComponentsCommand extends AbstractCamelCommand {
 
@@ -355,20 +363,5 @@ public class CamelNewComponentsCommand extends AbstractCamelCommand {
         return matched[0];
     }
 
-
 }
 
-class UIVersionCompleter implements UICompleter{
-    AbstractCamelCommand command;
-
-    public UIVersionCompleter(AbstractCamelCommand command){
-        this.command = command;
-    }
-
-    @Override
-    public Iterable getCompletionProposals(UIContext context, InputComponent input, String value) {
-        List<String> result = new ArrayList<>(1);
-        result.add(command.getCamelCoreVersion());
-        return result;
-    }
-}

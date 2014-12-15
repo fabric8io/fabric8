@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands;
+package io.fabric8.forge.camel.commands.jolokia;
 
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -23,22 +23,25 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-public class CamelListComponentsCommand extends AbstractCamelCommand {
+public class DisconnectCommand extends AbstractJolokiaCommand {
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
-        return Metadata.forCommand(CamelListComponentsCommand.class).name(
-                "camel-list-components").category(Categories.create(CATEGORY))
-                .description("List Camel components currently in use in the project");
+        return Metadata.forCommand(DisconnectCommand.class).name(
+                "camel-disconnect").category(Categories.create(CATEGORY))
+                .description("Disconnects from the Jolokia agent");
     }
 
     @Override
-    public Result execute(UIExecutionContext context) throws Exception {
-        for (String s : camelDepsInUse) {
-            getOut().println(s);
+    public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
+        String url = getJolokiaUrl();
+
+        configuration.clearProperty("CamelJolokiaUrl");
+
+        if (url != null) {
+            return Results.success("Disconnected from " + url);
+        } else {
+            return Results.success();
         }
-
-        return Results.success();
     }
-
 }

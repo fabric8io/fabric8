@@ -13,42 +13,36 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.forge.camel.commands;
+package io.fabric8.forge.camel.commands.jolokia;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import javax.inject.Inject;
 
-import org.jboss.forge.addon.dependencies.Dependency;
-import org.jboss.forge.addon.projects.Project;
+import org.jboss.forge.addon.configuration.Configuration;
 import org.jboss.forge.addon.projects.ProjectFactory;
-import org.jboss.forge.addon.projects.facets.DependencyFacet;
 import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
 import org.jboss.forge.addon.ui.UIProvider;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.output.UIOutput;
 
-// extending AbstractProjectCommand we have access to ProjectFactory
-public abstract class AbstractCamelCommand extends AbstractProjectCommand {
-    public static final String MVN_CAMEL_GROUPID = "org.apache.camel";
-    private static final String MVN_CAMEL_CORE = "camel-core";
+/**
+ * Base class for all Jolokia Camel commands.
+ */
+public abstract class AbstractJolokiaCommand extends AbstractProjectCommand {
+
     public static String CATEGORY = "Camel";
 
     @Inject
     protected ProjectFactory projectFactory; // helper to integrate with the filesystem
 
+    @Inject
+    protected Configuration configuration;
+
     protected UIProvider uiProvider;
-
-    protected List<String> camelDepsInUse = null;
-    protected String camelCoreVersion = null;
-
 
     @Override
     protected boolean isProjectRequired() {
-        //we want to be in a project to be able to use camel commands
-        return true;
+        return false;
     }
 
     @Override
@@ -76,24 +70,10 @@ public abstract class AbstractCamelCommand extends AbstractProjectCommand {
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
-        List<String> currentCamelDeps = new ArrayList<String>();
-
-        Project selectedProject = getSelectedProject(builder);
-        List<Dependency> dependencies = selectedProject.getFacet(DependencyFacet.class).getEffectiveDependencies();
-        for (Dependency d : dependencies) {
-            if (MVN_CAMEL_GROUPID.equals(d.getCoordinate().getGroupId())) {
-                currentCamelDeps.add(d.getCoordinate().getArtifactId());
-                if (MVN_CAMEL_CORE.equals(d.getCoordinate().getArtifactId())) {
-                    camelCoreVersion = d.getCoordinate().getVersion();
-                }
-            }
-        }
-        Collections.sort(currentCamelDeps);
-        camelDepsInUse = currentCamelDeps;
     }
 
-    public String getCamelCoreVersion() {
-        return camelCoreVersion;
+    protected String getJolokiaUrl() {
+        return configuration.getString("CamelJolokiaUrl");
     }
 
 }
