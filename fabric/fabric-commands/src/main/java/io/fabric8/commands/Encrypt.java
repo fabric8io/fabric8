@@ -63,4 +63,12 @@ public class Encrypt extends AbstractCommandComponent {
         return new EncryptAction(curator);
     }
 
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
 }

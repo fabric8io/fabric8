@@ -63,4 +63,12 @@ public class EncryptionMasterPasswordGet extends AbstractCommandComponent {
         return new EncryptionMasterPasswordGetAction(curator);
     }
 
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
 }

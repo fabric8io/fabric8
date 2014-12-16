@@ -63,4 +63,12 @@ public class EncryptionAlgorithmGet extends AbstractCommandComponent {
         return new EncryptionAlgorithmGetAction(curator);
     }
 
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
 }
