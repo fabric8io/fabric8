@@ -23,10 +23,8 @@ permissions and limitations under the License.
     <parent>
         <groupId>io.fabric8.support</groupId>
         <artifactId>support-project</artifactId>
-        <version>6.2.0.redhat-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
-    <version>${fabric.version}</version>
     <groupId>io.fabric8.support</groupId>
     <packaging>war</packaging>
 
@@ -93,7 +91,7 @@ permissions and limitations under the License.
         <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric-api</artifactId>
-            <version>${fabric.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
 
