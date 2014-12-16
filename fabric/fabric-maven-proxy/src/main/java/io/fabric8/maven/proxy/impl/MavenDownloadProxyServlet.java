@@ -16,9 +16,11 @@
 package io.fabric8.maven.proxy.impl;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.CompletionHandler;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -97,6 +99,33 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
 
         final AsyncContext asyncContext = req.startAsync();
         asyncContext.setTimeout(TimeUnit.MINUTES.toMillis(5));
+
+        AsynchronousFileChannel channel = (AsynchronousFileChannel) req.getAttribute(AsynchronousFileChannel.class.getName());
+        if (channel != null) {
+            ByteBuffer buffer = (ByteBuffer) req.getAttribute(ByteBuffer.class.getName());
+            ByteBuffer secondBuffer = (ByteBuffer) req.getAttribute(ByteBuffer.class.getName() + ".second");
+            buffer.flip();
+            if (buffer.remaining() > 0) {
+                req.setAttribute(ByteBuffer.class.getName(), secondBuffer);
+                req.setAttribute(ByteBuffer.class.getName() + ".second", buffer);
+                channel.read(secondBuffer, 0, asyncContext, new CompletionHandler<Integer, AsyncContext>() {
+                    @Override
+                    public void completed(Integer result, AsyncContext attachment) {
+                        attachment.dispatch();
+                    }
+
+                    @Override
+                    public void failed(Throwable exc, AsyncContext attachment) {
+                        attachment.dispatch();
+                    }
+                });
+                resp.getOutputStream().write(buffer.array(), 0, buffer.remaining());
+            } else {
+                asyncContext.complete();
+            }
+            return;
+        }
+
         final ArtifactDownloadFuture future = new ArtifactDownloadFuture(path);
         ArtifactDownloadFuture masterFuture = requestMap.putIfAbsent(path, future);
         if (masterFuture == null) {
@@ -125,27 +154,40 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
                     resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 } else if (value instanceof File) {
                     File artifactFile = (File) value;
-                    InputStream is = null;
+                    AsynchronousFileChannel channel = null;
                     try {
-                        is = new FileInputStream(artifactFile);
+                        channel = AsynchronousFileChannel.open(artifactFile.toPath(), StandardOpenOption.READ);
                         LOGGER.info("Writing response for file : {}", path);
                         resp.setStatus(HttpServletResponse.SC_OK);
                         resp.setContentType("application/octet-stream");
                         resp.setDateHeader("Date", System.currentTimeMillis());
                         resp.setHeader("Connection", "close");
-                        resp.setContentLength(is.available());
-                        resp.setHeader("Server", "MavenProxy Proxy/" + FabricConstants.FABRIC_VERSION);
-                        byte buffer[] = new byte[8192];
-                        int length;
-                        while ((length = is.read(buffer)) != -1) {
-                            resp.getOutputStream().write(buffer, 0, length);
+                        long size = artifactFile.length();
+                        if (size < Integer.MAX_VALUE) {
+                            resp.setContentLength((int) size);
                         }
-                        resp.getOutputStream().flush();
+                        resp.setHeader("Server", "MavenProxy Proxy/" + FabricConstants.FABRIC_VERSION);
+                        // Store attributes and start reading
+                        req.setAttribute(AsynchronousFileChannel.class.getName(), channel);
+                        ByteBuffer buffer = ByteBuffer.allocate(1024 * 64);
+                        ByteBuffer secondBuffer = ByteBuffer.allocate(1024 * 64);
+                        req.setAttribute(ByteBuffer.class.getName(), secondBuffer);
+                        req.setAttribute(ByteBuffer.class.getName() + ".second", buffer);
+                        channel.read(secondBuffer, 0, asyncContext, new CompletionHandler<Integer, AsyncContext>() {
+                            @Override
+                            public void completed(Integer result, AsyncContext attachment) {
+                                attachment.dispatch();
+                            }
+                            @Override
+                            public void failed(Throwable exc, AsyncContext attachment) {
+                                attachment.dispatch();
+                            }
+                        });
+                        return;
                     } catch (Exception e) {
+                        Closeables.closeQuietly(channel);
                         LOGGER.warn("Error while sending artifact: {}", e.getMessage(), e);
                         resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    } finally {
-                        Closeables.closeQuietly(is);
                     }
                 } else {
                     resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
