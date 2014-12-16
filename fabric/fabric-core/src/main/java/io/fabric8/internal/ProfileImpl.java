@@ -242,7 +242,7 @@ final class ProfileImpl implements Profile {
             if (fileName.startsWith("icon.")) {
                 String id = getId();
                 String version = getVersion();
-                result = "/version/" + version + "/profile/" + id + "/file/" + fileName;
+                result = version + "/fabric/profiles/" + id + ".profile/" + fileName;
                 break;
             }
         }
