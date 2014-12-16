@@ -28,22 +28,30 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-public class ContextSuspendCommand extends AbstractJolokiaCommand {
+public class EndpointExplainCommand extends AbstractJolokiaCommand {
 
     @Inject
     @WithAttributes(label = "name", required = true, description = "The name of the Camel context")
     private UIInput<String> name;
 
+    @Inject
+    @WithAttributes(label = "filter", required = false, description = "To filter endpoints by pattern")
+    private UIInput<String> filter;
+
+    @Inject
+    @WithAttributes(label = "verbose", required = false, defaultValue = "false", description = "Verbose output")
+    private UIInput<String> verbose;
+
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
-                "camel-context-suspend").category(Categories.create(CATEGORY))
-                .description("Suspend a Camel context");
+                "camel-endpoint-explain").category(Categories.create(CATEGORY))
+                .description("Explain all endpoints available in a CamelContext");
     }
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
-        builder.add(name);
+        builder.add(name).add(filter).add(verbose);
     }
 
     @Override
@@ -53,9 +61,11 @@ public class ContextSuspendCommand extends AbstractJolokiaCommand {
             return Results.fail("Not connected to remote jolokia agent. Use camel-connect command first");
         }
 
-        org.apache.camel.commands.ContextSuspendCommand command = new org.apache.camel.commands.ContextSuspendCommand(name.getValue());
+        boolean val = "true".equals(verbose.getValue());
+
+        org.apache.camel.commands.EndpointExplainCommand command = new org.apache.camel.commands.EndpointExplainCommand(name.getValue(), val, filter.getValue());
         command.execute(getController(), getOutput(context), getError(context));
 
-        return Results.success("Suspended " + name.getValue());
+        return Results.success();
     }
 }

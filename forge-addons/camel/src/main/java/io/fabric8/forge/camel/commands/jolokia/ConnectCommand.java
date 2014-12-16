@@ -33,8 +33,7 @@ import org.jboss.forge.addon.ui.util.Metadata;
 public class ConnectCommand extends AbstractJolokiaCommand {
 
     @Inject
-    @WithAttributes(label = "Url", required = true,
-            description = "url to remote jolokia agent",
+    @WithAttributes(label = "Url", required = true, description = "url to remote jolokia agent",
             requiredMessage = "You must provide an url to connect to the remote jolokia agent")
     private UIInput<String> url;
 

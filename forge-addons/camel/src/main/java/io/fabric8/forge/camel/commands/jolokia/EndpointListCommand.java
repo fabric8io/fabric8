@@ -28,22 +28,34 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-public class ContextSuspendCommand extends AbstractJolokiaCommand {
+public class EndpointListCommand extends AbstractJolokiaCommand {
 
     @Inject
     @WithAttributes(label = "name", required = true, description = "The name of the Camel context")
     private UIInput<String> name;
 
+    @Inject
+    @WithAttributes(label = "decode", required = false, defaultValue = "true", description = "Whether to decode the endpoint uri so its human readable")
+    private UIInput<String> decode;
+
+    @Inject
+    @WithAttributes(label = "explain", required = false, defaultValue = "false", description = "Whether to explain the endpoint options")
+    private UIInput<String> explain;
+
+    @Inject
+    @WithAttributes(label = "verbose", required = false, defaultValue = "false", description = "Verbose output")
+    private UIInput<String> verbose;
+
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
-                "camel-context-suspend").category(Categories.create(CATEGORY))
-                .description("Suspend a Camel context");
+                "camel-endpoint-list").category(Categories.create(CATEGORY))
+                .description("List all endpoints available in a CamelContext");
     }
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
-        builder.add(name);
+        builder.add(name).add(decode).add(explain).add(verbose);
     }
 
     @Override
@@ -53,9 +65,13 @@ public class ContextSuspendCommand extends AbstractJolokiaCommand {
             return Results.fail("Not connected to remote jolokia agent. Use camel-connect command first");
         }
 
-        org.apache.camel.commands.ContextSuspendCommand command = new org.apache.camel.commands.ContextSuspendCommand(name.getValue());
+        boolean val = "true".equals(decode.getValue());
+        boolean val2 = "true".equals(verbose.getValue());
+        boolean val3 = "true".equals(explain.getValue());
+
+        org.apache.camel.commands.EndpointListCommand command = new org.apache.camel.commands.EndpointListCommand(name.getValue(), val, val2, val3);
         command.execute(getController(), getOutput(context), getError(context));
 
-        return Results.success("Suspended " + name.getValue());
+        return Results.success();
     }
 }
