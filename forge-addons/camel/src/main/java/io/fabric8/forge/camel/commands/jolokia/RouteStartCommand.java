@@ -41,14 +41,14 @@ public class RouteStartCommand extends AbstractJolokiaCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
-                "camel-route-resume").category(Categories.create(CATEGORY))
+                "camel-route-start").category(Categories.create(CATEGORY))
                 .description("Start a Camel route");
     }
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         name.setCompleter(new CamelContextCompleter(getController()));
-        route.setCompleter(new RouteCompleter(getController()));
+        route.setCompleter(new RouteCompleter(getController(), name));
         builder.add(name).add(route);
     }
 

@@ -40,7 +40,9 @@ public class CamelContextCompleter implements UICompleter<String> {
             List<Map<String, String>> contexts = controller.getCamelContexts();
             for (Map<String, String> row : contexts) {
                 final String name = row.get("name");
-                answer.add(name);
+                if (value == null || name.startsWith(value)) {
+                    answer.add(name);
+                }
             }
         } catch (Exception e) {
             // ignore
