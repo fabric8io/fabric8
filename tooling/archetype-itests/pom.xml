@@ -108,7 +108,7 @@
             <artifactId>karaf-soap-archetype</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>io.fabric8.archetypes</groupId>
             <artifactId>war-camel-servlet-archetype</artifactId>
             <version>${project.version}</version>
@@ -117,7 +117,7 @@
             <groupId>io.fabric8.archetypes</groupId>
             <artifactId>war-rest-archetype</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency-->
 
         <!-- dependency>
             <groupId>ch.qos.logback</groupId>
