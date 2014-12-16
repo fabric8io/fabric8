@@ -48,6 +48,7 @@ public class ContextInfoCommand extends AbstractJolokiaCommand {
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
+        name.setCompleter(new CamelContextCompleter(getController()));
         builder.add(name).add(verbose);
     }
 
