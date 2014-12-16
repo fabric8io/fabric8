@@ -24,23 +24,29 @@ import org.apache.camel.commands.jolokia.JolokiaCamelController;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
+import org.jboss.forge.addon.ui.input.UIInput;
 
 public class RouteCompleter implements UICompleter<String> {
 
     private final JolokiaCamelController controller;
+    private final UIInput<String> name;
 
-    public RouteCompleter(JolokiaCamelController controller) {
+    public RouteCompleter(JolokiaCamelController controller, UIInput<String> name) {
         this.controller = controller;
+        this.name = name;
     }
 
     @Override
     public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
         List<String> answer = new ArrayList<>();
         try {
-            List<Map<String, String>> contexts = controller.getRoutes(null);
+            // limit routes to the context if we have already selected a value
+            List<Map<String, String>> contexts = controller.getRoutes(name.getValue());
             for (Map<String, String> row : contexts) {
                 final String name = row.get("routeId");
-                answer.add(name);
+                if (value == null || name.startsWith(value)) {
+                    answer.add(name);
+                }
             }
         } catch (Exception e) {
             // ignore

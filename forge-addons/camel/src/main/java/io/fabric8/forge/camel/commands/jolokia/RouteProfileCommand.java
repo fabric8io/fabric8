@@ -49,7 +49,7 @@ public class RouteProfileCommand extends AbstractJolokiaCommand {
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
         name.setCompleter(new CamelContextCompleter(getController()));
-        route.setCompleter(new RouteCompleter(getController()));
+        route.setCompleter(new RouteCompleter(getController(), name));
         builder.add(name).add(route);
     }
 
