@@ -70,12 +70,16 @@ public class Logs {
         // TODO missing fields...
         // event.getRenderedMessage()
         // event.getFQNOfLoggerClass()
-        PaxLocationInfo locationInformation = event.getLocationInformation();
-        if (locationInformation != null) {
-            answer.setClassName(locationInformation.getClassName());
-            answer.setFileName(locationInformation.getFileName());
-            answer.setMethodName(locationInformation.getMethodName());
-            answer.setLineNumber(locationInformation.getLineNumber());
+        try {
+            PaxLocationInfo locationInformation = event.getLocationInformation();
+            if (locationInformation != null) {
+                answer.setClassName(locationInformation.getClassName());
+                answer.setFileName(locationInformation.getFileName());
+                answer.setMethodName(locationInformation.getMethodName());
+                answer.setLineNumber(locationInformation.getLineNumber());
+            }
+        } catch (NoClassDefFoundError error) {
+            // ENTESB-2234, KARAF-3350: Ignore NoClassDefFoundError exceptions
         }
         return answer;
     }
