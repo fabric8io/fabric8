@@ -113,8 +113,8 @@
         <bndlib.version>2.1.0</bndlib.version>
         <bouncycastle.version>1.49</bouncycastle.version>
         <buildnumber.plugin.version>1.3</buildnumber.plugin.version>
-        <camel.version-range>[2.13,3)</camel.version-range>
-        <camel.version>2.14.0</camel.version>
+        <camel.version-range>[2.14,3)</camel.version-range>
+        <camel.version>2.14.1</camel.version>
         <cassandra.version>2.0.7</cassandra.version>
         <codahale-metrics.version>3.0.1</codahale-metrics.version>
         <commons-beanutils.version>1.8.3</commons-beanutils.version>
