@@ -31,7 +31,7 @@ import org.jboss.forge.addon.ui.util.Metadata;
 public class RestRegistryListCommand extends AbstractJolokiaCommand {
 
     @Inject
-    @WithAttributes(label = "name", required = false, description = "The name of the Camel context")
+    @WithAttributes(label = "name", required = true, description = "The name of the Camel context")
     private UIInput<String> name;
 
     @Inject
