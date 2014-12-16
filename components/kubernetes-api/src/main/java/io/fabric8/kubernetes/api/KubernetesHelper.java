@@ -426,6 +426,25 @@ public class KubernetesHelper {
     }
 
     /**
+     * Creates a filter on a pod annotations using the given set of attribute values
+     */
+    public static Filter<PodSchema> createPodAnnotationFilter(final Map<String,String> annotationSelector) {
+        if (annotationSelector == null || annotationSelector.isEmpty()) {
+            return Filters.<PodSchema>trueFilter();
+        } else {
+            return new Filter<PodSchema>() {
+                public String toString() {
+                    return "PodAnnotationFilter(" + annotationSelector + ")";
+                }
+
+                public boolean matches(PodSchema entity) {
+                    return filterLabels(annotationSelector, entity.getAnnotations());
+                }
+            };
+        }
+    }
+
+    /**
      * Creates a filter on a service using the given text string
      */
     public static Filter<ServiceSchema> createServiceFilter(final String textFilter) {
