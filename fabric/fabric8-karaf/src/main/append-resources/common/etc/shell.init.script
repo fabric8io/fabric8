@@ -33,5 +33,6 @@ if { "true" equals ${ensemble.auto.start} } {
   fabric:wait-for-provisioning;
 }
 
-wait-for-command-fast fabric welcome;
-fabric:welcome;  
+// Disable welcome message (ENTESB-2323)
+//wait-for-command-fast fabric welcome;
+//fabric:welcome;
