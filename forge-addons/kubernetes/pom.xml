@@ -30,19 +30,20 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
-    <version.furnace>2.12.0.Final</version.furnace>
   </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.jboss.forge</groupId>
         <artifactId>forge-bom</artifactId>
-        <version>${version.furnace}</version>
+        <version>${jboss.forge.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.jboss.forge.furnace.container</groupId>
@@ -70,6 +71,7 @@
       <artifactId>kubernetes-api</artifactId>
     </dependency>
   </dependencies>
+
   <build>
     <finalName>kubernetes</finalName>
     <plugins>
@@ -90,6 +92,7 @@
       </plugin>
     </plugins>
   </build>
+
   <profiles>
     <profile>
       <id>release</id>
@@ -117,4 +120,5 @@
       </build>
     </profile>
   </profiles>
+  
 </project>

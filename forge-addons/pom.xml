@@ -29,8 +29,25 @@
   <artifactId>forge-addons</artifactId>
   <packaging>pom</packaging>
   <name>Fabric8 :: Forge Addons</name>
-  <modules>
-    <module>kubernetes</module>
-    <module>camel</module>
-  </modules>
+
+  <!-- the camel add-on requires Camel 2.15, so we need to use a snapshot until its released -->
+  <profiles>
+     <profile>
+        <id>camel-snapshot</id>
+         <modules>
+            <module>kubernetes</module>
+            <module>camel</module>
+         </modules>
+      </profile>
+      <profile>
+         <id>default</id>
+         <activation>
+            <activeByDefault>true</activeByDefault>
+         </activation>
+         <modules>
+            <module>kubernetes</module>
+         </modules>
+      </profile>
+   </profiles>
+
 </project>
