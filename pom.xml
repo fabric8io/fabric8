@@ -165,6 +165,7 @@
         <felix-utils.version>1.6.0</felix-utils.version>
         <felix.obr.version>1.0.2</felix.obr.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
+        <furnace.version>2.13.0.Final</furnace.version>
         <geronimo-annotation.version>1.1.1</geronimo-annotation.version>
         <geronimo-connector.version>3.1.1</geronimo-connector.version>
         <geronimo-ejb-3-1-spec.version>1.0.2</geronimo-ejb-3-1-spec.version>
