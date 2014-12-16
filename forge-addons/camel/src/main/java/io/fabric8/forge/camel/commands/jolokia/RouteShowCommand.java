@@ -47,6 +47,8 @@ public class RouteShowCommand extends AbstractJolokiaCommand {
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
+        name.setCompleter(new CamelContextCompleter(getController()));
+        route.setCompleter(new RouteCompleter(getController()));
         builder.add(name).add(route);
     }
 
