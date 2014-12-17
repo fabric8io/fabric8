@@ -22,6 +22,7 @@ import org.apache.camel.commands.jolokia.JolokiaCamelController;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
+import org.jboss.forge.addon.ui.hints.InputType;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
@@ -42,7 +43,7 @@ public class ConnectCommand extends AbstractJolokiaCommand {
     private UIInput<String> username;
 
     @Inject
-    @WithAttributes(label = "Password", required = false, description = "password for authentication")
+    @WithAttributes(label = "Password", required = false, description = "password for authentication", type = InputType.SECRET)
     private UIInput<String> password;
 
     @Override
@@ -70,7 +71,7 @@ public class ConnectCommand extends AbstractJolokiaCommand {
 
         boolean ok = controller.ping();
         if (ok) {
-            return Results.success("Connected to " + url.getValue());
+            return Results.success("Connected to " + url.getValue() + (username.getValue() != null ? " using " + username.getValue() : ""));
         } else {
             return Results.fail("Error connecting to " + url.getValue());
         }
