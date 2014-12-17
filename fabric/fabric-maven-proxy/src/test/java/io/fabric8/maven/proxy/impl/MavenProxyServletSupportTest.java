@@ -19,6 +19,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -37,6 +39,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
@@ -394,27 +397,29 @@ public class MavenProxyServletSupportTest {
             MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(resolver, props, projectDeployer, 5);
 
             AsyncContext context = EasyMock.createMock(AsyncContext.class);
+            EasyMock.makeThreadSafe(context, true);
 
+            final Map<String, Object> attributes = new HashMap<>();
             HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+            HttpServletRequest requestWrapper = new HttpServletRequestWrapper(request) {
+                @Override
+                public Object getAttribute(String name) {
+                    return attributes.get(name);
+                }
+
+                @Override
+                public void setAttribute(String name, Object o) {
+                    attributes.put(name, o);
+                }
+            };
+            EasyMock.makeThreadSafe(request, true);
             EasyMock.expect(request.getPathInfo()).andReturn("org/apache/camel/camel-core/maven-metadata.xml");
-//            EasyMock.expect(request.getPathInfo()).andReturn("org/apache/camel/camel-core/LATEST/camel-core-LATEST.jar");
             EasyMock.expect(request.startAsync()).andReturn(context);
             context.setTimeout(EasyMock.anyInt());
             EasyMock.expectLastCall();
 
             HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            EasyMock.expect(response.getOutputStream()).andReturn(new ServletOutputStream() {
-                @Override
-                public void write(int b) throws IOException {
-                    baos.write(b);
-                }
-
-                @Override
-                public void write(byte[] b, int off, int len) throws IOException {
-                    baos.write(b, off, len);
-                }
-            }).anyTimes();
+            EasyMock.makeThreadSafe(response, true);
             response.setStatus(EasyMock.anyInt());
             EasyMock.expectLastCall().anyTimes();
             response.setContentLength(EasyMock.anyInt());
@@ -426,23 +431,55 @@ public class MavenProxyServletSupportTest {
             response.setHeader((String) EasyMock.anyObject(), (String) EasyMock.anyObject());
             EasyMock.expectLastCall().anyTimes();
 
-            final CountDownLatch latch = new CountDownLatch(1);
-            context.complete();
+            final CountDownLatch latchDispatch = new CountDownLatch(1);
+            context.dispatch();
             EasyMock.expectLastCall().andAnswer(new IAnswer<Object>() {
                 @Override
                 public Object answer() throws Throwable {
-                    latch.countDown();
+                    latchDispatch.countDown();
                     return null;
                 }
             });
 
-            EasyMock.makeThreadSafe(context, true);
             EasyMock.replay(request, response, context);
 
             servlet.start();
-            servlet.doGet(request, response);
+            servlet.doGet(requestWrapper, response);
 
-            latch.await();
+            latchDispatch.await();
+
+            EasyMock.verify(request, response, context);
+
+            EasyMock.reset(request, response, context);
+            EasyMock.expect(request.getPathInfo()).andReturn("org/apache/camel/camel-core/maven-metadata.xml");
+            EasyMock.expect(request.startAsync()).andReturn(context);
+            context.setTimeout(EasyMock.anyInt());
+            EasyMock.expectLastCall();
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            EasyMock.expect(response.getOutputStream()).andReturn(new ServletOutputStream() {
+                @Override
+                public void write(int b) throws IOException {
+                    baos.write(b);
+                }
+                @Override
+                public void write(byte[] b, int off, int len) throws IOException {
+                    baos.write(b, off, len);
+                }
+            }).anyTimes();
+            final CountDownLatch latchComplete = new CountDownLatch(1);
+            context.complete();
+            EasyMock.expectLastCall().andAnswer(new IAnswer<Object>() {
+                @Override
+                public Object answer() throws Throwable {
+                    latchComplete.countDown();
+                    return null;
+                }
+            });
+            EasyMock.replay(request, response, context);
+
+            servlet.doGet(requestWrapper, response);
+
+            EasyMock.verify(request, response, context);
 
             org.apache.maven.artifact.repository.metadata.Metadata m =
                     new MetadataXpp3Reader().read( new ByteArrayInputStream( baos.toByteArray() ), false );
@@ -477,58 +514,129 @@ public class MavenProxyServletSupportTest {
             MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(resolver, props, projectDeployer, 5);
 
             AsyncContext context = EasyMock.createMock(AsyncContext.class);
+            EasyMock.makeThreadSafe(context, true);
 
+            final Map<String, Object> attributes = new HashMap<>();
             HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+            HttpServletRequest requestWrapper = new HttpServletRequestWrapper(request) {
+                @Override
+                public Object getAttribute(String name) {
+                    return attributes.get(name);
+                }
+
+                @Override
+                public void setAttribute(String name, Object o) {
+                    attributes.put(name, o);
+                }
+            };
+            EasyMock.makeThreadSafe(request, true);
             EasyMock.expect(request.getPathInfo()).andReturn("org.apache.camel/camel-core/2.13.0/camel-core-2.13.0-sources.jar");
             EasyMock.expect(request.startAsync()).andReturn(context);
             context.setTimeout(EasyMock.anyInt());
             EasyMock.expectLastCall();
 
             HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            EasyMock.expect(response.getOutputStream()).andReturn(new ServletOutputStream() {
-                @Override
-                public void write(int b) throws IOException {
-                    baos.write(b);
-                }
-
-                @Override
-                public void write(byte[] b, int off, int len) throws IOException {
-                    baos.write(b, off, len);
-                }
-            }).anyTimes();
+            EasyMock.makeThreadSafe(response, true);
             response.setStatus(EasyMock.anyInt());
-            EasyMock.expectLastCall().anyTimes();
+            EasyMock.expectLastCall();
             response.setContentLength(EasyMock.anyInt());
-            EasyMock.expectLastCall().anyTimes();
+            EasyMock.expectLastCall();
             response.setContentType((String) EasyMock.anyObject());
-            EasyMock.expectLastCall().anyTimes();
+            EasyMock.expectLastCall();
             response.setDateHeader((String) EasyMock.anyObject(), EasyMock.anyLong());
-            EasyMock.expectLastCall().anyTimes();
+            EasyMock.expectLastCall();
             response.setHeader((String) EasyMock.anyObject(), (String) EasyMock.anyObject());
             EasyMock.expectLastCall().anyTimes();
 
-            final CountDownLatch latch = new CountDownLatch(1);
-            context.complete();
+            final CountDownLatch latchDispatch = new CountDownLatch(1);
+            context.dispatch();
             EasyMock.expectLastCall().andAnswer(new IAnswer<Object>() {
                 @Override
                 public Object answer() throws Throwable {
-                    latch.countDown();
+                    latchDispatch.countDown();
                     return null;
                 }
             });
 
-            EasyMock.makeThreadSafe(context, true);
             EasyMock.replay(request, response, context);
 
             servlet.start();
-            servlet.doGet(request, response);
+            servlet.doGet(requestWrapper, response);
 
-            latch.await();
-
-            Assert.assertArrayEquals(new byte[] { 0x42 }, baos.toByteArray());
+            latchDispatch.await();
 
             EasyMock.verify(request, response, context);
+
+            //
+            // Subsequent call
+            //
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ServletOutputStream outputStream = new ServletOutputStream() {
+                @Override
+                public void write(int b) throws IOException {
+                    baos.write(b);
+                }
+                @Override
+                public void write(byte[] b, int off, int len) throws IOException {
+                    baos.write(b, off, len);
+                }
+            };
+
+            while (true) {
+                long size = (Long) attributes.get(AsynchronousFileChannel.class.getName() + ".size");
+                long pos = (Long) attributes.get(AsynchronousFileChannel.class.getName() + ".position");
+                ByteBuffer buffer = (ByteBuffer) attributes.get(ByteBuffer.class.getName());
+                if (pos + buffer.position() >= size) {
+                    break;
+                }
+
+                EasyMock.reset(request, response, context);
+                EasyMock.expect(request.getPathInfo()).andReturn("org.apache.camel/camel-core/2.13.0/camel-core-2.13.0-sources.jar");
+                EasyMock.expect(request.startAsync()).andReturn(context);
+                context.setTimeout(EasyMock.anyInt());
+                EasyMock.expectLastCall();
+                final CountDownLatch latch = new CountDownLatch(1);
+                context.dispatch();
+                EasyMock.expectLastCall().andAnswer(new IAnswer<Object>() {
+                    @Override
+                    public Object answer() throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
+                EasyMock.expect(response.getOutputStream()).andReturn(outputStream);
+                EasyMock.replay(request, response, context);
+                servlet.doGet(requestWrapper, response);
+                latch.await();
+                EasyMock.verify(request, response, context);
+            }
+
+            //
+            // Last calls
+            //
+
+            EasyMock.reset(request, response, context);
+
+            EasyMock.expect(request.getPathInfo()).andReturn("org.apache.camel/camel-core/2.13.0/camel-core-2.13.0-sources.jar");
+            EasyMock.expect(request.startAsync()).andReturn(context);
+            context.setTimeout(EasyMock.anyInt());
+            EasyMock.expectLastCall();
+            final CountDownLatch latchComplete = new CountDownLatch(1);
+            context.complete();
+            EasyMock.expectLastCall().andAnswer(new IAnswer<Object>() {
+                @Override
+                public Object answer() throws Throwable {
+                    latchComplete.countDown();
+                    return null;
+                }
+            });
+            EasyMock.expect(response.getOutputStream()).andReturn(outputStream);
+            EasyMock.replay(request, response, context);
+            servlet.doGet(requestWrapper, response);
+            latchComplete.await();
+            EasyMock.verify(request, response, context);
+            Assert.assertArrayEquals(new byte[] { 0x42 }, baos.toByteArray());
+
         } finally {
             server.stop();
             if (old != null) {

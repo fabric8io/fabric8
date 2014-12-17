@@ -102,24 +102,33 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
 
         AsynchronousFileChannel channel = (AsynchronousFileChannel) req.getAttribute(AsynchronousFileChannel.class.getName());
         if (channel != null) {
+            long size = (Long) req.getAttribute(AsynchronousFileChannel.class.getName() + ".size");
+            long pos = (Long) req.getAttribute(AsynchronousFileChannel.class.getName() + ".position");
             ByteBuffer buffer = (ByteBuffer) req.getAttribute(ByteBuffer.class.getName());
             ByteBuffer secondBuffer = (ByteBuffer) req.getAttribute(ByteBuffer.class.getName() + ".second");
             buffer.flip();
             if (buffer.remaining() > 0) {
-                req.setAttribute(ByteBuffer.class.getName(), secondBuffer);
-                req.setAttribute(ByteBuffer.class.getName() + ".second", buffer);
-                channel.read(secondBuffer, 0, asyncContext, new CompletionHandler<Integer, AsyncContext>() {
-                    @Override
-                    public void completed(Integer result, AsyncContext attachment) {
-                        attachment.dispatch();
-                    }
+                pos += buffer.remaining();
+                if (pos < size) {
+                    req.setAttribute(AsynchronousFileChannel.class.getName() + ".position", pos);
+                    req.setAttribute(ByteBuffer.class.getName(), secondBuffer);
+                    req.setAttribute(ByteBuffer.class.getName() + ".second", buffer);
+                    channel.read(secondBuffer, 0, asyncContext, new CompletionHandler<Integer, AsyncContext>() {
+                        @Override
+                        public void completed(Integer result, AsyncContext attachment) {
+                            attachment.dispatch();
+                        }
 
-                    @Override
-                    public void failed(Throwable exc, AsyncContext attachment) {
-                        attachment.dispatch();
-                    }
-                });
-                resp.getOutputStream().write(buffer.array(), 0, buffer.remaining());
+                        @Override
+                        public void failed(Throwable exc, AsyncContext attachment) {
+                            attachment.dispatch();
+                        }
+                    });
+                    resp.getOutputStream().write(buffer.array(), 0, buffer.remaining());
+                } else {
+                    resp.getOutputStream().write(buffer.array(), 0, buffer.remaining());
+                    asyncContext.complete();
+                }
             } else {
                 asyncContext.complete();
             }
@@ -173,6 +182,8 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
                         ByteBuffer secondBuffer = ByteBuffer.allocate(1024 * 64);
                         req.setAttribute(ByteBuffer.class.getName(), secondBuffer);
                         req.setAttribute(ByteBuffer.class.getName() + ".second", buffer);
+                        req.setAttribute(AsynchronousFileChannel.class.getName() + ".position", 0l);
+                        req.setAttribute(AsynchronousFileChannel.class.getName() + ".size", size);
                         channel.read(secondBuffer, 0, asyncContext, new CompletionHandler<Integer, AsyncContext>() {
                             @Override
                             public void completed(Integer result, AsyncContext attachment) {
