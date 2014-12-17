@@ -30,10 +30,10 @@
 
         <bundle dependency="true">mvn:commons-io/commons-io/${commons-io2-version}</bundle>
 
-        <bundle>mvn:io.fabric8.support/support-core/${fabric.version}</bundle>
-        <bundle>mvn:io.fabric8.support/support-commands/${fabric.version}</bundle>
-        <bundle>mvn:io.fabric8.support/support-karaf/${fabric.version}</bundle>
-        <bundle>mvn:io.fabric8.support/support-webapp/${fabric.version}/war</bundle>
+        <bundle>mvn:io.fabric8.support/support-core/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.support/support-commands/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.support/support-karaf/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.support/support-webapp/${project.version}/war</bundle>
         <bundle>mvn:io.hawt/hawtio-plugin-redhat-access/${hawtio-version}/war</bundle>
     </feature>
 </features>
