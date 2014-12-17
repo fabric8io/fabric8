@@ -87,7 +87,7 @@
             <param>.*Examples.*</param>
           </excludes>
           <!-- base directory where to generate assertions -->
-          <targetDir>target/generated-sources</targetDir>
+          <targetDir>${basedir}/target/generated-sources</targetDir>
           <!-- select which assertions entry point classes to generate -->
           <generateAssertions>true</generateAssertions>
           <generateBddAssertions>false</generateBddAssertions>
@@ -117,7 +117,7 @@
             </goals>
             <configuration>
               <sources>
-                <source>target/generated-sources</source>
+                <source>${basedir}/target/generated-sources</source>
               </sources>
             </configuration>
           </execution>

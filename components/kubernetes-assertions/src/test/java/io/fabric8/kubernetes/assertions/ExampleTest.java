@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.fabric8.kubernetes.assertions.Assertions.assertThat;
+import static io.fabric8.kubernetes.assertions.Asserts.assertAssertionError;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 
 /**
@@ -38,34 +38,27 @@ public class ExampleTest {
         Map<String,String> expectedLabels = new HashMap<>();
         expectedLabels.put("foo", "bar");
 
-        PodSchema pod = new PodSchema();
+        final PodSchema pod = new PodSchema();
         pod.setId(expectedId);
-
         pod.setLabels(expectedLabels);
 
         assertThat(pod).hasId(expectedId).hasLabels(expectedLabels);
 
+        assertAssertionError(new Block() {
+            @Override
+            public void invoke() throws Exception {
+                assertThat(pod).hasId("cheese");
+            }
+        });
 
-
-        AssertionError error = null;
-        try {
-            assertThat(pod).hasId("cheese");
-        } catch (AssertionError e) {
-            error = e;
-        }
-        assertThat(error).isNotNull();
-        System.out.println("Caught expected " + error.getMessage());
-
-        error = null;
-        try {
-            Map<String,String> wrongLabels = new HashMap<>();
-            wrongLabels.put("bar", "whatnot");
-            assertThat(pod).hasLabels(wrongLabels);
-        } catch (AssertionError e) {
-            error = e;
-        }
-        assertThat(error).isNotNull();
-        System.out.println("Caught expected " + error.getMessage());
+        assertAssertionError(new Block() {
+            @Override
+            public void invoke() throws Exception {
+                Map<String,String> wrongLabels = new HashMap<>();
+                wrongLabels.put("bar", "whatnot");
+                assertThat(pod).hasLabels(wrongLabels);
+            }
+        });
     }
 
 }
