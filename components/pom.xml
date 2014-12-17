@@ -25,7 +25,6 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>io.fabric8</groupId>
   <artifactId>components</artifactId>
   <packaging>pom</packaging>
 
@@ -57,6 +56,7 @@
     <module>mq</module>
     <module>swagger-model</module>
     <module>zookeeper-client</module>
+    <module>arquillian-fabric8</module>
   </modules>
 
 </project>
