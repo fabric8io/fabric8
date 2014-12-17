@@ -27,6 +27,8 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
+import java.util.HashMap;
+
 import static io.fabric8.arquillian.utils.Util.cleanupSession;
 import static io.fabric8.arquillian.utils.Util.readAsString;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getEntities;
@@ -41,13 +43,22 @@ public class SessionListener {
                 for (Entity entity : getEntities((Config) dto)) {
                     if (entity instanceof PodSchema) {
                         PodSchema pod = (PodSchema) entity;
+                        if (pod.getLabels() == null) {
+                            pod.setLabels(new HashMap<String, String>());
+                        }
                         pod.getLabels().put(Constants.ARQ_KEY, event.getSession().getId());
                     } else if (entity instanceof ServiceSchema) {
                         ServiceSchema service = (ServiceSchema) entity;
+                        if (service.getLabels() == null) {
+                            service.setLabels(new HashMap<String, String>());
+                        }
                         service.getLabels().put(Constants.ARQ_KEY, event.getSession().getId());
                     } else if (entity instanceof ReplicationControllerSchema) {
                         ReplicationControllerSchema replicationController = (ReplicationControllerSchema) entity;
                         replicationController.getDesiredState().getPodTemplate().getLabels().put(Constants.ARQ_KEY, event.getSession().getId());
+                        if (replicationController.getLabels() == null) {
+                            replicationController.setLabels(new HashMap<String, String>());
+                        }
                         replicationController.getLabels().put(Constants.ARQ_KEY, event.getSession().getId());
                         controller.applyReplicationController(replicationController, event.getSession().getId());
                     }
