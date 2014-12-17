@@ -37,6 +37,14 @@ public class ConnectCommand extends AbstractJolokiaCommand {
             requiredMessage = "You must provide an url to connect to the remote jolokia agent")
     private UIInput<String> url;
 
+    @Inject
+    @WithAttributes(label = "Username", required = false, description = "username for authentication")
+    private UIInput<String> username;
+
+    @Inject
+    @WithAttributes(label = "Password", required = false, description = "password for authentication")
+    private UIInput<String> password;
+
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
@@ -46,16 +54,19 @@ public class ConnectCommand extends AbstractJolokiaCommand {
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
-        builder.add(url);
+        builder.add(url).add(username).add(password);
     }
 
     @Override
     public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
         configuration.setProperty("CamelJolokiaUrl", url.getValue());
+        // username and password is optional
+        configuration.setProperty("CamelJolokiaUsername", username.getValue());
+        configuration.setProperty("CamelJolokiaPassword", password.getValue());
 
         // ping to see if the connection works
         JolokiaCamelController controller = new DefaultJolokiaCamelController();
-        controller.connect(url.getValue(), null, null);
+        controller.connect(url.getValue(), username.getValue(), password.getValue());
 
         boolean ok = controller.ping();
         if (ok) {

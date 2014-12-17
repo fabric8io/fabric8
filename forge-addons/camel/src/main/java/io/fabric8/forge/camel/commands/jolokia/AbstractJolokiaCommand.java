@@ -59,7 +59,12 @@ public abstract class AbstractJolokiaCommand extends AbstractProjectCommand {
 
     protected JolokiaCamelController getController() throws Exception {
         JolokiaCamelController controller = new DefaultJolokiaCamelController();
-        controller.connect(getJolokiaUrl(), null, null);
+
+        // optional
+        String username = configuration.getString("CamelJolokiaUsername");
+        String password = configuration.getString("CamelJolokiaPassword");
+
+        controller.connect(getJolokiaUrl(), username, password);
         return controller;
     }
 

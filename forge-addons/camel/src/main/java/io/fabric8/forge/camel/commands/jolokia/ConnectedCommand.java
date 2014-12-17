@@ -15,7 +15,6 @@
  */
 package io.fabric8.forge.camel.commands.jolokia;
 
-import org.apache.camel.commands.jolokia.DefaultJolokiaCamelController;
 import org.apache.camel.commands.jolokia.JolokiaCamelController;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -47,13 +46,14 @@ public class ConnectedCommand extends AbstractJolokiaCommand {
             return Results.fail("Not connected to remote jolokia agent. Use camel-connect command first");
         }
 
-        // ping to see if the connection works
-        JolokiaCamelController controller = new DefaultJolokiaCamelController();
-        controller.connect(url, null, null);
+        String username = configuration.getString("CamelJolokiaUsername");
 
+        JolokiaCamelController controller = getController();
+
+        // ping to see if the connection works
         boolean ok = controller.ping();
         if (ok) {
-            return Results.success("Connected to " + url);
+            return Results.success("Connected to " + url + (username != null ? " using " + username : ""));
         } else {
             return Results.fail("Error connecting to " + url);
         }
