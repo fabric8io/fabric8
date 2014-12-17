@@ -20,6 +20,11 @@ public class Functions {
     public static Function<String, String> chopLength(final int maxLen) {
         return new Function<String, String>() {
             @Override
+            public String toString() {
+                return "chopLength(" + maxLen + ")";
+            }
+
+            @Override
             public String apply(String value) {
                 if (value == null) {
                     return null;
@@ -27,6 +32,20 @@ public class Functions {
                 if (value.length() > maxLen) {
                     return value.substring(0, maxLen);
                 }
+                return value;
+            }
+        };
+    }
+
+    public static <T> Function<T,T> noop() {
+        return new Function<T,T>() {
+            @Override
+            public String toString() {
+                return "noopFunction()";
+            }
+
+            @Override
+            public T apply(T value) {
                 return value;
             }
         };

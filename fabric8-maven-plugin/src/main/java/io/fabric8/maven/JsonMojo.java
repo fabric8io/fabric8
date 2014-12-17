@@ -17,6 +17,7 @@ package io.fabric8.maven;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.fabric8.utils.Files;
+import io.fabric8.utils.Function;
 import io.fabric8.utils.Lists;
 import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.KubernetesHelper;
@@ -410,7 +411,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
             labels = new HashMap<>();
         }
         if (labels.isEmpty()) {
-            labels = findPropertiesWithPrefix(getProject().getProperties(), "fabric8.label.");
+            labels = findPropertiesWithPrefix(getProject().getProperties(), "fabric8.label.", Strings.toLowerCaseFunction());
         }
         return labels;
     }
@@ -421,7 +422,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
         }
         if (environmentVariables.isEmpty()) {
             Map<String, Env> envMap = new HashMap<>();
-            Map<String, String> envs = findPropertiesWithPrefix(getProject().getProperties(), "fabric8.env.");
+            Map<String, String> envs = findPropertiesWithPrefix(getProject().getProperties(), "fabric8.env.", Strings.toEnvironmentVariableFunction());
 
             for (Map.Entry<String, String> entry : envs.entrySet()) {
                 String name = entry.getKey();

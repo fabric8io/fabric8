@@ -50,9 +50,19 @@ public class PropertiesHelper {
 
     /**
      * Returns the map of entries in the properties object which have keys starting with the given prefix, removing the prefix
-     * from the returned map.   Keys are made lowercase as required by Kubernetes.
+     * from the returned map.
      */
     public static Map<String, String> findPropertiesWithPrefix(Properties properties, String prefix) {
+        return findPropertiesWithPrefix(properties, prefix, Functions.<String>noop());
+    }
+
+    /**
+     * Returns the map of entries in the properties object which have keys starting with the given prefix, removing the prefix
+     * from the returned map.
+     *
+     * Keys are also transformed using the given keyTransformer if specified.
+     */
+    public static Map<String, String> findPropertiesWithPrefix(Properties properties, String prefix, Function<String,String> keyTransformer) {
         Map<String, String> answer = new HashMap<>();
         Set<Map.Entry<Object, Object>> entries = properties.entrySet();
         for (Map.Entry<Object, Object> entry : entries) {
@@ -61,7 +71,10 @@ public class PropertiesHelper {
             if (key instanceof String && value != null) {
                 String keyText = key.toString();
                 if (keyText.startsWith(prefix)) {
-                    String newKey = keyText.substring(prefix.length()).toLowerCase();
+                    String newKey = keyText.substring(prefix.length());
+                    if (keyTransformer != null) {
+                        newKey = keyTransformer.apply(newKey);
+                    }
                     answer.put(newKey, value.toString());
                 }
             }

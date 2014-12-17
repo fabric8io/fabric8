@@ -50,6 +50,7 @@ public class Strings {
         return notEmpty(value) ? value : defaultValue;
     }
 
+
     /**
      * splits a string into a list of strings, ignoring the empty string
      */
@@ -318,4 +319,63 @@ public class Strings {
             }
             return buffer.toString();
         }
+
+
+    // String based functions
+
+
+    public static Function<String, String> toLowerCaseFunction() {
+        return new Function<String, String>() {
+            @Override
+            public String toString() {
+                return "toLowerCaseFunction()";
+            }
+
+            @Override
+            public String apply(String value) {
+                if (value != null) {
+                    return value.toLowerCase();
+                }
+                return null;
+            }
+        };
+    }
+
+    public static Function<String, String> toUpperCaseFunction() {
+        return new Function<String, String>() {
+            @Override
+            public String toString() {
+                return "toUpperCaseFunction()";
+            }
+
+            @Override
+            public String apply(String value) {
+                if (value != null) {
+                    return value.toUpperCase();
+                }
+                return null;
+            }
+        };
+    }
+
+    /**
+     * Converts a string to a valid environment variable by removing bad characters like '.' and ' '
+     */
+    public static Function<String, String> toEnvironmentVariableFunction() {
+        return new Function<String, String>() {
+            @Override
+            public String toString() {
+                return "toEnvironmentVariableFunction()";
+            }
+
+            @Override
+            public String apply(String key) {
+                if (key != null) {
+                    // lets replace any dots in the env var name
+                    return key.replace('.', '_').replace(' ', '_');
+                }
+                return null;
+            }
+        };
+    }
 }
