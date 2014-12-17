@@ -23,6 +23,8 @@ public class Configuration {
 
     private String masterUrl;
     private URL configUrl;
+    private long timeout = 5 * 60 * 10000;
+    private long pollInterval = 5 * 1000;
 
     public String getMasterUrl() {
         return masterUrl;
@@ -32,19 +34,34 @@ public class Configuration {
         return configUrl;
     }
 
+    public long getTimeout() {
+        return timeout;
+    }
 
+    public long getPollInterval() {
+        return pollInterval;
+    }
     public static Configuration fromMap(Map<String, String> map) {
         Configuration configuration = new Configuration();
         try {
             if (map.containsKey(Constants.MASTER_URL)) {
                 configuration.masterUrl = map.get(Constants.MASTER_URL);
             }
+
             if (map.containsKey(Constants.CONFIG_URL)) {
                 configuration.configUrl = new URL(map.get(Constants.CONFIG_URL));
             } else if (map.containsKey(Constants.CONFIG_FILE_NAME)) {
                 configuration.configUrl = Configuration.class.getResource("/" + map.get(Constants.CONFIG_FILE_NAME));
             } else {
                 configuration.configUrl = Configuration.class.getResource("/" + Constants.DEFAULT_CONFIG_FILE_NAME);
+            }
+
+            if (map.containsKey(Constants.TIMEOUT)) {
+                configuration.timeout = Long.parseLong(map.get(Constants.TIMEOUT));
+            }
+
+            if (map.containsKey(Constants.POLL_INTERVAL)) {
+                configuration.timeout = Long.parseLong(map.get(Constants.POLL_INTERVAL));
             }
 
         } catch (Throwable t) {

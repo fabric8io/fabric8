@@ -16,6 +16,8 @@
 
 package io.fabric8.arquillian.kubernetes;
 
+import io.fabric8.arquillian.kubernetes.await.SessionPodsAreReady;
+import io.fabric8.arquillian.kubernetes.await.WaitStrategy;
 import io.fabric8.arquillian.kubernetes.event.Start;
 import io.fabric8.arquillian.kubernetes.event.Stop;
 import io.fabric8.kubernetes.api.Controller;
@@ -26,8 +28,12 @@ import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
 import org.jboss.arquillian.core.api.annotation.Observes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeoutException;
 
 import static io.fabric8.arquillian.utils.Util.cleanupSession;
 import static io.fabric8.arquillian.utils.Util.readAsString;
@@ -36,7 +42,10 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 
 public class SessionListener {
 
-    public void start(@Observes Start event, Controller controller, Configuration configuration) {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SessionListener.class);
+
+    public void start(@Observes Start event, KubernetesClient client, Controller controller, Configuration configuration) {
+        LOGGER.info("Starting......");
         try {
             Object dto = loadJson(readAsString(configuration.getConfigUrl()));
             if (dto instanceof Config) {
@@ -63,6 +72,13 @@ public class SessionListener {
                         controller.applyReplicationController(replicationController, event.getSession().getId());
                     }
                 }
+            }
+
+            //Wait until pods are ready
+            Callable<Boolean> sessionPodsReady = new SessionPodsAreReady(event.getSession(), client);
+            WaitStrategy waitStrategy = new WaitStrategy(sessionPodsReady, configuration.getTimeout(), configuration.getPollInterval());
+            if (!waitStrategy.await()) {
+                throw new TimeoutException("Timed out waiting for pods to become ready");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

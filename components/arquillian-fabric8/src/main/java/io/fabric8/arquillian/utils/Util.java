@@ -79,6 +79,16 @@ public class Util {
         }
     }
 
+    public static List<PodSchema> findPods(KubernetesClient client, Filter<PodSchema> filter) throws MultiException {
+        List<PodSchema> pods = new ArrayList<>();
+        for (PodSchema pod : client.getPods().getItems()) {
+            if (filter.matches(pod)) {
+                pods.add(pod);
+            }
+        }
+        return pods;
+    }
+
     public static void deletePods(KubernetesClient client, Filter<PodSchema> filter) throws MultiException {
         List<Throwable> errors = new ArrayList<>();
         for (PodSchema pod : client.getPods().getItems()) {
@@ -95,6 +105,16 @@ public class Util {
         }
     }
 
+    public static List<ServiceSchema> findServices(KubernetesClient client, Filter<ServiceSchema> filter) throws MultiException {
+        List<ServiceSchema> services = new ArrayList<>();
+        for (ServiceSchema service : client.getServices().getItems()) {
+            if (filter.matches(service)) {
+                services.add(service);
+            }
+        }
+        return services;
+    }
+
     public static void deleteServices(KubernetesClient client, Filter<ServiceSchema> filter) throws MultiException {
         List<Throwable> errors = new ArrayList<>();
         for (ServiceSchema service : client.getServices().getItems()) {
@@ -109,6 +129,16 @@ public class Util {
         if (!errors.isEmpty()) {
             throw new MultiException("Error while deleting services", errors);
         }
+    }
+
+    public static List<ReplicationControllerSchema> findReplicationControllers(KubernetesClient client, Filter<ReplicationControllerSchema> filter) throws MultiException {
+        List<ReplicationControllerSchema> replicationControllers = new ArrayList<>();
+        for (ReplicationControllerSchema replicationController : client.getReplicationControllers().getItems()) {
+            if (filter.matches(replicationController)) {
+                replicationControllers.add(replicationController);
+            }
+        }
+        return replicationControllers;
     }
 
     public static void deleteReplicationControllers(KubernetesClient client, Filter<ReplicationControllerSchema> filter) throws MultiException {

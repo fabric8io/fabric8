@@ -23,6 +23,10 @@ public class Constants {
     public static final String MASTER_URL = "masterUrl";
     public static final String CONFIG_URL = "configUrl";
 
+    public static final String TIMEOUT = "timeout";
+    public static final String POLL_INTERVAL = "pollInterval";
+
     public static final String CONFIG_FILE_NAME = "configFileName";
     public static final String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";
+    public static final String POD_STATUS_RUNNING = "Running";
 }
