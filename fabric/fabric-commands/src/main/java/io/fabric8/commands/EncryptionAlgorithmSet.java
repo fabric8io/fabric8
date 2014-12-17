@@ -63,4 +63,12 @@ public class EncryptionAlgorithmSet extends AbstractCommandComponent {
         return new EncryptionAlgorithmSetAction(curator);
     }
 
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.bind(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.unbind(fabricService);
+    }
+
 }
