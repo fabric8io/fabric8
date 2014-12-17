@@ -19,6 +19,10 @@ package io.fabric8.arquillian.kubernetes;
 public class Constants {
 
     public static final String ARQ_KEY = "arquillian";
+
     public static final String MASTER_URL = "masterUrl";
     public static final String CONFIG_URL = "configUrl";
+
+    public static final String CONFIG_FILE_NAME = "configFileName";
+    public static final String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";
 }

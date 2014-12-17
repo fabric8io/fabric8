@@ -41,7 +41,12 @@ public class Configuration {
             }
             if (map.containsKey(Constants.CONFIG_URL)) {
                 configuration.configUrl = new URL(map.get(Constants.CONFIG_URL));
+            } else if (map.containsKey(Constants.CONFIG_FILE_NAME)) {
+                configuration.configUrl = Configuration.class.getResource("/" + map.get(Constants.CONFIG_FILE_NAME));
+            } else {
+                configuration.configUrl = Configuration.class.getResource("/" + Constants.DEFAULT_CONFIG_FILE_NAME);
             }
+
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
