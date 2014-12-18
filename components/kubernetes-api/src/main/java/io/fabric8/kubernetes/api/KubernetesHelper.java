@@ -945,4 +945,13 @@ public class KubernetesHelper {
         }
         return Collections.EMPTY_LIST;
     }
+
+    /**
+     * Returns the pods for the given service
+     */
+    public static List<PodSchema> getPodsForService(ServiceSchema service, Iterable<PodSchema> pods) {
+        Map<String, String> selector = service.getSelector();
+        Filter<PodSchema> podFilter = KubernetesHelper.createPodFilter(selector);
+        return Filters.filter(pods, podFilter);
+    }
 }

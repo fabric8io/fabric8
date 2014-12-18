@@ -114,6 +114,23 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     }
 
     /**
+     * Asserts that we can find the given service and match it to a list of pods, returning the pods for further assertions
+     */
+    public PodsAssert podsForService(String serviceId) {
+        ServiceSchema service = getService(serviceId);
+        return podsForService(service);
+    }
+
+    /**
+     * Asserts that we can find the given service and match it to a list of pods, returning the pods for further assertions
+     */
+    public PodsAssert podsForService(ServiceSchema service) {
+        List<PodSchema> allPods = getPods();
+        List<PodSchema> pods = KubernetesHelper.getPodsForService(service, allPods);
+        return Asserts.assertThat(pods);
+    }
+
+    /**
      * Asserts that the replication controller can be found for the given ID
      */
     public ReplicationControllerSchemaAssert replicationController(String replicationControllerId) {

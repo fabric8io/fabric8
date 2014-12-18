@@ -42,7 +42,7 @@ public class Example {
             assertAssertionError(new Block() {
                 @Override
                 public void invoke() throws Exception {
-                    Map<String,String> badLabels = new HashMap<>();
+                    Map<String, String> badLabels = new HashMap<>();
                     badLabels.put("component", "doesNotExist");
 
                     assertThat(client).pods().extracting("labels").contains(badLabels);
@@ -59,6 +59,8 @@ public class Example {
                     assertThat(client).replicationController("doesNotExist").hasId("fabric8ConsoleController");
                 }
             });
+
+            assertThat(client).podsForService("fabric8-console-service").runningStatus().hasSize(1).extracting("labels").contains(consoleLabels);
 
             System.out.println("Done!");
         } catch (Throwable e) {
