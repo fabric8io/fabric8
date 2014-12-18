@@ -18,13 +18,14 @@
 package io.fabric8.kubernetes.assertions;
 
 import io.fabric8.kubernetes.api.model.PodSchema;
+import org.assertj.core.api.Condition;
 import org.assertj.core.api.ListAssert;
+import org.assertj.core.api.filter.Filters;
 import org.assertj.core.util.Lists;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.filter.Filters.filter;
+import static io.fabric8.kubernetes.assertions.Conditions.podLabel;
 
 /**
  * Adds some extra assertion operations
@@ -35,29 +36,40 @@ public class PodsAssert extends ListAssert<PodSchema> {
         super(actual);
     }
 
+    public PodsAssert filter(Condition<PodSchema> condition) {
+        return assertThat(Filters.filter(actual).having(condition).get());
+    }
+
+    /**
+     * Filters the pods using the given label key and value
+     */
+    public PodsAssert filterLabel(String key, String value) {
+        return filter(podLabel(key, value));
+    }
+
     /**
      * Returns the filtered list of pods which have running status
      */
     public PodsAssert runningStatus() {
-        return assertThat(filter(actual).having(Conditions.runningStatus()).get());
+        return filter(Conditions.runningStatus());
     }
 
     /**
      * Returns the filtered list of pods which have waiting status
      */
     public PodsAssert waitingStatus() {
-        return assertThat(filter(actual).having(Conditions.waitingStatus()).get());
+        return filter(Conditions.waitingStatus());
     }
 
     /**
      * Returns the filtered list of pods which have error status
      */
     public PodsAssert errorStatus() {
-        return assertThat(filter(actual).having(Conditions.errorStatus()).get());
+        return filter(Conditions.errorStatus());
     }
 
     protected static PodsAssert assertThat(Iterable<PodSchema> result) {
-        List<PodSchema> list =  Lists.newArrayList(result);
+        List<PodSchema> list = Lists.newArrayList(result);
         return new PodsAssert(list);
     }
 }

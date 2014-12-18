@@ -34,10 +34,17 @@ public class Example {
 
             System.out.println("About to run test on: " + client.getAddress());
 
-            Map<String,String> consoleLabels = new HashMap<>();
+            Map<String, String> consoleLabels = new HashMap<>();
             consoleLabels.put("component", "fabric8Console");
 
-            assertThat(client).pods().runningStatus().extracting("labels").contains(consoleLabels);
+            assertThat(client).pods().runningStatus().filterLabel("component", "fabric8Console").hasSize(1);
+
+            assertAssertionError(new Block() {
+                @Override
+                public void invoke() throws Exception {
+                    assertThat(client).pods().runningStatus().filterLabel("component", "doesNotExist").hasSize(1);
+                }
+            });
 
             assertAssertionError(new Block() {
                 @Override
@@ -51,7 +58,7 @@ public class Example {
 
             assertThat(client).replicationController("fabric8ConsoleController").hasId("fabric8ConsoleController");
 
-            assertThat(client).podsForReplicationController("fabric8ConsoleController").runningStatus().hasSize(1).extracting("labels").contains(consoleLabels);
+            assertThat(client).podsForReplicationController("fabric8ConsoleController").runningStatus().extracting("labels").contains(consoleLabels);
 
             assertAssertionError(new Block() {
                 @Override

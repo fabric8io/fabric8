@@ -25,7 +25,6 @@ import java.util.Map;
 
 import static io.fabric8.kubernetes.assertions.Assertions.assertThat;
 import static io.fabric8.kubernetes.assertions.Asserts.assertAssertionError;
-import static org.assertj.core.api.Assertions.assertThat;
 
 
 /**
@@ -35,7 +34,7 @@ public class ExampleTest {
     @Test
     public void testSomething() throws Exception {
         String expectedId = "abc";
-        Map<String,String> expectedLabels = new HashMap<>();
+        Map<String, String> expectedLabels = new HashMap<>();
         expectedLabels.put("foo", "bar");
 
         final PodSchema pod = new PodSchema();
@@ -54,7 +53,7 @@ public class ExampleTest {
         assertAssertionError(new Block() {
             @Override
             public void invoke() throws Exception {
-                Map<String,String> wrongLabels = new HashMap<>();
+                Map<String, String> wrongLabels = new HashMap<>();
                 wrongLabels.put("bar", "whatnot");
                 assertThat(pod).hasLabels(wrongLabels);
             }

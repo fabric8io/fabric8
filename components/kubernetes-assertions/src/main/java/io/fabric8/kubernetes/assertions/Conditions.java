@@ -20,8 +20,11 @@ package io.fabric8.kubernetes.assertions;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.PodStatus;
 import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.ServiceSchema;
 import org.assertj.core.api.Condition;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -52,6 +55,60 @@ public class Conditions {
 
     public static Condition<PodSchema> errorStatus() {
         return status(PodStatus.ERROR);
+    }
+
+
+    public static Condition<PodSchema> podLabel(final String key, final String value) {
+        return new Condition<PodSchema>() {
+            @Override
+            public String toString() {
+                return "podLabel(" + key + " = " + value + ")";
+            }
+
+            @Override
+            public boolean matches(PodSchema pod) {
+                return matchesLabel(pod.getLabels(), key, value);
+            }
+        };
+    }
+
+
+    public static Condition<ReplicationControllerSchema> replicationControllerLabel(final String key, final String value) {
+        return new Condition<ReplicationControllerSchema>() {
+            @Override
+            public String toString() {
+                return "replicationControllerLabel(" + key + " = " + value + ")";
+            }
+
+            @Override
+            public boolean matches(ReplicationControllerSchema replicationControllerSchema) {
+                return matchesLabel(replicationControllerSchema.getLabels(), key, value);
+            }
+        };
+    }
+
+
+    public static Condition<ServiceSchema> serviceLabel(final String key, final String value) {
+        return new Condition<ServiceSchema>() {
+            @Override
+            public String toString() {
+                return "serviceLabel(" + key + " = " + value + ")";
+            }
+
+            @Override
+            public boolean matches(ServiceSchema service) {
+                return matchesLabel(service.getLabels(), key, value);
+            }
+        };
+    }
+
+    public static boolean matchesLabel(Map<String, String> labels, String key, String value) {
+        if (labels != null) {
+            String actual = labels.get(key);
+            return Objects.equals(value, actual);
+        } else {
+            return false;
+        }
     }
 
 }
