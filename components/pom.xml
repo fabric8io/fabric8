@@ -51,6 +51,7 @@
     <module>gateway-model</module>
     <module>gateway-servlet</module>
     <module>gateway-servlet-example</module>
+    <module>jolokia-assertions</module>
     <module>kubernetes-api</module>
     <module>kubernetes-assertions</module>
     <module>kubernetes-jolokia</module>
