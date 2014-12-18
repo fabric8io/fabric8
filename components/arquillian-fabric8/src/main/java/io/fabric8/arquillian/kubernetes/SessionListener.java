@@ -46,6 +46,8 @@ public class SessionListener {
 
     public void start(@Observes Start event, KubernetesClient client, Controller controller, Configuration configuration) {
         LOGGER.info("Starting......");
+        boolean shouldWait = false;
+
         try {
             Object dto = loadJson(readAsString(configuration.getConfigUrl()));
             if (dto instanceof Config) {
@@ -56,6 +58,7 @@ public class SessionListener {
                             pod.setLabels(new HashMap<String, String>());
                         }
                         pod.getLabels().put(Constants.ARQ_KEY, event.getSession().getId());
+                        shouldWait = true;
                     } else if (entity instanceof ServiceSchema) {
                         ServiceSchema service = (ServiceSchema) entity;
                         if (service.getLabels() == null) {
@@ -70,15 +73,18 @@ public class SessionListener {
                         }
                         replicationController.getLabels().put(Constants.ARQ_KEY, event.getSession().getId());
                         controller.applyReplicationController(replicationController, event.getSession().getId());
+                        shouldWait = true;
                     }
                 }
             }
 
             //Wait until pods are ready
-            Callable<Boolean> sessionPodsReady = new SessionPodsAreReady(event.getSession(), client);
-            WaitStrategy waitStrategy = new WaitStrategy(sessionPodsReady, configuration.getTimeout(), configuration.getPollInterval());
-            if (!waitStrategy.await()) {
-                throw new TimeoutException("Timed out waiting for pods to become ready");
+            if (shouldWait) {
+                Callable<Boolean> sessionPodsReady = new SessionPodsAreReady(event.getSession(), client);
+                WaitStrategy waitStrategy = new WaitStrategy(sessionPodsReady, configuration.getTimeout(), configuration.getPollInterval());
+                if (!waitStrategy.await()) {
+                    throw new TimeoutException("Timed out waiting for pods to become ready");
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

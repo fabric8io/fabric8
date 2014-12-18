@@ -21,8 +21,10 @@ import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.PodStatus;
 import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.utils.Filter;
+import io.fabric8.utils.Objects;
 
 import java.util.Collections;
 import java.util.List;
@@ -46,8 +48,12 @@ public class SessionPodsAreReady implements Callable<Boolean> {
         Filter<PodSchema> podFilter = KubernetesHelper.createPodFilter(labels);
         List<PodSchema> pods = Util.findPods(kubernetesClient, podFilter);
 
+        if (pods.isEmpty()) {
+            result = false;
+        }
+
         for (PodSchema pod : pods) {
-            result = result && Constants.POD_STATUS_RUNNING.equalsIgnoreCase(pod.getCurrentState().getStatus());
+            result = result && Objects.equal(PodStatus.OK, KubernetesHelper.getPodStatus(pod));
         }
         return result;
     }
