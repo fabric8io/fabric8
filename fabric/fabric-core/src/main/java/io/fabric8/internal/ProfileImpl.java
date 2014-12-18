@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -309,9 +310,11 @@ final class ProfileImpl implements Profile {
             String id = getId();
             String[] paths = id.split("-");
             if (paths != null) {
+                Set<String> tags = new HashSet<String>();
                 for (int i = 0, last = paths.length - 1; i < last; i++) {
-                    answer.add(paths[i]);
+                    tags.add(paths[i]);
                 }
+                answer.addAll(tags);
             }
         }
         return answer;
