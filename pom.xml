@@ -2794,6 +2794,11 @@
               <version>${jolokia.version}</version>
               <classifier>agent</classifier>
             </dependency>
+            <dependency>
+              <groupId>org.jolokia</groupId>
+              <artifactId>jolokia-jvm</artifactId>
+              <version>${jolokia.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

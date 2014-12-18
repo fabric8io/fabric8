@@ -2,7 +2,7 @@
 
 This library provides a bunch of helpful [assertj](http://joel-costigliola.github.io/assertj/) assertions for working with the [kubernetes-api](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api).
 
-[Here is an example of the assertThat(kubernetesResource)](https://github.com/fabric8io/fabric8/blob/master/components/kubernetes-assertions/src/test/java/io/fabric8/kubernetes/assertions/Example.java#L37) helper code that is available if you add the **kubernetes-assertions** dependency.
+[Here is an example of the assertThat(kubernetesResource)](https://github.com/fabric8io/fabric8/blob/master/components/kubernetes-assertions/src/test/java/io/fabric8/kubernetes/assertions/Example.java#L38) helper code that is available if you add the **kubernetes-assertions** dependency.
 
 ### Add it to your Maven pom.xml
 
