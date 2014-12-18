@@ -211,23 +211,23 @@
         </dependency>
         <!--  API Man -->
         <dependency>
-           <groupId>org.overlord.apiman</groupId>
-           <artifactId>apiman-rt-api-rest</artifactId>
+           <groupId>io.apiman</groupId>
+           <artifactId>apiman-gateway-api-rest</artifactId>
            <scope>test</scope>
         </dependency>
         <dependency>
-           <groupId>org.overlord.apiman</groupId>
-           <artifactId>apiman-rt-engine-core</artifactId>
+           <groupId>io.apiman</groupId>
+           <artifactId>apiman-gateway-engine-core</artifactId>
            <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>org.overlord.apiman</groupId>
-          <artifactId>apiman-rt-engine-beans</artifactId>
+          <groupId>io.apiman</groupId>
+          <artifactId>apiman-gateway-engine-beans</artifactId>
           <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>org.overlord.apiman</groupId>
-          <artifactId>apiman-rt-engine-policies</artifactId>
+          <groupId>io.apiman</groupId>
+          <artifactId>apiman-gateway-engine-policies</artifactId>
           <scope>test</scope>
         </dependency>
         <dependency>
@@ -324,22 +324,4 @@
         </dependencies>
       </profile>
     </profiles>
-    <!--  the APIMan artifact are not yet in central, so until then we need the
-    JBoss Nexus repo -->
-    <repositories>
-        <repository>
-          <id>jboss-public-repository-group</id>
-          <name>JBoss Public Maven Repository Group</name>
-          <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-          <layout>default</layout>
-          <releases>
-            <enabled>true</enabled>
-            <updatePolicy>never</updatePolicy>
-          </releases>
-          <snapshots>
-            <enabled>false</enabled>
-            <updatePolicy>never</updatePolicy>
-          </snapshots>
-        </repository>
-    </repositories>
 </project>

@@ -1,5 +1,5 @@
-/**
- *  Copyright 2005-2014 Red Hat, Inc.
+/*
+ *  Copyright 2005-2015 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -18,26 +18,30 @@ package io.fabric8.gateway.apiman;
 import io.fabric8.gateway.api.CallDetailRecord;
 import io.fabric8.gateway.api.apimanager.ApiManagerService;
 import io.fabric8.gateway.api.handlers.http.HttpGateway;
+import io.fabric8.gateway.api.handlers.http.HttpMapping;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.overlord.apiman.rt.engine.EngineResult;
-import org.overlord.apiman.rt.engine.IEngine;
-import org.overlord.apiman.rt.engine.async.IAsyncHandler;
-import org.overlord.apiman.rt.engine.async.IAsyncResult;
-import org.overlord.apiman.rt.engine.beans.PolicyFailure;
-import org.overlord.apiman.rt.engine.beans.PolicyFailureType;
-import org.overlord.apiman.rt.engine.beans.ServiceRequest;
-import org.overlord.apiman.rt.engine.beans.ServiceResponse;
+import io.apiman.gateway.engine.IEngineResult;
+import io.apiman.gateway.engine.IEngine;
+import io.apiman.gateway.engine.IServiceRequestExecutor;
+import io.apiman.gateway.engine.async.IAsyncHandler;
+import io.apiman.gateway.engine.async.IAsyncResult;
+import io.apiman.gateway.engine.async.IAsyncResultHandler;
+import io.apiman.gateway.engine.beans.PolicyFailure;
+import io.apiman.gateway.engine.beans.PolicyFailureType;
+import io.apiman.gateway.engine.beans.ServiceRequest;
+import io.apiman.gateway.engine.beans.ServiceResponse;
+import io.apiman.gateway.engine.io.IApimanBuffer;
+import io.apiman.gateway.engine.io.ISignalWriteStream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
-import org.vertx.java.core.VoidHandler;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.HttpClient;
-import org.vertx.java.core.http.HttpClientResponse;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.http.HttpServerResponse;
 
@@ -65,7 +69,13 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
     @Override
     public void handle(final HttpServerRequest request) {
     	final long callStart = System.nanoTime();
-    
+    	
+    	//0. If this is a request is show the mapping then respond right away
+    	if (HttpMapping.isMappingIndexRequest(request, httpGateway)) {
+    		HttpMapping.respond(request, httpGateway);
+    		return;
+    	}
+    	
 		//1. Create APIMan ServiceRequest
 		ServiceRequest srequest = new ServiceRequest();
 		srequest.setRawRequest(request);
@@ -82,20 +92,25 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
         
         final HttpServerResponse response = request.response();
         //2. Create APIMan Handler and execute
-        IAsyncHandler<EngineResult> asyncHandler = new IAsyncHandler<EngineResult>() {
-			@Override
-			public void handle(IAsyncResult<EngineResult> result) {
-				
-				if (result.isError()) {
-					//This can happen when an internal exception occurs; we need to send back a 500
+        IEngine engine = (IEngine) apiManager.getEngine();
+    	// Request executor, through which we can send chunks and indicate end.      
+    	final IServiceRequestExecutor requestExecutor = engine.executor(srequest, 
+    			new IAsyncResultHandler<IEngineResult>() {
+    		
+    			@Override
+    			public void handle(IAsyncResult<IEngineResult> iAsyncEngineResult) {
+			
+				if (! iAsyncEngineResult.isSuccess()) {
+					//This can happen only when an (unexpected) internal exception occurs; we need to send back a 500
 					response.setStatusCode(500);
-					response.setStatusMessage("Gateway Internal Error");
-					response.end();
-					LOG.error("Gateway Internal Error: " + result.getError().getMessage(), result.getError());
+					response.setStatusMessage("Gateway Internal Error: " + iAsyncEngineResult.getError().getMessage());
+					response.close();
+					LOG.error("Gateway Internal Error " + iAsyncEngineResult.getError().getMessage());
 				} else {
-					EngineResult engineResult = result.getResult();
-					
+					IEngineResult engineResult = iAsyncEngineResult.getResult();
 					if (engineResult.isFailure()) {
+						//The iAsyncEngineResult can be successful, but a policy can have been violated which
+						//will mark the engineResult as failed.
 						ServiceResponse serviceResponse = engineResult.getServiceResponse();
 						if (serviceResponse!=null) {
 							final HttpClient finalClient = (HttpClient) serviceResponse.getAttribute("finalClient");
@@ -105,53 +120,71 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
 						response.putHeader("X-Policy-Failure-Type", String.valueOf(policyFailure.getType()));
 						response.putHeader("X-Policy-Failure-Message", policyFailure.getMessage());
 						response.putHeader("X-Policy-Failure-Code", String.valueOf(policyFailure.getFailureCode()));
-				        int errorCode = 500;
+				        int errorCode = 403; // Default status code for policy failure
 				        if (policyFailure.getType() == PolicyFailureType.Authentication) {
 				            errorCode = 401;
 				        } else if (policyFailure.getType() == PolicyFailureType.Authorization) {
-				            errorCode = 403;
+				            errorCode = 401;
 				        }
 				        response.setStatusCode(errorCode);
 						response.setStatusMessage(policyFailure.getMessage());
 						response.end();
+						response.close();
 					} else if (engineResult.isResponse()) {
-						 
+						//All is happy and we can respond back to the client.
 						ServiceResponse serviceResponse = engineResult.getServiceResponse();
-						
 						response.setStatusCode(serviceResponse.getCode());
 						response.setStatusMessage(serviceResponse.getMessage());
+						response.setChunked(true);
 						
-						
-						HttpClientResponse clientResponse = (HttpClientResponse) serviceResponse.getAttribute(ApiManService.ATTR_CLIENT_RESPONSE);
-						if (clientResponse != null) {
-							final HttpClient httpClient = (HttpClient) serviceResponse.getAttribute(ApiManService.ATTR_HTTP_CLIENT);
-							
-							response.setChunked(true);
-	                        clientResponse.dataHandler(new Handler<Buffer>() {
-	                            public void handle(Buffer data) {
-	                                if (LOG.isDebugEnabled()) {
-	                                    LOG.debug("Proxying response body:" + data);
-	                                }
-	                                response.write(data);
-	                            }
-	                        });
-	                        clientResponse.endHandler(new VoidHandler() {
-	                            public void handle() {
-	                            	response.end();
-	                                httpClient.close();
-	                            }
-	                        });
-							
-							LOG.debug("ResponseCode from downstream " + clientResponse.statusCode());
-						}
-						CallDetailRecord cdr = new CallDetailRecord(System.nanoTime() - callStart, clientResponse.statusMessage());
-						httpGateway.addCallDetailRecord(cdr);
+						 // bodyHandler to receive response chunks.                           
+				          engineResult.bodyHandler(new IAsyncHandler<IApimanBuffer>() {
+				 
+				            @Override
+				            public void handle(IApimanBuffer chunk) {
+				            	
+				              // Important: retrieve native buffer format directly if possible, much more efficient.
+				            	response.write((Buffer) chunk.getNativeBuffer());
+				            }
+				          });
+				 
+				          // endHandler to receive end signal.
+				          engineResult.endHandler(new IAsyncHandler<Void>() {
+				 
+				            @Override
+				            public void handle(Void flag) {
+				            	LOG.debug("ResponseCode from downstream " + response.getStatusCode());
+								CallDetailRecord cdr = new CallDetailRecord(System.nanoTime() - callStart, response.getStatusMessage());
+								httpGateway.addCallDetailRecord(cdr);
+								response.end();
+				            	response.close();
+				            	LOG.debug("Complete success, and closed the client connection.");
+				            }
+				          });
 					}
 				}
 			}
-        };
-        ((IEngine) apiManager.getEngine()).execute(srequest, asyncHandler);
+        });
+    	//Create a streamHandler so APIMan can use it to stream the client request
+    	//to the back-end service
+    	requestExecutor.streamHandler(new IAsyncHandler<ISignalWriteStream>() {
+
+    		  @Override
+    		  public void handle(final ISignalWriteStream writeStream) {
+			    request.dataHandler(new Handler<Buffer>() {
+		            public void handle(Buffer data) {
+		            	IApimanBuffer apimanBuffer = new VertxBuffer(data);
+		        		writeStream.write(apimanBuffer);
+		            }
+		        });
+    		    writeStream.end();
+    		  }
+    	});
+    	//Hand responsibility to APIMan
+    	requestExecutor.execute();
     }
+    
+    
     
     /**
      * Gets the API Key from the request.  The API key can be passed either via

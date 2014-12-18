@@ -18,8 +18,7 @@
       "serviceVersion" : "1.0",
       "policies" : [ {
         "policyJsonConfig" : "{ \"ipList\" : [ \"127.0.0.1\", \"localhost\" ] }",
-        "policyImpl" : "class:org.overlord.apiman.engine.policies.IPWhitelistPolicy",
-        "policyConfig" : null
+        "policyImpl" : "class:io.apiman.gateway.engine.policies.IPWhitelistPolicy"
       } ]
     } ]
   } ]

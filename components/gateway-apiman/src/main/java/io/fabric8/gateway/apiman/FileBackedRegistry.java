@@ -23,22 +23,22 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.overlord.apiman.rt.engine.IRegistry;
-import org.overlord.apiman.rt.engine.beans.Application;
-import org.overlord.apiman.rt.engine.beans.Contract;
-import org.overlord.apiman.rt.engine.beans.Policy;
-import org.overlord.apiman.rt.engine.beans.Service;
-import org.overlord.apiman.rt.engine.beans.ServiceContract;
-import org.overlord.apiman.rt.engine.beans.ServiceRequest;
-import org.overlord.apiman.rt.engine.beans.exceptions.InvalidContractException;
-import org.overlord.apiman.rt.engine.beans.exceptions.PublishingException;
-import org.overlord.apiman.rt.engine.beans.exceptions.RegistrationException;
-import org.overlord.apiman.rt.engine.i18n.Messages;
+import io.apiman.gateway.engine.IRegistry;
+import io.apiman.gateway.engine.beans.Application;
+import io.apiman.gateway.engine.beans.Contract;
+import io.apiman.gateway.engine.beans.Service;
+import io.apiman.gateway.engine.beans.ServiceContract;
+import io.apiman.gateway.engine.beans.ServiceRequest;
+import io.apiman.gateway.engine.beans.exceptions.InvalidContractException;
+import io.apiman.gateway.engine.beans.exceptions.PublishingException;
+import io.apiman.gateway.engine.beans.exceptions.RegistrationException;
+import io.apiman.gateway.engine.i18n.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A File-Backed implementation of the registry.
+ * A File-Backed implementation of the registry. This implementation persists the
+ * registry info to a data/apiman/registry.json file on the file system.
  *
  */
 public class FileBackedRegistry implements IRegistry {
@@ -80,7 +80,20 @@ public class FileBackedRegistry implements IRegistry {
 		}
 		return registryFile;
 	}
-	
+	/**
+	 * Loads up the engine registry data that was persisted previously. If no
+	 * registry.json file is found it uses bootstrap data which are shipped
+	 * in the RegistryInfo.json file in the current package. 
+	 * 
+	 * The Bootstrap data loads up an empty plan for the APIMan REST API,
+	 * which allows access to the ApiMan REST API. At the moment the APIMan
+	 * Console can only send Basic Auth Credentials. So be mindful of that when 
+	 * adding security policies for the ApiMan REST API.
+	 * 
+	 * @param port - the service port of ApiMan REST, so the bootstrapping process
+	 * can set the right port in the registry.
+	 * @throws IOException if it can't read or write to the registry file.
+	 */
 	public void load(String port) throws IOException {
 		
 		String json = null;
@@ -96,17 +109,13 @@ public class FileBackedRegistry implements IRegistry {
 			json = IOUtils.toString(is);
 			if (port != null) json = json.replaceAll("\\$\\{port\\}", port);
 		}
-		RegistryInfo registryInfo = RegistryInfo.fromJSON(json);
+		ApiManRegistryInfo registryInfo = ApiManRegistryInfo.fromJSON(json);
 		for (Service service : registryInfo.getServices()) {
 			services.put(getServiceKey(service), service);
 		}
 		for (Application application : registryInfo.getApplications()) {
 			applications.put(getApplicationKey(application), application);
 			for (Contract contract : application.getContracts()) {
-				//setting the policyConfig to null, this will get populated from JSON later
-				for (Policy policy: contract.getPolicies()) {
-					policy.setPolicyConfig(null);
-				}
 				String svcKey = getServiceKey(contract.getServiceOrgId(), contract.getServiceId(), contract.getServiceVersion());
 				ServiceContract sc = new ServiceContract(contract.getApiKey(), services.get(svcKey), application, contract.getPolicies());
 				contracts.put(contract.getApiKey(), sc);
@@ -117,7 +126,7 @@ public class FileBackedRegistry implements IRegistry {
 	
 	public void save() {
 		try {
-			RegistryInfo registryInfo = new RegistryInfo(services.values(), applications.values());
+			ApiManRegistryInfo registryInfo = new ApiManRegistryInfo(services.values(), applications.values());
 			String json = registryInfo.toJSON();
 			FileUtils.writeStringToFile(getRegistryFile(), json);
 		} catch (IOException e) {
@@ -126,7 +135,7 @@ public class FileBackedRegistry implements IRegistry {
 	}
 
     /**
-     * @see org.overlord.apiman.rt.engine.IRegistry#publishService(org.overlord.apiman.rt.engine.beans.Service)
+     * @see io.apiman.gateway.engine.IRegistry#publishService(io.apiman.gateway.engine.beans.Service)
      */
     @Override
     public synchronized void publishService(Service service) throws PublishingException {
@@ -139,7 +148,7 @@ public class FileBackedRegistry implements IRegistry {
     }
     
     /**
-     * @see org.overlord.apiman.rt.engine.IRegistry#retireService(org.overlord.apiman.rt.engine.beans.Service)
+     * @see io.apiman.gateway.engine.IRegistry#retireService(io.apiman.gateway.engine.beans.Service)
      */
     @Override
     public synchronized void retireService(Service service) throws PublishingException {
@@ -152,7 +161,7 @@ public class FileBackedRegistry implements IRegistry {
     }
 
     /**
-     * @see org.overlord.apiman.rt.engine.IRegistry#registerApplication(org.overlord.apiman.rt.engine.beans.Application)
+     * @see io.apiman.gateway.engine.IRegistry#registerApplication(io.apiman.gateway.engine.beans.Application)
      */
     @Override
     public synchronized void registerApplication(Application application) throws RegistrationException {
@@ -183,7 +192,7 @@ public class FileBackedRegistry implements IRegistry {
     }
 
     /**
-     * @see org.overlord.apiman.rt.engine.IRegistry#unregisterApplication(org.overlord.apiman.rt.engine.beans.Application)
+     * @see io.apiman.gateway.engine.IRegistry#unregisterApplication(io.apiman.gateway.engine.beans.Application)
      */
     @Override
     public synchronized void unregisterApplication(Application application) throws RegistrationException {
@@ -202,7 +211,7 @@ public class FileBackedRegistry implements IRegistry {
     }
 
     /**
-     * @see org.overlord.apiman.rt.engine.IRegistry#getContract(org.overlord.apiman.rt.engine.beans.ServiceRequest)
+     * @see io.apiman.gateway.engine.IRegistry#getContract(io.apiman.gateway.engine.beans.ServiceRequest)
      */
     @Override
     public ServiceContract getContract(ServiceRequest request) throws InvalidContractException {

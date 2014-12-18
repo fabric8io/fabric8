@@ -1,4 +1,4 @@
-/**
+/*
  *  Copyright 2005-2014 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
@@ -66,4 +66,5 @@ public interface HttpGateway {
      * Adds a CallDetailRecord for reporting purposes
      */
     public void addCallDetailRecord(CallDetailRecord cdr);
+
 }

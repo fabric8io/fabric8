@@ -1,3 +1,18 @@
+/*
+ *  Copyright 2005-2015 Red Hat, Inc.
+ *
+ *  Red Hat licenses this file to you under the Apache License, version
+ *  2.0 (the "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *  implied.  See the License for the specific language governing
+ *  permissions and limitations under the License.
+ */
 package io.fabric8.gateway.apiman;
 
 import java.util.Map;
@@ -7,15 +22,16 @@ import javax.enterprise.context.ApplicationScoped;
 
 import io.fabric8.gateway.api.apimanager.ApiManagerService;
 import io.fabric8.gateway.api.handlers.http.HttpGateway;
-import io.fabric8.gateway.apiman.rest.RestDispatcher;
+import io.apiman.gateway.engine.IEngine;
+import io.apiman.gateway.engine.IServiceConnectionResponse;
+import io.apiman.gateway.engine.async.IAsyncHandler;
+import io.apiman.gateway.engine.async.IAsyncResult;
 
-import org.overlord.apiman.rt.engine.IEngine;
-import org.overlord.apiman.rt.engine.async.IAsyncHandler;
-import org.overlord.apiman.rt.engine.beans.ServiceResponse;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.http.HttpClient;
 import org.vertx.java.core.http.HttpClientResponse;
+import org.vertx.java.core.http.HttpServer;
 import org.vertx.java.core.http.HttpServerRequest;
 /**
  * Implementation of the ApiManagerService interface specifically for the <i>Overlord
@@ -27,10 +43,10 @@ public class ApiManService implements ApiManagerService {
 	private Vertx vertx;
 	private HttpGateway httpGateway;
 	
-	/** the Overlord APIMan Engine */
+	/** the APIMan Engine */
 	private IEngine engine;
-	/** the REST API for the engine */
-	private RestDispatcher dispatcher;
+	/** the REST API server to configure the engine */
+	private HttpServer engineRestServer;
 	public final static String ATTR_HTTP_CLIENT = "httpClient";
 	public final static String ATTR_CLIENT_RESPONSE = "clientResponse";
 	
@@ -39,13 +55,18 @@ public class ApiManService implements ApiManagerService {
 		httpGateway = (HttpGateway) config.get(ApiManagerService.HTTP_GATEWAY);
 		String port = (String) config.get(ApiManagerService.PORT);
 		engine = Engine.create(vertx, httpGateway, port);
-		dispatcher = new RestDispatcher();
+		engineRestServer = vertx.createHttpServer();
+		int portRest = Integer.valueOf(port) - 1;
+		if (config.containsKey(ApiManagerService.PORT_REST)) portRest = (Integer) config.get(ApiManagerService.PORT_REST);
+		engineRestServer.requestHandler(new ApiManRestRequestHandler(engine));
+		engineRestServer.listen(portRest, "localhost");
 	}
 	
 	@PreDestroy
 	public void deactivateComponent() {
+		engineRestServer.close();
+		engineRestServer = null;
 		engine = null;
-		dispatcher = null;
 	}
 	
 	/**
@@ -62,7 +83,7 @@ public class ApiManService implements ApiManagerService {
 	@Override 
 	public Handler<HttpClientResponse> createServiceResponseHandler(
 			final HttpClient httpClient, final Object apiManagementResponseHandler) {
-			return new ApiManHttpServiceResponseHandler(httpClient, (IAsyncHandler<ServiceResponse>) apiManagementResponseHandler);
+			return new ApiManHttpServiceResponseHandler(httpClient, (IAsyncHandler<IAsyncResult<IServiceConnectionResponse>>) apiManagementResponseHandler);
 	}
     /**
      * @see ApiManagerService#createHttpGatewayHandler()
@@ -71,17 +92,5 @@ public class ApiManService implements ApiManagerService {
 	public Handler<HttpServerRequest> createApiManagerHttpGatewayHandler() {
 		return new ApiManHttpGatewayHandler(vertx, httpGateway, this);
 	}
-
-	@Override
-	public void handleRestRequest(HttpServerRequest request) {
-		if (dispatcher!=null) {
-			dispatcher.dispatch(request,this.engine);
-		} else {
-			request.response().setStatusCode(404);
-			request.response().end("Not found");
-			request.response().close();
-		}
-	}
-	
 
 }

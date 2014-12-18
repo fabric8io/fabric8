@@ -87,7 +87,7 @@
         <aether.version>1.11</aether.version>
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <antlr.version>3.3</antlr.version>
-        <apiman.version>1.0.0.Alpha4</apiman.version>
+        <apiman.version>1.0.0.Beta2</apiman.version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
         <aries-blueprint-api.version>1.0.1</aries-blueprint-api.version>
         <aries-blueprint-cm.version>1.0.4</aries-blueprint-cm.version>
@@ -371,23 +371,28 @@
         <dependencies>
          <!--  APIMan -->
          <dependency>
-             <groupId>org.overlord.apiman</groupId>
-             <artifactId>apiman-rt-engine-core</artifactId>
+             <groupId>io.apiman</groupId>
+             <artifactId>apiman-gateway-engine-core</artifactId>
              <version>${apiman.version}</version>
          </dependency>
          <dependency>
-             <groupId>org.overlord.apiman</groupId>
-             <artifactId>apiman-rt-engine-beans</artifactId>
+             <groupId>io.apiman</groupId>
+             <artifactId>apiman-gateway-engine-beans</artifactId>
              <version>${apiman.version}</version>
          </dependency>
          <dependency>
-             <groupId>org.overlord.apiman</groupId>
-             <artifactId>apiman-rt-engine-policies</artifactId>
+             <groupId>io.apiman</groupId>
+             <artifactId>apiman-gateway-engine-policies</artifactId>
              <version>${apiman.version}</version>
          </dependency>
          <dependency>
-             <groupId>org.overlord.apiman</groupId>
-             <artifactId>apiman-rt-api-rest</artifactId>
+             <groupId>io.apiman</groupId>
+             <artifactId>apiman-gateway-api-rest</artifactId>
+             <version>${apiman.version}</version>
+         </dependency>
+         <dependency>
+             <groupId>io.apiman</groupId>
+             <artifactId>apiman-distro-wildfly8</artifactId>
              <version>${apiman.version}</version>
          </dependency>
             <!-- Commons -->
