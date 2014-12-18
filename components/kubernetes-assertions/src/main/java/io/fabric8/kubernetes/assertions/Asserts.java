@@ -17,16 +17,19 @@
  */
 package io.fabric8.kubernetes.assertions;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import io.fabric8.kubernetes.api.KubernetesClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
 public class Asserts {
+    private static final transient Logger LOG = LoggerFactory.getLogger(Asserts.class);
 
     /**
      * Asserts that the code block throws an {@link AssertionError) and returns it
      */
-    public static <T> AssertionError assertAssertionError(Block block) throws Exception {
+    public static AssertionError assertAssertionError(Block block) throws Exception {
         AssertionError answer = null;
         try {
             block.invoke();
@@ -36,8 +39,17 @@ public class Asserts {
         } catch (Exception e) {
             throw e;
         }
-        assertThat(answer).isNotNull();
-        System.out.println("Caught expected assertion failure: " + answer);
+        if (answer == null) {
+            throw new AssertionError("Expected an assertion error from block: " + block);
+        }
+        LOG.info("Caught expected assertion failure: " + answer);
         return answer;
+    }
+
+
+    // assertThat entry points
+
+    public static KubernetesAssert assertThat(KubernetesClient kubernetesClient) {
+        return new KubernetesAssert(kubernetesClient);
     }
 }

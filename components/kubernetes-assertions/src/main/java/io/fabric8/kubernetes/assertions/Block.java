@@ -18,6 +18,7 @@
 package io.fabric8.kubernetes.assertions;
 
 /**
+ * Represents a block of code which may thrown an exception
  */
 public interface Block {
     public void invoke() throws Exception;

@@ -31,6 +31,7 @@
   <name>Fabric8 :: Components</name>
 
   <modules>
+    <module>arquillian-fabric8</module>
     <module>console</module>
     <module>docker-api</module>
     <module>fabric-cxf</module>
