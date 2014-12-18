@@ -36,13 +36,22 @@
     </fuse.osgi.export>
     <fuse.osgi.import>
       org.apache.felix.gogo.commands,
+      org.apache.felix.gogo.commands.basic,
       org.apache.felix.service.command;status=provisional,
       org.apache.karaf.shell.console,
-      *
+      org.apache.karaf.shell.console.completer,
+      io.fabric8.patch,
+      org.slf4j
     </fuse.osgi.import>
     <fuse.osgi.private.pkg>
-      io.fabric8.patch.commands*,
+      io.fabric8.patch.commands*
     </fuse.osgi.private.pkg>
+    <fuse.osgi.embed.dependency>
+      fabric-boot-commands,fabric-api,fabric-utils
+    </fuse.osgi.embed.dependency>
+    <fuse.osgi.embed.transitive>
+      true
+    </fuse.osgi.embed.transitive>
   </properties>
 
   <dependencies>
