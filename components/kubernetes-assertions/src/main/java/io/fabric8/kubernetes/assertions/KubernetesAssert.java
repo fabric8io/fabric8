@@ -61,7 +61,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
 
     public PodsAssert pods() {
         List<PodSchema> pods = getPods();
-        return Asserts.assertThat(pods);
+        return Assertions.assertThat(pods);
     }
 
     protected List<PodSchema> getPods() {
@@ -110,7 +110,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     public PodsAssert podsForReplicationController(ReplicationControllerSchema replicationController) {
         List<PodSchema> allPods = getPods();
         List<PodSchema> pods = KubernetesHelper.getPodsForReplicationController(replicationController, allPods);
-        return Asserts.assertThat(pods);
+        return Assertions.assertThat(pods);
     }
 
     /**
@@ -127,7 +127,7 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
     public PodsAssert podsForService(ServiceSchema service) {
         List<PodSchema> allPods = getPods();
         List<PodSchema> pods = KubernetesHelper.getPodsForService(service, allPods);
-        return Asserts.assertThat(pods);
+        return Assertions.assertThat(pods);
     }
 
     /**

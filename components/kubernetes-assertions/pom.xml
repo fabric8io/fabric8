@@ -30,7 +30,7 @@
   <artifactId>kubernetes-assertions</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fabric8 :: Kubernetes Assertions API</name>
+  <name>Fabric8 :: Kubernetes Assertions</name>
 
   <properties>
   </properties>
@@ -75,7 +75,7 @@
           <!-- wether generated assertions classes can be inherited with consistent assertion chaining -->
           <hierarchical>true</hierarchical>
           <!-- where to generate assertions entry point classes -->
-          <entryPointClassPackage>io.fabric8.kubernetes.assertions</entryPointClassPackage>
+          <entryPointClassPackage>io.fabric8.kubernetes.assertions.internal</entryPointClassPackage>
           <!-- restrict classes to generate assertions for with regex -->
           <!--
                        <includes>

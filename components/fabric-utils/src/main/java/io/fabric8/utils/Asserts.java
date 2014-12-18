@@ -15,14 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.kubernetes.assertions;
+package io.fabric8.utils;
 
-import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.model.PodSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  */
@@ -45,18 +41,7 @@ public class Asserts {
         if (answer == null) {
             throw new AssertionError("Expected an assertion error from block: " + block);
         }
-        LOG.info("Caught expected assertion failure: " + answer);
+        Asserts.LOG.info("Caught expected assertion failure: " + answer);
         return answer;
-    }
-
-    // assertThat entry points
-    //-------------------------------------------------------------------------
-
-    public static KubernetesAssert assertThat(KubernetesClient kubernetesClient) {
-        return new KubernetesAssert(kubernetesClient);
-    }
-
-    public static PodsAssert assertThat(List<PodSchema> pods) {
-        return new PodsAssert(pods);
     }
 }

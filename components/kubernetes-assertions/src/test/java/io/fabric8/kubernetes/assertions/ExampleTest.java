@@ -18,13 +18,14 @@
 package io.fabric8.kubernetes.assertions;
 
 import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.utils.Block;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static io.fabric8.kubernetes.assertions.Assertions.assertThat;
-import static io.fabric8.kubernetes.assertions.Asserts.assertAssertionError;
+import static io.fabric8.utils.Asserts.assertAssertionError;
 
 
 /**
