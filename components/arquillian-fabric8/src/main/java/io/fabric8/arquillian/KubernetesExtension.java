@@ -39,6 +39,7 @@ public class KubernetesExtension implements LoadableExtension {
                 .service(ResourceProvider.class, ControllerResourceProvider.class)
                 .service(ResourceProvider.class, PodListResourceProvider.class)
                 .service(ResourceProvider.class, ReplicationControllerListResourceProvider.class)
-                .service(ResourceProvider.class, ServiceListResourceProvider.class);
+                .service(ResourceProvider.class, ServiceListResourceProvider.class)
+                .service(ResourceProvider.class, SessionResourceProvider.class);
     }
 }
