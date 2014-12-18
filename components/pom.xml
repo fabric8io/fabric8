@@ -58,7 +58,6 @@
     <module>mq</module>
     <module>swagger-model</module>
     <module>zookeeper-client</module>
-    <module>arquillian-fabric8</module>
   </modules>
 
 </project>
