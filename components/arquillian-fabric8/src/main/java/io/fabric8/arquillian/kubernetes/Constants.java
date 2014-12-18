@@ -28,5 +28,4 @@ public class Constants {
 
     public static final String CONFIG_FILE_NAME = "configFileName";
     public static final String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";
-    public static final String POD_STATUS_RUNNING = "Running";
 }
