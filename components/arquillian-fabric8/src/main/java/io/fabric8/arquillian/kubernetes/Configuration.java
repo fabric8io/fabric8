@@ -16,8 +16,19 @@
 
 package io.fabric8.arquillian.kubernetes;
 
+import io.fabric8.utils.Strings;
+import io.fabric8.utils.Systems;
+
 import java.net.URL;
 import java.util.Map;
+
+import static io.fabric8.arquillian.kubernetes.Constants.CONFIG_FILE_NAME;
+import static io.fabric8.arquillian.kubernetes.Constants.CONFIG_URL;
+import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAME;
+import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_MASTER;
+import static io.fabric8.arquillian.kubernetes.Constants.MASTER_URL;
+import static io.fabric8.arquillian.kubernetes.Constants.POLL_INTERVAL;
+import static io.fabric8.arquillian.kubernetes.Constants.TIMEOUT;
 
 public class Configuration {
 
@@ -44,24 +55,30 @@ public class Configuration {
     public static Configuration fromMap(Map<String, String> map) {
         Configuration configuration = new Configuration();
         try {
-            if (map.containsKey(Constants.MASTER_URL)) {
-                configuration.masterUrl = map.get(Constants.MASTER_URL);
-            }
-
-            if (map.containsKey(Constants.CONFIG_URL)) {
-                configuration.configUrl = new URL(map.get(Constants.CONFIG_URL));
-            } else if (map.containsKey(Constants.CONFIG_FILE_NAME)) {
-                configuration.configUrl = Configuration.class.getResource("/" + map.get(Constants.CONFIG_FILE_NAME));
+            if (map.containsKey(MASTER_URL)) {
+                configuration.masterUrl = map.get(MASTER_URL);
             } else {
-                configuration.configUrl = Configuration.class.getResource("/" + Constants.DEFAULT_CONFIG_FILE_NAME);
+                configuration.masterUrl = Systems.getEnvVarOrSystemProperty(KUBERNETES_MASTER, "");
             }
 
-            if (map.containsKey(Constants.TIMEOUT)) {
-                configuration.timeout = Long.parseLong(map.get(Constants.TIMEOUT));
+            if (Strings.isNullOrBlank(configuration.getMasterUrl())) {
+                throw new IllegalStateException("Could not find a valid kubernetes URL.");
             }
 
-            if (map.containsKey(Constants.POLL_INTERVAL)) {
-                configuration.timeout = Long.parseLong(map.get(Constants.POLL_INTERVAL));
+            if (map.containsKey(CONFIG_URL)) {
+                configuration.configUrl = new URL(map.get(CONFIG_URL));
+            } else if (map.containsKey(CONFIG_FILE_NAME)) {
+                configuration.configUrl = Configuration.class.getResource("/" + map.get(CONFIG_FILE_NAME));
+            } else {
+                configuration.configUrl = Configuration.class.getResource("/" + DEFAULT_CONFIG_FILE_NAME);
+            }
+
+            if (map.containsKey(TIMEOUT)) {
+                configuration.timeout = Long.parseLong(map.get(TIMEOUT));
+            }
+
+            if (map.containsKey(POLL_INTERVAL)) {
+                configuration.timeout = Long.parseLong(map.get(POLL_INTERVAL));
             }
 
         } catch (Throwable t) {
