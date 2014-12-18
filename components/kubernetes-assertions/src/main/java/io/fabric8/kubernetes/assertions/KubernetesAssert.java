@@ -18,23 +18,28 @@
 package io.fabric8.kubernetes.assertions;
 
 import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.PodListSchema;
 import io.fabric8.kubernetes.api.model.PodListSchemaAssert;
 import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.PodSchemaAssert;
 import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerListSchemaAssert;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSchemaAssert;
 import io.fabric8.kubernetes.api.model.ServiceListSchema;
 import io.fabric8.kubernetes.api.model.ServiceListSchemaAssert;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.ServiceSchemaAssert;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.ListAssert;
 
+import javax.ws.rs.NotFoundException;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import static io.fabric8.kubernetes.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 
 /**
@@ -54,11 +59,17 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
         return assertThat(pods).isNotNull();
     }
 
-    public ListAssert<PodSchema> pods() {
+    public PodsAssert pods() {
+        List<PodSchema> pods = getPods();
+        return Asserts.assertThat(pods);
+    }
+
+    protected List<PodSchema> getPods() {
         PodListSchema podList = client.getPods();
         assertThat(podList).isNotNull();
         List<PodSchema> pods = podList.getItems();
-        return (ListAssert<PodSchema>) assertThat(pods);
+        assertThat(pods).isNotNull();
+        return pods;
     }
 
     public ReplicationControllerListSchemaAssert replicationControllerList() {
@@ -84,4 +95,81 @@ public class KubernetesAssert extends AbstractAssert<KubernetesAssert, Kubernete
         List<ServiceSchema> services = serviceList.getItems();
         return (ListAssert<ServiceSchema>) assertThat(services);
     }
+
+    /**
+     * Asserts that we can find the given replication controller and match it to a list of pods, returning the pods for further assertions
+     */
+    public PodsAssert podsForReplicationController(String replicationControllerId) {
+        ReplicationControllerSchema replicationController = getReplicationController(replicationControllerId);
+        return podsForReplicationController(replicationController);
+    }
+
+    /**
+     * Asserts that we can find the given replication controller and match it to a list of pods, returning the pods for further assertions
+     */
+    public PodsAssert podsForReplicationController(ReplicationControllerSchema replicationController) {
+        List<PodSchema> allPods = getPods();
+        List<PodSchema> pods = KubernetesHelper.getPodsForReplicationController(replicationController, allPods);
+        return Asserts.assertThat(pods);
+    }
+
+    /**
+     * Asserts that the replication controller can be found for the given ID
+     */
+    public ReplicationControllerSchemaAssert replicationController(String replicationControllerId) {
+        return assertThat(getReplicationController(replicationControllerId));
+    }
+
+    protected ReplicationControllerSchema getReplicationController(String replicationControllerId) {
+        assertThat(replicationControllerId).isNotNull();
+        ReplicationControllerSchema replicationController = null;
+        try {
+            replicationController = client.getReplicationController(replicationControllerId);
+        } catch (NotFoundException e) {
+            fail("Could not find replicationController for '" + replicationControllerId + "'");
+        }
+        assertThat(replicationController).isNotNull();
+        return replicationController;
+    }
+
+
+    /**
+     * Asserts that the service can be found for the given ID
+     */
+    public ServiceSchemaAssert service(String serviceId) {
+        return assertThat(getService(serviceId));
+    }
+
+    protected ServiceSchema getService(String serviceId) {
+        assertThat(serviceId).isNotNull();
+        ServiceSchema service = null;
+        try {
+            service = client.getService(serviceId);
+        } catch (NotFoundException e) {
+            fail("Could not find service for '" + serviceId + "'");
+        }
+        assertThat(service).isNotNull();
+        return service;
+    }
+
+
+    /**
+     * Asserts that the pod can be found for the given ID
+     */
+    public PodSchemaAssert pod(String podId) {
+        return assertThat(getPod(podId));
+    }
+
+    protected PodSchema getPod(String podId) {
+        assertThat(podId).isNotNull();
+        PodSchema pod = null;
+        try {
+            pod = client.getPod(podId);
+        } catch (NotFoundException e) {
+            fail("Could not find pod for '" + podId + "'");
+        }
+        assertThat(pod).isNotNull();
+        return pod;
+    }
+
 }

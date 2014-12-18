@@ -18,8 +18,11 @@
 package io.fabric8.kubernetes.assertions;
 
 import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.model.PodSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  */
@@ -46,10 +49,14 @@ public class Asserts {
         return answer;
     }
 
-
     // assertThat entry points
+    //-------------------------------------------------------------------------
 
     public static KubernetesAssert assertThat(KubernetesClient kubernetesClient) {
         return new KubernetesAssert(kubernetesClient);
+    }
+
+    public static PodsAssert assertThat(List<PodSchema> pods) {
+        return new PodsAssert(pods);
     }
 }
