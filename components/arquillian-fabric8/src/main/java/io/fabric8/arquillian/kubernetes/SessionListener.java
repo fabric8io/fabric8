@@ -53,6 +53,7 @@ public class SessionListener {
                             pod.setLabels(new HashMap<String, String>());
                         }
                         pod.getLabels().put(Constants.ARQ_KEY, event.getSession().getId());
+                        controller.applyPod(pod, event.getSession().getId());
                         shouldWait = true;
                     } else if (entity instanceof ServiceSchema) {
                         ServiceSchema service = (ServiceSchema) entity;
@@ -60,6 +61,7 @@ public class SessionListener {
                             service.setLabels(new HashMap<String, String>());
                         }
                         service.getLabels().put(Constants.ARQ_KEY, event.getSession().getId());
+                        controller.applyService(service, event.getSession().getId());
                     } else if (entity instanceof ReplicationControllerSchema) {
                         ReplicationControllerSchema replicationController = (ReplicationControllerSchema) entity;
                         replicationController.getDesiredState().getPodTemplate().getLabels().put(Constants.ARQ_KEY, event.getSession().getId());
