@@ -28,8 +28,6 @@ import io.fabric8.kubernetes.api.model.PodSchema;
 import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
 import io.fabric8.kubernetes.api.model.ServiceSchema;
 import org.jboss.arquillian.core.api.annotation.Observes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.concurrent.Callable;
@@ -42,10 +40,7 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 
 public class SessionListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SessionListener.class);
-
     public void start(@Observes Start event, KubernetesClient client, Controller controller, Configuration configuration) {
-        LOGGER.info("Starting......");
         boolean shouldWait = false;
 
         try {
