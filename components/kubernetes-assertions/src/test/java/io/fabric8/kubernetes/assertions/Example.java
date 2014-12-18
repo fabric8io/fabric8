@@ -34,9 +34,6 @@ public class Example {
 
             System.out.println("About to run test on: " + client.getAddress());
 
-            Map<String, String> consoleLabels = new HashMap<>();
-            consoleLabels.put("component", "fabric8Console");
-
             assertThat(client).pods().runningStatus().filterLabel("component", "fabric8Console").hasSize(1);
 
             assertAssertionError(new Block() {
@@ -57,6 +54,9 @@ public class Example {
             });
 
             assertThat(client).replicationController("fabric8ConsoleController").hasId("fabric8ConsoleController");
+
+            Map<String, String> consoleLabels = new HashMap<>();
+            consoleLabels.put("component", "fabric8Console");
 
             assertThat(client).podsForReplicationController("fabric8ConsoleController").runningStatus().extracting("labels").contains(consoleLabels);
 
