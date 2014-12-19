@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -100,36 +101,44 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
         final AsyncContext asyncContext = req.startAsync();
         asyncContext.setTimeout(TimeUnit.MINUTES.toMillis(5));
 
-        AsynchronousFileChannel channel = (AsynchronousFileChannel) req.getAttribute(AsynchronousFileChannel.class.getName());
+        final AsynchronousFileChannel channel = (AsynchronousFileChannel) req.getAttribute(AsynchronousFileChannel.class.getName());
         if (channel != null) {
             long size = (Long) req.getAttribute(AsynchronousFileChannel.class.getName() + ".size");
             long pos = (Long) req.getAttribute(AsynchronousFileChannel.class.getName() + ".position");
+            int read = (Integer) req.getAttribute(AsynchronousFileChannel.class.getName() + ".read");
             ByteBuffer buffer = (ByteBuffer) req.getAttribute(ByteBuffer.class.getName());
             ByteBuffer secondBuffer = (ByteBuffer) req.getAttribute(ByteBuffer.class.getName() + ".second");
-            buffer.flip();
-            if (buffer.remaining() > 0) {
-                pos += buffer.remaining();
+            if (read > 0) {
+                pos += read;
                 if (pos < size) {
                     req.setAttribute(AsynchronousFileChannel.class.getName() + ".position", pos);
                     req.setAttribute(ByteBuffer.class.getName(), secondBuffer);
                     req.setAttribute(ByteBuffer.class.getName() + ".second", buffer);
-                    channel.read(secondBuffer, 0, asyncContext, new CompletionHandler<Integer, AsyncContext>() {
+                    channel.read(secondBuffer, pos, asyncContext, new CompletionHandler<Integer, AsyncContext>() {
                         @Override
                         public void completed(Integer result, AsyncContext attachment) {
+                            req.setAttribute(AsynchronousFileChannel.class.getName() + ".read", result);
                             attachment.dispatch();
                         }
 
                         @Override
                         public void failed(Throwable exc, AsyncContext attachment) {
-                            attachment.dispatch();
+                            Closeables.closeQuietly(channel);
+                            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                            attachment.complete();
                         }
                     });
-                    resp.getOutputStream().write(buffer.array(), 0, buffer.remaining());
-                } else {
-                    resp.getOutputStream().write(buffer.array(), 0, buffer.remaining());
+                }
+                buffer.flip();
+                resp.getOutputStream().write(buffer.array(), 0, buffer.remaining());
+                resp.flushBuffer();
+                if (pos == size) {
+                    Closeables.closeQuietly(channel);
                     asyncContext.complete();
                 }
             } else {
+                Closeables.closeQuietly(channel);
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 asyncContext.complete();
             }
             return;
@@ -171,29 +180,36 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
                         resp.setContentType("application/octet-stream");
                         resp.setDateHeader("Date", System.currentTimeMillis());
                         resp.setHeader("Connection", "close");
+                        resp.setHeader("Server", "MavenProxy Proxy/" + FabricConstants.FABRIC_VERSION);
                         long size = artifactFile.length();
                         if (size < Integer.MAX_VALUE) {
                             resp.setContentLength((int) size);
                         }
-                        resp.setHeader("Server", "MavenProxy Proxy/" + FabricConstants.FABRIC_VERSION);
-                        // Store attributes and start reading
-                        req.setAttribute(AsynchronousFileChannel.class.getName(), channel);
-                        ByteBuffer buffer = ByteBuffer.allocate(1024 * 64);
-                        ByteBuffer secondBuffer = ByteBuffer.allocate(1024 * 64);
-                        req.setAttribute(ByteBuffer.class.getName(), secondBuffer);
-                        req.setAttribute(ByteBuffer.class.getName() + ".second", buffer);
-                        req.setAttribute(AsynchronousFileChannel.class.getName() + ".position", 0l);
-                        req.setAttribute(AsynchronousFileChannel.class.getName() + ".size", size);
-                        channel.read(secondBuffer, 0, asyncContext, new CompletionHandler<Integer, AsyncContext>() {
-                            @Override
-                            public void completed(Integer result, AsyncContext attachment) {
-                                attachment.dispatch();
-                            }
-                            @Override
-                            public void failed(Throwable exc, AsyncContext attachment) {
-                                attachment.dispatch();
-                            }
-                        });
+                        if ("GET".equals(req.getMethod())) {
+                            // Store attributes and start reading
+                            req.setAttribute(AsynchronousFileChannel.class.getName(), channel);
+                            ByteBuffer buffer = ByteBuffer.allocate(1024 * 64);
+                            ByteBuffer secondBuffer = ByteBuffer.allocate(1024 * 64);
+                            req.setAttribute(ByteBuffer.class.getName(), secondBuffer);
+                            req.setAttribute(ByteBuffer.class.getName() + ".second", buffer);
+                            req.setAttribute(AsynchronousFileChannel.class.getName() + ".position", 0l);
+                            req.setAttribute(AsynchronousFileChannel.class.getName() + ".size", size);
+                            channel.read(secondBuffer, 0, asyncContext, new CompletionHandler<Integer, AsyncContext>() {
+                                @Override
+                                public void completed(Integer result, AsyncContext attachment) {
+                                    req.setAttribute(AsynchronousFileChannel.class.getName() + ".read", result);
+                                    attachment.dispatch();
+                                }
+
+                                @Override
+                                public void failed(Throwable exc, AsyncContext attachment) {
+                                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                                    attachment.complete();
+                                }
+                            });
+                        } else if ("HEAD".equals(req.getMethod())) {
+                            asyncContext.complete();
+                        }
                         return;
                     } catch (Exception e) {
                         Closeables.closeQuietly(channel);
