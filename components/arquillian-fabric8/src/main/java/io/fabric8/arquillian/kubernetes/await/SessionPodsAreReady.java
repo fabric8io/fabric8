@@ -36,7 +36,7 @@ public class SessionPodsAreReady implements Callable<Boolean> {
     private Session session;
     private KubernetesClient kubernetesClient;
 
-    public SessionPodsAreReady(Session session, KubernetesClient kubernetesClient) {
+    public SessionPodsAreReady(KubernetesClient kubernetesClient, Session session) {
         this.session = session;
         this.kubernetesClient = kubernetesClient;
     }
@@ -50,10 +50,14 @@ public class SessionPodsAreReady implements Callable<Boolean> {
 
         if (pods.isEmpty()) {
             result = false;
+            session.getLogger().warn("No pods are available yet, waiting...");
         }
 
         for (PodSchema pod : pods) {
             result = result && Objects.equal(PodStatus.OK, KubernetesHelper.getPodStatus(pod));
+            if (!result) {
+                session.getLogger().warn("Waiting for pods to reach 'running' state...");
+            }
         }
         return result;
     }

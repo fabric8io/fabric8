@@ -22,6 +22,7 @@ import io.fabric8.utils.Systems;
 import java.net.URL;
 import java.util.Map;
 
+import static io.fabric8.arquillian.kubernetes.Constants.ANSI_LOGGER_ENABLED;
 import static io.fabric8.arquillian.kubernetes.Constants.CONFIG_FILE_NAME;
 import static io.fabric8.arquillian.kubernetes.Constants.CONFIG_URL;
 import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAME;
@@ -36,6 +37,7 @@ public class Configuration {
     private URL configUrl;
     private long timeout = 5 * 60 * 1000;
     private long pollInterval = 5 * 1000;
+    private boolean ansiLoggerEnabled = true;
 
     public String getMasterUrl() {
         return masterUrl;
@@ -52,6 +54,11 @@ public class Configuration {
     public long getPollInterval() {
         return pollInterval;
     }
+
+    public boolean isAnsiLoggerEnabled() {
+        return ansiLoggerEnabled;
+    }
+
     public static Configuration fromMap(Map<String, String> map) {
         Configuration configuration = new Configuration();
         try {
@@ -79,6 +86,12 @@ public class Configuration {
 
             if (map.containsKey(POLL_INTERVAL)) {
                 configuration.pollInterval = Long.parseLong(map.get(POLL_INTERVAL));
+            }
+
+            if (map.containsKey(ANSI_LOGGER_ENABLED)) {
+                configuration.ansiLoggerEnabled = Boolean.parseBoolean(map.get(ANSI_LOGGER_ENABLED));
+            } else {
+                configuration.ansiLoggerEnabled = Systems.getEnvVarOrSystemProperty(ANSI_LOGGER_ENABLED, true);
             }
 
         } catch (Throwable t) {

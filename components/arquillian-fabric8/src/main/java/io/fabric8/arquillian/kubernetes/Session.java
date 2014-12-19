@@ -16,6 +16,8 @@
 
 package io.fabric8.arquillian.kubernetes;
 
+import io.fabric8.arquillian.kubernetes.log.Logger;
+
 /**
  * Represents a testing session.
  * It is used for scoping pods, service and replication controllers created during the test.
@@ -23,12 +25,27 @@ package io.fabric8.arquillian.kubernetes;
 public class Session {
 
     private final String id;
+    private final Logger logger;
 
-    public Session(String id) {
+    public Session(String id, Logger logger) {
         this.id = id;
+        this.logger = logger;
+    }
+
+    void init() {
+        logger.status("Initializing Session:" + id);
+    }
+
+    void destroy() {
+        logger.status("Destroying Session:" + id);
+        System.out.flush();
     }
 
     public String getId() {
         return id;
+    }
+
+    public Logger getLogger() {
+        return logger;
     }
 }

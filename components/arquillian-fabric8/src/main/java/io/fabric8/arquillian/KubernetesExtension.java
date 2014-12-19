@@ -18,6 +18,7 @@ package io.fabric8.arquillian;
 
 import io.fabric8.arquillian.kubernetes.*;
 import io.fabric8.arquillian.kubernetes.enricher.*;
+import io.fabric8.arquillian.kubernetes.log.LoggerFactory;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
@@ -32,6 +33,7 @@ public class KubernetesExtension implements LoadableExtension {
                 .observer(Configurer.class)
                 .observer(ClientCreator.class)
                 .observer(ControllerCreator.class)
+                .observer(LoggerFactory.class)
                 .observer(SuiteListener.class)
                 .observer(SessionListener.class);
 

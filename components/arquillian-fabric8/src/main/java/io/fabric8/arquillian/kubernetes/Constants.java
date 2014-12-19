@@ -29,4 +29,6 @@ public class Constants {
 
     public static final String CONFIG_FILE_NAME = "configFileName";
     public static final String DEFAULT_CONFIG_FILE_NAME = "kubernetes.json";
+
+    public static final String ANSI_LOGGER_ENABLED = "ansi.logger.enabled";
 }

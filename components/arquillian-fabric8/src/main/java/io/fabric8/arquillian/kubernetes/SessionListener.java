@@ -20,6 +20,7 @@ import io.fabric8.arquillian.kubernetes.await.SessionPodsAreReady;
 import io.fabric8.arquillian.kubernetes.await.WaitStrategy;
 import io.fabric8.arquillian.kubernetes.event.Start;
 import io.fabric8.arquillian.kubernetes.event.Stop;
+import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.Entity;
 import io.fabric8.kubernetes.api.KubernetesClient;
@@ -31,9 +32,9 @@ import org.jboss.arquillian.core.api.annotation.Observes;
 
 import java.util.HashMap;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeoutException;
 
 import static io.fabric8.arquillian.utils.Util.cleanupSession;
+import static io.fabric8.arquillian.utils.Util.displaySessionStatus;
 import static io.fabric8.arquillian.utils.Util.readAsString;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getEntities;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
@@ -42,8 +43,10 @@ public class SessionListener {
 
     public void start(@Observes Start event, KubernetesClient client, Controller controller, Configuration configuration) {
         boolean shouldWait = false;
+        Logger log = event.getSession().getLogger();
 
         try {
+            log.info("Applying kubernetes configuration from: "+configuration.getConfigUrl());
             Object dto = loadJson(readAsString(configuration.getConfigUrl()));
             if (dto instanceof Config) {
                 for (Entity entity : getEntities((Config) dto)) {
@@ -77,12 +80,17 @@ public class SessionListener {
 
             //Wait until pods are ready
             if (shouldWait) {
-                Callable<Boolean> sessionPodsReady = new SessionPodsAreReady(event.getSession(), client);
+                Callable<Boolean> sessionPodsReady = new SessionPodsAreReady(client, event.getSession());
                 WaitStrategy waitStrategy = new WaitStrategy(sessionPodsReady, configuration.getTimeout(), configuration.getPollInterval());
                 if (!waitStrategy.await()) {
-                    throw new TimeoutException("Timed out waiting for pods to become ready");
+                    log.error("Timed out waiting for pods!");
+                } else {
+                    log.status("All pods are currently 'running'!");
                 }
+            } else {
+                log.warn("No pods/replication controllers defined in the configuration!");
             }
+            displaySessionStatus(client, event.getSession());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -91,4 +99,6 @@ public class SessionListener {
     public void stop(@Observes Stop event, KubernetesClient client) throws Exception {
         cleanupSession(client, event.getSession());
     }
+
+
 }

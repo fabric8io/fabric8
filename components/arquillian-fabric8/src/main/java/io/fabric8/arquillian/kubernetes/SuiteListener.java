@@ -18,7 +18,10 @@ package io.fabric8.arquillian.kubernetes;
 
 import io.fabric8.arquillian.kubernetes.event.Start;
 import io.fabric8.arquillian.kubernetes.event.Stop;
+import io.fabric8.arquillian.kubernetes.log.AnsiLogger;
+import io.fabric8.arquillian.kubernetes.log.Logger;
 import org.jboss.arquillian.core.api.Event;
+import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.InstanceProducer;
 import org.jboss.arquillian.core.api.annotation.ApplicationScoped;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -37,19 +40,18 @@ public class SuiteListener {
     @Inject
     private Event<SessionEvent> controlEvent;
 
-    private final Session session;
+    private Session session;
 
-    public SuiteListener() {
+    public void start(@Observes(precedence = 100) BeforeSuite event, Logger logger) {
         UUID uuid = UUID.randomUUID();
-        session = new Session(uuid.toString());
-    }
-
-    public void start(@Observes(precedence = 100) BeforeSuite event) {
+        session = new Session(uuid.toString(), logger);
+        session.init();
         sessionProducer.set(session);
         controlEvent.fire(new Start(session));
     }
 
-    public void stop(@Observes(precedence = -100) AfterSuite event) {
+    public void stop(@Observes(precedence = -100) AfterSuite event, Logger logger) {
         controlEvent.fire(new Stop(session));
+        session.destroy();
     }
 }
