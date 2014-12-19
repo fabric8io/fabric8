@@ -35,9 +35,9 @@ while getopts "fud:k" opt; do
       ;;
     f)
       echo "Cleaning up all existing k8s containers"
-      docker rm -f openshift cadvisor || true
+      docker rm -fv openshift cadvisor || true
       RUNNING_CONTAINERS=`docker ps -a | grep k8s | cut -c 1-12`
-      test -z "$RUNNING_CONTAINERS" || docker rm -f $RUNNING_CONTAINERS
+      test -z "$RUNNING_CONTAINERS" || docker rm -fv $RUNNING_CONTAINERS
       CLEANUP=1
       echo
       ;;
@@ -84,6 +84,12 @@ RULE="INPUT -d 172.17.0.0/16 -s 172.121.0.0/16 -j ACCEPT"
 RULE_OUTPUT=$( { docker run --rm --privileged --net=host --entrypoint=iptables ${OPENSHIFT_IMAGE} -C $RULE; } 2>&1 )
 test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host --entrypoint=iptables ${OPENSHIFT_IMAGE} -I $RULE
 RULE="INPUT -d 172.121.0.0/16 -s 172.17.0.0/16 -j ACCEPT"
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host --entrypoint=iptables ${OPENSHIFT_IMAGE} -C $RULE; } 2>&1 )
+test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host --entrypoint=iptables ${OPENSHIFT_IMAGE} -I $RULE
+RULE="INPUT -d 172.30.17.0/24 -s 172.17.0.0/16 -j ACCEPT"
+RULE_OUTPUT=$( { docker run --rm --privileged --net=host --entrypoint=iptables ${OPENSHIFT_IMAGE} -C $RULE; } 2>&1 )
+test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host --entrypoint=iptables ${OPENSHIFT_IMAGE} -I $RULE
+RULE="INPUT -d 172.17.0.0/16 -s 172.30.17.0/24 -j ACCEPT"
 RULE_OUTPUT=$( { docker run --rm --privileged --net=host --entrypoint=iptables ${OPENSHIFT_IMAGE} -C $RULE; } 2>&1 )
 test -n "$RULE_OUTPUT" && docker run --rm --privileged --net=host --entrypoint=iptables ${OPENSHIFT_IMAGE} -I $RULE
 echo
