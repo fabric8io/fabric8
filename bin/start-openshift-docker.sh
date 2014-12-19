@@ -107,7 +107,7 @@ export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
 # using an env var but ideally we'd use an alias ;)
 KUBE="docker run --rm -i --net=host ${OPENSHIFT_IMAGE} kube"
 
-OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host ${OPENSHIFT_IMAGE} start)
+OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host ${OPENSHIFT_IMAGE} start --cors-allowed-origins=.*)
 
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   # Have to run it privileged otherwise not working on CentOS7
