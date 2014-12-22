@@ -17,6 +17,7 @@ package io.fabric8.gateway.support;
 
 import io.fabric8.gateway.loadbalancer.ClientRequestFacade;
 import io.fabric8.gateway.model.HttpProxyRuleBase;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

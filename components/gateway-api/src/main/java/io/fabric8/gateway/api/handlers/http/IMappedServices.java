@@ -26,9 +26,6 @@ import org.vertx.java.core.http.HttpServerRequest;
 
 public interface IMappedServices {
 
-	/**
-	 * Chooses a request to use
-	 */
 	public abstract String chooseService(HttpServerRequest request);
 
 	/**
@@ -57,5 +54,9 @@ public interface IMappedServices {
 	public abstract ServiceDetails getServiceDetails();
 
 	public abstract Set<String> getServiceUrls();
+	
+	public ProxyMappingDetails getProxyMappingDetails();
+
+	public void setProxyMappingDetails(ProxyMappingDetails proxyMappingDetails);
 
 }

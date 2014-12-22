@@ -21,13 +21,13 @@ import io.fabric8.gateway.api.handlers.http.ProxyMappingDetails;
 import io.fabric8.gateway.handlers.http.policy.ReverseUriPolicy;
 import io.fabric8.gateway.loadbalancer.LoadBalancer;
 
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpClientResponse;
-import org.vertx.java.core.http.HttpServerRequest;
-
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+
+import org.vertx.java.core.Handler;
+import org.vertx.java.core.http.HttpClientResponse;
+import org.vertx.java.core.http.HttpServerRequest;
 
 /**
  * Represents the mapped services and the relevant mapping information so that a service implementation can be
@@ -38,6 +38,7 @@ public class MappedServices implements IMappedServices {
     private final LoadBalancer loadBalancer;
     private final boolean reverseHeaders;
     private Set<String> serviceUrls = new CopyOnWriteArraySet<String>();
+    private ProxyMappingDetails proxyMappingDetails;
 
     public MappedServices(String service, ServiceDetails serviceDetails, LoadBalancer loadBalancer, boolean reverseHeaders) {
         this.serviceDetails = serviceDetails;
@@ -104,4 +105,13 @@ public class MappedServices implements IMappedServices {
     public Set<String> getServiceUrls() {
         return serviceUrls;
     }
+
+	public ProxyMappingDetails getProxyMappingDetails() {
+		return proxyMappingDetails;
+	}
+
+	public void setProxyMappingDetails(ProxyMappingDetails proxyMappingDetails) {
+		this.proxyMappingDetails = proxyMappingDetails;
+	}
+
 }

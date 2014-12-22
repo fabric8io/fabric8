@@ -13,31 +13,36 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.gateway.apiman;
+package io.fabric8.gateway.apiman.rest;
 
-import io.fabric8.gateway.apiman.rest.RestDispatcher;
-
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.http.HttpServerRequest;
+import io.apiman.gateway.api.rest.contract.ISystemResource;
+import io.apiman.gateway.engine.IEngine;
+import io.apiman.gateway.engine.beans.SystemStatus;
 /**
- * Handles the rest requests from APIMan Console, to configure the engine.
- *
+ * Implements the IServiceResource interface to set up a REST
+ * interface to configure Services in APIMan Engine.
  */
-public class ApiManRestRequestHandler implements Handler<HttpServerRequest> {
+public class SystemResource implements ISystemResource {
 
-	private ApiManEngine engine;
-	/** the REST API dispatcher for configuration calls to the engine */
-	private RestDispatcher dispatcher;
-    
-	public ApiManRestRequestHandler(ApiManEngine engine) {
+	private IEngine engine;
+	
+	public SystemResource(IEngine engine) {
 		super();
 		this.engine = engine;
-		dispatcher = new RestDispatcher();
 	}
 
 	@Override
-	public void handle(HttpServerRequest request) {
-		dispatcher.dispatch(request,this.engine);
+	public SystemStatus getStatus() {
+		SystemStatus status = new SystemStatus();
+		if (engine != null) {
+			status.setUp(true);
+			status.setVersion(engine.getVersion());
+		} else {
+			status.setUp(false);
+		}
+		return status;
 	}
+
+
 
 }

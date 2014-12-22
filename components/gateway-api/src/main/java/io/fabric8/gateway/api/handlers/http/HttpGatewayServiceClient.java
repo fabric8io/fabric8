@@ -29,8 +29,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * The HttpGatewayServiceClient used Vert.x to create a Vert.x client to relay the client
@@ -52,73 +50,17 @@ public class HttpGatewayServiceClient {
     }
 
 	public HttpClientRequest execute(final HttpServerRequest request, final Object apiManagerResponseHandler) {
-    	
-        String uri = request.uri();
-        String uri2 = null;
-        if (!uri.endsWith("/")) {
-            uri2 = uri + "/";
-        }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Proxying request: " + uri);
-        }
 
-        // lets map the request URI to map to the service URI and then the renaming URI
-        // using mapping rules...
-        HttpClient client = null;
-        String remaining = null;
-        String prefix = null;
-        String proxyServiceUrl = null;
-        String reverseServiceUrl = null;
-        Map<String, IMappedServices> mappingRules = httpGateway.getMappedServices();
         try {
-       
-            IMappedServices mappedServices = null;
-            URL clientURL = null;
-            Set<Map.Entry<String, IMappedServices>> entries = mappingRules.entrySet();
-            for (Map.Entry<String, IMappedServices> entry : entries) {
-                String path = entry.getKey();
-                mappedServices = entry.getValue();
-
-                String pathPrefix = path;
-                if (uri.startsWith(pathPrefix) || (uri2 != null && uri2.startsWith(pathPrefix))) {
-                    int pathPrefixLength = pathPrefix.length();
-                    if (pathPrefixLength < uri.length()) {
-                        remaining = uri.substring(pathPrefixLength+1);
-                    } else {
-                        remaining = null;
-                    }
-
-                    // now lets pick a service for this path
-                    proxyServiceUrl = mappedServices.chooseService(request);
-                    if (proxyServiceUrl != null) {
-                        // lets create a client for this request...
-                        try {
-                            clientURL = new URL(proxyServiceUrl);
-                            client = createClient(clientURL);
-                            prefix = clientURL.getPath();
-                            reverseServiceUrl = request.absoluteURI().resolve(pathPrefix).toString();
-                            if (reverseServiceUrl.endsWith("/")) {
-                                reverseServiceUrl = reverseServiceUrl.substring(0, reverseServiceUrl.length() - 1);
-                            }
-                            break;
-                        } catch (MalformedURLException e) {
-                            LOG.warn("Failed to parse URL: " + proxyServiceUrl + ". " + e, e);
-                        }
-                    }
-                }
-            }
-
+        	IMappedServices mappedServices = HttpMapping.getMapping(request, httpGateway.getMappedServices());
+        	ProxyMappingDetails proxyMappingDetails = mappedServices.getProxyMappingDetails();
+        	HttpClient client = null;
+        	if (proxyMappingDetails!=null && proxyMappingDetails.getProxyServiceUrl()!=null) {
+        		client = createClient(new URL(proxyMappingDetails.getProxyServiceUrl()));
+        	}
             if (client != null) {
-                String servicePath = prefix != null ? prefix : "";
-                // we should usually end the prefix path with a slash for web apps at least
-                if (servicePath.length() > 0 && !servicePath.endsWith("/")) {
-                    servicePath += "/";
-                }
-                if (remaining != null) {
-                    servicePath += remaining;
-                }
-
-                LOG.info("Proxying request " + uri + " to service path: " + servicePath + " on service: " + proxyServiceUrl + " reverseServiceUrl: " + reverseServiceUrl);
+                
+                LOG.info("Proxying request " + request.uri() + " to service path: " + proxyMappingDetails.getServicePath() + " on service: " + proxyMappingDetails.getProxyServiceUrl() + " reverseServiceUrl: " + proxyMappingDetails.getReverseServiceUrl());
                 final HttpClient finalClient = client;
                 
                 Handler<HttpClientResponse> serviceResponseHandler = null;
@@ -130,38 +72,21 @@ public class HttpGatewayServiceClient {
         		}
                 
                 if (mappedServices != null) {
-                    ProxyMappingDetails proxyMappingDetails = new ProxyMappingDetails(proxyServiceUrl, reverseServiceUrl, servicePath);
                     serviceResponseHandler = mappedServices.wrapResponseHandlerInPolicies(request, serviceResponseHandler, proxyMappingDetails);
                 }
                 
-                final HttpClientRequest serviceRequest = client.request(request.method(), servicePath, serviceResponseHandler);
+                final HttpClientRequest serviceRequest = client.request(request.method(), proxyMappingDetails.getServicePath(), serviceResponseHandler);
                 serviceRequest.headers().set(request.headers());
                 serviceRequest.setChunked(true);
                 
                 return serviceRequest;
-//                    request.dataHandler(new Handler<Buffer>() {
-//                        public void handle(Buffer data) {
-//                            if (LOG.isDebugEnabled()) {
-//                                LOG.debug("Proxying request body:" + data);
-//                            }
-//                            serviceRequest.write(data);
-//                        }
-//                    });
-//                    request.endHandler(new VoidHandler() {
-//                        public void handle() {
-//                            if (LOG.isDebugEnabled()) {
-//                                LOG.debug("end of the request");
-//                            }
-//                            serviceRequest.end();
-//                        }
-//                    });
 
             } else {
                 //  lets return a 404
-                LOG.info("Could not find matching proxy path for " + uri + " from paths: " + mappingRules.keySet());
+                LOG.info("Could not find matching proxy path for " + request.uri() + " from paths: " + httpGateway.getMappedServices().keySet());
                 HttpServerResponse httpServerResponse = request.response();
                 httpServerResponse.setStatusCode(404);
-                httpServerResponse.setStatusMessage("Could not find matching proxy path for " + uri + " from paths: " + mappingRules.keySet());
+                httpServerResponse.setStatusMessage("Could not find matching proxy path for " + request.uri() + " from paths: " + httpGateway.getMappedServices().keySet());
                 httpServerResponse.end();
             }
         } catch (Throwable e) {
@@ -175,10 +100,6 @@ public class HttpGatewayServiceClient {
         return null;
     }
 
-    
-
-
-    
     protected boolean isApimanagerRestRequest(HttpServerRequest request) {
         if (httpGateway == null || !httpGateway.isEnableIndex()) {
             return false;

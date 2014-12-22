@@ -30,6 +30,8 @@ public class HTTPGatewayConfig extends HashMap<String, String> {
     public final static String HOST = "HOST";
     /** Port number to listen on for HTTP requests") */
     public final static String HTTP_PORT = "HTTP_PORT";
+    /** External Gateway URL that clients would be using (in case you need to override what the gateway is bound to) */
+    public final static String GATEWAY_URL = "GATEWAY_URL";
     /** If enabled then performing a HTTP GET on the path '/' will return a JSON representation of the gateway mappings */
     public final static String ENABLE_INDEX = "ENABLE_INDEX";
     /** Url to the Kubernetes Master */
@@ -59,6 +61,10 @@ public class HTTPGatewayConfig extends HashMap<String, String> {
     
     public String getHost() {
         return get(HOST);
+    }
+    
+    public String getGatewayUrl() {
+    	return get(GATEWAY_URL);
     }
     
     public boolean isIndexEnabled() {

@@ -148,8 +148,18 @@ public class FabricHTTPGateway implements HttpGateway {
     /**
      * Returns address the gateway service is listening on.
      */
+    @Override
     public InetSocketAddress getLocalAddress() {
         return new InetSocketAddress(gatewayConfig.getHost()==null?"0.0.0.0":gatewayConfig.getHost(), gatewayConfig.getPort());
+    }
+    
+    @Override
+    public String getGatewayUrl() {
+    	if (gatewayConfig.getGatewayUrl()!=null) {
+    		return gatewayConfig.getGatewayUrl();
+    	} else {
+    		return "http://" + gatewayConfig.getHost() + ":" + gatewayConfig.getPort();
+    	}
     }
 
     private Vertx getVertx() {

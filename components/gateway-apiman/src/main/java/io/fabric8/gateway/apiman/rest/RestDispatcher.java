@@ -15,9 +15,10 @@
  */
 package io.fabric8.gateway.apiman.rest;
 
-import io.apiman.gateway.engine.IEngine;
 import io.apiman.gateway.engine.beans.Application;
 import io.apiman.gateway.engine.beans.Service;
+import io.fabric8.gateway.apiman.ApiManEngine;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
@@ -38,7 +39,7 @@ public class RestDispatcher {
 		return mapper;
 	}
 	
-	public void dispatch(final HttpServerRequest request, final IEngine engine) {
+	public void dispatch(final HttpServerRequest request, final ApiManEngine engine) {
 		
 		//check headers
 		if (request.method().equals("PUT")) {
@@ -58,77 +59,91 @@ public class RestDispatcher {
 		}
 		//read the body
 		request.bodyHandler(new Handler<Buffer>() {
-
+			
 			@Override
 			public void handle(Buffer event) {
-				
-				String body = event.getString(0, event.length());
-				String uri = request.uri().substring(0,request.uri().lastIndexOf("/")+1);
-				switch (uri) {
-				case "/rest/apimanager/api/applications/":
-					ApplicationResource applicationResource = new ApplicationResource(engine);
-					try {
+				try {
+					String body = event.getString(0, event.length());
+					String uri = request.uri().substring(1,request.uri().lastIndexOf("/")+1);
+					String[] pathSegment = uri.split("/");
+					
+					if (uri.startsWith("rest/apimanager/api/applications/")) {
+						ApplicationResource applicationResource = new ApplicationResource(engine);
+						
 						if (request.method().equals("PUT")) {
 							Application application = getObjectMapper().readValue(body, Application.class);
 							applicationResource.register(application);
-							request.response().setStatusCode(200);
 						} 
 						else if (request.method().equals("DELETE"))  {
-							String applicationId = request.params().get("applicationId");
-							String organizationId = request.params().get("organizationId");
-					        String version = request.params().get("version");
+							//path {organizationId}/{applicationId}/{version}
+							if (pathSegment.length < 6) throw new UserException("Query Parse Exception , "
+									+ "expecting /rest/apimanager/api/applications/{organizationId}/{applicationId}/{version}");	
+							String organizationId = pathSegment[4];
+							String applicationId = pathSegment[5];
+					        String version = pathSegment[6];
 							applicationResource.unregister(organizationId, applicationId, version);
 						} else {
-							request.response().setStatusCode(404);
-							request.response().setStatusMessage("Method not Supported");
+							throw new UserException("Method not Supported");
 						}
-						request.response().end();
-						request.response().close();
-					} catch (Throwable e) {
-						LOG.error(e.getMessage(),e);
-						request.response().setStatusCode(500);
-						request.response().setStatusMessage(e.getMessage());
-						request.response().end();
-						request.response().close();
-					}
-					break;
-					
-				case "/rest/apimanager/api/services/":
-					ServiceResource serviceResource = new ServiceResource(engine);
-					try {
+						
+					} else if (uri.startsWith("rest/apimanager/api/services/")) {
+						ServiceResource serviceResource = new ServiceResource(engine);
+						
 						if (request.method().equals("PUT")) {
 							Service service = getObjectMapper().readValue(body, Service.class);
 							serviceResource.publish(service);
-							request.response().setStatusCode(200);
 						} 
 						else if (request.method().equals("DELETE"))  {
-							String serviceId = request.params().get("serviceId");
-					        String organizationId = request.params().get("organizationId");
-					        String version = request.params().get("version");
+							//path {organizationId}/{serviceId}/{version}
+							if (pathSegment.length < 6) throw new UserException("Query Parse Exception , "
+									+ "expecting /rest/apimanager/api/applications/{organizationId}/{serviceId}/{version}");
+					        String organizationId = pathSegment[4];
+							String serviceId = pathSegment[5];
+					        String version = pathSegment[6];
 							serviceResource.retire(organizationId, serviceId, version);
 							request.response().setStatusCode(200);
+						} else if (request.method().equals("GET")) {
+							//path {organizationId}/{serviceId}/{version}
+							if (pathSegment.length < 7) throw new UserException("Query Parse Exception , "
+									+ "expecting /rest/apimanager/api/applications/{organizationId}/{serviceId}/{version}/endpoint");
+							String organizationId = pathSegment[4];
+							String serviceId = pathSegment[5];
+					        String version = pathSegment[6];
+					        String json = getObjectMapper().writeValueAsString(serviceResource.getServiceEndpoint(organizationId, serviceId, version));
+					        request.response().headers().set("ContentType", "application/json");
+					        request.response().headers().set("Content-Length", String.valueOf(json.length()));
+							request.response().write(json);
 						} else {
-							request.response().setStatusCode(404);
-							request.response().setStatusMessage("Method not Supported");
+							throw new UserException("Method not Supported");
 						}
-						request.response().end();
-						request.response().close();
-					} catch (Throwable e) {
-						LOG.error(e.getMessage(),e);
-						request.response().setStatusCode(500);
-						request.response().setStatusMessage(e.getMessage());
-						request.response().close();
+						
+					} else if (uri.startsWith("rest/apimanager/api/system/")) {
+						SystemResource systemResource = new SystemResource(engine);
+						String json = getObjectMapper().writeValueAsString(systemResource.getStatus());
+						request.response().headers().set("ContentType", "application/json");
+						request.response().headers().set("Content-Length", String.valueOf(json.length()));
+						request.response().write(json);
+					} else {
+						throw new UserException("No Such Service");
 					}
-					break;
-
-				default:
-					request.response().setStatusCode(404);
-					request.response().setStatusMessage("No Such Service");
+					request.response().setStatusCode(200);
 					request.response().end();
 					request.response().close();
-					break;
+				} catch (UserException e) {
+					LOG.error(e.getMessage(),e);
+					request.response().setStatusCode(404);
+					request.response().setStatusMessage(e.getMessage());
+					request.response().end();
+					request.response().close();
+				} catch (Throwable e) {
+					LOG.error(e.getMessage(),e);
+					request.response().setStatusCode(500);
+					request.response().setStatusMessage(e.getMessage());
+					request.response().end();
+					request.response().close();
 				}
-			};
+			}
+			
 		});
 				
 	}

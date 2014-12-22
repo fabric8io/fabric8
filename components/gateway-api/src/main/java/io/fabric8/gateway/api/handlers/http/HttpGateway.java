@@ -47,6 +47,10 @@ public interface HttpGateway {
     Map<String, IMappedServices> getMappedServices();
 
     /**
+     * Returns the base URL the gateway address
+     */
+    public String getGatewayUrl();
+    /**
      * Returns true if the mapping index is enabled which by default
      * returns a JSON document describing the mapping of URI prefixes to services
      */

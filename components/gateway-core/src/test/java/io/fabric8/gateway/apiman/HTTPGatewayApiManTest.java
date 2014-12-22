@@ -31,11 +31,11 @@ import io.fabric8.gateway.api.handlers.http.HttpGateway;
 import io.fabric8.gateway.api.handlers.http.HttpGatewayHandler;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.api.handlers.http.IMappedServices;
+import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.handlers.detecting.DetectingGatewayWebSocketHandler;
 import io.fabric8.gateway.handlers.detecting.FutureHandler;
 import io.fabric8.gateway.handlers.http.HttpGatewayServer;
 import io.fabric8.gateway.handlers.http.MappedServices;
-import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.loadbalancer.RoundRobinLoadBalancer;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -125,7 +125,7 @@ public class HTTPGatewayApiManTest {
         FutureHandler<AsyncResult<HttpServer>> future = new FutureHandler<>();
         restApplication.listen(18181, "localhost", future);
         future.await();
-        LOG.info("Rest Application is up and listening at http://localhost:18181");
+        LOG.info("Rest Application is up and listening at http://localhost:18181/root/");
         return restApplication;
     }
 
@@ -149,7 +149,7 @@ public class HTTPGatewayApiManTest {
             serviceDetails.setContainer("local");
             serviceDetails.setVersion("1");
 
-            mappedServices.put("/hello/world", new MappedServices("http://localhost:18181", serviceDetails, loadBalancer, false));
+            mappedServices.put("/hello/world", new MappedServices("http://localhost:18181/root/", serviceDetails, loadBalancer, false));
         
         }
         
@@ -199,6 +199,11 @@ public class HTTPGatewayApiManTest {
 				return apiManager;
 			}
 
+			@Override
+			public String getGatewayUrl() {
+				return "http:/" + getLocalAddress();
+			}
+
         };
         
         websocketHandler.setPathPrefix("");
@@ -238,7 +243,7 @@ public class HTTPGatewayApiManTest {
         HttpMethod method = new GetMethod("http://127.0.0.1:" + httpPort + "/");
         assertEquals(200, httpClient.executeMethod(method));
         String content = method.getResponseBodyAsString();
-        assertEquals("{\"/hello/world\":[\"http://localhost:18181\"]}",content);
+        assertEquals("{\"/hello/world\":[\"http://localhost:18181/root/\"]}",content);
     }
     
     /* Testing a good request - happy path */
@@ -272,6 +277,18 @@ public class HTTPGatewayApiManTest {
         String message = method.getStatusText();
         assertEquals("Could not find matching proxy path for /mapping/notexist?apikey=gold-key from paths: [/hello/world]",message);
     }
+    
+    /* Testing a service endpoint that does not exist, expecting a 404 */
+    @Test
+    public void testServiceMapping() throws Exception {
+    	int restPort = httpGatewayServer.getPort() - 1;
+        HttpClient httpClient = new HttpClient();
+        GetMethod method = new GetMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/api/services/Kurt/HelloWorld/1.0/endpoint?apikey=apiman-config-key");
+        httpClient.executeMethod(method);
+        assertEquals(200, httpClient.executeMethod(method));
+        String gatewayUrlOfService = method.getResponseBodyAsString();
+        assertEquals("{\"endpoint\":\"http://0.0.0.0:18080/hello/world\"}", gatewayUrlOfService);
+    }
 
     //using the ApiMan REST API to setup some Service, Plans, Contracts and Applications
     public static void configureEngine() throws HttpException, IOException {
@@ -283,7 +300,7 @@ public class HTTPGatewayApiManTest {
     	
     	Service service = new Service();
         service.setServiceId("HelloWorld");
-        service.setEndpoint("http://localhost:18181/");
+        service.setEndpoint("http://localhost:18181/root/");
         service.setVersion("1.0");
         service.setOrganizationId("Kurt");
         
@@ -337,12 +354,12 @@ public class HTTPGatewayApiManTest {
         HttpClient httpClient = new HttpClient();
     	//Removing applications
     	LOG.info("Unregister clientApp Application");
-        DeleteMethod method = new DeleteMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/api/applications/?apikey=apiman-config-key&organizationId=ClientOrg&applicationId=clientApp&version=1.0");
+        DeleteMethod method = new DeleteMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/api/applications/ClientOrg/clientApp/1.0/?apikey=apiman-config-key");
         httpClient.executeMethod(method);
         
         //Removing services
         LOG.info("Retire Hello World Service");
-        method = new DeleteMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/api/services/?apikey=apiman-config-key&organizationId=Kurt&serviceId=HelloWorld&version=1.0");
+        method = new DeleteMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/api/services/Kurt/HelloWorld/1.0/?apikey=apiman-config-key");
         httpClient.executeMethod(method);
     }
 

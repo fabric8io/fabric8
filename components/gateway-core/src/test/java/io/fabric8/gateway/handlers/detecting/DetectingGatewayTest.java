@@ -23,10 +23,11 @@ import org.apache.activemq.apollo.dto.BrokerDTO;
 import org.apache.activemq.apollo.dto.VirtualHostDTO;
 import org.apache.activemq.apollo.util.ServiceControl;
 import org.apache.qpid.amqp_1_0.jms.impl.ConnectionFactoryImpl;
+
+import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.handlers.detecting.protocol.http.HttpProtocol;
 import io.fabric8.gateway.handlers.detecting.protocol.openwire.OpenwireProtocol;
 import io.fabric8.gateway.handlers.detecting.protocol.stomp.StompProtocol;
-import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.ServiceDTO;
 import io.fabric8.gateway.ServiceMap;
 import io.fabric8.gateway.handlers.detecting.protocol.amqp.AmqpProtocol;
@@ -34,6 +35,7 @@ import io.fabric8.gateway.handlers.detecting.protocol.mqtt.MqttProtocol;
 import io.fabric8.gateway.handlers.detecting.protocol.ssl.SslConfig;
 import io.fabric8.gateway.handlers.detecting.protocol.ssl.SslProtocol;
 import io.fabric8.gateway.loadbalancer.LoadBalancers;
+
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.stomp.client.Stomp;
 import org.junit.After;
@@ -45,6 +47,7 @@ import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 
 import javax.jms.Connection;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

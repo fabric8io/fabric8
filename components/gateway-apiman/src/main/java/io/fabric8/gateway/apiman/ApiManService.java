@@ -22,7 +22,6 @@ import javax.enterprise.context.ApplicationScoped;
 
 import io.fabric8.gateway.api.apimanager.ApiManagerService;
 import io.fabric8.gateway.api.handlers.http.HttpGateway;
-import io.apiman.gateway.engine.IEngine;
 import io.apiman.gateway.engine.IServiceConnectionResponse;
 import io.apiman.gateway.engine.async.IAsyncHandler;
 import io.apiman.gateway.engine.async.IAsyncResult;
@@ -44,7 +43,7 @@ public class ApiManService implements ApiManagerService {
 	private HttpGateway httpGateway;
 	
 	/** the APIMan Engine */
-	private IEngine engine;
+	private ApiManEngine engine;
 	/** the REST API server to configure the engine */
 	private HttpServer engineRestServer;
 	public final static String ATTR_HTTP_CLIENT = "httpClient";
@@ -54,7 +53,7 @@ public class ApiManService implements ApiManagerService {
 		vertx = (Vertx) config.get(ApiManagerService.VERTX);
 		httpGateway = (HttpGateway) config.get(ApiManagerService.HTTP_GATEWAY);
 		String port = (String) config.get(ApiManagerService.PORT);
-		engine = Engine.create(vertx, httpGateway, port);
+		engine = new Engine().create(vertx, httpGateway, port);
 		engineRestServer = vertx.createHttpServer();
 		int portRest = Integer.valueOf(port) - 1;
 		if (config.containsKey(ApiManagerService.PORT_REST)) portRest = (Integer) config.get(ApiManagerService.PORT_REST);

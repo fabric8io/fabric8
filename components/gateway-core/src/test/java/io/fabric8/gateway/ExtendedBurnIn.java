@@ -22,6 +22,7 @@ import io.fabric8.gateway.api.handlers.http.HttpGateway;
 import io.fabric8.gateway.api.handlers.http.HttpGatewayHandler;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.api.handlers.http.IMappedServices;
+import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.handlers.detecting.DetectingGateway;
 import io.fabric8.gateway.handlers.detecting.DetectingGatewayWebSocketHandler;
 import io.fabric8.gateway.handlers.detecting.FutureHandler;
@@ -34,7 +35,6 @@ import io.fabric8.gateway.handlers.detecting.protocol.ssl.SslConfig;
 import io.fabric8.gateway.handlers.detecting.protocol.ssl.SslProtocol;
 import io.fabric8.gateway.handlers.detecting.protocol.stomp.StompProtocol;
 import io.fabric8.gateway.handlers.http.*;
-import io.fabric8.gateway.loadbalancer.LoadBalancer;
 import io.fabric8.gateway.loadbalancer.LoadBalancers;
 import io.fabric8.gateway.loadbalancer.RoundRobinLoadBalancer;
 import io.fabric8.utils.ShutdownTracker;
@@ -262,6 +262,11 @@ public class ExtendedBurnIn {
 //				apiManagerService.init(config);
 //				apiManager.setService(apiManagerService);
 				return apiManager;
+			}
+
+			@Override
+			public String getGatewayUrl() {
+				return "http:/" + getLocalAddress();
 			}
 
         };

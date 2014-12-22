@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+
 import io.apiman.gateway.engine.IRegistry;
 import io.apiman.gateway.engine.beans.Application;
 import io.apiman.gateway.engine.beans.Contract;
@@ -33,6 +34,7 @@ import io.apiman.gateway.engine.beans.exceptions.InvalidContractException;
 import io.apiman.gateway.engine.beans.exceptions.PublishingException;
 import io.apiman.gateway.engine.beans.exceptions.RegistrationException;
 import io.apiman.gateway.engine.i18n.Messages;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -253,4 +255,13 @@ public class FileBackedRegistry implements IRegistry {
     private String getApplicationKey(Application app) {
         return app.getOrganizationId() + "|" + app.getApplicationId() + "|" + app.getVersion(); //$NON-NLS-1$ //$NON-NLS-2$
     }
+    
+	public Service serviceLookup(String orgId, String serviceId, String version) {
+		String serviceKey = getServiceKey(orgId, serviceId, version);
+		if (services.containsKey(serviceKey)) {
+			return services.get(serviceKey);
+		} else {
+			return null;
+		}
+	}
 }

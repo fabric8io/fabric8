@@ -17,18 +17,19 @@ package io.fabric8.gateway.apiman.rest;
 
 import io.apiman.gateway.api.rest.contract.IServiceResource;
 import io.apiman.gateway.api.rest.contract.exceptions.NotAuthorizedException;
-import io.apiman.gateway.engine.IEngine;
 import io.apiman.gateway.engine.beans.Service;
+import io.apiman.gateway.engine.beans.ServiceEndpoint;
 import io.apiman.gateway.engine.beans.exceptions.PublishingException;
+import io.fabric8.gateway.apiman.ApiManEngine;
 /**
  * Implements the IServiceResource interface to set up a REST
  * interface to configure Services in APIMan Engine.
  */
 public class ServiceResource implements IServiceResource {
 
-	private IEngine engine;
+	private ApiManEngine engine;
 	
-	public ServiceResource(IEngine engine) {
+	public ServiceResource(ApiManEngine engine) {
 		super();
 		this.engine = engine;
 	}
@@ -43,6 +44,14 @@ public class ServiceResource implements IServiceResource {
 	public void retire(String organizationId, String serviceId, String version) throws PublishingException,
 			NotAuthorizedException {
 		engine.retireService(organizationId, serviceId, version);
+	}
+
+	@Override
+	public ServiceEndpoint getServiceEndpoint(String orgId, String serviceId, String version) 
+			throws NotAuthorizedException {
+		ServiceEndpoint serviceEndpoint = new ServiceEndpoint();
+		serviceEndpoint.setEndpoint(engine.serviceMapping(orgId, serviceId, version));
+		return serviceEndpoint;
 	}
 
 }
