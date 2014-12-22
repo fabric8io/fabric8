@@ -51,7 +51,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
-import java.util.jar.Manifest;
+import java.util.jar.ContainerManifest;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -74,7 +74,7 @@ import org.jboss.gravia.resource.Capability;
 import org.jboss.gravia.resource.ContentNamespace;
 import org.jboss.gravia.resource.DefaultResourceBuilder;
 import org.jboss.gravia.resource.IdentityNamespace;
-import org.jboss.gravia.resource.ManifestBuilder;
+import org.jboss.gravia.resource.ContainerManifestBuilder;
 import org.jboss.gravia.resource.MavenCoordinates;
 import org.jboss.gravia.resource.Requirement;
 import org.jboss.gravia.resource.Resource;
@@ -257,7 +257,7 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
                 File f = entry.getValue();
                 if (!isWar(name, f)) {
                     archive.addAsLibrary(f);
-                    Manifest mf = readManifest(f);
+                    ContainerManifest mf = readContainerManifest(f);
                     if (mf.getMainAttributes().containsKey(new Attributes.Name(SERVICE_COMPONENT))) {
                         String serviceComponents = mf.getMainAttributes().getValue(SERVICE_COMPONENT);
                         for (String component : Strings.splitAndTrimAsList(serviceComponents, ",")) {
@@ -273,12 +273,12 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
             archive.addClass(WebAppContextListener.class);
             archive.addAsWebInfResource("web.xml");
             archive.addAsWebResource("context.xml", "META-INF/context.xml");
-            archive.setManifest(new Asset() {
+            archive.setContainerManifest(new Asset() {
                 @Override
                 public InputStream openStream() {
-                    return new ManifestBuilder()
+                    return new ContainerManifestBuilder()
                             .addIdentityCapability(GENRATED_RESOURCE_IDENTITY, "1.0.0")
-                            .addManifestHeader(SERVICE_COMPONENT, Strings.join(components, ",")).openStream();
+                            .addContainerManifestHeader(SERVICE_COMPONENT, Strings.join(components, ",")).openStream();
                 }
             });
 
@@ -291,12 +291,12 @@ public class FabricAgent extends AbstractComponent implements FabricAgentMXBean 
         updateStatus("populated profile war", null, null);
     }
 
-    private static Manifest readManifest(File file) throws IOException {
+    private static ContainerManifest readContainerManifest(File file) throws IOException {
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(file);
             JarInputStream jis = new JarInputStream(fis);
-            return jis.getManifest();
+            return jis.getContainerManifest();
         } finally {
             Closeables.closeQuietly(fis);
         }

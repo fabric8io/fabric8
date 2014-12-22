@@ -15,13 +15,12 @@
  */
 package io.fabric8.forge.kubernetes;
 
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.utils.Filter;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.ControllerCurrentState;
-import io.fabric8.kubernetes.api.model.ControllerDesiredState;
-import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.TablePrinter;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -38,12 +37,12 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.toPositiveNonZeroText;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 
 /**
- * Command to list replication controllers in kubernetes
+ * Command to list services in kubernetes
  */
-public class ReplicationControllerList extends AbstractKubernetesCommand {
+public class ServicesList extends AbstractKubernetesCommand {
 
     @Inject
     @WithAttributes(name = "filter", label = "The text filter used to filter pods using label selectors")
@@ -53,8 +52,8 @@ public class ReplicationControllerList extends AbstractKubernetesCommand {
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.from(super.getMetadata(context), getClass())
                 .category(Categories.create(CATEGORY))
-                .name(CATEGORY + ": Replication Controller List")
-                .description("Lists the replication controllers in a kubernetes cloud");
+                .name(CATEGORY + ": Service List")
+                .description("Lists the services in a kubernetes cloud");
     }
 
     @Override
@@ -66,35 +65,25 @@ public class ReplicationControllerList extends AbstractKubernetesCommand {
     @Override
     public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
         Kubernetes kubernetes = getKubernetes();
-
-        ReplicationControllerListSchema replicationControllers = kubernetes.getReplicationControllers();
-        printReplicationControllers(replicationControllers, System.out);
+        ServiceList services = kubernetes.getServices();
+        printServices(services, System.out);
         return null;
     }
 
-    private void printReplicationControllers(ReplicationControllerListSchema replicationControllers, PrintStream out) {
+    private void printServices(ServiceList services, PrintStream out) {
         TablePrinter table = new TablePrinter();
-        table.columns("id", "labels", "replicas", "replica selector");
-        List<ReplicationControllerSchema> items = replicationControllers.getItems();
+        table.columns("id", "labels", "selector", "port");
+        List<Service> items = services.getItems();
         if (items == null) {
             items = Collections.EMPTY_LIST;
         }
-        Filter<ReplicationControllerSchema> filter = KubernetesHelper.createReplicationControllerFilter(filterText.getValue());
-        for (ReplicationControllerSchema item : items) {
-            if (filter.matches(item)) {
-                String id = item.getId();
+        Filter<Service> filter = KubernetesHelper.createServiceFilter(filterText.getValue());
+        for (Service item : items) {
+            ServiceSpec spec = item.getSpec();
+            if (spec != null && filter.matches(item)) {
                 String labels = KubernetesHelper.toLabelsString(item.getLabels());
-                Integer replicas = null;
-                ControllerDesiredState desiredState = item.getDesiredState();
-                ControllerCurrentState currentState = item.getCurrentState();
-                String selector = null;
-                if (desiredState != null) {
-                    selector = KubernetesHelper.toLabelsString(desiredState.getReplicaSelector());
-                }
-                if (currentState != null) {
-                    replicas = currentState.getReplicas();
-                }
-                table.row(id, labels, toPositiveNonZeroText(replicas), selector);
+                String selector = KubernetesHelper.toLabelsString(spec.getSelector());
+                table.row(getId(item), labels, selector, KubernetesHelper.toPositiveNonZeroText(spec.getPort()));
             }
         }
         table.print();

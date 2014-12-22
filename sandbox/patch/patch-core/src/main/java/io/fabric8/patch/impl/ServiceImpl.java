@@ -40,7 +40,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
-import java.util.jar.Manifest;
+import java.util.jar.ContainerManifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -373,7 +373,7 @@ public class ServiceImpl implements Service {
                 for (String url : patch.getBundles()) {
                     JarInputStream jis = new JarInputStream(new URL(url).openStream());
                     jis.close();
-                    Manifest manifest = jis.getManifest();
+                    ContainerManifest manifest = jis.getContainerManifest();
                     Attributes att = manifest != null ? manifest.getMainAttributes() : null;
                     String sn = att != null ? att.getValue(Constants.BUNDLE_SYMBOLICNAME) : null;
                     String vr = att != null ? att.getValue(Constants.BUNDLE_VERSION) : null;

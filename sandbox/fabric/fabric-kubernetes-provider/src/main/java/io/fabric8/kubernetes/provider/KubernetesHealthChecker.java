@@ -35,14 +35,14 @@ import io.fabric8.groups.GroupListener;
 import io.fabric8.groups.internal.ZooKeeperGroup;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.CurrentState;
-import io.fabric8.kubernetes.api.model.DesiredState;
+import io.fabric8.kubernetes.api.model.PodState;
+import io.fabric8.kubernetes.api.model.PodState;
 import io.fabric8.kubernetes.api.model.Env;
-import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.ManifestSchema;
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerManifestSchema;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.service.ContainerPlaceholderResolver;
 import io.fabric8.service.child.ChildContainers;
 import io.fabric8.zookeeper.ZkPath;
@@ -216,15 +216,15 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
         Kubernetes kubernetes = getKubernetes();
         if (kubernetes != null && service != null) {
             try {
-                Map<String, PodSchema> podMap = KubernetesHelper.getPodMap(kubernetes);
+                Map<String, Pod> podMap = KubernetesHelper.getPodMap(kubernetes);
                 Container[] containerArray = service.getContainers();
-                Collection<PodSchema> pods = podMap.values();
+                Collection<Pod> pods = podMap.values();
                 if (!pods.isEmpty()) {
                     Map<String, Container> containerMap = createPodIdToContainerMap(containerArray);
 
-                    for (PodSchema item : pods) {
+                    for (Pod item : pods) {
                         String podId = item.getId();
-                        CurrentState currentState = item.getCurrentState();
+                        PodState currentState = item.getPodState();
                         if (currentState != null) {
                             String host = currentState.getHost();
                             String hostIp = currentState.getHost();
@@ -232,12 +232,12 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
 
                             Container container = containerMap.remove(podId);
                             if (container != null) {
-                                DesiredState desiredState = item.getDesiredState();
+                                PodState desiredState = item.getPodState();
                                 if (desiredState != null) {
-                                    ManifestSchema manifest = desiredState.getManifest();
+                                    ContainerManifestSchema manifest = desiredState.getContainerManifest();
                                     if (manifest != null) {
-                                        List<ManifestContainer> containers = manifest.getContainers();
-                                        for (ManifestContainer manifestContainer : containers) {
+                                        List<Container> containers = manifest.getContainers();
+                                        for (Container manifestContainer : containers) {
                                             // TODO
                                         }
                                     }
@@ -283,8 +283,8 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
                         }
                     }
                 }
-                Map<String, ReplicationControllerSchema> replicationMap = KubernetesHelper.getReplicationControllerMap(kubernetes);
-                Map<String, ServiceSchema> serviceMap = KubernetesHelper.getServiceMap(kubernetes);
+                Map<String, ReplicationController> replicationMap = KubernetesHelper.getReplicationControllerMap(kubernetes);
+                Map<String, Service> serviceMap = KubernetesHelper.getServiceMap(kubernetes);
                 checkKubeletContainers(service, containerArray, podMap, replicationMap, serviceMap);
             } catch (Exception e) {
                 LOGGER.warn("Health Check Caught: " + e, e);
@@ -294,7 +294,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
         }
     }
 
-    protected void checkKubeletContainers(FabricService fabricService, Container[] containerArray, Map<String, PodSchema> podMap, Map<String, ReplicationControllerSchema> replicationControllerMap, Map<String, ServiceSchema> serviceMap) {
+    protected void checkKubeletContainers(FabricService fabricService, Container[] containerArray, Map<String, Pod> podMap, Map<String, ReplicationController> replicationControllerMap, Map<String, Service> serviceMap) {
         if (containerArray != null) {
             for (Container container : containerArray) {
                 CreateContainerMetadata<?> metadata = container.getMetadata();
@@ -304,7 +304,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
                     List<String> podIds = notNullList(kubernetesContainerMetadata.getPodIds());
                     List<String> errors = new ArrayList<>();
                     for (String id : podIds) {
-                        PodSchema pod = podMap.get(id);
+                        Pod pod = podMap.get(id);
                         String kubeletStatus = checkStatus(id, pod, errors);
                         if (!isProvisionSuccess(kubeletStatus)) {
                             status = kubeletStatus;
@@ -313,7 +313,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
                     if (isProvisionSuccess(status)) {
                         List<String> ids = notNullList(kubernetesContainerMetadata.getReplicationControllerIds());
                         for (String id : ids) {
-                            ReplicationControllerSchema replicationController = replicationControllerMap.get(id);
+                            ReplicationController replicationController = replicationControllerMap.get(id);
                             status = checkStatus(id, replicationController, errors);
                             if (!isProvisionSuccess(status)) {
                                 break;
@@ -323,7 +323,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
                     if (isProvisionSuccess(status)) {
                         List<String> ids = notNullList(kubernetesContainerMetadata.getServiceIds());
                         for (String id : ids) {
-                            ServiceSchema service = serviceMap.get(id);
+                            Service service = serviceMap.get(id);
                             status = checkStatus(id, service, errors);
                             if (!isProvisionSuccess(status)) {
                                 break;
@@ -353,7 +353,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
         return Objects.equal(status, Container.PROVISION_SUCCESS);
     }
 
-    protected String checkStatus(String id, ServiceSchema service, List<String> errors) {
+    protected String checkStatus(String id, Service service, List<String> errors) {
         if (service != null) {
             return Container.PROVISION_SUCCESS;
         } else {
@@ -362,16 +362,16 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
         }
     }
 
-    protected String checkStatus(String id, PodSchema pod, List<String> errors) {
+    protected String checkStatus(String id, Pod pod, List<String> errors) {
         if (pod != null) {
-           return checkStatus(pod.getCurrentState());
+           return checkStatus(pod.getPodState());
         }  else {
             errors.add("missing pod: " + id);
             return Container.PROVISION_STOPPED;
         }
     }
 
-    protected String checkStatus(String id, ReplicationControllerSchema replicationController, List<String> errors) {
+    protected String checkStatus(String id, ReplicationController replicationController, List<String> errors) {
         if (replicationController != null) {
             return Container.PROVISION_SUCCESS;
         } else {
@@ -380,7 +380,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
         }
     }
 
-    protected String checkStatus(CurrentState currentState) {
+    protected String checkStatus(PodState currentState) {
         if (currentState != null) {
             return currentStatusStringToContainerProvisionResult(currentState.getStatus());
         }
@@ -403,7 +403,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
         return Container.PROVISION_STOPPED;
     }
 
-    protected void keepAliveCheck(FabricService service, String status, Container container, CurrentState currentState, PodSchema item) {
+    protected void keepAliveCheck(FabricService service, String status, Container container, PodState currentState, Pod item) {
         String host = currentState.getHost();
         String podIP = currentState.getPodIP();
         if (!Strings.isNullOrBlank(host) && !Objects.equal(host, container.getPublicHostname())) {
@@ -429,7 +429,7 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
         }
     }
 
-    protected String getJolokiaURL(Container container, CurrentState currentState, FabricService service, PodSchema item) {
+    protected String getJolokiaURL(Container container, PodState currentState, FabricService service, Pod item) {
         Profile overlayProfile = container.getOverlayProfile();
         String jolokiaPort = null;
         Map<String, String> ports = null;
@@ -453,13 +453,13 @@ public final class KubernetesHealthChecker extends AbstractComponent implements 
             }
             // lets override env vars from the pod
             if (item != null) {
-                DesiredState desiredState = item.getDesiredState();
+                PodState desiredState = item.getPodState();
                 if (desiredState != null) {
-                    ManifestSchema manifest = desiredState.getManifest();
+                    ContainerManifestSchema manifest = desiredState.getContainerManifest();
                     if (manifest != null) {
-                        List<ManifestContainer> containers = manifest.getContainers();
+                        List<Container> containers = manifest.getContainers();
                         if (containers != null && containers.size() > 0) {
-                            ManifestContainer container1 = containers.get(0);
+                            Container container1 = containers.get(0);
                             List<Env> envList = container1.getEnv();
                             for (Env env : envList) {
                                 environmentVariables.put(env.getName(), env.getValue());

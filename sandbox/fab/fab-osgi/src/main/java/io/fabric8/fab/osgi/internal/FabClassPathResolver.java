@@ -25,7 +25,7 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
+import java.util.jar.ContainerManifest;
 import java.util.zip.ZipEntry;
 
 import aQute.bnd.header.Attrs;
@@ -98,7 +98,7 @@ public class FabClassPathResolver implements FabConfiguration {
     private MavenResolver resolver;
     private VersionedDependencyId moduleId;
 
-    private Manifest manifest;
+    private ContainerManifest manifest;
 
     public FabClassPathResolver(ModuleRegistry registry, FabFacade connection, Properties instructions, Map<String, Object> embeddedResources) {
         this.connection = connection;
@@ -123,10 +123,10 @@ public class FabClassPathResolver implements FabConfiguration {
         excludeDependencyFilter = DependencyTreeFilters.parseExcludeFilter(join(excludeDependencyFilterPatterns, " "), optionalDependencyFilter);
         importExportFilter  = DependencyTreeFilters.parse(join(importExportFilterPatterns, " "));
 
-        bundleClassPath.addAll(Strings.splitAsList(getManifestProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH), ","));
-        requireBundles.addAll(Strings.splitAsList(getManifestProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE), ","));
+        bundleClassPath.addAll(Strings.splitAsList(getContainerManifestProperty(ServiceConstants.INSTR_BUNDLE_CLASSPATH), ","));
+        requireBundles.addAll(Strings.splitAsList(getContainerManifestProperty(ServiceConstants.INSTR_REQUIRE_BUNDLE), ","));
 
-        importPackages.putAll(new Analyzer().parseHeader(emptyIfNull(getManifestProperty(ServiceConstants.INSTR_IMPORT_PACKAGE))));
+        importPackages.putAll(new Analyzer().parseHeader(emptyIfNull(getContainerManifestProperty(ServiceConstants.INSTR_IMPORT_PACKAGE))));
 
 
         Filter<Dependency> optionalFilter = DependencyFilters.parseExcludeOptionalFilter(join(optionalDependencyPatterns, " "));
@@ -139,12 +139,12 @@ public class FabClassPathResolver implements FabConfiguration {
             DependencyTreeFilters.prune(rootTree, filter);
         }
 
-        String name = getManifestProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME);
+        String name = getContainerManifestProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME);
         if (name.length() <= 0) {
             name = rootTree.getBundleSymbolicName();
             instructions.setProperty(ServiceConstants.INSTR_BUNDLE_SYMBOLIC_NAME, name);
         }
-        String bundleVersion = getManifestProperty(Analyzer.BUNDLE_VERSION);
+        String bundleVersion = getContainerManifestProperty(Analyzer.BUNDLE_VERSION);
         if (bundleVersion.length() <= 0) {
             bundleVersion = VersionCleaner.clean(rootTree.getVersion());
             instructions.setProperty(Analyzer.BUNDLE_VERSION, bundleVersion);
@@ -152,7 +152,7 @@ public class FabClassPathResolver implements FabConfiguration {
 
         // lets copy across all the FAB headers
         for (String propertyName : ServiceConstants.FAB_PROPERTY_NAMES) {
-            String value = getManifestProperty(propertyName);
+            String value = getContainerManifestProperty(propertyName);
             if (value != null) {
                 instructions.setProperty(propertyName, value);
             }
@@ -161,7 +161,7 @@ public class FabClassPathResolver implements FabConfiguration {
         LOG.debug("Resolving Dependencies for: "+rootTree.getDependencyId());
         addDependencies(rootTree);
 
-        // Build a ModuleDescriptor using the Jar Manifests headers..
+        // Build a ModuleDescriptor using the Jar ContainerManifests headers..
         ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(moduleId);
         if (module == null || module.getFile() != null) {
             registerModule();
@@ -254,14 +254,14 @@ public class FabClassPathResolver implements FabConfiguration {
 
     protected void processFabInstructions() {
         sharedFilterPatterns.addAll(
-                getListManifestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY, ServiceConstants.DEFAULT_FAB_PROVIDED_DEPENDENCY));
-        requireBundleFilterPatterns.addAll(getListManifestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE));
+                getListContainerManifestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY, ServiceConstants.DEFAULT_FAB_PROVIDED_DEPENDENCY));
+        requireBundleFilterPatterns.addAll(getListContainerManifestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE));
         excludeDependencyFilterPatterns.addAll(
-                getListManifestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY, ServiceConstants.DEFAULT_FAB_EXCLUDE_DEPENDENCY));
-        optionalDependencyPatterns.addAll(getListManifestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY));
-        importExportFilterPatterns.addAll(getListManifestProperty(ServiceConstants.INSTR_FAB_IMPORT_DEPENDENCY_EXPORTS));
-        installFeatures.addCollection(getListManifestProperty(ServiceConstants.INSTR_FAB_REQUIRE_FEATURE));
-        for (String url : getListManifestProperty(ServiceConstants.INSTR_FAB_REQUIRE_FEATURE_URL)) {
+                getListContainerManifestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY, ServiceConstants.DEFAULT_FAB_EXCLUDE_DEPENDENCY));
+        optionalDependencyPatterns.addAll(getListContainerManifestProperty(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY));
+        importExportFilterPatterns.addAll(getListContainerManifestProperty(ServiceConstants.INSTR_FAB_IMPORT_DEPENDENCY_EXPORTS));
+        installFeatures.addCollection(getListContainerManifestProperty(ServiceConstants.INSTR_FAB_REQUIRE_FEATURE));
+        for (String url : getListContainerManifestProperty(ServiceConstants.INSTR_FAB_REQUIRE_FEATURE_URL)) {
             try {
                 installFeatureURLs.add(new URI(url));
             } catch (URISyntaxException e) {
@@ -270,12 +270,12 @@ public class FabClassPathResolver implements FabConfiguration {
         }
     }
 
-    private List<String> getListManifestProperty(String name) {
-        return Strings.splitAndTrimAsList(emptyIfNull(getManifestProperty(name)), "\\s+");
+    private List<String> getListContainerManifestProperty(String name) {
+        return Strings.splitAndTrimAsList(emptyIfNull(getContainerManifestProperty(name)), "\\s+");
     }
 
-    private List<String> getListManifestProperty(String name, String defaultValue) {
-        return Strings.splitAndTrimAsList(defaultIfEmpty(getManifestProperty(name), defaultValue), "\\s+");
+    private List<String> getListContainerManifestProperty(String name, String defaultValue) {
+        return Strings.splitAndTrimAsList(defaultIfEmpty(getContainerManifestProperty(name), defaultValue), "\\s+");
     }
 
 
@@ -321,7 +321,7 @@ public class FabClassPathResolver implements FabConfiguration {
         try {
             Properties moduleProperties = new Properties();
             for( String key: FAB_MODULE_PROPERTIES) {
-                String value = getManifestProperty("FAB-" + key);
+                String value = getContainerManifestProperty("FAB-" + key);
                 if( Strings.notEmpty(value) ) {
                     moduleProperties.setProperty(key, value);
                 }
@@ -362,10 +362,10 @@ public class FabClassPathResolver implements FabConfiguration {
                     if (result != null) {
                         DependencyTree tree = result.getTree();
 
-                        sharedFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManifestEntry(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY)), "\\s+"));
-                        requireBundleFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManifestEntry(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE)), "\\s+"));
-                        excludeDependencyFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManifestEntry(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY)), "\\s+"));
-                        optionalDependencyPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getManifestEntry(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY)), "\\s+"));
+                        sharedFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getContainerManifestEntry(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY)), "\\s+"));
+                        requireBundleFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getContainerManifestEntry(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE)), "\\s+"));
+                        excludeDependencyFilterPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getContainerManifestEntry(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY)), "\\s+"));
+                        optionalDependencyPatterns.addAll(Strings.splitAndTrimAsList(emptyIfNull(tree.getContainerManifestEntry(ServiceConstants.INSTR_FAB_OPTIONAL_DEPENDENCY)), "\\s+"));
 
                         sharedFilter = DependencyTreeFilters.parseShareFilter(join(sharedFilterPatterns, " "));
                         requireBundleFilter = DependencyTreeFilters.parseRequireBundleFilter(join(requireBundleFilterPatterns, " "));
@@ -392,7 +392,7 @@ public class FabClassPathResolver implements FabConfiguration {
 
     protected void importAllExportedPackages(DependencyTree dependencyTree) {
         try {
-            String text = dependencyTree.getManifestEntry(ServiceConstants.INSTR_EXPORT_PACKAGE);
+            String text = dependencyTree.getContainerManifestEntry(ServiceConstants.INSTR_EXPORT_PACKAGE);
             if (text != null && text.length() > 0) {
                 Parameters map = new Analyzer().parseHeader(text);
                 for (Map.Entry<String, Attrs> entry : map.entrySet()) {
@@ -438,24 +438,24 @@ public class FabClassPathResolver implements FabConfiguration {
         return processImportPackages;
     }
 
-    public Manifest getManifest() {
+    public ContainerManifest getContainerManifest() {
         if( manifest == null ) {
             try {
                 File jarFile = connection.getJarFile();
                 if (jarFile != null && jarFile.exists()) {
-                    manifest = Manifests.getManifest(jarFile);
+                    manifest = ContainerManifests.getContainerManifest(jarFile);
                 }
             } catch (IOException e) {
                 // TODO: warn
-                manifest = new Manifest();
+                manifest = new ContainerManifest();
             }
         }
         return manifest;
     }
 
-    public String getManifestProperty(String name) {
+    public String getContainerManifestProperty(String name) {
         String answer = null;
-        Manifest manifest = getManifest();
+        ContainerManifest manifest = getContainerManifest();
         if (manifest != null) {
             // TODO do some caching!!!
             answer = manifest.getMainAttributes().getValue(name);
@@ -740,11 +740,11 @@ public class FabClassPathResolver implements FabConfiguration {
      * @return <code>true</code> if the MANIFEST.MF header has been set to true
      */
     protected boolean isInstallProvidedBundleDependencies() {
-        return Boolean.valueOf(getManifestProperty(ServiceConstants.INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES));
+        return Boolean.valueOf(getContainerManifestProperty(ServiceConstants.INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES));
     }
 
     @Override
     public String getStringProperty(String name) {
-        return getManifestProperty(name);
+        return getContainerManifestProperty(name);
     }
 }

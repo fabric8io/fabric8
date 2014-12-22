@@ -17,9 +17,9 @@ package io.fabric8.kubernetes.jolokia;
 
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.ReplicationController;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.request.J4pReadRequest;
 import org.jolokia.client.request.J4pResponse;
@@ -30,6 +30,8 @@ import javax.management.ObjectName;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 
 /**
  */
@@ -51,13 +53,13 @@ public class Example {
     }
 
     public void findPods(String selector) {
-        Map<String, PodSchema> podMap = KubernetesHelper.getPodMap(kubernetes, selector);
-        Collection<PodSchema> pods = podMap.values();
-        for (PodSchema pod : pods) {
+        Map<String, Pod> podMap = KubernetesHelper.getPodMap(kubernetes, selector);
+        Collection<Pod> pods = podMap.values();
+        for (Pod pod : pods) {
             String host = KubernetesHelper.getHost(pod);
-            List<ManifestContainer> containers = KubernetesHelper.getContainers(pod);
-            for (ManifestContainer container : containers) {
-                System.out.println("pod " + pod.getId() + " container: " + container.getName() + " image: " + container.getImage());
+            List<Container> containers = KubernetesHelper.getContainers(pod);
+            for (Container container : containers) {
+                System.out.println("pod " + getId(pod) + " container: " + container.getName() + " image: " + container.getImage());
                 J4pClient jolokia = clients.jolokiaClient(host, container, pod);
 
                 if (jolokia != null) {
@@ -77,10 +79,10 @@ public class Example {
     }
 
     public void findReplicationControllers(String selector) {
-        Map<String, ReplicationControllerSchema> replicationControllerMap = KubernetesHelper.getReplicationControllerMap(kubernetes, selector);
-        Collection<ReplicationControllerSchema> replicationControllers = replicationControllerMap.values();
-        for (ReplicationControllerSchema replicationController : replicationControllers) {
-            System.out.println("" + replicationController.getId());
+        Map<String, ReplicationController> replicationControllerMap = KubernetesHelper.getReplicationControllerMap(kubernetes, selector);
+        Collection<ReplicationController> replicationControllers = replicationControllerMap.values();
+        for (ReplicationController replicationController : replicationControllers) {
+            System.out.println("" + getId(replicationController));
         }
     }
 }

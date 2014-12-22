@@ -15,21 +15,22 @@
  */
 package io.fabric8.kubernetes.api;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.kubernetes.api.model.DesiredState;
-import io.fabric8.kubernetes.api.model.Manifest;
-import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.PodListSchema;
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerManifest;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.PodState;
+import io.fabric8.kubernetes.api.model.Service;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.util.Collection;
+import java.util.List;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 import static io.fabric8.utils.Files.assertDirectoryExists;
 import static io.fabric8.utils.Files.assertFileExists;
 import static org.junit.Assert.assertEquals;
@@ -48,20 +49,20 @@ public class ParseExamplesTest {
 
     @Test
     public void testParsePodList() throws Exception {
-        PodListSchema podList = assertParseExampleFile("pod-list.json", PodListSchema.class);
-        List<PodSchema> items = podList.getItems();
+        PodList podList = assertParseExampleFile("pod-list.json", PodList.class);
+        List<Pod> items = podList.getItems();
         assertNotEmpty("items", items);
 
-        PodSchema pod = items.get(0);
+        Pod pod = items.get(0);
         assertNotNull("pod1", pod);
-        assertEquals("pod1.id", "my-pod-1", pod.getId());
-        DesiredState desiredState = pod.getDesiredState();
+        assertEquals("pod1.id", "my-pod-1", getId(pod));
+        PodState desiredState = pod.getDesiredState();
         assertNotNull("pod1.desiredState", desiredState);
-        Manifest manifest = desiredState.getManifest();
+        ContainerManifest manifest = desiredState.getManifest();
         assertNotNull("pod1.desiredState.manifest", manifest);
-        List<ManifestContainer> containers = manifest.getContainers();
+        List<Container> containers = manifest.getContainers();
         assertNotEmpty("pod1.desiredState.manifest.containers", containers);
-        ManifestContainer container = containers.get(0);
+        Container container = containers.get(0);
         assertNotNull("pod1.desiredState.manifest.container[0]", container);
         assertEquals("pod1.desiredState.manifest.container[0].name", "nginx", container.getName());
         assertEquals("pod1.desiredState.manifest.container[0].image", "dockerfile/nginx", container.getImage());
@@ -74,33 +75,33 @@ public class ParseExamplesTest {
 
     @Test
     public void testParsePodListEmptyResults() throws Exception {
-        PodListSchema podList = assertParseExampleFile("pod-list-empty-results.json", PodListSchema.class);
-        List<PodSchema> items = podList.getItems();
+        PodList podList = assertParseExampleFile("pod-list-empty-results.json", PodList.class);
+        List<Pod> items = podList.getItems();
         assertNotEmpty("items", items);
 
-        PodSchema pod = items.get(0);
+        Pod pod = items.get(0);
         assertNotNull("pod1", pod);
-        assertEquals("127.0.0.1", pod.getDesiredState().getHost());
-        assertEquals("pod1.desiredState.manifest.version", "__EMPTY__",pod.getDesiredState().getManifest().getVersion().name());
+        assertEquals("127.0.0.1", pod.getCurrentState().getHost());
+        assertEquals("pod1.desiredState.manifest.version", "", pod.getDesiredState().getManifest().getVersion());
     }
 
     @Test
     public void testParseService() throws Exception {
-        ServiceSchema service = assertParseExampleFile("service.json", ServiceSchema.class);
+        Service service = assertParseExampleFile("service.json", Service.class);
 
         assertEquals("Service", service.getKind());
 
         Integer expectedPort = 80;
-        assertEquals(expectedPort, service.getContainerPort().getIntValue());
+        assertEquals(expectedPort, service.getSpec().getContainerPort().getIntVal());
 
         ObjectMapper mapper = KubernetesFactory.createObjectMapper();
 
-        mapper.writer().writeValue(System.out, service);
+        //mapper.writer().writeValue(System.out, service);
     }
 
     @Test
     public void testParsePod() throws Exception {
-        assertParseExampleFile("pod.json", PodSchema.class);
+        assertParseExampleFile("pod.json", Pod.class);
     }
 
     public static void assertNotEmpty(String name, Collection collection) {
@@ -125,7 +126,7 @@ public class ParseExamplesTest {
         String path = System.getProperty(SYSTEM_PROPERTY_KUBE_DIR, kubeSourceDir);
         File kubeDir = new File(path);
         assertTrue("Kube directory " + kubeDir
-                + " does not exist! Please supply the correct value in the " + SYSTEM_PROPERTY_KUBE_DIR + " system property value",
+                        + " does not exist! Please supply the correct value in the " + SYSTEM_PROPERTY_KUBE_DIR + " system property value",
                 kubeDir.exists());
         return kubeDir;
     }

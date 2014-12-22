@@ -15,17 +15,16 @@
  */
 package io.fabric8.kubernetes.api;
 
-import static io.fabric8.kubernetes.api.KubernetesHelper.getEntities;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getReplicationControllerMap;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getServiceMap;
-import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
-import io.fabric8.kubernetes.api.model.Config;
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import com.fasterxml.jackson.databind.JsonNode;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,12 +34,11 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
-
-import com.fasterxml.jackson.databind.JsonNode;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getReplicationControllerMap;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getServiceMap;
+import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 
 /**
  * Applies DTOs to the current Kubernetes master
@@ -49,9 +47,9 @@ public class Controller {
     private static final transient Logger LOG = LoggerFactory.getLogger(Controller.class);
 
     private final KubernetesClient kubernetes;
-    private Map<String, PodSchema> podMap = null;
-    private Map<String, ReplicationControllerSchema> replicationControllerMap = null;
-    private Map<String, ServiceSchema> serviceMap = null;
+    private Map<String, Pod> podMap = null;
+    private Map<String, ReplicationController> replicationControllerMap = null;
+    private Map<String, Service> serviceMap = null;
 
     public Controller() {
         this(new KubernetesClient());
@@ -62,17 +60,17 @@ public class Controller {
     }
 
     public String apply(File file) throws IOException {
-    	String ext = Files.getFileExtension(file);
-    	
-    	if ("yaml".equalsIgnoreCase(ext)){
-        	return applyYaml(file);
-        } else if ("json".equalsIgnoreCase(ext)){
-        	return applyJson(file);
+        String ext = Files.getFileExtension(file);
+
+        if ("yaml".equalsIgnoreCase(ext)) {
+            return applyYaml(file);
+        } else if ("json".equalsIgnoreCase(ext)) {
+            return applyJson(file);
         } else {
-        	throw new IllegalArgumentException("Unknown file type " + ext);
+            throw new IllegalArgumentException("Unknown file type " + ext);
         }
     }
-    
+
     /**
      * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
@@ -104,7 +102,7 @@ public class Controller {
      * Applies the given YAML to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
     public String applyYaml(String yaml) throws IOException {
-    	String json = convertYamlToJson(yaml);
+        String json = convertYamlToJson(yaml);
         Object dto = KubernetesHelper.loadJson(json);
         apply(dto, "REST call");
         return "";
@@ -114,33 +112,33 @@ public class Controller {
      * Applies the given YAML to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
     public String applyYaml(File yaml) throws IOException {
-    	String json = convertYamlToJson(yaml);
+        String json = convertYamlToJson(yaml);
         Object dto = KubernetesHelper.loadJson(json);
         apply(dto, "REST call");
         return "";
     }
-    
-    private String convertYamlToJson(String yamlString) throws FileNotFoundException {
-    	Yaml yaml= new Yaml();
-    	FileInputStream fstream = new FileInputStream(yamlString);
-    	
-    	Map<String,Object> map= (Map<String, Object>) yaml.load(fstream);
-    	JSONObject jsonObject = new JSONObject(map);
-    	
-		return jsonObject.toString();
-	}
-    
-    private String convertYamlToJson(File yamlFile) throws FileNotFoundException {
-    	Yaml yaml= new Yaml();
-    	FileInputStream fstream = new FileInputStream(yamlFile);
-    	
-    	Map<String,Object> map= (Map<String, Object>) yaml.load(fstream);
-    	JSONObject jsonObject = new JSONObject(map);
-    	
-		return jsonObject.toString();
-	}
 
-	/**
+    private String convertYamlToJson(String yamlString) throws FileNotFoundException {
+        Yaml yaml = new Yaml();
+        FileInputStream fstream = new FileInputStream(yamlString);
+
+        Map<String, Object> map = (Map<String, Object>) yaml.load(fstream);
+        JSONObject jsonObject = new JSONObject(map);
+
+        return jsonObject.toString();
+    }
+
+    private String convertYamlToJson(File yamlFile) throws FileNotFoundException {
+        Yaml yaml = new Yaml();
+        FileInputStream fstream = new FileInputStream(yamlFile);
+
+        Map<String, Object> map = (Map<String, Object>) yaml.load(fstream);
+        JSONObject jsonObject = new JSONObject(map);
+
+        return jsonObject.toString();
+    }
+
+    /**
      * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
     public String applyJson(InputStream json) throws IOException {
@@ -180,13 +178,13 @@ public class Controller {
     /**
      * Applies the given DTOs onto the Kubernetes master
      */
-    public void applyEntity(Entity dto, String sourceName) {
-        if (dto instanceof PodSchema) {
-            applyPod((PodSchema) dto, sourceName);
-        } else if (dto instanceof ReplicationControllerSchema) {
-            applyReplicationController((ReplicationControllerSchema) dto, sourceName);
-        } else if (dto instanceof ServiceSchema) {
-            applyService((ServiceSchema) dto, sourceName);
+    public void applyEntity(Object dto, String sourceName) {
+        if (dto instanceof Pod) {
+            applyPod((Pod) dto, sourceName);
+        } else if (dto instanceof ReplicationController) {
+            applyReplicationController((ReplicationController) dto, sourceName);
+        } else if (dto instanceof Service) {
+            applyService((Service) dto, sourceName);
         } else {
             throw new IllegalArgumentException("Unknown entity type " + dto);
         }
@@ -201,8 +199,8 @@ public class Controller {
     }
 
     public void applyConfig(Config config, String sourceName) throws IOException {
-        List<Entity> entities = getEntities(config);
-        for (Entity entity : entities) {
+        List<Object> entities = KubernetesHelper.getEntities(config);
+        for (Object entity : entities) {
             applyEntity(entity, sourceName);
         }
     }
@@ -235,12 +233,12 @@ public class Controller {
 */
     }
 
-    public void applyService(ServiceSchema serviceSchema, String sourceName) {
+    public void applyService(Service serviceSchema, String sourceName) {
         if (serviceMap == null) {
             serviceMap = getServiceMap(kubernetes);
         }
-        String id = serviceSchema.getId();
-        ServiceSchema old = serviceMap.get(id);
+        String id = getId(serviceSchema);
+        Service old = serviceMap.get(id);
         if (isRunning(old)) {
             LOG.info("Updating a service from " + sourceName);
             try {
@@ -260,12 +258,12 @@ public class Controller {
         }
     }
 
-    public void applyReplicationController(ReplicationControllerSchema replicationControllerSchema, String sourceName) {
+    public void applyReplicationController(ReplicationController replicationControllerSchema, String sourceName) {
         if (replicationControllerMap == null) {
             replicationControllerMap = getReplicationControllerMap(kubernetes);
         }
-        String id = replicationControllerSchema.getId();
-        ReplicationControllerSchema old = replicationControllerMap.get(id);
+        String id = getId(replicationControllerSchema);
+        ReplicationController old = replicationControllerMap.get(id);
         if (isRunning(old)) {
             LOG.info("Updating replicationController from " + sourceName);
             try {
@@ -285,12 +283,12 @@ public class Controller {
         }
     }
 
-    public void applyPod(PodSchema podSchema, String sourceName) {
+    public void applyPod(Pod podSchema, String sourceName) {
         if (podMap == null) {
             podMap = getPodMap(kubernetes);
         }
-        String id = podSchema.getId();
-        PodSchema old = podMap.get(id);
+        String id = getId(podSchema);
+        Pod old = podMap.get(id);
         if (isRunning(old)) {
             LOG.info("Updating a pod from " + sourceName);
             try {
@@ -310,17 +308,17 @@ public class Controller {
         }
     }
 
-    protected boolean isRunning(PodSchema entity) {
+    protected boolean isRunning(Pod entity) {
         // TODO we could maybe ignore failed services?
         return entity != null;
     }
 
-    protected boolean isRunning(ReplicationControllerSchema entity) {
+    protected boolean isRunning(ReplicationController entity) {
         // TODO we could maybe ignore failed services?
         return entity != null;
     }
 
-    protected boolean isRunning(ServiceSchema entity) {
+    protected boolean isRunning(Service entity) {
         // TODO we could maybe ignore failed services?
         return entity != null;
     }

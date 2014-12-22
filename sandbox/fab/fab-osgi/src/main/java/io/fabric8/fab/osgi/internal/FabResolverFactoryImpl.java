@@ -290,7 +290,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
         @Override
         public String toVersionRange(String version) {
             int digits = ServiceConstants.DEFAULT_VERSION_DIGITS;
-            String value = classPathResolver.getManifestProperty(ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS);
+            String value = classPathResolver.getContainerManifestProperty(ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS);
             if (notEmpty(value)) {
                 try {
                     digits = Integer.parseInt(value);

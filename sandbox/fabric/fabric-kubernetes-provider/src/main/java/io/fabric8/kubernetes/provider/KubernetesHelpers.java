@@ -20,9 +20,9 @@ package io.fabric8.kubernetes.provider;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
 import io.fabric8.utils.Strings;
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
 
 import java.util.Map;
 import java.util.Set;
@@ -60,16 +60,16 @@ public class KubernetesHelpers {
     /**
      * Creates a filter on a pod using the given text string
      */
-    public static Filter<PodSchema> createPodFilter(final String textFilter) {
+    public static Filter<Pod> createPodFilter(final String textFilter) {
         if (Strings.isNullOrBlank(textFilter)) {
-            return Filters.<PodSchema>trueFilter();
+            return Filters.<Pod>trueFilter();
         } else {
-            return new Filter<PodSchema>() {
+            return new Filter<Pod>() {
                 public String toString() {
                     return "PodFilter(" + textFilter + ")";
                 }
 
-                public boolean matches(PodSchema entity) {
+                public boolean matches(Pod entity) {
                     return filterMatchesIdOrLabels(textFilter, entity.getId(), entity.getLabels());
                 }
             };
@@ -79,16 +79,16 @@ public class KubernetesHelpers {
     /**
      * Creates a filter on a service using the given text string
      */
-    public static Filter<ServiceSchema> createServiceFilter(final String textFilter) {
+    public static Filter<Service> createServiceFilter(final String textFilter) {
         if (Strings.isNullOrBlank(textFilter)) {
-            return Filters.<ServiceSchema>trueFilter();
+            return Filters.<Service>trueFilter();
         } else {
-            return new Filter<ServiceSchema>() {
+            return new Filter<Service>() {
                 public String toString() {
                     return "ServiceFilter(" + textFilter + ")";
                 }
 
-                public boolean matches(ServiceSchema entity) {
+                public boolean matches(Service entity) {
                     return filterMatchesIdOrLabels(textFilter, entity.getId(), entity.getLabels());
                 }
             };
@@ -98,16 +98,16 @@ public class KubernetesHelpers {
     /**
      * Creates a filter on a replicationController using the given text string
      */
-    public static Filter<ReplicationControllerSchema> createReplicationControllerFilter(final String textFilter) {
+    public static Filter<ReplicationController> createReplicationControllerFilter(final String textFilter) {
         if (Strings.isNullOrBlank(textFilter)) {
-            return Filters.<ReplicationControllerSchema>trueFilter();
+            return Filters.<ReplicationController>trueFilter();
         } else {
-            return new Filter<ReplicationControllerSchema>() {
+            return new Filter<ReplicationController>() {
                 public String toString() {
                     return "ReplicationControllerFilter(" + textFilter + ")";
                 }
 
-                public boolean matches(ReplicationControllerSchema entity) {
+                public boolean matches(ReplicationController entity) {
                     return filterMatchesIdOrLabels(textFilter, entity.getId(), entity.getLabels());
                 }
             };

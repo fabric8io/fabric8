@@ -20,8 +20,8 @@ import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.utils.Filter;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.model.ReplicationControllerListSchema}.
+ * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.model.ReplicationControllerList}.
  * It refers to replication controllers that have been created during the current session.
  */
 public class ReplicationControllerListResourceProvider implements ResourceProvider {
@@ -48,7 +48,7 @@ public class ReplicationControllerListResourceProvider implements ResourceProvid
 
     @Override
     public boolean canProvide(Class<?> type) {
-        return ReplicationControllerListSchema.class.isAssignableFrom(type);
+        return ReplicationControllerList.class.isAssignableFrom(type);
     }
 
     @Override
@@ -57,11 +57,11 @@ public class ReplicationControllerListResourceProvider implements ResourceProvid
         Session session = sessionInstance.get();
 
         Map<String, String> labels = Collections.singletonMap(Constants.ARQ_KEY, session.getId());
-        Filter<ReplicationControllerSchema> replicationControllerFilter = KubernetesHelper.createReplicationControllerFilter(labels);
-        ReplicationControllerListSchema controllers = client.getReplicationControllers();
-        List<ReplicationControllerSchema> sessionControllers = new ArrayList<>();
+        Filter<ReplicationController> replicationControllerFilter = KubernetesHelper.createReplicationControllerFilter(labels);
+        ReplicationControllerList controllers = client.getReplicationControllers();
+        List<ReplicationController> sessionControllers = new ArrayList<>();
 
-        for (ReplicationControllerSchema pod : client.getReplicationControllers().getItems()) {
+        for (ReplicationController pod : client.getReplicationControllers().getItems()) {
             if (replicationControllerFilter.matches(pod)) {
                 sessionControllers.add(pod);
             }

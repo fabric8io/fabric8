@@ -15,8 +15,6 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.utils.Files;
-
 import java.io.File;
 
 /**
@@ -40,7 +38,7 @@ public class Apply {
             }
             Controller controller = new Controller(kube);
             String answer = controller.apply(file);
-            
+
             System.out.println("Applied!: " + answer);
         } catch (Exception e) {
             System.out.println("FAILED: " + e);

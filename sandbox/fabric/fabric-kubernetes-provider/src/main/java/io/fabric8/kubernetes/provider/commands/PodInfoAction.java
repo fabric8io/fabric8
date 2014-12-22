@@ -17,13 +17,13 @@ package io.fabric8.kubernetes.provider.commands;
 
 import io.fabric8.utils.Objects;
 import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.model.CurrentState;
-import io.fabric8.kubernetes.api.model.DesiredState;
+import io.fabric8.kubernetes.api.model.PodState;
+import io.fabric8.kubernetes.api.model.PodState;
 import io.fabric8.kubernetes.api.model.Env;
-import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.ManifestSchema;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerManifestSchema;
 import io.fabric8.kubernetes.api.model.PodContainerManifest;
-import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.VolumeMount;
@@ -58,7 +58,7 @@ public class PodInfoAction extends AbstractAction {
         Objects.notNull(kubernetes, "kubernetes");
         Objects.notNull(pod, "pod");
 
-        PodSchema podInfo = kubernetes.getPod(pod);
+        Pod podInfo = kubernetes.getPod(pod);
         if (podInfo == null) {
             System.out.println("No pod for id: " + pod);
         } else {
@@ -67,29 +67,29 @@ public class PodInfoAction extends AbstractAction {
         return null;
     }
 
-    protected void printPodInfo(PodSchema podInfo) {
+    protected void printPodInfo(Pod podInfo) {
         System.out.println("Created: " + podInfo.getCreationTimestamp());
         System.out.println("Labels: ");
         Map<String, String> labels = podInfo.getLabels();
         for (Map.Entry<String, String> entry : labels.entrySet()) {
             System.out.println(indent + entry.getKey() + " = " + entry.getValue());
         }
-        CurrentState currentState = podInfo.getCurrentState();
+        PodState currentState = podInfo.getPodState();
         if (currentState != null) {
             printValue("Host", currentState.getHost());
             printValue("IP", currentState.getPodIP());
             printValue("Status", currentState.getStatus());
-            PodContainerManifest manifest = currentState.getManifest();
+            PodContainerManifest manifest = currentState.getContainerManifest();
         }
-        DesiredState desiredState = podInfo.getDesiredState();
+        PodState desiredState = podInfo.getPodState();
         if (desiredState != null) {
-            ManifestSchema manifest = desiredState.getManifest();
+            ContainerManifestSchema manifest = desiredState.getContainerManifest();
             if (manifest != null) {
-                List<ManifestContainer> containers = manifest.getContainers();
+                List<Container> containers = manifest.getContainers();
                 if (notEmpty(containers)) {
                     System.out.println("Containers:");
                     indentCount++;
-                    for (ManifestContainer container : containers) {
+                    for (Container container : containers) {
                         printValue("Name", container.getName());
                         printValue("Image", container.getImage());
                         printValue("Working Dir", container.getWorkingDir());

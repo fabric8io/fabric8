@@ -43,7 +43,7 @@ public class FindPort {
                 System.out.println("Found: " + url + " for pod: " + podName + " port: " + portNumberOrName);
             }
 /*
-            PodSchema pod = kube.getPod(podName);
+            Pod pod = kube.getPod(podName);
             if (pod == null) {
                 System.out.println("No such pod: " + podName);
             } else {

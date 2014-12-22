@@ -19,8 +19,6 @@ package io.fabric8.kubernetes.api.mbeans;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import java.util.List;
-
 /**
  */
 public interface AppViewMXBean {

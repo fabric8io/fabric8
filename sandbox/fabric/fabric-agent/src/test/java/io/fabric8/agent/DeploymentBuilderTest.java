@@ -24,7 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
+import java.util.jar.ContainerManifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -46,7 +46,7 @@ public class DeploymentBuilderTest {
     public void testGetAttributes() throws Exception {
         String basedir = System.getProperty("basedir", ".");
         File file = File.createTempFile("testGetAttributes", "", new File(basedir + File.separator + "target"));
-        Manifest m = new Manifest();
+        ContainerManifest m = new ContainerManifest();
         m.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
         m.getMainAttributes().put(new Attributes.Name("Header"), "value");
         JarOutputStream jar = new JarOutputStream(new FileOutputStream(file), m);

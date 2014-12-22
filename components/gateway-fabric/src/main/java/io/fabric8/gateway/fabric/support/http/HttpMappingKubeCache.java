@@ -1,13 +1,14 @@
 package io.fabric8.gateway.fabric.support.http;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import io.fabric8.gateway.ServiceDTO;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.fabric.http.HTTPGatewayConfig;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesFactory;
-import io.fabric8.kubernetes.api.model.ServiceListSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import io.fabric8.kubernetes.api.model.ServiceSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +57,7 @@ public class HttpMappingKubeCache implements Runnable {
 
     /**
      * All fields in the Gateway Selector need to match with the serviceSelector argument
-     * @param serviceSelector
+     * @param selector
      * @return true if all gateway selector fields are matched
      */
     private boolean selectorMatch(Map<String,String> selector) {
@@ -82,22 +84,23 @@ public class HttpMappingKubeCache implements Runnable {
         List<String> currentCache = new ArrayList<String>();
         currentCache.addAll(contextPathsCache);
         try {
-            ServiceListSchema serviceListSchema = client.getServices();
-            for (ServiceSchema schema : serviceListSchema.getItems()) {
-                if (selectorMatch(schema.getSelector())) {
-                    String contextPath = schema.getId();
+            ServiceList serviceList = client.getServices();
+            for (Service service1 : serviceList.getItems()) {
+                ServiceSpec spec = service1.getSpec();
+                if (spec != null && selectorMatch(spec.getSelector())) {
+                    String contextPath = getId(service1);
                     
                     ServiceDTO dto = new ServiceDTO();
-                    dto.setId(schema.getId());
-                    dto.setContainer(schema.getSelector().get("container"));
-                    dto.setVersion(schema.getSelector().get("version"));
+                    dto.setId(getId(service1));
+                    dto.setContainer(spec.getSelector().get("container"));
+                    dto.setVersion(spec.getSelector().get("version"));
                     
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("id", paramValue(dto.getId()));
                     params.put("container", paramValue(dto.getContainer()));
                     params.put("version", paramValue(dto.getVersion()));
                     //is there a better way to obtain the complete url?
-                    String service = "http://localhost:" + schema.getPort() + "/" + schema.getId();
+                    String service = "http://localhost:" + spec.getPort() + "/" + getId(service1);
                     List<String> services = Arrays.asList(service);
                     if (!contextPathsCache.contains(contextPath)) {
                         LOG.info("Adding " + service);

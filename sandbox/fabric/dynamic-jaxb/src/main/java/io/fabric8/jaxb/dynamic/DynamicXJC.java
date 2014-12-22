@@ -306,15 +306,15 @@ public class DynamicXJC {
 
     }
 
-    static void addClasspathFromManifest(StringBuilder classPath, File file)
+    static void addClasspathFromContainerManifest(StringBuilder classPath, File file)
             throws URISyntaxException, IOException {
 
         JarFile jar = null;
         try {
             jar = new JarFile(file);
             Attributes attr = null;
-            if (jar.getManifest() != null) {
-                attr = jar.getManifest().getMainAttributes();
+            if (jar.getContainerManifest() != null) {
+                attr = jar.getContainerManifest().getMainAttributes();
             }
             if (attr != null) {
                 String cp = attr.getValue("Class-Path");
@@ -377,7 +377,7 @@ public class DynamicXJC {
                                             .getProperty("path.separator"));
 
                             if (file.getName().endsWith(".jar")) {
-                                addClasspathFromManifest(classPath, file);
+                                addClasspathFromContainerManifest(classPath, file);
                             }
                         }
                     }

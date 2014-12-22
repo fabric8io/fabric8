@@ -17,7 +17,7 @@ package io.fabric8.process.manager.support;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.util.jar.Manifest;
+import java.util.jar.ContainerManifest;
 
 import static java.util.UUID.randomUUID;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
@@ -60,7 +60,7 @@ public class JarInstallerTest extends Assert {
         jarInstaller.install(installContext, new ProcessConfig(), "1", installDir);
 
         // Then
-        Manifest manifest = new Jar(new File(installDir, "lib/main.jar")).getManifest();
+        ContainerManifest manifest = new Jar(new File(installDir, "lib/main.jar")).getContainerManifest();
         assertEquals("org.apache.camel.camel-xstream", manifest.getMainAttributes().getValue("Bundle-SymbolicName"));
     }
 

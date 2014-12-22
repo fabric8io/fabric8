@@ -16,8 +16,8 @@
 package io.fabric8.forge.kubernetes;
 
 import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.model.ServiceListSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.Service;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -34,6 +34,8 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 
 /**
  * Deletes a service from kubernetes
@@ -61,12 +63,12 @@ public class ServiceDelete extends AbstractKubernetesCommand {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
                 List<String> list = new ArrayList<String>();
-                ServiceListSchema services = getKubernetes().getServices();
+                ServiceList services = getKubernetes().getServices();
                 if (services != null) {
-                    List<ServiceSchema> items = services.getItems();
+                    List<Service> items = services.getItems();
                     if (items != null) {
-                        for (ServiceSchema item : items) {
-                            String id = item.getId();
+                        for (Service item : items) {
+                            String id = getId(item);
                             list.add(id);
                         }
                     }
@@ -84,7 +86,7 @@ public class ServiceDelete extends AbstractKubernetesCommand {
         Kubernetes kubernetes = getKubernetes();
 
         String idText = serviceId.getValue();
-        ServiceSchema service = kubernetes.getService(idText);
+        Service service = kubernetes.getService(idText);
         if (service == null) {
             System.out.println("No service for id: " + idText);
         } else {
@@ -93,8 +95,8 @@ public class ServiceDelete extends AbstractKubernetesCommand {
         return null;
     }
 
-    protected void executeService(ServiceSchema service) throws Exception {
-        getKubernetes().deleteService(service.getId());
+    protected void executeService(Service service) throws Exception {
+        getKubernetes().deleteService(getId(service));
     }
 }
 

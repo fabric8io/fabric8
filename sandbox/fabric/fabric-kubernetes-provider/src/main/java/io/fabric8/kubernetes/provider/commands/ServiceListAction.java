@@ -18,8 +18,8 @@ package io.fabric8.kubernetes.provider.commands;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Objects;
 import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.model.ServiceListSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.provider.KubernetesHelpers;
 import io.fabric8.kubernetes.provider.KubernetesService;
 import io.fabric8.utils.TablePrinter;
@@ -49,20 +49,20 @@ public class ServiceListAction extends AbstractAction {
         Kubernetes kubernetes = kubernetesService.getKubernetes();
         Objects.notNull(kubernetes, "kubernetes");
 
-        ServiceListSchema services = kubernetes.getServices();
+        ServiceList services = kubernetes.getServices();
         printContainers(services, System.out);
         return null;
     }
 
-    private void printContainers(ServiceListSchema services, PrintStream out) {
+    private void printContainers(ServiceList services, PrintStream out) {
         TablePrinter table = new TablePrinter();
         table.columns("id", "labels", "selector", "port");
-        List<ServiceSchema> items = services.getItems();
+        List<Service> items = services.getItems();
         if (items == null) {
             items = Collections.EMPTY_LIST;
         }
-        Filter<ServiceSchema> filter = KubernetesHelpers.createServiceFilter(filterText);
-        for (ServiceSchema item : items) {
+        Filter<Service> filter = KubernetesHelpers.createServiceFilter(filterText);
+        for (Service item : items) {
             if (filter.matches(item)) {
                 String labels = KubernetesHelpers.toLabelsString(item.getLabels());
                 String selector = KubernetesHelpers.toLabelsString(item.getSelector());

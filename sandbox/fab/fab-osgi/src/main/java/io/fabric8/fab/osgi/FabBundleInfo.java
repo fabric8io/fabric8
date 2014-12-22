@@ -43,7 +43,7 @@ public interface FabBundleInfo {
     /**
      * Get the computed manifest attributes
      */
-    Attributes getManifest();
+    Attributes getContainerManifest();
 
     /**
      * Get the list of imports determined by the FAB resolver process

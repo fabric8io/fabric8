@@ -24,7 +24,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+import java.util.jar.ContainerManifest;
 
 /**
  * A deployment listener that listens for fabric bundles
@@ -48,7 +48,7 @@ public class FabDeploymentListener implements ArtifactUrlTransformer {
             }
             JarFile jar = new JarFile(artifact);
             try {
-                Manifest manifest = jar.getManifest();
+                ContainerManifest manifest = jar.getContainerManifest();
                 boolean answer = false;
                 boolean bundle = false;
                 if (manifest != null) {

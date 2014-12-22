@@ -18,7 +18,7 @@
 package io.fabric8.kubernetes.assertions;
 
 import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.Pod;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class Assertions extends io.fabric8.kubernetes.assertions.internal.Assert
         return new KubernetesAssert(kubernetesClient);
     }
 
-    public static PodsAssert assertThat(List<PodSchema> pods) {
+    public static PodsAssert assertThat(List<Pod> pods) {
         return new PodsAssert(pods);
     }
 }

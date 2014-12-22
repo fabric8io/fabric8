@@ -18,11 +18,11 @@ package io.fabric8.kubernetes.api.mbeans;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.CurrentState;
-import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodState;
 import io.fabric8.kubernetes.api.model.Port;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.JMXUtils;
 import io.fabric8.utils.Strings;
 
@@ -30,6 +30,8 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.IOException;
 import java.util.Map;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 
 /**
  * A simple MBean for performing custom operations on kubernetes
@@ -67,8 +69,8 @@ public class KubernetesManager implements KubernetesManagerMXBean {
     @Override
     public String getServiceUrl(String serviceName) {
         // TODO we could cache these and update them in the background!
-        Map<String, ServiceSchema> serviceMap = KubernetesHelper.getServiceMap(kubernetes);
-        ServiceSchema service = serviceMap.get(serviceName);
+        Map<String, Service> serviceMap = KubernetesHelper.getServiceMap(kubernetes);
+        Service service = serviceMap.get(serviceName);
         return KubernetesHelper.getServiceURL(service);
     }
 
@@ -78,10 +80,10 @@ public class KubernetesManager implements KubernetesManagerMXBean {
     @Override
     public String getPodUrl(String name, String portNumberOrName) {
         // TODO we could cache these and update them in the background!
-        Map<String, PodSchema> podMap = KubernetesHelper.getPodMap(kubernetes);
-        PodSchema pod = podMap.get(name);
+        Map<String, Pod> podMap = KubernetesHelper.getPodMap(kubernetes);
+        Pod pod = podMap.get(name);
         if (pod != null) {
-            CurrentState currentState = pod.getCurrentState();
+            PodState currentState = pod.getCurrentState();
             if (currentState != null) {
                 String protocol = "http://";
 
@@ -143,9 +145,9 @@ public class KubernetesManager implements KubernetesManagerMXBean {
 
     @Override
     public String getReplicationControllerIdForPod(String podId) {
-        ReplicationControllerSchema replicationController = kubernetes.getReplicationControllerForPod(podId);
+        ReplicationController replicationController = kubernetes.getReplicationControllerForPod(podId);
         if (replicationController != null) {
-            return replicationController.getId();
+            return getId(replicationController);
         }
         return null;
     }

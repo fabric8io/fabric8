@@ -7,17 +7,21 @@
   "items": [
 @if{serviceName != null && servicePort != null && serviceContainerPort != null}
     {
-      "id": "@{serviceName}",
+      "uid": "@{serviceName}",
       "apiVersion": "v1beta1",
       "kind": "Service",
-      "containerPort": @{serviceContainerPort},
-      "port": @{servicePort},
-      "selector": {@foreach{label : labels.entrySet()}
-        "@{label.key}": "@{label.value}"@end{", "}
+      "spec": {
+        "containerPort": {
+          "IntVal": @{serviceContainerPort}
+        },
+        "port": @{servicePort},
+        "selector": {@foreach{label : labels.entrySet()}
+          "@{label.key}": "@{label.value}"@end{", "}
+        }
       }
     },@end{}
     {
-      "id": "@{name}",
+      "uid": "@{name}",
       "kind": "ReplicationController",
       "apiVersion": "v1beta1",
       "desiredState": {

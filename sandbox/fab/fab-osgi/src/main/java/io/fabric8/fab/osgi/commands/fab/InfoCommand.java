@@ -49,7 +49,7 @@ public class InfoCommand extends CommandSupport {
 
             PrintStream console = System.out;
             console.printf("URL: %s%n", info.getUrl());
-            printEmbedded(console, getClassPathElements(info.getManifest().getValue(Constants.BUNDLE_CLASSPATH)));
+            printEmbedded(console, getClassPathElements(info.getContainerManifest().getValue(Constants.BUNDLE_CLASSPATH)));
             printBundles(console, info.getBundles());
             printFeatures(console, info.getFeatures());
             printFeatureURLs(console, info.getFeatureURLs());

@@ -16,8 +16,8 @@
 package io.fabric8.forge.kubernetes;
 
 import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -34,6 +34,8 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 
 /**
  * Deletes a replication controller from kubernetes
@@ -61,12 +63,12 @@ public class ReplicationControllerDelete extends AbstractKubernetesCommand {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
                 List<String> list = new ArrayList<String>();
-                ReplicationControllerListSchema replicationControllers = getKubernetes().getReplicationControllers();
+                ReplicationControllerList replicationControllers = getKubernetes().getReplicationControllers();
                 if (replicationControllers != null) {
-                    List<ReplicationControllerSchema> items = replicationControllers.getItems();
+                    List<ReplicationController> items = replicationControllers.getItems();
                     if (items != null) {
-                        for (ReplicationControllerSchema item : items) {
-                            String id = item.getId();
+                        for (ReplicationController item : items) {
+                            String id = getId(item);
                             list.add(id);
                         }
                     }
@@ -84,7 +86,7 @@ public class ReplicationControllerDelete extends AbstractKubernetesCommand {
         Kubernetes kubernetes = getKubernetes();
 
         String idText = replicationControllerId.getValue();
-        ReplicationControllerSchema replicationController = kubernetes.getReplicationController(idText);
+        ReplicationController replicationController = kubernetes.getReplicationController(idText);
         if (replicationController == null) {
             System.out.println("No replicationController for id: " + idText);
         } else {
@@ -93,8 +95,8 @@ public class ReplicationControllerDelete extends AbstractKubernetesCommand {
         return null;
     }
 
-    protected void executeReplicationController(ReplicationControllerSchema replicationController) throws Exception {
-        getKubernetes().deleteReplicationController(replicationController.getId());
+    protected void executeReplicationController(ReplicationController replicationController) throws Exception {
+        getKubernetes().deleteReplicationController(getId(replicationController));
     }
 }
 

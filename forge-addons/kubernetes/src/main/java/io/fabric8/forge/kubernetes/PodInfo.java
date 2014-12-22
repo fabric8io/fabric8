@@ -15,13 +15,11 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.kubernetes.api.model.CurrentState;
-import io.fabric8.kubernetes.api.model.DesiredState;
-import io.fabric8.kubernetes.api.model.Env;
-import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.Manifest;
-import io.fabric8.kubernetes.api.model.PodContainerManifest;
-import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerManifest;
+import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodState;
 import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.VolumeMount;
@@ -33,7 +31,6 @@ import org.jboss.forge.addon.ui.util.Metadata;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Command to print the pod information in kubernetes
@@ -53,29 +50,28 @@ public class PodInfo extends AbstractPodCommand {
     }
 
     @Override
-    protected void executePod(PodSchema podInfo, String podId) {
+    protected void executePod(Pod podInfo, String podId) {
         System.out.println("Created: " + podInfo.getCreationTimestamp());
         System.out.println("Labels: ");
         Map<String, String> labels = podInfo.getLabels();
         for (Map.Entry<String, String> entry : labels.entrySet()) {
             System.out.println(indent + entry.getKey() + " = " + entry.getValue());
         }
-        CurrentState currentState = podInfo.getCurrentState();
+        PodState currentState = podInfo.getCurrentState();
         if (currentState != null) {
             printValue("Host", currentState.getHost());
             printValue("IP", currentState.getPodIP());
             printValue("Status", currentState.getStatus());
-            PodContainerManifest manifest = currentState.getManifest();
         }
-        DesiredState desiredState = podInfo.getDesiredState();
+        PodState desiredState = podInfo.getDesiredState();
         if (desiredState != null) {
-            Manifest manifest = desiredState.getManifest();
+            ContainerManifest manifest = desiredState.getManifest();
             if (manifest != null) {
-                List<ManifestContainer> containers = manifest.getContainers();
+                List<Container> containers = manifest.getContainers();
                 if (notEmpty(containers)) {
                     System.out.println("Containers:");
                     indentCount++;
-                    for (ManifestContainer container : containers) {
+                    for (Container container : containers) {
                         printValue("Name", container.getName());
                         printValue("Image", container.getImage());
                         printValue("Working Dir", container.getWorkingDir());
@@ -94,11 +90,11 @@ public class PodInfo extends AbstractPodCommand {
                             indentCount--;
                         }
 
-                        List<Env> envList = container.getEnv();
+                        List<EnvVar> envList = container.getEnv();
                         if (notEmpty(envList)) {
                             println("Environment:");
                             indentCount++;
-                            for (Env env : envList) {
+                            for (EnvVar env : envList) {
                                 printValue(env.getName(), env.getValue());
                             }
                             indentCount--;
@@ -117,7 +113,7 @@ public class PodInfo extends AbstractPodCommand {
                     }
                 }
 
-                Set<Volume> volumes = manifest.getVolumes();
+                List<Volume> volumes = manifest.getVolumes();
                 if (volumes != null) {
                     System.out.println("Volumes: ");
                     for (Volume volume : volumes) {

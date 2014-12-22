@@ -97,7 +97,7 @@ public class ViewAppSummaries {
         } catch (Exception e) {
             System.out.println("FAILED: " + e);
             e.printStackTrace();
-        }  finally {
+        } finally {
             try {
                 appView.destroy();
             } catch (Exception e) {

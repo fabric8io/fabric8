@@ -30,7 +30,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 import java.util.jar.Attributes;
-import java.util.jar.Manifest;
+import java.util.jar.ContainerManifest;
 
 import aQute.bnd.osgi.Macro;
 import aQute.bnd.osgi.Processor;
@@ -45,7 +45,7 @@ import io.fabric8.agent.resolver.ResourceBuilder;
 import io.fabric8.agent.resolver.ResourceImpl;
 import io.fabric8.agent.resolver.Slf4jResolverLog;
 import io.fabric8.agent.utils.AgentUtils;
-import io.fabric8.utils.Manifests;
+import io.fabric8.utils.ContainerManifests;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Strings;
 import io.fabric8.fab.DependencyTree;
@@ -398,7 +398,7 @@ public class DeploymentBuilder {
                     FabResolver resolver = fabResolverFactory.getResolver(file.toURI().toURL());
                     FabBundleInfo fabInfo = resolver.getInfo();
 
-                    ResourceImpl resource = (ResourceImpl) manageResource(location, fabInfo.getManifest(), new StreamProvider.Fab(fabInfo));
+                    ResourceImpl resource = (ResourceImpl) manageResource(location, fabInfo.getContainerManifest(), new StreamProvider.Fab(fabInfo));
                     for (String name : fabInfo.getFeatures()) {
                         registerMatchingFeatures(name);
                         requireFeature(name, resource);
@@ -537,9 +537,9 @@ public class DeploymentBuilder {
     }
 
     protected Attributes getAttributes(String uri, File file) throws Exception {
-        Manifest man = null;
+        ContainerManifest man = null;
         try {
-            man = Manifests.getManifest(file);
+            man = ContainerManifests.getContainerManifest(file);
         } catch (Exception e) {
             if (file == null) {
                 throw new IOException("Error - file must not be null. Source: \"" + uri + "\"", e);

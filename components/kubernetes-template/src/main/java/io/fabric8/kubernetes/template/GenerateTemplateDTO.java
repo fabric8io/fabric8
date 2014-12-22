@@ -15,8 +15,8 @@
  */
 package io.fabric8.kubernetes.template;
 
+import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.utils.Strings;
-import io.fabric8.kubernetes.api.model.Env;
 import io.fabric8.kubernetes.api.model.Port;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class GenerateTemplateDTO {
     protected String containerName;
     protected String template;
     protected Map<String, String> labels;
-    protected List<Env> environmentVariables;
+    protected List<EnvVar> environmentVariables;
     protected List<Port> ports;
     protected Map<String, Object> templateVariables;
     private Integer replicaCount;
@@ -72,14 +72,14 @@ public class GenerateTemplateDTO {
         this.templateVariables = templateVariables;
     }
 
-    public List<Env> getEnvironmentVariables() {
+    public List<EnvVar> getEnvironmentVariables() {
         if (environmentVariables == null) {
             environmentVariables = new ArrayList<>();
         }
         return environmentVariables;
     }
 
-    public void setEnvironmentVariables(List<Env> environmentVariables) {
+    public void setEnvironmentVariables(List<EnvVar> environmentVariables) {
         this.environmentVariables = environmentVariables;
     }
 

@@ -1,11 +1,16 @@
-{"id": "fabric8-mq-service",
+{
+  "uid": "fabric8-mq-service",
   "apiVersion": "v1beta1",
   "kind": "Service",
-  "containerPort": 6162,
-  "port": 6163,
-  "selector": {
-    "container": "java",
-    "name": "fabric8MQ",
-    "group": "fabric8MQ"
+  "spec": {
+    "containerPort": {
+      "IntVal": 6162
+    },
+    "port": 6163,
+    "selector": {
+      "container": "java",
+      "name": "fabric8MQ",
+      "group": "fabric8MQ"
+    }
   }
 }

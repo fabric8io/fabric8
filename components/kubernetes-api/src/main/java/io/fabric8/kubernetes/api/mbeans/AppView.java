@@ -20,9 +20,9 @@ package io.fabric8.kubernetes.api.mbeans;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.JMXUtils;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
@@ -41,6 +41,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 
 /**
  * Provides an App view of all the services, controllers, pods
@@ -141,20 +143,20 @@ public class AppView implements AppViewMXBean {
     }
 
     public AppViewSnapshot createSnapshot() {
-        Map<String, ServiceSchema> servicesMap = KubernetesHelper.getServiceMap(kubernetes);
-        Map<String, ReplicationControllerSchema> controllerMap = KubernetesHelper.getReplicationControllerMap(kubernetes);
-        Map<String, PodSchema> podMap = KubernetesHelper.getPodMap(kubernetes);
+        Map<String, Service> servicesMap = KubernetesHelper.getServiceMap(kubernetes);
+        Map<String, ReplicationController> controllerMap = KubernetesHelper.getReplicationControllerMap(kubernetes);
+        Map<String, Pod> podMap = KubernetesHelper.getPodMap(kubernetes);
 
         AppViewSnapshot snapshot = new AppViewSnapshot(servicesMap, controllerMap, podMap);
-        for (ServiceSchema service : servicesMap.values()) {
-            String appPath = getAppPath(service.getId());
+        for (Service service : servicesMap.values()) {
+            String appPath = getAppPath(getId(service));
             if (appPath != null) {
                 AppViewDetails dto = snapshot.getOrCreateAppView(appPath, service.getNamespace());
                 dto.addService(service);
             }
         }
-        for (ReplicationControllerSchema controller : controllerMap.values()) {
-            String appPath = getAppPath(controller.getId());
+        for (ReplicationController controller : controllerMap.values()) {
+            String appPath = getAppPath(getId(controller));
             if (appPath != null) {
                 AppViewDetails dto = snapshot.getOrCreateAppView(appPath, controller.getNamespace());
                 dto.addController(controller);

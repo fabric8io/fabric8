@@ -15,7 +15,7 @@
  */
 package io.fabric8.forge.kubernetes;
 
-import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.Pod;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.util.Categories;
@@ -36,7 +36,7 @@ public class PodDelete extends AbstractPodCommand {
     }
 
     @Override
-    protected void executePod(PodSchema pod, String podId) throws Exception {
+    protected void executePod(Pod pod, String podId) throws Exception {
         System.out.println("Deleting pod " + podId);
         getKubernetes().deletePod(podId);
     }

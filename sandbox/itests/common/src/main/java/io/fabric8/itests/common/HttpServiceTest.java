@@ -37,7 +37,7 @@ import org.jboss.gravia.container.tomcat.WebAppContextListener;
 import org.jboss.gravia.itests.support.AnnotatedContextListener;
 import org.jboss.gravia.itests.support.ArchiveBuilder;
 import org.jboss.gravia.itests.support.HttpRequest;
-import org.jboss.gravia.resource.ManifestBuilder;
+import org.jboss.gravia.resource.ContainerManifestBuilder;
 import org.jboss.gravia.runtime.Module;
 import org.jboss.gravia.runtime.ModuleContext;
 import org.jboss.gravia.runtime.Runtime;
@@ -45,7 +45,7 @@ import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
 import org.jboss.gravia.runtime.ServiceLocator;
 import org.jboss.gravia.runtime.ServiceReference;
-import org.jboss.osgi.metadata.OSGiManifestBuilder;
+import org.jboss.osgi.metadata.OSGiContainerManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.junit.Assert;
@@ -69,19 +69,19 @@ public class HttpServiceTest {
         final ArchiveBuilder archive = new ArchiveBuilder("http-service");
         archive.addClasses(AnnotatedContextListener.class, WebAppContextListener.class);
         archive.addClasses(HttpRequest.class);
-        archive.setManifest(new Asset() {
+        archive.setContainerManifest(new Asset() {
             @Override
             public InputStream openStream() {
                 if (targetContainer == RuntimeType.KARAF) {
-                    OSGiManifestBuilder builder = OSGiManifestBuilder.newInstance();
-                    builder.addBundleManifestVersion(2);
+                    OSGiContainerManifestBuilder builder = OSGiContainerManifestBuilder.newInstance();
+                    builder.addBundleContainerManifestVersion(2);
                     builder.addBundleSymbolicName("http-service");
                     builder.addBundleVersion("1.0.0");
                     builder.addImportPackages(RuntimeLocator.class, Servlet.class, HttpServlet.class, HttpService.class);
                     builder.addBundleClasspath("WEB-INF/classes");
                     return builder.openStream();
                 } else {
-                    ManifestBuilder builder = new ManifestBuilder();
+                    ContainerManifestBuilder builder = new ContainerManifestBuilder();
                     builder.addIdentityCapability("http-service", "1.0.0");
                     return builder.openStream();
                 }

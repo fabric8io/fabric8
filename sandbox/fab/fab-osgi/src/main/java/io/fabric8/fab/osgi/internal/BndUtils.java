@@ -34,7 +34,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
-import java.util.jar.Manifest;
+import java.util.jar.ContainerManifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -184,7 +184,7 @@ public class BndUtils
 
         final Jar jar = new Jar( "dot", jarInputStream );
 
-        final Manifest manifest = jar.getManifest();
+        final ContainerManifest manifest = jar.getContainerManifest();
 
         // Make the jar a bundle if it is not already a bundle
         if( manifest == null
@@ -224,14 +224,14 @@ public class BndUtils
 
 
             if (manifest != null && OverwriteMode.MERGE == overwriteMode) {
-                analyzer.mergeManifest(manifest);
+                analyzer.mergeContainerManifest(manifest);
             }
             checkMandatoryProperties(analyzer, jar, jarInfo);
 
-            Manifest newManifest = analyzer.calcManifest();
-            jar.setManifest( newManifest );
+            ContainerManifest newContainerManifest = analyzer.calcContainerManifest();
+            jar.setContainerManifest( newContainerManifest );
 
-            Attributes main = jar.getManifest().getMainAttributes();
+            Attributes main = jar.getContainerManifest().getMainAttributes();
 
             // Hack to add back META-INF imports
             String importPackage = main.getValue(Analyzer.IMPORT_PACKAGE);

@@ -17,10 +17,11 @@
  */
 package io.fabric8.kubernetes.api.mbeans;
 
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceSpec;
 
 import java.util.Map;
-
 
 /**
  */
@@ -32,12 +33,13 @@ public class AppServiceSummaryDTO {
     private final Integer port;
     private final Map<String, String> labels;
 
-    public AppServiceSummaryDTO(ServiceSchema service) {
-        this.id = service.getId();
+    public AppServiceSummaryDTO(Service service) {
+        this.id = KubernetesHelper.getId(service);
         this.name = service.getName();
         this.namespace = service.getNamespace();
-        this.portalIP = service.getPortalIP();
-        this.port = service.getPort();
+        ServiceSpec spec = service.getSpec();
+        this.portalIP = spec.getPortalIP();
+        this.port = spec.getPort();
         this.labels = service.getLabels();
     }
 

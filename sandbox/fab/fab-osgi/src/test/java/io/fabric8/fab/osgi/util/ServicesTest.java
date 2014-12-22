@@ -34,7 +34,7 @@ import static org.easymock.EasyMock.*;
 public class ServicesTest {
 
     @Test
-    public void testParseManifestHeader() {
+    public void testParseContainerManifestHeader() {
         assertEquals("Should have a single NamespaceHandler", new Service("org.apache.aries.blueprint.NamespaceHandler"),
                      Services.parseHeader("org.apache.aries.blueprint.NamespaceHandler").iterator().next());
         

@@ -17,8 +17,9 @@
  */
 package io.fabric8.kubernetes.api.mbeans;
 
-import io.fabric8.kubernetes.api.model.ControllerDesiredState;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.KubernetesHelper;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerState;
 
 import java.util.Map;
 
@@ -31,11 +32,11 @@ public class AppReplicationControllerSummaryDTO {
     private Integer replicas;
     private Map<String, String> replicaSelector;
 
-    public AppReplicationControllerSummaryDTO(ReplicationControllerSchema controller) {
-        this.id = controller.getId();
+    public AppReplicationControllerSummaryDTO(ReplicationController controller) {
+        this.id = KubernetesHelper.getId(controller);
         this.namespace = controller.getNamespace();
         this.labels = controller.getLabels();
-        ControllerDesiredState desiredState = controller.getDesiredState();
+        ReplicationControllerState desiredState = controller.getDesiredState();
         if (desiredState != null) {
             this.replicas = desiredState.getReplicas();
             this.replicaSelector = desiredState.getReplicaSelector();

@@ -48,7 +48,7 @@ public class FabClassPathResolverTest {
     public void testMissingHeaderParsing() {
         FabClassPathResolver resolver = new FabClassPathResolver(null, new MockFabFacade(), null, null) {
             @Override
-            public String getManifestProperty(String name) {
+            public String getContainerManifestProperty(String name) {
                 // always returning blank here because that's what the real implementation does for a missing header
                 return "";
             }
@@ -63,7 +63,7 @@ public class FabClassPathResolverTest {
             Map<String, String> properties = Services.createProperties(INSTR_FAB_INSTALL_PROVIDED_BUNDLE_DEPENDENCIES, "true");
 
             @Override
-            public String getManifestProperty(String name) {
+            public String getContainerManifestProperty(String name) {
                 return properties.get(name);
             }
         };
@@ -75,7 +75,7 @@ public class FabClassPathResolverTest {
         FabClassPathResolver resolver = new FabClassPathResolver(null, new MockFabFacade(), null, null) {
 
             @Override
-            public String getManifestProperty(String name) {
+            public String getContainerManifestProperty(String name) {
                 // no value set for the header
                 return "";
             }
@@ -98,7 +98,7 @@ public class FabClassPathResolverTest {
                                               INSTR_FAB_REQUIRE_FEATURE_URL, "mvn:com.mycompany/features/1.0/xml/features");
 
             @Override
-            public String getManifestProperty(String name) {
+            public String getContainerManifestProperty(String name) {
                 return properties.get(name);
             }
         };

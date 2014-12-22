@@ -76,7 +76,7 @@ public class WrapUrlParser
      */
     private final Properties m_wrappingProperties;
     /**
-     * Manifest overwrite mode.
+     * ContainerManifest overwrite mode.
      */
     private final OverwriteMode m_overwriteMode;
 

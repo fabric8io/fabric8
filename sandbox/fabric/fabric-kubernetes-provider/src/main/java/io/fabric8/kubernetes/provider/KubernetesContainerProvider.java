@@ -49,13 +49,13 @@ import io.fabric8.docker.provider.DockerCreateOptions;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesFactory;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.DesiredState;
-import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.ManifestSchema;
-import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.PodState;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerManifestSchema;
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Port;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -276,15 +276,15 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                             if (kindNode != null) {
                                 String kind = kindNode.asText();
                                 if (Objects.equal("Pod", kind)) {
-                                    PodSchema podSchema = objectMapper.reader(PodSchema.class).readValue(json);
+                                    Pod podSchema = objectMapper.reader(Pod.class).readValue(json);
                                     configurePod(podSchema, service, options, metadata);
                                     answer.put(definition, podSchema);
                                 } else if (Objects.equal("ReplicationController", kind)) {
-                                    ReplicationControllerSchema replicationControllerSchema = objectMapper.reader(ReplicationControllerSchema.class).readValue(json);
+                                    ReplicationController replicationControllerSchema = objectMapper.reader(ReplicationController.class).readValue(json);
                                     configureReplicationController(replicationControllerSchema, service, options, metadata);
                                     answer.put(definition, replicationControllerSchema);
                                 } else if (Objects.equal("Service", kind)) {
-                                    ServiceSchema serviceSchema = objectMapper.reader(ServiceSchema.class).readValue(json);
+                                    Service serviceSchema = objectMapper.reader(Service.class).readValue(json);
                                     configureService(serviceSchema, service, options, metadata);
                                     answer.put(definition, serviceSchema);
                                 } else {
@@ -324,22 +324,22 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         Kubernetes kubernetes = getKubernetes();
         Objects.notNull(kubernetes, "kubernetes");
 
-        Map<String, PodSchema> podMap = null;
-        Map<String, ReplicationControllerSchema> replicationControllerMap = null;
-        Map<String, ServiceSchema> serviceMap = null;
+        Map<String, Pod> podMap = null;
+        Map<String, ReplicationController> replicationControllerMap = null;
+        Map<String, Service> serviceMap = null;
 
         Map<String, Object> kubelets = loadKubelets(service, options, kubeletFileNames, metadata);
         Set<Map.Entry<String, Object>> entries = kubelets.entrySet();
         for (Map.Entry<String, Object> entry : entries) {
             String definition = entry.getKey();
             Object kubelet = entry.getValue();
-            if (kubelet instanceof PodSchema) {
-                PodSchema podSchema = (PodSchema) kubelet;
+            if (kubelet instanceof Pod) {
+                Pod podSchema = (Pod) kubelet;
                 if (podMap == null) {
                     podMap = getPodMap(kubernetes);
                 }
                 String id = podSchema.getId();
-                PodSchema old = podMap.get(id);
+                Pod old = podMap.get(id);
                 if (isRunning(old)) {
                     LOG.info("Not creating pod for " + id + " from definition " + definition + " as its already running");
                 } else {
@@ -351,13 +351,13 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                         LOG.error("Failed to create pod from " + definition + ". " + e + ". " + podSchema, e);
                     }
                 }
-            } else if (kubelet instanceof ReplicationControllerSchema) {
-                ReplicationControllerSchema replicationControllerSchema = (ReplicationControllerSchema) kubelet;
+            } else if (kubelet instanceof ReplicationController) {
+                ReplicationController replicationControllerSchema = (ReplicationController) kubelet;
                 if (replicationControllerMap == null) {
                     replicationControllerMap = getReplicationControllerMap(kubernetes);
                 }
                 String id = replicationControllerSchema.getId();
-                ReplicationControllerSchema old = replicationControllerMap.get(id);
+                ReplicationController old = replicationControllerMap.get(id);
                 if (isRunning(old)) {
                     LOG.info("Not creating replicationController for " + id + " from definition " + definition + " as its already running");
                 } else {
@@ -369,13 +369,13 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                         LOG.error("Failed to create controller from " + definition + ". " + e + ". " + replicationControllerSchema, e);
                     }
                 }
-            } else if (kubelet instanceof ServiceSchema) {
-                ServiceSchema serviceSchema = (ServiceSchema) kubelet;
+            } else if (kubelet instanceof Service) {
+                Service serviceSchema = (Service) kubelet;
                 if (serviceMap == null) {
                     serviceMap = getServiceMap(kubernetes);
                 }
                 String id = serviceSchema.getId();
-                ServiceSchema old = serviceMap.get(id);
+                Service old = serviceMap.get(id);
                 if (isRunning(old)) {
                     LOG.info("Not creating pod for " + id + " from defintion " + definition + " as its already running");
                 } else {
@@ -400,22 +400,22 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         Kubernetes kubernetes = getKubernetes();
         Objects.notNull(kubernetes, "kubernetes");
 
-        Map<String, PodSchema> podMap = null;
-        Map<String, ReplicationControllerSchema> replicationControllerMap = null;
-        Map<String, ServiceSchema> serviceMap = null;
+        Map<String, Pod> podMap = null;
+        Map<String, ReplicationController> replicationControllerMap = null;
+        Map<String, Service> serviceMap = null;
 
         Map<String, Object> kubelets = loadKubelets(service, options, kubeletFileNames, metadata);
         Set<Map.Entry<String, Object>> entries = kubelets.entrySet();
         for (Map.Entry<String, Object> entry : entries) {
             String definition = entry.getKey();
             Object kubelet = entry.getValue();
-            if (kubelet instanceof PodSchema) {
-                PodSchema podSchema = (PodSchema) kubelet;
+            if (kubelet instanceof Pod) {
+                Pod podSchema = (Pod) kubelet;
                 if (podMap == null) {
                     podMap = getPodMap(kubernetes);
                 }
                 String id = podSchema.getId();
-                PodSchema old = podMap.get(id);
+                Pod old = podMap.get(id);
                 if (isRunning(old)) {
                     try {
                         deletePod(id);
@@ -423,13 +423,13 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                         LOG.error("Failed to delete pod " + id + " from " + definition + ": " + e + ". ", e);
                     }
                 }
-            } else if (kubelet instanceof ReplicationControllerSchema) {
-                ReplicationControllerSchema replicationControllerSchema = (ReplicationControllerSchema) kubelet;
+            } else if (kubelet instanceof ReplicationController) {
+                ReplicationController replicationControllerSchema = (ReplicationController) kubelet;
                 if (replicationControllerMap == null) {
                     replicationControllerMap = getReplicationControllerMap(kubernetes);
                 }
                 String id = replicationControllerSchema.getId();
-                ReplicationControllerSchema old = replicationControllerMap.get(id);
+                ReplicationController old = replicationControllerMap.get(id);
                 if (isRunning(old)) {
                     try {
                         deleteReplicationController(id);
@@ -437,13 +437,13 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
                         LOG.error("Failed to delete replicationController " + id + " from " + definition + ": " + e + ". ", e);
                     }
                 }
-            } else if (kubelet instanceof ServiceSchema) {
-                ServiceSchema serviceSchema = (ServiceSchema) kubelet;
+            } else if (kubelet instanceof Service) {
+                Service serviceSchema = (Service) kubelet;
                 if (serviceMap == null) {
                     serviceMap = getServiceMap(kubernetes);
                 }
                 String id = serviceSchema.getId();
-                ServiceSchema old = serviceMap.get(id);
+                Service old = serviceMap.get(id);
                 if (isRunning(old)) {
                     try {
                         deleteService(id);
@@ -457,22 +457,22 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         }
     }
 
-    protected boolean isRunning(PodSchema entity) {
+    protected boolean isRunning(Pod entity) {
         // TODO we could maybe ignore failed services?
         return entity != null;
     }
 
-    protected boolean isRunning(ReplicationControllerSchema entity) {
+    protected boolean isRunning(ReplicationController entity) {
         // TODO we could maybe ignore failed services?
         return entity != null;
     }
 
-    protected boolean isRunning(ServiceSchema entity) {
+    protected boolean isRunning(Service entity) {
         // TODO we could maybe ignore failed services?
         return entity != null;
     }
 
-    protected void configurePod(PodSchema podSchema, FabricService service, CreateKubernetesContainerOptions options, CreateKubernetesContainerMetadata metadata) {
+    protected void configurePod(Pod podSchema, FabricService service, CreateKubernetesContainerOptions options, CreateKubernetesContainerMetadata metadata) {
         podSchema.setLabels(configureLabels(podSchema.getLabels(), service, options));
         String id = podSchema.getId();
         if (Strings.isNotBlank(id)) {
@@ -480,7 +480,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         }
     }
 
-    protected void configureReplicationController(ReplicationControllerSchema replicationControllerSchema, FabricService service, CreateKubernetesContainerOptions options, CreateKubernetesContainerMetadata metadata) {
+    protected void configureReplicationController(ReplicationController replicationControllerSchema, FabricService service, CreateKubernetesContainerOptions options, CreateKubernetesContainerMetadata metadata) {
         replicationControllerSchema.setLabels(configureLabels(replicationControllerSchema.getLabels(), service, options));
         String id = replicationControllerSchema.getId();
         if (Strings.isNotBlank(id)) {
@@ -488,7 +488,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         }
     }
 
-    protected void configureService(ServiceSchema serviceSchema, FabricService service, CreateKubernetesContainerOptions options, CreateKubernetesContainerMetadata metadata) {
+    protected void configureService(Service serviceSchema, FabricService service, CreateKubernetesContainerOptions options, CreateKubernetesContainerMetadata metadata) {
         serviceSchema.setLabels(configureLabels(serviceSchema.getLabels(), service, options));
         String id = serviceSchema.getId();
         if (Strings.isNotBlank(id)) {
@@ -582,19 +582,19 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
         String versionId = options.getVersion();
         FabricService service = getFabricService();
 
-        PodSchema pod = new PodSchema();
+        Pod pod = new Pod();
         pod.setId(KubernetesHelpers.containerNameToPodId(name));
 
         Map<String, String> labels = updateLabels(null, service, name, profileIds, versionId);
 
         pod.setLabels(labels);
-        DesiredState desiredState = new DesiredState();
-        pod.setDesiredState(desiredState);
-        ManifestSchema manifest = new ManifestSchema();
-        manifest.setVersion(ManifestSchema.Version.V_1_BETA_1);
-        desiredState.setManifest(manifest);
+        PodState desiredState = new PodState();
+        pod.setPodState(desiredState);
+        ContainerManifestSchema manifest = new ContainerManifestSchema();
+        manifest.setVersion(ContainerManifestSchema.Version.V_1_BETA_1);
+        desiredState.setContainerManifest(manifest);
 
-        ManifestContainer manifestContainer = new ManifestContainer();
+        Container manifestContainer = new Container();
         manifestContainer.setName(name);
         manifestContainer.setImage(image);
         List<String> cmd = options.getCmd();
@@ -648,7 +648,7 @@ public class KubernetesContainerProvider extends DockerContainerProviderSupport 
             manifestContainer.setPorts(ports);
         }
 
-        List<ManifestContainer> containers = new ArrayList<>();
+        List<Container> containers = new ArrayList<>();
         containers.add(manifestContainer);
         manifest.setContainers(containers);
 

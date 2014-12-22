@@ -36,6 +36,6 @@ public class Objects {
         return value;
     }
 
-    //?def assertInjected[T <: AnyRef](value: T)(implicit m: ClassManifest[T]): T = notNull(value, "Value of type " + m.erasure.getName + " has not been injected!")
+    //?def assertInjected[T <: AnyRef](value: T)(implicit m: ClassContainerManifest[T]): T = notNull(value, "Value of type " + m.erasure.getName + " has not been injected!")
 
 }

@@ -21,7 +21,7 @@ import java.net.URL;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.jar.JarInputStream;
-import java.util.jar.Manifest;
+import java.util.jar.ContainerManifest;
 
 import org.jboss.gravia.resource.Attachable;
 import org.jboss.gravia.resource.DefaultResourceBuilder;
@@ -34,7 +34,7 @@ import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.embedded.internal.EmbeddedRuntime;
 import org.jboss.gravia.runtime.spi.ClassLoaderEntriesProvider;
 import org.jboss.gravia.runtime.spi.DefaultPropertiesProvider;
-import org.jboss.gravia.runtime.spi.ManifestHeadersProvider;
+import org.jboss.gravia.runtime.spi.ContainerManifestHeadersProvider;
 import org.jboss.gravia.runtime.spi.ModuleEntriesProvider;
 import org.jboss.gravia.runtime.spi.PropertiesProvider;
 import org.jboss.gravia.runtime.spi.RuntimeFactory;
@@ -80,8 +80,8 @@ public class EmbeddedUtils {
     public static Module installAndStartModule(ClassLoader classLoader, URL location) throws ModuleException, IOException {
         JarInputStream input = new JarInputStream(location.openStream());
         try {
-            Manifest manifest = input.getManifest();
-            Dictionary<String, String> headers = new ManifestHeadersProvider(manifest).getHeaders();
+            ContainerManifest manifest = input.getContainerManifest();
+            Dictionary<String, String> headers = new ContainerManifestHeadersProvider(manifest).getHeaders();
             return installAndStartModule(classLoader, null, headers);
         } finally {
             input.close();

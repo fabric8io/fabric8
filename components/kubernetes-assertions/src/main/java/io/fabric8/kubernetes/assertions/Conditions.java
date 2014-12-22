@@ -19,9 +19,9 @@ package io.fabric8.kubernetes.assertions;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.PodStatus;
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
 import org.assertj.core.api.Condition;
 
 import java.util.Map;
@@ -31,72 +31,72 @@ import java.util.Objects;
  */
 public class Conditions {
 
-    public static Condition<PodSchema> status(final PodStatus status) {
-        return new Condition<PodSchema>() {
+    public static Condition<Pod> status(final PodStatus status) {
+        return new Condition<Pod>() {
             @Override
             public String toString() {
                 return "podStatus(" + status + ")";
             }
 
             @Override
-            public boolean matches(PodSchema pod) {
+            public boolean matches(Pod pod) {
                 return Objects.equals(status, KubernetesHelper.getPodStatus(pod));
             }
         };
     }
 
-    public static Condition<PodSchema> runningStatus() {
+    public static Condition<Pod> runningStatus() {
         return status(PodStatus.OK);
     }
 
-    public static Condition<PodSchema> waitingStatus() {
+    public static Condition<Pod> waitingStatus() {
         return status(PodStatus.WAIT);
     }
 
-    public static Condition<PodSchema> errorStatus() {
+    public static Condition<Pod> errorStatus() {
         return status(PodStatus.ERROR);
     }
 
 
-    public static Condition<PodSchema> podLabel(final String key, final String value) {
-        return new Condition<PodSchema>() {
+    public static Condition<Pod> podLabel(final String key, final String value) {
+        return new Condition<Pod>() {
             @Override
             public String toString() {
                 return "podLabel(" + key + " = " + value + ")";
             }
 
             @Override
-            public boolean matches(PodSchema pod) {
+            public boolean matches(Pod pod) {
                 return matchesLabel(pod.getLabels(), key, value);
             }
         };
     }
 
 
-    public static Condition<ReplicationControllerSchema> replicationControllerLabel(final String key, final String value) {
-        return new Condition<ReplicationControllerSchema>() {
+    public static Condition<ReplicationController> replicationControllerLabel(final String key, final String value) {
+        return new Condition<ReplicationController>() {
             @Override
             public String toString() {
                 return "replicationControllerLabel(" + key + " = " + value + ")";
             }
 
             @Override
-            public boolean matches(ReplicationControllerSchema replicationControllerSchema) {
+            public boolean matches(ReplicationController replicationControllerSchema) {
                 return matchesLabel(replicationControllerSchema.getLabels(), key, value);
             }
         };
     }
 
 
-    public static Condition<ServiceSchema> serviceLabel(final String key, final String value) {
-        return new Condition<ServiceSchema>() {
+    public static Condition<Service> serviceLabel(final String key, final String value) {
+        return new Condition<Service>() {
             @Override
             public String toString() {
                 return "serviceLabel(" + key + " = " + value + ")";
             }
 
             @Override
-            public boolean matches(ServiceSchema service) {
+            public boolean matches(Service service) {
                 return matchesLabel(service.getLabels(), key, value);
             }
         };

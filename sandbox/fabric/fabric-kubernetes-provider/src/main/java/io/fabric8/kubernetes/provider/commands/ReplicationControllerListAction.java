@@ -18,10 +18,10 @@ package io.fabric8.kubernetes.provider.commands;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Objects;
 import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.model.ControllerCurrentState;
-import io.fabric8.kubernetes.api.model.ControllerDesiredState;
-import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerState;
+import io.fabric8.kubernetes.api.model.ReplicationControllerState;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.provider.KubernetesHelpers;
 import io.fabric8.kubernetes.provider.KubernetesService;
 import io.fabric8.utils.TablePrinter;
@@ -53,26 +53,26 @@ public class ReplicationControllerListAction extends AbstractAction {
         Kubernetes kubernetes = kubernetesService.getKubernetes();
         Objects.notNull(kubernetes, "kubernetes");
 
-        ReplicationControllerListSchema replicationControllers = kubernetes.getReplicationControllers();
+        ReplicationControllerList replicationControllers = kubernetes.getReplicationControllers();
         printContainers(replicationControllers, System.out);
         return null;
     }
 
-    private void printContainers(ReplicationControllerListSchema replicationControllers, PrintStream out) {
+    private void printContainers(ReplicationControllerList replicationControllers, PrintStream out) {
         TablePrinter table = new TablePrinter();
         table.columns("id", "labels", "replicas", "replica selector");
-        List<ReplicationControllerSchema> items = replicationControllers.getItems();
+        List<ReplicationController> items = replicationControllers.getItems();
         if (items == null) {
             items = Collections.EMPTY_LIST;
         }
-        Filter<ReplicationControllerSchema> filter = KubernetesHelpers.createReplicationControllerFilter(filterText);
-        for (ReplicationControllerSchema item : items) {
+        Filter<ReplicationController> filter = KubernetesHelpers.createReplicationControllerFilter(filterText);
+        for (ReplicationController item : items) {
             if (filter.matches(item)) {
                 String id = item.getId();
                 String labels = KubernetesHelpers.toLabelsString(item.getLabels());
                 Integer replicas = null;
-                ControllerDesiredState desiredState = item.getDesiredState();
-                ControllerCurrentState currentState = item.getCurrentState();
+                ReplicationControllerState desiredState = item.getPodState();
+                ReplicationControllerState currentState = item.getPodState();
                 String selector = null;
                 if (desiredState != null) {
                     selector = KubernetesHelpers.toLabelsString(desiredState.getReplicaSelector());

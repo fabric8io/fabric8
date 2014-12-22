@@ -17,7 +17,9 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 
 /**
  */
@@ -31,9 +33,9 @@ public class PodIdToReplicationControllerIDExample {
         String podID = args[1];
         System.out.println("Looking up ReplicationController for pod ID: " + podID);
         KubernetesClient client = new KubernetesClient(kuberneteMasterUrl);
-        ReplicationControllerSchema replicationController = client.getReplicationControllerForPod(podID);
-        if (replicationController != null ){
-            String id = replicationController.getId();
+        ReplicationController replicationController = client.getReplicationControllerForPod(podID);
+        if (replicationController != null) {
+            String id = getId(replicationController);
             System.out.println("Found replication controller: " + id);
         } else {
             System.out.println("Could not find replication controller!");

@@ -4,10 +4,10 @@
   "apiVersion": "v1beta1",
   "port": 8000,
   "labels": {
-     "name": "nginx"
+    "name": "nginx"
   },
   "selector": {
-     "name": "nginx"
+    "name": "nginx"
   },
   "createExternalLoadBalancer": true
 }

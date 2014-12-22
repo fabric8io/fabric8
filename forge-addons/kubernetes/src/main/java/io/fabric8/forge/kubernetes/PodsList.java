@@ -15,15 +15,14 @@
  */
 package io.fabric8.forge.kubernetes;
 
+import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.utils.Filter;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.CurrentState;
-import io.fabric8.kubernetes.api.model.DesiredState;
-import io.fabric8.kubernetes.api.model.ManifestContainer;
-import io.fabric8.kubernetes.api.model.Manifest;
-import io.fabric8.kubernetes.api.model.PodListSchema;
-import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.PodState;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerManifest;
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.utils.TablePrinter;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -40,10 +39,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
+
 /**
  * Command to list pods in kubernetes
  */
-public class PodList extends AbstractKubernetesCommand {
+public class PodsList extends AbstractKubernetesCommand {
 
     @Inject
     @WithAttributes(name = "filter", label = "The text filter used to filter pods using label selectors")
@@ -66,24 +67,24 @@ public class PodList extends AbstractKubernetesCommand {
     @Override
     public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
         Kubernetes kubernetes = getKubernetes();
-        PodListSchema pods = kubernetes.getPods();
+        PodList pods = kubernetes.getPods();
         KubernetesHelper.removeEmptyPods(pods);
         TablePrinter table = podsAsTable(pods);
         return tableResults(table);
     }
 
-    protected TablePrinter podsAsTable(PodListSchema pods) {
+    protected TablePrinter podsAsTable(PodList pods) {
         TablePrinter table = new TablePrinter();
         table.columns("id", "image(s)", "host", "labels", "status");
-        List<PodSchema> items = pods.getItems();
+        List<Pod> items = pods.getItems();
         if (items == null) {
             items = Collections.EMPTY_LIST;
         }
-        Filter<PodSchema> filter = KubernetesHelper.createPodFilter(filterText.getValue());
-        for (PodSchema item : items) {
+        Filter<Pod> filter = KubernetesHelper.createPodFilter(filterText.getValue());
+        for (Pod item : items) {
             if (filter.matches(item)) {
-                String id = item.getId();
-                CurrentState currentState = item.getCurrentState();
+                String id = getId(item);
+                PodState currentState = item.getCurrentState();
                 String status = "";
                 String host = "";
                 if (currentState != null) {
@@ -92,12 +93,12 @@ public class PodList extends AbstractKubernetesCommand {
                 }
                 Map<String, String> labelMap = item.getLabels();
                 String labels = KubernetesHelper.toLabelsString(labelMap);
-                DesiredState desiredState = item.getDesiredState();
+                PodState desiredState = item.getDesiredState();
                 if (desiredState != null) {
-                    Manifest manifest = desiredState.getManifest();
+                    ContainerManifest manifest = desiredState.getManifest();
                     if (manifest != null) {
-                        List<ManifestContainer> containers = manifest.getContainers();
-                        for (ManifestContainer container : containers) {
+                        List<Container> containers = manifest.getContainers();
+                        for (Container container : containers) {
                             String image = container.getImage();
                             table.row(id, image, host, labels, status);
 

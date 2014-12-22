@@ -17,10 +17,10 @@ package io.fabric8.kubernetes.provider.commands;
 
 import io.fabric8.boot.commands.support.AbstractCompleterComponent;
 import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.model.PodListSchema;
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ServiceListSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.provider.KubernetesService;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -63,11 +63,11 @@ public final class ServiceCompleter extends AbstractCompleterComponent {
         try {
             Kubernetes kubernetes = kubernetesService.getKubernetes();
             if (kubernetes != null) {
-                ServiceListSchema list = kubernetes.getServices();
+                ServiceList list = kubernetes.getServices();
                 if (list != null) {
-                    List<ServiceSchema> items = list.getItems();
+                    List<Service> items = list.getItems();
                     if (items != null) {
-                        for (ServiceSchema item : items) {
+                        for (Service item : items) {
                             String id = item.getId();
                             delegate.getStrings().add(id);
                         }

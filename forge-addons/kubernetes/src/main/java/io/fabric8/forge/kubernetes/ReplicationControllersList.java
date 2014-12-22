@@ -15,11 +15,12 @@
  */
 package io.fabric8.forge.kubernetes;
 
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.utils.Filter;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.ServiceListSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerState;
+import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.utils.TablePrinter;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -36,10 +37,13 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
+import static io.fabric8.kubernetes.api.KubernetesHelper.toPositiveNonZeroText;
+
 /**
- * Command to list services in kubernetes
+ * Command to list replication controllers in kubernetes
  */
-public class ServiceList extends AbstractKubernetesCommand {
+public class ReplicationControllersList extends AbstractKubernetesCommand {
 
     @Inject
     @WithAttributes(name = "filter", label = "The text filter used to filter pods using label selectors")
@@ -49,8 +53,8 @@ public class ServiceList extends AbstractKubernetesCommand {
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.from(super.getMetadata(context), getClass())
                 .category(Categories.create(CATEGORY))
-                .name(CATEGORY + ": Service List")
-                .description("Lists the services in a kubernetes cloud");
+                .name(CATEGORY + ": Replication Controller List")
+                .description("Lists the replication controllers in a kubernetes cloud");
     }
 
     @Override
@@ -62,24 +66,35 @@ public class ServiceList extends AbstractKubernetesCommand {
     @Override
     public Result execute(UIExecutionContext uiExecutionContext) throws Exception {
         Kubernetes kubernetes = getKubernetes();
-        ServiceListSchema services = kubernetes.getServices();
-        printServices(services, System.out);
+
+        ReplicationControllerList replicationControllers = kubernetes.getReplicationControllers();
+        printReplicationControllers(replicationControllers, System.out);
         return null;
     }
 
-    private void printServices(ServiceListSchema services, PrintStream out) {
+    private void printReplicationControllers(ReplicationControllerList replicationControllers, PrintStream out) {
         TablePrinter table = new TablePrinter();
-        table.columns("id", "labels", "selector", "port");
-        List<ServiceSchema> items = services.getItems();
+        table.columns("id", "labels", "replicas", "replica selector");
+        List<ReplicationController> items = replicationControllers.getItems();
         if (items == null) {
             items = Collections.EMPTY_LIST;
         }
-        Filter<ServiceSchema> filter = KubernetesHelper.createServiceFilter(filterText.getValue());
-        for (ServiceSchema item : items) {
+        Filter<ReplicationController> filter = KubernetesHelper.createReplicationControllerFilter(filterText.getValue());
+        for (ReplicationController item : items) {
             if (filter.matches(item)) {
+                String id = getId(item);
                 String labels = KubernetesHelper.toLabelsString(item.getLabels());
-                String selector = KubernetesHelper.toLabelsString(item.getSelector());
-                table.row(item.getId(), labels, selector, KubernetesHelper.toPositiveNonZeroText(item.getPort()));
+                Integer replicas = null;
+                ReplicationControllerState desiredState = item.getDesiredState();
+                ReplicationControllerState currentState = item.getCurrentState();
+                String selector = null;
+                if (desiredState != null) {
+                    selector = KubernetesHelper.toLabelsString(desiredState.getReplicaSelector());
+                }
+                if (currentState != null) {
+                    replicas = currentState.getReplicas();
+                }
+                table.row(id, labels, toPositiveNonZeroText(replicas), selector);
             }
         }
         table.print();

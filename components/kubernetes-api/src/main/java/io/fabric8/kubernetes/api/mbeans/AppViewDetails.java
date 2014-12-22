@@ -17,14 +17,16 @@
  */
 package io.fabric8.kubernetes.api.mbeans;
 
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.Strings;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 
 /**
  * Represents the App View of a single application
@@ -33,9 +35,9 @@ public class AppViewDetails {
     private final AppViewSnapshot snapshot;
     private final String appPath;
     private final String namespace;
-    private final Map<String, ServiceSchema> services = new HashMap<>();
-    private final Map<String, ReplicationControllerSchema> controllers = new HashMap<>();
-    private final Map<String, PodSchema> pods = new HashMap<>();
+    private final Map<String, Service> services = new HashMap<>();
+    private final Map<String, ReplicationController> controllers = new HashMap<>();
+    private final Map<String, Pod> pods = new HashMap<>();
 
     public AppViewDetails(AppViewSnapshot snapshot, String appPath, String namespace) {
         this.snapshot = snapshot;
@@ -55,41 +57,41 @@ public class AppViewDetails {
         return namespace;
     }
 
-    public Map<String, ServiceSchema> getServices() {
+    public Map<String, Service> getServices() {
         return services;
     }
 
-    public Map<String, ReplicationControllerSchema> getControllers() {
+    public Map<String, ReplicationController> getControllers() {
         return controllers;
     }
 
-    public Map<String, PodSchema> getPods() {
+    public Map<String, Pod> getPods() {
         return pods;
     }
 
-    public void addService(ServiceSchema service) {
-        String id = service.getId();
+    public void addService(Service service) {
+        String id = getId(service);
         if (Strings.isNotBlank(id)) {
             services.put(id, service);
         }
     }
 
-    public void addController(ReplicationControllerSchema controller) {
-        String id = controller.getId();
+    public void addController(ReplicationController controller) {
+        String id = getId(controller);
         if (Strings.isNotBlank(id)) {
             controllers.put(id, controller);
 
 
             // now lets find all the pods that are active for this
-            List<PodSchema> pods = snapshot.podsForReplicationController(controller);
-            for (PodSchema pod : pods) {
+            List<Pod> pods = snapshot.podsForReplicationController(controller);
+            for (Pod pod : pods) {
                 addPod(pod);
             }
         }
     }
 
-    public void addPod(PodSchema pod) {
-        String id = pod.getId();
+    public void addPod(Pod pod) {
+        String id = getId(pod);
         if (Strings.isNotBlank(id)) {
             pods.put(id, pod);
         }
@@ -97,13 +99,13 @@ public class AppViewDetails {
 
     public AppSummaryDTO getSummary() {
         AppSummaryDTO answer = new AppSummaryDTO(appPath, namespace);
-        for (ServiceSchema service : getServices().values()) {
+        for (Service service : getServices().values()) {
             answer.addServiceSummary(new AppServiceSummaryDTO(service));
         }
-        for (ReplicationControllerSchema controller : getControllers().values()) {
+        for (ReplicationController controller : getControllers().values()) {
             answer.addReplicationControllerSummary(new AppReplicationControllerSummaryDTO(controller));
         }
-        for (PodSchema pod : getPods().values()) {
+        for (Pod pod : getPods().values()) {
             answer.addPodSummary(new AppPodSummaryDTO(pod));
         }
         return answer;

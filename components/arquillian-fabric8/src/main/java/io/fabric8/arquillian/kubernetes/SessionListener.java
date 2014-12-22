@@ -24,10 +24,10 @@ import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.Entity;
 import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.model.Config;
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.Config;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
 import java.util.HashMap;
@@ -49,24 +49,24 @@ public class SessionListener {
             log.info("Applying kubernetes configuration from: "+configuration.getConfigUrl());
             Object dto = loadJson(readAsString(configuration.getConfigUrl()));
             if (dto instanceof Config) {
-                for (Entity entity : getEntities((Config) dto)) {
-                    if (entity instanceof PodSchema) {
-                        PodSchema pod = (PodSchema) entity;
+                for (Object entity : getEntities((Config) dto)) {
+                    if (entity instanceof Pod) {
+                        Pod pod = (Pod) entity;
                         if (pod.getLabels() == null) {
                             pod.setLabels(new HashMap<String, String>());
                         }
                         pod.getLabels().put(Constants.ARQ_KEY, event.getSession().getId());
                         controller.applyPod(pod, event.getSession().getId());
                         shouldWait = true;
-                    } else if (entity instanceof ServiceSchema) {
-                        ServiceSchema service = (ServiceSchema) entity;
+                    } else if (entity instanceof Service) {
+                        Service service = (Service) entity;
                         if (service.getLabels() == null) {
                             service.setLabels(new HashMap<String, String>());
                         }
                         service.getLabels().put(Constants.ARQ_KEY, event.getSession().getId());
                         controller.applyService(service, event.getSession().getId());
-                    } else if (entity instanceof ReplicationControllerSchema) {
-                        ReplicationControllerSchema replicationController = (ReplicationControllerSchema) entity;
+                    } else if (entity instanceof ReplicationController) {
+                        ReplicationController replicationController = (ReplicationController) entity;
                         replicationController.getDesiredState().getPodTemplate().getLabels().put(Constants.ARQ_KEY, event.getSession().getId());
                         if (replicationController.getLabels() == null) {
                             replicationController.setLabels(new HashMap<String, String>());

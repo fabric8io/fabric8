@@ -1,13 +1,17 @@
 {
   "kind": "Service",
   "apiVersion": "v1beta1",
-  "id": "example",
-  "containerPort": 80,
-  "port": 8000,
+  "uid": "example",
   "labels": {
-     "name": "nginx"
+    "name": "nginx"
   },
-  "selector": {
-     "name": "nginx"
+  "spec": {
+    "containerPort": {
+      "IntVal": 80
+    },
+    "port": 8000,
+    "selector": {
+      "name": "nginx"
+    }
   }
 }

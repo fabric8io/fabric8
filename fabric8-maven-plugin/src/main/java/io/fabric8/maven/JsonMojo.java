@@ -21,7 +21,7 @@ import io.fabric8.utils.Function;
 import io.fabric8.utils.Lists;
 import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.Env;
+import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.template.GenerateTemplateDTO;
 import io.fabric8.kubernetes.template.TemplateGenerator;
@@ -112,7 +112,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
      * If no value is explicitly configured in the maven plugin then we use all maven properties starting with "fabric8.env."
      */
     @Parameter()
-    private List<Env> environmentVariables;
+    private List<EnvVar> environmentVariables;
 
     /**
      * The ports passed into the generated Kubernetes JSON template.
@@ -382,10 +382,10 @@ public class JsonMojo extends AbstractFabric8Mojo {
         return answer;
     }
 
-    protected static Env getOrCreateEnv(Map<String, Env> envMap, String name) {
-        Env answer = envMap.get(name);
+    protected static EnvVar getOrCreateEnv(Map<String, EnvVar> envMap, String name) {
+        EnvVar answer = envMap.get(name);
         if (answer == null) {
-            answer = new Env();
+            answer = new EnvVar();
             envMap.put(name, answer);
         }
         return answer;
@@ -416,12 +416,12 @@ public class JsonMojo extends AbstractFabric8Mojo {
         return labels;
     }
 
-    public List<Env> getEnvironmentVariables() {
+    public List<EnvVar> getEnvironmentVariables() {
         if (environmentVariables == null) {
-            environmentVariables = new ArrayList<Env>();
+            environmentVariables = new ArrayList<EnvVar>();
         }
         if (environmentVariables.isEmpty()) {
-            Map<String, Env> envMap = new HashMap<>();
+            Map<String, EnvVar> envMap = new HashMap<>();
             Map<String, String> envs = findPropertiesWithPrefix(getProject().getProperties(), "fabric8.env.", Strings.toEnvironmentVariableFunction());
 
             for (Map.Entry<String, String> entry : envs.entrySet()) {
@@ -429,7 +429,7 @@ public class JsonMojo extends AbstractFabric8Mojo {
                 String value = entry.getValue();
 
                 if (name != null) {
-                    Env env = getOrCreateEnv(envMap, name);
+                    EnvVar env = getOrCreateEnv(envMap, name);
                     env.setName(name);
 
                     if (env.getValue() == null) {

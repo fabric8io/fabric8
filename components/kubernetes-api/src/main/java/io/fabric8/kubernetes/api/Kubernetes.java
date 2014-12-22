@@ -15,12 +15,12 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.PodListSchema;
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerListSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-import io.fabric8.kubernetes.api.model.ServiceListSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerList;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceList;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -46,7 +46,7 @@ public interface Kubernetes {
      */
     @GET
     @Path("pods")
-    PodListSchema getPods();
+    PodList getPods();
 
 
     /**
@@ -87,7 +87,7 @@ public interface Kubernetes {
     @POST
     @Path("pods")
     @Consumes("application/json")
-    String createPod(PodSchema entity) throws Exception;
+    String createPod(Pod entity) throws Exception;
 
     /**
      * Get a specific pod
@@ -96,7 +96,7 @@ public interface Kubernetes {
      */
     @GET
     @Path("pods/{podId}")
-    PodSchema getPod(@PathParam("podId") @NotNull String podId);
+    Pod getPod(@PathParam("podId") @NotNull String podId);
 
     /**
      * Update a pod
@@ -137,7 +137,7 @@ public interface Kubernetes {
     @PUT
     @Path("pods/{podId}")
     @Consumes("application/json")
-    String updatePod(@PathParam("podId") @NotNull String podId, PodSchema entity) throws Exception;
+    String updatePod(@PathParam("podId") @NotNull String podId, Pod entity) throws Exception;
 
     /**
      * Delete a specific pod
@@ -156,7 +156,7 @@ public interface Kubernetes {
     @Path("services")
     @GET
     @Produces("application/json")
-    ServiceListSchema getServices();
+    ServiceList getServices();
 
     /**
      * Create a new service
@@ -177,7 +177,7 @@ public interface Kubernetes {
     @Path("services")
     @POST
     @Consumes("application/json")
-    String createService(ServiceSchema entity) throws Exception;
+    String createService(Service entity) throws Exception;
 
     /**
      * Get a specific service
@@ -187,7 +187,7 @@ public interface Kubernetes {
     @GET
     @Path("services/{serviceId}")
     @Produces("application/json")
-    ServiceSchema getService(@PathParam("serviceId") @NotNull String serviceId);
+    Service getService(@PathParam("serviceId") @NotNull String serviceId);
 
     /**
      * Update a service
@@ -209,7 +209,7 @@ public interface Kubernetes {
     @PUT
     @Path("services/{serviceId}")
     @Consumes("application/json")
-    String updateService(@PathParam("serviceId") @NotNull String serviceId, ServiceSchema entity) throws Exception;
+    String updateService(@PathParam("serviceId") @NotNull String serviceId, Service entity) throws Exception;
 
     /**
      * Delete a specific service
@@ -229,7 +229,7 @@ public interface Kubernetes {
     @Path("replicationControllers")
     @GET
     @Produces("application/json")
-    ReplicationControllerListSchema getReplicationControllers();
+    ReplicationControllerList getReplicationControllers();
 
     /**
      * Create a new controller. currentState is ignored if present.
@@ -261,7 +261,7 @@ public interface Kubernetes {
     @Path("replicationControllers")
     @POST
     @Consumes("application/json")
-    String createReplicationController(ReplicationControllerSchema entity) throws Exception;
+    String createReplicationController(ReplicationController entity) throws Exception;
 
     /**
      * Get a specific controller
@@ -271,7 +271,7 @@ public interface Kubernetes {
     @GET
     @Path("replicationControllers/{controllerId}")
     @Produces("application/json")
-    ReplicationControllerSchema getReplicationController(@PathParam("controllerId") @NotNull String controllerId);
+    ReplicationController getReplicationController(@PathParam("controllerId") @NotNull String controllerId);
 
     /**
      * Update a controller
@@ -304,7 +304,7 @@ public interface Kubernetes {
     @PUT
     @Path("replicationControllers/{controllerId}")
     @Consumes("application/json")
-    String updateReplicationController(@PathParam("controllerId") @NotNull String controllerId, ReplicationControllerSchema entity) throws Exception;
+    String updateReplicationController(@PathParam("controllerId") @NotNull String controllerId, ReplicationController entity) throws Exception;
 
     /**
      * Delete a specific controller

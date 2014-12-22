@@ -15,13 +15,15 @@
  */
 package io.fabric8.kubernetes.api;
 
-import java.io.File;
-import java.io.IOException;
-
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceSpec;
+import io.fabric8.kubernetes.api.model.util.IntOrString;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
 
 import static io.fabric8.utils.Files.assertFileExists;
 import static org.junit.Assert.assertNotNull;
@@ -36,10 +38,12 @@ public class ParseServiceTest {
 
     @Test
     public void testParseFabric8MQService() throws Exception {
-        ServiceSchema service = assertParseTestFile("fmq-service.json", ServiceSchema.class);
-        Integer port = service.getPort();
+        Service service = assertParseTestFile("fmq-service.json", Service.class);
+        ServiceSpec spec = service.getSpec();
+        assertNotNull("spec", spec);
+        Integer port = spec.getPort();
         assertNotNull("port", port);
-        IntOrString containerPort = service.getContainerPort();
+        IntOrString containerPort = spec.getContainerPort();
         assertNotNull("containerPort", containerPort);
 
         String json = KubernetesHelper.toJson(service);
@@ -52,10 +56,10 @@ public class ParseServiceTest {
         File json = new File(baseDirPath, "target/test-classes/" + relativePath);
         assertFileExists(json);
 
-        Object answer =  KubernetesHelper.loadJson(json);
+        Object answer = KubernetesHelper.loadJson(json);
         assertNotNull("Null returned while unmarshalling " + json, answer);
         LOG.info("Parsed: " + json + " as: " + answer);
-        assertTrue("Result " + answer + " is not an instance of " +  clazz.getName() + " but was " + (answer == null ? "null" : answer.getClass().getName()),
+        assertTrue("Result " + answer + " is not an instance of " + clazz.getName() + " but was " + (answer == null ? "null" : answer.getClass().getName()),
                 clazz.isInstance(answer));
         return clazz.cast(answer);
     }

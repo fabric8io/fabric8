@@ -77,7 +77,7 @@ public class HeadersCommand extends CommandSupport {
         } else {
             FabBundleInfo info = getFabBundleInfo(fab);
             if (info != null) {
-                attributes = info.getManifest();
+                attributes = info.getContainerManifest();
             }
         }
 

@@ -89,7 +89,7 @@ public class Versions {
     public static String getOSGiPackageVersion(DependencyTree dependency, String packageName) {
         // lets find the export packages and use the version from that
         if (dependency.isBundle()) {
-            String exportPackages = dependency.getManifestEntry("Export-Package");
+            String exportPackages = dependency.getContainerManifestEntry("Export-Package");
             if (notEmpty(exportPackages)) {
                 Parameters values = new Analyzer().parseHeader(exportPackages);
                 Map<String, String> map = values.get(packageName);

@@ -17,7 +17,7 @@
  */
 package io.fabric8.kubernetes.assertions;
 
-import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.Pod;
 import org.assertj.core.api.Condition;
 import org.assertj.core.api.ListAssert;
 import org.assertj.core.api.filter.Filters;
@@ -30,13 +30,13 @@ import static io.fabric8.kubernetes.assertions.Conditions.podLabel;
 /**
  * Adds some extra assertion operations
  */
-public class PodsAssert extends ListAssert<PodSchema> {
+public class PodsAssert extends ListAssert<Pod> {
 
-    public PodsAssert(List<PodSchema> actual) {
+    public PodsAssert(List<Pod> actual) {
         super(actual);
     }
 
-    public PodsAssert filter(Condition<PodSchema> condition) {
+    public PodsAssert filter(Condition<Pod> condition) {
         return assertThat(Filters.filter(actual).having(condition).get());
     }
 
@@ -68,8 +68,8 @@ public class PodsAssert extends ListAssert<PodSchema> {
         return filter(Conditions.errorStatus());
     }
 
-    protected static PodsAssert assertThat(Iterable<PodSchema> result) {
-        List<PodSchema> list = Lists.newArrayList(result);
+    protected static PodsAssert assertThat(Iterable<Pod> result) {
+        List<Pod> list = Lists.newArrayList(result);
         return new PodsAssert(list);
     }
 }

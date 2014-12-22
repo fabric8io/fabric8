@@ -20,8 +20,8 @@ import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.ServiceListSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.Filter;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.model.ServiceListSchema}.
+ * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.model.ServiceList}.
  * It refers to services that have been created during the current session.
  */
 public class ServiceListResourceProvider implements ResourceProvider {
@@ -48,7 +48,7 @@ public class ServiceListResourceProvider implements ResourceProvider {
 
     @Override
     public boolean canProvide(Class<?> type) {
-        return ServiceListSchema.class.isAssignableFrom(type);
+        return ServiceList.class.isAssignableFrom(type);
     }
 
     @Override
@@ -57,11 +57,11 @@ public class ServiceListResourceProvider implements ResourceProvider {
         Session session = sessionInstance.get();
 
         Map<String, String> labels = Collections.singletonMap(Constants.ARQ_KEY, session.getId());
-        Filter<ServiceSchema> serviceFilter = KubernetesHelper.createServiceFilter(labels);
-        ServiceListSchema services = client.getServices();
-        List<ServiceSchema> sessionServices = new ArrayList<>();
+        Filter<Service> serviceFilter = KubernetesHelper.createServiceFilter(labels);
+        ServiceList services = client.getServices();
+        List<Service> sessionServices = new ArrayList<>();
 
-        for (ServiceSchema service : client.getServices().getItems()) {
+        for (Service service : client.getServices().getItems()) {
             if (serviceFilter.matches(service)) {
                 sessionServices.add(service);
             }

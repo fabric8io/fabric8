@@ -15,24 +15,21 @@
  */
 package io.fabric8.kubernetes.jolokia;
 
-import io.fabric8.kubernetes.api.model.CurrentState;
-import io.fabric8.kubernetes.api.model.DetailInfo;
-import io.fabric8.kubernetes.api.model.PodCurrentContainerInfo;
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesFactory;
-import io.fabric8.kubernetes.api.model.ManifestContainer;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerManifest;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodState;
 import io.fabric8.kubernetes.api.model.Port;
+import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.J4pClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getDockerIp;
@@ -62,7 +59,7 @@ public class JolokiaClients {
     /**
      * Returns the jolokia client for the given container
      */
-    public J4pClient jolokiaClient(String host, ManifestContainer container, PodSchema pod) {
+    public J4pClient jolokiaClient(String host, Container container, Pod pod) {
         if (container != null) {
             List<Port> ports = container.getPorts();
             for (Port port : ports) {
@@ -70,7 +67,7 @@ public class JolokiaClients {
                 if (containerPort != null) {
                     String name = port.getName();
                     if (containerPort == 8778 || (Objects.equals("jolokia", name) && containerPort.intValue() > 0)) {
-                        CurrentState currentState = pod.getCurrentState();
+                        PodState currentState = pod.getCurrentState();
                         String podIP = currentState.getPodIP();
                         if (Strings.isNotBlank(podIP)) {
                             return createJolokiaClientFromHostAndPort(container, podIP, containerPort);
@@ -97,7 +94,7 @@ public class JolokiaClients {
         return null;
     }
 
-    protected J4pClient createJolokiaClientFromHostAndPort(ManifestContainer container, String host, Integer hostPort) {
+    protected J4pClient createJolokiaClientFromHostAndPort(Container container, String host, Integer hostPort) {
         String jolokiaUrl = "http://" + host + ":" + hostPort + "/jolokia/";
         return createJolokiaClient(container, jolokiaUrl);
     }
@@ -105,14 +102,25 @@ public class JolokiaClients {
     /**
      * Returns true if we detect we are running inside docker
      */
-    protected boolean hasDocker(PodSchema pod) {
-        CurrentState currentState = pod.getCurrentState();
+    protected boolean hasDocker(Pod pod) {
+        PodState currentState = pod.getCurrentState();
         if (currentState != null) {
-            Map<String, PodCurrentContainerInfo> info = currentState.getInfo();
+            ContainerManifest manifest = currentState.getManifest();
+            if (manifest != null) {
+                List<Container> containers = manifest.getContainers();
+                for (Container container : containers) {
+                    Integer memory = container.getMemory();
+                    if (memory != null && memory.intValue() > 0) {
+                        return true;
+                    }
+                }
+            }
+/*
+            Map<String, ContainerStatus> info = currentState.getInfo();
             if (info != null) {
-                Collection<PodCurrentContainerInfo> containers = info.values();
-                for (PodCurrentContainerInfo container : containers) {
-                    DetailInfo detailInfo = container.getDetailInfo();
+                Collection<ContainerStatus> containers = info.values();
+                for (ContainerStatus container : containers) {
+                    DetailInfo detailInfo = container.get();
                     if (detailInfo != null) {
                         Map<String, Object> additionalProperties = detailInfo.getAdditionalProperties();
                         if (additionalProperties != null) {
@@ -123,6 +131,7 @@ public class JolokiaClients {
                     }
                 }
             }
+*/
         }
         return false;
     }
@@ -143,7 +152,7 @@ public class JolokiaClients {
         this.password = password;
     }
 
-    protected J4pClient createJolokiaClient(ManifestContainer container, String jolokiaUrl) {
+    protected J4pClient createJolokiaClient(Container container, String jolokiaUrl) {
         String name = container.getName();
         LOG.info("Creating jolokia client for : " + name + " at URL: " + jolokiaUrl);
         J4pClientBuilder builder = J4pClient.url(jolokiaUrl);

@@ -107,9 +107,9 @@ public class FabBundleInfoImpl implements FabBundleInfo, VersionResolver {
     }
 
     @Override
-    public Attributes getManifest() {
+    public Attributes getContainerManifest() {
         try {
-            return getOrCreateJar().getManifest().getMainAttributes();
+            return getOrCreateJar().getContainerManifest().getMainAttributes();
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
@@ -146,7 +146,7 @@ public class FabBundleInfoImpl implements FabBundleInfo, VersionResolver {
         if (dependency != null) {
             // lets find the export packages and use the version from that
             if (dependency.isBundle()) {
-                String exportPackages = dependency.getManifestEntry("Export-Package");
+                String exportPackages = dependency.getContainerManifestEntry("Export-Package");
                 if (notEmpty(exportPackages)) {
                     Parameters values = new Analyzer().parseHeader(exportPackages);
                     Map<String, String> map = values.get(packageName);
@@ -219,7 +219,7 @@ public class FabBundleInfoImpl implements FabBundleInfo, VersionResolver {
 
     public String toVersionRange(String version) {
         int digits = ServiceConstants.DEFAULT_VERSION_DIGITS;
-        String value = classPathResolver.getManifestProperty(ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS);
+        String value = classPathResolver.getContainerManifestProperty(ServiceConstants.INSTR_FAB_VERSION_RANGE_DIGITS);
         if (notEmpty(value)) {
             try {
                 digits = Integer.parseInt(value);

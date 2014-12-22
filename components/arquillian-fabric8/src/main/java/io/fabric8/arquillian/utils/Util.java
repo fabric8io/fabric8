@@ -21,9 +21,10 @@ import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.MultiException;
 
@@ -32,6 +33,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 
 public class Util {
 
@@ -50,24 +53,25 @@ public class Util {
 
     public static void displaySessionStatus(KubernetesClient client, Session session) throws MultiException {
         Map<String, String> labels = Collections.singletonMap(Constants.ARQ_KEY, session.getId());
-        Filter<PodSchema> podFilter = KubernetesHelper.createPodFilter(labels);
-        Filter<ServiceSchema> serviceFilter = KubernetesHelper.createServiceFilter(labels);
-        Filter<ReplicationControllerSchema> replicationControllerFilter = KubernetesHelper.createReplicationControllerFilter(labels);
+        Filter<Pod> podFilter = KubernetesHelper.createPodFilter(labels);
+        Filter<Service> serviceFilter = KubernetesHelper.createServiceFilter(labels);
+        Filter<ReplicationController> replicationControllerFilter = KubernetesHelper.createReplicationControllerFilter(labels);
 
-        for (ReplicationControllerSchema replicationController : client.getReplicationControllers().getItems()) {
+        for (ReplicationController replicationController : client.getReplicationControllers().getItems()) {
             if (replicationControllerFilter.matches(replicationController)) {
-                session.getLogger().info("Replication controller:" + replicationController.getId());
+                session.getLogger().info("Replication controller:" + getId(replicationController));
             }
         }
 
-        for (PodSchema pod : client.getPods().getItems()) {
+        for (Pod pod : client.getPods().getItems()) {
             if (podFilter.matches(pod)) {
-                session.getLogger().info("Pod:" + pod.getId() + " Status:" + pod.getCurrentState().getStatus());
+                session.getLogger().info("Pod:" + getId(pod) + " Status:" + pod.getCurrentState().getStatus());
             }
         }
-        for (ServiceSchema service : client.getServices().getItems()) {
-            if (serviceFilter.matches(service)) {
-                session.getLogger().info("Service:" + service.getId() + " IP:" + service.getPortalIP() + " Port:" + service.getPort());
+        for (Service service : client.getServices().getItems()) {
+            ServiceSpec spec = service.getSpec();
+            if (spec != null && serviceFilter.matches(service)) {
+                session.getLogger().info("Service:" + getId(service) + " IP:" + spec.getPortalIP() + " Port:" + spec.getPort());
             }
         }
 
@@ -75,9 +79,9 @@ public class Util {
 
     public static void cleanupSession(KubernetesClient client, Session session) throws MultiException {
         Map<String, String> labels = Collections.singletonMap(Constants.ARQ_KEY, session.getId());
-        Filter<PodSchema> podFilter = KubernetesHelper.createPodFilter(labels);
-        Filter<ServiceSchema> serviceFilter = KubernetesHelper.createServiceFilter(labels);
-        Filter<ReplicationControllerSchema> replicationControllerFilter = KubernetesHelper.createReplicationControllerFilter(labels);
+        Filter<Pod> podFilter = KubernetesHelper.createPodFilter(labels);
+        Filter<Service> serviceFilter = KubernetesHelper.createServiceFilter(labels);
+        Filter<ReplicationController> replicationControllerFilter = KubernetesHelper.createReplicationControllerFilter(labels);
 
         List<Throwable> errors = new ArrayList<>();
 
@@ -104,9 +108,9 @@ public class Util {
         }
     }
 
-    public static List<PodSchema> findPods(KubernetesClient client, Filter<PodSchema> filter) throws MultiException {
-        List<PodSchema> pods = new ArrayList<>();
-        for (PodSchema pod : client.getPods().getItems()) {
+    public static List<Pod> findPods(KubernetesClient client, Filter<Pod> filter) throws MultiException {
+        List<Pod> pods = new ArrayList<>();
+        for (Pod pod : client.getPods().getItems()) {
             if (filter.matches(pod)) {
                 pods.add(pod);
             }
@@ -114,13 +118,13 @@ public class Util {
         return pods;
     }
 
-    public static void deletePods(KubernetesClient client, Logger logger, Filter<PodSchema> filter) throws MultiException {
+    public static void deletePods(KubernetesClient client, Logger logger, Filter<Pod> filter) throws MultiException {
         List<Throwable> errors = new ArrayList<>();
-        for (PodSchema pod : client.getPods().getItems()) {
+        for (Pod pod : client.getPods().getItems()) {
             if (filter.matches(pod)) {
                 try {
-                    logger.info("Deleting pod:" + pod.getId());
-                    client.deletePod(pod.getId());
+                    logger.info("Deleting pod:" + getId(pod));
+                    client.deletePod(getId(pod));
                 } catch (Exception e) {
                     errors.add(e);
                 }
@@ -131,9 +135,9 @@ public class Util {
         }
     }
 
-    public static List<ServiceSchema> findServices(KubernetesClient client, Filter<ServiceSchema> filter) throws MultiException {
-        List<ServiceSchema> services = new ArrayList<>();
-        for (ServiceSchema service : client.getServices().getItems()) {
+    public static List<Service> findServices(KubernetesClient client, Filter<Service> filter) throws MultiException {
+        List<Service> services = new ArrayList<>();
+        for (Service service : client.getServices().getItems()) {
             if (filter.matches(service)) {
                 services.add(service);
             }
@@ -141,13 +145,13 @@ public class Util {
         return services;
     }
 
-    public static void deleteServices(KubernetesClient client, Logger logger, Filter<ServiceSchema> filter) throws MultiException {
+    public static void deleteServices(KubernetesClient client, Logger logger, Filter<Service> filter) throws MultiException {
         List<Throwable> errors = new ArrayList<>();
-        for (ServiceSchema service : client.getServices().getItems()) {
+        for (Service service : client.getServices().getItems()) {
             if (filter.matches(service)) {
                 try {
-                    logger.info("Deleting service:" + service.getId());
-                    client.deleteService(service.getId());
+                    logger.info("Deleting service:" + getId(service));
+                    client.deleteService(getId(service));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -158,9 +162,9 @@ public class Util {
         }
     }
 
-    public static List<ReplicationControllerSchema> findReplicationControllers(KubernetesClient client, Filter<ReplicationControllerSchema> filter) throws MultiException {
-        List<ReplicationControllerSchema> replicationControllers = new ArrayList<>();
-        for (ReplicationControllerSchema replicationController : client.getReplicationControllers().getItems()) {
+    public static List<ReplicationController> findReplicationControllers(KubernetesClient client, Filter<ReplicationController> filter) throws MultiException {
+        List<ReplicationController> replicationControllers = new ArrayList<>();
+        for (ReplicationController replicationController : client.getReplicationControllers().getItems()) {
             if (filter.matches(replicationController)) {
                 replicationControllers.add(replicationController);
             }
@@ -168,13 +172,13 @@ public class Util {
         return replicationControllers;
     }
 
-    public static void deleteReplicationControllers(KubernetesClient client, Logger logger, Filter<ReplicationControllerSchema> filter) throws MultiException {
+    public static void deleteReplicationControllers(KubernetesClient client, Logger logger, Filter<ReplicationController> filter) throws MultiException {
         List<Throwable> errors = new ArrayList<>();
-        for (ReplicationControllerSchema replicationController : client.getReplicationControllers().getItems()) {
+        for (ReplicationController replicationController : client.getReplicationControllers().getItems()) {
             if (filter.matches(replicationController)) {
                 try {
-                    logger.info("Deleting replication controller:" + replicationController.getId());
-                    client.deleteReplicationController(replicationController.getId());
+                    logger.info("Deleting replication controller:" + getId(replicationController));
+                    client.deleteReplicationController(getId(replicationController));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

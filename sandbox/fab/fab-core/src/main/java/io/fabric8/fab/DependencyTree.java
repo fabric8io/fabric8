@@ -33,7 +33,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
-import io.fabric8.utils.Manifests;
+import io.fabric8.utils.ContainerManifests;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.slf4j.Logger;
@@ -430,7 +430,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
     }
 
     public String getBundleSymbolicName() {
-        String bundleId = getManifestBundleSymbolicName();
+        String bundleId = getContainerManifestBundleSymbolicName();
         if (bundleId != null) {
             return bundleId;
         }
@@ -443,16 +443,16 @@ public class DependencyTree implements Comparable<DependencyTree> {
         }
     }
 
-    protected String getManifestBundleSymbolicName() {
-        return getManifestEntry(Constants.INSTR_BUNDLE_SYMBOLIC_NAME);
+    protected String getContainerManifestBundleSymbolicName() {
+        return getContainerManifestEntry(Constants.INSTR_BUNDLE_SYMBOLIC_NAME);
     }
 
     /**
      * Returns the entry from the manifest for the given name
      */
-    public String getManifestEntry(String attributeName) {
+    public String getContainerManifestEntry(String attributeName) {
         try {
-            return Manifests.getManifestEntry(getJarFile(), attributeName);
+            return ContainerManifests.getContainerManifestEntry(getJarFile(), attributeName);
         } catch (IOException e) {
             // ignore...
             return null;
@@ -476,7 +476,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
 
     public boolean isBundle() {
         // TODO is this the best way to test that a dependency is an osgi bundle?
-        return getManifestBundleSymbolicName() != null;
+        return getContainerManifestBundleSymbolicName() != null;
     }
 
     public Set<String> getPackages() throws IOException {
@@ -524,7 +524,7 @@ public class DependencyTree implements Comparable<DependencyTree> {
      * Returns true if this bundle is a bundle fragment
      */
     public boolean isBundleFragment() {
-        return isBundle() && Strings.notEmpty(getManifestEntry("Fragment-Host"));
+        return isBundle() && Strings.notEmpty(getContainerManifestEntry("Fragment-Host"));
     }
 
     // Helper classes

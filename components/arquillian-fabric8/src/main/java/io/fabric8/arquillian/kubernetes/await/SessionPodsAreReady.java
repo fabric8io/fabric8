@@ -22,7 +22,7 @@ import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.PodStatus;
-import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Objects;
 
@@ -45,15 +45,15 @@ public class SessionPodsAreReady implements Callable<Boolean> {
     public Boolean call() throws Exception {
         boolean result = true;
         Map<String, String> labels = Collections.singletonMap(Constants.ARQ_KEY, session.getId());
-        Filter<PodSchema> podFilter = KubernetesHelper.createPodFilter(labels);
-        List<PodSchema> pods = Util.findPods(kubernetesClient, podFilter);
+        Filter<Pod> podFilter = KubernetesHelper.createPodFilter(labels);
+        List<Pod> pods = Util.findPods(kubernetesClient, podFilter);
 
         if (pods.isEmpty()) {
             result = false;
             session.getLogger().warn("No pods are available yet, waiting...");
         }
 
-        for (PodSchema pod : pods) {
+        for (Pod pod : pods) {
             result = result && Objects.equal(PodStatus.OK, KubernetesHelper.getPodStatus(pod));
             if (!result) {
                 session.getLogger().warn("Waiting for pods to reach 'running' state...");

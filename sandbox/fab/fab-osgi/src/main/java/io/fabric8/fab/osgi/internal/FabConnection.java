@@ -164,7 +164,7 @@ public class FabConnection extends URLConnection  {
             for (DependencyTree dependency : info.getBundles()) {
                 if (dependency.isBundle()) {
                     // Expand the actual imports list with imports of our dependencies
-                    String importPackages = dependency.getManifestEntry(Analyzer.IMPORT_PACKAGE);
+                    String importPackages = dependency.getContainerManifestEntry(Analyzer.IMPORT_PACKAGE);
                     if( notEmpty(importPackages) ) {
                         Parameters values = new Analyzer().parseHeader(importPackages);
                         for (Map.Entry<String, Attrs> entry : values.entrySet()) {
@@ -195,7 +195,7 @@ public class FabConnection extends URLConnection  {
                     // we may be dependent on the actual service it exposes rather than packages we import...
                     boolean hasNoPendingPackagesOrServices = false;
                     if (missing.isEmpty()) {
-                        Set<Service> services = Services.parseHeader(dependency.getManifestEntry("Export-Service"));
+                        Set<Service> services = Services.parseHeader(dependency.getContainerManifestEntry("Export-Service"));
                         
                         if (services.isEmpty() || Services.isAvailable(bundleContext, services)) {
                             hasNoPendingPackagesOrServices = true;

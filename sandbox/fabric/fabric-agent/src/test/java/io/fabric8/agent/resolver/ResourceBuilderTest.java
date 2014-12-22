@@ -44,7 +44,7 @@ public class ResourceBuilderTest extends TestCase {
             resource = URI.create(resource).getPath();
         }
         JarFile jar = new JarFile(resource);
-        Attributes attributes = jar.getManifest().getMainAttributes();
+        Attributes attributes = jar.getContainerManifest().getMainAttributes();
         Map<String, String> headers = new HashMap<String, String>();
         for (Map.Entry key : attributes.entrySet()) {
             headers.put(key.getKey().toString(), key.getValue().toString());

@@ -29,7 +29,7 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+import java.util.jar.ContainerManifest;
 
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.gravia.resource.Attachable;
@@ -41,7 +41,7 @@ import org.jboss.gravia.runtime.ServiceListener;
 import org.jboss.gravia.runtime.ServiceReference;
 import org.jboss.gravia.runtime.spi.AbstractModule;
 import org.jboss.gravia.runtime.spi.ClassLoaderEntriesProvider;
-import org.jboss.gravia.runtime.spi.ManifestHeadersProvider;
+import org.jboss.gravia.runtime.spi.ContainerManifestHeadersProvider;
 import org.jboss.gravia.runtime.spi.ModuleEntriesProvider;
 import org.jboss.modules.ModuleClassLoader;
 import org.jboss.msc.service.AbstractService;
@@ -112,8 +112,8 @@ public class FabricBootstrapService extends AbstractService<ZooKeeperClusterBoot
         ModuleClassLoader classLoader = (ModuleClassLoader) getClass().getClassLoader();
         try {
             URL url = classLoader.getResource(JarFile.MANIFEST_NAME);
-            Manifest manifest = new Manifest(url.openStream());
-            Dictionary<String, String> headers = new ManifestHeadersProvider(manifest).getHeaders();
+            ContainerManifest manifest = new ContainerManifest(url.openStream());
+            Dictionary<String, String> headers = new ContainerManifestHeadersProvider(manifest).getHeaders();
             module = runtime.installModule(classLoader, headers);
 
             // Attach the {@link ModuleEntriesProvider} so

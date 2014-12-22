@@ -18,9 +18,9 @@
 package io.fabric8.kubernetes.api.mbeans;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,11 +31,11 @@ import java.util.Map;
  */
 public class AppViewSnapshot {
     private final Map<NamespaceAndAppPath, AppViewDetails> apps = new HashMap<>();
-    private final Map<String, ServiceSchema> servicesMap;
-    private final Map<String, ReplicationControllerSchema> controllerMap;
-    private final Map<String, PodSchema> podMap;
+    private final Map<String, Service> servicesMap;
+    private final Map<String, ReplicationController> controllerMap;
+    private final Map<String, Pod> podMap;
 
-    public AppViewSnapshot(Map<String, ServiceSchema> servicesMap, Map<String, ReplicationControllerSchema> controllerMap, Map<String, PodSchema> podMap) {
+    public AppViewSnapshot(Map<String, Service> servicesMap, Map<String, ReplicationController> controllerMap, Map<String, Pod> podMap) {
         this.servicesMap = servicesMap;
         this.controllerMap = controllerMap;
         this.podMap = podMap;
@@ -56,19 +56,19 @@ public class AppViewSnapshot {
         return apps;
     }
 
-    public Map<String, ReplicationControllerSchema> getControllerMap() {
+    public Map<String, ReplicationController> getControllerMap() {
         return controllerMap;
     }
 
-    public Map<String, PodSchema> getPodMap() {
+    public Map<String, Pod> getPodMap() {
         return podMap;
     }
 
-    public Map<String, ServiceSchema> getServicesMap() {
+    public Map<String, Service> getServicesMap() {
         return servicesMap;
     }
 
-    public List<PodSchema> podsForReplicationController(ReplicationControllerSchema controller) {
+    public List<Pod> podsForReplicationController(ReplicationController controller) {
         return KubernetesHelper.getPodsForReplicationController(controller, podMap.values());
     }
 }

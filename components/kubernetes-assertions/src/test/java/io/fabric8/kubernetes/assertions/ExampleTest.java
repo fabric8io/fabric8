@@ -17,7 +17,7 @@
  */
 package io.fabric8.kubernetes.assertions;
 
-import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.utils.Block;
 import org.junit.Test;
 
@@ -38,16 +38,16 @@ public class ExampleTest {
         Map<String, String> expectedLabels = new HashMap<>();
         expectedLabels.put("foo", "bar");
 
-        final PodSchema pod = new PodSchema();
-        pod.setId(expectedId);
+        final Pod pod = new Pod();
+        pod.setUid(expectedId);
         pod.setLabels(expectedLabels);
 
-        assertThat(pod).hasId(expectedId).hasLabels(expectedLabels);
+        assertThat(pod).hasUid(expectedId).hasLabels(expectedLabels);
 
         assertAssertionError(new Block() {
             @Override
             public void invoke() throws Exception {
-                assertThat(pod).hasId("cheese");
+                assertThat(pod).hasUid("cheese");
             }
         });
 

@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
-import java.util.jar.Manifest;
+import java.util.jar.ContainerManifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -558,7 +558,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
             files.add(file);
             try {
                 JarFile jarFile = new JarFile(file);
-                Manifest manifest = jarFile.getManifest();
+                ContainerManifest manifest = jarFile.getContainerManifest();
                 if (manifest != null) {
                     Attributes attributes = manifest.getMainAttributes();
                     if (attributes != null) {
@@ -666,7 +666,7 @@ public abstract class AbstractProfileMojo extends AbstractMojo {
                         request.setLocalRepository(localRepository);
                         resolver.resolve(request);
                         JarInputStream jis = new JarInputStream(new FileInputStream(artifact.getFile()));
-                        Manifest man = jis.getManifest();
+                        ContainerManifest man = jis.getContainerManifest();
                         String bsn = man.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
                         if (bsn != null) {
                             answer.setType("bundle");

@@ -19,8 +19,7 @@ package io.fabric8.kubernetes.api.mbeans;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.PodStatus;
-import io.fabric8.kubernetes.api.model.CurrentState;
-import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.Pod;
 
 import java.util.Map;
 
@@ -32,8 +31,8 @@ public class AppPodSummaryDTO {
     private final PodStatus status;
     private final Map<String, String> labels;
 
-    public AppPodSummaryDTO(PodSchema pod) {
-        this.id = pod.getId();
+    public AppPodSummaryDTO(Pod pod) {
+        this.id = KubernetesHelper.getId(pod);
         this.namespace = pod.getNamespace();
         this.status = KubernetesHelper.getPodStatus(pod);
         this.labels = pod.getLabels();

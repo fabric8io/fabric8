@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+import java.util.jar.ContainerManifest;
 
 import io.fabric8.watcher.Processor;
 import io.fabric8.watcher.file.FileWatcher;
@@ -97,10 +97,10 @@ public class Maven2MetadataProvider {
 
     private void scan(Path path) {
         try {
-            Manifest man;
+            ContainerManifest man;
             JarFile jar = new JarFile(path.toFile());
             try {
-                man = jar.getManifest();
+                man = jar.getContainerManifest();
             } finally {
                 jar.close();
             }

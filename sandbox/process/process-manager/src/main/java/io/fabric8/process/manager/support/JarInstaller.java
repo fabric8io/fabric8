@@ -185,7 +185,7 @@ public class JarInstaller implements InstallTask {
         File tmpFile = File.createTempFile("fuse-process-" + id, ".jar");
         Files.copy(jarFile, tmpFile);
         Jar jar = new Jar(tmpFile);
-        Attributes attributes = jar.getManifest().getMainAttributes();
+        Attributes attributes = jar.getContainerManifest().getMainAttributes();
         attributes.putValue("Main-Class", mainClass);
         jar.write(jarFile);
     }

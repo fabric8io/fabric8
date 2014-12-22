@@ -60,11 +60,11 @@ public class Apply extends AbstractKubernetesCommand {
             @Override
             public Iterable<String> getCompletionProposals(UIContext context, InputComponent<?, String> input, String value) {
                 List<String> list = new ArrayList<String>();
-                ServiceListSchema services = getKubernetes().getServices();
+                ServiceList services = getKubernetes().getServices();
                 if (services != null) {
-                    List<ServiceSchema> items = services.getItems();
+                    List<Service> items = services.getItems();
                     if (items != null) {
-                        for (ServiceSchema item : items) {
+                        for (Service item : items) {
                             String id = item.getId();
                             list.add(id);
                         }

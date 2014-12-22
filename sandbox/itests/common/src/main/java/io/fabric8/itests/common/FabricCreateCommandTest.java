@@ -32,11 +32,11 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.osgi.StartLevelAware;
 import org.jboss.gravia.itests.support.AnnotatedContextListener;
 import org.jboss.gravia.itests.support.ArchiveBuilder;
-import org.jboss.gravia.resource.ManifestBuilder;
+import org.jboss.gravia.resource.ContainerManifestBuilder;
 import org.jboss.gravia.runtime.RuntimeLocator;
 import org.jboss.gravia.runtime.RuntimeType;
 import org.jboss.gravia.runtime.ServiceLocator;
-import org.jboss.osgi.metadata.OSGiManifestBuilder;
+import org.jboss.osgi.metadata.OSGiContainerManifestBuilder;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.junit.Assert;
@@ -62,12 +62,12 @@ public class FabricCreateCommandTest {
         archive.addClasses(RuntimeType.TOMCAT, AnnotatedContextListener.class);
         archive.addClasses(PasswordEncoder.class, Base64Encoder.class);
         archive.addPackage(CommandSupport.class.getPackage());
-        archive.setManifest(new Asset() {
+        archive.setContainerManifest(new Asset() {
             @Override
             public InputStream openStream() {
                 if (ArchiveBuilder.getTargetContainer() == RuntimeType.KARAF) {
-                    OSGiManifestBuilder builder = OSGiManifestBuilder.newInstance();
-                    builder.addBundleManifestVersion(2);
+                    OSGiContainerManifestBuilder builder = OSGiContainerManifestBuilder.newInstance();
+                    builder.addBundleContainerManifestVersion(2);
                     builder.addBundleSymbolicName(archive.getName());
                     builder.addBundleVersion("1.0.0");
                     builder.addImportPackages(RuntimeLocator.class, FabricService.class);
@@ -76,9 +76,9 @@ public class FabricCreateCommandTest {
                     builder.addImportPackages(ConfigurationAdmin.class, Logger.class);
                     return builder.openStream();
                 } else {
-                    ManifestBuilder builder = new ManifestBuilder();
+                    ContainerManifestBuilder builder = new ContainerManifestBuilder();
                     builder.addIdentityCapability(archive.getName(), "1.0.0");
-                    builder.addManifestHeader("Dependencies", "io.fabric8.api,org.apache.karaf,org.jboss.gravia");
+                    builder.addContainerManifestHeader("Dependencies", "io.fabric8.api,org.apache.karaf,org.jboss.gravia");
                     return builder.openStream();
                 }
             }

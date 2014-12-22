@@ -43,9 +43,9 @@ public class ResourceBuilder {
             throws BundleException {
 
         // Verify that only manifest version 2 is specified.
-        String manifestVersion = getManifestVersion(headerMap);
+        String manifestVersion = getContainerManifestVersion(headerMap);
         if (manifestVersion == null || !manifestVersion.equals("2")) {
-            throw new BundleException("Unsupported 'Bundle-ManifestVersion' value: " + manifestVersion);
+            throw new BundleException("Unsupported 'Bundle-ContainerManifestVersion' value: " + manifestVersion);
         }
 
         //
@@ -594,7 +594,7 @@ public class ResourceBuilder {
         for (ParsedHeaderClause clause : clauses) {
             for (String path : clause.paths) {
                 if (path.startsWith("osgi.wiring.")) {
-//                    throw new BundleException("Manifest cannot use Provide-Capability for '" + path + "' namespace.");
+//                    throw new BundleException("ContainerManifest cannot use Provide-Capability for '" + path + "' namespace.");
                 }
 
                 // Create package capability and add to capability list.
@@ -690,7 +690,7 @@ public class ResourceBuilder {
         return capList;
     }
 
-    private static String getManifestVersion(Map<String, String> headerMap) {
+    private static String getContainerManifestVersion(Map<String, String> headerMap) {
         String manifestVersion = headerMap.get(Constants.BUNDLE_MANIFESTVERSION);
         return (manifestVersion == null) ? "1" : manifestVersion.trim();
     }
