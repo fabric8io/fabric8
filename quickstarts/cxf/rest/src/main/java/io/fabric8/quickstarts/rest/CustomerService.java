@@ -17,6 +17,7 @@
 package io.fabric8.quickstarts.rest;
 
 import javax.annotation.Resource;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -57,8 +58,7 @@ public class CustomerService {
     long currentId = 123;
     Map<Long, Customer> customers = new HashMap<Long, Customer>();
     Map<Long, Order> orders = new HashMap<Long, Order>();
-    private @Resource
-    MessageContext jaxrsContext;
+    private MessageContext jaxrsContext;
 
     public CustomerService() {
         init();
@@ -212,6 +212,11 @@ public class CustomerService {
         o.setDescription("order 223");
         o.setId(223);
         orders.put(o.getId(), o);
+    }
+
+    @Context
+    public void setMessageContext(MessageContext messageContext) {
+        this.jaxrsContext = messageContext;
     }
 
 }
