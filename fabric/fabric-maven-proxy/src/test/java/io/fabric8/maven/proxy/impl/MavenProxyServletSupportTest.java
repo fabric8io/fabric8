@@ -58,11 +58,11 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TestName;
 import org.ops4j.util.property.DictionaryPropertyResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.fabric8.common.util.Strings.join;
 import static org.junit.Assert.assertEquals;
@@ -73,8 +73,12 @@ public class MavenProxyServletSupportTest {
     private RuntimeProperties runtimeProperties;
     private ProjectDeployer projectDeployer;
 
+    protected static final Logger LOG = LoggerFactory.getLogger(MavenProxyServletSupportTest.class);
+@Rule public TestName testname = new TestName();
     @Before
     public void setUp() {
+        System.out.println(">>>>>>> Running " + testname.getMethodName() );
+        LOG.info(">>>>>>> Running " + testname.getMethodName());
         Properties props = new Properties();
         props.setProperty("localRepository", System.getProperty("java.io.tmpdir"));
         runtimeProperties = EasyMock.createMock(RuntimeProperties.class);
@@ -110,7 +114,7 @@ public class MavenProxyServletSupportTest {
         return new AetherBasedResolver(config);
     }
 
-    @Test
+    @Test(timeout=30000)
     public void testMetadataRegex() {
         Matcher m = MavenProxyServletSupport.ARTIFACT_METADATA_URL_REGEX.matcher("groupId/artifactId/version/maven-metadata.xml");
         assertTrue(m.matches());
@@ -131,7 +135,7 @@ public class MavenProxyServletSupportTest {
         assertEquals("maven-metadata.xml", m.group(4));
     }
 
-    @Test
+    @Test(timeout=30000)
     public void testRepoRegex() {
         Matcher m = MavenProxyServletSupport.REPOSITORY_ID_REGEX.matcher("repo1.maven.org/maven2@id=central");
         assertTrue(m.matches());
@@ -154,13 +158,13 @@ public class MavenProxyServletSupportTest {
         assertEquals("central", m.group(2));
     }
 
-    @Test(expected = InvalidMavenArtifactRequest.class)
+    @Test(timeout=30000, expected = InvalidMavenArtifactRequest.class)
     public void testConvertNullPath() throws InvalidMavenArtifactRequest {
         MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(createResolver(), runtimeProperties, projectDeployer, 5);
         servlet.convertToMavenUrl(null);
     }
 
-    @Test
+    @Test(timeout=30000)
     public void testConvertNormalPath() throws InvalidMavenArtifactRequest {
         MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(createResolver(), runtimeProperties, projectDeployer, 5);
 
@@ -181,7 +185,7 @@ public class MavenProxyServletSupportTest {
         assertEquals("io.fabric8:fabric8-karaf:zip:LATEST",servlet.convertToMavenUrl("io/fabric8/fabric8-karaf/LATEST/fabric8-karaf-LATEST.zip"));
     }
 
-    @Test
+    @Test(timeout=30000)
     public void testConvertNormalPathWithClassifier() throws InvalidMavenArtifactRequest {
         MavenDownloadProxyServlet servlet = new MavenDownloadProxyServlet(createResolver(), runtimeProperties, projectDeployer, 5);
 
@@ -206,7 +210,7 @@ public class MavenProxyServletSupportTest {
         assertEquals("io.fabric8:fabric8-karaf:zip:distro:LATEST",servlet.convertToMavenUrl("io/fabric8/fabric8-karaf/LATEST/fabric8-karaf-LATEST-distro.zip"));
     }
 
-    @Test
+    @Test(timeout=30000)
     public void testStartServlet() throws Exception {
         String old = System.getProperty("karaf.data");
         System.setProperty("karaf.data", new File("target").getCanonicalPath());
@@ -221,7 +225,8 @@ public class MavenProxyServletSupportTest {
         }
     }
 
-    @Test
+    @Ignore("ENTESB-2409")
+    @Test(timeout=30000)
     public void testDownloadUsingAuthenticatedProxy() throws Exception {
         testDownload(new AbstractHandler() {
             @Override
@@ -241,7 +246,8 @@ public class MavenProxyServletSupportTest {
         });
     }
 
-    @Test
+    @Ignore("ENTESB-2409")
+    @Test(timeout=30000)
     public void testDownloadUsingNonAuthenticatedProxy() throws Exception {
         testDownload(new AbstractHandler() {
             @Override
@@ -254,7 +260,8 @@ public class MavenProxyServletSupportTest {
         });
     }
 
-    @Test
+    @Ignore("ENTESB-2409")
+    @Test(timeout=30000)
     public void testDownloadMetadata() throws Exception {
         final String old = System.getProperty("karaf.data");
         System.setProperty("karaf.data", new File("target").getCanonicalPath());
@@ -645,7 +652,7 @@ public class MavenProxyServletSupportTest {
         }
     }
 
-    @Test
+    @Test(timeout=30000)
     public void testJarUploadFullMvnPath() throws Exception {
         String jarPath = "org.acme/acme-core/1.0/acme-core-1.0.jar";
 
@@ -659,7 +666,7 @@ public class MavenProxyServletSupportTest {
         testUpload(jarPath, contents, false);
     }
 
-    @Test
+    @Test(timeout=30000)
     public void testJarUploadWithMvnPom() throws Exception {
         String jarPath = "org.acme/acme-core/1.0/acme-core-1.0.jar";
 
@@ -674,7 +681,7 @@ public class MavenProxyServletSupportTest {
         testUpload(jarPath, contents, false);
     }
 
-    @Test
+    @Test(timeout=30000)
     public void testJarUploadNoMvnPath() throws Exception {
         String jarPath = "acme-core-1.0.jar";
 
@@ -687,7 +694,7 @@ public class MavenProxyServletSupportTest {
         testUpload(jarPath, contents, true);
     }
 
-    @Test
+    @Test(timeout=30000)
     public void testWarUploadFullMvnPath() throws Exception {
         String warPath = "org.acme/acme-ui/1.0/acme-ui-1.0.war";
 
@@ -701,7 +708,7 @@ public class MavenProxyServletSupportTest {
         testUpload(warPath, contents, false);
     }
 
-    @Test
+    @Test(timeout=30000)
     public void testWarUploadWithMvnPom() throws Exception {
         String warPath = "org.acme/acme-ui/1.0/acme-ui-1.0.war";
 
@@ -716,7 +723,7 @@ public class MavenProxyServletSupportTest {
         testUpload(warPath, contents, false);
     }
 
-    @Test
+    @Test(timeout=30000)
     public void testWarUploadNoMvnPath() throws Exception {
         String warPath = "acme-ui-1.0.war";
 
