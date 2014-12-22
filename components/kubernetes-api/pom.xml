@@ -83,6 +83,16 @@
       <artifactId>slf4j-simple</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+    </dependency>
+    
       <!-- testing -->
     <dependency>
       <groupId>org.assertj</groupId>

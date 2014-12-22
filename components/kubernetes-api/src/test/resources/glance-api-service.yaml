@@ -1,0 +1,7 @@
+apiVersion: v1beta1
+containerPort: 9292
+id: glance-api
+kind: Service
+port: 9292
+selector:
+  name: glance

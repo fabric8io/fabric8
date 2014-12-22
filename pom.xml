@@ -226,6 +226,7 @@
         <jna.version>3.3.0</jna.version>
         <jolokia.version>1.2.3</jolokia.version>
         <jgroups.version>3.4.4.Final</jgroups.version>
+        <json.version>20140107</json.version>
         <json4s.version>3.2.4_1</json4s.version>
         <junit.version>4.11</junit.version>
         <karaf.version>2.4.0</karaf.version>
@@ -276,6 +277,7 @@
         <shrinkwrap.version>1.1.2</shrinkwrap.version>
         <slf4j-api.version>1.7.5</slf4j-api.version>
         <slf4j.version>1.7.5</slf4j.version>
+        <snakeyaml.version>1.5</snakeyaml.version>
         <spring.version>3.2.9.RELEASE</spring.version>
         <sshd.version>0.12.0</sshd.version>
         <sshj.version>0.8.1</sshj.version>
@@ -2254,6 +2256,18 @@
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>${gson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${json.version}</version>
             </dependency>
 
             <dependency>

@@ -15,26 +15,32 @@
  */
 package io.fabric8.kubernetes.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import io.fabric8.kubernetes.api.model.Config;
-import io.fabric8.utils.Objects;
-import io.fabric8.kubernetes.api.model.PodSchema;
-import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
-import io.fabric8.kubernetes.api.model.ServiceSchema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-
 import static io.fabric8.kubernetes.api.KubernetesHelper.getEntities;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getReplicationControllerMap;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getServiceMap;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
+import io.fabric8.kubernetes.api.model.Config;
+import io.fabric8.kubernetes.api.model.PodSchema;
+import io.fabric8.kubernetes.api.model.ReplicationControllerSchema;
+import io.fabric8.kubernetes.api.model.ServiceSchema;
+import io.fabric8.utils.Files;
+import io.fabric8.utils.Objects;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Applies DTOs to the current Kubernetes master
@@ -55,7 +61,18 @@ public class Controller {
         this.kubernetes = kubernetes;
     }
 
-
+    public String apply(File file) throws IOException {
+    	String ext = Files.getFileExtension(file);
+    	
+    	if ("yaml".equalsIgnoreCase(ext)){
+        	return applyYaml(file);
+        } else if ("json".equalsIgnoreCase(ext)){
+        	return applyJson(file);
+        } else {
+        	throw new IllegalArgumentException("Unknown file type " + ext);
+        }
+    }
+    
     /**
      * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
@@ -84,6 +101,46 @@ public class Controller {
     }
 
     /**
+     * Applies the given YAML to the underlying REST APIs in a single operation without needing to explicitly parse first.
+     */
+    public String applyYaml(String yaml) throws IOException {
+    	String json = convertYamlToJson(yaml);
+        Object dto = KubernetesHelper.loadJson(json);
+        apply(dto, "REST call");
+        return "";
+    }
+
+    /**
+     * Applies the given YAML to the underlying REST APIs in a single operation without needing to explicitly parse first.
+     */
+    public String applyYaml(File yaml) throws IOException {
+    	String json = convertYamlToJson(yaml);
+        Object dto = KubernetesHelper.loadJson(json);
+        apply(dto, "REST call");
+        return "";
+    }
+    
+    private String convertYamlToJson(String yamlString) throws FileNotFoundException {
+    	Yaml yaml= new Yaml();
+    	FileInputStream fstream = new FileInputStream(yamlString);
+    	
+    	Map<String,Object> map= (Map<String, Object>) yaml.load(fstream);
+    	JSONObject jsonObject = new JSONObject(map);
+    	
+		return jsonObject.toString();
+	}
+    
+    private String convertYamlToJson(File yamlFile) throws FileNotFoundException {
+    	Yaml yaml= new Yaml();
+    	FileInputStream fstream = new FileInputStream(yamlFile);
+    	
+    	Map<String,Object> map= (Map<String, Object>) yaml.load(fstream);
+    	JSONObject jsonObject = new JSONObject(map);
+    	
+		return jsonObject.toString();
+	}
+
+	/**
      * Applies the given JSON to the underlying REST APIs in a single operation without needing to explicitly parse first.
      */
     public String applyJson(InputStream json) throws IOException {
