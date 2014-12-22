@@ -114,6 +114,7 @@ public class KubernetesFactory {
         ObjectMapper objectMapper = createObjectMapper();
         providers.add(new JacksonJaxbJsonProvider(objectMapper, annotationsToUse));
         providers.add(new PlainTextJacksonProvider(objectMapper, annotationsToUse));
+        providers.add(new ExceptionResponseMapper());
         //providers.add(new JacksonIntOrStringConfig(objectMapper));
         return providers;
     }

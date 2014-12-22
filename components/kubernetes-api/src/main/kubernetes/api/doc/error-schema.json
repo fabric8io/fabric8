@@ -1,0 +1,75 @@
+{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-03/schema",
+	"required":false,
+	"description": "An error response message",
+	"properties":{
+		"apiVersion": {
+			"type":"string",
+			"required":false
+		},
+		"code": {
+			"type":"number",
+			"required":false
+		},
+		"creationTimestamp": {
+			"type":"null",
+			"required":false
+		},
+		"details": {
+			"type":"object",
+			"required":false,
+			"properties":{
+				"causes": {
+					"type":"array",
+					"required":false,
+					"items":
+						{
+							"type":"object",
+							"required":false,
+							"properties":{
+								"field": {
+									"type":"string",
+									"required":false
+								},
+								"message": {
+									"type":"string",
+									"required":false
+								},
+								"reason": {
+									"type":"string",
+									"required":false
+								}
+							}
+						}
+					
+
+				},
+				"id": {
+					"type":"string",
+					"required":false
+				},
+				"kind": {
+					"type":"string",
+					"required":false
+				}
+			}
+		},
+		"kind": {
+			"type":"string",
+			"required":false
+		},
+		"message": {
+			"type":"string",
+			"required":false
+		},
+		"reason": {
+			"type":"string",
+			"required":false
+		},
+		"status": {
+			"type":"string",
+			"required":false
+		}
+	}
+}
