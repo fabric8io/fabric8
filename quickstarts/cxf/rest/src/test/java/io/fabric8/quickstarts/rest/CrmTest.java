@@ -22,6 +22,7 @@ import org.apache.commons.httpclient.methods.FileRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +121,7 @@ public final class CrmTest {
      *
      * @throws Exception
      */
-    @Test
+    @Ignore
     public void postCustomerTestJson() throws IOException {
         LOG.info("Sent HTTP POST request to add customer");
         String inputFile = this.getClass().getResource("/add_customer.json").getFile();
