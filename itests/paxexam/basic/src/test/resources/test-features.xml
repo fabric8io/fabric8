@@ -20,7 +20,7 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
 
     <feature name="example-cbr" version="${project.version}">
-        <bundle>fab:mvn:org.jboss.fuse.examples/cbr/${project.version}</bundle>
+        <bundle>mvn:io.fabric8.quickstarts/fabric8-beginner-camel-cbr/${project.version}</bundle>
     </feature>
 
 </features>
