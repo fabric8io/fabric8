@@ -24,7 +24,6 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.MultiException;
 

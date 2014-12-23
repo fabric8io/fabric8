@@ -16,7 +16,6 @@
 package io.fabric8.forge.kubernetes;
 
 import io.fabric8.kubernetes.api.model.ServiceList;
-import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.utils.Filter;
 import io.fabric8.kubernetes.api.Kubernetes;
 import io.fabric8.kubernetes.api.KubernetesHelper;

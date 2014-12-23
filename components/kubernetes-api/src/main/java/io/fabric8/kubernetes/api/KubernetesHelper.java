@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerManifest;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
+import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.PodState;
@@ -35,11 +36,9 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.ReplicationControllerState;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
-import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
-import io.fabric8.utils.Maps;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.apache.commons.lang.StringUtils;
@@ -77,8 +76,7 @@ public class KubernetesHelper {
 
     public static String getId(Pod entity) {
         if (entity != null) {
-            // TODO no additional properties!
-            return Strings.firstNonBlank(entity.getName(), entity.getUid(), getAdditionalProperty(null, "id"));
+            return Strings.firstNonBlank(entity.getId(), getAdditionalPropertyText(entity.getAdditionalProperties(), "name"), entity.getUid());
         } else {
             return null;
         }
@@ -86,8 +84,7 @@ public class KubernetesHelper {
 
     public static String getId(ReplicationController entity) {
         if (entity != null) {
-            // TODO no additional properties!
-            return Strings.firstNonBlank(entity.getName(), entity.getUid(), getAdditionalProperty(null, "id"));
+            return Strings.firstNonBlank(entity.getId(), getAdditionalPropertyText(entity.getAdditionalProperties(), "name"), entity.getUid());
         } else {
             return null;
         }
@@ -95,49 +92,87 @@ public class KubernetesHelper {
 
     public static String getId(Service entity) {
         if (entity != null) {
-            // TODO no additional properties!
-            return Strings.firstNonBlank(entity.getName(), entity.getUid(), getAdditionalProperty(null, "id"));
+            return Strings.firstNonBlank(entity.getId(), getAdditionalPropertyText(entity.getAdditionalProperties(), "name"), entity.getUid());
+        } else {
+            return null;
+        }
+    }
+
+    public static String getName(Service entity) {
+        if (entity != null) {
+            return Strings.firstNonBlank(getAdditionalPropertyText(entity.getAdditionalProperties(), "name"), entity.getId(), entity.getUid());
         } else {
             return null;
         }
     }
 
     public static String getPortalIP(Service entity) {
+        String answer = null;
         if (entity != null) {
+            answer = entity.getPortalIP();
+            if (answer == null) {
+                // TODO lets look for the spec nested object if its available
+            }
+/*
             ServiceSpec spec = entity.getSpec();
             if (spec != null) {
                 return spec.getPortalIP();
             }
+*/
         }
-        return null;
+        return answer;
     }
 
     public static Map<String, String> getSelector(Service entity) {
+        Map<String, String> answer = null;
         if (entity != null) {
+            answer = entity.getSelector();
+            if (answer == null) {
+                // TODO lets look for the spec nested object if its available
+            }
+/*
             ServiceSpec spec = entity.getSpec();
             if (spec != null) {
                 return spec.getSelector();
             }
+*/
         }
-        return Collections.EMPTY_MAP;
+        return answer != null ? answer : Collections.EMPTY_MAP;
     }
 
     public static Integer getPort(Service entity) {
+        Integer answer = null;
         if (entity != null) {
+            answer = entity.getPort();
+            if (answer == null) {
+                // TODO lets look for the spec nested object if its available
+            }
+/*
             ServiceSpec spec = entity.getSpec();
             if (spec != null) {
                 return spec.getPort();
             }
+*/
         }
-        return null;
+        return answer;
     }
 
-    private static String getAdditionalProperty(Map<String, String> additionalProperties, String name) {
+    protected static Object getAdditionalProperty(Map<String, Object> additionalProperties, String name) {
         if (additionalProperties != null) {
             return additionalProperties.get(name);
         } else {
             return null;
         }
+    }
+
+    protected static String getAdditionalPropertyText(Map<String, Object> additionalProperties, String name) {
+        if (additionalProperties != null) {
+            Object value = additionalProperties.get(name);
+            if (value != null) {
+                return value.toString();
+            }
+        }
+        return null;
     }
 
     public static String getDockerIp() {
@@ -780,9 +815,10 @@ public class KubernetesHelper {
     public static int getContainerPort(Service service) {
         int answer = -1;
         String id = getId(service);
-        ServiceSpec spec = service.getSpec();
+        //ServiceSpec spec = service.getSpec();
+        Service spec = service;
         if (spec != null) {
-            io.fabric8.kubernetes.api.model.util.IntOrString containerPort = spec.getContainerPort();
+            IntOrString containerPort = spec.getContainerPort();
             Objects.notNull(containerPort, "containerPort for service " + id);
             Integer intValue = containerPort.getIntVal();
             if (intValue != null) {
@@ -886,7 +922,8 @@ public class KubernetesHelper {
      */
     public static String getServiceURL(Service service) {
         if (service != null) {
-            ServiceSpec spec = service.getSpec();
+            //ServiceSpec spec = service.getSpec();
+            Service spec = service;
             if (spec != null) {
                 String portalIP = spec.getPortalIP();
                 if (portalIP != null) {

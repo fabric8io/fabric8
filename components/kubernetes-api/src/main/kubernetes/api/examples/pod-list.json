@@ -3,7 +3,7 @@
   "apiVersion": "v1beta1",
   "items": [
     {
-      "name": "my-pod-1",
+      "id": "my-pod-1",
       "labels": {
         "name": "testRun",
         "replicationController": "testRun"
@@ -31,7 +31,7 @@
       }
     },
     {
-      "name": "my-pod-2",
+      "id": "my-pod-2",
       "labels": {
         "name": "testRun",
         "replicationController": "testRun"

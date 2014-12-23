@@ -26,7 +26,6 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.ReplicationControllerState;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceList;
-import io.fabric8.kubernetes.api.model.ServiceSpec;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,7 +66,7 @@ public class Example {
         String image = "fabric8/fabric8";
 
         Pod pod = new Pod();
-        pod.setName(name);
+        pod.setId(name);
 
         Map<String, String> labels = new HashMap<>();
         labels.put("fabric8", "true");

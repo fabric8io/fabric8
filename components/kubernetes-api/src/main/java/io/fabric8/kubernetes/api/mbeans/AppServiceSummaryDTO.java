@@ -19,7 +19,6 @@ package io.fabric8.kubernetes.api.mbeans;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceSpec;
 
 import java.util.Map;
 
@@ -35,7 +34,7 @@ public class AppServiceSummaryDTO {
 
     public AppServiceSummaryDTO(Service service) {
         this.id = KubernetesHelper.getId(service);
-        this.name = service.getName();
+        this.name = KubernetesHelper.getName(service);
         this.namespace = service.getNamespace();
         this.portalIP = KubernetesHelper.getPortalIP(service);
         this.port = KubernetesHelper.getPort(service);

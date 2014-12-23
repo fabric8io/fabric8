@@ -15,19 +15,14 @@
  */
 package io.fabric8.kubernetes;
 
-import io.fabric8.kubernetes.api.Entity;
-import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.Config;
-import io.fabric8.kubernetes.api.model.ReplicationControllerState;
-import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.PodTemplate;
-import io.fabric8.kubernetes.api.model.PodState;
+import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.Port;
 import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.ReplicationControllerState;
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceSpec;
-import io.fabric8.kubernetes.api.model.util.IntOrString;
 import io.fabric8.kubernetes.template.CreateAppDTO;
 import io.fabric8.kubernetes.template.TemplateGenerator;
 import io.fabric8.utils.IOHelpers;

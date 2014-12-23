@@ -1,7 +1,7 @@
 {
   "kind": "Pod",
   "apiVersion": "v1beta1",
-  "name": "php",
+  "id": "php",
   "desiredState": {
     "manifest": {
       "version": "v1beta1",

@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import io.fabric8.kubernetes.api.model.ServiceSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
