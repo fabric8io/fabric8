@@ -26,6 +26,8 @@ import io.apiman.gateway.engine.IServiceConnectionResponse;
 import io.apiman.gateway.engine.async.IAsyncHandler;
 import io.apiman.gateway.engine.async.IAsyncResult;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.http.HttpClient;
@@ -39,6 +41,7 @@ import org.vertx.java.core.http.HttpServerRequest;
 @ApplicationScoped
 public class ApiManService implements ApiManagerService {
 
+	private static final transient Logger LOG = LoggerFactory.getLogger(ApiManService.class);
 	private Vertx vertx;
 	private HttpGateway httpGateway;
 	
@@ -50,6 +53,7 @@ public class ApiManService implements ApiManagerService {
 	public final static String ATTR_CLIENT_RESPONSE = "clientResponse";
 	
 	public void init(Map<String,Object> config) {
+		LOG.info("Initializing the ApiMan Engine..");
 		vertx = (Vertx) config.get(ApiManagerService.VERTX);
 		httpGateway = (HttpGateway) config.get(ApiManagerService.HTTP_GATEWAY);
 		String port = (String) config.get(ApiManagerService.PORT);
@@ -59,6 +63,8 @@ public class ApiManService implements ApiManagerService {
 		if (config.containsKey(ApiManagerService.PORT_REST)) portRest = (Integer) config.get(ApiManagerService.PORT_REST);
 		engineRestServer.requestHandler(new ApiManRestRequestHandler(engine));
 		engineRestServer.listen(portRest, "localhost");
+		LOG.info("The ApiMan REST Service is listening at on port " + portRest);
+		
 	}
 	
 	@PreDestroy

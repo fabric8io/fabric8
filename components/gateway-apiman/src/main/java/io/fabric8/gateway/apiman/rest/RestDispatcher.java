@@ -50,12 +50,13 @@ public class RestDispatcher {
 				request.response().close();
 				return;
 			} 
-			if (contentType==null || !contentType.endsWith("UTF-8")) {
-				request.response().setStatusCode(403);
-				request.response().end("Expecting charset of 'UTF-8'");
-				request.response().close();
-				return;
-			}
+			// waiting for https://issues.jboss.org/browse/APIMAN-207 to re-enable this.
+//			if (contentType==null || !contentType.endsWith("UTF-8")) {
+//				request.response().setStatusCode(403);
+//				request.response().end("Expecting charset of 'UTF-8'");
+//				request.response().close();
+//				return;
+//			}
 		}
 		//read the body
 		request.bodyHandler(new Handler<Buffer>() {
@@ -64,10 +65,11 @@ public class RestDispatcher {
 			public void handle(Buffer event) {
 				try {
 					String body = event.getString(0, event.length());
-					String uri = request.uri().substring(1,request.uri().lastIndexOf("/")+1);
+					String uri = request.uri().substring(1);
+					if (uri.contains("?")) uri = uri.substring(0, uri.indexOf("?"));
 					String[] pathSegment = uri.split("/");
 					
-					if (uri.startsWith("rest/apimanager/api/applications/")) {
+					if (uri.startsWith("rest/apimanager/applications")) {
 						ApplicationResource applicationResource = new ApplicationResource(engine);
 						
 						if (request.method().equals("PUT")) {
@@ -77,16 +79,16 @@ public class RestDispatcher {
 						else if (request.method().equals("DELETE"))  {
 							//path {organizationId}/{applicationId}/{version}
 							if (pathSegment.length < 6) throw new UserException("Query Parse Exception , "
-									+ "expecting /rest/apimanager/api/applications/{organizationId}/{applicationId}/{version}");	
-							String organizationId = pathSegment[4];
-							String applicationId = pathSegment[5];
-					        String version = pathSegment[6];
+									+ "expecting /rest/apimanager/applications/{organizationId}/{applicationId}/{version}");	
+							String organizationId = pathSegment[3];
+							String applicationId = pathSegment[4];
+					        String version = pathSegment[5];
 							applicationResource.unregister(organizationId, applicationId, version);
 						} else {
 							throw new UserException("Method not Supported");
 						}
 						
-					} else if (uri.startsWith("rest/apimanager/api/services/")) {
+					} else if (uri.startsWith("rest/apimanager/services")) {
 						ServiceResource serviceResource = new ServiceResource(engine);
 						
 						if (request.method().equals("PUT")) {
@@ -96,19 +98,19 @@ public class RestDispatcher {
 						else if (request.method().equals("DELETE"))  {
 							//path {organizationId}/{serviceId}/{version}
 							if (pathSegment.length < 6) throw new UserException("Query Parse Exception , "
-									+ "expecting /rest/apimanager/api/applications/{organizationId}/{serviceId}/{version}");
-					        String organizationId = pathSegment[4];
-							String serviceId = pathSegment[5];
-					        String version = pathSegment[6];
+									+ "expecting /rest/apimanager/applications/{organizationId}/{serviceId}/{version}");
+					        String organizationId = pathSegment[3];
+							String serviceId = pathSegment[4];
+					        String version = pathSegment[5];
 							serviceResource.retire(organizationId, serviceId, version);
 							request.response().setStatusCode(200);
 						} else if (request.method().equals("GET")) {
 							//path {organizationId}/{serviceId}/{version}
 							if (pathSegment.length < 7) throw new UserException("Query Parse Exception , "
-									+ "expecting /rest/apimanager/api/applications/{organizationId}/{serviceId}/{version}/endpoint");
-							String organizationId = pathSegment[4];
-							String serviceId = pathSegment[5];
-					        String version = pathSegment[6];
+									+ "expecting /rest/apimanager/applications/{organizationId}/{serviceId}/{version}/endpoint");
+							String organizationId = pathSegment[3];
+							String serviceId = pathSegment[4];
+					        String version = pathSegment[5];
 					        String json = getObjectMapper().writeValueAsString(serviceResource.getServiceEndpoint(organizationId, serviceId, version));
 					        request.response().headers().set("ContentType", "application/json");
 					        request.response().headers().set("Content-Length", String.valueOf(json.length()));
@@ -117,7 +119,7 @@ public class RestDispatcher {
 							throw new UserException("Method not Supported");
 						}
 						
-					} else if (uri.startsWith("rest/apimanager/api/system/")) {
+					} else if (uri.startsWith("rest/apimanager/system/status")) {
 						SystemResource systemResource = new SystemResource(engine);
 						String json = getObjectMapper().writeValueAsString(systemResource.getStatus());
 						request.response().headers().set("ContentType", "application/json");

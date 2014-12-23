@@ -283,7 +283,7 @@ public class HTTPGatewayApiManTest {
     public void testServiceMapping() throws Exception {
     	int restPort = httpGatewayServer.getPort() - 1;
         HttpClient httpClient = new HttpClient();
-        GetMethod method = new GetMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/api/services/Kurt/HelloWorld/1.0/endpoint?apikey=apiman-config-key");
+        GetMethod method = new GetMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/services/Kurt/HelloWorld/1.0/endpoint?apikey=apiman-config-key");
         httpClient.executeMethod(method);
         assertEquals(200, httpClient.executeMethod(method));
         String gatewayUrlOfService = method.getResponseBodyAsString();
@@ -307,7 +307,7 @@ public class HTTPGatewayApiManTest {
         String serviceJson = mapper.writeValueAsString(service);
         
         LOG.info("Publishing HelloWorld Service");
-        PutMethod method = new PutMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/api/services/?apikey=apiman-config-key");
+        PutMethod method = new PutMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/services/?apikey=apiman-config-key");
         RequestEntity requestEntity = new StringRequestEntity(serviceJson, "application/json", "UTF-8");
         method.setRequestEntity(requestEntity);
         httpClient.executeMethod(method);
@@ -340,7 +340,7 @@ public class HTTPGatewayApiManTest {
         String clientAppJson = mapper.writeValueAsString(clientApp);
         
         LOG.info("Register clientApp Application");
-        method = new PutMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/api/applications/?apikey=apiman-config-key");
+        method = new PutMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/applications/?apikey=apiman-config-key");
         requestEntity = new StringRequestEntity(clientAppJson, "application/json", "UTF-8");
         method.setRequestEntity(requestEntity);
         httpClient.executeMethod(method);
@@ -354,12 +354,12 @@ public class HTTPGatewayApiManTest {
         HttpClient httpClient = new HttpClient();
     	//Removing applications
     	LOG.info("Unregister clientApp Application");
-        DeleteMethod method = new DeleteMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/api/applications/ClientOrg/clientApp/1.0/?apikey=apiman-config-key");
+        DeleteMethod method = new DeleteMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/applications/ClientOrg/clientApp/1.0/?apikey=apiman-config-key");
         httpClient.executeMethod(method);
         
         //Removing services
         LOG.info("Retire Hello World Service");
-        method = new DeleteMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/api/services/Kurt/HelloWorld/1.0/?apikey=apiman-config-key");
+        method = new DeleteMethod("http://127.0.0.1:" + restPort + "/rest/apimanager/services/Kurt/HelloWorld/1.0/?apikey=apiman-config-key");
         httpClient.executeMethod(method);
     }
 
