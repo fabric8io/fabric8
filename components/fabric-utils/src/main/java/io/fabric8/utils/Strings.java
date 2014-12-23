@@ -50,6 +50,17 @@ public class Strings {
         return notEmpty(value) ? value : defaultValue;
     }
 
+    /**
+     * Returns the first string value which is not null and not blank
+     */
+    public static String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (notEmpty(value)) {
+                return value;
+            }
+        }
+        return null;
+    }
 
     /**
      * splits a string into a list of strings, ignoring the empty string
@@ -378,4 +389,5 @@ public class Strings {
             }
         };
     }
+
 }

@@ -39,15 +39,15 @@ public class ExampleTest {
         expectedLabels.put("foo", "bar");
 
         final Pod pod = new Pod();
-        pod.setUid(expectedId);
+        pod.setName(expectedId);
         pod.setLabels(expectedLabels);
 
-        assertThat(pod).hasUid(expectedId).hasLabels(expectedLabels);
+        assertThat(pod).hasName(expectedId).hasLabels(expectedLabels);
 
         assertAssertionError(new Block() {
             @Override
             public void invoke() throws Exception {
-                assertThat(pod).hasUid("cheese");
+                assertThat(pod).hasName("cheese");
             }
         });
 

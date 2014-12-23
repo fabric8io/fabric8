@@ -65,7 +65,7 @@ public class Example {
         String image = "fabric8/fabric8";
 
         Pod pod = new Pod();
-        pod.setUid(name);
+        pod.setName(name);
 
         Map<String, String> labels = new HashMap<>();
         labels.put("fabric8", "true");

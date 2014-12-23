@@ -77,7 +77,7 @@ public class KubernetesHelper {
     public static String getId(Pod entity) {
         if (entity != null) {
             // TODO no additional properties!
-            return Strings.defaultIfEmpty(entity.getUid(), getAdditionalProperty(null, "id"));
+            return Strings.firstNonBlank(entity.getName(), entity.getUid(), getAdditionalProperty(null, "id"));
         } else {
             return null;
         }
@@ -86,7 +86,7 @@ public class KubernetesHelper {
     public static String getId(ReplicationController entity) {
         if (entity != null) {
             // TODO no additional properties!
-            return Strings.defaultIfEmpty(entity.getUid(), getAdditionalProperty(null, "id"));
+            return Strings.firstNonBlank(entity.getName(), entity.getUid(), getAdditionalProperty(null, "id"));
         } else {
             return null;
         }
@@ -95,7 +95,7 @@ public class KubernetesHelper {
     public static String getId(Service entity) {
         if (entity != null) {
             // TODO no additional properties!
-            return Strings.defaultIfEmpty(entity.getUid(), getAdditionalProperty(null, "id"));
+            return Strings.firstNonBlank(entity.getName(), entity.getUid(), getAdditionalProperty(null, "id"));
         } else {
             return null;
         }
