@@ -2,9 +2,7 @@
   "uid": "fabric8-mq-service",
   "apiVersion": "v1beta1",
   "kind": "Service",
-  "containerPort": {
-    "IntVal": 6162
-  },
+  "containerPort": 6162,
   "port": 6163,
   "selector": {
     "container": "java",

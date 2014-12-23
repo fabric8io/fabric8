@@ -10,9 +10,7 @@
       "id": "@{serviceName}",
       "apiVersion": "v1beta1",
       "kind": "Service",
-      "containerPort": {
-        "IntVal": @{serviceContainerPort}
-      },
+      "containerPort": @{serviceContainerPort},
       "port": @{servicePort},
       "selector": {@foreach{label : labels.entrySet()}
         "@{label.key}": "@{label.value}"@end{", "}
