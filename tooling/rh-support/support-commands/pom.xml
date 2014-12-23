@@ -44,7 +44,6 @@
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
-            OSGI-INF/io.fabric8.support.commands.Check.xml,
             OSGI-INF/io.fabric8.support.commands.Collect.xml
         </fuse.osgi.service.component>
     </properties>
