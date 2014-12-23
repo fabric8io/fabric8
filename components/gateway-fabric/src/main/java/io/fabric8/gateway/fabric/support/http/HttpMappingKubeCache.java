@@ -1,6 +1,8 @@
 package io.fabric8.gateway.fabric.support.http;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import io.fabric8.gateway.ServiceDTO;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
@@ -86,21 +88,21 @@ public class HttpMappingKubeCache implements Runnable {
         try {
             ServiceList serviceList = client.getServices();
             for (Service service1 : serviceList.getItems()) {
-                ServiceSpec spec = service1.getSpec();
-                if (spec != null && selectorMatch(spec.getSelector())) {
+                Map<String, String> selector = getSelector(service1);
+                if (selectorMatch(selector)) {
                     String contextPath = getId(service1);
                     
                     ServiceDTO dto = new ServiceDTO();
                     dto.setId(getId(service1));
-                    dto.setContainer(spec.getSelector().get("container"));
-                    dto.setVersion(spec.getSelector().get("version"));
+                    dto.setContainer(selector.get("container"));
+                    dto.setVersion(selector.get("version"));
                     
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("id", paramValue(dto.getId()));
                     params.put("container", paramValue(dto.getContainer()));
                     params.put("version", paramValue(dto.getVersion()));
                     //is there a better way to obtain the complete url?
-                    String service = "http://localhost:" + spec.getPort() + "/" + getId(service1);
+                    String service = "http://localhost:" + getPort(service1) + "/" + getId(service1);
                     List<String> services = Arrays.asList(service);
                     if (!contextPathsCache.contains(contextPath)) {
                         LOG.info("Adding " + service);

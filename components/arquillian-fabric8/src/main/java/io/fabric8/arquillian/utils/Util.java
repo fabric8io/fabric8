@@ -35,6 +35,8 @@ import java.net.URL;
 import java.util.*;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPortalIP;
 
 public class Util {
 
@@ -69,9 +71,8 @@ public class Util {
             }
         }
         for (Service service : client.getServices().getItems()) {
-            ServiceSpec spec = service.getSpec();
-            if (spec != null && serviceFilter.matches(service)) {
-                session.getLogger().info("Service:" + getId(service) + " IP:" + spec.getPortalIP() + " Port:" + spec.getPort());
+            if (serviceFilter.matches(service)) {
+                session.getLogger().info("Service:" + getId(service) + " IP:" + getPortalIP(service) + " Port:" + getPort(service));
             }
         }
 

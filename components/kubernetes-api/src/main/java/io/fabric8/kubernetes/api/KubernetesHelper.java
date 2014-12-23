@@ -39,6 +39,7 @@ import io.fabric8.kubernetes.api.model.ServiceSpec;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
+import io.fabric8.utils.Maps;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
 import org.apache.commons.lang.StringUtils;
@@ -99,6 +100,36 @@ public class KubernetesHelper {
         } else {
             return null;
         }
+    }
+
+    public static String getPortalIP(Service entity) {
+        if (entity != null) {
+            ServiceSpec spec = entity.getSpec();
+            if (spec != null) {
+                return spec.getPortalIP();
+            }
+        }
+        return null;
+    }
+
+    public static Map<String, String> getSelector(Service entity) {
+        if (entity != null) {
+            ServiceSpec spec = entity.getSpec();
+            if (spec != null) {
+                return spec.getSelector();
+            }
+        }
+        return Collections.EMPTY_MAP;
+    }
+
+    public static Integer getPort(Service entity) {
+        if (entity != null) {
+            ServiceSpec spec = entity.getSpec();
+            if (spec != null) {
+                return spec.getPort();
+            }
+        }
+        return null;
     }
 
     private static String getAdditionalProperty(Map<String, String> additionalProperties, String name) {
@@ -999,11 +1030,7 @@ public class KubernetesHelper {
      * Returns the pods for the given service
      */
     public static List<Pod> getPodsForService(Service service, Iterable<Pod> pods) {
-        ServiceSpec spec = service.getSpec();
-        if (spec == null) {
-            return Collections.EMPTY_LIST;
-        }
-        Map<String, String> selector = spec.getSelector();
+        Map<String, String> selector = getSelector(service);
         Filter<Pod> podFilter = KubernetesHelper.createPodFilter(selector);
         return Filters.filter(pods, podFilter);
     }

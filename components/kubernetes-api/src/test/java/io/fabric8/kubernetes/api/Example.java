@@ -35,6 +35,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
 
 /**
  * A simple example program testing out the REST API
@@ -127,10 +129,9 @@ public class Example {
     protected static void listServices(Kubernetes kube) {
         System.out.println("Looking up services");
         ServiceList services = kube.getServices();
-        List<Service> items = services.getItems();
-        for (Service item : items) {
-            ServiceSpec spec = item.getSpec();
-            System.out.println("Service " + getId(item) + " labels: " + item.getLabels() + " selector: " + spec.getSelector() + " port: " + spec.getPort());
+        List<Service> serviceItems = services.getItems();
+        for (Service service : serviceItems) {
+            System.out.println("Service " + getId(service) + " labels: " + service.getLabels() + " selector: " + getSelector(service) + " port: " + getPort(service));
         }
         System.out.println();
 

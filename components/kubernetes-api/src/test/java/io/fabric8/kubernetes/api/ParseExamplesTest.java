@@ -30,6 +30,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.getContainerPort;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 import static io.fabric8.utils.Files.assertDirectoryExists;
 import static io.fabric8.utils.Files.assertFileExists;
@@ -91,8 +92,8 @@ public class ParseExamplesTest {
 
         assertEquals("Service", service.getKind());
 
-        Integer expectedPort = 80;
-        assertEquals(expectedPort, service.getSpec().getContainerPort().getIntVal());
+        int expectedPort = 80;
+        assertEquals(expectedPort, getContainerPort(service));
 
         ObjectMapper mapper = KubernetesFactory.createObjectMapper();
 

@@ -42,7 +42,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.fabric8.kubernetes.api.KubernetesHelper.getContainerPort;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
 import static io.fabric8.utils.Files.recursiveDelete;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -87,12 +90,11 @@ public class TemplateGeneratorTest {
         assertThat(serviceEntity).isInstanceOf(Service.class);
         Service service = (Service) serviceEntity;
         assertEquals("serviceName", serviceName, getId(service));
-        ServiceSpec spec = service.getSpec();
-        assertEquals("servicePort", servicePort, spec.getPort());
-        IntOrString containerPortNameOrNumber = spec.getContainerPort();
-        assertNotNull("containerPortNameOrNumber", containerPortNameOrNumber);
-        assertEquals("serviceContainerPort", serviceContainerPort, containerPortNameOrNumber.getIntVal());
-        assertEquals("selector", dto.getLabels(), spec.getSelector());
+        assertEquals("servicePort", servicePort, getPort(service));
+        int containerPort = getContainerPort(service);
+        assertTrue("containerPort " + containerPort, containerPort > 0);
+        assertEquals("serviceContainerPort", serviceContainerPort.intValue(), containerPort);
+        assertEquals("selector", dto.getLabels(), getSelector(service));
 
         Object entity = entities.get(1);
         assertGeneratedReplicationController(entity, dto);

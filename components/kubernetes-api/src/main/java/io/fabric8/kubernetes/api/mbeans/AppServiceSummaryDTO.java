@@ -37,9 +37,8 @@ public class AppServiceSummaryDTO {
         this.id = KubernetesHelper.getId(service);
         this.name = service.getName();
         this.namespace = service.getNamespace();
-        ServiceSpec spec = service.getSpec();
-        this.portalIP = spec.getPortalIP();
-        this.port = spec.getPort();
+        this.portalIP = KubernetesHelper.getPortalIP(service);
+        this.port = KubernetesHelper.getPort(service);
         this.labels = service.getLabels();
     }
 
