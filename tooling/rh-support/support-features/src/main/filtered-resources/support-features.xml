@@ -17,8 +17,6 @@
 
 -->
 <features name="support-${project.version}">
-    <repository>mvn:io.fabric8/fabric8-karaf/${project.version}/xml/features</repository>
-
     <feature name="support" version="${project.version}" resolver="(obr)">
         <config name="jmx.acl.com.sun.management">
             dumpHeap* = *
