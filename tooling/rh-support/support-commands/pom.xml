@@ -35,17 +35,26 @@
         </fuse.osgi.export>
         <fuse.osgi.import>
             org.apache.felix.gogo.commands,
+            org.apache.felix.gogo.commands.basic,
             org.apache.felix.service.command;status=provisional,
             org.apache.karaf.shell.console,
-            *
+            org.apache.karaf.shell.console.completer,
+            io.fabric8.support.api,
+            org.slf4j
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
-            io.fabric8.support.commands*,
+            io.fabric8.support.commands
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
             OSGI-INF/io.fabric8.support.commands.Collect.xml
         </fuse.osgi.service.component>
+        <fuse.osgi.embed.dependency>
+            fabric-boot-commands,fabric-api,fabric-utils
+        </fuse.osgi.embed.dependency>
+        <fuse.osgi.embed.transitive>
+            true
+        </fuse.osgi.embed.transitive>
     </properties>
 
     <dependencies>
