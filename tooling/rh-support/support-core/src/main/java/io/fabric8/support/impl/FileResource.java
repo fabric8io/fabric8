@@ -13,9 +13,10 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.support.api;
+package io.fabric8.support.impl;
 
 import io.fabric8.common.util.IOHelpers;
+import io.fabric8.support.api.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Created by gertv on 6/24/14.
+ * {@link io.fabric8.support.api.Resource} implemeantion to include an existing file into the
+ * support ZIP file.
  */
 public class FileResource implements Resource {
 

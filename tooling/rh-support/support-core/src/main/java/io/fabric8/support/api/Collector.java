@@ -18,10 +18,17 @@ package io.fabric8.support.api;
 import java.util.List;
 
 /**
- * Created by gertv on 6/24/14.
+ * {@link Collector}s are used by the {@link io.fabric8.support.api.SupportService} to collect
+ * information for the support ZIP file.
  */
 public interface Collector {
 
-    List<Resource> collect();
+    /**
+     * Collect a set of resources to be included in the support information ZIP file.
+     *
+     * @param factory a convenient factory for a few commonly used resource types
+     * @return the list of resources
+     */
+    List<Resource> collect(ResourceFactory factory);
 
 }

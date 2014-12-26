@@ -38,6 +38,7 @@
         <module>support-core</module>
         <module>support-commands</module>
         <module>support-karaf</module>
+        <module>support-fabric8</module>
         <module>support-features</module>
         <!--temporary, until the jar will be published on some maven repo-->
         <module>redhat-support-lib-java</module>
