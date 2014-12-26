@@ -41,7 +41,8 @@
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
             org.apache.felix.utils.manifest,
-            org.apache.felix.utils.version
+            org.apache.felix.utils.version,
+            io.fabric8.common.util
         </fuse.osgi.private.pkg>
     </properties>
 
