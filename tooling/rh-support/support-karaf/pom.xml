@@ -33,7 +33,8 @@
     <properties>
         <fuse.osgi.export />
         <fuse.osgi.private.pkg>
-            io.fabric8.support.karaf
+            io.fabric8.support.karaf,
+            io.fabric8.api.jcip
         </fuse.osgi.private.pkg>
         <fuse.osgi.import>
             *

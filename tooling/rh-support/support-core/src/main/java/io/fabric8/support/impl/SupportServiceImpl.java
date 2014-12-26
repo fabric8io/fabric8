@@ -20,9 +20,11 @@ import io.fabric8.api.scr.AbstractComponent;
 import io.fabric8.common.util.IOHelpers;
 import io.fabric8.support.api.Collector;
 import io.fabric8.support.api.Resource;
+import io.fabric8.support.api.ResourceFactory;
 import io.fabric8.support.api.SupportService;
 import org.apache.commons.io.IOUtils;
 import org.apache.felix.scr.annotations.*;
+import org.apache.felix.service.command.CommandProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,17 +60,16 @@ public final class SupportServiceImpl extends AbstractComponent implements Suppo
                cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private List<Collector> collectors = new LinkedList<Collector>();
 
+    @Reference(referenceInterface = CommandProcessor.class)
+    private CommandProcessor processor;
+
+    private ResourceFactory resourceFactory = new ResourceFactoryImpl(this);
+
     private MBeanServer mBeanServer;
     private StandardMBean mbean;
     private ObjectName objectName;
 
     private String version;
-
-    @Override
-    public boolean check() {
-        System.out.println("Checking your installation");
-        return true;
-    }
 
     @Override
     public File collect() {
@@ -81,7 +82,7 @@ public final class SupportServiceImpl extends AbstractComponent implements Suppo
 
             file = new ZipOutputStream(new FileOutputStream(result));
             for (Collector collector : collectors) {
-                for (Resource resource : collector.collect()) {
+                for (Resource resource : collector.collect(resourceFactory)) {
                     collectFromResource(file, resource);
                 }
             }
@@ -150,6 +151,10 @@ public final class SupportServiceImpl extends AbstractComponent implements Suppo
 
     protected ObjectName getObjectName() throws Exception {
         return new ObjectName(SUPPORT_TYPE_SUPPORT_SERVICE_MBEAN);
+    }
+
+    protected CommandProcessor getCommandProcessor() {
+        return processor;
     }
 
     private void safeClose(ZipOutputStream zip) {

@@ -37,7 +37,6 @@ permissions and limitations under the License.
         <fuse.osgi.import>
             javax.servlet,
             javax.servlet.http,
-            io.fabric8.api,
             *;resolution:=optional
         </fuse.osgi.import>
         <fuse.osgi.export></fuse.osgi.export>

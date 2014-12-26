@@ -13,22 +13,31 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.support.api;
+package io.fabric8.support.impl;
+
+import io.fabric8.support.api.Resource;
+import io.fabric8.support.api.ResourceFactory;
 
 import java.io.File;
 
 /**
- * Service to gather information about the container for support purposes.
+ * Default implementation for {@link io.fabric8.support.api.ResourceFactory}
  */
-public interface SupportService {
+public class ResourceFactoryImpl implements ResourceFactory {
 
-    /**
-     * Collect information about the container into a ZIP file.
-     *
-     * @return the generated ZIP file
-     */
-    File collect();
+    private final SupportServiceImpl service;
 
-    String getVersion();
+    ResourceFactoryImpl(SupportServiceImpl service) {
+        this.service = service;
+    }
 
+    @Override
+    public Resource createCommandResource(String command) {
+        return new CommandResource(service.getCommandProcessor(), command);
+    }
+
+    @Override
+    public Resource createFileResource(File file) {
+        return new FileResource(file);
+    }
 }

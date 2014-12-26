@@ -15,16 +15,27 @@
  */
 package io.fabric8.support.api;
 
-import java.io.OutputStream;
+import java.io.File;
 
 /**
- * A resource represents a single bit of support information. Every resource will be included as a seperate
- * file into the support ZIP file.
+ * Interface to allow for convenient creation of a few commonly used {@link io.fabric8.support.api.Resource} types
  */
-public interface Resource {
+public interface ResourceFactory {
 
-    void write(OutputStream os);
+    /**
+     * Creates a {@link io.fabric8.support.api.Resource} that executes a Karaf command and captures the output
+     *
+     * @param command the Karaf shell command to execute
+     * @return
+     */
+    public Resource createCommandResource(String command);
 
-    String getName();
+    /**
+     * Creates a {@link io.fabric8.support.api.Resource} that captures the contents of a given file.
+     *
+     * @param file the file
+     * @return
+     */
+    public Resource createFileResource(File file);
 
 }
