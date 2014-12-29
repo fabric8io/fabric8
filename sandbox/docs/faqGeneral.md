@@ -37,5 +37,5 @@ Windows users may consider using a VM with a linux distribution for development.
 
 FAB (Fuse Application Bundles) has been deprecated for the 1.1 release, and will be removed in the 1.2 release.
 
-The long term replacement is the [OSGi Resolver](http://fabric8.io/gitbook/osgiResolver.html) or if you wish to work with jars rather than bundles then use the [Java Container]((http://fabric8.io/gitbook/javaContainer.html)
+The long term replacement is the [OSGi Resolver](http://fabric8.io/gitbook/osgiResolver.html) or if you wish to work with jars rather than bundles then use the [Java Container](http://fabric8.io/gitbook/javaContainer.html)
 

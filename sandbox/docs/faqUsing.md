@@ -31,8 +31,8 @@ If you want to favour one DC so that its the master and have some manual recover
 
 #### How should I use Spring 4 with fabric8?
 
-Fabric8 has awesome support for Spring 4 with the [Spring Boot Container]((http://fabric8.io/gitbook/springBootContainer.html).
+Fabric8 has awesome support for Spring 4 with the [Spring Boot Container](http://fabric8.io/gitbook/springBootContainer.html).
 
-If you've been previously using OSGi or [Apache Karaf](http://karaf.apache.org/) as your application server then Spring 4 poses a challenge as its not currently available as valid OSGi bundles. So to use Spring 4 we recommend you consider moving to the [Java Container]((http://fabric8.io/gitbook/javaContainer.html) in particular the [Spring Boot Container]((http://fabric8.io/gitbook/springBootContainer.html)
+If you've been previously using OSGi or [Apache Karaf](http://karaf.apache.org/) as your application server then Spring 4 poses a challenge as its not currently available as valid OSGi bundles. So to use Spring 4 we recommend you consider moving to the [Java Container](http://fabric8.io/gitbook/javaContainer.html) in particular the [Spring Boot Container](http://fabric8.io/gitbook/springBootContainer.html)
 
 
