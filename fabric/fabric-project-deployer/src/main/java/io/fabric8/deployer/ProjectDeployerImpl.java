@@ -731,14 +731,20 @@ public final class ProjectDeployerImpl extends AbstractComponent implements Proj
     private synchronized void downloadThreadDone(ExecutorService executor) {
         if (--downloadThreads == 0) {
             executor.shutdown();
-            File file = bundleContext.getDataFile("servicemix-bundles.properties");
-            Properties props = new Properties();
-            props.putAll(servicemixBundles);
-            props.put("timestamp", Long.toString(System.currentTimeMillis()));
-            try (FileOutputStream fos = new FileOutputStream(file)) {
-                props.store(fos, "ServiceMix Bundles");
-            } catch (IOException e) {
-                // Ignore
+            try {
+                File file = bundleContext.getDataFile("servicemix-bundles.properties");
+                Properties props = new Properties();
+                props.putAll(servicemixBundles);
+                props.put("timestamp", Long.toString(System.currentTimeMillis()));
+                try (FileOutputStream fos = new FileOutputStream(file)) {
+                    props.store(fos, "ServiceMix Bundles");
+                } catch (IOException e) {
+                    // Ignore
+                }
+            } catch (IllegalStateException e) {
+                // Ignore, the bundle may have been stopped or refreshed
+                // which can cause an IllegalStateException when calling
+                // bundleContext.getDataFile()
             }
         }
         ProjectDeployerImpl.this.notifyAll();
