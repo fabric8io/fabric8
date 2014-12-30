@@ -365,7 +365,7 @@ public final class ContainerProviderUtils {
     private static void replacePropertyValue(StringBuilder sb, String path, String key, String value) {
         sb.append("replace_property_value ")
                 .append("\"").append(key).append("\" ")
-                .append("\"").append(value).append("\" ")
+                .append("\"").append(value.replace("/", "\\/")).append("\" ")
                 .append(path)
                 .append("\n");
     }
