@@ -1,6 +1,12 @@
-## Arquillian Fabric8
+## Testing
 
-This library provides an [Arquillian](http://arquillian.org/) plugin for [integration testing](http://fabric8.io/v2/testing.html) your [Apps](http://fabric8.io/v2/apps.html) on top of Kubernetes; using Kubernetes to provision and orchestrate the containers and then making [assertions](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions) that the required resources startup correctly.
+Fabric8 supports integration testing of [Apps](apps.html) using Kubernetes via [arquillian-fabric8](https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8) which provides a plugin for [Arquillian](http://arquillian.org/).
+
+[arquillian-fabric8](https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8) uses:
+
+* Kubnernetes to provision and orchestrate the containers
+* [Arquillian](http://arquillian.org/) to run the JUnit tests and perform the necessary dependency injection
+* [kubernetes-assertions](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions) and [jolokia-assertions](https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions) to provide assertions within the JUnit test case.
 
 ### Example
 
@@ -26,5 +32,3 @@ To be able to use this library add this to your [Apache Maven](http://maven.apac
                 <version>2.0.18</version>
                 <scope>test</scope>
             </dependency>
-
-

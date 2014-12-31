@@ -21,6 +21,7 @@
     * [Maven Plugin](mavenPlugin.md)
     * [Forge Addons](forge.md)
     * [Java Libraries](javaLibraries.md)
+    * [Testing](testing.md)
 * [Fabric8 Apps](fabric8Apps.md)
     * [API Registry](apiRegistry.md)
     * [MQ](fabric8MQ.md)
