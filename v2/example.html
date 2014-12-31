@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1419349501051">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.3" data-basepath="." data-revision="1420032248600">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -570,7 +570,9 @@
 <h4 id="build-the-camel-servlet-web-application"><a name="build-the-camel-servlet-web-application" class="anchor" href="#build-the-camel-servlet-web-application"><span class="fa fa-link"></span></a>Build the camel-servlet web application</h4>
 <p>From the distribution or source code perform these commands to push the docker image:</p>
 <pre><code>git clone https://github.com/fabric8io/quickstarts.git
-cd quickstarts/war/camel-servlet
+cd quickstarts
+</code></pre><p>Now lets navigate to the specific quickstart:</p>
+<pre><code>cd quickstarts/war/camel-servlet
 mvn clean install docker:build
 docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0-SNAPSHOT
 </code></pre><p>Now lets deploy the image into the Kubernetes environment:</p>
