@@ -147,6 +147,22 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
     }
 
     /**
+     * Performs an assertion on the <code>JSONArray</code> value of an Attribute on an MBean
+     */
+    public JSONArrayAssert jsonArrayAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
+        Object value = attributeValue(mbean, attribute);
+        return Assertions.assertJSONArray(value);
+    }
+
+    /**
+     * Performs an assertion on the <code>JSONObject</code> value of an Attribute on an MBean
+     */
+    public JSONObjectAssert jsonObjectAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
+        Object value = attributeValue(mbean, attribute);
+        return Assertions.assertJSONObject(value);
+    }
+
+    /**
      * Performs an assertion on the <code>List</code> value of an Attribute on an MBean
      */
     public ListAssert listAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
@@ -186,7 +202,10 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
         return Assertions.assertString(value);
     }
 
-    protected Object attributeValue(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
+    /**
+     * Returns the attribute value of the given mbean and attribute name
+     */
+    public Object attributeValue(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         ObjectName objectName = new ObjectName(mbean);
         J4pResponse<J4pReadRequest> results = client.execute(new J4pReadRequest(objectName, attribute));
         return results.getValue();
