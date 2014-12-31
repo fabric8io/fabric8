@@ -51,6 +51,13 @@ public class JSONObjectAssert extends ObjectAssert<JSONObject> {
     }
 
     /**
+     * Returns an assertion on the size of the collection
+     */
+    public IntegerAssert assertSize() {
+        return (IntegerAssert) assertThat(get().size()).as("size");
+    }
+
+    /**
      * Asserts that there is a value at the given key returning the assertion object so that further assertions can be chained
      */
     public ObjectAssert assertObject(String key) {

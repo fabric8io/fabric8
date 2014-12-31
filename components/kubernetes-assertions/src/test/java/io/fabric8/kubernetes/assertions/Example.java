@@ -36,6 +36,7 @@ public class Example {
             System.out.println("About to run test on: " + client.getAddress());
 
             assertThat(client).pods().runningStatus().filterLabel("component", "fabric8Console").hasSize(1);
+            assertThat(client).pods().runningStatus().filterLabel("component", "fabric8Console").assertSize().isGreaterThan(0);
 
             assertAssertionError(new Block() {
                 @Override

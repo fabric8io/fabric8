@@ -19,6 +19,7 @@ package io.fabric8.kubernetes.assertions;
 
 import io.fabric8.kubernetes.api.model.Pod;
 import org.assertj.core.api.Condition;
+import org.assertj.core.api.IntegerAssert;
 import org.assertj.core.api.ListAssert;
 import org.assertj.core.api.filter.Filters;
 import org.assertj.core.util.Lists;
@@ -38,6 +39,14 @@ public class PodsAssert extends ListAssert<Pod> {
 
     public PodsAssert filter(Condition<Pod> condition) {
         return assertThat(Filters.filter(actual).having(condition).get());
+    }
+
+
+    /**
+     * Returns an assertion on the size of the list
+     */
+    public IntegerAssert assertSize() {
+        return (IntegerAssert) org.assertj.core.api.Assertions.assertThat(get().size()).as("size");
     }
 
     /**

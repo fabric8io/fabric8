@@ -50,6 +50,13 @@ public class JSONArrayAssert extends ListAssert {
     }
 
     /**
+     * Returns an assertion on the size of the collection
+     */
+    public IntegerAssert assertSize() {
+        return (IntegerAssert) assertThat(get().size()).as("size");
+    }
+
+    /**
      * Asserts that there is a value at the given index returning the assertion object so that further assertions can be chained
      */
     public ObjectAssert assertObject(int index) {
