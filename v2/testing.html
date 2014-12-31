@@ -5,7 +5,7 @@
         
         
         <meta charset="UTF-8">
-        <title>Tools | Fabric8 Documentation</title>
+        <title>Testing | Fabric8 Documentation</title>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="robots" content="index, follow">
@@ -15,13 +15,13 @@
         <meta name="generator" content="www.gitbook.io">
 
         
-        <link rel="next" href="./console.html" />
+        <link rel="next" href="./fabric8Apps.html" />
         
         
-        <link rel="prev" href="./example.html" />
+        <link rel="prev" href="./javaLibraries.html" />
         
 
-        <meta property="og:title" content="Tools | Fabric8 Documentation">
+        <meta property="og:title" content="Testing | Fabric8 Documentation">
         <meta property="og:site_name" content="Fabric8 Documentation">
         <meta property="og:type" content="book">
         <meta property="og:locale" content="en_US">
@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3" data-basepath="." data-revision="1420044244332">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.6" data-basepath="." data-revision="1420044244332">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -493,7 +493,7 @@
             <div class="page-wrapper" tabindex="-1">
                 <div class="book-progress">
     <div class="bar">
-        <div class="inner" style="width: 56.25%;min-width: 53.125%;"></div>
+        <div class="inner" style="width: 75%;min-width: 71.875%;"></div>
     </div>
     <div class="chapters">
     
@@ -535,17 +535,17 @@
     
         <a href="./tools.html" title="Tools" class="chapter done new-chapter" data-progress="3" style="left: 56.25%;"></a>
     
-        <a href="./console.html" title="Console" class="chapter  " data-progress="3.1" style="left: 59.375%;"></a>
+        <a href="./console.html" title="Console" class="chapter done " data-progress="3.1" style="left: 59.375%;"></a>
     
-        <a href="./quickstarts.html" title="QuickStarts" class="chapter  " data-progress="3.2" style="left: 62.5%;"></a>
+        <a href="./quickstarts.html" title="QuickStarts" class="chapter done " data-progress="3.2" style="left: 62.5%;"></a>
     
-        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter  " data-progress="3.3" style="left: 65.625%;"></a>
+        <a href="./mavenPlugin.html" title="Maven Plugin" class="chapter done " data-progress="3.3" style="left: 65.625%;"></a>
     
-        <a href="./forge.html" title="Forge Addons" class="chapter  " data-progress="3.4" style="left: 68.75%;"></a>
+        <a href="./forge.html" title="Forge Addons" class="chapter done " data-progress="3.4" style="left: 68.75%;"></a>
     
-        <a href="./javaLibraries.html" title="Java Libraries" class="chapter  " data-progress="3.5" style="left: 71.875%;"></a>
+        <a href="./javaLibraries.html" title="Java Libraries" class="chapter done " data-progress="3.5" style="left: 71.875%;"></a>
     
-        <a href="./testing.html" title="Testing" class="chapter  " data-progress="3.6" style="left: 75%;"></a>
+        <a href="./testing.html" title="Testing" class="chapter done " data-progress="3.6" style="left: 75%;"></a>
     
         <a href="./fabric8Apps.html" title="Fabric8 Apps" class="chapter  new-chapter" data-progress="4" style="left: 78.125%;"></a>
     
@@ -568,19 +568,35 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_32">
+                    <section class="normal" id="section-gitbook_31">
                     
-                        <h2 id="tools"><a name="tools" class="anchor" href="#tools"><span class="fa fa-link"></span></a>Tools</h2>
-<p>There are various tools to help you work with fabric8:</p>
+                        <h2 id="testing"><a name="testing" class="anchor" href="#testing"><span class="fa fa-link"></span></a>Testing</h2>
+<p>Fabric8 supports integration testing of <a href="apps.html">Apps</a> using Kubernetes via <a href="https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8" target="_blank">arquillian-fabric8</a> which provides a plugin for <a href="http://arquillian.org/" target="_blank">Arquillian</a>.</p>
+<p><a href="https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8" target="_blank">arquillian-fabric8</a> uses:</p>
 <ul>
-<li><a href="console.html">Console</a> provides a nice web application based on <a href="http://hawt.io/" target="_blank">hawtio</a> for working with your <a href="pods.html">pods</a>, <a href="replicationControllers.html">replication controllers</a> or <a href="services.html">services</a></li>
-<li><a href="quickstarts.html">QuickStarts</a> provide a really easy way to get started</li>
-<li><a href="mavenPlugin.html">Maven Plugin</a> helps you work with fabric8 and kubernetes from inside maven, your builds and releases</li>
-<li><a href="forge.html">Forge Addons</a> provides a universal command line shell for working with your projects and fabric8</li>
-<li><a href="javaLibraries.html">Java Libraries</a> provides a number of Java libraries for working with and testing Kubernetes, Docker, etcd, ActiveMQ etc.</li>
-<li><a href="testing.html">Testing</a> helps you perform integration tests of your <a href="apps.html">apps</a></li>
+<li>Kubnernetes to provision and orchestrate the containers</li>
+<li><a href="http://arquillian.org/" target="_blank">Arquillian</a> to run the JUnit tests and perform the necessary dependency injection</li>
+<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions" target="_blank">kubernetes-assertions</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions" target="_blank">jolokia-assertions</a> to provide assertions within the JUnit test case.</li>
 </ul>
-
+<h3 id="example"><a name="example" class="anchor" href="#example"><span class="fa fa-link"></span></a>Example</h3>
+<p>There are lots of examples in the <a href="http://fabric8.io/v2/quickstarts.html" target="_blank">quickstarts</a>.</p>
+<p>Here is an <a href="https://github.com/fabric8io/quickstarts/blob/master/apps/jadvisor/src/test/java/io/fabric8/apps/jadvisor/JadvisorTest.java#L31" target="_blank">example Arquillian Fabric8 integration test</a></p>
+<h3 id="assertion-libraries"><a name="assertion-libraries" class="anchor" href="#assertion-libraries"><span class="fa fa-link"></span></a>Assertion libraries</h3>
+<p>The following libraries are provided to help you create concise assertions using <a href="http://joel-costigliola.github.io/assertj/" target="_blank">assertj</a> based DSL:</p>
+<ul>
+<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions" target="_blank">kubernetes-assertions</a> provides a set of <a href="http://joel-costigliola.github.io/assertj/" target="_blank">assertj</a> assertions of the form <strong>assertThat(kubernetesResource)</strong> for working with the <a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api" target="_blank">kubernetes-api</a></li>
+<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions" target="_blank">jolokia-assertions</a> makes it easy to perform assertions on remote JVMs via JMX using  <a href="http://jolokia.org/" target="_blank">Jolokia</a> over HTTP/JSON</li>
+<li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia" target="_blank">kubernetes-jolokia</a> makes it easy to work with the <a href="http://jolokia.org/reference/html/clients.html#client-java" target="_blank">Jolokia Client API</a> and Java containers running in <a href="http://fabric8.io/v2/pods.html" target="_blank">Pods</a> inside Kubernetes which expose the Jolokia port</li>
+</ul>
+<h3 id="add-it-to-your-maven-pom-xml"><a name="add-it-to-your-maven-pom-xml" class="anchor" href="#add-it-to-your-maven-pom-xml"><span class="fa fa-link"></span></a>Add it to your Maven pom.xml</h3>
+<p>To be able to use this library add this to your <a href="http://maven.apache.org/" target="_blank">Apache Maven</a> based project add this into your pom.xml</p>
+<pre><code>        &lt;dependency&gt;
+            &lt;groupId&gt;io.fabric8&lt;/groupId&gt;
+            &lt;artifactId&gt;arquillian-fabric8&lt;/artifactId&gt;
+            &lt;version&gt;2.0.18&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+</code></pre>
                     
                     </section>
                 
@@ -589,10 +605,10 @@
         </div>
 
         
-        <a href="./example.html" class="navigation navigation-prev " aria-label="Previous page: Deploy an example"><i class="fa fa-angle-left"></i></a>
+        <a href="./javaLibraries.html" class="navigation navigation-prev " aria-label="Previous page: Java Libraries"><i class="fa fa-angle-left"></i></a>
         
         
-        <a href="./console.html" class="navigation navigation-next " aria-label="Next page: Console"><i class="fa fa-angle-right"></i></a>
+        <a href="./fabric8Apps.html" class="navigation navigation-next " aria-label="Next page: Fabric8 Apps"><i class="fa fa-angle-right"></i></a>
         
     </div>
 </div>
