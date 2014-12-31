@@ -22,6 +22,8 @@ import org.jolokia.client.J4pClient;
 import org.jolokia.jvmagent.JvmAgent;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.fabric8.jolokia.assertions.Assertions.assertThat;
 import static io.fabric8.utils.Asserts.assertAssertionError;
@@ -30,6 +32,8 @@ import static io.fabric8.utils.Asserts.assertAssertionError;
 /**
  */
 public class ExampleTest {
+    private static final transient Logger LOG = LoggerFactory.getLogger(ExampleTest.class);
+
     protected J4pClient client;
 
     @Before
@@ -43,7 +47,7 @@ public class ExampleTest {
     }
 
     @Test
-    public void testSomething() throws Exception {
+    public void testDoubleAttribute() throws Exception {
         assertThat(client).doubleAttribute("java.lang:type=OperatingSystem", "SystemCpuLoad").isGreaterThanOrEqualTo(0.0);
 
         assertAssertionError(new Block() {
@@ -52,6 +56,16 @@ public class ExampleTest {
                 assertThat(client).doubleAttribute("java.lang:type=OperatingSystem", "SystemCpuLoad").isLessThan(-2000.0);
             }
         });
+    }
+
+    @Test
+    public void testOperationNullResult() throws Exception {
+        assertThat(client).operation("java.util.logging:type=Logging", "getLoggerLevel", "io.fabric8.jolokia.assertions").isNull();
+    }
+
+    @Test
+    public void testComplexOperation() throws Exception {
+        assertThat(client).operation("java.lang:type=Threading", "dumpAllThreads", true, true).isNotNull();
     }
 
 }

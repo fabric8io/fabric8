@@ -34,6 +34,7 @@ import org.assertj.core.api.ShortAssert;
 import org.assertj.core.api.StringAssert;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
+import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pReadRequest;
 import org.jolokia.client.request.J4pResponse;
 
@@ -59,10 +60,9 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
         this.client = client;
     }
 
-    protected static <T> T asInstanceOf(Object value, Class<T> clazz) {
-        assertThat(value).isInstanceOf(clazz);
-        return clazz.cast(value);
-    }
+    // Attribute assertions
+    //-------------------------------------------------------------------------
+
 
     /**
      * Performs an assertion on the value of an Attribute of a given Class on an MBean
@@ -85,8 +85,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public BigDecimalAssert bigDecimalAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        BigDecimal typedValue = asInstanceOf(value, BigDecimal.class);
-        return (BigDecimalAssert) assertThat(typedValue);
+        return assertBigDecimal(value);
     }
 
     /**
@@ -94,8 +93,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public BooleanAssert booleanAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        Boolean typedValue = asInstanceOf(value, Boolean.class);
-        return (BooleanAssert) assertThat(typedValue);
+        return assertBoolean(value);
     }
 
     /**
@@ -103,8 +101,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public ByteAssert byteAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        Byte typedValue = asInstanceOf(value, Byte.class);
-        return (ByteAssert) assertThat(typedValue);
+        return assertByte(value);
     }
 
     /**
@@ -112,8 +109,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public CharacterAssert characterAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        Character typedValue = asInstanceOf(value, Character.class);
-        return (CharacterAssert) assertThat(typedValue);
+        return assertCharacter(value);
     }
 
     /**
@@ -121,8 +117,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public DateAssert dateAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        Date typedValue = asInstanceOf(value, Date.class);
-        return (DateAssert) assertThat(typedValue);
+        return assertDate(value);
     }
 
     /**
@@ -130,8 +125,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public DoubleAssert doubleAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        Double typedValue = asInstanceOf(value, Double.class);
-        return (DoubleAssert) assertThat(typedValue);
+        return assertDouble(value);
     }
 
     /**
@@ -139,8 +133,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public FloatAssert floatAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        Float typedValue = asInstanceOf(value, Float.class);
-        return (FloatAssert) assertThat(typedValue);
+        return assertFloat(value);
     }
 
     /**
@@ -148,8 +141,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public IntegerAssert integerAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        Integer typedValue = asInstanceOf(value, Integer.class);
-        return (IntegerAssert) assertThat(typedValue);
+        return assertInteger(value);
     }
 
     /**
@@ -157,8 +149,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public ListAssert listAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        List typedValue = asInstanceOf(value, List.class);
-        return (ListAssert) assertThat(typedValue);
+        return assertList(value);
     }
 
     /**
@@ -166,8 +157,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public LongAssert longAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        Long typedValue = asInstanceOf(value, Long.class);
-        return (LongAssert) assertThat(typedValue);
+        return assertLong(value);
     }
 
     /**
@@ -175,8 +165,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public MapAssert mapAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        Map typedValue = asInstanceOf(value, Map.class);
-        return (MapAssert) assertThat(typedValue);
+        return assertMap(value);
     }
 
     /**
@@ -184,8 +173,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public ShortAssert shortAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        Short typedValue = asInstanceOf(value, Short.class);
-        return (ShortAssert) assertThat(typedValue);
+        return assertShort(value);
     }
 
     /**
@@ -193,15 +181,222 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public StringAssert stringAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        String typedValue = asInstanceOf(value, String.class);
-        return (StringAssert) assertThat(typedValue);
+        return assertString(value);
     }
-
 
     protected Object attributeValue(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         ObjectName objectName = new ObjectName(mbean);
         J4pResponse<J4pReadRequest> results = client.execute(new J4pReadRequest(objectName, attribute));
         return results.getValue();
     }
+
+    // Operation assertions
+    //-------------------------------------------------------------------------
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link BigDecimal} result
+     * so that assertions can be performed on the resulting {@link BigDecimalAssert}
+     */
+    public BigDecimalAssert bigDecimalOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return assertBigDecimal(value);
+    }
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link Boolean} result
+     * so that assertions can be performed on the resulting {@link BooleanAssert}
+     */
+    public BooleanAssert booleanOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return assertBoolean(value);
+    }
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link Byte} result
+     * so that assertions can be performed on the resulting {@link ByteAssert}
+     */
+    public ByteAssert byteOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return assertByte(value);
+    }
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link Character} result
+     * so that assertions can be performed on the resulting {@link CharacterAssert}
+     */
+    public CharacterAssert characterOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return assertCharacter(value);
+    }
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link Date} result
+     * so that assertions can be performed on the resulting {@link DateAssert}
+     */
+    public DateAssert dateOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return assertDate(value);
+    }
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link Double} result
+     * so that assertions can be performed on the resulting {@link DoubleAssert}
+     */
+    public DoubleAssert doubleOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return assertDouble(value);
+    }
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link Float} result
+     * so that assertions can be performed on the resulting {@link FloatAssert}
+     */
+    public FloatAssert floatOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return assertFloat(value);
+    }
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link Integer} result
+     * so that assertions can be performed on the resulting {@link IntegerAssert}
+     */
+    public IntegerAssert integerOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return assertInteger(value);
+    }
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link List} result
+     * so that assertions can be performed on the resulting {@link ListAssert}
+     */
+    public ListAssert listOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return assertList(value);
+    }
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link Long} result
+     * so that assertions can be performed on the resulting {@link LongAssert}
+     */
+    public LongAssert longOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return assertLong(value);
+    }
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link Map} result
+     * so that assertions can be performed on the resulting {@link MapAssert}
+     */
+    public MapAssert mapOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return assertMap(value);
+    }
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link Short} result
+     * so that assertions can be performed on the resulting {@link ShortAssert}
+     */
+    public ShortAssert shortOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return assertShort(value);
+    }
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link String} result
+     * so that assertions can be performed on the resulting {@link StringAssert}
+     */
+    public StringAssert stringOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return assertString(value);
+    }
+
+
+    /**
+     * Performs an assertion on the value of an Attribute on an MBean
+     */
+    public ObjectAssert<?> operation(String mbean, String operation, Object... arguments) throws J4pException, MalformedObjectNameException {
+        Object value = operationResult(mbean, operation, arguments);
+        return (ObjectAssert<?>) assertThat(value);
+    }
+
+
+    protected Object operationResult(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        ObjectName objectName = new ObjectName(mbean);
+        J4pResponse<J4pExecRequest> results = client.execute(new J4pExecRequest(objectName, operation, arguments));
+        return results.getValue();
+    }
+
+
+    protected static <T> T asInstanceOf(Object value, Class<T> clazz) {
+        assertThat(value).isInstanceOf(clazz);
+        return clazz.cast(value);
+    }
+
+    protected static BigDecimalAssert assertBigDecimal(Object value) {
+        BigDecimal typedValue = asInstanceOf(value, BigDecimal.class);
+        return (BigDecimalAssert) assertThat(typedValue);
+    }
+
+    protected static BooleanAssert assertBoolean(Object value) {
+        Boolean typedValue = asInstanceOf(value, Boolean.class);
+        return (BooleanAssert) assertThat(typedValue);
+    }
+
+    protected static ByteAssert assertByte(Object value) {
+        Byte typedValue = asInstanceOf(value, Byte.class);
+        return (ByteAssert) assertThat(typedValue);
+    }
+
+    protected static CharacterAssert assertCharacter(Object value) {
+        Character typedValue = asInstanceOf(value, Character.class);
+        return (CharacterAssert) assertThat(typedValue);
+    }
+
+    protected static DateAssert assertDate(Object value) {
+        Date typedValue = asInstanceOf(value, Date.class);
+        return (DateAssert) assertThat(typedValue);
+    }
+
+    protected static DoubleAssert assertDouble(Object value) {
+        Double typedValue = asInstanceOf(value, Double.class);
+        return (DoubleAssert) assertThat(typedValue);
+    }
+
+    protected static FloatAssert assertFloat(Object value) {
+        Float typedValue = asInstanceOf(value, Float.class);
+        return (FloatAssert) assertThat(typedValue);
+    }
+
+    protected static IntegerAssert assertInteger(Object value) {
+        Integer typedValue = asInstanceOf(value, Integer.class);
+        return (IntegerAssert) assertThat(typedValue);
+    }
+
+    protected static ListAssert assertList(Object value) {
+        List typedValue = asInstanceOf(value, List.class);
+        return (ListAssert) assertThat(typedValue);
+    }
+
+    protected static LongAssert assertLong(Object value) {
+        Long typedValue = asInstanceOf(value, Long.class);
+        return (LongAssert) assertThat(typedValue);
+    }
+
+    protected static MapAssert assertMap(Object value) {
+        Map typedValue = asInstanceOf(value, Map.class);
+        return (MapAssert) assertThat(typedValue);
+    }
+
+    protected static ShortAssert assertShort(Object value) {
+        Short typedValue = asInstanceOf(value, Short.class);
+        return (ShortAssert) assertThat(typedValue);
+    }
+
+    protected static StringAssert assertString(Object value) {
+        String typedValue = asInstanceOf(value, String.class);
+        return (StringAssert) assertThat(typedValue);
+    }
+
+
 
 }
