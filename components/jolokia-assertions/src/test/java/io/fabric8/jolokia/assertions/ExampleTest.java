@@ -64,8 +64,29 @@ public class ExampleTest {
     }
 
     @Test
-    public void testComplexOperation() throws Exception {
+    public void testOperationNotNullResult() throws Exception {
         assertThat(client).operation("java.lang:type=Threading", "dumpAllThreads", true, true).isNotNull();
+    }
+
+    @Test
+    public void testJsonArrayOperation() throws Exception {
+        final JSONArrayAssert dumpAllThreads = assertThat(client).jsonArrayOperation("java.lang:type=Threading", "dumpAllThreads", true, true);
+        int size = dumpAllThreads.get().size();
+        assertThat(size).isGreaterThan(1);
+        for (int i = 0; i < size; i++) {
+            JSONObjectAssert object = dumpAllThreads.assertJSONObject(i);
+            object.isNotNull();
+            object.assertString("threadName").isNotEmpty();
+        }
+
+        // lets try access an invalid array
+        final int badIndex = size + 100;
+        assertAssertionError(new Block() {
+            @Override
+            public void invoke() throws Exception {
+                dumpAllThreads.assertJSONObject(badIndex);
+            }
+        });
     }
 
 }

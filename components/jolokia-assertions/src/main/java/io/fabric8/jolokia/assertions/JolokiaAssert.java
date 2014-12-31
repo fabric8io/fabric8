@@ -37,6 +37,8 @@ import org.jolokia.client.exception.J4pException;
 import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pReadRequest;
 import org.jolokia.client.request.J4pResponse;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -85,7 +87,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public BigDecimalAssert bigDecimalAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        return assertBigDecimal(value);
+        return Assertions.assertBigDecimal(value);
     }
 
     /**
@@ -93,7 +95,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public BooleanAssert booleanAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        return assertBoolean(value);
+        return Assertions.assertBoolean(value);
     }
 
     /**
@@ -101,7 +103,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public ByteAssert byteAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        return assertByte(value);
+        return Assertions.assertByte(value);
     }
 
     /**
@@ -109,7 +111,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public CharacterAssert characterAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        return assertCharacter(value);
+        return Assertions.assertCharacter(value);
     }
 
     /**
@@ -117,7 +119,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public DateAssert dateAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        return assertDate(value);
+        return Assertions.assertDate(value);
     }
 
     /**
@@ -125,7 +127,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public DoubleAssert doubleAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        return assertDouble(value);
+        return Assertions.assertDouble(value);
     }
 
     /**
@@ -133,7 +135,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public FloatAssert floatAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        return assertFloat(value);
+        return Assertions.assertFloat(value);
     }
 
     /**
@@ -141,7 +143,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public IntegerAssert integerAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        return assertInteger(value);
+        return Assertions.assertInteger(value);
     }
 
     /**
@@ -149,7 +151,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public ListAssert listAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        return assertList(value);
+        return Assertions.assertList(value);
     }
 
     /**
@@ -157,7 +159,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public LongAssert longAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        return assertLong(value);
+        return Assertions.assertLong(value);
     }
 
     /**
@@ -165,7 +167,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public MapAssert mapAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        return assertMap(value);
+        return Assertions.assertMap(value);
     }
 
     /**
@@ -173,7 +175,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public ShortAssert shortAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        return assertShort(value);
+        return Assertions.assertShort(value);
     }
 
     /**
@@ -181,7 +183,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public StringAssert stringAttribute(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
         Object value = attributeValue(mbean, attribute);
-        return assertString(value);
+        return Assertions.assertString(value);
     }
 
     protected Object attributeValue(String mbean, String attribute) throws MalformedObjectNameException, J4pException {
@@ -199,7 +201,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public BigDecimalAssert bigDecimalOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
         Object value = operationResult(mbean, operation, arguments);
-        return assertBigDecimal(value);
+        return Assertions.assertBigDecimal(value);
     }
 
     /**
@@ -208,7 +210,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public BooleanAssert booleanOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
         Object value = operationResult(mbean, operation, arguments);
-        return assertBoolean(value);
+        return Assertions.assertBoolean(value);
     }
 
     /**
@@ -217,7 +219,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public ByteAssert byteOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
         Object value = operationResult(mbean, operation, arguments);
-        return assertByte(value);
+        return Assertions.assertByte(value);
     }
 
     /**
@@ -226,7 +228,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public CharacterAssert characterOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
         Object value = operationResult(mbean, operation, arguments);
-        return assertCharacter(value);
+        return Assertions.assertCharacter(value);
     }
 
     /**
@@ -235,7 +237,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public DateAssert dateOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
         Object value = operationResult(mbean, operation, arguments);
-        return assertDate(value);
+        return Assertions.assertDate(value);
     }
 
     /**
@@ -244,7 +246,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public DoubleAssert doubleOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
         Object value = operationResult(mbean, operation, arguments);
-        return assertDouble(value);
+        return Assertions.assertDouble(value);
     }
 
     /**
@@ -253,7 +255,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public FloatAssert floatOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
         Object value = operationResult(mbean, operation, arguments);
-        return assertFloat(value);
+        return Assertions.assertFloat(value);
     }
 
     /**
@@ -262,7 +264,25 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public IntegerAssert integerOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
         Object value = operationResult(mbean, operation, arguments);
-        return assertInteger(value);
+        return Assertions.assertInteger(value);
+    }
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link JSONArray} result
+     * so that assertions can be performed on the resulting {@link JSONArrayAssert}
+     */
+    public JSONArrayAssert jsonArrayOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return Assertions.assertJSONArray(value);
+    }
+
+    /**
+     * Performs the given operation name and arguments on the mbean and asserts that there is a non null {@link JSONObject} result
+     * so that assertions can be performed on the resulting {@link JSONObjectAssert}
+     */
+    public JSONObjectAssert jsonObjectOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
+        Object value = operationResult(mbean, operation, arguments);
+        return Assertions.assertJSONObject(value);
     }
 
     /**
@@ -271,7 +291,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public ListAssert listOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
         Object value = operationResult(mbean, operation, arguments);
-        return assertList(value);
+        return Assertions.assertList(value);
     }
 
     /**
@@ -280,7 +300,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public LongAssert longOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
         Object value = operationResult(mbean, operation, arguments);
-        return assertLong(value);
+        return Assertions.assertLong(value);
     }
 
     /**
@@ -289,7 +309,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public MapAssert mapOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
         Object value = operationResult(mbean, operation, arguments);
-        return assertMap(value);
+        return Assertions.assertMap(value);
     }
 
     /**
@@ -298,7 +318,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public ShortAssert shortOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
         Object value = operationResult(mbean, operation, arguments);
-        return assertShort(value);
+        return Assertions.assertShort(value);
     }
 
     /**
@@ -307,7 +327,7 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
      */
     public StringAssert stringOperation(String mbean, String operation, Object... arguments) throws MalformedObjectNameException, J4pException {
         Object value = operationResult(mbean, operation, arguments);
-        return assertString(value);
+        return Assertions.assertString(value);
     }
 
 
@@ -325,78 +345,6 @@ public class JolokiaAssert extends AbstractAssert<JolokiaAssert, J4pClient> {
         J4pResponse<J4pExecRequest> results = client.execute(new J4pExecRequest(objectName, operation, arguments));
         return results.getValue();
     }
-
-
-    protected static <T> T asInstanceOf(Object value, Class<T> clazz) {
-        assertThat(value).isInstanceOf(clazz);
-        return clazz.cast(value);
-    }
-
-    protected static BigDecimalAssert assertBigDecimal(Object value) {
-        BigDecimal typedValue = asInstanceOf(value, BigDecimal.class);
-        return (BigDecimalAssert) assertThat(typedValue);
-    }
-
-    protected static BooleanAssert assertBoolean(Object value) {
-        Boolean typedValue = asInstanceOf(value, Boolean.class);
-        return (BooleanAssert) assertThat(typedValue);
-    }
-
-    protected static ByteAssert assertByte(Object value) {
-        Byte typedValue = asInstanceOf(value, Byte.class);
-        return (ByteAssert) assertThat(typedValue);
-    }
-
-    protected static CharacterAssert assertCharacter(Object value) {
-        Character typedValue = asInstanceOf(value, Character.class);
-        return (CharacterAssert) assertThat(typedValue);
-    }
-
-    protected static DateAssert assertDate(Object value) {
-        Date typedValue = asInstanceOf(value, Date.class);
-        return (DateAssert) assertThat(typedValue);
-    }
-
-    protected static DoubleAssert assertDouble(Object value) {
-        Double typedValue = asInstanceOf(value, Double.class);
-        return (DoubleAssert) assertThat(typedValue);
-    }
-
-    protected static FloatAssert assertFloat(Object value) {
-        Float typedValue = asInstanceOf(value, Float.class);
-        return (FloatAssert) assertThat(typedValue);
-    }
-
-    protected static IntegerAssert assertInteger(Object value) {
-        Integer typedValue = asInstanceOf(value, Integer.class);
-        return (IntegerAssert) assertThat(typedValue);
-    }
-
-    protected static ListAssert assertList(Object value) {
-        List typedValue = asInstanceOf(value, List.class);
-        return (ListAssert) assertThat(typedValue);
-    }
-
-    protected static LongAssert assertLong(Object value) {
-        Long typedValue = asInstanceOf(value, Long.class);
-        return (LongAssert) assertThat(typedValue);
-    }
-
-    protected static MapAssert assertMap(Object value) {
-        Map typedValue = asInstanceOf(value, Map.class);
-        return (MapAssert) assertThat(typedValue);
-    }
-
-    protected static ShortAssert assertShort(Object value) {
-        Short typedValue = asInstanceOf(value, Short.class);
-        return (ShortAssert) assertThat(typedValue);
-    }
-
-    protected static StringAssert assertString(Object value) {
-        String typedValue = asInstanceOf(value, String.class);
-        return (StringAssert) assertThat(typedValue);
-    }
-
 
 
 }

@@ -41,6 +41,13 @@ public class PodsAssert extends ListAssert<Pod> {
     }
 
     /**
+     * Returns the underlying actual value
+     */
+    public List<Pod> get() {
+        return actual;
+    }
+
+    /**
      * Filters the pods using the given label key and value
      */
     public PodsAssert filterLabel(String key, String value) {
