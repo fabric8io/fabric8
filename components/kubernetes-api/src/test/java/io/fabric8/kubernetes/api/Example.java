@@ -107,8 +107,10 @@ public class Example {
                 ContainerManifest manifest = desiredState.getManifest();
                 if (manifest != null) {
                     List<Container> containers = manifest.getContainers();
-                    for (Container container : containers) {
-                        System.out.println("Container " + container.getImage() + " " + container.getCommand() + " ports: " + container.getPorts());
+                    if (containers != null) {
+                        for (Container container : containers) {
+                            System.out.println("Container " + container.getImage() + " " + container.getCommand() + " ports: " + container.getPorts());
+                        }
                     }
                 }
             }
