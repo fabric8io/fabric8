@@ -77,9 +77,6 @@ public class Example {
         PodState desiredState = new PodState();
         pod.setDesiredState(desiredState);
         ContainerManifest manifest = new ContainerManifest();
-        // TODO
-        // manifest.setVersion(ContainerManifest.Version.V_1_BETA_1);
-        //manifest.setVersion("v1beta1");
         desiredState.setManifest(manifest);
 
         Container manifestContainer = new Container();
