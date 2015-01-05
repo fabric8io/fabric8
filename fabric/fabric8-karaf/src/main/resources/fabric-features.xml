@@ -98,7 +98,7 @@
             <bundle start-level="30">mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.scr/${karaf-version}</bundle>
         </conditional>
     </feature>
-   
+
     <feature name="jsr-311" version="${project.version}">
         <bundle>mvn:javax.ws.rs/jsr311-api/1.1.1</bundle>
     </feature>
@@ -290,6 +290,11 @@
         <feature version="${project.version}">fabric-groups</feature>
         <feature version="[2,3)">war</feature>
         <bundle>mvn:io.fabric8.mq/mq-http-discovery/${project.version}</bundle>
+    </feature>
+
+    <!-- This is just here for backwards compatibility - please use camel-amq if you can -->
+    <feature name="mq-fabric-camel" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">camel-amq</feature>
     </feature>
 
     <feature name="camel-amq" version="${project.version}" resolver="(obr)">
