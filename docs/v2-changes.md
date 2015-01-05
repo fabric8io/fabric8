@@ -60,7 +60,7 @@ From the implementation perspective V2 is a big change but we see this as an evo
  * delegates the creation of the docker containers down to the Kubernetes REST API (rather than having lots of different container providers and ways to do it that often caused confusion)
  * switching from the V1 Gateway to using [Kubernetes Services](services.html) via the Kubernetes REST API to provide simpler standard approach to the discovery of services in a more Docker-like way.
 
-In many ways 1.x of fabric8 was a set of quickstarts, runtimes, libraries, a console and a kubernetes-like layer all combined into a single project (with V1 Gateway being very like [Kubernetes Services](services.html). So to create containers we have a REST API and CLI.
+In many ways 1.x of fabric8 was a set of quickstarts, runtimes, libraries, a console and a kubernetes-like layer all combined into a single project (with V1 Gateway being very like [Kubernetes Services](services.html)). So to create containers we have a REST API and CLI.
 
 So in 2.x of fabric8 we use the exact same quickstarts, runtimes, libraries and console. The web console is still [hawtio](http://hawt.io/); its got all the same tooling for ActiveMQ, Camel, CXF, OSGi; its got a wiki based on a git repository. The difference is it uses the Kubernetes REST API to create containers (rather than the fabric8 1.x one) and uses the kubernetes CLI.
 
@@ -84,4 +84,4 @@ Incidentally the V2 way to provision an ensemble of ZooKeeper or etcd cluster is
 
 Absolutely! :) In many ways the move to V2 makes it much easier to support any language, framework or application server as we can reuse all of the Docker ecosystem of images in V2.
 
-So nothing is going away. V2 just standardises things to make them easier to consume, describe, support and makes things more reusable. (e.g. you can take your docker container image to anywhere that can run docker and take your [App JSON](apps.html) to any Kubernetes environment (like OpenShift Online, OpenShift Enterprise, Google Compute Engine, Azure, VMWare etc). They'd be easy to port to run natively on any place docker runs too really (e.g. EC2).
+So nothing is going away. V2 just standardises things to make them easier to consume, describe, support and makes things more reusable. For example, you can take your docker container image anywhere that can run docker and take your [App JSON](apps.html) to any Kubernetes environment (like OpenShift Online, OpenShift Enterprise, Google Compute Engine, Azure, VMWare etc.). They'd be easy to port to run natively on any place docker runs too really (e.g. EC2).
