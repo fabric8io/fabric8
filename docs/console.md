@@ -31,7 +31,7 @@ You can also drag folder from the Library to your desktop and local file system 
 
 ### Using Kubernetes/OpenShift
 
-If you are using Kubernetes or OpenShift you need to find the URL for the console service.. From there you should be able to navigate to the tabs for [pods](pods.html), [replication controllers] and [services](services.html)
+If you are using Kubernetes or OpenShift you need to find the URL for the console service. From there you should be able to navigate to the tabs for [pods](pods.html), [replication controllers] and [services](services.html).
 
 e.g. if you are using the command line after [installing fabric8](getStartedOpenShift.html) and you have setup the **kube** alias then you can find the IP and port thats running the console via:
 
@@ -42,9 +42,9 @@ e.g.
     $ kube list services | grep hawtio
     hawtio-service                          name=hawtioPod      172.121.17.3        8080
 
-So now in this case you can open the console at [http://172.121.17.3:8080](http://172.121.17.3:8080). The actual IP address may vary based on your installation. (We will use DNS names soon instead)
+So now in this case you can open the console at [http://172.121.17.3:8080](http://172.121.17.3:8080). The actual IP address may vary based on your installation. (We will use DNS names soon instead.)
 
-Note that if you use the [single command installer](http://fabric8.io/v2/openShiftDocker.html#run-openshift-v3-using-docker) then a browser window with the console should open automatically
+Note that if you use the [single command installer](http://fabric8.io/v2/openShiftDocker.html#run-openshift-v3-using-docker) then a browser window with the console should open automatically.
 
 ### Using Jube
 
