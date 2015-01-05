@@ -1,6 +1,6 @@
 ## Run OpenShift V3 using Docker
 
-Probably the easiest way to use OpenShift V3 on your laptop is to use [Docker](https://docs.docker.com/) since thats the only thing you need to install and often developers already have it.
+Probably the easiest way to use OpenShift V3 on your laptop is to use [Docker](https://docs.docker.com/) since that's the only thing you need to install and often developers already have it.
 
 First you'll need to [install docker](https://docs.docker.com/installation/), the later the version generally the better it is!
 

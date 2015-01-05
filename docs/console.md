@@ -4,11 +4,11 @@ The Fabric8 Console provides a rich HTML5 web application for working with [Kube
 
 ### Getting Started
 
-The console has a number of tabs that let you work with the various Kubernetes resources. We'll highlight the main ones you 'll need to use:
+The console has a number of tabs that let you work with the various Kubernetes resources. We'll highlight the main ones you'll need to use:
 
 #### Controllers
 
-The main tab to get a feel for whats running in your system is the **Controllers** tab which shows all the [replication controllers](replicationControllers.html).
+The main tab to get a feel for what's running in your system is the **Controllers** tab which shows all the [replication controllers](replicationControllers.html).
 
 To scale up or down a controller to run more or less [pods](pods.html) (containers) just increase or decrease the **Desired Replicas** value and hit **Save** and hey presto pods are created or destroyed.
 

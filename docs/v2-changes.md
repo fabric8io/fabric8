@@ -1,14 +1,14 @@
 ## Changes since Version 1.x
 
-In fabric8 1.x we assumed only a JVM was available and then we build lots of abstractions that are very similar to [Kubernetes](http://kubernetes.io).
+In fabric8 1.x we assumed only a JVM was available and then we built lots of abstractions that are very similar to [Kubernetes](http://kubernetes.io).
 
-In fabric8 2.x we have decided to assume a base of the [Kubernetes](http://kubernetes.io) &amp; [Docker](http://docker.io/) and to use the kubernetes REST API to orchestrate containers. For non-linux platforms which don't support Docker we have [Jube](jube.html) which is a pure Java implementation of Kubernetes which emulates Docker on any platform that supports Java 7.
+In fabric8 2.x we have decided to assume a base of [Kubernetes](http://kubernetes.io) &amp; [Docker](http://docker.io/) and to use the Kubernetes REST API to orchestrate containers. For non-linux platforms which don't support Docker we have [Jube](jube.html) which is a pure Java implementation of Kubernetes which emulates Docker on any platform that supports Java 7.
 
 Because of this approach we do quite a few things a little differently under the covers. In fabric8 1.x we had to do a lot of work to replicate the kinds of things Kubernetes gives us; things like discovery of services, wiring, auto   scaling etc.
 
 However as an end user writing, say, Java applications or using technologies like ActiveMQ, Camel or containers like Karaf, Tomcat, WildFly or Spring Boot things should seem pretty similar; though in many ways things get much simpler now (as discovery, wiring and packaging is now simpler and more standardised).
 
-The aim of fabric8 on kubernetes is still to support any runtime application server or software distribution at all; though docker containers will be the standard mechanism for packaging and running software. The change from 1.x to 2.x does not mean any application servers are no longer supported; it's the reverse - now any docker image is supported ;).
+The aim of fabric8 on Kubernetes is still to support any runtime application server or software distribution at all; though docker containers will be the standard mechanism for packaging and running software. The change from 1.x to 2.x does not mean any application servers are no longer supported; it's the reverse - now any docker image is supported ;).
 
 ### How does it affect my build?
 
@@ -26,7 +26,7 @@ Finally thanks to [Services](services.html) the wiring of your components to the
 
 #### Service Discovery
 
-Instead of using a ZooKeeper registry in 1.x to store all service endpoints so that we could inject them into other services using property resolvers; we instead use the [Services](services.html) abstraction in kubernetes. This means clients of a network service just bind to a fixed port on the local network; there's no need to have any complex wiring inside the application.
+Instead of using a ZooKeeper registry in 1.x to store all service endpoints so that we could inject them into other services using property resolvers; we instead use the [Services](services.html) abstraction in Kubernetes. This means clients of a network service just bind to a fixed port on the local network; there's no need to have any complex wiring inside the application.
 
 This radically simplifies applications. For example any application using ActiveMQ just needs to bind to the localhost and port of the region of the ActiveMQ cluster. For many Camel endpoints, the endpoint just needs to choose which port number maps to the service it needs to bind to for things like databases.
 
@@ -38,7 +38,7 @@ In fabric8 2.x we default to using [Kubernetes Application Templates](apps.html)
 
 In addition to support the ability to modify source or metadata inside a wiki / git repository (e.g. camel routes or Java code) we default to using the [Kubernetes source to image extension](builds.html). i.e. Profiles map to a build which has a git repository; this can be viewed/edited via the wiki, a web based IDE or traditional IDE or editor.
 
-So source projects are editted; they result in builds which then generate container images which are then used by deployments.
+So source projects are edited; they result in builds which then generate container images which are then used by deployments.
 
 #### Auto Scaling
 
@@ -60,13 +60,13 @@ From the implementation perspective V2 is a big change but we see this as an evo
  * delegates the creation of the docker containers down to the Kubernetes REST API (rather than having lots of different container providers and ways to do it that often caused confusion)
  * switching from the V1 Gateway to using [Kubernetes Services](services.html) via the Kubernetes REST API to provide simpler standard approach to the discovery of services in a more Docker-like way.
 
-In many ways 1.x of fabric8 was a set of quickstarts, runtimes, libraries, a console and a kubernetes-like layer all combined into a single project (with V1 Gateway being very like [Kubernetes Services](services.html)). So to create containers we have a REST API and CLI.
+In many ways 1.x of fabric8 was a set of quickstarts, runtimes, libraries, a console and a Kubernetes-like layer all combined into a single project (with V1 Gateway being very like [Kubernetes Services](services.html)). So to create containers we have a REST API and CLI.
 
-So in 2.x of fabric8 we use the exact same quickstarts, runtimes, libraries and console. The web console is still [hawtio](http://hawt.io/); it's got all the same tooling for ActiveMQ, Camel, CXF, OSGi; it's got a wiki based on a git repository. The difference is it uses the Kubernetes REST API to create containers (rather than the fabric8 1.x one) and uses the kubernetes CLI.
+So in 2.x of fabric8 we use the exact same quickstarts, runtimes, libraries and console. The web console is still [hawtio](http://hawt.io/); it's got all the same tooling for ActiveMQ, Camel, CXF, OSGi; it's got a wiki based on a git repository. The difference is it uses the Kubernetes REST API to create containers (rather than the fabric8 1.x one) and uses the Kubernetes CLI.
 
 Another side benefit of V2 is that less wiring Java code is required. e.g. any library using ActiveMQ or the camel-activemq component no longer needs to specify a brokerURL or include custom discovery code; it can just set the **AMQ_PORT** environment variable to point to the service port for the broker group (e.g. the regional cluster of ActiveMQ required) so that the code connects to localhost and [Kubernetes Services](services.html) does the rest! Note this also works for all programming languages and clients too.
 
-Some of the old 1.x code got refactored into making the [Jube](jube.html) which is the pure Java implementation of Kubernetes we can use for running fabric8 on platforms which don't have native Kubernetes or Docker support.
+Some of the old 1.x code got refactored into making [Jube](jube.html) which is the pure Java implementation of Kubernetes we can use for running fabric8 on platforms which don't have native Kubernetes or Docker support.
 
 #### Does that mean there is no need to use etcd / ZK clusters in V2?
 
@@ -74,7 +74,7 @@ Kubernetes/OpenShift ships with etcd today and uses that to manage the minions. 
 
 Though depending on multi tenant requirements; applications might not be allowed to reuse the same etcd as an Kubernetes/OpenShift  installation. e.g. OpenShift Online with 2 million apps probably isn't gonna let any user application just read and write lots of data to the global etcd ;).
 
-So there will still be a need to provision clusters of etcd or ZooKeeper for use inside an application. Given the use of etcd inside Kubernetes/OpenShift then it might be more typical to create sub-clusters (or have a kinda of partitioned etcd cluster).
+So there will still be a need to provision clusters of etcd or ZooKeeper for use inside an application. Given the use of etcd inside Kubernetes/OpenShift then it might be more typical to create sub-clusters (or have a kind of partitioned etcd cluster).
 
 Though from the fabric8 project we're aiming to provide an abstraction layer so when master election / partitionining is required in Java code we can use either etcd or ZK clusters; and can - if allowed - reuse the same underlying etcd cluster.
 

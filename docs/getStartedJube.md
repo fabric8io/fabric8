@@ -9,7 +9,6 @@ First you need to get the latest [Jube](jube.html) by [downloading jube-2.0.18-i
 
 You can then startup Jube via:
 
-    cd jube-2.0.18-image
     ./run.sh
 
 If your operating system doesn't have the executable flag set on the run script; try

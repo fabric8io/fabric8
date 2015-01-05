@@ -21,13 +21,13 @@ From the distribution or source code perform these commands to push the docker i
     git clone https://github.com/fabric8io/quickstarts.git
     cd quickstarts
 
-Now lets navigate to the specific quickstart:
+Now let's navigate to the specific quickstart:
 
     cd quickstarts/war/camel-servlet
     mvn clean install docker:build
     docker push $DOCKER_REGISTRY/quickstart/war-camel-servlet:2.0-SNAPSHOT
 
-Now lets deploy the image into the Kubernetes environment:
+Now let's deploy the image into the Kubernetes environment:
 
     mvn fabric8:run
 

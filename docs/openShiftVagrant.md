@@ -1,6 +1,6 @@
 ## Run OpenShift V3 using Vagrant
 
-Lets run OpenShift V3 using Vagrant. Be sure to check the latest [OpenShift docs](https://github.com/openshift/origin/blob/master/CONTRIBUTING.adoc#develop-on-virtual-machine-using-vagrant) just in case!.
+Let's run OpenShift V3 using Vagrant. Be sure to check the latest [OpenShift docs](https://github.com/openshift/origin/blob/master/CONTRIBUTING.adoc#develop-on-virtual-machine-using-vagrant) just in case!.
 
 * You will need to [install vagrant](https://www.vagrantup.com/downloads.html) if you have not done so already
 * clone the [OpenShift Origin repository](https://github.com/openshift/origin)

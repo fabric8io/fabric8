@@ -36,7 +36,7 @@ Try reading the [overview](/v2/overview.html) to see if that helps give you an i
     * making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform
     * to support non-Linux platforms which do not yet have native Go Lang or Docker support there's also [Jube](jube.html) which is a pure Java implementation of Kubernetes and emulator of Docker for running Java middleware on any operating system that supports Java 7.
 
-#### What Java versions is supported?
+#### What Java versions are supported?
 
 fabric8 runs on Java 7 and 8.
 

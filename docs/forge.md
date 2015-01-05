@@ -16,7 +16,7 @@ You should be able to see the new commands that are installed via:
     kube<TAB>
     camel<TAB>
 
-You have to be a little patient; first time you try tab complete it can take a few seconds to figure out whats available.
+You have to be a little patient; first time you try tab complete it can take a few seconds to figure out what's available.
 
 NOTE the Camel commands are currently not available as they require Camel functionality which hasn't been released yet. When Apache Camel 2.15 is released the forge Camel commands will be available.
 
