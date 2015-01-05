@@ -32,6 +32,7 @@ Try reading the [overview](/v2/overview.html) to see if that helps give you an i
     * deep and rich [tooling](http://fabric8.io/v2/tools.html) to make it easy to develop Java applications on Kubernetes/OpenShift such as the [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html) and [Forge Addons](http://fabric8.io/v2/forge.html)
     * [Java libraries](javaLibraries.html) for working with [kubernetes](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-api) and [docker](https://github.com/fabric8io/fabric8/tree/master/components/docker-api) along with [kubernetes and jolokia](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-jolokia) so its easier to develop Java based tools and services which work well with Kubernetes
     * [Fabric8 Apps](fabric8Apps.html) to make it easier to consume integration and messaging services
+    * [Testing with Arquillian](testing.html) helps you perform integration tests of your [apps](apps.html)
     * making JBoss Middleware reusable appliances with lots of tooling so they are easy to consume in a universal console and platform
     * to support non-Linux platforms which do not yet have native Go Lang or Docker support there's also [Jube](jube.html) which is a pure Java implementation of Kubernetes and emulator of Docker for running Java middleware on any operating system that supports Java 7.
 
