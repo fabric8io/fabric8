@@ -19,9 +19,16 @@ package io.fabric8.kubernetes.api.mbeans;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.PodStatus;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerManifest;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodState;
+import io.fabric8.kubernetes.api.model.Port;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  */
@@ -30,12 +37,37 @@ public class AppPodSummaryDTO {
     private final String namespace;
     private final PodStatus status;
     private final Map<String, String> labels;
+    private final Set<Integer> containerPorts = new HashSet<>();
+    private String podIP;
+    private String host;
 
     public AppPodSummaryDTO(Pod pod) {
         this.id = KubernetesHelper.getId(pod);
         this.namespace = pod.getNamespace();
         this.status = KubernetesHelper.getPodStatus(pod);
         this.labels = pod.getLabels();
+        PodState currentState = pod.getCurrentState();
+        if (currentState != null) {
+            this.podIP = currentState.getPodIP();
+            this.host = currentState.getHost();
+            ContainerManifest manifest = currentState.getManifest();
+            if (manifest != null) {
+                List<Container> containers = manifest.getContainers();
+                if (containers != null) {
+                    for (Container container : containers) {
+                        List<Port> ports = container.getPorts();
+                        if (ports != null) {
+                            for (Port port : ports) {
+                                Integer containerPort = port.getContainerPort();
+                                if (containerPort != null) {
+                                    containerPorts.add(containerPort);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -61,5 +93,17 @@ public class AppPodSummaryDTO {
 
     public Map<String, String> getLabels() {
         return labels;
+    }
+
+    public Set<Integer> getContainerPorts() {
+        return containerPorts;
+    }
+
+    public String getPodIP() {
+        return podIP;
+    }
+
+    public String getHost() {
+        return host;
     }
 }
