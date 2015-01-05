@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.1.1" data-basepath="." data-revision="1420451043462">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.1.1" data-basepath="." data-revision="1420464466328">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -568,7 +568,7 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_20">
+                    <section class="normal" id="section-gitbook_19">
                     
                         <h3 id="running-a-quickstart-on-jube"><a name="running-a-quickstart-on-jube" class="anchor" href="#running-a-quickstart-on-jube"><span class="fa fa-link"></span></a>Running a quickstart on Jube</h3>
 <p>We are going to run a quickstart in Jube using the <a href="mavenPlugin.html#running">mvn fabric8:run goal</a>. Type the following:</p>
@@ -593,10 +593,10 @@ mvn clean install fabric8:json fabric8:run
 <pre><code>mvn clean install jube:build fabric8:json fabric8:run
 </code></pre><h4 id="if-a-pod-fails-to-start"><a name="if-a-pod-fails-to-start" class="anchor" href="#if-a-pod-fails-to-start"><span class="fa fa-link"></span></a>If a pod fails to start</h4>
 <p>Sometimes you may see a pod not start; it may then try again and create more pods. If you hover over the status icon on the <a href="http://localhost:8585/hawtio/kubernetes/pods" target="_blank">Pods tab</a> you should see a tooltip explanation for the failure (or click on the pod and look at the detail view).</p>
-<p>Usually this means that Jube could not find the <a href="http://fabric8.io/jube/imageZips.html" target="_blank">image zip</a> in a maven repository for the docker container names referenced in your pod JSON. You may want to check that you properly built the associated image zip and its available in a maven repository at the maven coordinates that the exception reports it used.</p>
+<p>Usually this means that Jube could not find the <a href="http://fabric8.io/jube/imageZips.html" target="_blank">image zip</a> in a maven repository for the docker container names referenced in your pod JSON. You may want to check that you properly built the associated image zip and it&apos;s available in a maven repository at the maven coordinates that the exception reports it used.</p>
 <h4 id="scaling-your-replication-controllers"><a name="scaling-your-replication-controllers" class="anchor" href="#scaling-your-replication-controllers"><span class="fa fa-link"></span></a>Scaling your replication controllers</h4>
 <p>When you are running some <a href="replicationControllers.html">replication controllers</a> you can use the <a href="http://localhost:8585/hawtio/kubernetes/replicationControllers" target="_blank">Replication Controllers tab</a> and update the replica count (then hit <strong>Save</strong>) and in a few moments you should see Jube create or destroy pods so that the current running system matches your required number of replicas.</p>
-<p>Another approach is to specify the replica count in your pom.xml via the <strong>fabric8.replicas</strong> <a href="mavenPlugin.html#properties-for-configuring-the-generation">property</a>. For example to run 2 pods (containers) for a project try::</p>
+<p>Another approach is to specify the replica count in your pom.xml via the <strong>fabric8.replicas</strong> <a href="mavenPlugin.html#properties-for-configuring-the-generation">property</a>. For example to run 2 pods (containers) for a project try:</p>
 <pre><code>mvn fabric8:run -Dfabric8.replicas=2
 </code></pre><h4 id="stopping-pods"><a name="stopping-pods" class="anchor" href="#stopping-pods"><span class="fa fa-link"></span></a>Stopping pods</h4>
 <p>The easiest way to stop pods is to set the number of replicas to 0 on the <a href="http://localhost:8585/hawtio/kubernetes/replicationControllers" target="_blank">Replication Controllers tab</a>. Then delete the replication controller if you wish.</p>

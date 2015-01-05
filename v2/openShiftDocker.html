@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1420451043462">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1420464466328">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -571,7 +571,7 @@
                     <section class="normal" id="section-gitbook_23">
                     
                         <h2 id="run-openshift-v3-using-docker"><a name="run-openshift-v3-using-docker" class="anchor" href="#run-openshift-v3-using-docker"><span class="fa fa-link"></span></a>Run OpenShift V3 using Docker</h2>
-<p>Probably the easiest way to use OpenShift V3 on your laptop is to use <a href="https://docs.docker.com/" target="_blank">Docker</a> since thats the only thing you need to install and often developers already have it.</p>
+<p>Probably the easiest way to use OpenShift V3 on your laptop is to use <a href="https://docs.docker.com/" target="_blank">Docker</a> since that&apos;s the only thing you need to install and often developers already have it.</p>
 <p>First you&apos;ll need to <a href="https://docs.docker.com/installation/" target="_blank">install docker</a>, the later the version generally the better it is!</p>
 <p>If you fancy starting OpenShift V3 the super-easy way, run this one-liner (after setting some <a href="#environment-variables">environment variables</a> if you&#x2019;re running on OS X):</p>
 <pre><code>bash &lt;(curl -sSL https://bit.ly/get-fabric8)
@@ -642,11 +642,11 @@ docker run -v /var/run/docker.sock:/var/run/docker.sock --net=host --privileged 
 </code></pre><p>You can now access the web console at <a href="http://192.168.59.103:8484/hawtio/kubernetes/pods" target="_blank">http://192.168.59.103:8484/hawtio/kubernetes/pods</a>.</p>
 <p>If you have setup the <strong>dockerhost</strong> alias in your /etc/hosts as described below you can use the simpler URL <a href="http://dockerhost:8484/hawtio/" target="_blank">http://dockerhost:8484/hawtio/</a></p>
 <h3 id="docker-configuration-if-you-are-using-a-mac-windows-or-other-platforms"><a name="docker-configuration-if-you-are-using-a-mac-windows-or-other-platforms" class="anchor" href="#docker-configuration-if-you-are-using-a-mac-windows-or-other-platforms"><span class="fa fa-link"></span></a>Docker configuration if you are using a Mac, Windows or other platforms</h3>
-<p>Here&apos;s some tips on how to setup docker on your machine.</p>
-<p>First we recommend you upgrade your boot2docker image so its the latest greatest.</p>
+<p>Here are some tips on how to setup docker on your machine.</p>
+<p>First we recommend you upgrade your boot2docker image so it&apos;s the latest greatest.</p>
 <pre><code>boot2docker download
 boot2docker up
-</code></pre><p>If you are not on linux <a href="http://viget.com/extend/how-to-use-docker-on-os-x-the-missing-guide" target="_blank">this article</a> describes how its a good idea to define <strong>dockerhost</strong> to point to your boot2docker ip address via:</p>
+</code></pre><p>If you are not on linux <a href="http://viget.com/extend/how-to-use-docker-on-os-x-the-missing-guide" target="_blank">this article</a> describes how it&apos;s a good idea to define <strong>dockerhost</strong> to point to your boot2docker ip address via:</p>
 <pre><code>echo $(docker-ip) dockerhost | sudo tee -a /etc/hosts
 </code></pre><p>Then you can access the REST API for OpenShift on the easier to remember and type URL: <a href="http://dockerhost:8080/api/v1beta1/pods" target="_blank">http://dockerhost:8080/api/v1beta1/pods</a></p>
 

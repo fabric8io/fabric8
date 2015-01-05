@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.1" data-basepath="." data-revision="1420451043462">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.1" data-basepath="." data-revision="1420464466328">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -573,9 +573,9 @@
                         <h2 id="console"><a name="console" class="anchor" href="#console"><span class="fa fa-link"></span></a>Console</h2>
 <p>The Fabric8 Console provides a rich HTML5 web application for working with <a href="http://kubernetes.io/" target="_blank">Kubernetes</a>. The front end code is based on the <a href="http://hawt.io/" target="_blank">hawtio project</a> which supports Kubernetes and reuses the various <a href="http://hawt.io/plugins/index.html" target="_blank">hawtio plugins</a>.</p>
 <h3 id="getting-started"><a name="getting-started" class="anchor" href="#getting-started"><span class="fa fa-link"></span></a>Getting Started</h3>
-<p>The console has a number of tabs that let you work with the various Kubernetes resources. We&apos;ll highlight the main ones you &apos;ll need to use:</p>
+<p>The console has a number of tabs that let you work with the various Kubernetes resources. We&apos;ll highlight the main ones you&apos;ll need to use:</p>
 <h4 id="controllers"><a name="controllers" class="anchor" href="#controllers"><span class="fa fa-link"></span></a>Controllers</h4>
-<p>The main tab to get a feel for whats running in your system is the <strong>Controllers</strong> tab which shows all the <a href="replicationControllers.html">replication controllers</a>.</p>
+<p>The main tab to get a feel for what&apos;s running in your system is the <strong>Controllers</strong> tab which shows all the <a href="replicationControllers.html">replication controllers</a>.</p>
 <p>To scale up or down a controller to run more or less <a href="pods.html">pods</a> (containers) just increase or decrease the <strong>Desired Replicas</strong> value and hit <strong>Save</strong> and hey presto pods are created or destroyed.</p>
 <p><img src="images/controllers.png" alt="controllers tab screenshot"></p>
 <h4 id="overview"><a name="overview" class="anchor" href="#overview"><span class="fa fa-link"></span></a>Overview</h4>
@@ -586,14 +586,14 @@
 <p>You can also drag folder from the Library to your desktop and local file system to save them.</p>
 <p><img src="images/library.png" alt="library tab screenshot"></p>
 <h3 id="using-kubernetes-openshift"><a name="using-kubernetes-openshift" class="anchor" href="#using-kubernetes-openshift"><span class="fa fa-link"></span></a>Using Kubernetes/OpenShift</h3>
-<p>If you are using Kubernetes or OpenShift you need to find the URL for the console service.. From there you should be able to navigate to the tabs for <a href="pods.html">pods</a>, [replication controllers] and <a href="services.html">services</a></p>
+<p>If you are using Kubernetes or OpenShift you need to find the URL for the console service. From there you should be able to navigate to the tabs for <a href="pods.html">pods</a>, [replication controllers] and <a href="services.html">services</a>.</p>
 <p>e.g. if you are using the command line after <a href="getStartedOpenShift.html">installing fabric8</a> and you have setup the <strong>kube</strong> alias then you can find the IP and port thats running the console via:</p>
 <pre><code>kube list services | grep hawtio
 </code></pre><p>e.g.</p>
 <pre><code>$ kube list services | grep hawtio
 hawtio-service                          name=hawtioPod      172.121.17.3        8080
-</code></pre><p>So now in this case you can open the console at <a href="http://172.121.17.3:8080" target="_blank">http://172.121.17.3:8080</a>. The actual IP address may vary based on your installation. (We will use DNS names soon instead)</p>
-<p>Note that if you use the <a href="http://fabric8.io/v2/openShiftDocker.html#run-openshift-v3-using-docker" target="_blank">single command installer</a> then a browser window with the console should open automatically</p>
+</code></pre><p>So now in this case you can open the console at <a href="http://172.121.17.3:8080" target="_blank">http://172.121.17.3:8080</a>. The actual IP address may vary based on your installation. (We will use DNS names soon instead.)</p>
+<p>Note that if you use the <a href="http://fabric8.io/v2/openShiftDocker.html#run-openshift-v3-using-docker" target="_blank">single command installer</a> then a browser window with the console should open automatically.</p>
 <h3 id="using-jube"><a name="using-jube" class="anchor" href="#using-jube"><span class="fa fa-link"></span></a>Using Jube</h3>
 <p>If you are using Jube then the web console should be visible at <a href="http://localhost:8585/hawtio/" target="_blank">http://localhost:8585/hawtio/</a>. You can then view these tabs:</p>
 <ul>

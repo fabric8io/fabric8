@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="1.5" data-basepath="." data-revision="1420451043462">
+    <div class="book" data-github="fabric8io/fabric8" data-level="1.5" data-basepath="." data-revision="1420464466328">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -568,13 +568,13 @@
 
                 <div class="page-inner">
                 
-                    <section class="normal" id="section-gitbook_4">
+                    <section class="normal" id="section-gitbook_5">
                     
                         <h2 id="apps-or-kubernetes-application-templates-"><a name="apps-or-kubernetes-application-templates-" class="anchor" href="#apps-or-kubernetes-application-templates-"><span class="fa fa-link"></span></a>Apps (or Kubernetes Application Templates)</h2>
 <p>Apps (or Kubernetes Application Templates) are a Kubernetes extension proposed by OpenShift 3 to enable a single JSON file to configure various Kubernetes resources (<a href="pods.html">Pods</a>, <a href="replicationControllers.html">Replication Controllers</a>, <a href="services.html">Services</a>). </p>
 <p>So an App could define some database containers, cache tier and application servers; it represents a typical enterprise or web application (as opposed to a mobile or desktop app).</p>
 <p>Here&apos;s an <a href="https://github.com/openshift/origin/blob/master/api/examples/template.json" target="_blank">example template</a>. </p>
-<p>A template is also <strong>parameterizable</strong>; so that as the template is instantiated by a tool (command line, web console) the user is prompted to enter the parameter values to generate the configuration used to generate the pods, replication controllers and services. </p>
+<p>A template is also <strong>parameterizable</strong>; so that as the template is instantiated by a tool (command line, web console) the user is prompted to enter the parameter values to create the configuration used to generate the pods, replication controllers and services. </p>
 <p>For example an App could generate an ActiveMQ regional cluster; where the template is parameterised with the region name, it&apos;s service port number and the number of replicas.</p>
 <p>An App can then be packaged into an <a href="appzip.html">App Zip</a> for easier distribution between environments.</p>
 
