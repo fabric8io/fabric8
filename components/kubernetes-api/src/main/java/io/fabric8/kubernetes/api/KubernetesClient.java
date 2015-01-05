@@ -34,6 +34,8 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -280,6 +282,36 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
             }
         }
         return null;
+    }
+
+    public List<Pod> getPodsForReplicationController(ReplicationController service) {
+        return KubernetesHelper.getPodsForReplicationController(service, getPodList());
+    }
+
+    public List<Pod> getPodsForReplicationController(String replicationControllerId) {
+        ReplicationController replicationController = getReplicationController(replicationControllerId);
+        if (replicationController == null) {
+            return Collections.EMPTY_LIST;
+        } else {
+            return getPodsForReplicationController(replicationController);
+        }
+    }
+
+    public List<Pod> getPodsForService(Service service) {
+        return KubernetesHelper.getPodsForService(service, getPodList());
+    }
+
+    public List<Pod> getPodsForService(String serviceId) {
+        Service service = getService(serviceId);
+        if (service == null) {
+            return Collections.EMPTY_LIST;
+        } else {
+            return getPodsForService(service);
+        }
+    }
+
+    protected Collection<Pod> getPodList() {
+        return KubernetesHelper.getPodMap(this).values();
     }
 
 }
