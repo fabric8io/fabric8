@@ -175,9 +175,9 @@
         </executions>
         <configuration>
 <!--
-          <mainClass>io.fabric8.kubernetes.api.Example</mainClass>
--->
           <mainClass>io.fabric8.kubernetes.api.ViewAppSummaries</mainClass>
+-->
+          <mainClass>io.fabric8.kubernetes.api.Example</mainClass>
           <classpathScope>test</classpathScope>
         </configuration>
       </plugin>

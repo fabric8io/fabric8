@@ -62,11 +62,12 @@ public class Example {
     }
 
     protected static void createPod(Kubernetes kubernetes, KubernetesFactory kubernetesFactory) throws Exception {
-        String name = "cheese";
-        String image = "fabric8/fabric8";
+        String name = "console2";
+        String image = "fabric8/hawtio";
 
         Pod pod = new Pod();
         pod.setId(name);
+        pod.setApiVersion("v1beta1");
 
         Map<String, String> labels = new HashMap<>();
         labels.put("fabric8", "true");
@@ -78,7 +79,7 @@ public class Example {
         ContainerManifest manifest = new ContainerManifest();
         // TODO
         // manifest.setVersion(ContainerManifest.Version.V_1_BETA_1);
-        manifest.setVersion("v1beta1");
+        //manifest.setVersion("v1beta1");
         desiredState.setManifest(manifest);
 
         Container manifestContainer = new Container();
