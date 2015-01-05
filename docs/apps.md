@@ -6,7 +6,7 @@ So an App could define some database containers, cache tier and application serv
 
 Here's an [example template](https://github.com/openshift/origin/blob/master/api/examples/template.json). 
 
-A template is also **parameterizable**; so that as the template is instantiated by a tool (command line, web console) the user is prompted to enter the parameter values to generate the configuration used to generate the pods, replication controllers and services. 
+A template is also **parameterizable**; so that as the template is instantiated by a tool (command line, web console) the user is prompted to enter the parameter values to create the configuration used to generate the pods, replication controllers and services. 
 
 For example an App could generate an ActiveMQ regional cluster; where the template is parameterised with the region name, it's service port number and the number of replicas.
 
