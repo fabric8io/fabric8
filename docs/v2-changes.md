@@ -8,7 +8,7 @@ Because of this approach we do quite a few things a little differently under the
 
 However as an end user writing, say, Java applications or using technologies like ActiveMQ, Camel or containers like Karaf, Tomcat, WildFly or Spring Boot things should seem pretty similar; though in many ways things get much simpler now (as discovery, wiring and packaging is now simpler and more standardised).
 
-The aim of fabric8 on kubernetes is still to support any runtime application server or software distribution at all; though docker containers will be the standard mechanism for packaging and running software. The change from 1.x to 2.x does not mean any application servers are no longer supported; its the reverse - now any docker image is supported ;).
+The aim of fabric8 on kubernetes is still to support any runtime application server or software distribution at all; though docker containers will be the standard mechanism for packaging and running software. The change from 1.x to 2.x does not mean any application servers are no longer supported; it's the reverse - now any docker image is supported ;).
 
 ### How does it affect my build?
 
@@ -20,7 +20,7 @@ fabric8 2.x [builds](builds.html) just support a different way to automatically 
 
 In addition the use of [Apps](apps.html) allows you to define replication controllers (to specify how many instances of a container you need) as a single deployment JSON. You can also compose multiple containers together and orchestrate them into a single [App JSON file](apps.html).
 
-Finally thanks to [Services](services.html) the wiring of your components to their services becomes much simpler; usually its just a case of using an environment variable for the service port (with a nice default value).
+Finally thanks to [Services](services.html) the wiring of your components to their services becomes much simpler; usually it's just a case of using an environment variable for the service port (with a nice default value).
 
 ### Architecture differences
 
@@ -62,7 +62,7 @@ From the implementation perspective V2 is a big change but we see this as an evo
 
 In many ways 1.x of fabric8 was a set of quickstarts, runtimes, libraries, a console and a kubernetes-like layer all combined into a single project (with V1 Gateway being very like [Kubernetes Services](services.html)). So to create containers we have a REST API and CLI.
 
-So in 2.x of fabric8 we use the exact same quickstarts, runtimes, libraries and console. The web console is still [hawtio](http://hawt.io/); its got all the same tooling for ActiveMQ, Camel, CXF, OSGi; its got a wiki based on a git repository. The difference is it uses the Kubernetes REST API to create containers (rather than the fabric8 1.x one) and uses the kubernetes CLI.
+So in 2.x of fabric8 we use the exact same quickstarts, runtimes, libraries and console. The web console is still [hawtio](http://hawt.io/); it's got all the same tooling for ActiveMQ, Camel, CXF, OSGi; it's got a wiki based on a git repository. The difference is it uses the Kubernetes REST API to create containers (rather than the fabric8 1.x one) and uses the kubernetes CLI.
 
 Another side benefit of V2 is that less wiring Java code is required. e.g. any library using ActiveMQ or the camel-activemq component no longer needs to specify a brokerURL or include custom discovery code; it can just set the **AMQ_PORT** environment variable to point to the service port for the broker group (e.g. the regional cluster of ActiveMQ required) so that the code connects to localhost and [Kubernetes Services](services.html) does the rest! Note this also works for all programming languages and clients too.
 

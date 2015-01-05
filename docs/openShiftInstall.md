@@ -12,7 +12,7 @@ OpenShift 3 - Fabric8 has been tested against it.
 
 ### Building OpenShift V3
 
-Its actually pretty quick and easy to build OpenShift yourself:
+It's actually pretty quick and easy to build OpenShift yourself:
 
 * install [go lang](http://golang.org/doc/install)
 * [compile the OpenShift V3 code](https://github.com/jstrachan/origin/blob/master/README.md#getting-started) via this command:

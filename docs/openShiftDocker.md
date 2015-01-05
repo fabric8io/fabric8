@@ -127,14 +127,14 @@ If you have setup the **dockerhost** alias in your /etc/hosts as described below
 
 ### Docker configuration if you are using a Mac, Windows or other platforms
 
-Here's some tips on how to setup docker on your machine.
+Here are some tips on how to setup docker on your machine.
 
-First we recommend you upgrade your boot2docker image so its the latest greatest.
+First we recommend you upgrade your boot2docker image so it's the latest greatest.
 
     boot2docker download
     boot2docker up
 
-If you are not on linux [this article](http://viget.com/extend/how-to-use-docker-on-os-x-the-missing-guide) describes how its a good idea to define **dockerhost** to point to your boot2docker ip address via:
+If you are not on linux [this article](http://viget.com/extend/how-to-use-docker-on-os-x-the-missing-guide) describes how it's a good idea to define **dockerhost** to point to your boot2docker ip address via:
 
     echo $(docker-ip) dockerhost | sudo tee -a /etc/hosts
 

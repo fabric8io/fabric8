@@ -8,7 +8,7 @@ Essentially an App Zip is just a standard ZIP file which includes one or more Ap
 
 You can drag and drop App Zips from the fabric8 console (in the **wiki** tab) to/from your desktop to make it really easy to install [Apps](apps.html) or share them.
 
-Its also easy to host an App Zip on any website so its easy for others to download and install.
+It's also easy to host an App Zip on any website so it's easy for others to download and install.
 
 You can also use the [mvn fabric8:deploy](mavenPlugin.html#deploying) goal to deploy a locally built App Zip file into the wiki.
 
@@ -36,4 +36,4 @@ A short description; usually a line of text which is shown next to the icon when
 
 #### icon.svg / .png / .jpeg
 
-An icon for the App for displaying on an App Store or Library. We recommend SVG as this displays more faithfully on many different devices but if SVG isn't available its better to have some image than none.
+An icon for the App for displaying on an App Store or Library. We recommend SVG as this displays more faithfully on many different devices but if SVG isn't available it's better to have some image than none.

@@ -40,7 +40,7 @@ Note if you are trying this on your own maven project you may wish to add the [j
 
 Sometimes you may see a pod not start; it may then try again and create more pods. If you hover over the status icon on the [Pods tab](http://localhost:8585/hawtio/kubernetes/pods) you should see a tooltip explanation for the failure (or click on the pod and look at the detail view).
 
-Usually this means that Jube could not find the [image zip](http://fabric8.io/jube/imageZips.html) in a maven repository for the docker container names referenced in your pod JSON. You may want to check that you properly built the associated image zip and its available in a maven repository at the maven coordinates that the exception reports it used.
+Usually this means that Jube could not find the [image zip](http://fabric8.io/jube/imageZips.html) in a maven repository for the docker container names referenced in your pod JSON. You may want to check that you properly built the associated image zip and it's available in a maven repository at the maven coordinates that the exception reports it used.
 
 #### Scaling your replication controllers
 

@@ -30,7 +30,7 @@ First you'll need to [install docker](https://docs.docker.com/installation/), th
 
 ### If you are using a Mac, Windows or other platforms
 
-First we recommend you upgrade your boot2docker image so its the latest greatest.
+First we recommend you upgrade your boot2docker image so it's the latest greatest.
 
     boot2docker download
     boot2docker up
