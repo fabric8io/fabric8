@@ -84,7 +84,7 @@ public class ViewAppSummaries {
             if (snapshot == null) {
                 return;
             }
-            Map<NamespaceAndAppPath, AppViewDetails> apps = snapshot.getApps();
+            Map<NamespaceAndAppPath, AppViewDetails> apps = snapshot.getAppMap();
             System.out.println("Services: " + snapshot.getServicesMap().size());
             System.out.println("Controllers: " + snapshot.getControllerMap().size());
             System.out.println("Pods: " + snapshot.getPodMap().size());

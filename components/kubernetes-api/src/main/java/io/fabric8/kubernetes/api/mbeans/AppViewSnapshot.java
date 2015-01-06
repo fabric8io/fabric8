@@ -22,6 +22,7 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,8 @@ import java.util.Map;
  * Represents a snapshot of the entire system and how they relate to apps
  */
 public class AppViewSnapshot {
-    private final Map<NamespaceAndAppPath, AppViewDetails> apps = new HashMap<>();
+    private final Map<NamespaceAndAppPath, AppViewDetails> appMap = new HashMap<>();
+    private final List<AppViewDetails> apps = new ArrayList<>();
     private final Map<String, Service> servicesMap;
     private final Map<String, ReplicationController> controllerMap;
     private final Map<String, Pod> podMap;
@@ -44,16 +46,27 @@ public class AppViewSnapshot {
 
     public AppViewDetails getOrCreateAppView(String appPath, String namespace) {
         NamespaceAndAppPath key = new NamespaceAndAppPath(namespace, appPath);
-        AppViewDetails answer = apps.get(key);
+        AppViewDetails answer = appMap.get(key);
         if (answer == null) {
             answer = new AppViewDetails(this, appPath, namespace);
-            apps.put(key, answer);
+            appMap.put(key, answer);
+            apps.add(answer);
         }
         return answer;
     }
 
-    public Map<NamespaceAndAppPath, AppViewDetails> getApps() {
+    public List<AppViewDetails> getApps() {
         return apps;
+    }
+
+    public AppViewDetails createApp(String namespace) {
+        AppViewDetails answer = new AppViewDetails(this, null, namespace);
+        apps.add(answer);
+        return answer;
+    }
+
+    public Map<NamespaceAndAppPath, AppViewDetails> getAppMap() {
+        return appMap;
     }
 
     public Map<String, ReplicationController> getControllerMap() {

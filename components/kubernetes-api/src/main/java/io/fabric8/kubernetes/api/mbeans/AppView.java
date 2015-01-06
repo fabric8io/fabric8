@@ -36,8 +36,10 @@ import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
@@ -115,7 +117,7 @@ public class AppView implements AppViewMXBean {
         List<AppSummaryDTO> answer = new ArrayList<>();
         AppViewSnapshot snapshot = getSnapshot();
         if (snapshot != null) {
-            Collection<AppViewDetails> apps = snapshot.getApps().values();
+            Collection<AppViewDetails> apps = snapshot.getApps();
             for (AppViewDetails app : apps) {
                 AppSummaryDTO summary = app.getSummary();
                 if (summary != null) {
@@ -162,6 +164,29 @@ public class AppView implements AppViewMXBean {
                 dto.addController(controller);
             }
         }
+
+        // lets add any missing RCs
+        Set<ReplicationController> remainingControllers = new HashSet<>(controllerMap.values());
+        Collection<AppViewDetails> appViews = snapshot.getApps();
+        for (AppViewDetails appView : appViews) {
+            remainingControllers.removeAll(appView.getControllers().values());
+        }
+
+        for (ReplicationController controller : remainingControllers) {
+            AppViewDetails dto = snapshot.createApp(controller.getNamespace());
+            dto.addController(controller);
+        }
+
+        // lets add any missing pods
+        Set<Pod> remainingPods = new HashSet<>(podMap.values());
+        for (AppViewDetails appView : appViews) {
+            remainingPods.removeAll(appView.getPods().values());
+        }
+        for (Pod pod : remainingPods) {
+            AppViewDetails dto = snapshot.createApp(pod.getNamespace());
+            dto.addPod(pod);
+        }
+
         snapshotCache.set(snapshot);
         return snapshot;
     }
