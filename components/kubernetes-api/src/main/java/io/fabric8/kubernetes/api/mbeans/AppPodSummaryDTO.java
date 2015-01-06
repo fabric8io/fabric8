@@ -38,6 +38,7 @@ public class AppPodSummaryDTO {
     private final PodStatus status;
     private final Map<String, String> labels;
     private final Set<Integer> containerPorts = new HashSet<>();
+    private final String creationTimestamp;
     private String podIP;
     private String host;
 
@@ -46,6 +47,8 @@ public class AppPodSummaryDTO {
         this.namespace = pod.getNamespace();
         this.status = KubernetesHelper.getPodStatus(pod);
         this.labels = pod.getLabels();
+        this.creationTimestamp = pod.getCreationTimestamp();
+
         PodState currentState = pod.getCurrentState();
         PodState desiredState = pod.getDesiredState();
         if (currentState != null) {
@@ -108,5 +111,9 @@ public class AppPodSummaryDTO {
 
     public String getHost() {
         return host;
+    }
+
+    public String getCreationTimestamp() {
+        return creationTimestamp;
     }
 }
