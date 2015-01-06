@@ -335,6 +335,97 @@
          "additionalProperties":true,
          "javaType":"io.fabric8.kubernetes.api.model.EmptyDir"
       },
+      "kubernetes_Endpoints":{  
+         "type":"object",
+         "properties":{  
+            "annotations":{  
+               "type":"object",
+               "additionalProperties":{  
+                  "type":"string"
+               },
+               "javaType":"java.util.Map\u003cString,String\u003e"
+            },
+            "apiVersion":{  
+               "type":"string",
+               "default":"v1beta2"
+            },
+            "creationTimestamp":{  
+               "type":"string"
+            },
+            "endpoints":{  
+               "type":"array",
+               "items":{  
+                  "type":"string"
+               }
+            },
+            "id":{  
+               "type":"string"
+            },
+            "kind":{  
+               "type":"string"
+            },
+            "namespace":{  
+               "type":"string"
+            },
+            "resourceVersion":{  
+               "type":"integer"
+            },
+            "selfLink":{  
+               "type":"string"
+            },
+            "uid":{  
+               "type":"string"
+            }
+         },
+         "additionalProperties":true,
+         "javaType":"io.fabric8.kubernetes.api.model.Endpoints"
+      },
+      "kubernetes_EndpointsList":{  
+         "type":"object",
+         "properties":{  
+            "annotations":{  
+               "type":"object",
+               "additionalProperties":{  
+                  "type":"string"
+               },
+               "javaType":"java.util.Map\u003cString,String\u003e"
+            },
+            "apiVersion":{  
+               "type":"string",
+               "default":"v1beta2"
+            },
+            "creationTimestamp":{  
+               "type":"string"
+            },
+            "id":{  
+               "type":"string"
+            },
+            "items":{  
+               "type":"array",
+               "items":{  
+                  "$ref":"#/definitions/kubernetes_Endpoints",
+                  "javaType":"io.fabric8.kubernetes.api.model.Endpoints"
+               }
+            },
+            "kind":{  
+               "type":"string"
+            },
+            "namespace":{  
+               "type":"string"
+            },
+            "resourceVersion":{  
+               "type":"integer"
+            },
+            "selfLink":{  
+               "type":"string"
+            },
+            "uid":{  
+               "type":"string"
+            }
+         },
+         "additionalProperties":true,
+         "javaType":"io.fabric8.kubernetes.api.model.EndpointsList"
+      },
       "kubernetes_EnvVar":{  
          "type":"object",
          "properties":{  
@@ -989,36 +1080,11 @@
       "kubernetes_TypeMeta":{  
          "type":"object",
          "properties":{  
-            "annotations":{  
-               "type":"object",
-               "additionalProperties":{  
-                  "type":"string"
-               },
-               "javaType":"java.util.Map\u003cString,String\u003e"
-            },
             "apiVersion":{  
                "type":"string",
                "default":"v1beta2"
             },
-            "creationTimestamp":{  
-               "type":"string"
-            },
-            "id":{  
-               "type":"string"
-            },
             "kind":{  
-               "type":"string"
-            },
-            "namespace":{  
-               "type":"string"
-            },
-            "resourceVersion":{  
-               "type":"integer"
-            },
-            "selfLink":{  
-               "type":"string"
-            },
-            "uid":{  
                "type":"string"
             }
          },
@@ -2174,6 +2240,14 @@
       "DeploymentList":{  
          "$ref":"#/definitions/os_deploy_DeploymentList",
          "javaType":"io.fabric8.openshift.api.model.DeploymentList"
+      },
+      "Endpoints":{  
+         "$ref":"#/definitions/kubernetes_Endpoints",
+         "javaType":"io.fabric8.kubernetes.api.model.Endpoints"
+      },
+      "EndpointsList":{  
+         "$ref":"#/definitions/kubernetes_EndpointsList",
+         "javaType":"io.fabric8.kubernetes.api.model.EndpointsList"
       },
       "ImageList":{  
          "$ref":"#/definitions/os_image_ImageList",
