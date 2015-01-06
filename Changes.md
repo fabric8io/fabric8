@@ -1,4 +1,10 @@
 
+### 2.0.19
+
+* Uses auto-generated JSON Schema from the OpenShift/Kubernetes go source code to provide faithful Jackson DTOs for the REST API against v1beta2 of the kubernetes/openshift APIs
+* Improved App tab in the console showing a nicer detailed view of apps/pods
+* Fixes [these issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.19+is%3Aclosed)
+
 ### 2.0.18
 
 * Fixes [these issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.18+is%3Aclosed)

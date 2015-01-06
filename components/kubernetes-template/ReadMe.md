@@ -13,7 +13,7 @@ To be able to use this library add this to your [Apache Maven](http://maven.apac
             <dependency>
                 <groupId>io.fabric8</groupId>
                 <artifactId>kubernetes-template</artifactId>
-                <version>2.0.18</version>
+                <version>2.0.19</version>
             </dependency>
 
 
