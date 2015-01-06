@@ -67,7 +67,6 @@ public class Example {
 
         Pod pod = new Pod();
         pod.setId(name);
-        pod.setApiVersion("v1beta1");
 
         Map<String, String> labels = new HashMap<>();
         labels.put("fabric8", "true");
