@@ -26,6 +26,7 @@ import io.fabric8.kubernetes.api.Entity;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.Config;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodTemplate;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import org.jboss.arquillian.core.api.annotation.Observes;
@@ -67,6 +68,10 @@ public class SessionListener {
                         controller.applyService(service, event.getSession().getId());
                     } else if (entity instanceof ReplicationController) {
                         ReplicationController replicationController = (ReplicationController) entity;
+                        PodTemplate podTemplate = replicationController.getDesiredState().getPodTemplate();
+                        if (podTemplate.getLabels() == null) {
+                            podTemplate.setLabels(new HashMap<String, String>());
+                        }
                         replicationController.getDesiredState().getPodTemplate().getLabels().put(Constants.ARQ_KEY, event.getSession().getId());
                         if (replicationController.getLabels() == null) {
                             replicationController.setLabels(new HashMap<String, String>());
