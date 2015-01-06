@@ -15,6 +15,8 @@
  */
 package io.fabric8.kubernetes.api;
 
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.EndpointsList;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
@@ -31,6 +33,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 /**
  * Represents the Remote API to working with <a href="http://kubernetes.io/">Kubernetes</a> providing a facade
@@ -316,4 +319,18 @@ public interface Kubernetes {
     @Produces("application/json")
     @Consumes("text/plain")
     String deleteReplicationController(@PathParam("controllerId") @NotNull String controllerId) throws Exception;
+
+    /**
+     * List all pods on this cluster
+     */
+    @GET
+    @Path("endpoints")
+    EndpointsList getEndpoints();
+
+    /**
+     * List all pods on this cluster
+     */
+    @GET
+    @Path("endpoints/{serviceId}")
+    Endpoints endpointsForService(@PathParam("serviceId") @NotNull String serviceId, @QueryParam("namespace") String namespace);
 }
