@@ -72,7 +72,7 @@
     <properties>
         <license.dir>${project.parent.basedir}/etc</license.dir>
         <perfectus-build>053</perfectus-build>
-        <perfectus.version>056</perfectus.version>
+        <perfectus.version>057</perfectus.version>
         <forge-project-id>fabric</forge-project-id>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
@@ -127,7 +127,7 @@
         <!-- ServiceMix legal shared resources -->
         <servicemix.legal.version>1.0</servicemix.legal.version>
 
-        <activemq-version>5.10.0.redhat-620061</activemq-version>
+        <activemq-version>5.10.0.redhat-620062</activemq-version>
         <aether-version>0.9.0.M2</aether-version>
         <ant.bundle.version>1.8.2_2</ant.bundle.version>
         <antlr-version>3.3</antlr-version>
@@ -232,7 +232,7 @@
         <hawtio-eshead-version>1.0.0</hawtio-eshead-version>
         <hawtio-kibana-version>3.1.0_2</hawtio-kibana-version>
         <hawtio-swagger-version>1.0.2</hawtio-swagger-version>
-        <hawtio-version>1.5.redhat-061</hawtio-version>
+        <hawtio-version>1.5.redhat-062</hawtio-version>
         <http-client-version>4.3.6</http-client-version>
         <http-core-version>4.3.3</http-core-version>
         <influxdb-version>1.2</influxdb-version>
@@ -3712,7 +3712,7 @@
         <profile>
             <id>hawtio-snapshot</id>
             <properties>
-                <hawtio-version>1.5.redhat-061</hawtio-version>
+                <hawtio-version>1.5.redhat-062</hawtio-version>
             </properties>
         </profile>
         <profile>
