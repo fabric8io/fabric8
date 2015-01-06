@@ -40,7 +40,7 @@ public class VertxServiceImpl implements VertxService {
     private Vertx vertx;
 
     @PostConstruct
-    public void activate() throws Exception {
+    public void activate()  {
         vertx = vertxFactory.createVertx();
         Objects.notNull(vertx, "vertx");
     }
