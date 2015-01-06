@@ -67,7 +67,7 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
                 </Set>
                 <!-- default port will be overwritten by pax-web configuration -->
                 <Set name="port">
-                    <Property name="jetty.port" default="8181"/>
+                    <Property name="jetty.port" default="0"/>
                 </Set>
                 <Set name="maxIdleTime">300000</Set>
                 <Set name="Acceptors">2</Set>
