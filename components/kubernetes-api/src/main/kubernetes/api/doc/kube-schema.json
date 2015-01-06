@@ -576,6 +576,120 @@
          "additionalProperties":true,
          "javaType":"io.fabric8.kubernetes.api.model.LivenessProbe"
       },
+      "kubernetes_Minion":{  
+         "type":"object",
+         "properties":{  
+            "annotations":{  
+               "type":"object",
+               "additionalProperties":{  
+                  "type":"string"
+               },
+               "javaType":"java.util.Map\u003cString,String\u003e"
+            },
+            "apiVersion":{  
+               "type":"string",
+               "default":"v1beta2"
+            },
+            "creationTimestamp":{  
+               "type":"string"
+            },
+            "hostIP":{  
+               "type":"string"
+            },
+            "id":{  
+               "type":"string"
+            },
+            "kind":{  
+               "type":"string"
+            },
+            "labels":{  
+               "type":"object",
+               "additionalProperties":{  
+                  "type":"string"
+               },
+               "javaType":"java.util.Map\u003cString,String\u003e"
+            },
+            "namespace":{  
+               "type":"string"
+            },
+            "resourceVersion":{  
+               "type":"integer"
+            },
+            "resources":{  
+               "$ref":"#/definitions/kubernetes_NodeResources",
+               "javaType":"io.fabric8.kubernetes.api.model.NodeResources"
+            },
+            "selfLink":{  
+               "type":"string"
+            },
+            "uid":{  
+               "type":"string"
+            }
+         },
+         "additionalProperties":true,
+         "javaType":"io.fabric8.kubernetes.api.model.Minion"
+      },
+      "kubernetes_MinionList":{  
+         "type":"object",
+         "properties":{  
+            "annotations":{  
+               "type":"object",
+               "additionalProperties":{  
+                  "type":"string"
+               },
+               "javaType":"java.util.Map\u003cString,String\u003e"
+            },
+            "apiVersion":{  
+               "type":"string",
+               "default":"v1beta2"
+            },
+            "creationTimestamp":{  
+               "type":"string"
+            },
+            "id":{  
+               "type":"string"
+            },
+            "items":{  
+               "type":"array",
+               "items":{  
+                  "$ref":"#/definitions/kubernetes_Minion",
+                  "javaType":"io.fabric8.kubernetes.api.model.Minion"
+               }
+            },
+            "kind":{  
+               "type":"string"
+            },
+            "namespace":{  
+               "type":"string"
+            },
+            "resourceVersion":{  
+               "type":"integer"
+            },
+            "selfLink":{  
+               "type":"string"
+            },
+            "uid":{  
+               "type":"string"
+            }
+         },
+         "additionalProperties":true,
+         "javaType":"io.fabric8.kubernetes.api.model.MinionList"
+      },
+      "kubernetes_NodeResources":{  
+         "type":"object",
+         "properties":{  
+            "capacity":{  
+               "type":"object",
+               "additionalProperties":{  
+                  "$ref":"#/definitions/kubernetes_util_IntOrString",
+                  "javaType":"io.fabric8.kubernetes.api.model.IntOrString"
+               },
+               "javaType":"java.util.Map\u003cString,io.fabric8.kubernetes.api.model.IntOrString\u003e"
+            }
+         },
+         "additionalProperties":true,
+         "javaType":"io.fabric8.kubernetes.api.model.NodeResources"
+      },
       "kubernetes_ObjectMeta":{  
          "type":"object",
          "properties":{  
@@ -1080,11 +1194,36 @@
       "kubernetes_TypeMeta":{  
          "type":"object",
          "properties":{  
+            "annotations":{  
+               "type":"object",
+               "additionalProperties":{  
+                  "type":"string"
+               },
+               "javaType":"java.util.Map\u003cString,String\u003e"
+            },
             "apiVersion":{  
                "type":"string",
                "default":"v1beta2"
             },
+            "creationTimestamp":{  
+               "type":"string"
+            },
+            "id":{  
+               "type":"string"
+            },
             "kind":{  
+               "type":"string"
+            },
+            "namespace":{  
+               "type":"string"
+            },
+            "resourceVersion":{  
+               "type":"integer"
+            },
+            "selfLink":{  
+               "type":"string"
+            },
+            "uid":{  
                "type":"string"
             }
          },
@@ -2256,6 +2395,14 @@
       "ImageRepositoryList":{  
          "$ref":"#/definitions/os_image_ImageRepositoryList",
          "javaType":"io.fabric8.openshift.api.model.ImageRepositoryList"
+      },
+      "Minion":{  
+         "$ref":"#/definitions/kubernetes_Minion",
+         "javaType":"io.fabric8.kubernetes.api.model.Minion"
+      },
+      "MinionList":{  
+         "$ref":"#/definitions/kubernetes_MinionList",
+         "javaType":"io.fabric8.kubernetes.api.model.MinionList"
       },
       "PodList":{  
          "$ref":"#/definitions/kubernetes_PodList",
