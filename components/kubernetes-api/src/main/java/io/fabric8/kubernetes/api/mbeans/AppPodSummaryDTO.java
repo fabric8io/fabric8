@@ -47,10 +47,13 @@ public class AppPodSummaryDTO {
         this.status = KubernetesHelper.getPodStatus(pod);
         this.labels = pod.getLabels();
         PodState currentState = pod.getCurrentState();
+        PodState desiredState = pod.getDesiredState();
         if (currentState != null) {
             this.podIP = currentState.getPodIP();
             this.host = currentState.getHost();
-            ContainerManifest manifest = currentState.getManifest();
+        }
+        if (desiredState != null) {
+            ContainerManifest manifest = desiredState.getManifest();
             if (manifest != null) {
                 List<Container> containers = manifest.getContainers();
                 if (containers != null) {
