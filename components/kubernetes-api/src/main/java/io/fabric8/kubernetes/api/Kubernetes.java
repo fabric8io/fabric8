@@ -17,6 +17,8 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.EndpointsList;
+import io.fabric8.kubernetes.api.model.Minion;
+import io.fabric8.kubernetes.api.model.MinionList;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
@@ -321,16 +323,31 @@ public interface Kubernetes {
     String deleteReplicationController(@PathParam("controllerId") @NotNull String controllerId) throws Exception;
 
     /**
-     * List all pods on this cluster
+     * List all service endpoints on this cluster
      */
     @GET
     @Path("endpoints")
     EndpointsList getEndpoints();
 
     /**
-     * List all pods on this cluster
+     * List all endpoints for a service
      */
     @GET
     @Path("endpoints/{serviceId}")
     Endpoints endpointsForService(@PathParam("serviceId") @NotNull String serviceId, @QueryParam("namespace") String namespace);
+
+
+    /**
+     * List all the minions on this cluster
+     */
+    @GET
+    @Path("minions")
+    MinionList getMinions();
+
+    /**
+     * List all endpoints for a service
+     */
+    @GET
+    @Path("minions/{minionId}")
+    Minion minion(@PathParam("minionId") @NotNull String minionId);
 }

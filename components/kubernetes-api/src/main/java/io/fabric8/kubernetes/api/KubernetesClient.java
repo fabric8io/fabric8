@@ -17,6 +17,8 @@ package io.fabric8.kubernetes.api;
 
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.EndpointsList;
+import io.fabric8.kubernetes.api.model.Minion;
+import io.fabric8.kubernetes.api.model.MinionList;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
@@ -214,6 +216,20 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("endpoints/{serviceId}")
     public Endpoints endpointsForService(@NotNull String serviceId, String namespace) {
         return getKubernetes().endpointsForService(serviceId, namespace);
+    }
+
+    @Override
+    @GET
+    @Path("minions")
+    public MinionList getMinions() {
+        return getKubernetes().getMinions();
+    }
+
+    @Override
+    @GET
+    @Path("minions/{minionId}")
+    public Minion minion(@NotNull String minionId) {
+        return getKubernetes().minion(minionId);
     }
 
     // Delegated KubernetesExtensions API
