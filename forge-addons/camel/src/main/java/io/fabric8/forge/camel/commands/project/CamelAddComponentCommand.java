@@ -34,11 +34,11 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-public class CamelSetupCommandCamel extends AbstractCamelProjectCommand {
+public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
 
     @Inject
-    @WithAttributes(label = "version", required = false, description = "Camel version to use. If none provided then the latest version will be used.")
-    private UIInput<String> version;
+    @WithAttributes(label = "name", required = true, description = "Name of component to add.")
+    private UIInput<String> name;
 
     @Inject
     private DependencyInstaller dependencyInstaller;
@@ -46,13 +46,16 @@ public class CamelSetupCommandCamel extends AbstractCamelProjectCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
-                "camel-setup").category(Categories.create(CATEGORY))
-                .description("Setup Apache Camel in your project");
+                "project-camel-component-add").category(Categories.create(CATEGORY))
+                .description("Adds a Camel component to your project");
     }
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
-        builder.add(version);
+        Project project = getSelectedProject(builder);
+        name.setCompleter(new CamelComponentsCompleter(project));
+
+        builder.add(name);
     }
 
     @Override
@@ -61,19 +64,22 @@ public class CamelSetupCommandCamel extends AbstractCamelProjectCommand {
 
         // does the project already have camel?
         Dependency core = findCamelCoreDependency(project);
-        if (core != null) {
-            return Results.success("Apache Camel is already setup");
+        if (core == null) {
+            return Results.fail("The project does not include camel-core");
         }
 
-        DependencyBuilder builder = DependencyBuilder.create().setGroupId("org.apache.camel").setArtifactId("camel-core");
-        if (version.getValue() != null) {
-            builder.setVersion(version.getValue());
+        // name -> artifactId
+        String artifactId = name.getValue();
+        if (!artifactId.startsWith("camel-")) {
+            artifactId = "camel-" + artifactId;
         }
-        core = builder;
 
-        // add camel-core
-        dependencyInstaller.install(project, core);
+        DependencyBuilder component = DependencyBuilder.create().setGroupId("org.apache.camel")
+                .setArtifactId(artifactId).setVersion(core.getCoordinate().getVersion());
 
-        return Results.success("Added Apache Camel to the project");
+        // install the component
+        dependencyInstaller.install(project, component);
+
+        return Results.success("Added Camel component " + name.getValue() + " to the project");
     }
 }
