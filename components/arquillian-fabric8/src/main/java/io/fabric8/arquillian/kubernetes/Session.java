@@ -17,6 +17,11 @@
 package io.fabric8.arquillian.kubernetes;
 
 import io.fabric8.arquillian.kubernetes.log.Logger;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.utils.Filter;
+
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a testing session.
@@ -47,5 +52,28 @@ public class Session {
 
     public Logger getLogger() {
         return logger;
+    }
+
+    /**
+     * Returns a newly created filter on pods which are created as part of this Arquillian session
+     */
+    public Filter<Pod> createPodFilter() {
+        return new Filter<Pod>() {
+            @Override
+            public String toString() {
+                return "ArqPodFilter(" + Constants.ARQ_KEY + " = " + getId() + ")";
+
+            }
+
+            @Override
+            public boolean matches(Pod pod) {
+                Map<String, String> labels = pod.getLabels();
+                if (labels != null) {
+                    String value = labels.get(Constants.ARQ_KEY);
+                    return Objects.equals(value, getId());
+                }
+                return false;
+            }
+        };
     }
 }

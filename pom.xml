@@ -445,6 +445,11 @@
             <!-- Fabric -->
             <dependency>
                 <groupId>io.fabric8</groupId>
+                <artifactId>arquillian-fabric8</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fabric8</groupId>
                 <artifactId>fabric-cxf</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -2838,11 +2843,8 @@
         <module>components</module>
         <module>tooling</module>
         <module>forge-addons</module>
-        <!-- itests should be built last -->
-<!--
-        <module>itests</module>
--->
         <module>wiki</module>
+        <module>itests</module>
     </modules>
 
     <build>

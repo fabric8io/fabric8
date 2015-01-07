@@ -1035,6 +1035,14 @@ public class KubernetesHelper {
         return PodStatus.WAIT;
     }
 
+    /**
+     * Returns true if the pod is running
+     */
+    public static boolean isPodRunning(Pod pod) {
+        PodStatus status = getPodStatus(pod);
+        return Objects.equal(status, PodStatus.OK);
+    }
+
     public static String getPodStatusText(Pod pod) {
         if (pod != null) {
             PodState currentState = pod.getCurrentState();

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+     Copyright 2005-2014 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+      <groupId>io.fabric8</groupId>
+      <artifactId>fabric8-parent</artifactId>
+      <version>2.2-SNAPSHOT</version>
+      <relativePath>../parent</relativePath>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>itests</artifactId>
+  <name>Fabric8 :: Integration Tests</name>
+
+  <properties>
+    <fabric8.test.version>2.0.19</fabric8.test.version>
+  </properties>
+
+  <dependencies>
+    <!-- kubernetes json files -->
+    <dependency>
+      <groupId>io.fabric8.jube.images.fabric8</groupId>
+      <artifactId>fabric8-mq</artifactId>
+      <classifier>kubernetes</classifier>
+      <type>json</type>
+      <version>${fabric8.test.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8.jube.images.fabric8</groupId>
+      <artifactId>fabric8-mq-producer</artifactId>
+      <classifier>kubernetes</classifier>
+      <type>json</type>
+      <version>${fabric8.test.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8.jube.images.fabric8</groupId>
+      <artifactId>fabric8-mq-consumer</artifactId>
+      <classifier>kubernetes</classifier>
+      <type>json</type>
+      <version>${fabric8.test.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+
+    <!-- TODO should we add this as a dependency on arquillian-fabric8 so there's less for folks to have to add to their pom.xml? -->
+    <dependency>
+      <groupId>org.jboss.arquillian.junit</groupId>
+      <artifactId>arquillian-junit-container</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>arquillian-fabric8</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

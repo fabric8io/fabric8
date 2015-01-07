@@ -15,13 +15,16 @@
  */
 package io.fabric8.kubernetes.jolokia;
 
-import io.fabric8.kubernetes.api.Kubernetes;
-import io.fabric8.kubernetes.api.KubernetesFactory;
+import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerManifest;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodState;
 import io.fabric8.kubernetes.api.model.Port;
+import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.utils.Filter;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 import org.jolokia.client.J4pClient;
@@ -29,10 +32,12 @@ import org.jolokia.client.J4pClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getDockerIp;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 
 /**
  * Provides simple access to jolokia clients for a cluster
@@ -40,26 +45,152 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getDockerIp;
 public class JolokiaClients {
     private static final transient Logger LOG = LoggerFactory.getLogger(JolokiaClients.class);
 
-    private final Kubernetes kubernetes;
+    private final KubernetesClient kubernetes;
     private String user = Systems.getEnvVarOrSystemProperty("JOLOKIA_USER", "JOLOKIA_USER", "admin");
     private String password = Systems.getEnvVarOrSystemProperty("JOLOKIA_PASSWORD", "JOLOKIA_PASSWORD", "admin");;
+    private Filter<Pod> podFilter = null;
 
     public JolokiaClients() {
-        this(new KubernetesFactory().createKubernetes());
+        this(new KubernetesClient());
     }
 
-    public JolokiaClients(Kubernetes kubernetes) {
+    public JolokiaClients(KubernetesClient kubernetes) {
         this.kubernetes = kubernetes;
     }
 
-    public Kubernetes getKubernetes() {
+    public KubernetesClient getKubernetes() {
         return kubernetes;
+    }
+
+    /**
+     * Returns a client for the first working pod for the given replication controller
+     */
+    public J4pClient clientForReplicationController(ReplicationController replicationController) {
+        List<Pod> pods = kubernetes.getPodsForReplicationController(replicationController);
+        return clientForPod(pods);
+    }
+
+    /**
+     * Returns a client for the first working pod for the given replication controller
+     */
+    public J4pClient clientForReplicationController(String replicationControllerId) {
+        List<Pod> pods = kubernetes.getPodsForReplicationController(replicationControllerId);
+        return clientForPod(pods);
+    }
+
+
+    /**
+     * Returns all the clients for the first working pod for the given replication controller
+     */
+    public List<J4pClient> clientsForReplicationController(ReplicationController replicationController) {
+        List<Pod> pods = kubernetes.getPodsForReplicationController(replicationController);
+        return clientsForPod(pods);
+    }
+
+    /**
+     * Returns all the clients for the first working pod for the given replication controller
+     */
+    public List<J4pClient> clientsForReplicationController(String replicationControllerId) {
+        List<Pod> pods = kubernetes.getPodsForReplicationController(replicationControllerId);
+        return clientsForPod(pods);
+    }
+
+
+
+    /**
+     * Returns a client for the first working pod for the given service
+     */
+    public J4pClient clientForService(String serviceId) {
+        List<Pod> pods = kubernetes.getPodsForService(serviceId);
+        return clientForPod(pods);
+    }
+
+    /**
+     * Returns a client for the first working pod for the given service
+     */
+    public J4pClient clientForService(Service service) {
+        List<Pod> pods = kubernetes.getPodsForService(service);
+        return clientForPod(pods);
+    }
+
+    /**
+     * Returns all the clients for the first working pod for the given service
+     */
+    public List<J4pClient> clientsForService(String serviceId) {
+        List<Pod> pods = kubernetes.getPodsForService(serviceId);
+        return clientsForPod(pods);
+    }
+
+    /**
+     * Returns all the clients the first working pod for the given service
+     */
+    public List<J4pClient> clientsForService(Service service) {
+        List<Pod> pods = kubernetes.getPodsForService(service);
+        return clientsForPod(pods);
+    }
+
+    /**
+     * Returns a client for the first working pod in the collection
+     */
+    public J4pClient clientForPod(Iterable<Pod> pods) {
+        for (Pod pod : pods) {
+            if (KubernetesHelper.isPodRunning(pod) && filterPod(pod)) {
+                J4pClient client = clientForPod(pod);
+                if (client != null) {
+                    return client;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the clients for the running pods in the collection
+     */
+    public List<J4pClient> clientsForPod(Iterable<Pod> pods) {
+        List<J4pClient> answer = new ArrayList<>();
+        for (Pod pod : pods) {
+            if (KubernetesHelper.isPodRunning(pod) && filterPod(pod)) {
+                J4pClient client = clientForPod(pod);
+                if (client != null) {
+                    answer.add(client);
+                }
+            }
+        }
+        return answer;
+    }
+
+    /**
+     * Strategy method to filter pods before creating clients for them.
+     */
+    protected boolean filterPod(Pod pod) {
+        if (podFilter != null) {
+            return podFilter.matches(pod);
+        } else {
+            return true;
+        }
+    }
+
+
+    /**
+     * Returns the Jolokia client for the first container in the pod which exposes the jolokia port
+     */
+    public J4pClient clientForPod(Pod pod) {
+        String host = KubernetesHelper.getHost(pod);
+        List<Container> containers = KubernetesHelper.getContainers(pod);
+        for (Container container : containers) {
+            J4pClient jolokia = clientForContainer(host, container, pod);
+            if (jolokia != null) {
+                return jolokia;
+            }
+        }
+        return null;
     }
 
     /**
      * Returns the jolokia client for the given container
      */
-    public J4pClient jolokiaClient(String host, Container container, Pod pod) {
+    public J4pClient clientForContainer(String host, Container container, Pod pod) {
         if (container != null) {
             List<Port> ports = container.getPorts();
             for (Port port : ports) {
@@ -150,6 +281,14 @@ public class JolokiaClients {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Filter<Pod> getPodFilter() {
+        return podFilter;
+    }
+
+    public void setPodFilter(Filter<Pod> podFilter) {
+        this.podFilter = podFilter;
     }
 
     protected J4pClient createJolokiaClient(Container container, String jolokiaUrl) {

@@ -60,7 +60,7 @@ public class Example {
             List<Container> containers = KubernetesHelper.getContainers(pod);
             for (Container container : containers) {
                 System.out.println("pod " + getId(pod) + " container: " + container.getName() + " image: " + container.getImage());
-                J4pClient jolokia = clients.jolokiaClient(host, container, pod);
+                J4pClient jolokia = clients.clientForContainer(host, container, pod);
 
                 if (jolokia != null) {
                     System.out.println("   has jolokia client: " + jolokia + " from host: " + host + " URL: " + jolokia.getUri());

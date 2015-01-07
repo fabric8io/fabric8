@@ -1,0 +1,78 @@
+/**
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.fabric8.itests;
+
+import io.fabric8.arquillian.kubernetes.Constants;
+import io.fabric8.arquillian.kubernetes.Session;
+import io.fabric8.kubernetes.api.KubernetesClient;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.jolokia.JolokiaClients;
+import org.assertj.core.api.Condition;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jolokia.client.J4pClient;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.List;
+
+import static io.fabric8.kubernetes.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static io.fabric8.jolokia.assertions.Assertions.assertThat;
+
+/**
+ * Integration test that broker, producer, consumer all works
+ */
+@RunWith(Arquillian.class)
+public class BrokerProducerConsumerIT {
+
+    @ArquillianResource
+    KubernetesClient client;
+
+    @ArquillianResource
+    Session session;
+
+    @ArquillianResource
+    JolokiaClients jolokiaClients;
+
+    @Test
+    public void testMQConsumer() throws Exception {
+        String brokerReplicationControllerId = "fabric8MQ";
+        String consumerReplicationControllerId = "fabric8MQConsumer";
+        assertThat(client).replicationController(consumerReplicationControllerId).isNotNull();
+
+        assertThat(client).pods()
+                .runningStatus()
+                .filterLabel(Constants.ARQ_KEY, session.getId())
+                .haveAtLeast(1, new Condition<Pod>() {
+                    @Override
+                    public boolean matches(Pod podSchema) {
+                        return true;
+                    }
+                });
+
+        J4pClient brokerClient = jolokiaClients.clientForReplicationController(brokerReplicationControllerId);
+        J4pClient consumerClient = jolokiaClients.clientForReplicationController(consumerReplicationControllerId);
+
+        assertThat(brokerClient).isNotNull();
+        assertThat(consumerClient).isNotNull();
+
+        assertThat(brokerClient).longAttribute("org.apache.activemq:type=Broker,brokerName=default,destinationType=Queue,destinationName=TEST.FOO", "EnqueueCount").isGreaterThan(1000);
+        assertThat(consumerClient).stringAttribute("org.apache.camel:context=camel-1,type=context,name=\"camel-1\"", "Status").isEqualTo("Started");
+    }
+}

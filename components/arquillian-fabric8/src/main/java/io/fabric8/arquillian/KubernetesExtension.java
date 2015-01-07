@@ -39,6 +39,7 @@ public class KubernetesExtension implements LoadableExtension {
 
         builder.service(ResourceProvider.class, ClientResourceProvider.class)
                 .service(ResourceProvider.class, ControllerResourceProvider.class)
+                .service(ResourceProvider.class, JolokiaClientsProvider.class)
                 .service(ResourceProvider.class, PodListResourceProvider.class)
                 .service(ResourceProvider.class, ReplicationControllerListResourceProvider.class)
                 .service(ResourceProvider.class, ServiceListResourceProvider.class)
