@@ -169,8 +169,7 @@ public final class ContainerProviderUtils {
             lines.add(ZkDefs.MANUAL_IP + "=" + options.getManualIp());
         }
         appendFile(sb, "etc/system.properties", lines);
-        // backslash s , to handle any possible space
-        replaceLineInFile(sb, "etc/system.properties", "karaf.name\\s*=\\s*root", "karaf.name=" + name);
+        replacePropertyValue(sb, "etc/system.properties", "karaf.name", name);
         for (Map.Entry<String, String> entry : options.getDataStoreProperties().entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
@@ -366,7 +365,7 @@ public final class ContainerProviderUtils {
     private static void replacePropertyValue(StringBuilder sb, String path, String key, String value) {
         sb.append("replace_property_value ")
                 .append("\"").append(key).append("\" ")
-                .append("\"").append(value).append("\" ")
+                .append("\"").append(value.replace("/", "\\/")).append("\" ")
                 .append(path)
                 .append("\n");
     }

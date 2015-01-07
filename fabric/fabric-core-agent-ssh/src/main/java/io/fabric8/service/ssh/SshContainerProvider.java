@@ -156,8 +156,8 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                 String script = buildStopScript(container.getId(), options);
                 session = createSession(options);
                 runScriptOnHost(session, script);
-            } catch (Throwable t) {
                 container.setProvisionResult(Container.PROVISION_STOPPED);
+            } catch (Throwable t) {
                 LOGGER.error("Failed to stop container: " + container.getId(), t);
             } finally {
                 if (session != null) {
