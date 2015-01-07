@@ -16,14 +16,12 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
-import java.util.List;
 import javax.inject.Inject;
 
 import org.jboss.forge.addon.configuration.Configuration;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.ProjectFactory;
-import org.jboss.forge.addon.projects.facets.DependencyFacet;
 import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
 
 public abstract class AbstractCamelProjectCommand extends AbstractProjectCommand {
@@ -47,13 +45,7 @@ public abstract class AbstractCamelProjectCommand extends AbstractProjectCommand
     }
 
     protected Dependency findCamelCoreDependency(Project project) {
-        List<Dependency> dependencies = project.getFacet(DependencyFacet.class).getEffectiveDependencies();
-        for (Dependency d : dependencies) {
-            if ("org.apache.camel".equals(d.getCoordinate().getGroupId()) && "camel-core".equals(d.getCoordinate().getArtifactId())) {
-                return d;
-            }
-        }
-        return null;
+        return CamelProjectHelper.findCamelCoreDependency(project);
     }
 
 }
