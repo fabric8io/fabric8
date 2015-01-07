@@ -161,6 +161,16 @@ public class FileBackedRegistry implements IRegistry {
             throw new PublishingException(Messages.i18n.format("InMemoryRegistry.ServiceNotFound")); //$NON-NLS-1$
         }
     }
+    
+	@Override
+	public Service getService(String orgId, String serviceId, String version) {
+		String serviceKey = getServiceKey(orgId, serviceId, version);
+		if (services.containsKey(serviceKey)) {
+			return services.get(serviceKey);
+		} else {
+			return null;
+		}
+	}
 
     /**
      * @see io.apiman.gateway.engine.IRegistry#registerApplication(io.apiman.gateway.engine.beans.Application)
@@ -255,13 +265,4 @@ public class FileBackedRegistry implements IRegistry {
     private String getApplicationKey(Application app) {
         return app.getOrganizationId() + "|" + app.getApplicationId() + "|" + app.getVersion(); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    
-	public Service serviceLookup(String orgId, String serviceId, String version) {
-		String serviceKey = getServiceKey(orgId, serviceId, version);
-		if (services.containsKey(serviceKey)) {
-			return services.get(serviceKey);
-		} else {
-			return null;
-		}
-	}
 }
