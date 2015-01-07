@@ -24,10 +24,16 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.*;
 import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -38,6 +44,8 @@ import java.util.List;
  */
 public class KubernetesFactory {
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     public static final String DEFAULT_KUBERNETES_MASTER = "http://localhost:8080";
 
     public static final String KUBERNETES_TRUST_ALL_CERIFICATES = "KUBERNETES_TRUST_CERT";
@@ -45,6 +53,12 @@ public class KubernetesFactory {
     public static final String KUBERNETES_USERNAME = "KUBERNETES_USERNAME";
 
     public static final String KUBERNETES_PASSWORD = "KUBERNETES_PASSWORD";
+    public static final String KUBERNETES_SERVICE_HOST_ENV_VAR = "KUBERNETES_SERVICE_HOST";
+    public static final String KUBERNETES_SERVICE_PORT_ENV_VAR = "KUBERNETES_SERVICE_PORT";
+    public static final String KUBERNETES_RO_SERVICE_HOST_ENV_VAR = "KUBERNETES_RO_SERVICE_HOST";
+    public static final String KUBERNETES_RO_SERVICE_PORT_ENV_VAR = "KUBERNETES_RO_SERVICE_PORT";
+    public static final String KUBERNETES_MASTER_ENV_VAR = "KUBERNETES_MASTER";
+    public static final String KUBERNETES_MASTER_SYSTEM_PROPERTY = "kubernetes.master";
 
     private String address;
 
@@ -57,16 +71,29 @@ public class KubernetesFactory {
         this(null);
     }
 
+    public KubernetesFactory(boolean writeable) {
+        this(null, writeable);
+    }
+
     public KubernetesFactory(String address) {
-        this.address = address;
+        this(address, false);
+    }
+
+    public KubernetesFactory(String address, boolean writeable) {
         if (Strings.isNullOrBlank(address)) {
-            this.address = findKubernetesMaster();
+            setAddress(findKubernetesMaster(writeable));
+        } else {
+            setAddress(address);
         }
         init();
     }
 
     protected String findKubernetesMaster() {
-        return resolveHttpKubernetesMaster();
+        return findKubernetesMaster(false);
+    }
+
+    protected String findKubernetesMaster(boolean writeable) {
+        return resolveHttpKubernetesMaster(writeable);
     }
 
     private void init() {
@@ -169,12 +196,66 @@ public class KubernetesFactory {
         if (Strings.isNullOrBlank(address)) {
             findKubernetesMaster();
         }
+
+        try {
+            validateKubernetesMaster();
+        } catch (SSLHandshakeException e) {
+            log.error("SSL handshake failed - this probably means that you need to trust the kubernetes SSL certificate or set the environment variable " + KUBERNETES_TRUST_ALL_CERIFICATES, e);
+            throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
+        } catch (SSLProtocolException e) {
+            log.error("SSL protocol error", e);
+            throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
+        } catch (SSLKeyException e) {
+            log.error("Bad SSL key", e);
+            throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
+        } catch (SSLPeerUnverifiedException e) {
+            log.error("Could not verify server", e);
+            throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
+        } catch (SSLException e) {
+            log.warn("Address does not appear to be SSL-enabled - falling back to http", e);
+            setAddress(address.replaceFirst("https", "http"));
+        } catch (IOException e) {
+            log.warn("Failed to validate kubernetes master address", e);
+            throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
+        }
+    }
+
+    private void validateKubernetesMaster() throws IOException {
+        URL url = new URL(address);
+        switch (url.getProtocol()) {
+            case "http":
+                URLConnection connection = url.openConnection();
+                connection.connect();
+                break;
+            case "https":
+                SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+                SSLSocket sslsocket = (SSLSocket) sslsocketfactory.createSocket(url.getHost(), url.getPort());
+                try {
+
+                    InputStream in = sslsocket.getInputStream();
+                    OutputStream out = sslsocket.getOutputStream();
+
+                    // Write a test byte to get a reaction :)
+                    out.write(1);
+
+                    while (in.available() > 0) {
+                        System.out.print(in.read());
+                    }
+                } finally {
+                    sslsocket.close();
+                }
+                break;
+        }
     }
 
     // Helpers
 
     public static String resolveHttpKubernetesMaster() {
-        String kubernetesMaster = resolveKubernetesMaster();
+        return resolveHttpKubernetesMaster(false);
+    }
+
+    public static String resolveHttpKubernetesMaster(boolean writeable) {
+        String kubernetesMaster = resolveKubernetesMaster(writeable);
         if (kubernetesMaster.startsWith("tcp:")) {
             return "http:" + kubernetesMaster.substring(4);
         }
@@ -182,17 +263,30 @@ public class KubernetesFactory {
     }
 
     public static String resolveKubernetesMaster() {
+        return resolveKubernetesMaster(false);
+    }
+
+    public static String resolveKubernetesMaster(boolean writeable) {
+        String hostEnvVar = KUBERNETES_RO_SERVICE_HOST_ENV_VAR;
+        String portEnvVar = KUBERNETES_RO_SERVICE_PORT_ENV_VAR;
+        String proto = "http";
+        if (writeable) {
+            hostEnvVar = KUBERNETES_SERVICE_HOST_ENV_VAR;
+            portEnvVar = KUBERNETES_SERVICE_PORT_ENV_VAR;
+            proto = "https";
+        }
+
         // First let's check if it's available as a kubernetes service like it should be...
-        String kubernetesMaster = System.getenv("KUBERNETES_SERVICE_HOST");
+        String kubernetesMaster = System.getenv(hostEnvVar);
         if (Strings.isNotBlank(kubernetesMaster)) {
-            kubernetesMaster = "http://" + kubernetesMaster + ":" + System.getenv("KUBERNETES_SERVICE_PORT");
+            kubernetesMaster = proto + "://" + kubernetesMaster + ":" + System.getenv(portEnvVar);
         } else {
             // If not then fall back to KUBERNETES_MASTER env var
-            kubernetesMaster = System.getenv("KUBERNETES_MASTER");
+            kubernetesMaster = System.getenv(KUBERNETES_MASTER_ENV_VAR);
         }
 
         if (Strings.isNullOrBlank(kubernetesMaster)) {
-            kubernetesMaster = System.getProperty("kubernetes.master");
+            kubernetesMaster = System.getProperty(KUBERNETES_MASTER_SYSTEM_PROPERTY);
         }
         if (Strings.isNotBlank(kubernetesMaster)) {
             return kubernetesMaster;

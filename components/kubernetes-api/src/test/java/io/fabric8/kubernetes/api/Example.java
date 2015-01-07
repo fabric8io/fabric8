@@ -42,7 +42,7 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
  */
 public class Example {
     public static void main(String... args) {
-        KubernetesFactory kubeFactory = new KubernetesFactory();
+        KubernetesFactory kubeFactory = new KubernetesFactory(true);
         if (args.length > 0) {
             kubeFactory.setAddress(args[0]);
         }

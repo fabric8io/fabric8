@@ -15,33 +15,13 @@
  */
 package io.fabric8.kubernetes.api;
 
-import io.fabric8.kubernetes.api.model.Endpoints;
-import io.fabric8.kubernetes.api.model.EndpointsList;
-import io.fabric8.kubernetes.api.model.Minion;
-import io.fabric8.kubernetes.api.model.MinionList;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.ReplicationControllerState;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceList;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import javax.ws.rs.*;
+import java.util.*;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.filterLabels;
 
@@ -51,8 +31,10 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.filterLabels;
  * the core {@link io.fabric8.kubernetes.api.Kubernetes} API and the {@link io.fabric8.kubernetes.api.KubernetesExtensions}
  */
 public class KubernetesClient implements Kubernetes, KubernetesExtensions {
-    private KubernetesFactory factory;
+    private KubernetesFactory factoryReadOnly;
+    private KubernetesFactory factoryWriteable;
     private Kubernetes kubernetes;
+    private Kubernetes kubernetesWriteable;
     private KubernetesExtensions kubernetesExtensions;
 
     public KubernetesClient() {
@@ -63,39 +45,65 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     }
 
     public KubernetesClient(KubernetesFactory factory) {
-        this.factory = factory;
+        this.factoryReadOnly = factory;
     }
 
     // Properties
     //-------------------------------------------------------------------------
 
     public Kubernetes getKubernetes() {
-        if (kubernetes == null) {
-            kubernetes = getFactory().createKubernetes();
+        return getKubernetes(false);
+    }
+
+    public Kubernetes getKubernetes(boolean writeable) {
+        if (writeable) {
+            if (kubernetesWriteable == null) {
+                kubernetesWriteable = getFactory(true).createKubernetes();
+            }
+            return kubernetesWriteable;
+        } else {
+            if (kubernetes == null) {
+                kubernetes = getFactory(false).createKubernetes();
+            }
+            return kubernetes;
         }
-        return kubernetes;
     }
 
     public KubernetesExtensions getKubernetesExtensions() {
         if (kubernetesExtensions == null) {
-            kubernetesExtensions = getFactory().createKubernetesExtensions();
+            kubernetesExtensions = getFactory(true).createKubernetesExtensions();
         }
         return kubernetesExtensions;
     }
 
-    public KubernetesFactory getFactory() {
-        if (factory == null) {
-            factory = new KubernetesFactory();
+    public KubernetesFactory getFactory(boolean writeable) {
+        if (writeable) {
+            if (factoryWriteable == null) {
+                factoryWriteable = new KubernetesFactory(true);
+            }
+            return factoryWriteable;
+        } else {
+            if (factoryReadOnly == null) {
+                factoryReadOnly = new KubernetesFactory();
+            }
+            return factoryReadOnly;
         }
-        return factory;
     }
 
     public void setFactory(KubernetesFactory factory) {
-        this.factory = factory;
+        this.factoryReadOnly = factoryReadOnly;
+    }
+
+    public void setWriteableFactory(KubernetesFactory factory) {
+        this.factoryWriteable = factory;
     }
 
     public String getAddress() {
-        return getFactory().getAddress();
+        return getFactory(false).getAddress();
+    }
+
+    public String getWriteableAddress() {
+        return getFactory(true).getAddress();
     }
 
 
@@ -111,7 +119,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @DELETE
     @Path("pods/{podId}")
     public String deletePod(@NotNull String podId) throws Exception {
-        return getKubernetes().deletePod(podId);
+        return getKubernetes(true).deletePod(podId);
     }
 
     @GET
@@ -125,7 +133,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("replicationControllers/{controllerId}")
     @Produces("application/json")
     public String deleteReplicationController(@NotNull String controllerId) throws Exception {
-        return getKubernetes().deleteReplicationController(controllerId);
+        return getKubernetes(true).deleteReplicationController(controllerId);
     }
 
     @Path("replicationControllers")
@@ -139,14 +147,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("replicationControllers/{controllerId}")
     @Consumes("application/json")
     public String updateReplicationController(@NotNull String controllerId, ReplicationController entity) throws Exception {
-        return getKubernetes().updateReplicationController(controllerId, entity);
+        return getKubernetes(true).updateReplicationController(controllerId, entity);
     }
 
     @PUT
     @Path("services/{serviceId}")
     @Consumes("application/json")
     public String updateService(@NotNull String serviceId, Service entity) throws Exception {
-        return getKubernetes().updateService(serviceId, entity);
+        return getKubernetes(true).updateService(serviceId, entity);
     }
 
     @GET
@@ -160,14 +168,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("services/{serviceId}")
     @Produces("application/json")
     public String deleteService(@NotNull String serviceId) throws Exception {
-        return getKubernetes().deleteService(serviceId);
+        return getKubernetes(true).deleteService(serviceId);
     }
 
     @Path("services")
     @POST
     @Consumes("application/json")
     public String createService(Service entity) throws Exception {
-        return getKubernetes().createService(entity);
+        return getKubernetes(true).createService(entity);
     }
 
     @GET
@@ -180,7 +188,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("pods/{podId}")
     @Consumes("application/json")
     public String updatePod(@NotNull String podId, Pod entity) throws Exception {
-        return getKubernetes().updatePod(podId, entity);
+        return getKubernetes(true).updatePod(podId, entity);
     }
 
     @Path("services")
@@ -194,14 +202,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("pods")
     @Consumes("application/json")
     public String createPod(Pod entity) throws Exception {
-        return getKubernetes().createPod(entity);
+        return getKubernetes(true).createPod(entity);
     }
 
     @Path("replicationControllers")
     @POST
     @Consumes("application/json")
     public String createReplicationController(ReplicationController entity) throws Exception {
-        return getKubernetes().createReplicationController(entity);
+        return getKubernetes(true).createReplicationController(entity);
     }
 
     @Override
