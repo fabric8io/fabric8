@@ -111,7 +111,7 @@ public class Engine {
 			
 			@Override
 			public String serviceMapping(String orgId, String serviceId, String version) throws NotAuthorizedException {
-				Service service = registry.serviceLookup(orgId, serviceId, version);
+				Service service = registry.getService(orgId, serviceId, version);
 				String serviceUrl = service.getEndpoint();
 				Map<String, IMappedServices> mappedServices = httpGateway.getMappedServices();
 				Iterator<String> keys = mappedServices.keySet().iterator();
