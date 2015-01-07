@@ -28,7 +28,7 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
-public class CatalogLabelListCommand extends AbstractJolokiaCommand {
+public class CatalogEipLabelListCommand extends AbstractJolokiaCommand {
 
     @Inject
     @WithAttributes(label = "verbose", required = false, defaultValue = "false", description = "Verbose output")
@@ -37,8 +37,8 @@ public class CatalogLabelListCommand extends AbstractJolokiaCommand {
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
-                "camel-catalog-label-list").category(Categories.create(CATEGORY))
-                .description("Lists all Camel component labels from the Camel catalog");
+                "camel-catalog-eip-label-list").category(Categories.create(CATEGORY))
+                .description("Lists all Camel EIP labels from the Camel catalog");
     }
 
     @Override
@@ -55,7 +55,7 @@ public class CatalogLabelListCommand extends AbstractJolokiaCommand {
 
         boolean val = "true".equals(verbose.getValue());
 
-        org.apache.camel.commands.CatalogLabelListCommand command = new org.apache.camel.commands.CatalogLabelListCommand(val);
+        org.apache.camel.commands.CatalogEipLabelListCommand command = new org.apache.camel.commands.CatalogEipLabelListCommand(val);
         command.execute(getController(), getOutput(context), getError(context));
 
         return Results.success();
