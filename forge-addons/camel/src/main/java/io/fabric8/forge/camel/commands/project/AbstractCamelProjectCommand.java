@@ -18,7 +18,6 @@ package io.fabric8.forge.camel.commands.project;
 
 import javax.inject.Inject;
 
-import org.jboss.forge.addon.configuration.Configuration;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.ProjectFactory;
@@ -30,9 +29,6 @@ public abstract class AbstractCamelProjectCommand extends AbstractProjectCommand
 
     @Inject
     protected ProjectFactory projectFactory;
-
-    @Inject
-    protected Configuration configuration;
 
     @Override
     protected boolean isProjectRequired() {
