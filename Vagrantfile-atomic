@@ -2,6 +2,7 @@ Vagrant.configure(2) do |config|
   config.vm.box = "jimmidyson/fedora21-atomic"
 
   config.vm.network "private_network", ip: "172.28.128.4"
+  config.vm.network "private_network", ip: "172.28.128.5"
 
   config.vm.provision "docker" do |d|
     d.run "openshift",

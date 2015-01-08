@@ -1,45 +1,36 @@
 #!/bin/bash
 
-OPENSHIFT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-OPENSHIFT_SOURCE_DIR=${OPENSHIFT_DIR}/openshift-cluster
-
-cd ${OPENSHIFT_DIR}
-
-OPENSHIFT_DOWNLOAD_URL=https://github.com/openshift/origin
-if [ ! -d "${OPENSHIFT_SOURCE_DIR}" ]; then
-  git clone ${OPENSHIFT_DOWNLOAD_URL} ${OPENSHIFT_SOURCE_DIR}
+#
+# Discover the APP_BASE from the location of this script.
+#
+if [ -z "$APP_BASE" ] ; then
+  DIRNAME=`dirname "$0"`
+  APP_BASE=`cd "$DIRNAME"; pwd`
+  export APP_BASE
 fi
 
-cd ${OPENSHIFT_SOURCE_DIR}
-git pull
-
-if [ ! -f .vagrant-openshift.json ]; then
-  echo '{"dev_cluster": true}' >  .vagrant-openshift.json
-fi
+export VAGRANT_VAGRANTFILE=$APP_BASE/../Vagrantfile-atomic
 
 vagrant up
 
-vagrant ssh minion-1 -- sudo ip route add 10.244.2.0/24 via 10.245.2.3 dev enp0s8
-vagrant ssh minion-2 -- sudo ip route add 10.244.1.0/24 via 10.245.2.2 dev enp0s8
+SERVICE_IP=172.28.128.5
+KUBEMASTER_IP=172.28.128.4
 
-grep openshift-master /etc/hosts || echo '10.245.1.2 openshift-master' | sudo tee -a /etc/hosts
-grep openshift-minion-1 /etc/hosts || echo '10.245.2.2 openshift-minion-1' | sudo tee -a /etc/hosts
-grep openshift-minion-2 /etc/hosts || echo '10.245.2.3 openshift-minion-2' | sudo tee -a /etc/hosts
+function addPublicIP {
+  local contents
+  while read data; do
+    contents="$contents $data"
+  done
+  cat <<EOF | python -
+import json, sys
+config=json.loads('$contents')
+for obj in config["items"]:
+  if obj["kind"] == "Service":
+    obj["publicIPs"] = ["$SERVICE_IP"]
+print json.dumps(config, indent=2)
+EOF
+}
 
-cp ../build-latest-cadvisor.sh .
-
-vagrant ssh minion-1 -- /vagrant/build-latest-cadvisor.sh
-vagrant ssh minion-1 -- docker save -o /vagrant/google-cadvisor-image.tar google/cadvisor:canary
-vagrant ssh minion-2 -- docker load -i /vagrant/google-cadvisor-image.tar
-
-for m in minion-1 minion-2; do
-  vagrant ssh $m -- docker run -d --name=cadvisor -p 4194:8080 \
-    --volume=/:/rootfs:ro \
-    --volume=/var/run:/var/run:rw \
-    --volume=/sys:/sys:ro \
-    --volume=/var/lib/docker/:/var/lib/docker:ro \
-    google/cadvisor:canary
-done
-
-export KUBERNETES_MASTER=http://openshift-master:8080
-./_output/local/bin/linux/amd64/openshift kube apply -c ../influxdb.json
+if [ -f "$APP_BASE/fabric8.json" ]; then
+  cat $APP_BASE/fabric8.json | addPublicIP | VAGRANT_VAGRANTFILE=../Vagrantfile-atomic vagrant ssh -c "sudo docker run --rm -i openshift/origin:latest cli -shttp://$KUBEMASTER_IP:8080 apply -f -"
+fi
