@@ -63,6 +63,8 @@ public class ArchetypeTest {
             "karaf-camel-dozer-wiki-archetype",
             "karaf-camel-drools-archetype",
             "karaf-camel-webservice-archetype",
+            "war-camel-servlet-archetype",
+	    "war-rest-archetype",
     }));
 
     @Test
