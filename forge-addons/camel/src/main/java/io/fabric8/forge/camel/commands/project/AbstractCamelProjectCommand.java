@@ -46,14 +46,18 @@ public abstract class AbstractCamelProjectCommand extends AbstractProjectCommand
         return CamelProjectHelper.findCamelCoreDependency(project);
     }
 
-    protected Coordinate createCamelCoordinate(String artifactId, String version) {
+    protected Coordinate createCoordinate(String groupId, String artifactId, String version) {
         CoordinateBuilder builder = CoordinateBuilder.create()
-                .setGroupId("org.apache.camel")
+                .setGroupId(groupId)
                 .setArtifactId(artifactId);
         if (version != null) {
             builder = builder.setVersion(version);
         }
 
         return builder;
+    }
+
+    protected Coordinate createCamelCoordinate(String artifactId, String version) {
+        return createCoordinate("org.apache.camel", artifactId, version);
     }
 }

@@ -56,19 +56,20 @@
 
   <dependencies>
 
+    <!-- forge provided -->
     <dependency>
       <groupId>org.jboss.forge.addon</groupId>
       <artifactId>maven-api</artifactId>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
 
-    <!--<dependency>-->
-      <!--<groupId>org.jboss.forge.addon</groupId>-->
-      <!--<artifactId>maven-impl-projects</artifactId>-->
-      <!--<version>${jboss.forge.version}</version>-->
-    <!--</dependency>-->
-
-    <!--forge-->
+    <!--forge addons -->
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>maven</artifactId>
+      <classifier>forge-addon</classifier>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.jboss.forge.furnace.container</groupId>
       <artifactId>cdi</artifactId>
@@ -112,55 +113,16 @@
       <scope>provided</scope>
     </dependency>
 
-    <!--non forge deps-->
-    <dependency>
-      <groupId>com.jcabi</groupId>
-      <artifactId>jcabi-xml</artifactId>
-      <version>0.11.1</version>
-    </dependency>
-    <dependency>
-      <groupId>com.jcabi</groupId>
-      <artifactId>jcabi-aspects</artifactId>
-      <version>0.17.1</version>
-    </dependency>
+    <!--camel -->
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-cdi</artifactId>
+      <artifactId>camel-core</artifactId>
       <version>${camel.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-commands-jolokia</artifactId>
       <version>${camel.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-      <version>3.3.2</version>
-    </dependency>
-
-    <!--test-->
-    <dependency>
-      <groupId>org.jboss.forge.furnace.test</groupId>
-      <artifactId>furnace-test-harness</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.furnace.test</groupId>
-      <artifactId>arquillian-furnace-classpath</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.addon</groupId>
-      <artifactId>ui-test-harness</artifactId>
-      <classifier>forge-addon</classifier>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.forge.addon</groupId>
-      <artifactId>maven</artifactId>
-      <classifier>forge-addon</classifier>
-      <scope>test</scope>
     </dependency>
 
   </dependencies>

@@ -22,6 +22,7 @@ import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
+import org.jboss.forge.addon.maven.projects.MavenPluginFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -71,13 +72,21 @@ public class CamelSetupCommand extends AbstractCamelProjectCommand {
         // add camel-core
         dependencyInstaller.install(project, core);
 
-        // TODO: MavenPluginFacet does not work, so we cannot install custom plugins to the pom.xml
+        core = findCamelCoreDependency(project);
+        String camelVersion = core.getCoordinate().getVersion();
 
-//        MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacetImpl.class);
+        // add camel-maven-plugin
+        MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);
         MavenPluginBuilder plugin = MavenPluginBuilder.create()
-                .setCoordinate(createCamelCoordinate("camel-maven-plugin", version.getValue()));
+                .setCoordinate(createCamelCoordinate("camel-maven-plugin", camelVersion));
+        pluginFacet.addPlugin(plugin);
 
-//        pluginFacet.addPlugin(plugin);
+        // TODO: figure out latest hawtio version
+
+        // add hawtio-maven-plugin using latest version
+        plugin = MavenPluginBuilder.create()
+                .setCoordinate(createCoordinate("io.hawt", "hawtio-maven-plugin", null));
+        pluginFacet.addPlugin(plugin);
 
         return Results.success("Added Apache Camel to the project");
     }
