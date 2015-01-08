@@ -20,44 +20,56 @@ import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.PodStatus;
-import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.Filter;
-import io.fabric8.utils.Objects;
 
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-public class SessionPodsAreReady implements Callable<Boolean> {
+public class SessionServicesAreReady implements Callable<Boolean> {
 
     private final Session session;
     private final KubernetesClient kubernetesClient;
     private final String key;
+    private final Boolean waitForConnection;
 
-    public SessionPodsAreReady(KubernetesClient kubernetesClient, Session session, String key) {
+    public SessionServicesAreReady(KubernetesClient kubernetesClient, Session session, String key, Boolean waitForConnection) {
         this.session = session;
         this.kubernetesClient = kubernetesClient;
         this.key = key;
+        this.waitForConnection = waitForConnection;
     }
 
     @Override
     public Boolean call() throws Exception {
         boolean result = true;
         Map<String, String> labels = Collections.singletonMap(key, session.getId());
-        Filter<Pod> podFilter = KubernetesHelper.createPodFilter(labels);
-        List<Pod> pods = Util.findPods(kubernetesClient, podFilter);
+        Filter<Service> serviceFilter = KubernetesHelper.createServiceFilter(labels);
+        List<Service> services = Util.findServices(kubernetesClient, serviceFilter);
 
-        if (pods.isEmpty()) {
+        if (services.isEmpty()) {
             result = false;
-            session.getLogger().warn("No pods are available yet, waiting...");
-        }
+            session.getLogger().warn("No services are available yet, waiting...");
+        } else if (waitForConnection) {
 
-        for (Pod pod : pods) {
-            result = result && Objects.equal(PodStatus.OK, KubernetesHelper.getPodStatus(pod));
-            if (!result) {
-                session.getLogger().warn("Waiting for pods to reach 'running' state...");
+            for (Service s : services) {
+                String serviceURL = KubernetesHelper.getServiceURL(s);
+                String serviceStatus = null;
+                try {
+                    URL url = new URL(serviceURL);
+                    URLConnection connection = url.openConnection();
+                    connection.connect();
+                    serviceStatus = "Service: " + serviceURL + " is ready";
+                } catch (Exception e) {
+                    result = false;
+                    serviceStatus = "Service: " + serviceURL + " is not ready! Error: " + e.getMessage();
+                } finally {
+                    session.getLogger().warn(serviceStatus);
+                }
             }
         }
         return result;

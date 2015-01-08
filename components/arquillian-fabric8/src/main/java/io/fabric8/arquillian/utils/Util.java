@@ -77,13 +77,21 @@ public class Util {
 
     }
 
+
     public static void cleanupSession(KubernetesClient client, Session session) throws MultiException {
-        Map<String, String> labels = Collections.singletonMap(Constants.ARQ_KEY, session.getId());
+        List<Throwable> errors = new ArrayList<>();
+        cleanupAllMatching(client, Constants.ARQ_KEY, session, errors);
+        cleanupAllMatching(client, Constants.ARQ_DEP_KEY, session, errors);
+        if (!errors.isEmpty()) {
+            throw new MultiException("Error while cleaning up session.", errors);
+        }
+    }
+
+    public static void cleanupAllMatching(KubernetesClient client, String key, Session session, List<Throwable> errors) throws MultiException {
+        Map<String, String> labels = Collections.singletonMap(key, session.getId());
         Filter<Pod> podFilter = KubernetesHelper.createPodFilter(labels);
         Filter<Service> serviceFilter = KubernetesHelper.createServiceFilter(labels);
         Filter<ReplicationController> replicationControllerFilter = KubernetesHelper.createReplicationControllerFilter(labels);
-
-        List<Throwable> errors = new ArrayList<>();
 
         try {
             deleteReplicationControllers(client, session.getLogger(), replicationControllerFilter);
@@ -101,10 +109,6 @@ public class Util {
             deleteServices(client, session.getLogger(), serviceFilter);
         } catch (MultiException e) {
             errors.addAll(Arrays.asList(e.getCauses()));
-        }
-
-        if (!errors.isEmpty()) {
-            throw new MultiException("Error while cleaning up session.", errors);
         }
     }
 

@@ -19,10 +19,14 @@ package io.fabric8.arquillian.kubernetes;
 public class Constants {
 
     public static final String ARQ_KEY = "arquillian";
+    public static final String ARQ_DEP_KEY = "arqdependency";
     public static final String KUBERNETES_MASTER="KUBERNETES_MASTER";
 
     public static final String MASTER_URL = "masterUrl";
     public static final String CONFIG_URL = "configUrl";
+    public static final String DEPENDENCIES = "dependencies";
+
+    public static final String WAIT_FOR_SERVICE_CONNECTION = "waitForServiceConnection";
 
     public static final String TIMEOUT = "timeout";
     public static final String POLL_INTERVAL = "pollInterval";

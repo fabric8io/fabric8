@@ -19,25 +19,36 @@ package io.fabric8.arquillian.kubernetes;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static io.fabric8.arquillian.kubernetes.Constants.ANSI_LOGGER_ENABLED;
 import static io.fabric8.arquillian.kubernetes.Constants.CONFIG_FILE_NAME;
 import static io.fabric8.arquillian.kubernetes.Constants.CONFIG_URL;
 import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAME;
+import static io.fabric8.arquillian.kubernetes.Constants.DEPENDENCIES;
 import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_MASTER;
 import static io.fabric8.arquillian.kubernetes.Constants.MASTER_URL;
 import static io.fabric8.arquillian.kubernetes.Constants.POLL_INTERVAL;
 import static io.fabric8.arquillian.kubernetes.Constants.TIMEOUT;
+import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICE_CONNECTION;
 
 public class Configuration {
 
+    private static final Long DEFAULT_TIMEOUT = 5 * 60 * 1000L;
+    private static final Long DEFAULT_POLL_INTERVAL = 5 * 1000L;
+
     private String masterUrl;
+    private List<String> dependencies = new ArrayList<>();
     private URL configUrl;
-    private long timeout = 5 * 60 * 1000;
-    private long pollInterval = 5 * 1000;
+    private long timeout = DEFAULT_TIMEOUT;
+    private long pollInterval = DEFAULT_POLL_INTERVAL;
     private boolean ansiLoggerEnabled = true;
+
+    private boolean waitForConenction = false;
 
     public String getMasterUrl() {
         return masterUrl;
@@ -59,45 +70,88 @@ public class Configuration {
         return ansiLoggerEnabled;
     }
 
+    public List<String> getDependencies() {
+        return dependencies;
+    }
+
+    public boolean isWaitForConenction() {
+        return waitForConenction;
+    }
+
     public static Configuration fromMap(Map<String, String> map) {
         Configuration configuration = new Configuration();
         try {
-            if (map.containsKey(MASTER_URL)) {
-                configuration.masterUrl = map.get(MASTER_URL);
-            } else {
-                configuration.masterUrl = Systems.getEnvVarOrSystemProperty(KUBERNETES_MASTER, "");
-            }
+            applyMasterUrl(configuration, map);
+            applyConfigurationURL(configuration, map);
+            applyDependencies(configuration, map);
 
-            if (Strings.isNullOrBlank(configuration.getMasterUrl())) {
-                throw new IllegalStateException("Could not find a valid kubernetes URL.");
-            }
-
-            if (map.containsKey(CONFIG_URL)) {
-                configuration.configUrl = new URL(map.get(CONFIG_URL));
-            } else if (map.containsKey(CONFIG_FILE_NAME)) {
-                configuration.configUrl = Configuration.class.getResource("/" + map.get(CONFIG_FILE_NAME));
-            } else {
-                configuration.configUrl = Configuration.class.getResource("/" + DEFAULT_CONFIG_FILE_NAME);
-            }
-
-            if (map.containsKey(TIMEOUT)) {
-                configuration.timeout = Long.parseLong(map.get(TIMEOUT));
-            }
-
-            if (map.containsKey(POLL_INTERVAL)) {
-                configuration.pollInterval = Long.parseLong(map.get(POLL_INTERVAL));
-            }
-
-            if (map.containsKey(ANSI_LOGGER_ENABLED)) {
-                configuration.ansiLoggerEnabled = Boolean.parseBoolean(map.get(ANSI_LOGGER_ENABLED));
-            } else {
-                configuration.ansiLoggerEnabled = Systems.getEnvVarOrSystemProperty(ANSI_LOGGER_ENABLED, true);
-            }
-
+            configuration.timeout = getLongProperty(TIMEOUT, map, DEFAULT_TIMEOUT);
+            configuration.pollInterval = getLongProperty(POLL_INTERVAL, map, DEFAULT_POLL_INTERVAL);
+            configuration.ansiLoggerEnabled = getBooleanProperty(ANSI_LOGGER_ENABLED, map, true);
+            configuration.waitForConenction = getBooleanProperty(WAIT_FOR_SERVICE_CONNECTION, map, false);
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
         return configuration;
+    }
+
+    /**
+     * Applies the kubernetes master url to the configuration.
+     * @param configuration The target configuration object.
+     * @param map           The arquillian configuration.
+     */
+    private static void applyMasterUrl(Configuration configuration, Map<String, String> map) {
+        if (map.containsKey(MASTER_URL)) {
+            configuration.masterUrl = map.get(MASTER_URL);
+        } else {
+            configuration.masterUrl = Systems.getEnvVarOrSystemProperty(KUBERNETES_MASTER, "");
+        }
+
+        if (Strings.isNullOrBlank(configuration.getMasterUrl())) {
+            throw new IllegalStateException("Could not find a valid kubernetes URL.");
+        }
+    }
+
+    /**
+     * Applies the kubernetes json url to the configuration.
+     * @param configuration The target configuration object.
+     * @param map           The arquillian configuration.
+     */
+    private static void applyConfigurationURL(Configuration configuration, Map<String, String> map) throws MalformedURLException {
+        if (map.containsKey(CONFIG_URL)) {
+            configuration.configUrl = new URL(map.get(CONFIG_URL));
+        } else if (map.containsKey(CONFIG_FILE_NAME)) {
+            configuration.configUrl = Configuration.class.getResource("/" + map.get(CONFIG_FILE_NAME));
+        } else {
+            configuration.configUrl = Configuration.class.getResource("/" + DEFAULT_CONFIG_FILE_NAME);
+        }
+    }
+
+    /**
+     * Applies the kubernetes json url to the configuration.
+     * @param configuration The target configuration object.
+     * @param map           The arquillian configuration.
+     */
+    private static void applyDependencies(Configuration configuration, Map<String, String> map) throws MalformedURLException {
+        if (map.containsKey(DEPENDENCIES)) {
+            configuration.dependencies = Strings.splitAndTrimAsList(map.get(DEPENDENCIES), ",");
+        }
+    }
+
+    private static Boolean getBooleanProperty(String name, Map<String, String> map, Boolean defaultValue) {
+        if (map.containsKey(name)) {
+            return Boolean.parseBoolean(map.get(name));
+        } else {
+            return Systems.getEnvVarOrSystemProperty(name, defaultValue);
+        }
+    }
+
+    private static Long getLongProperty(String name, Map<String, String> map, Long defaultValue) {
+        if (map.containsKey(name)) {
+            return Long.parseLong(map.get(name));
+        } else {
+            return  Systems.getEnvVarOrSystemProperty(name, defaultValue).longValue();
+        }
     }
 }
 
