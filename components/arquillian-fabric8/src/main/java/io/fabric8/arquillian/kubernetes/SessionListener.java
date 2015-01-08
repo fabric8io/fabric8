@@ -23,6 +23,7 @@ import io.fabric8.arquillian.kubernetes.await.WaitStrategy;
 import io.fabric8.arquillian.kubernetes.event.Start;
 import io.fabric8.arquillian.kubernetes.event.Stop;
 import io.fabric8.arquillian.kubernetes.log.Logger;
+import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.Config;
@@ -33,9 +34,11 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.MultiException;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
+import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -51,8 +54,9 @@ public class SessionListener {
         Logger log = event.getSession().getLogger();
         try {
             boolean dependenciesOk = true;
-            if (!configuration.getDependencies().isEmpty()) {
-                for (String dependency : configuration.getDependencies()) {
+            List<String> dependencies = !configuration.getDependencies().isEmpty() ? configuration.getDependencies() : Util.getMavenDependencies(event.getSession());
+            if (!dependencies.isEmpty()) {
+                for (String dependency : dependencies) {
                     log.info("Applying kubernetes dependency from: " + dependency);
                     Object dep = loadJson(readAsString(new URL(dependency)));
                     dependenciesOk = dependenciesOk && applyConfiguration(client, controller, configuration, event.getSession(), Constants.ARQ_DEP_KEY, dep);

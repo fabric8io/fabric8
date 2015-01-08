@@ -1422,12 +1422,6 @@
               <version>${guava.version}</version>
             </dependency>
 
-            <dependency>
-              <groupId>org.jboss.shrinkwrap.resolver</groupId>
-              <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
-              <version>${shrinkwrap-resolver.version}</version>
-            </dependency>
-
             <!-- vertx -->
             <dependency>
                 <groupId>io.vertx</groupId>
@@ -2626,6 +2620,13 @@
                 <groupId>org.jboss.arquillian</groupId>
                 <artifactId>arquillian-bom</artifactId>
                 <version>${arquillian-core.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.shrinkwrap.resolver</groupId>
+                <artifactId>shrinkwrap-resolver-bom</artifactId>
+                <version>${shrinkwrap-resolver.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
