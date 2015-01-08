@@ -94,94 +94,101 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
         //2. Create APIMan Handler and execute
         IEngine engine = (IEngine) apiManager.getEngine();
     	// Request executor, through which we can send chunks and indicate end.      
-    	final IServiceRequestExecutor requestExecutor = engine.executor(srequest, 
-    			new IAsyncResultHandler<IEngineResult>() {
-    		
-    			@Override
-    			public void handle(IAsyncResult<IEngineResult> iAsyncEngineResult) {
-			
-				if (! iAsyncEngineResult.isSuccess()) {
-					//This can happen only when an (unexpected) internal exception occurs; we need to send back a 500
-					response.setStatusCode(500);
-					response.setStatusMessage("Gateway Internal Error: " + iAsyncEngineResult.getError().getMessage());
-					response.close();
-					LOG.error("Gateway Internal Error " + iAsyncEngineResult.getError().getMessage());
-				} else {
-					IEngineResult engineResult = iAsyncEngineResult.getResult();
-					if (engineResult.isFailure()) {
-						//The iAsyncEngineResult can be successful, but a policy can have been violated which
-						//will mark the engineResult as failed.
-						ServiceResponse serviceResponse = engineResult.getServiceResponse();
-						if (serviceResponse!=null) {
-							final HttpClient finalClient = (HttpClient) serviceResponse.getAttribute("finalClient");
-							finalClient.close();
-						}
-						PolicyFailure policyFailure = engineResult.getPolicyFailure();
-						response.putHeader("X-Policy-Failure-Type", String.valueOf(policyFailure.getType()));
-						response.putHeader("X-Policy-Failure-Message", policyFailure.getMessage());
-						response.putHeader("X-Policy-Failure-Code", String.valueOf(policyFailure.getFailureCode()));
-				        int errorCode = 403; // Default status code for policy failure
-				        if (policyFailure.getType() == PolicyFailureType.Authentication) {
-				            errorCode = 401;
-				        } else if (policyFailure.getType() == PolicyFailureType.Authorization) {
-				            errorCode = 401;
-				        }
-				        response.setStatusCode(errorCode);
-						response.setStatusMessage(policyFailure.getMessage());
-						response.end();
+    	try {
+			final IServiceRequestExecutor requestExecutor = engine.executor(srequest, 
+					new IAsyncResultHandler<IEngineResult>() {
+				
+					@Override
+					public void handle(IAsyncResult<IEngineResult> iAsyncEngineResult) {
+				
+					if (! iAsyncEngineResult.isSuccess()) {
+						//This can happen only when an (unexpected) internal exception occurs; we need to send back a 500
+						response.setStatusCode(500);
+						response.setStatusMessage("Gateway Internal Error: " + iAsyncEngineResult.getError().getMessage());
 						response.close();
-					} else if (engineResult.isResponse()) {
-						//All is happy and we can respond back to the client.
-						ServiceResponse serviceResponse = engineResult.getServiceResponse();
-						response.setStatusCode(serviceResponse.getCode());
-						response.setStatusMessage(serviceResponse.getMessage());
-						response.setChunked(true);
-						
-						 // bodyHandler to receive response chunks.                           
-				          engineResult.bodyHandler(new IAsyncHandler<IApimanBuffer>() {
-				 
-				            @Override
-				            public void handle(IApimanBuffer chunk) {
-				            	
-				              // Important: retrieve native buffer format directly if possible, much more efficient.
-				            	response.write((Buffer) chunk.getNativeBuffer());
-				            }
-				          });
-				 
-				          // endHandler to receive end signal.
-				          engineResult.endHandler(new IAsyncHandler<Void>() {
-				 
-				            @Override
-				            public void handle(Void flag) {
-				            	LOG.debug("ResponseCode from downstream " + response.getStatusCode());
-								CallDetailRecord cdr = new CallDetailRecord(System.nanoTime() - callStart, response.getStatusMessage());
-								httpGateway.addCallDetailRecord(cdr);
-								response.end();
-				            	response.close();
-				            	LOG.debug("Complete success, and closed the client connection.");
-				            }
-				          });
+						LOG.error("Gateway Internal Error " + iAsyncEngineResult.getError().getMessage());
+					} else {
+						IEngineResult engineResult = iAsyncEngineResult.getResult();
+						if (engineResult.isFailure()) {
+							//The iAsyncEngineResult can be successful, but a policy can have been violated which
+							//will mark the engineResult as failed.
+							ServiceResponse serviceResponse = engineResult.getServiceResponse();
+							if (serviceResponse!=null) {
+								final HttpClient finalClient = (HttpClient) serviceResponse.getAttribute("finalClient");
+								finalClient.close();
+							}
+							PolicyFailure policyFailure = engineResult.getPolicyFailure();
+							response.putHeader("X-Policy-Failure-Type", String.valueOf(policyFailure.getType()));
+							response.putHeader("X-Policy-Failure-Message", policyFailure.getMessage());
+							response.putHeader("X-Policy-Failure-Code", String.valueOf(policyFailure.getFailureCode()));
+					        int errorCode = 403; // Default status code for policy failure
+					        if (policyFailure.getType() == PolicyFailureType.Authentication) {
+					            errorCode = 401;
+					        } else if (policyFailure.getType() == PolicyFailureType.Authorization) {
+					            errorCode = 401;
+					        }
+					        response.setStatusCode(errorCode);
+							response.setStatusMessage(policyFailure.getMessage());
+							response.end();
+							response.close();
+						} else if (engineResult.isResponse()) {
+							//All is happy and we can respond back to the client.
+							ServiceResponse serviceResponse = engineResult.getServiceResponse();
+							response.setStatusCode(serviceResponse.getCode());
+							response.setStatusMessage(serviceResponse.getMessage());
+							response.setChunked(true);
+							
+							 // bodyHandler to receive response chunks.                           
+					          engineResult.bodyHandler(new IAsyncHandler<IApimanBuffer>() {
+					 
+					            @Override
+					            public void handle(IApimanBuffer chunk) {
+					            	
+					              // Important: retrieve native buffer format directly if possible, much more efficient.
+					            	response.write((Buffer) chunk.getNativeBuffer());
+					            }
+					          });
+					 
+					          // endHandler to receive end signal.
+					          engineResult.endHandler(new IAsyncHandler<Void>() {
+					 
+					            @Override
+					            public void handle(Void flag) {
+					            	LOG.debug("ResponseCode from downstream " + response.getStatusCode());
+									CallDetailRecord cdr = new CallDetailRecord(System.nanoTime() - callStart, response.getStatusMessage());
+									httpGateway.addCallDetailRecord(cdr);
+									response.end();
+					            	response.close();
+					            	LOG.debug("Complete success, and closed the client connection.");
+					            }
+					          });
+						}
 					}
 				}
-			}
-        });
-    	//Create a streamHandler so APIMan can use it to stream the client request
-    	//to the back-end service
-    	requestExecutor.streamHandler(new IAsyncHandler<ISignalWriteStream>() {
+			});
+			//Create a streamHandler so APIMan can use it to stream the client request
+			//to the back-end service
+			requestExecutor.streamHandler(new IAsyncHandler<ISignalWriteStream>() {
 
-    		  @Override
-    		  public void handle(final ISignalWriteStream writeStream) {
-			    request.dataHandler(new Handler<Buffer>() {
-		            public void handle(Buffer data) {
-		            	IApimanBuffer apimanBuffer = new VertxBuffer(data);
-		        		writeStream.write(apimanBuffer);
-		            }
-		        });
-    		    writeStream.end();
-    		  }
-    	});
-    	//Hand responsibility to APIMan
-    	requestExecutor.execute();
+				  @Override
+				  public void handle(final ISignalWriteStream writeStream) {
+				    request.dataHandler(new Handler<Buffer>() {
+			            public void handle(Buffer data) {
+			            	IApimanBuffer apimanBuffer = new VertxBuffer(data);
+			        		writeStream.write(apimanBuffer);
+			            }
+			        });
+				    writeStream.end();
+				  }
+			});
+			//Hand responsibility to APIMan
+			requestExecutor.execute();
+		} catch (Exception e) {
+			response.setStatusCode(404);
+			response.setStatusMessage("User error " + e.getMessage());
+			response.end();
+			LOG.error("User error " + e.getMessage());
+		}
     }
     
     
