@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import io.fabric8.forge.camel.commands.jolokia.ConnectCommand;
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
+import org.jboss.forge.addon.maven.plugins.MavenPluginBuilder;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -65,15 +66,20 @@ public class CamelSetupCommand extends AbstractCamelProjectCommand {
             return Results.success("Apache Camel is already setup");
         }
 
-        DependencyBuilder builder = DependencyBuilder.create().setGroupId("org.apache.camel").setArtifactId("camel-core");
-        if (version.getValue() != null) {
-            builder.setVersion(version.getValue());
-        }
-        core = builder;
+        core = DependencyBuilder.create().setCoordinate(createCamelCoordinate("camel-core", version.getValue()));
 
         // add camel-core
         dependencyInstaller.install(project, core);
 
+        // TODO: MavenPluginFacet does not work, so we cannot install custom plugins to the pom.xml
+
+//        MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacetImpl.class);
+        MavenPluginBuilder plugin = MavenPluginBuilder.create()
+                .setCoordinate(createCamelCoordinate("camel-maven-plugin", version.getValue()));
+
+//        pluginFacet.addPlugin(plugin);
+
         return Results.success("Added Apache Camel to the project");
     }
+
 }

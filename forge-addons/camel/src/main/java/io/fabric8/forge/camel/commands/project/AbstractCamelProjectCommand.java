@@ -18,7 +18,9 @@ package io.fabric8.forge.camel.commands.project;
 
 import javax.inject.Inject;
 
+import org.jboss.forge.addon.dependencies.Coordinate;
 import org.jboss.forge.addon.dependencies.Dependency;
+import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
@@ -44,4 +46,14 @@ public abstract class AbstractCamelProjectCommand extends AbstractProjectCommand
         return CamelProjectHelper.findCamelCoreDependency(project);
     }
 
+    protected Coordinate createCamelCoordinate(String artifactId, String version) {
+        CoordinateBuilder builder = CoordinateBuilder.create()
+                .setGroupId("org.apache.camel")
+                .setArtifactId(artifactId);
+        if (version != null) {
+            builder = builder.setVersion(version);
+        }
+
+        return builder;
+    }
 }

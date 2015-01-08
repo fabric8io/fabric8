@@ -55,6 +55,19 @@
   </dependencyManagement>
 
   <dependencies>
+
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>maven-api</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <!--<dependency>-->
+      <!--<groupId>org.jboss.forge.addon</groupId>-->
+      <!--<artifactId>maven-impl-projects</artifactId>-->
+      <!--<version>${jboss.forge.version}</version>-->
+    <!--</dependency>-->
+
     <!--forge-->
     <dependency>
       <groupId>org.jboss.forge.furnace.container</groupId>
@@ -66,31 +79,37 @@
       <groupId>org.jboss.forge.addon</groupId>
       <artifactId>ui</artifactId>
       <classifier>forge-addon</classifier>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.forge.addon</groupId>
       <artifactId>projects</artifactId>
       <classifier>forge-addon</classifier>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.forge.addon</groupId>
       <artifactId>parser-java</artifactId>
       <classifier>forge-addon</classifier>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.forge.addon</groupId>
       <artifactId>parser-xml</artifactId>
       <classifier>forge-addon</classifier>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.forge.addon</groupId>
       <artifactId>rest-client</artifactId>
       <classifier>forge-addon</classifier>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.forge.addon</groupId>
       <artifactId>templates</artifactId>
       <classifier>forge-addon</classifier>
+      <scope>provided</scope>
     </dependency>
 
     <!--non forge deps-->
