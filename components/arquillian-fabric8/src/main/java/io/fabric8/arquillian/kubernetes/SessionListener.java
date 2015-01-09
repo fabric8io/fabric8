@@ -36,7 +36,6 @@ import org.jboss.arquillian.core.api.annotation.Observes;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -54,10 +53,14 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 import static io.fabric8.arquillian.kubernetes.Constants.ARQ_KEY;
 
 public class SessionListener {
-    private Thread shutdownHook;
+
+    private ShutdownHook shutdownHook;
 
     public void start(final @Observes Start event, final KubernetesClient client, Controller controller, Configuration configuration) throws Exception {
         final Logger log = event.getSession().getLogger();
+        shutdownHook = new ShutdownHook(client, event.getSession());
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
+
         try {
             URL configUrl = configuration.getConfigUrl();
             List<String> dependencies = !configuration.getDependencies().isEmpty() ? configuration.getDependencies() : Util.getMavenDependencies(event.getSession());
@@ -82,30 +85,23 @@ public class SessionListener {
                 cleanupSession(client, event.getSession());
             } catch (MultiException me) {
                 throw e;
+            } finally {
+                if (shutdownHook != null) {
+                    Runtime.getRuntime().removeShutdownHook(shutdownHook);
+                }
             }
             throw new RuntimeException(e);
         }
-
-        // TODO should we allow this to be disabled via a system property or something?
-        shutdownHook = new Thread("Cleanup session") {
-            @Override
-            public void run() {
-                log.warn("shutdown hook cleaning up the integration test!");
-                try {
-                    cleanupSession(client, event.getSession());
-                } catch (MultiException e) {
-                    log.warn(e.getMessage());
-                }
-            }
-        };
-        Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
 
     public void stop(@Observes Stop event, KubernetesClient client) throws Exception {
-        cleanupSession(client, event.getSession());
-        if (shutdownHook != null) {
-            Runtime.getRuntime().removeShutdownHook(shutdownHook);
+        try {
+            cleanupSession(client, event.getSession());
+        } finally {
+            if (shutdownHook != null) {
+                Runtime.getRuntime().removeShutdownHook(shutdownHook);
+            }
         }
     }
 
