@@ -55,8 +55,8 @@ import static io.fabric8.arquillian.kubernetes.Constants.ARQ_KEY;
 
 public class SessionListener {
 
-    public void start(@Observes Start event, KubernetesClient client, Controller controller, Configuration configuration) throws Exception {
-        Logger log = event.getSession().getLogger();
+    public void start(final @Observes Start event, final KubernetesClient client, Controller controller, Configuration configuration) throws Exception {
+        final Logger log = event.getSession().getLogger();
         try {
             URL configUrl = configuration.getConfigUrl();
             List<String> dependencies = !configuration.getDependencies().isEmpty() ? configuration.getDependencies() : Util.getMavenDependencies(event.getSession());
@@ -84,6 +84,19 @@ public class SessionListener {
             }
             throw new RuntimeException(e);
         }
+
+        // TODO should we allow this to be disabled via a system property or something?
+        Runtime.getRuntime().addShutdownHook(new Thread("Cleanup session") {
+            @Override
+            public void run() {
+                log.warn("shutdown hook cleaning up the integration test!");
+                try {
+                    cleanupSession(client, event.getSession());
+                } catch (MultiException e) {
+                    log.warn(e.getMessage());
+                }
+            }
+        });
     }
 
 

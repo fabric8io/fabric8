@@ -22,9 +22,11 @@ import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.Filter;
+import io.fabric8.utils.Filters;
 import io.fabric8.utils.MultiException;
 import io.fabric8.utils.Zips;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
@@ -49,6 +51,7 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPortalIP;
 import static io.fabric8.arquillian.kubernetes.Constants.*;
+import static io.fabric8.utils.Lists.notNullList;
 
 public class Util {
 
@@ -105,23 +108,42 @@ public class Util {
         Filter<Service> serviceFilter = KubernetesHelper.createServiceFilter(labels);
         Filter<ReplicationController> replicationControllerFilter = KubernetesHelper.createReplicationControllerFilter(labels);
 
-        try {
-            deleteReplicationControllers(client, session.getLogger(), replicationControllerFilter);
-        } catch (MultiException e) {
-            errors.addAll(Arrays.asList(e.getCauses()));
+        /**
+         * Lets use a loop to ensure we really do delete all the matching resources
+         */
+        for (int i = 0; i < 10; i++) {
+            try {
+                deleteReplicationControllers(client, session.getLogger(), replicationControllerFilter);
+            } catch (MultiException e) {
+                errors.addAll(Arrays.asList(e.getCauses()));
+            }
+
+            try {
+                deletePods(client, session.getLogger(), podFilter);
+            } catch (MultiException e) {
+                errors.addAll(Arrays.asList(e.getCauses()));
+            }
+
+            try {
+                deleteServices(client, session.getLogger(), serviceFilter);
+            } catch (MultiException e) {
+                errors.addAll(Arrays.asList(e.getCauses()));
+            }
+
+            // lets see if there are any matching podList left
+            PodList podList = client.getPods();
+            List<Pod> filteredPods = Filters.filter(notNullList(podList.getItems()), podFilter);
+            if (filteredPods.isEmpty()) {
+                return;
+            } else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
-        try {
-            deletePods(client, session.getLogger(), podFilter);
-        } catch (MultiException e) {
-            errors.addAll(Arrays.asList(e.getCauses()));
-        }
-
-        try {
-            deleteServices(client, session.getLogger(), serviceFilter);
-        } catch (MultiException e) {
-            errors.addAll(Arrays.asList(e.getCauses()));
-        }
     }
 
     public static List<Pod> findPods(KubernetesClient client, Filter<Pod> filter) throws MultiException {
