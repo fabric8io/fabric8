@@ -21,6 +21,8 @@ import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.PodStatus;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Objects;
@@ -29,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+
 import static io.fabric8.arquillian.kubernetes.Constants.ARQ_KEY;
 
 public class SessionPodsAreReady implements Callable<Boolean> {
@@ -56,7 +59,15 @@ public class SessionPodsAreReady implements Callable<Boolean> {
         for (Pod pod : pods) {
             result = result && Objects.equal(PodStatus.OK, KubernetesHelper.getPodStatus(pod));
             if (!result) {
-                session.getLogger().warn("Waiting for pods to reach 'running' state...");
+                if (pod.getCurrentState().getInfo() != null) {
+                    for (Map.Entry<String, ContainerStatus> entry : pod.getCurrentState().getInfo().entrySet()) {
+                        String containerId = entry.getKey();
+                        ContainerStatus status = entry.getValue();
+                        if (status.getState().getWaiting() != null) {
+                            session.getLogger().warn("Waiting for container:" + containerId + ". Reason:" + status.getState().getWaiting().getReason());
+                        }
+                    }
+                }
             }
         }
         return result;
