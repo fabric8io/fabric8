@@ -35,6 +35,10 @@ import io.fabric8.utils.MultiException;
 import org.jboss.arquillian.core.api.annotation.Observes;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -93,40 +97,62 @@ public class SessionListener {
         Set<Callable<Boolean>> conditions = new HashSet<>();
         Callable<Boolean> sessionPodsReady = new SessionPodsAreReady(client, session);
         Callable<Boolean> servicesReady = new SessionServicesAreReady(client, session, configuration.isWaitForConenction());
+
+        List<Object> entities = new ArrayList<>();
         for (Config c : kubeConfigs) {
-            for (Object entity : getEntities(c)) {
-                if (entity instanceof Pod) {
-                    Pod pod = (Pod) entity;
-                    if (pod.getLabels() == null) {
-                        pod.setLabels(new HashMap<String, String>());
-                    }
-                    pod.getLabels().put(ARQ_KEY, session.getId());
-                    controller.applyPod(pod, session.getId());
-                    conditions.add(sessionPodsReady);
-                } else if (entity instanceof Service) {
-                    Service service = (Service) entity;
-                    if (service.getLabels() == null) {
-                        service.setLabels(new HashMap<String, String>());
-                    }
-                    service.getLabels().put(ARQ_KEY, session.getId());
-                    controller.applyService(service, session.getId());
-                    conditions.add(servicesReady);
-                } else if (entity instanceof ReplicationController) {
-                    ReplicationController replicationController = (ReplicationController) entity;
-                    PodTemplate podTemplate = replicationController.getDesiredState().getPodTemplate();
-                    if (podTemplate.getLabels() == null) {
-                        podTemplate.setLabels(new HashMap<String, String>());
-                    }
-                    replicationController.getDesiredState().getPodTemplate().getLabels().put(ARQ_KEY, session.getId());
-                    if (replicationController.getLabels() == null) {
-                        replicationController.setLabels(new HashMap<String, String>());
-                    }
-                    replicationController.getLabels().put(ARQ_KEY, session.getId());
-                    controller.applyReplicationController(replicationController, session.getId());
-                    conditions.add(sessionPodsReady);
+            entities.addAll(getEntities(c));
+        }
+
+        //Ensure services are processed first.
+        Collections.sort(entities, new Comparator<Object>() {
+            @Override
+            public int compare(Object left, Object right) {
+                if (left instanceof Service) {
+                    return -1;
+                } else if (right instanceof Service) {
+                    return 1;
+                } else {
+                    return 0;
                 }
             }
+        });
+
+        for (Object entity : entities) {
+            if (entity instanceof Pod) {
+                Pod pod = (Pod) entity;
+                if (pod.getLabels() == null) {
+                    pod.setLabels(new HashMap<String, String>());
+                }
+                pod.getLabels().put(ARQ_KEY, session.getId());
+                log.status("Applying pod:" + pod.getId());
+                controller.applyPod(pod, session.getId());
+                conditions.add(sessionPodsReady);
+            } else if (entity instanceof Service) {
+                Service service = (Service) entity;
+                if (service.getLabels() == null) {
+                    service.setLabels(new HashMap<String, String>());
+                }
+                service.getLabels().put(ARQ_KEY, session.getId());
+                log.status("Applying service:" + service.getId());
+                controller.applyService(service, session.getId());
+                conditions.add(servicesReady);
+            } else if (entity instanceof ReplicationController) {
+                ReplicationController replicationController = (ReplicationController) entity;
+                PodTemplate podTemplate = replicationController.getDesiredState().getPodTemplate();
+                if (podTemplate.getLabels() == null) {
+                    podTemplate.setLabels(new HashMap<String, String>());
+                }
+                replicationController.getDesiredState().getPodTemplate().getLabels().put(ARQ_KEY, session.getId());
+                if (replicationController.getLabels() == null) {
+                    replicationController.setLabels(new HashMap<String, String>());
+                }
+                replicationController.getLabels().put(ARQ_KEY, session.getId());
+                log.status("Applying replication controller:" + replicationController.getId());
+                controller.applyReplicationController(replicationController, session.getId());
+                conditions.add(sessionPodsReady);
+            }
         }
+
 
         //Wait until conditions are meet.
         if (!conditions.isEmpty()) {
