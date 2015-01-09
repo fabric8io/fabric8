@@ -87,7 +87,7 @@ public class SessionListener {
         }
 
         // TODO should we allow this to be disabled via a system property or something?
-        Thread shutdownHook = new Thread("Cleanup session") {
+        shutdownHook = new Thread("Cleanup session") {
             @Override
             public void run() {
                 log.warn("shutdown hook cleaning up the integration test!");
