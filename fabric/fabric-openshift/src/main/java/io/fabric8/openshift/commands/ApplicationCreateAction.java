@@ -15,10 +15,7 @@
  */
 package io.fabric8.openshift.commands;
 
-import com.openshift.client.IApplication;
-import com.openshift.client.IDomain;
-import com.openshift.client.IOpenShiftConnection;
-import com.openshift.client.IUser;
+import com.openshift.client.*;
 import com.openshift.client.cartridge.StandaloneCartridge;
 import com.openshift.internal.client.GearProfile;
 import org.apache.felix.gogo.commands.Argument;
@@ -33,6 +30,9 @@ public class ApplicationCreateAction extends OpenshiftCommandSupport {
 
     @Option(name = "--gear-profile", description = "Gear profile controls how much memory and CPU your cartridges can use.")
     private String gearProfile = "small";
+
+    @Option(name = "--scaling", description = "Enable scaling for the web cartridge.")
+    private boolean scaling = false;
 
     @Argument(index = 0, name = "application", required = true, description = "The target application.")
     String applicationName;
@@ -49,7 +49,11 @@ public class ApplicationCreateAction extends OpenshiftCommandSupport {
             domain = user.createDomain(domainId);
         }
 
-        IApplication application = domain.createApplication(applicationName, new StandaloneCartridge(cartridge), null, new GearProfile(gearProfile));
+        ApplicationScale scale = ApplicationScale.NO_SCALE;
+        if( scaling ) {
+            scale = ApplicationScale.SCALE;
+        }
+        IApplication application = domain.createApplication(applicationName, new StandaloneCartridge(cartridge), scale, new GearProfile(gearProfile));
         System.out.println(application.getCreationLog());
         return null;
     }
