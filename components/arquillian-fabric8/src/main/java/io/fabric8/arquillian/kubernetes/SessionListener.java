@@ -54,6 +54,7 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 import static io.fabric8.arquillian.kubernetes.Constants.ARQ_KEY;
 
 public class SessionListener {
+    private Thread shutdownHook;
 
     public void start(final @Observes Start event, final KubernetesClient client, Controller controller, Configuration configuration) throws Exception {
         final Logger log = event.getSession().getLogger();
@@ -86,7 +87,7 @@ public class SessionListener {
         }
 
         // TODO should we allow this to be disabled via a system property or something?
-        Runtime.getRuntime().addShutdownHook(new Thread("Cleanup session") {
+        Thread shutdownHook = new Thread("Cleanup session") {
             @Override
             public void run() {
                 log.warn("shutdown hook cleaning up the integration test!");
@@ -96,12 +97,16 @@ public class SessionListener {
                     log.warn(e.getMessage());
                 }
             }
-        });
+        };
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
 
     public void stop(@Observes Stop event, KubernetesClient client) throws Exception {
         cleanupSession(client, event.getSession());
+        if (shutdownHook != null) {
+            Runtime.getRuntime().removeShutdownHook(shutdownHook);
+        }
     }
 
 
