@@ -20,6 +20,12 @@ package io.fabric8.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  */
 public class Asserts {
@@ -44,4 +50,45 @@ public class Asserts {
         Asserts.LOG.info("Caught expected assertion failure: " + answer);
         return answer;
     }
+
+
+    /**
+     * Asserts that the block passes at some point within the given time period.
+     * <p/>
+     * If assertions fail then the thread sleeps and retries until things pass or we run out of time
+     */
+    public static void assertWaitFor(long timeoutMs, Block block) throws Exception {
+        long end = System.currentTimeMillis() + timeoutMs;
+
+        AssertionError failure = null;
+        while (true) {
+            if (System.currentTimeMillis() > end) {
+                if (failure != null) {
+                    throw failure;
+                } else {
+                    return;
+                }
+            }
+            try {
+                block.invoke();
+                return;
+            } catch (AssertionError e) {
+                failure = e;
+            } catch (Exception e) {
+                failure = new AssertionError(e);
+            }
+            LOG.debug("Waiting for " + failure);
+            System.out.println("Waiting for: " + failure);
+            Thread.sleep(1000);
+        }
+    }
+
+    /**
+     * Asserts that the block passes within a default time of 30 seconds.
+     */
+    public static void assertWaitFor(Block block) throws Exception {
+        assertWaitFor(30 * 1000, block);
+    }
+
+
 }

@@ -22,14 +22,14 @@ import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.jolokia.JolokiaClients;
+import io.fabric8.utils.Asserts;
+import io.fabric8.utils.Block;
 import org.assertj.core.api.Condition;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jolokia.client.J4pClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.List;
 
 import static io.fabric8.kubernetes.assertions.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,10 +50,12 @@ public class BrokerProducerConsumerIT {
     @ArquillianResource
     JolokiaClients jolokiaClients;
 
+    String brokerReplicationControllerId = "fabric8MQ";
+    String consumerReplicationControllerId = "fabric8MQConsumer";
+
     @Test
     public void testMQConsumer() throws Exception {
-        String brokerReplicationControllerId = "fabric8MQ";
-        String consumerReplicationControllerId = "fabric8MQConsumer";
+        assertThat(client).replicationController(brokerReplicationControllerId).isNotNull();
         assertThat(client).replicationController(consumerReplicationControllerId).isNotNull();
 
         assertThat(client).pods()
@@ -66,13 +68,16 @@ public class BrokerProducerConsumerIT {
                     }
                 });
 
-        J4pClient brokerClient = jolokiaClients.clientForReplicationController(brokerReplicationControllerId);
-        J4pClient consumerClient = jolokiaClients.clientForReplicationController(consumerReplicationControllerId);
+        Asserts.assertWaitFor(4 * 60 * 1000, new Block() {
+            @Override
+            public void invoke() throws Exception {
+                J4pClient brokerClient = jolokiaClients.assertClientForReplicationController(brokerReplicationControllerId);
+                J4pClient consumerClient = jolokiaClients.assertClientForReplicationController(consumerReplicationControllerId);
 
-        assertThat(brokerClient).isNotNull();
-        assertThat(consumerClient).isNotNull();
-
-        assertThat(brokerClient).longAttribute("org.apache.activemq:type=Broker,brokerName=default,destinationType=Queue,destinationName=TEST.FOO", "EnqueueCount").isGreaterThan(1000);
-        assertThat(consumerClient).stringAttribute("org.apache.camel:context=camel-1,type=context,name=\"camel-1\"", "Status").isEqualTo("Started");
+                assertThat(consumerClient).stringAttribute("org.apache.camel:context=camel-1,type=context,name=\"camel-1\"", "State").isEqualTo("Started");
+                assertThat(brokerClient).longAttribute("org.apache.activemq:type=Broker,brokerName=default,destinationType=Queue,destinationName=TEST.FOO", "EnqueueCount").isGreaterThan(1000);
+            }
+        });
     }
+
 }

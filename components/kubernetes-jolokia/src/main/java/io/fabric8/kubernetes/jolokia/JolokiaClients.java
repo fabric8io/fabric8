@@ -38,6 +38,7 @@ import java.util.Objects;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getDockerIp;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
+import static io.fabric8.utils.Objects.assertNotNull;
 
 /**
  * Provides simple access to jolokia clients for a cluster
@@ -63,12 +64,32 @@ public class JolokiaClients {
     }
 
     /**
+     * Returns a client for the first working pod for the given replication controller or throws an assertion error if one could not be found
+     */
+    public J4pClient assertClientForReplicationController(String replicationControllerId) {
+        J4pClient client = clientForReplicationController(replicationControllerId);
+        assertNotNull(client, "No client for replicationController: " + replicationControllerId);
+        return client;
+    }
+
+
+    /**
+     * Returns a client for the first working pod for the given service  or throws an assertion error if one could not be found
+     */
+    public J4pClient assertClientForService(String serviceId) {
+        J4pClient client = clientForService(serviceId);
+        assertNotNull(client, "No client for service: " + serviceId);
+        return client;
+    }
+
+    /**
      * Returns a client for the first working pod for the given replication controller
      */
     public J4pClient clientForReplicationController(ReplicationController replicationController) {
         List<Pod> pods = kubernetes.getPodsForReplicationController(replicationController);
         return clientForPod(pods);
     }
+
 
     /**
      * Returns a client for the first working pod for the given replication controller
@@ -293,7 +314,7 @@ public class JolokiaClients {
 
     protected J4pClient createJolokiaClient(Container container, String jolokiaUrl) {
         String name = container.getName();
-        LOG.info("Creating jolokia client for : " + name + " at URL: " + jolokiaUrl);
+        LOG.debug("Creating jolokia client for : " + name + " at URL: " + jolokiaUrl);
         J4pClientBuilder builder = J4pClient.url(jolokiaUrl);
         if (Strings.isNotBlank(user)) {
             builder = builder.user(user);
