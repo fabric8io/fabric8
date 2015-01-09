@@ -29,25 +29,24 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import static io.fabric8.arquillian.kubernetes.Constants.ARQ_KEY;
 
 public class SessionServicesAreReady implements Callable<Boolean> {
 
     private final Session session;
     private final KubernetesClient kubernetesClient;
-    private final String key;
     private final Boolean waitForConnection;
 
-    public SessionServicesAreReady(KubernetesClient kubernetesClient, Session session, String key, Boolean waitForConnection) {
+    public SessionServicesAreReady(KubernetesClient kubernetesClient, Session session, Boolean waitForConnection) {
         this.session = session;
         this.kubernetesClient = kubernetesClient;
-        this.key = key;
         this.waitForConnection = waitForConnection;
     }
 
     @Override
     public Boolean call() throws Exception {
         boolean result = true;
-        Map<String, String> labels = Collections.singletonMap(key, session.getId());
+        Map<String, String> labels = Collections.singletonMap(ARQ_KEY, session.getId());
         Filter<Service> serviceFilter = KubernetesHelper.createServiceFilter(labels);
         List<Service> services = Util.findServices(kubernetesClient, serviceFilter);
 

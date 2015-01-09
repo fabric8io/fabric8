@@ -29,23 +29,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import static io.fabric8.arquillian.kubernetes.Constants.ARQ_KEY;
 
 public class SessionPodsAreReady implements Callable<Boolean> {
 
     private final Session session;
     private final KubernetesClient kubernetesClient;
-    private final String key;
 
-    public SessionPodsAreReady(KubernetesClient kubernetesClient, Session session, String key) {
+    public SessionPodsAreReady(KubernetesClient kubernetesClient, Session session) {
         this.session = session;
         this.kubernetesClient = kubernetesClient;
-        this.key = key;
     }
 
     @Override
     public Boolean call() throws Exception {
         boolean result = true;
-        Map<String, String> labels = Collections.singletonMap(key, session.getId());
+        Map<String, String> labels = Collections.singletonMap(ARQ_KEY, session.getId());
         Filter<Pod> podFilter = KubernetesHelper.createPodFilter(labels);
         List<Pod> pods = Util.findPods(kubernetesClient, podFilter);
 

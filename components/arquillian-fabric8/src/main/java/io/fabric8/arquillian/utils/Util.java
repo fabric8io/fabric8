@@ -94,7 +94,6 @@ public class Util {
     public static void cleanupSession(KubernetesClient client, Session session) throws MultiException {
         List<Throwable> errors = new ArrayList<>();
         cleanupAllMatching(client, Constants.ARQ_KEY, session, errors);
-        cleanupAllMatching(client, Constants.ARQ_DEP_KEY, session, errors);
         if (!errors.isEmpty()) {
             throw new MultiException("Error while cleaning up session.", errors);
         }
