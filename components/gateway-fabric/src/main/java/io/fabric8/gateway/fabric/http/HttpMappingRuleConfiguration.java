@@ -143,7 +143,7 @@ public class HttpMappingRuleConfiguration {
                 gateway.getGatewayVersion(),
                 enabledVersion, loadBalancer, reverseHeaders);
 
-        mappingTree = new HttpMappingKubeCache(httpMappingRuleBase, serviceSelectors);
+        mappingTree = new HttpMappingKubeCache(httpMappingRuleBase, serviceSelectors, gateway.getApiManager());
         //mappingTree = new HttpMappingZooKeeperTreeCache(curator.get(), httpMappingRuleBase, zooKeeperPath);
         mappingTree.init(httpGatewayConfig);
 

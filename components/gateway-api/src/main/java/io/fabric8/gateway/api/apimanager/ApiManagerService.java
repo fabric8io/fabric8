@@ -71,4 +71,12 @@ public interface ApiManagerService {
 	 * @see ApiManHttpGatewayHandler
 	 */
 	public Handler<HttpServerRequest> createApiManagerHttpGatewayHandler();
+	/**
+	 * Return service info: OrganizationId, ServiceId and Version of this service
+	 * given the servicePath.
+	 * 
+	 * @param servicePath - the path of the backend service
+	 * @return
+	 */
+	public String[] getApiManagerServiceInfo(String servicePath);
 }

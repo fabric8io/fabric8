@@ -275,7 +275,7 @@ public class HTTPGatewayApiManTest {
         HttpMethod method = new GetMethod("http://127.0.0.1:" + httpPort + "/mapping/notexist?apikey=gold-key");
         assertEquals(404, httpClient.executeMethod(method));
         String message = method.getStatusText();
-        assertEquals("Could not find matching proxy path for /mapping/notexist?apikey=gold-key from paths: [/hello/world]",message);
+        assertEquals("User error Service Not Found in API Manager.",message);
     }
     
     /* Testing a service endpoint that does not exist, expecting a 404 */

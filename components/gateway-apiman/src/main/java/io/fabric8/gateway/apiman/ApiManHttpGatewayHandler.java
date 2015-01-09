@@ -19,6 +19,8 @@ import io.fabric8.gateway.api.CallDetailRecord;
 import io.fabric8.gateway.api.apimanager.ApiManagerService;
 import io.fabric8.gateway.api.handlers.http.HttpGateway;
 import io.fabric8.gateway.api.handlers.http.HttpMapping;
+import io.fabric8.gateway.api.handlers.http.IMappedServices;
+import io.fabric8.gateway.api.handlers.http.ProxyMappingDetails;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -70,31 +72,43 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
     public void handle(final HttpServerRequest request) {
     	final long callStart = System.nanoTime();
     	
-    	//0. If this is a request is show the mapping then respond right away
-    	if (HttpMapping.isMappingIndexRequest(request, httpGateway)) {
-    		HttpMapping.respond(request, httpGateway);
-    		return;
-    	}
-    	
-		//1. Create APIMan ServiceRequest
-		ServiceRequest srequest = new ServiceRequest();
-		srequest.setRawRequest(request);
-		srequest.setApiKey(getApiKey(request));
-        srequest.setType(request.method());
-        
-        srequest.setRemoteAddr(request.remoteAddress().getAddress().getHostAddress());
-        srequest.setDestination(request.path());
-        Map<String,String> headerMap = new HashMap<String,String>();
-        for (String key : request.headers().names()) {
-    		headerMap.put(key, request.headers().get(key));
-		}
-        srequest.setHeaders(headerMap);
-        
-        final HttpServerResponse response = request.response();
-        //2. Create APIMan Handler and execute
-        IEngine engine = (IEngine) apiManager.getEngine();
-    	// Request executor, through which we can send chunks and indicate end.      
+    	final HttpServerResponse response = request.response();
     	try {
+	    	//0. If this is a request is show the mapping then respond right away
+	    	if (HttpMapping.isMappingIndexRequest(request, httpGateway)) {
+	    		HttpMapping.respond(request, httpGateway);
+	    		return;
+	    	}
+	    	
+			//1. Create APIMan ServiceRequest
+			ServiceRequest srequest = new ServiceRequest();
+			srequest.setRawRequest(request);
+			srequest.setApiKey(getApiKey(request));
+	        srequest.setType(request.method());
+	        
+	        srequest.setRemoteAddr(request.remoteAddress().getAddress().getHostAddress());
+	        srequest.setDestination(request.path());
+	        Map<String,String> headerMap = new HashMap<String,String>();
+	        for (String key : request.headers().names()) {
+	    		headerMap.put(key, request.headers().get(key));
+			}
+	        srequest.setHeaders(headerMap);
+	        
+	        IMappedServices mappedServices = HttpMapping.getMapping(request, httpGateway.getMappedServices());
+	        if (mappedServices!=null) {
+		    	ProxyMappingDetails proxyMappingDetails = mappedServices.getProxyMappingDetails();
+		        String[] apiManagerServiceInfo = apiManager.getApiManagerServiceInfo(proxyMappingDetails.getServicePath());
+		        if (apiManagerServiceInfo==null) throw new Exception("Service Not Found in API Manager.");
+		        srequest.setServiceOrgId(apiManagerServiceInfo[0]);
+		        srequest.setServiceId(apiManagerServiceInfo[1]);
+		        srequest.setServiceVersion(apiManagerServiceInfo[2]);
+	        } else {
+	        	throw new Exception("Service Not Found in API Manager.");
+	        }
+	        
+	        //2. Create APIMan Handler and execute
+	        IEngine engine = (IEngine) apiManager.getEngine();
+	    	// Request executor, through which we can send chunks and indicate end.      
 			final IServiceRequestExecutor requestExecutor = engine.executor(srequest, 
 					new IAsyncResultHandler<IEngineResult>() {
 				
@@ -105,7 +119,7 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
 						//This can happen only when an (unexpected) internal exception occurs; we need to send back a 500
 						response.setStatusCode(500);
 						response.setStatusMessage("Gateway Internal Error: " + iAsyncEngineResult.getError().getMessage());
-						response.close();
+						response.end();
 						LOG.error("Gateway Internal Error " + iAsyncEngineResult.getError().getMessage());
 					} else {
 						IEngineResult engineResult = iAsyncEngineResult.getResult();
@@ -130,7 +144,7 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
 					        response.setStatusCode(errorCode);
 							response.setStatusMessage(policyFailure.getMessage());
 							response.end();
-							response.close();
+							//response.close();
 						} else if (engineResult.isResponse()) {
 							//All is happy and we can respond back to the client.
 							ServiceResponse serviceResponse = engineResult.getServiceResponse();
@@ -158,8 +172,8 @@ public class ApiManHttpGatewayHandler implements Handler<HttpServerRequest> {
 									CallDetailRecord cdr = new CallDetailRecord(System.nanoTime() - callStart, response.getStatusMessage());
 									httpGateway.addCallDetailRecord(cdr);
 									response.end();
-					            	response.close();
-					            	LOG.debug("Complete success, and closed the client connection.");
+					            	//response.close();
+					            	LOG.debug("Complete success, and response end.");
 					            }
 					          });
 						}

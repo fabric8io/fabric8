@@ -126,6 +126,11 @@ public class Engine {
 				}
 				throw new NotAuthorizedException("Service not found");
 			}
+
+			@Override
+			public String[] getServiceInfo(String servicePath) {
+				return registry.getService(servicePath);
+			}
 		};
         return apimanEngine;
 	}

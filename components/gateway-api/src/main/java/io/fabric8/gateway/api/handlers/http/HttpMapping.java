@@ -97,10 +97,9 @@ public class HttpMapping {
          Set<Map.Entry<String, IMappedServices>> entries = mappingRules.entrySet();
          for (Map.Entry<String, IMappedServices> entry : entries) {
              String path = entry.getKey();
-             mappedServices = entry.getValue();
-
              String pathPrefix = path;
              if (uri.startsWith(pathPrefix) || (uri2 != null && uri2.startsWith(pathPrefix))) {
+            	 mappedServices = entry.getValue();
                  int pathPrefixLength = pathPrefix.length();
                  if (pathPrefixLength < uri.length()) {
                      remaining = uri.substring(pathPrefixLength+1);

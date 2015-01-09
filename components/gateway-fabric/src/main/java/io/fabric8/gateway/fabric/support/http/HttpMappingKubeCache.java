@@ -5,6 +5,7 @@ import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getSelector;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import io.fabric8.gateway.ServiceDTO;
+import io.fabric8.gateway.api.apimanager.ApiManager;
 import io.fabric8.gateway.api.handlers.http.HttpMappingRule;
 import io.fabric8.gateway.fabric.http.HTTPGatewayConfig;
 import io.fabric8.kubernetes.api.KubernetesClient;
@@ -32,10 +33,12 @@ public class HttpMappingKubeCache implements Runnable {
     private final HttpMappingRule mappingRuleConfiguration;
     private final List<Map<String,String>> serviceSelectors;
     private List<String> contextPathsCache;
+    private ApiManager apiManager;
     
-    public HttpMappingKubeCache(HttpMappingRule mappingRuleConfiguration, List<Map<String,String>> serviceSelectors) {
+    public HttpMappingKubeCache(HttpMappingRule mappingRuleConfiguration, List<Map<String,String>> serviceSelectors, ApiManager apiManager) {
        this.mappingRuleConfiguration = mappingRuleConfiguration;
        this.serviceSelectors = serviceSelectors;
+       this.apiManager = apiManager;
     }
     
     public void init(HTTPGatewayConfig configuation) {
@@ -90,7 +93,14 @@ public class HttpMappingKubeCache implements Runnable {
                 Map<String, String> selector = getSelector(service1);
                 if (selectorMatch(selector)) {
                     String contextPath = getId(service1);
-                    
+                    if (apiManager!=null) {
+	                    String apiManagerServiceInfo[] = apiManager.getService().getApiManagerServiceInfo(contextPath);
+                        if (apiManagerServiceInfo==null) {
+                        	if (LOG.isDebugEnabled()) LOG.debug("Service is not registered in the API Manager, and is therefore not yet available");
+                        	break;
+                        }
+                    }
+
                     ServiceDTO dto = new ServiceDTO();
                     dto.setId(getId(service1));
                     dto.setContainer(selector.get("container"));

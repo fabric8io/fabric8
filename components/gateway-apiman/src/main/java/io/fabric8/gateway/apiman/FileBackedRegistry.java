@@ -18,6 +18,8 @@ package io.fabric8.gateway.apiman;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +50,7 @@ public class FileBackedRegistry implements IRegistry {
 	private static final transient Logger LOG = LoggerFactory.getLogger(FileBackedRegistry.class);
 	private static File registryFile = null;
 	private Map<String, Service> services = new HashMap<String, Service>();
+	private Map<String, String[]> serviceBindPaths = new HashMap<String, String[]>();
 	private Map<String, Application> applications = new HashMap<String, Application>();
 	private Map<String, ServiceContract> contracts = new HashMap<String, ServiceContract>();
 	
@@ -145,8 +148,30 @@ public class FileBackedRegistry implements IRegistry {
         if (services.containsKey(serviceKey)) {
             throw new PublishingException(Messages.i18n.format("InMemoryRegistry.ServiceAlreadyPublished")); //$NON-NLS-1$
         }
+        try {
+        	String path = getServiceBindPath(service);
+        	String[] serviceInfo = new String[3];
+        	serviceInfo[0] = service.getOrganizationId();
+        	serviceInfo[1] = service.getServiceId();
+        	serviceInfo[2] = service.getVersion();
+        	serviceBindPaths.put(path, serviceInfo);
+        	
+        } catch (Exception e) {
+        	throw new PublishingException(e.getMessage(),e);
+        }
         services.put(serviceKey, service);
         save();
+    }
+    
+    private String getServiceBindPath(Service service) throws MalformedURLException {
+    	String path = new URL(service.getEndpoint()).getPath();
+    	return getServiceBindPath(path);
+    }
+    
+    private String getServiceBindPath(String path) {
+    	if (path.startsWith("/")) path = path.substring(1);
+    	if (path.contains("/")) path = path.substring(0, path.indexOf("/"));
+    	return path;
     }
     
     /**
@@ -156,6 +181,11 @@ public class FileBackedRegistry implements IRegistry {
     public synchronized void retireService(Service service) throws PublishingException {
         String serviceKey = getServiceKey(service);
         if (services.containsKey(serviceKey)) {
+        	try {
+	        	Service service1 = services.get(serviceKey);
+	        	String path = getServiceBindPath(service1);
+	        	serviceBindPaths.remove(path);
+        	} catch (Exception e) {};
             services.remove(serviceKey);
         } else {
             throw new PublishingException(Messages.i18n.format("InMemoryRegistry.ServiceNotFound")); //$NON-NLS-1$
@@ -167,6 +197,17 @@ public class FileBackedRegistry implements IRegistry {
 		String serviceKey = getServiceKey(orgId, serviceId, version);
 		if (services.containsKey(serviceKey)) {
 			return services.get(serviceKey);
+		} else {
+			return null;
+		}
+	}
+	
+	public String[] getService(String path) {
+		path = getServiceBindPath(path);
+		if (path.contains("?")) path = path.substring(0, path.indexOf("?")-1);
+		if (path.contains("#")) path = path.substring(0, path.indexOf("#")-1);
+		if (serviceBindPaths.containsKey(path)) {
+			return serviceBindPaths.get(path);
 		} else {
 			return null;
 		}

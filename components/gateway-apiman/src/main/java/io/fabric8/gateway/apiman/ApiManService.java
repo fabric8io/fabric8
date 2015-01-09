@@ -97,5 +97,10 @@ public class ApiManService implements ApiManagerService {
 	public Handler<HttpServerRequest> createApiManagerHttpGatewayHandler() {
 		return new ApiManHttpGatewayHandler(vertx, httpGateway, this);
 	}
+	
+	@Override
+	public String[] getApiManagerServiceInfo(String servicePath) {
+		return engine.getServiceInfo(servicePath);
+	}
 
 }

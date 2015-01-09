@@ -47,16 +47,14 @@ public class RestDispatcher {
 			if (contentType==null || !contentType.startsWith("application/json")) {
 				request.response().setStatusCode(403);
 				request.response().end("Expecting Content-Type of 'application/json'");
-				request.response().close();
 				return;
 			} 
-			// waiting for https://issues.jboss.org/browse/APIMAN-207 to re-enable this.
-//			if (contentType==null || !contentType.endsWith("UTF-8")) {
-//				request.response().setStatusCode(403);
-//				request.response().end("Expecting charset of 'UTF-8'");
-//				request.response().close();
-//				return;
-//			}
+			if (contentType==null || !contentType.endsWith("UTF-8")) {
+				request.response().setStatusCode(403);
+				request.response().end("Expecting charset of 'UTF-8'");
+				request.response().close();
+				return;
+			}
 		}
 		//read the body
 		request.bodyHandler(new Handler<Buffer>() {
@@ -130,24 +128,19 @@ public class RestDispatcher {
 					}
 					request.response().setStatusCode(200);
 					request.response().end();
-					request.response().close();
 				} catch (UserException e) {
 					LOG.error(e.getMessage(),e);
 					request.response().setStatusCode(404);
 					request.response().setStatusMessage(e.getMessage());
 					request.response().end();
-					request.response().close();
 				} catch (Throwable e) {
 					LOG.error(e.getMessage(),e);
 					request.response().setStatusCode(500);
 					request.response().setStatusMessage(e.getMessage());
 					request.response().end();
-					request.response().close();
 				}
 			}
 			
 		});
-				
 	}
-	
 }

@@ -6,4 +6,5 @@ import io.apiman.gateway.engine.IEngine;
 public interface ApiManEngine extends IEngine {
 
 	public String serviceMapping(String orgId, String serviceId, String version) throws NotAuthorizedException;
+	public String[] getServiceInfo(String serviceBindPath);
 }

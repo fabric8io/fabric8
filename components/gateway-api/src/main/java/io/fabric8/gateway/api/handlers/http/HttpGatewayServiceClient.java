@@ -95,7 +95,7 @@ public class HttpGatewayServiceClient {
             StringWriter buffer = new StringWriter();
             e.printStackTrace(new PrintWriter(buffer));
             request.response().setStatusMessage("Error: " + e + "\nStack Trace: " + buffer);
-            request.response().close();
+            request.response().end();
         }
         return null;
     }
