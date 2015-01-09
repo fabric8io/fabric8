@@ -76,6 +76,7 @@ public class BrokerProducerConsumerIT {
 
                 assertThat(consumerClient).stringAttribute("org.apache.camel:context=camel-1,type=context,name=\"camel-1\"", "State").isEqualTo("Started");
                 assertThat(brokerClient).longAttribute("org.apache.activemq:type=Broker,brokerName=default,destinationType=Queue,destinationName=TEST.FOO", "EnqueueCount").isGreaterThan(1000);
+                assertThat(brokerClient).longAttribute("org.apache.activemq:type=Broker,brokerName=default,destinationType=Queue,destinationName=TEST.FOO", "DequeueCount").isGreaterThan(1000);
             }
         });
     }
