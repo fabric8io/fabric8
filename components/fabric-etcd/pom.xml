@@ -34,7 +34,6 @@
         <module>api</module>
         <module>core</module>
         <module>reader</module>
-        <module>itests</module>
     </modules>
 
     <profiles>
