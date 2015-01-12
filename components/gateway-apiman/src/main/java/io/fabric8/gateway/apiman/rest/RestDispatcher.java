@@ -42,7 +42,7 @@ public class RestDispatcher {
 	public void dispatch(final HttpServerRequest request, final ApiManEngine engine) {
 		
 		//check headers
-		LOG.info("Request: " + request.uri() + " from " + request.remoteAddress());
+		LOG.info("Request: " + request.method() + " " + request.uri() + " from " + request.remoteAddress());
 		if (request.method().equals("PUT")) {
 			String contentType = request.headers().get("Content-Type");
 			contentType = contentType.toUpperCase();
