@@ -1,11 +1,15 @@
 package io.fabric8.kubernetes.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.kubernetes.api.model.ErrorSchema;
-import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
+import io.fabric8.kubernetes.api.model.Status;
+import io.fabric8.kubernetes.api.model.StatusError;
+
+import java.io.InputStream;
 
 import javax.ws.rs.core.Response;
-import java.io.InputStream;
+
+import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ExceptionResponseMapper implements ResponseExceptionMapper<Exception> {
     @Override
@@ -13,7 +17,7 @@ public class ExceptionResponseMapper implements ResponseExceptionMapper<Exceptio
         try {
 
             ObjectMapper mapper = new ObjectMapper();
-            ErrorSchema error = mapper.readValue((InputStream) response.getEntity(), ErrorSchema.class);
+            Status error = mapper.readValue((InputStream) response.getEntity(), Status.class);
 
             return new KubernetesApiException(error.getMessage());
         } catch (Exception ex) {
