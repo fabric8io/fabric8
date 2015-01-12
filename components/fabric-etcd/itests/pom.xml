@@ -22,7 +22,7 @@
     <parent>
         <artifactId>fabric-etcd</artifactId>
         <groupId>io.fabric8</groupId>
-        <version>2.1-SNAPSHOT</version>
+        <version>2.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8.etcd.reader</groupId>
-            <artifactId>fabric-etcd-reader-gson</artifactId>
+            <artifactId>fabric-etcd-reader-jackson</artifactId>
         </dependency>
 
         <!-- Testing dependencies -->
