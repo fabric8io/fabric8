@@ -207,6 +207,4 @@ public class FabricHTTPGateway implements HttpGateway {
 		return apiManager;
 	}
 
-	
-
 }

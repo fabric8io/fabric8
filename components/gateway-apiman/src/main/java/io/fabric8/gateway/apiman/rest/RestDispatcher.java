@@ -42,17 +42,21 @@ public class RestDispatcher {
 	public void dispatch(final HttpServerRequest request, final ApiManEngine engine) {
 		
 		//check headers
+		LOG.info("Request: " + request.uri() + " from " + request.remoteAddress());
 		if (request.method().equals("PUT")) {
 			String contentType = request.headers().get("Content-Type");
-			if (contentType==null || !contentType.startsWith("application/json")) {
+			contentType = contentType.toUpperCase();
+			if (contentType==null || !contentType.startsWith("APPLICATION/JSON")) {
 				request.response().setStatusCode(403);
 				request.response().end("Expecting Content-Type of 'application/json'");
+				LOG.error("Expecting Content-Type of 'application/json");
 				return;
 			} 
 			if (contentType==null || !contentType.endsWith("UTF-8")) {
 				request.response().setStatusCode(403);
 				request.response().end("Expecting charset of 'UTF-8'");
 				request.response().close();
+				LOG.error("Expecting charset of 'UTF-8'");
 				return;
 			}
 		}
