@@ -20,7 +20,7 @@ import io.fabric8.etcd.api.EtcdClient;
 import io.fabric8.etcd.api.EtcdException;
 import io.fabric8.etcd.api.Response;
 import io.fabric8.etcd.core.EtcdClientImpl;
-import io.fabric8.etcd.reader.gson.GsonResponseReader;
+import io.fabric8.etcd.reader.jackson.JacksonResponseReader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,8 +40,8 @@ public class SmokeTest {
 
     @Before
     public void setUp() throws URISyntaxException {
-        String url = System.getProperty("etcd.url");
-        client = new EtcdClientImpl.Builder().baseUri(new URI(url)).responseReader(new GsonResponseReader()).build();
+        String url ="http://127.0.0.1:4001/v2/"; //System.getProperty("etcd.url");
+        client = new EtcdClientImpl.Builder().baseUri(new URI(url)).responseReader(new JacksonResponseReader()).build();
         client.start();
         try {
             client.delete().dir().recursive().forKey("key");
