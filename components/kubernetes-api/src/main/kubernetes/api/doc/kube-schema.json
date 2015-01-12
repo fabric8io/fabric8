@@ -561,6 +561,52 @@
          "additionalProperties":true,
          "javaType":"io.fabric8.kubernetes.api.model.Lifecycle"
       },
+      "kubernetes_List":{  
+         "type":"object",
+         "properties":{  
+            "annotations":{  
+               "type":"object",
+               "additionalProperties":{  
+                  "type":"string"
+               },
+               "javaType":"java.util.Map\u003cString,String\u003e"
+            },
+            "apiVersion":{  
+               "type":"string",
+               "default":"v1beta2"
+            },
+            "creationTimestamp":{  
+               "type":"string"
+            },
+            "id":{  
+               "type":"string"
+            },
+            "items":{  
+               "type":"array",
+               "items":{  
+                  "$ref":"#/definitions/kubernetes_runtime_RawExtension",
+                  "javaType":"io.fabric8.kubernetes.api.model.RawExtension"
+               }
+            },
+            "kind":{  
+               "type":"string"
+            },
+            "namespace":{  
+               "type":"string"
+            },
+            "resourceVersion":{  
+               "type":"integer"
+            },
+            "selfLink":{  
+               "type":"string"
+            },
+            "uid":{  
+               "type":"string"
+            }
+         },
+         "additionalProperties":true,
+         "javaType":"io.fabric8.kubernetes.api.model.KubernetesList"
+      },
       "kubernetes_ListMeta":{  
          "type":"object",
          "properties":{  
@@ -1487,36 +1533,11 @@
       "kubernetes_TypeMeta":{  
          "type":"object",
          "properties":{  
-            "annotations":{  
-               "type":"object",
-               "additionalProperties":{  
-                  "type":"string"
-               },
-               "javaType":"java.util.Map\u003cString,String\u003e"
-            },
             "apiVersion":{  
                "type":"string",
                "default":"v1beta2"
             },
-            "creationTimestamp":{  
-               "type":"string"
-            },
-            "id":{  
-               "type":"string"
-            },
             "kind":{  
-               "type":"string"
-            },
-            "namespace":{  
-               "type":"string"
-            },
-            "resourceVersion":{  
-               "type":"integer"
-            },
-            "selfLink":{  
-               "type":"string"
-            },
-            "uid":{  
                "type":"string"
             }
          },
@@ -2737,6 +2758,10 @@
       "ImageRepositoryList":{  
          "$ref":"#/definitions/os_image_ImageRepositoryList",
          "javaType":"io.fabric8.openshift.api.model.ImageRepositoryList"
+      },
+      "KubernetesList":{  
+         "$ref":"#/definitions/kubernetes_List",
+         "javaType":"io.fabric8.kubernetes.api.model.KubernetesList"
       },
       "Minion":{  
          "$ref":"#/definitions/kubernetes_Minion",
