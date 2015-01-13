@@ -175,10 +175,10 @@
             <id>generate-sources</id>
             <phase>generate-sources</phase>
             <configuration>
-              <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
+              <sourceRoot>target/generated/src/main/java</sourceRoot>
               <wsdlOptions>
                 <wsdlOption>
-                  <wsdl>${basedir}/src/main/resources/wsdl/order.wsdl</wsdl>
+                  <wsdl>src/main/resources/wsdl/order.wsdl</wsdl>
                   <extraargs>
                     <extraarg>-impl</extraarg>
                   </extraargs>
