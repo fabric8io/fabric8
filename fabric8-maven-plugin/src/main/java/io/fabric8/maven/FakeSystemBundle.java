@@ -23,6 +23,7 @@ import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,8 @@ public class FakeSystemBundle extends ResourceImpl
     private final String location;
     private final Hashtable<String, String> headers = new Hashtable<>();
     public int state;
+    private final Map<String, ServiceReference<?>[]> serviceReferences = new HashMap<String, ServiceReference<?>[]>();
+    private final Map<ServiceReference, Object> services = new HashMap<ServiceReference, Object>();
 
     public FakeSystemBundle(Hashtable<String, String> headers) throws BundleException {
         this.bundleId = 0l;
@@ -376,9 +379,15 @@ public class FakeSystemBundle extends ResourceImpl
         return null;
     }
 
+    public void setServiceReferences(String clazz, String filter, ServiceReference<?>[] references) {
+        String key = String.format("%s:%s", clazz == null ? "" : clazz, filter == null ? "" : filter);
+        this.serviceReferences.put(key, references);
+    }
+
     @Override
     public ServiceReference<?>[] getServiceReferences(String clazz, String filter) throws InvalidSyntaxException {
-        return new ServiceReference<?>[0];
+        String key = String.format("%s:%s", clazz == null ? "" : clazz, filter == null ? "" : filter);
+        return this.serviceReferences.get(key);
     }
 
     @Override
@@ -401,9 +410,13 @@ public class FakeSystemBundle extends ResourceImpl
         return null;
     }
 
+    public <S> void setService(FakeServiceReference<S> reference, Object service) {
+        this.services.put(reference, service);
+    }
+
     @Override
     public <S> S getService(ServiceReference<S> reference) {
-        return null;
+        return (S) this.services.get(reference);
     }
 
     @Override
@@ -420,4 +433,5 @@ public class FakeSystemBundle extends ResourceImpl
     public Bundle getBundle(String location) {
         return null;
     }
+
 }

@@ -50,7 +50,6 @@ import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
-@Ignore("[FABRIC-981] Fix basic ExampleCamelClusterTest")
 public class ExampleCamelClusterTest extends FabricTestSupport {
 
     @Test
@@ -65,7 +64,7 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
             FabricService fabricService = fabricProxy.getService();
             CuratorFramework curator = fabricService.adapt(CuratorFramework.class);
 
-            Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 3).withName("fabric-camel").withProfiles("feature-camel").assertProvisioningResult().build();
+            Set<ContainerProxy> containers = ContainerBuilder.create(fabricProxy, 3).withName("fabric-camel").assertProvisioningResult().build();
             try {
                 //We will use the first container as a client and the rest as servers.
                 LinkedList<Container> containerList = new LinkedList<Container>(containers);
@@ -74,14 +73,16 @@ public class ExampleCamelClusterTest extends FabricTestSupport {
                 LinkedList<Container> servers = new LinkedList<Container>(containerList);
 
                 for (Container c : servers) {
-                    Profile p = c.getVersion().getRequiredProfile("example-camel-cluster.server");
-                    c.setProfiles(new Profile[]{p});
+                    Profile p1 = c.getVersion().getRequiredProfile("feature-camel");
+                    Profile p2 = c.getVersion().getRequiredProfile("example-camel-cluster-cluster.server");
+                    c.setProfiles(new Profile[]{p1, p2});
                 }
 
                 Provision.provisioningSuccess(servers, PROVISION_TIMEOUT);
 
-                Profile p = client.getVersion().getRequiredProfile("example-camel-cluster.client");
-                client.setProfiles(new Profile[]{p});
+                Profile p1 = client.getVersion().getRequiredProfile("feature-camel");
+                Profile p2 = client.getVersion().getRequiredProfile("example-camel-cluster-cluster.client");
+                client.setProfiles(new Profile[]{p1, p2});
 
                 Provision.provisioningSuccess(Arrays.asList(new Container[]{client}), PROVISION_TIMEOUT);
 

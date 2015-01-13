@@ -64,6 +64,8 @@ import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.url.URLStreamHandlerService;
 
 import static io.fabric8.agent.DeploymentAgent.getMetadata;
 import static io.fabric8.agent.DeploymentAgent.getPrefixedProperties;
@@ -231,6 +233,11 @@ public class VerifyFeatureResolutionMojo extends AbstractMojo {
             properties.put("feature.totest", feature);
 
             FakeSystemBundle systemBundle = getSystemBundleResource(getMetadata(properties, "metadata#"));
+            FakeServiceReference profileHandlerSR = new FakeServiceReference(URLStreamHandlerService.class.getName(), "(url.handler.protocol=profile)");
+            systemBundle.setServiceReferences(URLStreamHandlerService.class.getName(), null, new ServiceReference[] {
+                    profileHandlerSR
+            });
+            systemBundle.setService(profileHandlerSR, new Object());
 
             Agent agent = new Agent(null, systemBundle, manager);
             agent.setOptions(EnumSet.of(

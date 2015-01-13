@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -30,16 +31,12 @@ import java.util.zip.ZipInputStream;
 
 import io.fabric8.agent.download.DownloadManager;
 import io.fabric8.agent.download.DownloadManagers;
-import io.fabric8.agent.download.impl.MavenDownloadManager;
 import io.fabric8.maven.MavenResolver;
 import io.fabric8.maven.MavenResolvers;
 import io.fabric8.maven.url.ServiceConstants;
-import io.fabric8.maven.url.internal.AetherBasedResolver;
-import io.fabric8.maven.util.MavenConfigurationImpl;
 import org.apache.felix.utils.version.VersionRange;
 import org.easymock.EasyMock;
 import org.junit.Test;
-import org.ops4j.util.property.DictionaryPropertyResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -126,7 +123,11 @@ public class AgentTest {
             replay(bundle);
         }
 
-        Agent agent = new Agent(serviceBundle, systemBundleContext, manager);
+        Agent agent = new Agent(serviceBundle, systemBundleContext, manager) {
+            @Override
+            protected <T> void awaitService(Class<T> serviceClass, String filterspec, int timeout, TimeUnit timeUnit) {
+            }
+        };
 
         String karafFeaturesUrl = "mvn:org.apache.karaf.assemblies.features/standard/" + System.getProperty("karaf-version") + "/xml/features";
 
