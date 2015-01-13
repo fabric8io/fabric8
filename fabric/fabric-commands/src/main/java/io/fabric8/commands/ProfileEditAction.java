@@ -251,7 +251,7 @@ public class ProfileEditAction extends AbstractAction {
             } else {
                 System.out.println("Adding feature:" + feature + " to profile:" + profile.getId() + " version:" + profile.getVersion());
             }
-            updateConfig(conf, FEATURE_PREFIX , feature, set, delete);
+            updateConfig(conf, FEATURE_PREFIX + feature , feature, set, delete);
             builder.addConfiguration(Constants.AGENT_PID, conf);
         }
     }
@@ -267,7 +267,7 @@ public class ProfileEditAction extends AbstractAction {
             } else if (delete) {
                 System.out.println("Deleting feature repository:" + repositoryURI + " from profile:" + profile.getId() + " version:" + profile.getVersion());
             }
-            updateConfig(conf, REPOSITORY_PREFIX, repositoryURI, set, delete);
+            updateConfig(conf, REPOSITORY_PREFIX + repositoryURI, repositoryURI, set, delete);
         }
         builder.addConfiguration(Constants.AGENT_PID, conf);
     }
@@ -287,7 +287,7 @@ public class ProfileEditAction extends AbstractAction {
             } else if (delete) {
                 System.out.println("Deleting "+libType+":" + lib + " from profile:" + profile.getId() + " version:" + profile.getVersion());
             }
-            updateConfig(conf, libPrefix, lib, set, delete);
+            updateConfig(conf, libPrefix + lib, lib, set, delete);
         }
         builder.addConfiguration(Constants.AGENT_PID, conf);
     }
@@ -305,7 +305,7 @@ public class ProfileEditAction extends AbstractAction {
             } else if (delete) {
                 System.out.println("Deleting bundle:" + bundle + " from profile:" + profile.getId() + " version:" + profile.getVersion());
             }
-            updateConfig(conf, BUNDLE_PREFIX, bundle, set, delete);
+            updateConfig(conf, BUNDLE_PREFIX + bundle, bundle, set, delete);
         }
         builder.addConfiguration(Constants.AGENT_PID, conf);
     }
@@ -323,7 +323,7 @@ public class ProfileEditAction extends AbstractAction {
             } else if (delete) {
                 System.out.println("Deleting FAB:" + fab + " from profile:" + profile.getId() + " version:" + profile.getVersion());
             }
-            updateConfig(conf, FAB_PREFIX, fab, set, delete);
+            updateConfig(conf, FAB_PREFIX + fab, fab, set, delete);
         }
         builder.addConfiguration(Constants.AGENT_PID, conf);
     }
@@ -341,7 +341,7 @@ public class ProfileEditAction extends AbstractAction {
             } else if (delete) {
                 System.out.println("Deleting override:" + override + " from profile:" + profile.getId() + " version:" + profile.getVersion());
             }
-            updateConfig(conf, OVERRIDE_PREFIX, override, set, delete);
+            updateConfig(conf, OVERRIDE_PREFIX + override, override, set, delete);
         }
         builder.addConfiguration(Constants.AGENT_PID, conf);
     }
