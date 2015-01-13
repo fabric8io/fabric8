@@ -106,3 +106,6 @@ To stop and undeploy the example in fabric8:
 1. In the web console, click the *Runtime* button in the navigation bar.
 1. Select the `mychild` container in the *Containers* list, and click the *Stop* button in the top right corner
 
+### NOTES: 
+If run this quickstart in standalone mode(no fabric8 server), need install cxf-ws-security feature first
+        features:install cxf-ws-security 
