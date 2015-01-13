@@ -1,0 +1,1 @@
+This is the core profile for Fabric insight

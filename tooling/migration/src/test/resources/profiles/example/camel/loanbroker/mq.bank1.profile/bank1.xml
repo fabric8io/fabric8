@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+     Copyright 2005-2014 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
+
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="Bank1Context" trace="false">
+        <route id="Bank1">
+            <from uri="amq:LoanBroker.Bank1"/>
+            <setHeader headerName="host.bank">
+                <simple>${sys.runtime.id}-${camelId}</simple>
+            </setHeader>
+            <delay>
+                <constant>80</constant>
+            </delay>
+            <setHeader headerName="loan.rate">
+                <simple>5.2</simple>
+            </setHeader>
+            <log message="&gt;&gt;&gt; Bank1 loan rate: ${header.loan.rate}"/>
+        </route>
+    </camelContext>
+
+</blueprint>

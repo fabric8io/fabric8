@@ -1,0 +1,32 @@
+{
+  "queries" : [ {
+    "name" : "camel",
+	"template": "profile:camel.mvel",
+	"metadata": "profile:camel.json",
+    "requests" : [ {
+      "name": "contexts",
+      "obj" : "org.apache.camel:type=context,*",
+      "attrs" : [
+ 	  ]
+    }, {
+      "name": "routes",
+      "obj" : "org.apache.camel:type=routes,*",
+      "attrs" : [
+		"ExchangesCompleted",
+		"ExchangesFailed",
+ 		"ExchangesTotal",
+		"ExternalRedeliveries",
+		"FailuresHandled",
+		"InflightExchanges",
+		"Load01",
+		"Load05",
+		"Load15",
+		"MaxProcessingTime",
+		"MeanProcessingTime",
+		"MinProcessingTime",
+		"Redeliveries",
+		"TotalProcessingTime"
+ 	  ]
+    } ]
+  } ]
+}

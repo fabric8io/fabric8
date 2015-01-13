@@ -1,0 +1,194 @@
+{
+    "requests.dispatched": {
+        "description": "Dispatched",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "count"
+    },
+    "requests.dispatchedActive": {
+        "description": "Dispatched active",
+        "category": "throughput",
+        "type": "dynamic",
+        "unit": "count"
+    },
+    "requests.dispatchedActiveMax": {
+        "description": "Dispatched active max",
+        "category": "throughput",
+        "type": "peak",
+        "unit": "count"
+    },
+    "requests.dispatchedTimeTotal": {
+        "description": "Dispatch time total",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "ms"
+    },
+    "requests.dispatchedTimeMax": {
+        "description": "Dispatch time max",
+        "category": "throughput",
+        "type": "peak",
+        "unit": "ms"
+    },
+    "requests.dispatchedTimeStdDev": {
+        "description": "Dispatch time standard deviation",
+        "category": "throughput",
+        "type": "stddev",
+        "unit": "ms"
+    },
+    "requests.requests": {
+        "description": "Requests",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "count"
+    },
+    "requests.requestsActive": {
+        "description": "Requests active",
+        "category": "throughput",
+        "type": "dynamic",
+        "unit": "count"
+    },
+    "requests.requestsActiveMax": {
+        "description": "Requests active max",
+        "category": "throughput",
+        "type": "peak",
+        "unit": "count"
+    },
+    "requests.requestTimeTotal": {
+        "description": "Request time total",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "ms"
+    },
+    "requests.requestTimeMax": {
+        "description": "Request time max",
+        "category": "throughput",
+        "type": "peak",
+        "unit": "ms"
+    },
+    "requests.requestTimeStdDev": {
+        "description": "Request time standard deviation",
+        "category": "throughput",
+        "type": "stddev",
+        "unit": "ms"
+    },
+    "requests.responsesBytesTotal": {
+        "description": "Responses total bytes",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "bytes"
+    },
+    "requests.resumes": {
+        "description": "Resumed requests",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "count"
+    },
+    "requests.suspends": {
+        "description": "Suspends count",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "count"
+    },
+    "requests.suspendsActive": {
+        "description": "Suspends active",
+        "category": "throughput",
+        "type": "dynamic",
+        "unit": "count"
+    },
+    "requests.suspendsActiveMax": {
+        "description": "Suspends active max",
+        "category": "throughput",
+        "type": "peak",
+        "unit": "count"
+    },
+    "requests.expires": {
+        "description": "Expires count",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "count"
+    },
+    "requests.resumes": {
+        "description": "Resumes count",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "count"
+    },
+    "requests.responses1xx": {
+        "description": "Count of 1xx responses",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "count"
+    },
+    "requests.responses2xx": {
+        "description": "Count of 2xx responses",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "count"
+    },
+    "requests.responses3xx": {
+        "description": "Count of 3xx responses",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "count"
+    },
+    "requests.responses4xx": {
+        "description": "Count of 4xx responses",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "count"
+    },
+    "requests.responses5xx": {
+        "description": "Count of 5xx responses",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "count"
+    },
+    "nio.connections": {
+        "description": "Connections",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "count"
+    },
+    "nio.connectionsDurationTotal": {
+        "description": "Connections duration total",
+        "category": "throughput",
+        "type": "trends-up",
+        "unit": "ms"
+    },
+    "nio.connectionsDurationMax": {
+        "description": "Connections duration max",
+        "category": "throughput",
+        "type": "peak",
+        "unit": "ms"
+    },
+    "nio.connectionsDurationStdDev": {
+        "description": "Connections duration standard deviation",
+        "category": "throughput",
+        "type": "stddev",
+        "unit": "ms"
+    },
+    "nio.connectionsOpen": {
+        "description": "Opened connections",
+        "category": "throughput",
+        "type": "dynamic",
+        "unit": "count"
+    },
+    "nio.connectionsOpenMax": {
+        "description": "Maximum opened connections",
+        "category": "throughput",
+        "type": "peak",
+        "unit": "count"
+    },
+    "nio.connectionsRequestsMax": {
+        "description": "Maximum requests per connection",
+        "category": "throughput",
+        "type": "peak",
+        "unit": "count"
+    },
+    "nio.connectionsRequestsStdDev": {
+        "description": "Requests per connection standard deviation",
+        "category": "throughput",
+        "type": "stddev",
+        "unit": "count"
+    }
+}

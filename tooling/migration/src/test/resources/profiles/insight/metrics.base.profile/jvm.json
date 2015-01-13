@@ -1,0 +1,164 @@
+{
+    "mem.heap_used": {
+        "description": "Heap used",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "bytes"
+    },
+    "mem.heap_committed": {
+        "description": "Heap committed",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "bytes"
+    },
+    "mem.non_heap_used": {
+        "description": "Non heap used",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "bytes"
+    },
+    "mem.non_heap_committed": {
+        "description": "Non heap committed",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "bytes"
+    },
+    "mem.pools.*.used": {
+        "description": "Memory used for pool {1}",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "bytes"
+    },
+    "mem.pools.*.max": {
+        "description": "Memory max for pool {1}",
+        "category": "utilization",
+        "type": "trends-up",
+        "unit": "bytes"
+    },
+    "threads.count": {
+        "description": "Threads count",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "count"
+    },
+    "threads.peak_count": {
+        "description": "Threads peak count",
+        "category": "utilization",
+        "type": "peak",
+        "unit": "count"
+    },
+    "gc.collection_count": {
+        "description": "GC collection count",
+        "category": "utilization",
+        "type": "trends-up",
+        "unit": "count"
+    },
+    "gc.collection_time": {
+        "description": "GC collection time",
+        "category": "utilization",
+        "type": "trends-up",
+        "unit": "ms"
+    },
+    "gc.collectors.*.collection_count": {
+        "description": "GC collection count for {1}",
+        "category": "utilization",
+        "type": "trends-up",
+        "unit": "count"
+    },
+    "gc.collectors.*.collection_time": {
+        "description": "GC collection time for {1}",
+        "category": "utilization",
+        "type": "trends-up",
+        "unit": "ms"
+    },
+    "buffer_pools.*.count": {
+        "description": "Buffers in pool {1}",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "count"
+    },
+    "buffer_pools.*.memory_used": {
+        "description": "Memory used by pool {1}",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "bytes"
+    },
+    "buffer_pools.*.total_capacity": {
+        "description": "Total capacity of pool {1}",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "bytes"
+    },
+    "os.descriptor.free": {
+        "description": "Free descriptors",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "count"
+    },
+    "os.descriptor.max": {
+        "description": "Max number of descriptors",
+        "category": "utilization",
+        "type": "static",
+        "unit": "count"
+    },
+    "os.descriptor.used": {
+        "description": "Percentage of used descriptors",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "percent"
+    },
+    "os.memory.free": {
+        "description": "Free system memory",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "bytes"
+    },
+    "os.memory.max": {
+        "description": "Max system memory",
+        "category": "utilization",
+        "type": "static",
+        "unit": "bytes"
+    },
+    "os.memory.used": {
+        "description": "Percentage of system memory used",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "percent"
+    },
+    "os.swap.free": {
+        "description": "Free swap",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "bytes"
+    },
+    "os.swap.max": {
+        "description": "Max swap",
+        "category": "utilization",
+        "type": "static",
+        "unit": "bytes"
+    },
+    "os.swap.used": {
+        "description": "Percentage of swap memory used",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "percent"
+    },
+    "os.filesystem.free": {
+        "description": "Free space on data filesystem",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "bytes"
+    },
+    "os.filesystem.max": {
+        "description": "Max space on data filesystem",
+        "category": "utilization",
+        "type": "static",
+        "unit": "bytes"
+    },
+    "os.filesystem.used": {
+        "description": "Percentage of data filesystem used",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "percent"
+    }
+}

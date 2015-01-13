@@ -1,0 +1,117 @@
+{
+  "title": "Welcome",
+  "group": "Fabric",
+  "versionId": "1.0",
+  "profileId": "fabric",
+  "widgets": [
+    {
+      "id": "w1",
+      "title": "Active Profiles",
+      "row": 2,
+      "col": 5,
+      "size_x": 5,
+      "size_y": 1,
+      "path": "fabric/activeProfiles",
+      "include": "app/fabric/html/activeProfiles.html",
+      "search": {},
+      "hash": ""
+    },
+    {
+      "id": "w2",
+      "title": "Containers",
+      "row": 1,
+      "col": 5,
+      "size_x": 5,
+      "size_y": 1,
+      "path": "fabric/containers",
+      "include": "app/fabric/html/containers.html",
+      "search": {},
+      "hash": ""
+    },
+    {
+      "id": "w3",
+      "title": "Java Heap Memory",
+      "row": 1,
+      "col": 1,
+      "size_x": 2,
+      "size_y": 2,
+      "path": "jmx/widget/donut",
+      "include": "app/jmx/html/donutChart.html",
+      "search": {},
+      "hash": "",
+      "routeParams": "{\"type\":\"donut\",\"title\":\"Java Heap Memory\",\"mbean\":\"java.lang:type=Memory\",\"attribute\":\"HeapMemoryUsage\",\"total\":\"Max\",\"terms\":\"Used\",\"remaining\":\"Free\"}"
+    },
+    {
+      "id": "w4",
+      "title": "Java Non Heap Memory",
+      "row": 1,
+      "col": 3,
+      "size_x": 2,
+      "size_y": 2,
+      "path": "jmx/widget/donut",
+      "include": "app/jmx/html/donutChart.html",
+      "search": {},
+      "hash": "",
+      "routeParams": "{\"type\":\"donut\",\"title\":\"Java Non Heap Memory\",\"mbean\":\"java.lang:type=Memory\",\"attribute\":\"NonHeapMemoryUsage\",\"total\":\"Max\",\"terms\":\"Used\",\"remaining\":\"Free\"}"
+    },
+    {
+      "id": "w5",
+      "title": "Process CPU Load",
+      "row": 3,
+      "col": 3,
+      "size_x": 2,
+      "size_y": 2,
+      "path": "jmx/widget/area",
+      "include": "app/jmx/html/areaChart.html",
+      "search": {},
+      "hash": "",
+      "routeParams": "{\"type\":\"area\",\"title\":\"Process CPU Load\",\"mbean\":\"java.lang:type=OperatingSystem\",\"attribute\":\"ProcessCpuLoad\"}"
+    },
+    {
+      "id": "w6",
+      "title": "",
+      "row": 3,
+      "col": 5,
+      "size_x": 5,
+      "size_y": 2,
+      "path": "jmx/charts",
+      "include": "app/jmx/html/charts.html",
+      "search": {
+        "size": "%7B%22size_x%22%3A4%2C%22size_y%22%3A2%7D",
+        "title": "Process%20CPU%20Load",
+        "routeParams": "%7B%22type%22%3A%22area%22%2C%22title%22%3A%22Process%20CPU%20Load%22%2C%22mbean%22%3A%22java.lang%3Atype",
+        "p": "fabric",
+        "nid": "root-java.lang-Threading"
+      },
+      "hash": ""
+    },
+    {
+      "id": "w7",
+      "title": "Loaded Clases",
+      "row": 3,
+      "col": 1,
+      "size_x": 2,
+      "size_y": 2,
+      "path": "jmx/widget/donut",
+      "include": "app/jmx/html/donutChart.html",
+      "search": {},
+      "hash": "",
+      "routeParams": "{\"type\":\"donut\",\"title\":\"Loaded Clases\",\"mbean\":\"java.lang:type=ClassLoading\",\"total\":\"TotalLoadedClassCount\",\"terms\":\"LoadedClassCount,UnloadedClassCount\",\"remaining\":\"-\"}"
+    },
+    {
+      "id": "w8",
+      "title": "Logs",
+      "row": 5,
+      "col": 1,
+      "size_x": 9,
+      "size_y": 1,
+      "path": "logs",
+      "include": "app/log/html/logs.html",
+      "search": {},
+      "hash": "",
+      "routeParams": "{}"
+    }
+  ],
+  "id": "4e799b382a813112b3",
+  "fileName": "4e799b382a813112b3.dashboard"
+}

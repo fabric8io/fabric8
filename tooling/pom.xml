@@ -57,6 +57,12 @@
                 <module>archetype-itests</module>
             </modules>
         </profile>
+        <profile>
+            <id>profiles</id>
+            <modules>
+                <module>migration</module>
+            </modules>
+        </profile>
     </profiles>
 
 </project>
