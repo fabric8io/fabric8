@@ -172,8 +172,6 @@
               io.fabric8.cxf.endpoint,
               org.apache.cxf.ws.security.wss4j,
               javax.security.auth.callback,
-              org.apache.ws.security,
-              org.apache.ws.security.processor,
               org.apache.cxf.interceptor.security,
               org.apache.cxf.transport.http,
               io.fabric8.cxf,
