@@ -56,8 +56,9 @@ public class HostUtils {
                     Enumeration<InetAddress> ifaceAdresses = iface.getInetAddresses();
                     while (ifaceAdresses.hasMoreElements()) {
                         InetAddress ia = ifaceAdresses.nextElement();
-                        //We want to filter out mac addresses
-                        if (!ia.isLoopbackAddress() && ia.getHostAddress().indexOf(":") == -1) {
+                        // We want to filter out mac addresses
+                        // Let's filter out docker interfaces too
+                        if (!ia.isLoopbackAddress() && ia.getHostAddress().indexOf(":") == -1 && !(name != null && name.toLowerCase().contains("docker"))) {
                             Set<InetAddress> addresses = interfaceAddressMap.get(name);
                             if (addresses == null) {
                                 addresses = new LinkedHashSet<InetAddress>();
