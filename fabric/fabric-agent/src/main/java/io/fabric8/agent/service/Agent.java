@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import io.fabric8.agent.download.DownloadCallback;
 import io.fabric8.agent.download.DownloadManager;
@@ -45,6 +46,7 @@ import io.fabric8.agent.model.Feature;
 import io.fabric8.agent.model.Repository;
 import io.fabric8.agent.repository.StaticRepository;
 import io.fabric8.agent.resolver.ResourceBuilder;
+import io.fabric8.api.gravia.ServiceLocator;
 import io.fabric8.common.util.ChecksumUtils;
 import io.fabric8.common.util.MultiException;
 import org.apache.felix.utils.version.VersionRange;
@@ -69,6 +71,7 @@ import org.osgi.framework.wiring.FrameworkWiring;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
+import org.osgi.service.url.URLStreamHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -323,6 +326,13 @@ public class Agent {
                         }
                     }
                 };
+
+                // FABRIC-790, FABRIC-981 - wait for ProfileUrlHandler before attempting to load bundles (in subsystem.resolve())
+                // (which may be the case with bundle.xxx=blueprint:profile:xxx URLs in io.fabric8.agent PID)
+                LOGGER.debug("Waiting for ProfileUrlHandler");
+                awaitService(URLStreamHandlerService.class, "(url.handler.protocol=profile)", 30, TimeUnit.SECONDS);
+                LOGGER.debug("Waiting for ProfileUrlHandler finished");
+
                 Deployer deployer = new Deployer(manager, callback);
                 deployer.deploy(dstate, request);
                 break;
@@ -334,6 +344,10 @@ public class Agent {
                 }
             }
         }
+    }
+
+    protected <T> void awaitService(Class<T> serviceClass, String filterspec, int timeout, TimeUnit timeUnit) {
+        ServiceLocator.awaitService(systemBundleContext, serviceClass, filterspec, timeout, timeUnit);
     }
 
     protected boolean isUpdateable(Bundle bundle) {

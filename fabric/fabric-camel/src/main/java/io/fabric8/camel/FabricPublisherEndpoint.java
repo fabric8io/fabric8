@@ -72,10 +72,10 @@ public class FabricPublisherEndpoint extends DefaultEndpoint {
             consumer = child;
         }
         LOG.info("Child: " + child);
-        LOG.info("Consumer (internal): " + consumer);
+        LOG.info("Consumer (internal address): " + consumer);
         // let's make the consumer URI public (important inside OpenShift)
         consumer = toPublicAddress(consumer);
-        LOG.info("Consumer (public): " + consumer);
+        LOG.info("Consumer (public address): " + consumer);
 
         this.child = child;
         this.consumer = consumer;

@@ -122,14 +122,14 @@ public class FabricComponent extends ZKComponentSupport {
     protected String replaceAnyIpAddress(String uri) {
         String result = uri;
         //TODO do we need to support the IPV6 ?
-        if (uri.indexOf("0.0.0.0") > 0) {
-            try {
-                String hostAddress = InetAddress.getLocalHost().getHostAddress();
-                result = uri.replace("0.0.0.0", hostAddress);
-            } catch (UnknownHostException ex) {
-                LOG.warn("Cannot find the local host name, due to {0}", ex);
-            }
-        }
+//        if (uri.indexOf("0.0.0.0") > 0) {
+//            try {
+//                String hostAddress = InetAddress.getLocalHost().getHostAddress();
+//                result = uri.replace("0.0.0.0", hostAddress);
+//            } catch (UnknownHostException ex) {
+//                LOG.warn("Cannot find the local host name, due to {0}", ex);
+//            }
+//        }
         return result;
     }
 
