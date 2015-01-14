@@ -18,10 +18,10 @@ package io.fabric8.arquillian.kubernetes.enricher;
 
 import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
+import io.fabric8.arquillian.kubernetes.annotation.Id;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.ReplicationController;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.Filter;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -29,16 +29,14 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 /**
- * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.model.ReplicationControllerList}.
- * It refers to replication controllers that have been created during the current session.
+ * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.model.ServiceList}.
+ * It refers to services that have been created during the current session.
  */
-public class ReplicationControllerListResourceProvider implements ResourceProvider {
+public class ServiceResourceProvider implements ResourceProvider {
 
     @Inject
     private Instance<KubernetesClient> clientInstance;
@@ -48,25 +46,31 @@ public class ReplicationControllerListResourceProvider implements ResourceProvid
 
     @Override
     public boolean canProvide(Class<?> type) {
-        return ReplicationControllerList.class.isAssignableFrom(type);
+        return Service.class.isAssignableFrom(type);
     }
 
     @Override
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         KubernetesClient client = this.clientInstance.get();
         Session session = sessionInstance.get();
-
         Map<String, String> labels = Collections.singletonMap(Constants.ARQ_KEY, session.getId());
-        Filter<ReplicationController> replicationControllerFilter = KubernetesHelper.createReplicationControllerFilter(labels);
-        ReplicationControllerList controllers = client.getReplicationControllers();
-        List<ReplicationController> sessionControllers = new ArrayList<>();
+        Filter<Service> serviceFilter = KubernetesHelper.createServiceFilter(labels);
 
-        for (ReplicationController replicationController : client.getReplicationControllers().getItems()) {
-            if (replicationControllerFilter.matches(replicationController)) {
-                sessionControllers.add(replicationController);
+        for (Service service : client.getServices().getItems()) {
+            if (serviceFilter.matches(service) && qualifies(service, qualifiers) ) {
+                return service;
             }
         }
-        controllers.setItems(sessionControllers);
-        return controllers;
+        return null;
+    }
+
+    private boolean qualifies(Service s, Annotation... qualifiers) {
+        for (Annotation annotation : qualifiers) {
+            if (annotation instanceof Id) {
+                String id = ((Id) annotation).value();
+                return id.equals(s.getId());
+            }
+        }
+        return false;
     }
 }

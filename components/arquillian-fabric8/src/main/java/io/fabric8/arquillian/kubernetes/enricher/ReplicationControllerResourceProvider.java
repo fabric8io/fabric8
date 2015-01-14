@@ -18,9 +18,9 @@ package io.fabric8.arquillian.kubernetes.enricher;
 
 import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
+import io.fabric8.arquillian.kubernetes.annotation.Id;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.utils.Filter;
 import org.jboss.arquillian.core.api.Instance;
@@ -29,16 +29,14 @@ import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 /**
  * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.model.ReplicationControllerList}.
  * It refers to replication controllers that have been created during the current session.
  */
-public class ReplicationControllerListResourceProvider implements ResourceProvider {
+public class ReplicationControllerResourceProvider implements ResourceProvider {
 
     @Inject
     private Instance<KubernetesClient> clientInstance;
@@ -48,7 +46,7 @@ public class ReplicationControllerListResourceProvider implements ResourceProvid
 
     @Override
     public boolean canProvide(Class<?> type) {
-        return ReplicationControllerList.class.isAssignableFrom(type);
+        return ReplicationController.class.isAssignableFrom(type);
     }
 
     @Override
@@ -58,15 +56,22 @@ public class ReplicationControllerListResourceProvider implements ResourceProvid
 
         Map<String, String> labels = Collections.singletonMap(Constants.ARQ_KEY, session.getId());
         Filter<ReplicationController> replicationControllerFilter = KubernetesHelper.createReplicationControllerFilter(labels);
-        ReplicationControllerList controllers = client.getReplicationControllers();
-        List<ReplicationController> sessionControllers = new ArrayList<>();
 
         for (ReplicationController replicationController : client.getReplicationControllers().getItems()) {
-            if (replicationControllerFilter.matches(replicationController)) {
-                sessionControllers.add(replicationController);
+            if (replicationControllerFilter.matches(replicationController) && qualifies(replicationController, qualifiers)) {
+                return replicationController;
             }
         }
-        controllers.setItems(sessionControllers);
-        return controllers;
+        return null;
+    }
+
+    private boolean qualifies(ReplicationController r, Annotation... qualifiers) {
+        for (Annotation annotation : qualifiers) {
+            if (annotation instanceof Id) {
+                String id = ((Id) annotation).value();
+                return id.equals(r.getId());
+            }
+        }
+        return false;
     }
 }

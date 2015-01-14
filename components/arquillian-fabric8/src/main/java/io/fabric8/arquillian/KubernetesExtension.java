@@ -16,8 +16,21 @@
 
 package io.fabric8.arquillian;
 
-import io.fabric8.arquillian.kubernetes.*;
-import io.fabric8.arquillian.kubernetes.enricher.*;
+import io.fabric8.arquillian.kubernetes.ClientCreator;
+import io.fabric8.arquillian.kubernetes.Configuration;
+import io.fabric8.arquillian.kubernetes.Configurer;
+import io.fabric8.arquillian.kubernetes.ControllerCreator;
+import io.fabric8.arquillian.kubernetes.SessionListener;
+import io.fabric8.arquillian.kubernetes.SuiteListener;
+import io.fabric8.arquillian.kubernetes.enricher.ClientResourceProvider;
+import io.fabric8.arquillian.kubernetes.enricher.ControllerResourceProvider;
+import io.fabric8.arquillian.kubernetes.enricher.JolokiaClientsProvider;
+import io.fabric8.arquillian.kubernetes.enricher.PodListResourceProvider;
+import io.fabric8.arquillian.kubernetes.enricher.ReplicationControllerListResourceProvider;
+import io.fabric8.arquillian.kubernetes.enricher.ReplicationControllerResourceProvider;
+import io.fabric8.arquillian.kubernetes.enricher.ServiceListResourceProvider;
+import io.fabric8.arquillian.kubernetes.enricher.ServiceResourceProvider;
+import io.fabric8.arquillian.kubernetes.enricher.SessionResourceProvider;
 import io.fabric8.arquillian.kubernetes.log.LoggerFactory;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
@@ -42,7 +55,9 @@ public class KubernetesExtension implements LoadableExtension {
                 .service(ResourceProvider.class, JolokiaClientsProvider.class)
                 .service(ResourceProvider.class, PodListResourceProvider.class)
                 .service(ResourceProvider.class, ReplicationControllerListResourceProvider.class)
+                .service(ResourceProvider.class, ReplicationControllerResourceProvider.class)
                 .service(ResourceProvider.class, ServiceListResourceProvider.class)
+                .service(ResourceProvider.class, ServiceResourceProvider.class)
                 .service(ResourceProvider.class, SessionResourceProvider.class);
     }
 }

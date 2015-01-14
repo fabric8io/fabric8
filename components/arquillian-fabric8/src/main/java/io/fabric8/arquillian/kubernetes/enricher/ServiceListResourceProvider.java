@@ -55,7 +55,6 @@ public class ServiceListResourceProvider implements ResourceProvider {
     public Object lookup(ArquillianResource resource, Annotation... qualifiers) {
         KubernetesClient client = this.clientInstance.get();
         Session session = sessionInstance.get();
-
         Map<String, String> labels = Collections.singletonMap(Constants.ARQ_KEY, session.getId());
         Filter<Service> serviceFilter = KubernetesHelper.createServiceFilter(labels);
         ServiceList services = client.getServices();
