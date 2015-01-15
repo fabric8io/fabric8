@@ -17,6 +17,8 @@ package io.fabric8.forge.camel.commands.project;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.camel.catalog.CamelComponentCatalog;
 import org.apache.camel.catalog.DefaultCamelComponentCatalog;
@@ -109,5 +111,89 @@ public final class CamelCatalogHelper {
         }
 
         return null;
+    }
+
+    public static Set<String> componentsFromArtifact(String artifactId) {
+        Set<String> answer = new TreeSet<String>();
+
+        // use the camel catalog to find what components the artifact has
+        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        for (String name : catalog.findComponentNames()) {
+            String json = catalog.componentJSonSchema(name);
+            if (json != null) {
+                List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("component", json, false);
+                String scheme = null;
+                String artifact = null;
+                for (Map<String, String> row : data) {
+                    if (row.get("artifactId") != null) {
+                        artifact = row.get("artifactId");
+                    }
+                    if (row.get("scheme") != null) {
+                        scheme = row.get("scheme");
+                    }
+                }
+                if (artifactId.equals(artifact) && scheme != null) {
+                    answer.add(scheme);
+                }
+            }
+        }
+
+        return answer;
+    }
+
+    public static Set<String> dataFormatsFromArtifact(String artifactId) {
+        Set<String> answer = new TreeSet<String>();
+
+        // use the camel catalog to find what components the artifact has
+        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        for (String name : catalog.findDataFormatNames()) {
+            String json = catalog.dataFormatJSonSchema(name);
+            if (json != null) {
+                List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("dataformat", json, false);
+                String df = null;
+                String artifact = null;
+                for (Map<String, String> row : data) {
+                    if (row.get("artifactId") != null) {
+                        artifact = row.get("artifactId");
+                    }
+                    if (row.get("name") != null) {
+                        df = row.get("name");
+                    }
+                }
+                if (artifactId.equals(artifact) && df != null) {
+                    answer.add(df);
+                }
+            }
+        }
+
+        return answer;
+    }
+
+    public static Set<String> languagesFromArtifact(String artifactId) {
+        Set<String> answer = new TreeSet<String>();
+
+        // use the camel catalog to find what components the artifact has
+        CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
+        for (String name : catalog.findLanguageNames()) {
+            String json = catalog.languageJSonSchema(name);
+            if (json != null) {
+                List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("language", json, false);
+                String lan = null;
+                String artifact = null;
+                for (Map<String, String> row : data) {
+                    if (row.get("artifactId") != null) {
+                        artifact = row.get("artifactId");
+                    }
+                    if (row.get("name") != null) {
+                        lan = row.get("name");
+                    }
+                }
+                if (artifactId.equals(artifact) && lan != null) {
+                    answer.add(lan);
+                }
+            }
+        }
+
+        return answer;
     }
 }

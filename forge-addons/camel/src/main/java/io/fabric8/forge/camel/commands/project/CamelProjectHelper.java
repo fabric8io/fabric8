@@ -15,7 +15,9 @@
  */
 package io.fabric8.forge.camel.commands.project;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jboss.forge.addon.dependencies.Dependency;
 import org.jboss.forge.addon.projects.Project;
@@ -31,6 +33,18 @@ public class CamelProjectHelper {
             }
         }
         return null;
+    }
+
+    public static Set<Dependency> findCamelArtifacts(Project project) {
+        Set<Dependency> answer = new LinkedHashSet<Dependency>();
+
+        List<Dependency> dependencies = project.getFacet(DependencyFacet.class).getEffectiveDependencies();
+        for (Dependency d : dependencies) {
+            if ("org.apache.camel".equals(d.getCoordinate().getGroupId())) {
+                answer.add(d);
+            }
+        }
+        return answer;
     }
 
     public static boolean hasDependency(Project project, String groupId, String artifactId) {
