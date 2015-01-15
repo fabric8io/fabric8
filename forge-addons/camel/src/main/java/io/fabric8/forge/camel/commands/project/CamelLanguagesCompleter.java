@@ -28,11 +28,11 @@ import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.input.InputComponent;
 import org.jboss.forge.addon.ui.input.UICompleter;
 
-public class CamelDataFormatsCompleter implements UICompleter<String> {
+public class CamelLanguagesCompleter implements UICompleter<String> {
 
     private Project project;
 
-    public CamelDataFormatsCompleter(Project project) {
+    public CamelLanguagesCompleter(Project project) {
         this.project = project;
     }
 
@@ -47,9 +47,9 @@ public class CamelDataFormatsCompleter implements UICompleter<String> {
             return null;
         }
 
-        // find all available dataformat names
+        // find all available language names
         CamelComponentCatalog catalog = new DefaultCamelComponentCatalog();
-        List<String> names = catalog.findDataFormatNames();
+        List<String> names = catalog.findLanguageNames();
 
         // filter non matching names first
         List<String> filtered = new ArrayList<String>();
@@ -61,7 +61,7 @@ public class CamelDataFormatsCompleter implements UICompleter<String> {
 
         // filter names which are already on the classpath
         for (String name : filtered) {
-            String json = catalog.dataFormatJSonSchema(name);
+            String json = catalog.languageJSonSchema(name);
             String[] artifactAndVersion = findArtifactIdAndVersion(json);
 
             // skip if we already have the dependency
@@ -80,7 +80,7 @@ public class CamelDataFormatsCompleter implements UICompleter<String> {
         String artifactId = null;
         String version = null;
 
-        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("dataformat", json, false);
+        List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("language", json, false);
         for (Map<String, String> row : data) {
             if (row.get("artifactId") != null) {
                 artifactId = row.get("artifactId");
