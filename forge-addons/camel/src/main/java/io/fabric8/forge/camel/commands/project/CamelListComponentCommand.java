@@ -31,16 +31,14 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
 import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.componentsFromArtifact;
-import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.dataFormatsFromArtifact;
-import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.languagesFromArtifact;
 
-public class CamelInfoCommand extends AbstractCamelProjectCommand {
+public class CamelListComponentCommand extends AbstractCamelProjectCommand {
 
     @Override
     public UICommandMetadata getMetadata(UIContext context) {
         return Metadata.forCommand(ConnectCommand.class).name(
-                "project-camel-info").category(Categories.create(CATEGORY))
-                .description("Displays what the current project includes of Camel components");
+                "project-camel-component-list").category(Categories.create(CATEGORY))
+                .description("Lists all the components the current project includes");
     }
 
     @Override
@@ -60,44 +58,12 @@ public class CamelInfoCommand extends AbstractCamelProjectCommand {
 
         PrintStream out = getOutput(context);
 
-        out.println("Camel Project Information");
-        out.println("=========================");
-
         Set<Dependency> artifacts = findCamelArtifacts(project);
         for (Dependency d : artifacts) {
-            out.println("      artifact: " + d.getCoordinate().getArtifactId());
-
             Set<String> components = componentsFromArtifact(d.getCoordinate().getArtifactId());
-            if (!components.isEmpty()) {
-                out.print("     component: ");
-                for (String c : components) {
-                    out.print(c);
-                    out.print(" ");
-                }
-                out.println("");
+            for (String c : components) {
+                out.println(c);
             }
-
-            Set<String> dataFormats = dataFormatsFromArtifact(d.getCoordinate().getArtifactId());
-            if (!dataFormats.isEmpty()) {
-                out.print("   data format: ");
-                for (String df : dataFormats) {
-                    out.print(df);
-                    out.print(" ");
-                }
-                out.println("");
-            }
-
-            Set<String> languages = languagesFromArtifact(d.getCoordinate().getArtifactId());
-            if (!languages.isEmpty()) {
-                out.print("      language: ");
-                for (String l : languages) {
-                    out.print(l);
-                    out.print(" ");
-                }
-                out.println("");
-            }
-
-            out.println("");
         }
 
         return Results.success();
