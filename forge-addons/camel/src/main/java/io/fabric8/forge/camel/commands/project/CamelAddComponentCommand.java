@@ -33,6 +33,8 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
+import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.findComponentArchetype;
+
 public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
 
     @Inject
@@ -68,9 +70,9 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
         }
 
         // name -> artifactId
-        String artifactId = name.getValue();
-        if (!artifactId.startsWith("camel-")) {
-            artifactId = "camel-" + artifactId;
+        String artifactId = findComponentArchetype(name.getValue());
+        if (artifactId == null) {
+            return Results.fail("Camel component " + name.getValue() + " is unknown.");
         }
 
         DependencyBuilder component = DependencyBuilder.create().setGroupId("org.apache.camel")

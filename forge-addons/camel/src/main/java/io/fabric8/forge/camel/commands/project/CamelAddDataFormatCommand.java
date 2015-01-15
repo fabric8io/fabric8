@@ -33,6 +33,8 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
+import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.findDataFormatArchetype;
+
 public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
 
     @Inject
@@ -68,9 +70,9 @@ public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
         }
 
         // name -> artifactId
-        String artifactId = name.getValue();
-        if (!artifactId.startsWith("camel-")) {
-            artifactId = "camel-" + artifactId;
+        String artifactId = findDataFormatArchetype(name.getValue());
+        if (artifactId == null) {
+            return Results.fail("Camel data format " + name.getValue() + " is unknown.");
         }
 
         DependencyBuilder component = DependencyBuilder.create().setGroupId("org.apache.camel")

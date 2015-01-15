@@ -33,6 +33,8 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 
+import static io.fabric8.forge.camel.commands.project.CamelCatalogHelper.findLanguageArchetype;
+
 public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
 
     @Inject
@@ -68,9 +70,9 @@ public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
         }
 
         // name -> artifactId
-        String artifactId = name.getValue();
-        if (!artifactId.startsWith("camel-")) {
-            artifactId = "camel-" + artifactId;
+        String artifactId = findLanguageArchetype(name.getValue());
+        if (artifactId == null) {
+            return Results.fail("Camel language " + name.getValue() + " is unknown.");
         }
 
         DependencyBuilder component = DependencyBuilder.create().setGroupId("org.apache.camel")
