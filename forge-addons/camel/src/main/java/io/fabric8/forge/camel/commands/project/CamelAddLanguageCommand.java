@@ -81,6 +81,6 @@ public class CamelAddLanguageCommand extends AbstractCamelProjectCommand {
         // install the component
         dependencyInstaller.install(project, component);
 
-        return Results.success("Added Camel language " + name.getValue() + " to the project");
+        return Results.success("Added Camel language " + name.getValue() + " (" + artifactId + ") to the project");
     }
 }

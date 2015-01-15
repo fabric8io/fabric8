@@ -81,6 +81,6 @@ public class CamelAddComponentCommand extends AbstractCamelProjectCommand {
         // install the component
         dependencyInstaller.install(project, component);
 
-        return Results.success("Added Camel component " + name.getValue() + " to the project");
+        return Results.success("Added Camel component " + name.getValue() + " (" + artifactId + ") to the project");
     }
 }

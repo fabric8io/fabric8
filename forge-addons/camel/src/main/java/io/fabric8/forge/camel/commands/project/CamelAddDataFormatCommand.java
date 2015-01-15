@@ -81,6 +81,6 @@ public class CamelAddDataFormatCommand extends AbstractCamelProjectCommand {
         // install the component
         dependencyInstaller.install(project, component);
 
-        return Results.success("Added Camel data format " + name.getValue() + " to the project");
+        return Results.success("Added Camel data format " + name.getValue() + " (" + artifactId + ") to the project");
     }
 }
