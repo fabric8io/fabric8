@@ -33,13 +33,17 @@ public class CamelProjectHelper {
         return null;
     }
 
+    public static boolean hasDependency(Project project, String groupId, String artifactId) {
+        return hasDependency(project, groupId, artifactId, null);
+    }
+
     public static boolean hasDependency(Project project, String groupId, String artifactId, String version) {
         List<Dependency> dependencies = project.getFacet(DependencyFacet.class).getEffectiveDependencies();
         for (Dependency d : dependencies) {
-            if (d.getCoordinate().getGroupId().equals(groupId)
-                    && d.getCoordinate().getArtifactId().equals(artifactId)
-                    && d.getCoordinate().getVersion().equals(version)) {
-                return true;
+            if (d.getCoordinate().getGroupId().equals(groupId) && d.getCoordinate().getArtifactId().equals(artifactId)) {
+                if (version == null || d.getCoordinate().getVersion().equals(version)) {
+                    return true;
+                }
             }
         }
         return false;

@@ -62,12 +62,12 @@ public class CamelComponentsCompleter implements UICompleter<String> {
         // filter names which are already on the classpath
         for (String name : filtered) {
             String json = catalog.componentJSonSchema(name);
-            String[] artifactAndVersion = findArtifactIdAndVersion(json);
+            String artifactId = findArtifactId(json);
 
             // skip if we already have the dependency
             boolean already = false;
-            if (artifactAndVersion != null) {
-                already = CamelProjectHelper.hasDependency(project, "org.apache.camel", artifactAndVersion[0], artifactAndVersion[1]);
+            if (artifactId != null) {
+                already = CamelProjectHelper.hasDependency(project, "org.apache.camel", artifactId);
             }
             if (!already) {
                 answer.add(name);
@@ -77,26 +77,14 @@ public class CamelComponentsCompleter implements UICompleter<String> {
         return answer;
     }
 
-    private static String[] findArtifactIdAndVersion(String json) {
-        // filter by version and find the artifact id
-        String artifactId = null;
-        String version = null;
-
+    private static String findArtifactId(String json) {
         List<Map<String, String>> data = JSonSchemaHelper.parseJsonSchema("component", json, false);
         for (Map<String, String> row : data) {
             if (row.get("artifactId") != null) {
-                artifactId = row.get("artifactId");
-            }
-            if (row.get("version") != null) {
-                version = row.get("version");
+                return row.get("artifactId");
             }
         }
-
-        if (artifactId != null && version != null) {
-            return new String[]{artifactId, version};
-        } else {
-            return null;
-        }
+        return null;
     }
 
 }
