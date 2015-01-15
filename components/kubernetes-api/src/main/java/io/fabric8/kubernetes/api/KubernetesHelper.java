@@ -15,13 +15,8 @@
  */
 package io.fabric8.kubernetes.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import static io.fabric8.utils.Lists.notNullList;
+import static io.fabric8.utils.Strings.isNullOrBlank;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerManifest;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
@@ -41,9 +36,6 @@ import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -57,8 +49,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static io.fabric8.utils.Lists.notNullList;
-import static io.fabric8.utils.Strings.isNullOrBlank;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /*
 TODO Config

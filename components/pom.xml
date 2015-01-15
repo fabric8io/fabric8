@@ -55,6 +55,7 @@
     <module>kubernetes-api</module>
     <module>kubernetes-assertions</module>
     <module>kubernetes-jolokia</module>
+    <module>kubernetes-mbeans</module>
     <module>kubernetes-template</module>
     <module>mq</module>
     <module>swagger-model</module>

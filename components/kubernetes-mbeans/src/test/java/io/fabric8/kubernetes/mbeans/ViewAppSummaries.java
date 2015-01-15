@@ -13,13 +13,13 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.kubernetes.api;
+package io.fabric8.kubernetes.mbeans;
 
-import io.fabric8.kubernetes.api.mbeans.AppSummaryDTO;
-import io.fabric8.kubernetes.api.mbeans.AppView;
-import io.fabric8.kubernetes.api.mbeans.AppViewDetails;
-import io.fabric8.kubernetes.api.mbeans.AppViewSnapshot;
-import io.fabric8.kubernetes.api.mbeans.NamespaceAndAppPath;
+import io.fabric8.kubernetes.mbeans.AppSummaryDTO;
+import io.fabric8.kubernetes.mbeans.AppView;
+import io.fabric8.kubernetes.mbeans.AppViewDetails;
+import io.fabric8.kubernetes.mbeans.AppViewSnapshot;
+import io.fabric8.kubernetes.mbeans.NamespaceAndAppPath;
 import io.fabric8.utils.Files;
 import io.hawt.aether.AetherFacade;
 import io.hawt.git.GitFacade;

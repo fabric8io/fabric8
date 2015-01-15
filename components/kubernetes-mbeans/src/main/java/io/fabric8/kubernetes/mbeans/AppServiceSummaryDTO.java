@@ -15,38 +15,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.fabric8.kubernetes.api.mbeans;
+package io.fabric8.kubernetes.mbeans;
 
 import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerState;
+import io.fabric8.kubernetes.api.model.Service;
 
 import java.util.Map;
 
 /**
  */
-public class AppReplicationControllerSummaryDTO {
+public class AppServiceSummaryDTO {
     private final String id;
+    private final String name;
     private final String namespace;
+    private final String portalIP;
+    private final Integer port;
     private final Map<String, String> labels;
-    private Integer replicas;
-    private Map<String, String> replicaSelector;
 
-    public AppReplicationControllerSummaryDTO(ReplicationController controller) {
-        this.id = KubernetesHelper.getId(controller);
-        this.namespace = controller.getNamespace();
-        this.labels = controller.getLabels();
-        ReplicationControllerState desiredState = controller.getDesiredState();
-        if (desiredState != null) {
-            this.replicas = desiredState.getReplicas();
-            this.replicaSelector = desiredState.getReplicaSelector();
-        }
+    public AppServiceSummaryDTO(Service service) {
+        this.id = KubernetesHelper.getId(service);
+        this.name = KubernetesHelper.getName(service);
+        this.namespace = service.getNamespace();
+        this.portalIP = KubernetesHelper.getPortalIP(service);
+        this.port = KubernetesHelper.getPort(service);
+        this.labels = service.getLabels();
     }
 
     @Override
     public String toString() {
-        return "AppReplicationControllerSummaryDTO{" +
+        return "AppServiceSummaryDTO{" +
                 "id='" + id + '\'' +
+                ", name='" + name + '\'' +
                 ", namespace='" + namespace + '\'' +
                 '}';
     }
@@ -55,19 +54,23 @@ public class AppReplicationControllerSummaryDTO {
         return id;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public String getNamespace() {
         return namespace;
     }
 
+    public Integer getPort() {
+        return port;
+    }
+
+    public String getPortalIP() {
+        return portalIP;
+    }
+
     public Map<String, String> getLabels() {
         return labels;
-    }
-
-    public Integer getReplicas() {
-        return replicas;
-    }
-
-    public Map<String, String> getReplicaSelector() {
-        return replicaSelector;
     }
 }

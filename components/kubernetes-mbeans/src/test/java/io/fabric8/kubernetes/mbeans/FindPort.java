@@ -13,9 +13,11 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.kubernetes.api;
+package io.fabric8.kubernetes.mbeans;
 
-import io.fabric8.kubernetes.api.mbeans.KubernetesManager;
+import io.fabric8.kubernetes.api.Kubernetes;
+import io.fabric8.kubernetes.api.KubernetesFactory;
+import io.fabric8.kubernetes.mbeans.KubernetesManager;
 
 /**
  * Simple test program for looking up the port of a pod
