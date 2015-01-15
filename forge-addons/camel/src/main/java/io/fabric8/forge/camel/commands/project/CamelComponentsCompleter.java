@@ -65,8 +65,10 @@ public class CamelComponentsCompleter implements UICompleter<String> {
             String[] artifactAndVersion = findArtifactIdAndVersion(json);
 
             // skip if we already have the dependency
-            boolean already = CamelProjectHelper.hasDependency(project, "org.apache.camel", artifactAndVersion[0], artifactAndVersion[1]);
-
+            boolean already = false;
+            if (artifactAndVersion != null) {
+                already = CamelProjectHelper.hasDependency(project, "org.apache.camel", artifactAndVersion[0], artifactAndVersion[1]);
+            }
             if (!already) {
                 answer.add(name);
             }
@@ -90,7 +92,11 @@ public class CamelComponentsCompleter implements UICompleter<String> {
             }
         }
 
-        return new String[]{artifactId, version};
+        if (artifactId != null && version != null) {
+            return new String[]{artifactId, version};
+        } else {
+            return null;
+        }
     }
 
 }
