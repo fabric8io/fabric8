@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1421429777854">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1421431472756">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -614,16 +614,16 @@ export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
 </code></pre><p>Usually your $DOCKER_IP is something like <strong>192.168.59.103</strong> if you are on Windows or a Mac and are using boot2docker.</p>
 <h3 id="using-the-kube-command-line"><a name="using-the-kube-command-line" class="anchor" href="#using-the-kube-command-line"><span class="fa fa-link"></span></a>Using the kube command line</h3>
 <p>Run this command or add it to your ~/.bashrc</p>
-<pre><code>alias kube=&quot;docker run --rm --net=host -i -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin:latest kube&quot;
+<pre><code>alias kube=&quot;docker run --rm --net=host -i -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin:latest cli&quot;
 </code></pre><p>You can now use the kube command line to list pods, replication controllers and services; delete or create resources etc:</p>
-<pre><code>kube list pods
-kube list replicationControllers
-kube list services
+<pre><code>kube get pods
+kube get replicationControllers
+kube get services
 </code></pre><p>To see all the available commands:</p>
 <pre><code>kube --help
 </code></pre><p><strong>Note</strong> that since we are using docker and you are typically running the docker commands from the host machine (your laptop), the kube command which runs in a linux container (which on Windows or a Mac is inside the boot2docker VM) it won&apos;t be able to access local files by file name when supplying -c to apply.</p>
 <p>However you can pipe them into the command line via</p>
-<pre><code>cat mything.json | kube apply -c -
+<pre><code>cat mything.json | kube apply -f -
 </code></pre><h3 id="network-routes"><a name="network-routes" class="anchor" href="#network-routes"><span class="fa fa-link"></span></a>Network routes</h3>
 <p>To be able to connect to the pod or service IPs inside OpenShift (so that hawtio can connect into your JVMs) these routes will need to be defined on your machine:</p>
 <pre><code>sudo route -n add 172.17.0.0/24 $DOCKER_IP
