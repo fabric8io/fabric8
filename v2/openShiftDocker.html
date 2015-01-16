@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1421400248823">
+    <div class="book" data-github="fabric8io/fabric8" data-level="2.2.1" data-basepath="." data-revision="1421429777854">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -604,7 +604,7 @@ boot2docker up
 sudo vi /var/lib/boot2docker/profile
 </code></pre><p>and add two lines</p>
 <pre><code>DOCKER_TLS=no
-EXTRA_ARGS=&quot;--insecure-registry 192.168.59.103:5000 --insecure-registry 172.121.17.4:5000&quot;
+EXTRA_ARGS=&quot;--insecure-registry 192.168.59.103:5000 --insecure-registry 172.0.0.0/8&quot;
 </code></pre><h3 id="environment-variables"><a name="environment-variables" class="anchor" href="#environment-variables"><span class="fa fa-link"></span></a>Environment variables</h3>
 <p>You&apos;ll need the following environment variables to be able use the <a href="http://fabric8.io/v2/tools.html" target="_blank">Tools</a> such as the <a href="console.html">Console</a>, <a href="http://fabric8.io/v2/mavenPlugin.html" target="_blank">Maven Plugin</a>, the <a href="http://fabric8.io/v2/forge.html" target="_blank">Forge Addons</a> and the <a href="javaLibraries.html">java libraries</a>:</p>
 <pre><code>export DOCKER_IP=`boot2docker ip 2&gt; /dev/null`
