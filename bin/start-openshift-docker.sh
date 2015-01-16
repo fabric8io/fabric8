@@ -35,7 +35,7 @@ while getopts "fud:k" opt; do
       ;;
     f)
       echo "Cleaning up all existing k8s containers"
-      docker rm -fv openshift cadvisor || true
+      docker rm -fv openshift cadvisor logspout || true
       RUNNING_CONTAINERS=`docker ps -a | grep k8s | cut -c 1-12`
       test -z "$RUNNING_CONTAINERS" || docker rm -fv $RUNNING_CONTAINERS
       CLEANUP=1
@@ -132,10 +132,9 @@ if [ -f "$APP_BASE/fabric8.json" ]; then
   if [ ${DEPLOY_ALL} -eq 1 ]; then
     cat $APP_BASE/influxdb.json | $KUBE apply -f -
     cat $APP_BASE/elasticsearch.json | $KUBE apply -f -
-    cat $APP_BASE/logspout.yml | $KUBE apply -f -
     cat $APP_BASE/kibana.yml | $KUBE apply -f -
     cat $APP_BASE/grafana.yml | $KUBE apply -f -
-    cat $APP_BASE/router.json | $KUBE create -f -
+    cat $APP_BASE/router.json | $KUBE create  -f -
   fi
 else
   curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE apply -f -
@@ -143,7 +142,6 @@ else
   if [ ${DEPLOY_ALL} -eq 1 ]; then
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE apply -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE apply -f -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE apply -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE apply -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE apply -f -
     curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/router.json | $KUBE create -f -
@@ -187,6 +185,8 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
   validateService "cadvisor" $CADVISOR
   validateService "Kibana console" $KIBANA_CONSOLE
   validateService "Grafana console" $GRAFANA_CONSOLE
+
+  docker run -d --name=logspout --privileged -v /var/run/docker.sock:/tmp/docker.sock:ro ${LOGSPOUT_IMAGE} es://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
 
   # Set up Kibana default index
   if [ "404" == $(curl -s -I "${ELASTICSEARCH}/.kibana/index-pattern/\[logstash-\]YYYY.MM.DD" -w "%{http_code}" -o /dev/null) ]; then
