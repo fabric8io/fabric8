@@ -42,6 +42,24 @@ permissions and limitations under the License.
         <servlet-class>org.jboss.fuse.rhaccess.servlet.MachinesServlet</servlet-class>
     </servlet>
 
+    <servlet>
+      <servlet-name>login</servlet-name>
+      <servlet-class>io.hawt.web.LoginTokenServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+      <servlet-name>login</servlet-name>
+      <url-pattern>/auth/login/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+      <servlet-name>logout</servlet-name>
+      <servlet-class>io.hawt.web.LogoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+      <servlet-name>logout</servlet-name>
+      <url-pattern>/auth/logout/*</url-pattern>
+    </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>attachments</servlet-name>
         <url-pattern>/attachments</url-pattern>
@@ -79,4 +97,13 @@ permissions and limitations under the License.
         <filter-name>AuthenticationFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+
+    <listener>
+      <description>Session Listener</description>
+      <listener-class>org.jboss.fuse.rhaccess.listener.SupportSessionListener</listener-class>
+    </listener>
+
+    <listener>
+      <listener-class>org.jboss.fuse.rhaccess.listener.SupportContextListener</listener-class>
+    </listener>
 </web-app>
