@@ -73,7 +73,7 @@ for image in ${DEPLOY_IMAGES}; do
 done
 
 if [ ${CLEANUP} -eq 1 ]; then
-  docker run --rm -v /var/lib/openshift:/var/lib/openshift ${FABRIC8_CONSOLE_IMAGE} rm -rf /var/lib/openshift/*
+  docker run --rm --privileged -v /var/lib/openshift:/var/lib/openshift --entrypoint=rm ${OPENSHIFT_IMAGE} -rf /var/lib/openshift/*
 fi
 
 echo "Validating firewall rules"
@@ -112,7 +112,7 @@ export KUBERNETES_MASTER=http://$DOCKER_IP:8080
 export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
 
 # using an env var but ideally we'd use an alias ;)
-KUBE="docker run --rm -i --net=host ${OPENSHIFT_IMAGE} kube"
+KUBE="docker run --rm -i --net=host ${OPENSHIFT_IMAGE} cli"
 
 OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host ${OPENSHIFT_IMAGE} start --cors-allowed-origins=.*)
 
@@ -127,30 +127,30 @@ if [ ${DEPLOY_ALL} -eq 1 ]; then
 fi
 
 if [ -f "$APP_BASE/fabric8.json" ]; then
-  cat $APP_BASE/fabric8.json | $KUBE apply -c -
-  cat $APP_BASE/registry.json | $KUBE apply -c -
+  cat $APP_BASE/fabric8.json | $KUBE apply -f -
+  cat $APP_BASE/registry.json | $KUBE apply -f -
   if [ ${DEPLOY_ALL} -eq 1 ]; then
-    cat $APP_BASE/influxdb.json | $KUBE apply -c -
-    cat $APP_BASE/elasticsearch.json | $KUBE apply -c -
-    cat $APP_BASE/logspout.yml | $KUBE apply -c -
-    cat $APP_BASE/kibana.yml | $KUBE apply -c -
-    cat $APP_BASE/grafana.yml | $KUBE apply -c -
-    cat $APP_BASE/router.json | $KUBE create pods -c -
+    cat $APP_BASE/influxdb.json | $KUBE apply -f -
+    cat $APP_BASE/elasticsearch.json | $KUBE apply -f -
+    cat $APP_BASE/logspout.yml | $KUBE apply -f -
+    cat $APP_BASE/kibana.yml | $KUBE apply -f -
+    cat $APP_BASE/grafana.yml | $KUBE apply -f -
+    cat $APP_BASE/router.json | $KUBE create -f -
   fi
 else
-  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE apply -c -
-  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json | $KUBE apply -c -
+  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/fabric8.json | $KUBE apply -f -
+  curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/registry.json | $KUBE apply -f -
   if [ ${DEPLOY_ALL} -eq 1 ]; then
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE apply -c -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE apply -c -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE apply -c -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE apply -c -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE apply -c -
-    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/router.json | $KUBE create pods -c -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/influxdb.json | $KUBE apply -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/elasticsearch.json | $KUBE apply -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/logspout.yml | $KUBE apply -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/kibana.yml | $KUBE apply -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/grafana.yml | $KUBE apply -f -
+    curl -s https://raw.githubusercontent.com/fabric8io/fabric8/master/bin/router.json | $KUBE create -f -
   fi
 fi
 
-K8S_SERVICES=$($KUBE list services)
+K8S_SERVICES=$($KUBE get services)
 
 echo
 echo "Waiting for services to fully come up - shouldn't be too long for you to wait"
@@ -158,7 +158,7 @@ echo
 
 getServiceIpAndPort()
 {
-  echo `echo "$1"|grep $2| sed 's/\s\+/ /g' | awk '{ print $3 ":" $4 }'`
+  echo `echo "$1"|grep $2| sed 's/\s\+/ /g' | awk '{ print $4 ":" $5 }'`
 }
 
 FABRIC8_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" fabric8-console)/hawtio/
