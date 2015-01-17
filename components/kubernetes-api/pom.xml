@@ -31,43 +31,23 @@
 
   <name>Fabric8 :: Kubernetes Client API</name>
 
-  <properties>
-    <clone-kube>true</clone-kube>
-    <kube.dir>${basedir}/src/main/kubernetes</kube.dir>
-  </properties>
-  
   <dependencies>
-    <dependency>
-      <groupId>com.fasterxml.jackson.module</groupId>
-      <artifactId>jackson-module-jaxb-annotations</artifactId>
-      <version>${jackson2.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
-      <version>${validation-api.version}</version>
-<!--
-      <optional>true</optional>
--->
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>fabric-utils</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+      <groupId>io.fabric8.schemagenerator</groupId>
+      <artifactId>kubernetes-model</artifactId>
     </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>
       <artifactId>jackson-jaxrs-json-provider</artifactId>
     </dependency>
+    
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
@@ -108,42 +88,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.jsonschema2pojo</groupId>
-        <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-        <version>0.4.5</version>
-        <configuration>
-          <sourceDirectory>${kube.dir}/api/doc</sourceDirectory>
-          <targetPackage>io.fabric8.kubernetes.api.model</targetPackage>
-          <includeJsr303Annotations>true</includeJsr303Annotations>
-          <outputDirectory>${basedir}/target/generated-sources</outputDirectory>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <configuration>
-              <target>
-                <echo>removing the duplicate generated calss</echo>
-                <delete file="${basedir}/target/generated-sources/io/fabric8/kubernetes/api/model/IntOrString.java" verbose="true" />
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
