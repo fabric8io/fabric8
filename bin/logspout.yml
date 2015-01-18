@@ -19,6 +19,7 @@ items:
                 readOnly: true
             command:
               - es://${ELASTICSEARCH_SERVICE_HOST}:${ELASTICSEARCH_SERVICE_PORT}
+            privileged: true
         volumes:
           - name: docker-sock
             source:
