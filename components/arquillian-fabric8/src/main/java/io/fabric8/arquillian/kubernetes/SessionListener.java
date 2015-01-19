@@ -78,8 +78,11 @@ public class SessionListener {
                 log.status("Applying kubernetes configuration from: " + configuration.getConfigUrl());
                 kubeConfigs.add((Config) loadJson(readAsString(configuration.getConfigUrl())));
             }
-            applyConfiguration(client, controller, configuration, event.getSession(), kubeConfigs);
-            displaySessionStatus(client, event.getSession());
+            if (applyConfiguration(client, controller, configuration, event.getSession(), kubeConfigs)) {
+                displaySessionStatus(client, event.getSession());
+            } else {
+                throw new IllegalStateException("Failed to apply kubernetes configuration.");
+            }
         } catch (Exception e) {
             try {
                 cleanupSession(client, event.getSession());
