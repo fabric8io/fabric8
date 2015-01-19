@@ -33,13 +33,16 @@ import static io.fabric8.arquillian.kubernetes.Constants.DEPENDENCIES;
 import static io.fabric8.arquillian.kubernetes.Constants.KUBERNETES_MASTER;
 import static io.fabric8.arquillian.kubernetes.Constants.MASTER_URL;
 import static io.fabric8.arquillian.kubernetes.Constants.POLL_INTERVAL;
+import static io.fabric8.arquillian.kubernetes.Constants.SERVICE_CONNECTION_TIMEOUT;
 import static io.fabric8.arquillian.kubernetes.Constants.TIMEOUT;
 import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICE_CONNECTION;
+import static io.fabric8.arquillian.kubernetes.Constants.WAIT_FOR_SERVICES;
 
 public class Configuration {
 
     private static final Long DEFAULT_TIMEOUT = 5 * 60 * 1000L;
     private static final Long DEFAULT_POLL_INTERVAL = 5 * 1000L;
+    private static final Long DEFAULT_SERVICE_CONNECTION_TIMEOUT = 10 * 1000L;
 
     private String masterUrl;
     private List<String> dependencies = new ArrayList<>();
@@ -48,7 +51,9 @@ public class Configuration {
     private long pollInterval = DEFAULT_POLL_INTERVAL;
     private boolean ansiLoggerEnabled = true;
 
-    private boolean waitForConenction = false;
+    private List<String> waitForServices = new ArrayList<>();
+    private boolean waitForServiceConnection = false;
+    private Long serviceConnectionTimeout = DEFAULT_SERVICE_CONNECTION_TIMEOUT;
 
     public String getMasterUrl() {
         return masterUrl;
@@ -74,8 +79,16 @@ public class Configuration {
         return dependencies;
     }
 
-    public boolean isWaitForConenction() {
-        return waitForConenction;
+    public boolean isWaitForServiceConnection() {
+        return waitForServiceConnection;
+    }
+
+    public List<String> getWaitForServices() {
+        return waitForServices;
+    }
+
+    public int getServiceConnectionTimeout() {
+        return serviceConnectionTimeout.intValue();
     }
 
     public static Configuration fromMap(Map<String, String> map) {
@@ -88,7 +101,9 @@ public class Configuration {
             configuration.timeout = getLongProperty(TIMEOUT, map, DEFAULT_TIMEOUT);
             configuration.pollInterval = getLongProperty(POLL_INTERVAL, map, DEFAULT_POLL_INTERVAL);
             configuration.ansiLoggerEnabled = getBooleanProperty(ANSI_LOGGER_ENABLED, map, true);
-            configuration.waitForConenction = getBooleanProperty(WAIT_FOR_SERVICE_CONNECTION, map, false);
+            configuration.waitForServiceConnection = getBooleanProperty(WAIT_FOR_SERVICE_CONNECTION, map, false);
+            configuration.waitForServices = Strings.splitAndTrimAsList(getStringProperty(WAIT_FOR_SERVICES, map, ""), " ");
+            configuration.serviceConnectionTimeout = getLongProperty(SERVICE_CONNECTION_TIMEOUT, map, DEFAULT_SERVICE_CONNECTION_TIMEOUT);
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
@@ -135,6 +150,14 @@ public class Configuration {
     private static void applyDependencies(Configuration configuration, Map<String, String> map) throws MalformedURLException {
         if (map.containsKey(DEPENDENCIES)) {
             configuration.dependencies = Strings.splitAndTrimAsList(map.get(DEPENDENCIES), ",");
+        }
+    }
+
+    private static String getStringProperty(String name, Map<String, String> map, String defaultValue) {
+        if (map.containsKey(name)) {
+            return map.get(name);
+        } else {
+            return  Systems.getEnvVarOrSystemProperty(name, defaultValue);
         }
     }
 

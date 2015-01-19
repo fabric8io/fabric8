@@ -16,6 +16,7 @@
 
 package io.fabric8.arquillian.kubernetes.await;
 
+import io.fabric8.arquillian.kubernetes.Configuration;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.KubernetesClient;
@@ -24,7 +25,9 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.Filter;
 
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,12 +38,12 @@ public class SessionServicesAreReady implements Callable<Boolean> {
 
     private final Session session;
     private final KubernetesClient kubernetesClient;
-    private final Boolean waitForConnection;
+    private final Configuration configuration;
 
-    public SessionServicesAreReady(KubernetesClient kubernetesClient, Session session, Boolean waitForConnection) {
+    public SessionServicesAreReady(KubernetesClient kubernetesClient, Session session, Configuration configuration) {
         this.session = session;
         this.kubernetesClient = kubernetesClient;
-        this.waitForConnection = waitForConnection;
+        this.configuration = configuration;
     }
 
     @Override
@@ -53,14 +56,14 @@ public class SessionServicesAreReady implements Callable<Boolean> {
         if (services.isEmpty()) {
             result = false;
             session.getLogger().warn("No services are available yet, waiting...");
-        } else if (waitForConnection) {
-
-            for (Service s : services) {
+        } else if (configuration.isWaitForServiceConnection()) {
+            for (Service s : filterServices(services, configuration.getWaitForServices())) {
                 String serviceURL = KubernetesHelper.getServiceURL(s);
                 String serviceStatus = null;
                 try {
                     URL url = new URL(serviceURL);
                     URLConnection connection = url.openConnection();
+                    connection.setConnectTimeout(configuration.getServiceConnectionTimeout());
                     connection.connect();
                     serviceStatus = "Service: " + serviceURL + " is ready";
                 } catch (Exception e) {
@@ -72,6 +75,20 @@ public class SessionServicesAreReady implements Callable<Boolean> {
             }
         }
         return result;
+    }
+
+    private List<Service> filterServices(List<Service> services, List<String> selectedIds) {
+        if (selectedIds != null && !selectedIds.isEmpty()) {
+            List<Service> result = new ArrayList<>();
+            for (Service s : services) {
+                if (selectedIds.contains(s.getId())) {
+                    result.add(s);
+                }
+            }
+            return result;
+        } else {
+            return services;
+        }
     }
 
 }

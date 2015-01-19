@@ -110,7 +110,7 @@ public class SessionListener {
         Logger log = session.getLogger();
         Set<Callable<Boolean>> conditions = new HashSet<>();
         Callable<Boolean> sessionPodsReady = new SessionPodsAreReady(client, session);
-        Callable<Boolean> servicesReady = new SessionServicesAreReady(client, session, configuration.isWaitForConenction());
+        Callable<Boolean> servicesReady = new SessionServicesAreReady(client, session, configuration);
 
         List<Object> entities = new ArrayList<>();
         for (Config c : kubeConfigs) {

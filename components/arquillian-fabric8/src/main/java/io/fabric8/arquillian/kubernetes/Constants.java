@@ -25,7 +25,9 @@ public class Constants {
     public static final String CONFIG_URL = "configUrl";
     public static final String DEPENDENCIES = "dependencies";
 
+    public static final String WAIT_FOR_SERVICES = "waitForServices";
     public static final String WAIT_FOR_SERVICE_CONNECTION = "waitForServiceConnection";
+    public static final String SERVICE_CONNECTION_TIMEOUT = "serviceConnectionTimeout";
 
     public static final String TIMEOUT = "timeout";
     public static final String POLL_INTERVAL = "pollInterval";
