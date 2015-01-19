@@ -149,7 +149,7 @@ public class Configuration {
      */
     private static void applyDependencies(Configuration configuration, Map<String, String> map) throws MalformedURLException {
         if (map.containsKey(DEPENDENCIES)) {
-            configuration.dependencies = Strings.splitAndTrimAsList(map.get(DEPENDENCIES), ",");
+            configuration.dependencies = Strings.splitAndTrimAsList(map.get(DEPENDENCIES), " ");
         }
     }
 
