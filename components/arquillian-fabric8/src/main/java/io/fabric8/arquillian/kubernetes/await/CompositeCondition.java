@@ -37,7 +37,7 @@ public class CompositeCondition implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
         boolean result = true;
-        for (int i = 0; i < callableList.size(); i++) {
+        for (int i = 0; i < callableList.size() && result; i++) {
             result = result && callableList.get(i).call();
 
         }

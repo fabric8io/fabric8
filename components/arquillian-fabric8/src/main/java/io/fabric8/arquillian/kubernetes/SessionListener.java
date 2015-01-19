@@ -40,9 +40,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
 import static io.fabric8.arquillian.utils.Util.cleanupSession;
@@ -111,7 +114,7 @@ public class SessionListener {
 
     private boolean applyConfiguration(KubernetesClient client, Controller controller, Configuration configuration, Session session, List<Config> kubeConfigs) throws Exception {
         Logger log = session.getLogger();
-        Set<Callable<Boolean>> conditions = new HashSet<>();
+        Map<Integer, Callable<Boolean>> conditions = new TreeMap<>();
         Callable<Boolean> sessionPodsReady = new SessionPodsAreReady(client, session);
         Callable<Boolean> servicesReady = new SessionServicesAreReady(client, session, configuration);
 
@@ -143,7 +146,7 @@ public class SessionListener {
                 pod.getLabels().put(ARQ_KEY, session.getId());
                 log.status("Applying pod:" + pod.getId());
                 controller.applyPod(pod, session.getId());
-                conditions.add(sessionPodsReady);
+                conditions.put(1, sessionPodsReady);
             } else if (entity instanceof Service) {
                 Service service = (Service) entity;
                 if (service.getLabels() == null) {
@@ -152,7 +155,7 @@ public class SessionListener {
                 service.getLabels().put(ARQ_KEY, session.getId());
                 log.status("Applying service:" + service.getId());
                 controller.applyService(service, session.getId());
-                conditions.add(servicesReady);
+                conditions.put(2, servicesReady);
             } else if (entity instanceof ReplicationController) {
                 ReplicationController replicationController = (ReplicationController) entity;
                 PodTemplate podTemplate = replicationController.getDesiredState().getPodTemplate();
@@ -166,14 +169,14 @@ public class SessionListener {
                 replicationController.getLabels().put(ARQ_KEY, session.getId());
                 log.status("Applying replication controller:" + replicationController.getId());
                 controller.applyReplicationController(replicationController, session.getId());
-                conditions.add(sessionPodsReady);
+                conditions.put(1, sessionPodsReady);
             }
         }
 
 
         //Wait until conditions are meet.
         if (!conditions.isEmpty()) {
-            Callable<Boolean> compositeCondition = new CompositeCondition(conditions);
+            Callable<Boolean> compositeCondition = new CompositeCondition(conditions.values());
             WaitStrategy waitStrategy = new WaitStrategy(compositeCondition, configuration.getTimeout(), configuration.getPollInterval());
             if (!waitStrategy.await()) {
                 log.error("Timed out waiting for pods/services!");

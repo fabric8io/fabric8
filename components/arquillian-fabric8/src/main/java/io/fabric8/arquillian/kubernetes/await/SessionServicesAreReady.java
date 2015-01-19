@@ -24,9 +24,8 @@ import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.Filter;
 
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.URLConnection;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -58,17 +57,13 @@ public class SessionServicesAreReady implements Callable<Boolean> {
             session.getLogger().warn("No services are available yet, waiting...");
         } else if (configuration.isWaitForServiceConnection()) {
             for (Service s : filterServices(services, configuration.getWaitForServices())) {
-                String serviceURL = KubernetesHelper.getServiceURL(s);
                 String serviceStatus = null;
-                try {
-                    URL url = new URL(serviceURL);
-                    URLConnection connection = url.openConnection();
-                    connection.setConnectTimeout(configuration.getServiceConnectionTimeout());
-                    connection.connect();
-                    serviceStatus = "Service: " + serviceURL + " is ready";
+                try (Socket socket = new Socket()) {
+                    socket.connect(new InetSocketAddress(s.getPortalIP(), s.getPort()), configuration.getServiceConnectionTimeout());
+                    serviceStatus = "Service: " + s.getId() + " is ready";
                 } catch (Exception e) {
                     result = false;
-                    serviceStatus = "Service: " + serviceURL + " is not ready! Error: " + e.getMessage();
+                    serviceStatus = "Service: " + s.getId() + " is not ready! Error: " + e.getMessage();
                 } finally {
                     session.getLogger().warn(serviceStatus);
                 }
