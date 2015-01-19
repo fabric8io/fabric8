@@ -31,9 +31,27 @@
                       "containerPort": 5000,
                       "protocol": "TCP"
                     }
+                  ],
+                  "volumeMounts":[
+                    {
+                      "name":"registry-persistent-storage",
+                      "mountPath":"/registry"
+                    }
+                  ],
+                  "env":[
+                    {
+                      "name":"STORAGE_PATH",
+                      "value":"/registry"
+                    }
                   ]
                 }
               ],
+              "volumes":[
+                {
+                  "name":"registry-persistent-storage",
+                  "source": {"hostDir":{"path": "/volumes/registry/data"}}
+                }
+             ],
               "id": "registry-pod",
               "version": "v1beta1"
             }
