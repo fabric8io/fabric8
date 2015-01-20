@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.6" data-basepath="." data-revision="1421752454350">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.6" data-basepath="." data-revision="1421754850774">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -657,7 +657,11 @@ This means that the arquillian.xml configuration file is completely optional.</p
 Then it will treat those as dependencies and apply them along with the configuration.</p>
 <h3 id="example"><a name="example" class="anchor" href="#example"><span class="fa fa-link"></span></a>Example</h3>
 <p>There are lots of examples in the <a href="http://fabric8.io/v2/quickstarts.html" target="_blank">quickstarts</a>.</p>
-<p>Here is an <a href="https://github.com/fabric8io/quickstarts/blob/master/apps/jadvisor/src/test/java/io/fabric8/apps/jadvisor/JadvisorKubernetesTest.java#L42" target="_blank">example Arquillian Fabric8 integration test</a></p>
+<p>Here is an <a href="https://github.com/fabric8io/fabric8/blob/master/itests/src/test/java/io/fabric8/itests/BrokerProducerConsumerIT.java#L57" target="_blank">example Arquillian Fabric8 integration test</a> that tests that an AMQ broker, producer and consumer startup and properly produce and consume messages correctly.</p>
+<p>In particular <a href="https://github.com/fabric8io/fabric8/blob/master/itests/src/test/java/io/fabric8/itests/BrokerProducerConsumerIT.java#L74" target="_blank">here is the code that does JMX assertions via jolokia on the containers</a> that are created by the integration test.</p>
+<h3 id="requirements"><a name="requirements" class="anchor" href="#requirements"><span class="fa fa-link"></span></a>Requirements</h3>
+<p>When running an <strong>arquillian-fabric8</strong> integration test then the environment variable <strong>KUBERNETES_MASTER</strong> needs to be specified to point to the kubernetes environment in which to create the containers and services.</p>
+<p>Note that this can be any kubernetes environment (a kubernetes installation, OpenShift, RHEL Atomic or GKE) or even a <a href="http://fabric8.io/jube/getStarted.html" target="_blank">Jube installation</a>. Also note that different integration tests can be running at the same time on the same kubernetes environment.</p>
 <h3 id="assertion-libraries"><a name="assertion-libraries" class="anchor" href="#assertion-libraries"><span class="fa fa-link"></span></a>Assertion libraries</h3>
 <p>The following libraries are provided to help you create concise assertions using <a href="http://joel-costigliola.github.io/assertj/" target="_blank">assertj</a> based DSL:</p>
 <ul>
