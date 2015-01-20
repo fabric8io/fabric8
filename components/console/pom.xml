@@ -31,7 +31,7 @@
 
   <properties>
     <blueprint-web-version>1.0.0</blueprint-web-version>
-    <fabric8.release.version>2.0.19</fabric8.release.version>
+    <fabric8.release.version>2.0.21</fabric8.release.version>
   </properties>
 
   <dependencies>
@@ -43,16 +43,10 @@
     <dependency>
       <groupId>io.fabric8</groupId>
       <artifactId>kubernetes-template</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.karaf.features</groupId>
-          <artifactId>org.apache.karaf.features.core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.osgi</groupId>
-          <artifactId>org.osgi.core</artifactId>
-        </exclusion>
-      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-mbeans</artifactId>
     </dependency>
 
     <dependency>
