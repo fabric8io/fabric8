@@ -19,11 +19,11 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
         >
 
-  <bean id="kubernetesManager" class="io.fabric8.kubernetes.api.mbeans.KubernetesManager" init-method="init"
+  <bean id="kubernetesManager" class="io.fabric8.kubernetes.mbeans.KubernetesManager" init-method="init"
         destroy-method="destroy" scope="singleton">
   </bean>
 
-  <bean id="appView" class="io.fabric8.kubernetes.api.mbeans.AppView" init-method="init" destroy-method="destroy"
+  <bean id="appView" class="io.fabric8.kubernetes.mbeans.AppView" init-method="init" destroy-method="destroy"
         scope="singleton">
   </bean>
 
