@@ -50,7 +50,7 @@
 
 
         
-    <div class="book" data-github="fabric8io/fabric8" data-level="3.6" data-basepath="." data-revision="1421431472756">
+    <div class="book" data-github="fabric8io/fabric8" data-level="3.6" data-basepath="." data-revision="1421752454350">
     <div class="book-header">
     <!-- Actions Left -->
     <a href="#" class="btn pull-left toggle-summary" aria-label="Toggle summary"><i class="fa fa-align-justify"></i></a>
@@ -571,13 +571,90 @@
                     <section class="normal" id="section-gitbook_31">
                     
                         <h2 id="testing"><a name="testing" class="anchor" href="#testing"><span class="fa fa-link"></span></a>Testing</h2>
-<p>Fabric8 supports integration testing of <a href="apps.html">Apps</a> using Kubernetes via <a href="https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8" target="_blank">arquillian-fabric8</a> which provides a plugin for <a href="http://arquillian.org/" target="_blank">Arquillian</a>.</p>
+<p>Fabric8 supports integration testing of <a href="apps.html">Apps</a> using Kubernetes via <a href="https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8" target="_blank">arquillian-fabric8</a> which provides an extension for <a href="http://arquillian.org/" target="_blank">Arquillian</a>.</p>
+<p>Using this extension you can easily:</p>
+<ul>
+<li>Apply the kubernetes configuration of your application, including its dependencies.</li>
+<li>Wait until pods and services are ready to be used.</li>
+<li>Make created services, replication controllers and kubernetes client available inside your test case (via @ArquillianResource).</li>
+</ul>
 <p><a href="https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8" target="_blank">arquillian-fabric8</a> uses:</p>
 <ul>
 <li>Kubnernetes to provision and orchestrate the containers</li>
 <li><a href="http://arquillian.org/" target="_blank">Arquillian</a> to run the JUnit tests and perform the necessary dependency injection</li>
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions" target="_blank">kubernetes-assertions</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions" target="_blank">jolokia-assertions</a> to provide assertions within the JUnit test case.</li>
 </ul>
+<h3 id="session-lifecycle-labels"><a name="session-lifecycle-labels" class="anchor" href="#session-lifecycle-labels"><span class="fa fa-link"></span></a>Session, Lifecycle &amp; Labels</h3>
+<p>The kubernetes configuration is applied once per test suite. This means that the environment is getting created once per test suite and then multiple test cases are run against that enviornment.
+To encapsulate everything that has been applied to kubernetes as part of the current test suite, the notion of &quot;session&quot; is used.</p>
+<p>In order to distinguish which pods, services and replication controllers have been created as part of the testing session, anything that is created using the arquillian extension, will be added a label with key arquillian and a unique session id.
+This label is also going to be used to cleanup everything after the end of the suite or upon termination of the process.</p>
+<p>The Session is also made available to the test cases as an arquillian resource <em>(see below)</em>.</p>
+<h3 id="arquillian-resources-available-to-test-cases"><a name="arquillian-resources-available-to-test-cases" class="anchor" href="#arquillian-resources-available-to-test-cases"><span class="fa fa-link"></span></a>Arquillian Resources available to test cases</h3>
+<p>A typical integration test, would need to apply the kubernetes configuration, wait for everything to start up and then assert that that expected pods and services are available and of course test the actual services.</p>
+<p>To do that, the test needs to have access to information like:</p>
+<ul>
+<li>Pods</li>
+<li>Services</li>
+<li>Replication Controllers</li>
+<li>Session Id</li>
+</ul>
+<p>Each of the items above is made available to the test as an arquillian resource. </p>
+<p>To obtain a reference to the KubernetesClient:</p>
+<pre><code>           @ArquillianResource
+           io.fabric8.kubernetes.api.KubernetesClient client;
+</code></pre><h4 id="services"><a name="services" class="anchor" href="#services"><span class="fa fa-link"></span></a>Services</h4>
+<p>To obtain the list of all services created in the current session:</p>
+<pre><code>    @ArquillianResource
+    io.fabric8.kubernetes.api.model.ServiceList sessionServices;
+</code></pre><p>To obtain a refernce to a particular service created in the current session:</p>
+<pre><code>    @Id(&quot;my-service-id&quot;)
+    @ArquillianResource
+    io.fabric8.kubernetes.api.model.Service myService;
+</code></pre><h4 id="replication-controllers"><a name="replication-controllers" class="anchor" href="#replication-controllers"><span class="fa fa-link"></span></a>Replication Controllers</h4>
+<p>To obtain the list of all replication controllers created in the current session:</p>
+<pre><code>    @ArquillianResource
+    io.fabric8.kubernetes.api.model.ReplicationControllerList sessionControllers;
+</code></pre><p>To obtain a refernce to a particular replication controller created in the current session:</p>
+<pre><code>    @Id(&quot;my-controller-id&quot;)
+    @ArquillianResource
+    io.fabric8.kubernetes.api.model.ReplicationController myController;
+</code></pre><p>To obtain the list of all pods created in the current session:</p>
+<pre><code>    @ArquillianResource
+    io.fabric8.kubernetes.api.model.PodList sessionPods;
+</code></pre><p>To obtain the Session:</p>
+<pre><code>           @ArquillianResource
+           io.fabric8.arquillian.kubernetes.Session mySession;
+</code></pre><h3 id="configuration-options"><a name="configuration-options" class="anchor" href="#configuration-options"><span class="fa fa-link"></span></a>Configuration Options</h3>
+<p>Any configuration option can be provided as an environment variable, system property or arquillian property. 
+For example:</p>
+<pre><code>    &lt;arquillian xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+                xmlns=&quot;http://jboss.org/schema/arquillian&quot;
+                xsi:schemaLocation=&quot;http://jboss.org/schema/arquillian
+                http://jboss.org/schema/arquillian/arquillian_1_0.xsd&quot;&gt;
+
+        &lt;extension qualifier=&quot;kubernetes&quot;&gt;
+            &lt;property name=&quot;masterUrl&quot;&gt;true&lt;/property&gt;
+        &lt;/extension&gt;
+    &lt;/arquillian&gt;
+</code></pre><p>The only required configuration option is url to the kubernetes master. Since in most cases this will be specified as KUBERNETES_MASTER env variable, there is no need
+to specify it again. 
+This means that the arquillian.xml configuration file is completely optional.</p>
+<p>Supported options:</p>
+<ul>
+<li>masterUrl: The url to the kubernetes master.</li>
+<li>configUrl: The url to the kubernetes configuration to be tested.</li>
+<li>configFileName: If a url hasn&apos;t been explicitly specified, the configFileName can be used for discovery of the configuration in the classpath.</li>
+<li>dependencies: A space separated list of urls to kubernetes configurations that are required to be applied before the current one.</li>
+<li>waitForServiceConnection: Wait until a network connection to all applied services is possible.</li>
+<li>serviceConnectionTimeout: The connection timeout for each attempt to &quot;connect to the service&quot;.</li>
+<li>waitForServices: Explicitly specify which services to wait. If this option is ommitted or empty all services will be waited.</li>
+<li>timeout: The total amount of time for to wait for pods and service to be ready.</li>
+<li>pollInterval: The interval between polling the status of pods and services.</li>
+</ul>
+<h3 id="maven-integration"><a name="maven-integration" class="anchor" href="#maven-integration"><span class="fa fa-link"></span></a>Maven Integration</h3>
+<p>If dependencies have not been explicitly specified, the extension will find all test scoped dependencies and search inside those artifacts for kubernetes.json resources.
+Then it will treat those as dependencies and apply them along with the configuration.</p>
 <h3 id="example"><a name="example" class="anchor" href="#example"><span class="fa fa-link"></span></a>Example</h3>
 <p>There are lots of examples in the <a href="http://fabric8.io/v2/quickstarts.html" target="_blank">quickstarts</a>.</p>
 <p>Here is an <a href="https://github.com/fabric8io/quickstarts/blob/master/apps/jadvisor/src/test/java/io/fabric8/apps/jadvisor/JadvisorKubernetesTest.java#L42" target="_blank">example Arquillian Fabric8 integration test</a></p>
