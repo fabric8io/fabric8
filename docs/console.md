@@ -2,6 +2,13 @@
 
 The Fabric8 Console provides a rich HTML5 web application for working with [Kubernetes](http://kubernetes.io/). The front end code is based on the [hawtio project](http://hawt.io/) which supports Kubernetes and reuses the various [hawtio plugins](http://hawt.io/plugins/index.html).
 
+### Running the console on Kubernetes/OpenShift
+
+From the command line tool for Kubernetes / OpenShift you should be able to create the console service and replication controllers via:
+
+    kube apply -c http://central.maven.org/maven2/io/fabric8/jube/images/fabric8/console/2.0.20/console-2.0.20-kubernetes.json
+
+
 ### Getting Started
 
 The console has a number of tabs that let you work with the various Kubernetes resources. We'll highlight the main ones you'll need to use:

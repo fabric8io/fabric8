@@ -127,7 +127,15 @@ Then it will treat those as dependencies and apply them along with the configura
 
 There are lots of examples in the [quickstarts](http://fabric8.io/v2/quickstarts.html).
 
-Here is an [example Arquillian Fabric8 integration test](https://github.com/fabric8io/quickstarts/blob/master/apps/jadvisor/src/test/java/io/fabric8/apps/jadvisor/JadvisorKubernetesTest.java#L42)
+Here is an [example Arquillian Fabric8 integration test](https://github.com/fabric8io/fabric8/blob/master/itests/src/test/java/io/fabric8/itests/BrokerProducerConsumerIT.java#L57) that tests that an AMQ broker, producer and consumer startup and properly produce and consume messages correctly.
+
+In particular [here is the code that does JMX assertions via jolokia on the containers](https://github.com/fabric8io/fabric8/blob/master/itests/src/test/java/io/fabric8/itests/BrokerProducerConsumerIT.java#L74) that are created by the integration test.
+
+### Requirements
+
+When running an **arquillian-fabric8** integration test then the environment variable **KUBERNETES_MASTER** needs to be specified to point to the kubernetes environment in which to create the containers and services.
+
+Note that this can be any kubernetes environment (a kubernetes installation, OpenShift, RHEL Atomic or GKE) or even a [Jube installation](http://fabric8.io/jube/getStarted.html). Also note that different integration tests can be running at the same time on the same kubernetes environment.
 
 ### Assertion libraries
 
