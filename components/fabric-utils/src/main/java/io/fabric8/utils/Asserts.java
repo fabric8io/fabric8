@@ -51,6 +51,24 @@ public class Asserts {
         return answer;
     }
 
+    /**
+     * Asserts that the code block throws an {@link AssertionError) and returns it
+     */
+    public static Exception assertException(Block block) throws Exception {
+        Exception answer = null;
+        try {
+            block.invoke();
+        } catch (Exception e) {
+            answer = e;
+            System.out.println("Caught expected assertion failure: " + e);
+        }
+        if (answer == null) {
+            throw new AssertionError("Expected an Exception from block: " + block);
+        }
+        Asserts.LOG.info("Caught expected assertion failure: " + answer);
+        return answer;
+    }
+
 
     /**
      * Asserts that the block passes at some point within the given time period.

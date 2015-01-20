@@ -61,7 +61,7 @@ public class KubernetesFactory {
     public static final String KUBERNETES_MASTER_SYSTEM_PROPERTY = "kubernetes.master";
 
     private String address;
-
+    private boolean verifyAddress = true;
     private boolean trustAllCerts = false;
 
     private String username;
@@ -80,13 +80,24 @@ public class KubernetesFactory {
     }
 
     public KubernetesFactory(String address, boolean writeable) {
+        initAddress(address, writeable);
+        init();
+    }
+
+    public KubernetesFactory(String address, boolean writeable, boolean verifyAddress) {
+        this.verifyAddress = verifyAddress;
+        initAddress(address, writeable);
+        init();
+    }
+
+    protected void initAddress(String address, boolean writeable) {
         if (Strings.isNullOrBlank(address)) {
             setAddress(findKubernetesMaster(writeable));
         } else {
             setAddress(address);
         }
-        init();
     }
+
 
     protected String findKubernetesMaster() {
         return findKubernetesMaster(false);
@@ -197,30 +208,32 @@ public class KubernetesFactory {
             findKubernetesMaster();
         }
 
-        try {
-            validateKubernetesMaster();
-        } catch (SSLHandshakeException e) {
-            log.error("SSL handshake failed - this probably means that you need to trust the kubernetes SSL certificate or set the environment variable " + KUBERNETES_TRUST_ALL_CERIFICATES, e);
-            throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
-        } catch (SSLProtocolException e) {
-            log.error("SSL protocol error", e);
-            throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
-        } catch (SSLKeyException e) {
-            log.error("Bad SSL key", e);
-            throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
-        } catch (SSLPeerUnverifiedException e) {
-            log.error("Could not verify server", e);
-            throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
-        } catch (SSLException e) {
-            log.warn("Address does not appear to be SSL-enabled - falling back to http", e);
-            setAddress(address.replaceFirst("https", "http"));
-        } catch (IOException e) {
-            log.warn("Failed to validate kubernetes master address", e);
-            throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
+        if (verifyAddress) {
+            try {
+                validateKubernetesMaster();
+            } catch (SSLHandshakeException e) {
+                log.error("SSL handshake failed - this probably means that you need to trust the kubernetes SSL certificate or set the environment variable " + KUBERNETES_TRUST_ALL_CERIFICATES, e);
+                throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
+            } catch (SSLProtocolException e) {
+                log.error("SSL protocol error", e);
+                throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
+            } catch (SSLKeyException e) {
+                log.error("Bad SSL key", e);
+                throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
+            } catch (SSLPeerUnverifiedException e) {
+                log.error("Could not verify server", e);
+                throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
+            } catch (SSLException e) {
+                log.warn("Address does not appear to be SSL-enabled - falling back to http", e);
+                setAddress(address.replaceFirst("https", "http"));
+            } catch (IOException e) {
+                log.warn("Failed to validate kubernetes master address", e);
+                throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
+            }
         }
     }
 
-    private void validateKubernetesMaster() throws IOException {
+    protected void validateKubernetesMaster() throws IOException {
         URL url = new URL(address);
         switch (url.getProtocol()) {
             case "http":
