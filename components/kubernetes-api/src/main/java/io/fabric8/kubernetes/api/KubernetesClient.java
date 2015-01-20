@@ -48,6 +48,11 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         this.factoryReadOnly = factory;
     }
 
+    public KubernetesClient(KubernetesFactory factoryReadOnly, KubernetesFactory factoryWriteable) {
+        this.factoryReadOnly = factoryReadOnly;
+        this.factoryWriteable = factoryWriteable;
+    }
+
     // Properties
     //-------------------------------------------------------------------------
 
