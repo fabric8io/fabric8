@@ -47,7 +47,15 @@ public class KubernetesManager implements KubernetesManagerMXBean {
         }
     }
 
-    private KubernetesClient kubernetes = new KubernetesClient();
+    private KubernetesClient kubernetes;
+
+    public KubernetesManager() {
+        this(new KubernetesClient());
+    }
+
+    public KubernetesManager(KubernetesClient kubernetes) {
+        this.kubernetes = kubernetes;
+    }
 
     public void init() {
         JMXUtils.registerMBean(this, OBJECT_NAME);

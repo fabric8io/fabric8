@@ -73,13 +73,25 @@ public class AppView implements AppViewMXBean {
         }
     }
 
-    private KubernetesClient kubernetes = new KubernetesClient();
+    private KubernetesClient kubernetes;
     private TimerTask task = new TimerTask() {
         @Override
         public void run() {
             refreshData();
         }
     };
+
+    public AppView() {
+        this(new KubernetesClient());
+    }
+
+    public AppView(KubernetesClient kubernetes) {
+        this.kubernetes = kubernetes;
+    }
+
+    public KubernetesClient getKubernetes() {
+        return kubernetes;
+    }
 
     public void init() {
         if (pollPeriod > 0) {
