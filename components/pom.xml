@@ -61,6 +61,7 @@
     <module>mq</module>
     <module>swagger-model</module>
     <module>zookeeper-client</module>
+      <module>fabric-jgroups</module>
   </modules>
 
 </project>
