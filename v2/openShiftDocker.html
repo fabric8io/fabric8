@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="2.2.1" data-basepath="." data-revision="1421828501700">
+    <div class="book" data-level="2.2.1" data-basepath="." data-revision="1421940855803">
     
 
 <div class="book-summary">
@@ -729,7 +729,20 @@ in the <code>-u</code> flag:</p>
 <pre><code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -u
 </code></pre><p>And of course flags can be combined. To start from scratch &amp; update all images at once:</p>
 <pre><code>bash &lt;(curl -sSL https://bit.ly/get-fabric8) -fku
-</code></pre><h4 id="trouble-shooting-boot2docker"><a name="trouble-shooting-boot2docker" class="anchor" href="#trouble-shooting-boot2docker"><span class="fa fa-link"></span></a>Trouble shooting boot2docker</h4>
+</code></pre><h4 id="making-sure-you-can-access-the-ip-addresses-of-services-and-pods-from-your-host"><a name="making-sure-you-can-access-the-ip-addresses-of-services-and-pods-from-your-host" class="anchor" href="#making-sure-you-can-access-the-ip-addresses-of-services-and-pods-from-your-host"><span class="fa fa-link"></span></a>Making sure you can access the IP addresses of services and pods from your host</h4>
+<p>If you run the above on boot2docker, vagrant or VMware and want to access the console and other services from your laptop then try the following.</p>
+<p>First make sure that the environment variable <strong>DOCKER_IP</strong> points to the IP address where docker is running in the above script.</p>
+<p>On windows or a Mac and running directly with docker:</p>
+<pre><code>export DOCKER_IP=`boot2docker ip 2&gt; /dev/null`
+</code></pre><p>Or if you are using the fabric8 vagrant image then run:</p>
+<pre><code>export DOCKER_IP=172.28.128.4
+</code></pre><p>If you are on linux and running everything on linux then try this (though TBH you should probably be able to see the IP addresses already)</p>
+<pre><code>export DOCKER_IP=127.0.0.1
+</code></pre><p>Then you should be able to add a network route so you can see the 172.X.X.X IP addresses:</p>
+<pre><code>sudo route -n delete 172.0.0.0/8
+sudo route -n add 172.0.0.0/8 $DOCKER_IP
+</code></pre><p>you should now be able to access IP addresses within kubernetes starting with &quot;172.&quot;</p>
+<h4 id="trouble-shooting-boot2docker"><a name="trouble-shooting-boot2docker" class="anchor" href="#trouble-shooting-boot2docker"><span class="fa fa-link"></span></a>Trouble shooting boot2docker</h4>
 <p>If you are using OS X or a Mac and using boot2docker then sometimes you might see that boot2docker struggles to see index.docker.io when downloading images due to DNS issues. A <a href="http://stackoverflow.com/questions/24060099/docker-failed-to-pull-images-from-registry" target="_blank">work around</a> is as follows:</p>
 <pre><code>boot2docker ssh
 sudo vi /etc/resolv.conf

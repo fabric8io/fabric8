@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="3.6" data-basepath="." data-revision="1421828501700">
+    <div class="book" data-level="3.6" data-basepath="." data-revision="1421940855803">
     
 
 <div class="book-summary">
@@ -724,15 +724,15 @@
 </ul>
 <p><a href="https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8" target="_blank">arquillian-fabric8</a> uses:</p>
 <ul>
-<li>Kubnernetes to provision and orchestrate the containers</li>
+<li>Kubnernetes to provision and orchestrate the containers inside a new unique namespace; so that each test case is isolated from other environments and test cases</li>
 <li><a href="http://arquillian.org/" target="_blank">Arquillian</a> to run the JUnit tests and perform the necessary dependency injection</li>
 <li><a href="https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions" target="_blank">kubernetes-assertions</a> and <a href="https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions" target="_blank">jolokia-assertions</a> to provide assertions within the JUnit test case.</li>
 </ul>
 <h3 id="session-lifecycle--labels"><a name="session-lifecycle--labels" class="anchor" href="#session-lifecycle--labels"><span class="fa fa-link"></span></a>Session, Lifecycle &amp; Labels</h3>
 <p>The kubernetes configuration is applied once per test suite. This means that the environment is getting created once per test suite and then multiple test cases are run against that enviornment.
 To encapsulate everything that has been applied to kubernetes as part of the current test suite, the notion of &quot;session&quot; is used.</p>
-<p>In order to distinguish which pods, services and replication controllers have been created as part of the testing session, anything that is created using the arquillian extension, will be added a label with key arquillian and a unique session id.
-This label is also going to be used to cleanup everything after the end of the suite or upon termination of the process.</p>
+<p>In order to distinguish which pods, services and replication controllers have been created as part of the testing session, anything that is created using the arquillian extension, will be created inside a unique namespace per session.
+This namespace is also going to be used to cleanup everything after the end of the suite or upon termination of the process.</p>
 <p>The Session is also made available to the test cases as an arquillian resource <em>(see below)</em>.</p>
 <h3 id="arquillian-resources-available-to-test-cases"><a name="arquillian-resources-available-to-test-cases" class="anchor" href="#arquillian-resources-available-to-test-cases"><span class="fa fa-link"></span></a>Arquillian Resources available to test cases</h3>
 <p>A typical integration test, would need to apply the kubernetes configuration, wait for everything to start up and then assert that that expected pods and services are available and of course test the actual services.</p>
@@ -741,7 +741,7 @@ This label is also going to be used to cleanup everything after the end of the s
 <li>Pods</li>
 <li>Services</li>
 <li>Replication Controllers</li>
-<li>Session Id</li>
+<li>Session Namespace</li>
 </ul>
 <p>Each of the items above is made available to the test as an arquillian resource. </p>
 <p>To obtain a reference to the KubernetesClient:</p>
@@ -751,7 +751,7 @@ This label is also going to be used to cleanup everything after the end of the s
 <p>To obtain the list of all services created in the current session:</p>
 <pre><code>    @ArquillianResource
     io.fabric8.kubernetes.api.model.ServiceList sessionServices;
-</code></pre><p>To obtain a refernce to a particular service created in the current session:</p>
+</code></pre><p>To obtain a reference to a particular service created in the current session:</p>
 <pre><code>    @Id(&quot;my-service-id&quot;)
     @ArquillianResource
     io.fabric8.kubernetes.api.model.Service myService;
