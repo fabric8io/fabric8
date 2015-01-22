@@ -24,11 +24,10 @@ import io.fabric8.arquillian.kubernetes.event.Start;
 import io.fabric8.arquillian.kubernetes.event.Stop;
 import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.arquillian.utils.Util;
+import io.fabric8.kubernetes.api.Config;
 import io.fabric8.kubernetes.api.Controller;
 import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.Config;
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodTemplate;
 import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.MultiException;
@@ -38,13 +37,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
@@ -53,20 +48,27 @@ import static io.fabric8.arquillian.utils.Util.displaySessionStatus;
 import static io.fabric8.arquillian.utils.Util.readAsString;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getEntities;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
-import static io.fabric8.arquillian.kubernetes.Constants.ARQ_KEY;
 
 public class SessionListener {
 
     private ShutdownHook shutdownHook;
 
     public void start(final @Observes Start event, final KubernetesClient client, Controller controller, Configuration configuration) throws Exception {
-        final Logger log = event.getSession().getLogger();
-        shutdownHook = new ShutdownHook(client, event.getSession());
+        Session session = event.getSession();
+        Logger log = session.getLogger();
+        String namespace = session.getNamespace();
+
+        log.status("Creating kubernetes resources inside namespace: " + namespace);
+        log.info("if you use a kubernetes CLI type this to switch namespaces: kube ns " + namespace);
+        controller.setNamespace(namespace);
+
+        final Logger log = session.getLogger();
+        shutdownHook = new ShutdownHook(client, session);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
 
         try {
             URL configUrl = configuration.getConfigUrl();
-            List<String> dependencies = !configuration.getDependencies().isEmpty() ? configuration.getDependencies() : Util.getMavenDependencies(event.getSession());
+            List<String> dependencies = !configuration.getDependencies().isEmpty() ? configuration.getDependencies() : Util.getMavenDependencies(session);
             List<Config> kubeConfigs = new LinkedList<>();
 
             for (String dependency : dependencies) {
@@ -81,14 +83,14 @@ public class SessionListener {
                 log.status("Applying kubernetes configuration from: " + configuration.getConfigUrl());
                 kubeConfigs.add((Config) loadJson(readAsString(configuration.getConfigUrl())));
             }
-            if (applyConfiguration(client, controller, configuration, event.getSession(), kubeConfigs)) {
-                displaySessionStatus(client, event.getSession());
+            if (applyConfiguration(client, controller, configuration, session, kubeConfigs)) {
+                displaySessionStatus(client, session);
             } else {
                 throw new IllegalStateException("Failed to apply kubernetes configuration.");
             }
         } catch (Exception e) {
             try {
-                cleanupSession(client, event.getSession());
+                cleanupSession(client, session);
             } catch (MultiException me) {
                 throw e;
             } finally {
@@ -140,33 +142,16 @@ public class SessionListener {
         for (Object entity : entities) {
             if (entity instanceof Pod) {
                 Pod pod = (Pod) entity;
-                if (pod.getLabels() == null) {
-                    pod.setLabels(new HashMap<String, String>());
-                }
-                pod.getLabels().put(ARQ_KEY, session.getId());
                 log.status("Applying pod:" + pod.getId());
                 controller.applyPod(pod, session.getId());
                 conditions.put(1, sessionPodsReady);
             } else if (entity instanceof Service) {
                 Service service = (Service) entity;
-                if (service.getLabels() == null) {
-                    service.setLabels(new HashMap<String, String>());
-                }
-                service.getLabels().put(ARQ_KEY, session.getId());
                 log.status("Applying service:" + service.getId());
                 controller.applyService(service, session.getId());
                 conditions.put(2, servicesReady);
             } else if (entity instanceof ReplicationController) {
                 ReplicationController replicationController = (ReplicationController) entity;
-                PodTemplate podTemplate = replicationController.getDesiredState().getPodTemplate();
-                if (podTemplate.getLabels() == null) {
-                    podTemplate.setLabels(new HashMap<String, String>());
-                }
-                replicationController.getDesiredState().getPodTemplate().getLabels().put(ARQ_KEY, session.getId());
-                if (replicationController.getLabels() == null) {
-                    replicationController.setLabels(new HashMap<String, String>());
-                }
-                replicationController.getLabels().put(ARQ_KEY, session.getId());
                 log.status("Applying replication controller:" + replicationController.getId());
                 controller.applyReplicationController(replicationController, session.getId());
                 conditions.put(1, sessionPodsReady);

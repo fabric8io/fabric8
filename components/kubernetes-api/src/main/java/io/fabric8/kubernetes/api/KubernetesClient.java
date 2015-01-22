@@ -18,6 +18,7 @@ package io.fabric8.kubernetes.api;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Filters;
+import io.fabric8.utils.Strings;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -139,6 +140,32 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Produces("application/json")
     public String deleteReplicationController(@NotNull String controllerId) throws Exception {
         return getWriteableKubernetes().deleteReplicationController(controllerId);
+    }
+
+    @Override
+    @DELETE
+    @Path("pods/{podId}")
+    @Consumes("text/plain")
+    public String deletePod(@NotNull String podId, String namespace) throws Exception {
+        return getWriteableKubernetes().deletePod(podId, namespace);
+    }
+
+    @Override
+    @DELETE
+    @Path("replicationControllers/{controllerId}")
+    @Produces("application/json")
+    @Consumes("text/plain")
+    public String deleteReplicationController(@NotNull String controllerId, String namespace) throws Exception {
+        return getWriteableKubernetes().deleteReplicationController(controllerId, namespace);
+    }
+
+    @Override
+    @DELETE
+    @Path("services/{serviceId}")
+    @Produces("application/json")
+    @Consumes("text/plain")
+    public String deleteService(@NotNull String serviceId, String namespace) throws Exception {
+        return getWriteableKubernetes().deleteService(serviceId, namespace);
     }
 
     @Path("replicationControllers")
@@ -296,6 +323,36 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
 
     // Helper methods
     //-------------------------------------------------------------------------
+    public void deletePod(Pod entity) throws Exception {
+        String id = entity.getId();
+        String namespace = entity.getNamespace();
+        if (Strings.isNotBlank(namespace)) {
+            deletePod(id, namespace);
+        } else {
+            deletePod(id);
+        }
+    }
+
+    public void deleteService(Service entity) throws Exception {
+        String id = entity.getId();
+        String namespace = entity.getNamespace();
+        if (Strings.isNotBlank(namespace)) {
+            deleteService(id, namespace);
+        } else {
+            deleteService(id);
+        }
+    }
+
+    public void deleteReplicationController(ReplicationController entity) throws Exception {
+        String id = entity.getId();
+        String namespace = entity.getNamespace();
+        if (Strings.isNotBlank(namespace)) {
+            deleteReplicationController(id, namespace);
+        } else {
+            deleteReplicationController(id);
+        }
+    }
+
     public ReplicationController getReplicationControllerForPod(String podId) {
         Pod pod = getPod(podId);
         return getReplicationControllerForPod(pod);

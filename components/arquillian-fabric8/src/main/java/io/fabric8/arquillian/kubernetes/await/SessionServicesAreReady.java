@@ -27,11 +27,8 @@ import io.fabric8.utils.Filter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
-import static io.fabric8.arquillian.kubernetes.Constants.ARQ_KEY;
 
 public class SessionServicesAreReady implements Callable<Boolean> {
 
@@ -48,8 +45,7 @@ public class SessionServicesAreReady implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
         boolean result = true;
-        Map<String, String> labels = Collections.singletonMap(ARQ_KEY, session.getId());
-        Filter<Service> serviceFilter = KubernetesHelper.createServiceFilter(labels);
+        Filter<Service> serviceFilter = session.createServiceFilter();
         List<Service> services = Util.findServices(kubernetesClient, serviceFilter);
 
         if (services.isEmpty()) {

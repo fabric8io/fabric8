@@ -16,12 +16,10 @@
 
 package io.fabric8.arquillian.kubernetes.enricher;
 
-import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.KubernetesHelper;
-import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.utils.Filter;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
@@ -30,9 +28,7 @@ import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A {@link org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider} for {@link io.fabric8.kubernetes.api.model.PodList}.
@@ -56,8 +52,7 @@ public class PodListResourceProvider implements ResourceProvider {
         KubernetesClient client = this.clientInstance.get();
         Session session = sessionInstance.get();
 
-        Map<String, String> labels = Collections.singletonMap(Constants.ARQ_KEY, session.getId());
-        Filter<Pod> podFilter = KubernetesHelper.createPodFilter(labels);
+        Filter<Pod> podFilter = session.createPodFilter();
         PodList pods = client.getPods();
         List<Pod> sessionPods = new ArrayList<>();
 

@@ -72,6 +72,20 @@ public class Conditions {
         };
     }
 
+    public static Condition<Pod> podNamespace(final String namespace) {
+        return new Condition<Pod>() {
+            @Override
+            public String toString() {
+                return "podNamespace(" + namespace + ")";
+            }
+
+            @Override
+            public boolean matches(Pod pod) {
+                return Objects.equals(namespace, pod.getNamespace());
+            }
+        };
+    }
+
 
     public static Condition<ReplicationController> replicationControllerLabel(final String key, final String value) {
         return new Condition<ReplicationController>() {

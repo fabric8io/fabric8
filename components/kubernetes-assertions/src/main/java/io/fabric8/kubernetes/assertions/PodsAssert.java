@@ -21,12 +21,14 @@ import io.fabric8.kubernetes.api.model.Pod;
 import org.assertj.core.api.Condition;
 import org.assertj.core.api.IntegerAssert;
 import org.assertj.core.api.ListAssert;
+import org.assertj.core.api.ObjectEnumerableAssert;
 import org.assertj.core.api.filter.Filters;
 import org.assertj.core.util.Lists;
 
 import java.util.List;
 
 import static io.fabric8.kubernetes.assertions.Conditions.podLabel;
+import static io.fabric8.kubernetes.assertions.Conditions.podNamespace;
 
 /**
  * Adds some extra assertion operations
@@ -64,6 +66,12 @@ public class PodsAssert extends ListAssert<Pod> {
     }
 
     /**
+     * Filters the pods using the given namespace
+     */
+    public PodsAssert filterNamespace(String namespace) {
+        return filter(podNamespace(namespace));
+    }
+    /**
      * Returns the filtered list of pods which have running status
      */
     public PodsAssert runningStatus() {
@@ -88,4 +96,5 @@ public class PodsAssert extends ListAssert<Pod> {
         List<Pod> list = Lists.newArrayList(result);
         return new PodsAssert(list);
     }
+
 }

@@ -21,18 +21,14 @@ import io.fabric8.arquillian.utils.Util;
 import io.fabric8.kubernetes.api.KubernetesClient;
 import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.PodStatus;
-import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.utils.Filter;
 import io.fabric8.utils.Objects;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-
-import static io.fabric8.arquillian.kubernetes.Constants.ARQ_KEY;
 
 public class SessionPodsAreReady implements Callable<Boolean> {
 
@@ -47,8 +43,7 @@ public class SessionPodsAreReady implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
         boolean result = true;
-        Map<String, String> labels = Collections.singletonMap(ARQ_KEY, session.getId());
-        Filter<Pod> podFilter = KubernetesHelper.createPodFilter(labels);
+        Filter<Pod> podFilter = session.createPodFilter();
         List<Pod> pods = Util.findPods(kubernetesClient, podFilter);
 
         if (pods.isEmpty()) {

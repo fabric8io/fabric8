@@ -10,7 +10,7 @@ Using this extension you can easily:
 
 [arquillian-fabric8](https://github.com/fabric8io/fabric8/tree/master/components/arquillian-fabric8) uses:
 
-* Kubnernetes to provision and orchestrate the containers
+* Kubnernetes to provision and orchestrate the containers inside a new unique namespace; so that each test case is isolated from other environments and test cases
 * [Arquillian](http://arquillian.org/) to run the JUnit tests and perform the necessary dependency injection
 * [kubernetes-assertions](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions) and [jolokia-assertions](https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions) to provide assertions within the JUnit test case.
 
@@ -19,8 +19,8 @@ Using this extension you can easily:
 The kubernetes configuration is applied once per test suite. This means that the environment is getting created once per test suite and then multiple test cases are run against that enviornment.
 To encapsulate everything that has been applied to kubernetes as part of the current test suite, the notion of "session" is used.
 
-In order to distinguish which pods, services and replication controllers have been created as part of the testing session, anything that is created using the arquillian extension, will be added a label with key arquillian and a unique session id.
-This label is also going to be used to cleanup everything after the end of the suite or upon termination of the process.
+In order to distinguish which pods, services and replication controllers have been created as part of the testing session, anything that is created using the arquillian extension, will be created inside a unique namespace per session.
+This namespace is also going to be used to cleanup everything after the end of the suite or upon termination of the process.
 
 The Session is also made available to the test cases as an arquillian resource _(see below)_.
 
@@ -34,7 +34,7 @@ To do that, the test needs to have access to information like:
 * Pods
 * Services
 * Replication Controllers
-* Session Id
+* Session Namespace
 
 Each of the items above is made available to the test as an arquillian resource. 
 
@@ -52,7 +52,7 @@ To obtain the list of all services created in the current session:
         io.fabric8.kubernetes.api.model.ServiceList sessionServices;
 
 
-To obtain a refernce to a particular service created in the current session:
+To obtain a reference to a particular service created in the current session:
 
 
         @Id("my-service-id")

@@ -159,6 +159,11 @@ public interface Kubernetes {
     @Consumes("text/plain")
     String deletePod(@PathParam("podId") @NotNull String podId) throws Exception;
 
+    @DELETE
+    @Path("pods/{podId}")
+    @Consumes("text/plain")
+    String deletePod(@PathParam("podId") @NotNull String podId, @QueryParam("namespace") String namespace) throws Exception;
+
 
     /**
      * List all services on this cluster
@@ -236,6 +241,12 @@ public interface Kubernetes {
     @Produces("application/json")
     @Consumes("text/plain")
     String deleteService(@PathParam("serviceId") @NotNull String serviceId) throws Exception;
+
+    @DELETE
+    @Path("services/{serviceId}")
+    @Produces("application/json")
+    @Consumes("text/plain")
+    String deleteService(@PathParam("serviceId") @NotNull String serviceId, @QueryParam("namespace") String namespace) throws Exception;
 
 
     /**
@@ -336,6 +347,17 @@ public interface Kubernetes {
     @Produces("application/json")
     @Consumes("text/plain")
     String deleteReplicationController(@PathParam("controllerId") @NotNull String controllerId) throws Exception;
+
+    /**
+     * Delete a specific controller
+     *
+     * @param controllerId
+     */
+    @DELETE
+    @Path("replicationControllers/{controllerId}")
+    @Produces("application/json")
+    @Consumes("text/plain")
+    String deleteReplicationController(@PathParam("controllerId") @NotNull String controllerId, @QueryParam("namespace") String namespace) throws Exception;
 
     /**
      * List all service endpoints on this cluster

@@ -16,11 +16,9 @@
 
 package io.fabric8.arquillian.utils;
 
-import io.fabric8.arquillian.kubernetes.Constants;
 import io.fabric8.arquillian.kubernetes.Session;
 import io.fabric8.arquillian.kubernetes.log.Logger;
 import io.fabric8.kubernetes.api.KubernetesClient;
-import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.ReplicationController;
@@ -41,16 +39,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
+import static io.fabric8.arquillian.kubernetes.Constants.DEFAULT_CONFIG_FILE_NAME;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPort;
 import static io.fabric8.kubernetes.api.KubernetesHelper.getPortalIP;
-import static io.fabric8.arquillian.kubernetes.Constants.*;
 import static io.fabric8.utils.Lists.notNullList;
 
 public class Util {
@@ -69,10 +65,9 @@ public class Util {
     }
 
     public static void displaySessionStatus(KubernetesClient client, Session session) throws MultiException {
-        Map<String, String> labels = Collections.singletonMap(Constants.ARQ_KEY, session.getId());
-        Filter<Pod> podFilter = KubernetesHelper.createPodFilter(labels);
-        Filter<Service> serviceFilter = KubernetesHelper.createServiceFilter(labels);
-        Filter<ReplicationController> replicationControllerFilter = KubernetesHelper.createReplicationControllerFilter(labels);
+        Filter<Pod> podFilter = session.createPodFilter();
+        Filter<Service> serviceFilter = session.createServiceFilter();
+        Filter<ReplicationController> replicationControllerFilter = session.createReplicationControllerFilter();
 
         for (ReplicationController replicationController : client.getReplicationControllers().getItems()) {
             if (replicationControllerFilter.matches(replicationController)) {
@@ -96,17 +91,16 @@ public class Util {
 
     public static void cleanupSession(KubernetesClient client, Session session) throws MultiException {
         List<Throwable> errors = new ArrayList<>();
-        cleanupAllMatching(client, Constants.ARQ_KEY, session, errors);
+        cleanupAllMatching(client, session, errors);
         if (!errors.isEmpty()) {
             throw new MultiException("Error while cleaning up session.", errors);
         }
     }
 
-    public static void cleanupAllMatching(KubernetesClient client, String key, Session session, List<Throwable> errors) throws MultiException {
-        Map<String, String> labels = Collections.singletonMap(key, session.getId());
-        Filter<Pod> podFilter = KubernetesHelper.createPodFilter(labels);
-        Filter<Service> serviceFilter = KubernetesHelper.createServiceFilter(labels);
-        Filter<ReplicationController> replicationControllerFilter = KubernetesHelper.createReplicationControllerFilter(labels);
+    public static void cleanupAllMatching(KubernetesClient client, Session session, List<Throwable> errors) throws MultiException {
+        Filter<Pod> podFilter = session.createPodFilter();
+        Filter<Service> serviceFilter = session.createServiceFilter();
+        Filter<ReplicationController> replicationControllerFilter = session.createReplicationControllerFilter();
 
         /**
          * Lets use a loop to ensure we really do delete all the matching resources
@@ -162,7 +156,7 @@ public class Util {
             if (filter.matches(pod)) {
                 try {
                     logger.info("Deleting pod:" + getId(pod));
-                    client.deletePod(getId(pod));
+                    client.deletePod(pod);
                 } catch (Exception e) {
                     errors.add(e);
                 }
@@ -189,7 +183,7 @@ public class Util {
             if (filter.matches(service)) {
                 try {
                     logger.info("Deleting service:" + getId(service));
-                    client.deleteService(getId(service));
+                    client.deleteService(service);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -216,7 +210,7 @@ public class Util {
             if (filter.matches(replicationController)) {
                 try {
                     logger.info("Deleting replication controller:" + getId(replicationController));
-                    client.deleteReplicationController(getId(replicationController));
+                    client.deleteReplicationController(replicationController);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

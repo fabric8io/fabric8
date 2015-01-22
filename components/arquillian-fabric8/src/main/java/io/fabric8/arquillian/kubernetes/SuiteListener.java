@@ -43,6 +43,8 @@ public class SuiteListener {
     private Session session;
 
     public void start(@Observes(precedence = 100) BeforeSuite event, Logger logger) {
+        // TODO should the test ID include the test class, method, user?
+        // Or do we associate those things later on with the namespace object metadata?
         UUID uuid = UUID.randomUUID();
         session = new Session(uuid.toString(), logger);
         session.init();
