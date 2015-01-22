@@ -27,6 +27,31 @@ And of course flags can be combined. To start from scratch & update all images a
 
     bash <(curl -sSL https://bit.ly/get-fabric8) -fku
 
+#### Making sure you can access the IP addresses of services and pods from your host
+
+If you run the above on boot2docker, vagrant or VMware and want to access the console and other services from your laptop then try the following.
+
+First make sure that the environment variable **DOCKER_IP** points to the IP address where docker is running in the above script.
+
+On windows or a Mac and running directly with docker:
+
+    export DOCKER_IP=`boot2docker ip 2> /dev/null`
+
+Or if you are using the fabric8 vagrant image then run:
+
+    export DOCKER_IP=172.28.128.4
+
+If you are on linux and running everything on linux then try this (though TBH you should probably be able to see the IP addresses already)
+
+    export DOCKER_IP=127.0.0.1
+
+Then you should be able to add a network route so you can see the 172.X.X.X IP addresses:
+
+    sudo route -n delete 172.0.0.0/8
+    sudo route -n add 172.0.0.0/8 $DOCKER_IP
+
+you should now be able to access IP addresses within kubernetes starting with "172."
+
 #### Trouble shooting boot2docker
 
 If you are using OS X or a Mac and using boot2docker then sometimes you might see that boot2docker struggles to see index.docker.io when downloading images due to DNS issues. A [work around](http://stackoverflow.com/questions/24060099/docker-failed-to-pull-images-from-registry) is as follows:
