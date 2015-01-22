@@ -55,14 +55,13 @@ public class SessionListener {
 
     public void start(final @Observes Start event, final KubernetesClient client, Controller controller, Configuration configuration) throws Exception {
         Session session = event.getSession();
-        Logger log = session.getLogger();
+        final Logger log = session.getLogger();
         String namespace = session.getNamespace();
 
         log.status("Creating kubernetes resources inside namespace: " + namespace);
         log.info("if you use a kubernetes CLI type this to switch namespaces: kube ns " + namespace);
         controller.setNamespace(namespace);
 
-        final Logger log = session.getLogger();
         shutdownHook = new ShutdownHook(client, session);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
 
