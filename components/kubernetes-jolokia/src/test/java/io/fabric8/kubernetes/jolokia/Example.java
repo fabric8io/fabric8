@@ -53,7 +53,7 @@ public class Example {
     }
 
     public void findPods(String selector) {
-        Map<String, Pod> podMap = KubernetesHelper.getPodMap(kubernetes, selector);
+        Map<String, Pod> podMap = KubernetesHelper.getSelectedPodMap(kubernetes, selector);
         Collection<Pod> pods = podMap.values();
         for (Pod pod : pods) {
             String host = KubernetesHelper.getHost(pod);
@@ -79,7 +79,7 @@ public class Example {
     }
 
     public void findReplicationControllers(String selector) {
-        Map<String, ReplicationController> replicationControllerMap = KubernetesHelper.getReplicationControllerMap(kubernetes, selector);
+        Map<String, ReplicationController> replicationControllerMap = KubernetesHelper.getSelectedReplicationControllerMap(kubernetes, selector);
         Collection<ReplicationController> replicationControllers = replicationControllerMap.values();
         for (ReplicationController replicationController : replicationControllers) {
             System.out.println("" + getId(replicationController));

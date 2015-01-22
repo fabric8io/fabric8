@@ -124,7 +124,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @DELETE
     @Path("pods/{podId}")
     public String deletePod(@NotNull String podId) throws Exception {
-        return getKubernetes(true).deletePod(podId);
+        return getWriteableKubernetes().deletePod(podId);
     }
 
     @GET
@@ -138,7 +138,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("replicationControllers/{controllerId}")
     @Produces("application/json")
     public String deleteReplicationController(@NotNull String controllerId) throws Exception {
-        return getKubernetes(true).deleteReplicationController(controllerId);
+        return getWriteableKubernetes().deleteReplicationController(controllerId);
     }
 
     @Path("replicationControllers")
@@ -152,14 +152,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("replicationControllers/{controllerId}")
     @Consumes("application/json")
     public String updateReplicationController(@NotNull String controllerId, ReplicationController entity) throws Exception {
-        return getKubernetes(true).updateReplicationController(controllerId, entity);
+        return getWriteableKubernetes().updateReplicationController(controllerId, entity);
     }
 
     @PUT
     @Path("services/{serviceId}")
     @Consumes("application/json")
     public String updateService(@NotNull String serviceId, Service entity) throws Exception {
-        return getKubernetes(true).updateService(serviceId, entity);
+        return getWriteableKubernetes().updateService(serviceId, entity);
     }
 
     @GET
@@ -173,14 +173,14 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("services/{serviceId}")
     @Produces("application/json")
     public String deleteService(@NotNull String serviceId) throws Exception {
-        return getKubernetes(true).deleteService(serviceId);
+        return getWriteableKubernetes().deleteService(serviceId);
     }
 
     @Path("services")
     @POST
     @Consumes("application/json")
     public String createService(Service entity) throws Exception {
-        return getKubernetes(true).createService(entity);
+        return getWriteableKubernetes().createService(entity);
     }
 
     @GET
@@ -193,7 +193,7 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("pods/{podId}")
     @Consumes("application/json")
     public String updatePod(@NotNull String podId, Pod entity) throws Exception {
-        return getKubernetes(true).updatePod(podId, entity);
+        return getWriteableKubernetes().updatePod(podId, entity);
     }
 
     @Path("services")
@@ -207,14 +207,38 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Path("pods")
     @Consumes("application/json")
     public String createPod(Pod entity) throws Exception {
-        return getKubernetes(true).createPod(entity);
+        return getWriteableKubernetes().createPod(entity);
+    }
+
+    @Override
+    @POST
+    @Path("pods")
+    @Consumes("application/json")
+    public String createPod(Pod entity, String namespace) throws Exception {
+        return getWriteableKubernetes().createPod(entity, namespace);
+    }
+
+    @Override
+    @Path("replicationControllers")
+    @POST
+    @Consumes("application/json")
+    public String createReplicationController(ReplicationController entity, String namespace) throws Exception {
+        return getWriteableKubernetes().createReplicationController(entity, namespace);
+    }
+
+    @Override
+    @Path("services")
+    @POST
+    @Consumes("application/json")
+    public String createService(Service entity, String namespace) throws Exception {
+        return getWriteableKubernetes().createService(entity, namespace);
     }
 
     @Path("replicationControllers")
     @POST
     @Consumes("application/json")
     public String createReplicationController(ReplicationController entity) throws Exception {
-        return getKubernetes(true).createReplicationController(entity);
+        return getWriteableKubernetes().createReplicationController(entity);
     }
 
     @Override
@@ -352,6 +376,10 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         } else {
             return getPodsForService(service);
         }
+    }
+
+    protected Kubernetes getWriteableKubernetes() {
+        return getKubernetes(true);
     }
 
     protected Collection<Pod> getPodList() {

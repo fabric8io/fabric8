@@ -87,7 +87,7 @@ public class Example {
         manifest.setContainers(containers);
 
         System.out.println("About to create pod on " + kubernetesFactory.getAddress() + " with " + pod);
-        kubernetes.createPod(pod);
+        kubernetes.createPod(pod, "mynamespace");
         System.out.println("Created pod: " + name);
         System.out.println();
     }

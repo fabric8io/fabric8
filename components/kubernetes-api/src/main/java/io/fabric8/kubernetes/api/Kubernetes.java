@@ -94,6 +94,11 @@ public interface Kubernetes {
     @Consumes("application/json")
     String createPod(Pod entity) throws Exception;
 
+    @POST
+    @Path("pods")
+    @Consumes("application/json")
+    String createPod(Pod entity, @QueryParam("namespace") String namespace) throws Exception;
+
     /**
      * Get a specific pod
      *
@@ -184,6 +189,11 @@ public interface Kubernetes {
     @Consumes("application/json")
     String createService(Service entity) throws Exception;
 
+    @Path("services")
+    @POST
+    @Consumes("application/json")
+    String createService(Service entity, @QueryParam("namespace") String namespace) throws Exception;
+
     /**
      * Get a specific service
      *
@@ -267,6 +277,11 @@ public interface Kubernetes {
     @POST
     @Consumes("application/json")
     String createReplicationController(ReplicationController entity) throws Exception;
+
+    @Path("replicationControllers")
+    @POST
+    @Consumes("application/json")
+    String createReplicationController(ReplicationController entity, @QueryParam("namespace") String namespace) throws Exception;
 
     /**
      * Get a specific controller

@@ -21,6 +21,7 @@ import io.fabric8.kubernetes.api.model.ReplicationController;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
+import io.fabric8.utils.Strings;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +36,9 @@ import java.util.List;
 import java.util.Map;
 
 import static io.fabric8.kubernetes.api.KubernetesHelper.getId;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getPodMap;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getReplicationControllerMap;
-import static io.fabric8.kubernetes.api.KubernetesHelper.getServiceMap;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getNamespacePodMap;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getNamespaceReplicationControllerMap;
+import static io.fabric8.kubernetes.api.KubernetesHelper.getNamespaceServiceMap;
 import static io.fabric8.kubernetes.api.KubernetesHelper.loadJson;
 
 /**
@@ -50,6 +51,7 @@ public class Controller {
     private Map<String, Pod> podMap = null;
     private Map<String, ReplicationController> replicationControllerMap = null;
     private Map<String, Service> serviceMap = null;
+    private String namespace;
 
     public Controller() {
         this(new KubernetesClient());
@@ -235,7 +237,7 @@ public class Controller {
 
     public void applyService(Service serviceSchema, String sourceName) {
         if (serviceMap == null) {
-            serviceMap = getServiceMap(kubernetes);
+            serviceMap = getNamespaceServiceMap(kubernetes, namespace);
         }
         String id = getId(serviceSchema);
         Service old = serviceMap.get(id);
@@ -250,7 +252,12 @@ public class Controller {
         } else {
             LOG.info("Creating a service from " + sourceName);
             try {
-                Object answer = kubernetes.createService(serviceSchema);
+                Object answer;
+                if (Strings.isNotBlank(namespace)) {
+                    answer = kubernetes.createService(serviceSchema, namespace);
+                } else {
+                    answer = kubernetes.createService(serviceSchema);
+                }
                 LOG.info("Created service: " + answer);
             } catch (Exception e) {
                 LOG.error("Failed to create controller from " + sourceName + ". " + e + ". " + serviceSchema, e);
@@ -260,7 +267,7 @@ public class Controller {
 
     public void applyReplicationController(ReplicationController replicationControllerSchema, String sourceName) {
         if (replicationControllerMap == null) {
-            replicationControllerMap = getReplicationControllerMap(kubernetes);
+            replicationControllerMap = getNamespaceReplicationControllerMap(kubernetes, namespace);
         }
         String id = getId(replicationControllerSchema);
         ReplicationController old = replicationControllerMap.get(id);
@@ -275,7 +282,12 @@ public class Controller {
         } else {
             LOG.info("Creating a replicationController from " + sourceName);
             try {
-                Object answer = kubernetes.createReplicationController(replicationControllerSchema);
+                Object answer;
+                if (Strings.isNotBlank(namespace)) {
+                    answer = kubernetes.createReplicationController(replicationControllerSchema, namespace);
+                } else {
+                    answer = kubernetes.createReplicationController(replicationControllerSchema);
+                }
                 LOG.info("Created replicationController: " + answer);
             } catch (Exception e) {
                 LOG.error("Failed to create replicationController from " + sourceName + ". " + e + ". " + replicationControllerSchema, e);
@@ -285,7 +297,7 @@ public class Controller {
 
     public void applyPod(Pod podSchema, String sourceName) {
         if (podMap == null) {
-            podMap = getPodMap(kubernetes);
+            podMap = getNamespacePodMap(kubernetes, namespace);
         }
         String id = getId(podSchema);
         Pod old = podMap.get(id);
@@ -300,12 +312,25 @@ public class Controller {
         } else {
             LOG.info("Creating a pod from " + sourceName);
             try {
-                Object answer = kubernetes.createPod(podSchema);
+                Object answer;
+                if (Strings.isNotBlank(namespace)) {
+                    answer = kubernetes.createPod(podSchema, namespace);
+                } else {
+                    answer = kubernetes.createPod(podSchema);
+                }
                 LOG.info("Created pod result: " + answer);
             } catch (Exception e) {
                 LOG.error("Failed to create pod from " + sourceName + ". " + e + ". " + podSchema, e);
             }
         }
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 
     protected boolean isRunning(Pod entity) {
