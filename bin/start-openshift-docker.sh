@@ -112,9 +112,11 @@ export KUBERNETES_MASTER=http://$DOCKER_IP:8080
 export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
 
 # using an env var but ideally we'd use an alias ;)
-KUBE="docker run --rm -i --net=host ${OPENSHIFT_IMAGE} cli"
+KUBE="docker run --rm -i --net=host ${OPENSHIFT_IMAGE} cli --insecure-skip-tls-verify=true"
 
 OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host ${OPENSHIFT_IMAGE} start --cors-allowed-origins=.*)
+
+sleep 10
 
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   # Have to run it privileged otherwise not working on CentOS7
@@ -174,7 +176,7 @@ validateService()
 {
   echo "Waiting for $1"
   while true; do
-    curl -s -o /dev/null --connect-timeout 1 $2 && break || sleep 1
+    curl -k -s -o /dev/null --connect-timeout 1 $2 && break || sleep 1
   done
 }
 

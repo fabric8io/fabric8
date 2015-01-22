@@ -32,6 +32,10 @@
                     {
                       "name": "DOCKER_REGISTRY",
                       "value": "$REGISTRY_SERVICE_HOST:$REGISTRY_SERVICE_PORT"
+                    },
+                    {
+                      "name": "KUBERNETES_TRUST_CERT",
+                      "value": "true"
                     }
                   ],
                   "ports": [
