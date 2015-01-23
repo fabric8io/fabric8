@@ -1,5 +1,5 @@
 /**
- *  Copyright 2005-2014 Red Hat, Inc.
+ *  Copyright 2005-2015 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -13,7 +13,6 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-
 @XmlSchema(namespace = "http://maven.apache.org/plugins/maven-archetype-plugin/archetype-catalog/1.0.0",
     elementFormDefault = XmlNsForm.QUALIFIED,
     xmlns = {
