@@ -36,6 +36,10 @@
                     {
                       "name": "KUBERNETES_TRUST_CERT",
                       "value": "true"
+                    },
+                    {
+                      "name": "PROXY_DISABLE_CERT_VALIDATION",
+                      "value": "true"
                     }
                   ],
                   "ports": [
