@@ -29,13 +29,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,14 +76,14 @@ public class KubernetesFactory {
     }
 
     public KubernetesFactory(String address, boolean writeable) {
-        initAddress(address, writeable);
         init();
+        initAddress(address, writeable);
     }
 
     public KubernetesFactory(String address, boolean writeable, boolean verifyAddress) {
         this.verifyAddress = verifyAddress;
-        initAddress(address, writeable);
         init();
+        initAddress(address, writeable);
     }
 
     protected void initAddress(String address, boolean writeable) {
@@ -205,64 +201,24 @@ public class KubernetesFactory {
     public void setAddress(String address) {
         this.address = address;
         if (Strings.isNullOrBlank(address)) {
-            findKubernetesMaster();
+            this.address = findKubernetesMaster();
         }
 
         if (verifyAddress) {
             try {
-                validateKubernetesMaster();
-            } catch (SSLHandshakeException e) {
-                log.error("SSL handshake failed - this probably means that you need to trust the kubernetes SSL certificate or set the environment variable " + KUBERNETES_TRUST_ALL_CERIFICATES, e);
-                throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
-            } catch (SSLProtocolException e) {
-                log.error("SSL protocol error", e);
-                throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
-            } catch (SSLKeyException e) {
-                log.error("Bad SSL key", e);
-                throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
-            } catch (SSLPeerUnverifiedException e) {
-                log.error("Could not verify server", e);
-                throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
-            } catch (SSLException e) {
-                log.warn("Address does not appear to be SSL-enabled - falling back to http", e);
-                setAddress(address.replaceFirst("https", "http"));
-            } catch (IOException e) {
-                log.warn("Failed to validate kubernetes master address", e);
-                throw new IllegalArgumentException("Invalid kubernetes master address: " + address, e);
+                URL url = new URL(this.address);
+                if (KubernetesHelper.isServiceSsl(url.getHost(), url.getPort(), trustAllCerts)) {
+                    this.address = "https://" + url.getHost() + ":" + url.getPort();
+                } else {
+                    this.address = "http://" + url.getHost() + ":" + url.getPort();
+                }
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException("Invalid kubernetes master address", e);
             }
         }
     }
 
-    protected void validateKubernetesMaster() throws IOException {
-        URL url = new URL(address);
-        switch (url.getProtocol()) {
-            case "http":
-                URLConnection connection = url.openConnection();
-                connection.connect();
-                break;
-            case "https":
-                SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-                SSLSocket sslsocket = (SSLSocket) sslsocketfactory.createSocket(url.getHost(), url.getPort());
-                try {
-
-                    InputStream in = sslsocket.getInputStream();
-                    OutputStream out = sslsocket.getOutputStream();
-
-                    // Write a test byte to get a reaction :)
-                    out.write(1);
-
-                    while (in.available() > 0) {
-                        System.out.print(in.read());
-                    }
-                } finally {
-                    sslsocket.close();
-                }
-                break;
-        }
-    }
-
     // Helpers
-
     public static String resolveHttpKubernetesMaster() {
         return resolveHttpKubernetesMaster(false);
     }
@@ -270,7 +226,7 @@ public class KubernetesFactory {
     public static String resolveHttpKubernetesMaster(boolean writeable) {
         String kubernetesMaster = resolveKubernetesMaster(writeable);
         if (kubernetesMaster.startsWith("tcp:")) {
-            return "http:" + kubernetesMaster.substring(4);
+            return "https:" + kubernetesMaster.substring(4);
         }
         return kubernetesMaster;
     }
@@ -282,11 +238,10 @@ public class KubernetesFactory {
     public static String resolveKubernetesMaster(boolean writeable) {
         String hostEnvVar = KUBERNETES_RO_SERVICE_HOST_ENV_VAR;
         String portEnvVar = KUBERNETES_RO_SERVICE_PORT_ENV_VAR;
-        String proto = "http";
+        String proto = "https";
         if (writeable) {
             hostEnvVar = KUBERNETES_SERVICE_HOST_ENV_VAR;
             portEnvVar = KUBERNETES_SERVICE_PORT_ENV_VAR;
-            proto = "https";
         }
 
         // First let's check if it's available as a kubernetes service like it should be...
@@ -337,24 +292,71 @@ public class KubernetesFactory {
             conduit.setTlsClientParameters(params);
         }
 
-        params.setTrustManagers(new TrustManager[]{new X509TrustManager() {
-            @Override
-            public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-
-            }
-
-            @Override
-            public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-
-            }
-
-            @Override
-            public X509Certificate[] getAcceptedIssuers() {
-                return new X509Certificate[0];
-            }
-        }});
+        params.setTrustManagers(new TrustManager[]{new TrustEverythingSSLTrustManager()});
 
         params.setDisableCNCheck(true);
+    }
+
+    public static class TrustEverythingSSLTrustManager implements X509TrustManager {
+
+        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+            return null;
+        }
+
+        public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+            //No need to implement.
+        }
+
+        public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+            //No need to implement.
+        }
+
+        private static SSLSocketFactory socketFactory = null;
+
+        /**
+         * Returns an SSLSocketFactory that will trust all SSL certificates; this is suitable for passing to
+         * HttpsURLConnection, either to its instance method setSSLSocketFactory, or to its static method
+         * setDefaultSSLSocketFactory.
+         * @see HttpsURLConnection#setSSLSocketFactory(SSLSocketFactory)
+         * @see HttpsURLConnection#setDefaultSSLSocketFactory(SSLSocketFactory)
+         * @return SSLSocketFactory suitable for passing to HttpsUrlConnection
+         */
+        public synchronized static SSLSocketFactory getTrustingSSLSocketFactory() {
+            if (socketFactory != null) return socketFactory;
+            TrustManager[] trustManagers = new TrustManager[] { new TrustEverythingSSLTrustManager() };
+            SSLContext sc;
+            try {
+                sc = SSLContext.getInstance("SSL");
+                sc.init(null, trustManagers, null);
+            } catch (GeneralSecurityException e) {
+                throw new RuntimeException("This is a BUG", e);
+            }
+            socketFactory = sc.getSocketFactory();
+            return socketFactory;
+        }
+
+        /** Automatically trusts all SSL certificates in the current process; this is dangerous.  You should
+         * probably prefer to configure individual HttpsURLConnections with trustAllSSLCertificates
+         * @see #trustAllSSLCertificates(HttpsURLConnection)
+         */
+        public static void trustAllSSLCertificatesUniversally() {
+            getTrustingSSLSocketFactory();
+            HttpsURLConnection.setDefaultSSLSocketFactory(socketFactory);
+        }
+
+        /** Configures a single HttpsURLConnection to trust all SSL certificates.
+         *
+         * @param connection an HttpsURLConnection which will be configured to trust all certs
+         */
+        public static void trustAllSSLCertificates(HttpsURLConnection connection) {
+            getTrustingSSLSocketFactory();
+            connection.setSSLSocketFactory(socketFactory);
+            connection.setHostnameVerifier(new HostnameVerifier() {
+                public boolean verify(String s, SSLSession sslSession) {
+                    return true;
+                }
+            });
+        }
     }
 
 }

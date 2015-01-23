@@ -15,44 +15,6 @@
  */
 package io.fabric8.kubernetes.api;
 
-import static io.fabric8.utils.Lists.notNullList;
-import static io.fabric8.utils.Strings.isNullOrBlank;
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerManifest;
-import io.fabric8.kubernetes.api.model.ContainerStatus;
-import io.fabric8.kubernetes.api.model.IntOrString;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.api.model.PodState;
-import io.fabric8.kubernetes.api.model.PodTemplate;
-import io.fabric8.kubernetes.api.model.Port;
-import io.fabric8.kubernetes.api.model.ReplicationController;
-import io.fabric8.kubernetes.api.model.ReplicationControllerList;
-import io.fabric8.kubernetes.api.model.ReplicationControllerState;
-import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceList;
-import io.fabric8.utils.Files;
-import io.fabric8.utils.Filter;
-import io.fabric8.utils.Filters;
-import io.fabric8.utils.Objects;
-import io.fabric8.utils.Strings;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,6 +22,21 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.utils.*;
+import io.fabric8.utils.Objects;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.*;
+import java.io.*;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.*;
+
+import static io.fabric8.utils.Lists.notNullList;
+import static io.fabric8.utils.Strings.isNullOrBlank;
 
 /*
 TODO Config
@@ -933,10 +910,12 @@ public class KubernetesHelper {
                     if (port != null && port > 0) {
                         portalIP += ":" + port;
                     }
+                    String protocol = "http://";
+                    if (KubernetesHelper.isServiceSsl(spec.getPortalIP(), port, Boolean.valueOf(System.getenv(KubernetesFactory.KUBERNETES_TRUST_ALL_CERIFICATES)))) {
+                        protocol = "https://";
+                    }
+                    return protocol + portalIP;
                 }
-                // TODO use metadata on a service to decide if its HTTP or HTTPS?
-                String protocol = "http://";
-                return protocol + portalIP;
             }
         }
         return null;
@@ -1079,5 +1058,50 @@ public class KubernetesHelper {
         Map<String, String> selector = getSelector(service);
         Filter<Pod> podFilter = KubernetesHelper.createPodFilter(selector);
         return Filters.filter(pods, podFilter);
+    }
+
+    public static boolean isServiceSsl(String host, int port, boolean trustAllCerts) {
+        try {
+            SSLSocketFactory sslsocketfactory = null;
+            if (trustAllCerts) {
+                sslsocketfactory = KubernetesFactory.TrustEverythingSSLTrustManager.getTrustingSSLSocketFactory();
+            } else {
+                sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            }
+
+            Socket socket = sslsocketfactory.createSocket();
+
+            // Connect, with an explicit timeout value
+            socket.connect(new InetSocketAddress(host, port), 1 * 1000);
+            try {
+
+                InputStream in = socket.getInputStream();
+                OutputStream out = socket.getOutputStream();
+
+                // Write a test byte to get a reaction :)
+                out.write(1);
+
+                while (in.available() > 0) {
+                    System.out.print(in.read());
+                }
+
+                return true;
+            } finally {
+                socket.close();
+            }
+        } catch (SSLHandshakeException e) {
+            LOG.error("SSL handshake failed - this probably means that you need to trust the kubernetes root SSL certificate or set the environment variable " + KubernetesFactory.KUBERNETES_TRUST_ALL_CERIFICATES, e);
+        } catch (SSLProtocolException e) {
+            LOG.error("SSL protocol error", e);
+        } catch (SSLKeyException e) {
+            LOG.error("Bad SSL key", e);
+        } catch (SSLPeerUnverifiedException e) {
+            LOG.error("Could not verify server", e);
+        } catch (SSLException e) {
+            LOG.warn("Address does not appear to be SSL-enabled - falling back to http", e);
+        } catch (IOException e) {
+            LOG.warn("Failed to validate service", e);
+        }
+        return false;
     }
 }

@@ -107,16 +107,22 @@ if [[ $OSTYPE == darwin* ]]; then
 fi
 
 export DOCKER_IP=${DOCKER_IP:-127.0.0.1}
-export DOCKER_REGISTRY=$DOCKER_IP:5000
-export KUBERNETES_MASTER=http://$DOCKER_IP:8080
-export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
+export KUBERNETES=http://$DOCKER_IP:8443
 
 # using an env var but ideally we'd use an alias ;)
 KUBE="docker run --rm -i --net=host ${OPENSHIFT_IMAGE} cli --insecure-skip-tls-verify=true"
 
 OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host ${OPENSHIFT_IMAGE} start --cors-allowed-origins=.*)
 
-sleep 10
+validateService()
+{
+  echo "Waiting for $1"
+  while true; do
+    curl -k -s -o /dev/null --connect-timeout 1 $2 && break || sleep 1
+  done
+}
+
+validateService "Kubernetes master" $KUBERNETES
 
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   # Have to run it privileged otherwise not working on CentOS7
@@ -169,23 +175,13 @@ INFLUXDB=http://$(getServiceIpAndPort "$K8S_SERVICES" influxdb-service)
 ELASTICSEARCH=http://$(getServiceIpAndPort "$K8S_SERVICES" elasticsearch)
 KIBANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" kibana-service)
 GRAFANA_CONSOLE=http://$(getServiceIpAndPort "$K8S_SERVICES" grafana-service)
-KUBERNETES=http://$DOCKER_IP:8080
 CADVISOR=http://$DOCKER_IP:4194
-
-validateService()
-{
-  echo "Waiting for $1"
-  while true; do
-    curl -k -s -o /dev/null --connect-timeout 1 $2 && break || sleep 1
-  done
-}
 
 validateService "Fabric8 console" $FABRIC8_CONSOLE
 if [ ${DEPLOY_ALL} -eq 1 ]; then
   validateService "Docker registry" $DOCKER_REGISTRY
   validateService "Influxdb" $INFLUXDB
   validateService "Elasticsearch" $ELASTICSEARCH
-  validateService "Kubernetes master" $KUBERNETES
   validateService "cadvisor" $CADVISOR
   validateService "Kibana console" $KIBANA_CONSOLE
   validateService "Grafana console" $GRAFANA_CONSOLE
