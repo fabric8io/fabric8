@@ -1,6 +1,6 @@
 <!--
 
-     Copyright 2005-2014 Red Hat, Inc.
+     Copyright 2005-2015 Red Hat, Inc.
 
      Red Hat licenses this file to you under the Apache License, version
      2.0 (the "License"); you may not use this file except in compliance
@@ -3718,9 +3718,9 @@
         <profile>
             <!--
                 Do a license check by running:
-                    mvn -Pall,ts.all,license com.mycila:license-maven-plugin:check
+                    mvn -Psite,ts.all,docker,ts.autoscale,license com.mycila:license-maven-plugin:check
                 Update the licenses by running:
-                    mvn -Pall,ts.all,license com.mycila:license-maven-plugin:format
+                    mvn -Psite,ts.all,docker,ts.autoscale,license com.mycila:license-maven-plugin:format
             -->
             <id>license</id>
             <build>
