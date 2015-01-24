@@ -1177,9 +1177,9 @@ public class KubernetesHelper {
         } catch (SSLPeerUnverifiedException e) {
             LOG.error("Could not verify server", e);
         } catch (SSLException e) {
-            LOG.warn("Address does not appear to be SSL-enabled - falling back to http", e);
+            LOG.debug("Address does not appear to be SSL-enabled - falling back to http", e);
         } catch (IOException e) {
-            LOG.warn("Failed to validate service", e);
+            LOG.debug("Failed to validate service", e);
         }
         return false;
     }
