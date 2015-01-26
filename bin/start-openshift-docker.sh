@@ -100,9 +100,9 @@ if [[ $OSTYPE == darwin* ]]; then
       export DOCKER_IP=`boot2docker ip 2> /dev/null`
     fi
 
-    echo "Adding network routes to 172.17.0.0/24, 172.30.0.0/24 & 172.121.17.0/24 via $DOCKER_IP so that the host operating system can see pods and services inside OpenShift"
+    echo "Adding network routes to 172.17.0.0/24, 172.30.17.0/24 & 172.121.17.0/24 via $DOCKER_IP so that the host operating system can see pods and services inside OpenShift"
     sudo route -n add 172.17.0.0/24 $DOCKER_IP
-    sudo route -n add 172.30.0.0/24 $DOCKER_IP
+    sudo route -n add 172.30.17.0/24 $DOCKER_IP
     sudo route -n add 172.121.17.0/24 $DOCKER_IP
 fi
 
@@ -112,7 +112,7 @@ export KUBERNETES=http://$DOCKER_IP:8443
 # using an env var but ideally we'd use an alias ;)
 KUBE="docker run --rm -i --net=host ${OPENSHIFT_IMAGE} cli --insecure-skip-tls-verify=true"
 
-OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host ${OPENSHIFT_IMAGE} start --cors-allowed-origins=.*)
+OPENSHIFT_CONTAINER=$(docker run -d --name=openshift -v /var/run/docker.sock:/var/run/docker.sock --privileged --net=host ${OPENSHIFT_IMAGE} start --portal-net='172.30.17.0/24' --cors-allowed-origins='.*')
 
 validateService()
 {
