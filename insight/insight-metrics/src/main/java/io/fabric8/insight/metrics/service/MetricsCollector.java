@@ -27,23 +27,19 @@ import io.fabric8.groups.NodeState;
 import io.fabric8.groups.internal.TrackingZooKeeperGroup;
 import io.fabric8.insight.metrics.model.*;
 import io.fabric8.insight.metrics.service.support.JmxUtils;
-import io.fabric8.service.LocalJMXConnector;
 import org.apache.felix.scr.annotations.*;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.JMException;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.concurrent.*;
@@ -348,17 +344,17 @@ public class MetricsCollector implements MetricsCollectorMBean {
                 Subject subject = new Subject();
                 subject.getPrincipals().add(new RolePrincipal("admin"));
 
-                QueryResult qrs = Subject.doAsPrivileged(subject, new PrivilegedAction<QueryResult>() {
+                QueryResult qrs = Subject.doAs(subject, new PrivilegedAction<QueryResult>() {
                     @Override
                     public QueryResult run() {
                         try {
                             return JmxUtils.execute(query.server, query.query, mbeanServer);
                         } catch (Throwable e) {
-                            LOG.error("Error sending metrics", e);
+                            LOG.error("Error retrieving metrics for " + query.query.getMetadata(), e);
                         }
                         return null;
                     }
-                }, AccessController.getContext());
+                });
 
                 if (qrs != null) {
                     boolean forceSend = query.query.getMinPeriod() == query.query.getPeriod() ||
