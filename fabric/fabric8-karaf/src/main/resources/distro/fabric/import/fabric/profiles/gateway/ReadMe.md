@@ -6,6 +6,5 @@ The Gateway provides a TCP and HTTP/HTTPS gateway for discovery, load balancing 
 
 Each of the profile has more information, as well in the Fabric [gateway](http://fabric8.io/gitbook/gateway.html) user guide.
 
-* [haproxy](/fabric/profiles/gateway/haproxy.profile) gateway for [HAProxy](http://www.haproxy.org/)
 * [http](/fabric/profiles/gateway/http.profile) gateway for HTTP traffic
 * [mq](/fabric/profiles/gateway/mq.profile) gateway for messaging using A-MQ

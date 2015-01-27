@@ -723,11 +723,6 @@
             </dependency>
             <dependency>
                 <groupId>io.fabric8</groupId>
-                <artifactId>gateway-fabric-haproxy</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.fabric8</groupId>
                 <artifactId>fabric-camel-autotest</artifactId>
                 <version>${project.version}</version>
             </dependency>
