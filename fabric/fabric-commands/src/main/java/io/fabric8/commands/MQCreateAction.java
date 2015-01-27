@@ -128,6 +128,9 @@ public class MQCreateAction extends AbstractAction {
         MQBrokerConfigDTO dto = createDTO();
 
         Profile profile = MQManager.createOrUpdateProfile(dto, fabricService, runtimeProperties);
+        if (profile == null) {
+            return null;
+        }
         String profileId = profile.getId();
 
         System.out.println("MQ profile " + profileId + " ready");
