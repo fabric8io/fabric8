@@ -314,7 +314,6 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
      * It operates on the state that it is given, which is unrelated to this component.
      */
     static class BootstrapCreateHandler {
-
         private final BootstrapConfiguration bootConfig;
         private final RuntimeProperties runtimeProperties;
 
@@ -340,21 +339,25 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             Exception lastException = null;
             long now = System.currentTimeMillis();
             long end = now + timeout;
-            while (!Thread.interrupted() && now < end) {
+            while (!Thread.interrupted() && (now = System.currentTimeMillis()) < end) {
                 FabricService fabricService = ServiceLocator.getRequiredService(FabricService.class);
                 try {
                     Container container = fabricService.getContainer(containerName);
                     if (container != null && container.isAlive()) {
                         return;
-                    } else {
-                        Thread.sleep(500);
-                        now = System.currentTimeMillis();
-                    }
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                    lastException = ex;
+                    } 
                 } catch (Exception ex) {
                     lastException = ex;
+                }
+                if (lastException != null) {
+                    LOGGER.debug("lastException = " + lastException);
+                }
+
+                try { 
+                    Thread.sleep(500);      
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    LOGGER.debug("Sleep was interrupted: " + ex);
                 }
             }
             TimeoutException toex = new TimeoutException("Cannot create container in time");
