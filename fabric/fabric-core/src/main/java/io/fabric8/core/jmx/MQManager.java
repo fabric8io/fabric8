@@ -49,6 +49,7 @@ import io.fabric8.common.util.Maps;
 import io.fabric8.common.util.Strings;
 import io.fabric8.internal.Objects;
 import io.fabric8.service.MQServiceImpl;
+import io.fabric8.utils.FabricValidations;
 import io.fabric8.zookeeper.ZkPath;
 
 import java.io.IOException;
@@ -412,6 +413,13 @@ public class MQManager implements MQManagerMXBean {
 
         String data = dto.getData();
         String profileName = dto.profile();
+        try {
+            FabricValidations.validateProfileName(profileName);
+        } catch (IllegalArgumentException e) {
+            // we do not want exception in the server log, so print the error message to the console
+            System.out.println(e.getMessage());
+            return null;
+        }
         String brokerName = dto.getBrokerName();
         if (data == null) {
             // lets use a relative path so we work on any karaf container
