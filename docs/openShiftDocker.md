@@ -93,6 +93,7 @@ You'll need the following environment variables to be able use the [Tools](http:
     export DOCKER_REGISTRY=$DOCKER_IP:5000
     export KUBERNETES_MASTER=http://$DOCKER_IP:8080
     export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
+    export KUBERNETES_TRUST_CERT=true
 
 Usually your $DOCKER_IP is something like **192.168.59.103** if you are on Windows or a Mac and are using boot2docker.
 
