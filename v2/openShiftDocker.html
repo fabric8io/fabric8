@@ -38,7 +38,7 @@
 
 
         
-    <div class="book" data-level="2.2.1" data-basepath="." data-revision="1421940855803">
+    <div class="book" data-level="2.2.1" data-basepath="." data-revision="1422395052137">
     
 
 <div class="book-summary">
@@ -768,6 +768,7 @@ EXTRA_ARGS=&quot;--insecure-registry 192.168.59.103:5000 --insecure-registry 172
 export DOCKER_REGISTRY=$DOCKER_IP:5000
 export KUBERNETES_MASTER=http://$DOCKER_IP:8080
 export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
+export KUBERNETES_TRUST_CERT=true
 </code></pre><p>Usually your $DOCKER_IP is something like <strong>192.168.59.103</strong> if you are on Windows or a Mac and are using boot2docker.</p>
 <h3 id="using-the-kube-command-line"><a name="using-the-kube-command-line" class="anchor" href="#using-the-kube-command-line"><span class="fa fa-link"></span></a>Using the kube command line</h3>
 <p>Run this command or add it to your ~/.bashrc</p>
