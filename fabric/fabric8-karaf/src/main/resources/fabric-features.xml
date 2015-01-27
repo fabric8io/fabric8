@@ -306,6 +306,13 @@
         <bundle>mvn:io.fabric8.mq/camel-amq/${project.version}</bundle>
     </feature>
 
+    <feature name="activemq-camel" version="${project.version}" resolver="(obr)">
+        <feature version="${activemq-version}">activemq-client</feature>
+        <feature version="${camel-version-range}">camel-jms</feature>
+        <feature version="${camel-version-range}">camel</feature>
+        <bundle>mvn:org.apache.activemq/activemq-camel/${activemq-version}</bundle>
+    </feature>
+
     <feature name="fabric-groovy" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
         <bundle dependency="true">mvn:org.codehaus.groovy/groovy-all/${groovy-version}</bundle>
