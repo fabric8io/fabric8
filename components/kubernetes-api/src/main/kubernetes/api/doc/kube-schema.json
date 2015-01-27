@@ -448,8 +448,11 @@
       },
       "kubernetes_EnvVar":{  
          "type":"object",
-         "properties":{  
-            "name":{  
+         "properties":{
+            "name":{
+               "type":"string"
+            },
+            "key":{
                "type":"string"
             },
             "value":{  
@@ -1560,7 +1563,10 @@
       },
       "kubernetes_VolumeMount":{  
          "type":"object",
-         "properties":{  
+         "properties":{
+            "path":{
+               "type":"string"
+            },
             "mountPath":{  
                "type":"string"
             },
