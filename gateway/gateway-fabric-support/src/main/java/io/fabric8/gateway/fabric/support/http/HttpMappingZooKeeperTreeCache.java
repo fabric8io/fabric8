@@ -23,10 +23,7 @@ import io.fabric8.zookeeper.utils.ZooKeeperUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -162,6 +159,9 @@ public class HttpMappingZooKeeperTreeCache {
 
     protected void expandPropertyResolvers(ServiceDTO dto) throws URISyntaxException {
         List<String> services = dto.getServices();
+        if( services == null ) {
+            services = Collections.EMPTY_LIST;
+        }
         List<String> newList = new ArrayList<String>(services.size());
         for (String service : services) {
             String expanded = ZooKeeperUtils.getSubstitutedData(curator, service);
