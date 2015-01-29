@@ -53,6 +53,14 @@ public interface Kubernetes {
     @Path("pods")
     PodList getPods();
 
+    /**
+     * List all pods on this cluster
+     * @param namespace
+     */
+    @GET
+    @Path("pods")
+    PodList getPods(@QueryParam("namespace") String namespace);
+
 
     /**
      * Create a new pod. currentState is ignored if present.
@@ -108,6 +116,17 @@ public interface Kubernetes {
     @Path("pods/{podId}")
     Pod getPod(@PathParam("podId") @NotNull String podId);
 
+
+    /**
+     * Get a specific pod
+     *
+     * @param podId
+     * @param namespace
+     */
+    @GET
+    @Path("pods/{podId}")
+    Pod getPod(@PathParam("podId") @NotNull String podId, @QueryParam("namespace") String namespace);
+
     /**
      * Update a pod
      *
@@ -150,6 +169,17 @@ public interface Kubernetes {
     String updatePod(@PathParam("podId") @NotNull String podId, Pod entity) throws Exception;
 
     /**
+     * Update a pod
+     * @param podId
+     * @param entity
+     * @param namespace
+     */
+    @PUT
+    @Path("pods/{podId}")
+    @Consumes("application/json")
+    String updatePod(@PathParam("podId") @NotNull String podId, Pod entity, @QueryParam("namespace") String namespace) throws Exception;
+
+    /**
      * Delete a specific pod
      *
      * @param podId
@@ -172,6 +202,16 @@ public interface Kubernetes {
     @GET
     @Produces("application/json")
     ServiceList getServices();
+
+    /**
+     * List all services on this cluster
+     * @param namespace 
+     */
+    @Path("services")
+    @GET
+    @Produces("application/json")
+    ServiceList getServices(@QueryParam("namespace") String namespace);
+
 
     /**
      * Create a new service
@@ -210,6 +250,17 @@ public interface Kubernetes {
     Service getService(@PathParam("serviceId") @NotNull String serviceId);
 
     /**
+     * Get a specific service
+     *
+     * @param serviceId
+     * @param namespace
+     */
+    @GET
+    @Path("services/{serviceId}")
+    @Produces("application/json")
+    Service getService(@PathParam("serviceId") @NotNull String serviceId, @QueryParam("namespace") String namespace);
+
+    /**
      * Update a service
      *
      * @param serviceId
@@ -230,6 +281,14 @@ public interface Kubernetes {
     @Path("services/{serviceId}")
     @Consumes("application/json")
     String updateService(@PathParam("serviceId") @NotNull String serviceId, Service entity) throws Exception;
+
+    /**
+     * Update a service
+     */
+    @PUT
+    @Path("services/{serviceId}")
+    @Consumes("application/json")
+    String updateService(@PathParam("serviceId") @NotNull String serviceId, Service entity, @QueryParam("namespace") String namespace) throws Exception;
 
     /**
      * Delete a specific service
@@ -256,6 +315,15 @@ public interface Kubernetes {
     @GET
     @Produces("application/json")
     ReplicationControllerList getReplicationControllers();
+
+    /**
+     * List all replicationControllers on this cluster
+     * @param namespace
+     */
+    @Path("replicationControllers")
+    @GET
+    @Produces("application/json")
+    ReplicationControllerList getReplicationControllers(@QueryParam("namespace") String namespace);
 
     /**
      * Create a new controller. currentState is ignored if present.
@@ -303,6 +371,18 @@ public interface Kubernetes {
     @Path("replicationControllers/{controllerId}")
     @Produces("application/json")
     ReplicationController getReplicationController(@PathParam("controllerId") @NotNull String controllerId);
+
+
+    /**
+     * Get a specific controller
+     *
+     * @param controllerId
+     * @param namespace 
+     */
+    @GET
+    @Path("replicationControllers/{controllerId}")
+    @Produces("application/json")
+    ReplicationController getReplicationController(@PathParam("controllerId") @NotNull String controllerId, @QueryParam("namespace") String namespace);
 
     /**
      * Update a controller

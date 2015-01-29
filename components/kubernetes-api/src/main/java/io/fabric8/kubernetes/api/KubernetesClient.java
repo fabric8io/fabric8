@@ -122,6 +122,11 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         return getKubernetes().getPods();
     }
 
+    @Override
+    public PodList getPods(@QueryParam("namespace") String namespace) {
+        return getKubernetes().getPods(namespace);
+    }
+
     @DELETE
     @Path("pods/{podId}")
     public String deletePod(@NotNull String podId) throws Exception {
@@ -133,6 +138,11 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
     @Produces("application/json")
     public ReplicationController getReplicationController(@NotNull String controllerId) {
         return getKubernetes().getReplicationController(controllerId);
+    }
+
+    @Override
+    public ReplicationController getReplicationController(@PathParam("controllerId") @NotNull String controllerId, @QueryParam("namespace") String namespace) {
+        return getKubernetes().getReplicationController(controllerId, namespace);
     }
 
     @DELETE
@@ -175,6 +185,11 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         return getKubernetes().getReplicationControllers();
     }
 
+    @Override
+    public ReplicationControllerList getReplicationControllers(@QueryParam("namespace") String namespace) {
+        return getKubernetes().getReplicationControllers(namespace);
+    }
+
     @PUT
     @Path("replicationControllers/{controllerId}")
     @Consumes("application/json")
@@ -189,11 +204,21 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         return getWriteableKubernetes().updateService(serviceId, entity);
     }
 
+    @Override
+    public String updateService(@PathParam("serviceId") @NotNull String serviceId, Service entity, @QueryParam("namespace") String namespace) throws Exception {
+        return getKubernetes().updateService(serviceId, entity, namespace);
+    }
+
     @GET
     @Path("services/{serviceId}")
     @Produces("application/json")
     public Service getService(@NotNull String serviceId) {
         return getKubernetes().getService(serviceId);
+    }
+
+    @Override
+    public Service getService(@PathParam("serviceId") @NotNull String serviceId, @QueryParam("namespace") String namespace) {
+        return getKubernetes().getService(serviceId, namespace);
     }
 
     @DELETE
@@ -216,6 +241,11 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         return getKubernetes().getPod(podId);
     }
 
+    @Override
+    public Pod getPod(@PathParam("podId") @NotNull String podId, @QueryParam("namespace") String namespace) {
+        return getKubernetes().getPod(podId, namespace);
+    }
+
     @PUT
     @Path("pods/{podId}")
     @Consumes("application/json")
@@ -223,11 +253,21 @@ public class KubernetesClient implements Kubernetes, KubernetesExtensions {
         return getWriteableKubernetes().updatePod(podId, entity);
     }
 
+    @Override
+    public String updatePod(@PathParam("podId") @NotNull String podId, Pod entity, @QueryParam("namespace") String namespace) throws Exception {
+        return getKubernetes().updatePod(podId, entity, namespace);
+    }
+
     @Path("services")
     @GET
     @Produces("application/json")
     public ServiceList getServices() {
         return getKubernetes().getServices();
+    }
+
+    @Override
+    public ServiceList getServices(@QueryParam("namespace") String namespace) {
+        return getKubernetes().getServices(namespace);
     }
 
     @POST
