@@ -29,15 +29,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.fabric8.api.Constants;
 import io.fabric8.common.util.Files;
 import io.fabric8.common.util.Strings;
 import io.fabric8.deployer.dto.DependencyDTO;
 import io.fabric8.deployer.dto.DtoHelper;
 import io.fabric8.deployer.dto.ProjectRequirements;
+
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
@@ -64,6 +69,8 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 @Mojo(name = "zip", defaultPhase = LifecyclePhase.PACKAGE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class CreateProfileZipMojo extends AbstractProfileMojo {
 
+    private static final Pattern ALT_REPO_SYNTAX_PATTERN = Pattern.compile( "(.+)::(.+)::(.+)" );
+    
     /**
      * Name of the directory used to create the profile configuration zip
      */
@@ -109,7 +116,20 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
      */
     @Parameter(property = "fabric8.fullzip.reactorProjectOutputPath", defaultValue = "target/generated-profiles")
     private String reactorProjectOutputPath;
+    
+    /**
+     * The maven goal used to deploy aggregated zips. Could be <code>deploy:deploy-file</code> to perform a regular deploy
+     * or <code>gpg:sign-and-deploy-file</code> to sign and deploy the file
+     */
+    @Parameter(property = "fabric8.deployFileGoal", defaultValue = "deploy:deploy-file")
+    protected String deployFileGoal;
 
+    @Parameter(defaultValue = "${project.distributionManagementArtifactRepository}", readonly = true, required = true)
+    private ArtifactRepository deploymentRepository;
+
+    @Parameter(defaultValue = "${altDeploymentRepository}", readonly = true)
+    private String altDeploymentRepository;
+    
     /**
      * The Maven Session.
      *
@@ -229,6 +249,9 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
 
     protected void generateAggregatedZip(MavenProject rootProject, List<MavenProject> reactorProjects, List<MavenProject> pomZipProjects) throws IOException, MojoExecutionException {
         File projectBaseDir = rootProject.getBasedir();
+        String rootProjectGroupId = rootProject.getGroupId();
+        String rootProjectArtifactId = rootProject.getArtifactId();
+        String rootProjectVersion = rootProject.getVersion();        
         File projectOutputFile = new File(projectBaseDir, "target/profile.zip");
         getLog().info("Generating " + projectOutputFile.getAbsolutePath() + " from root project " + rootProject.getArtifactId());
         File projectBuildDir = new File(projectBaseDir, reactorProjectOutputPath);
@@ -252,6 +275,17 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         getLog().info("Attaching aggregated zip " + projectOutputFile + " to root project " + rootProject.getArtifactId());
         projectHelper.attachArtifact(rootProject, artifactType, artifactClassifier, projectOutputFile);
 
+        List<String> activeProfileIds = new ArrayList<>();
+        List<org.apache.maven.model.Profile> activeProfiles = rootProject.getActiveProfiles();
+        if (activeProfiles != null) {
+            for (org.apache.maven.model.Profile profile : activeProfiles) {
+                String id = profile.getId();
+                if (Strings.isNotBlank(id)) {
+                    activeProfileIds.add(id);
+                }
+            }
+        }
+        
         // if we are doing an install goal, then also install the aggregated zip manually
         // as maven will install the root project first, and then build the reactor projects, and at this point
         // it does not help to attach artifact to root project, as those artifacts will not be installed
@@ -267,9 +301,9 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
 
             Properties props = new Properties();
             props.setProperty("file", "target/profile.zip");
-            props.setProperty("groupId", rootProject.getGroupId());
-            props.setProperty("artifactId", rootProject.getArtifactId());
-            props.setProperty("version", rootProject.getVersion());
+            props.setProperty("groupId", rootProjectGroupId);
+            props.setProperty("artifactId", rootProjectArtifactId);
+            props.setProperty("version", rootProjectVersion);
             props.setProperty("classifier", "profile");
             props.setProperty("packaging", "zip");
             request.setProperties(props);
@@ -283,6 +317,55 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
                 }
             } catch (MavenInvocationException e) {
                 throw new MojoExecutionException("Error invoking Maven goal install:install-file", e);
+            }
+        }
+        
+        if (rootProject.hasLifecyclePhase("deploy")) {
+            getLog().info("Deploying aggregated zip " + projectOutputFile + " to root project " + rootProject.getArtifactId());
+            getLog().info("Using deploy goal: " + deployFileGoal + " with active profiles: " + activeProfileIds);
+
+            InvocationRequest request = new DefaultInvocationRequest();
+            request.setBaseDirectory(rootProject.getBasedir());
+            request.setPomFile(new File("./pom.xml"));
+            request.setGoals(Collections.singletonList(deployFileGoal));
+            request.setRecursive(false);
+            request.setInteractive(false);
+            request.setProfiles(activeProfileIds);
+            request.setShellEnvironmentInherited(true);
+
+            Properties props = new Properties();            
+            props.setProperty("file", "target/profile.zip");
+            props.setProperty("groupId", rootProjectGroupId);
+            props.setProperty("artifactId", rootProjectArtifactId);
+            props.setProperty("version", rootProjectVersion);
+            props.setProperty("classifier", "profile");
+            props.setProperty("packaging", "zip");
+            if (altDeploymentRepository == null || altDeploymentRepository.length() <= 0) {
+                props.setProperty("url", deploymentRepository.getUrl());
+                props.setProperty("repositoryId", deploymentRepository.getId());
+            } else {
+                Matcher matcher = ALT_REPO_SYNTAX_PATTERN.matcher(altDeploymentRepository);
+                if (!matcher.matches()) {
+                    throw new MojoExecutionException("Invalid syntax for altDeploymentRepository");
+                } else {
+                    String id = matcher.group(1).trim();
+                    String url = matcher.group(3).trim();
+                    props.setProperty("url", url);
+                    props.setProperty("repositoryId", id);
+                }
+            }
+            props.setProperty("generatePom", "false");
+            request.setProperties(props);
+
+            getLog().info("Deploying aggregated zip using: mvn deploy:deploy-file" + serializeMvnProperties(props));
+            Invoker invoker = new DefaultInvoker();
+            try {
+                InvocationResult result = invoker.execute(request);
+                if (result.getExitCode() != 0) {
+                    throw new IllegalStateException("Error invoking Maven goal deploy:deploy-file");
+                }
+            } catch (MavenInvocationException e) {
+                throw new MojoExecutionException("Error invoking Maven goal deploy:deploy-file", e);
             }
         }
     }
