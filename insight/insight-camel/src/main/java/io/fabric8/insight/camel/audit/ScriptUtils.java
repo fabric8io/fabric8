@@ -15,12 +15,16 @@
  */
 package io.fabric8.insight.camel.audit;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.camel.MessageHistory;
+import org.apache.camel.NamedNode;
+
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public final class ScriptUtils {
 
@@ -30,8 +34,9 @@ public final class ScriptUtils {
     static {
         format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         mapper = new ObjectMapper();
-        mapper.getSerializationConfig()
-                .with(format);
+        mapper.getSerializationConfig().with(format);
+        mapper.addMixInAnnotations(MessageHistory.class, DefaultMessageHistoryMixin.class);
+        mapper.addMixInAnnotations(NamedNode.class, NamedNodeMixin.class);
     }
 
     public static String toIso(Date d) {
@@ -68,6 +73,8 @@ public final class ScriptUtils {
                 return "null";
             } else if (o instanceof Date) {
                 return "\"" + toIso((Date) o) + "\"";
+            } else if (o instanceof MessageHistory) {
+                return mapper.writeValueAsString(o);
             } else {
                 return mapper.writeValueAsString(o.toString());
             }
@@ -82,6 +89,32 @@ public final class ScriptUtils {
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not deserialize " + str, e);
         }
+    }
+
+    @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+    public static interface DefaultMessageHistoryMixin {
+
+        @JsonProperty
+        String getRouteId();
+
+        @JsonProperty
+        long getElapsed();
+
+        @JsonProperty
+        NamedNode getNode();
+    }
+
+    @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+    public static interface NamedNodeMixin {
+
+        @JsonProperty
+        String getId();
+
+        @JsonProperty
+        String getShortName();
+
+        @JsonProperty
+        String getLabel();
     }
 
 }
