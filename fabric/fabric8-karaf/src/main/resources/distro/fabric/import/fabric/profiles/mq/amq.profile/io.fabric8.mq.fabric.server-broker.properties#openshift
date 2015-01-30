@@ -20,6 +20,4 @@ config=profile\:broker.xml
 config.checksum=${checksum:profile\:broker.xml}
 group=default
 standby.pool=default
-bindAddress=${container:bindaddress}
-bindPort=${env:OPENSHIFT_FUSE_AMQ_PORT}
-connectionPort=${env:OPENSHIFT_FUSE_AMQ_PROXY_PORT}
+keystore.url=profile:keystore.jks

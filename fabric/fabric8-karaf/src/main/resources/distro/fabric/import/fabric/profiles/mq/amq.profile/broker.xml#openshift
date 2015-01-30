@@ -26,14 +26,7 @@
         <property name="properties">
             <bean class="io.fabric8.mq.fabric.ConfigurationProperties"/>
         </property>
-    </bean>
-
-    <bean id="addressPolicy" class="org.apache.activemq.broker.PublishedAddressPolicy">
-        <property name="portMapping">
-          <map>
-            <entry key="${bindPort}" value="${connectionPort}"/>
-          </map>
-        </property>
+        <property name="searchSystemEnvironment" value="true"/>
     </bean>
 
     <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${broker-name}" dataDirectory="${data}" start="false">
@@ -67,20 +60,60 @@
         <systemUsage>
             <systemUsage>
                 <memoryUsage>
-                    <memoryUsage percentOfJvmHeap="70"/>
+                    <memoryUsage limit="64 mb"/>
                 </memoryUsage>
                 <storeUsage>
-                    <storeUsage limit="100 gb"/>
+                    <storeUsage limit="3 gb"/>
                 </storeUsage>
                 <tempUsage>
-                    <tempUsage limit="50 gb"/>
+                    <tempUsage limit="1 gb"/>
                 </tempUsage>
             </systemUsage>
         </systemUsage>
 
+
+        <sslContext>
+            <sslContext
+                keyStore="${keystore.url}"
+                keyStorePassword="${zookeeper.password}"
+                trustStore="${keystore.url}"
+                trustStorePassword="${zookeeper.password}"
+                />
+        </sslContext>
+
         <transportConnectors>
-            <transportConnector name="openwire" publishedAddressPolicy="#addressPolicy" uri="tcp://${bindAddress}:${bindPort}"/>
+            <transportConnector name="openwire"     publishedAddressPolicy="#addressPolicy"
+                                uri="tcp://${bind.address}:${OPENSHIFT_FUSE_OPENWIRE_PORT}"/>
+            <transportConnector name="mqtt"         publishedAddressPolicy="#addressPolicy"
+                                uri="mqtt://${bind.address}:${OPENSHIFT_FUSE_MQTT_PORT}"/>
+            <transportConnector name="amqp"         publishedAddressPolicy="#addressPolicy"
+                                uri="amqp://${bind.address}:${OPENSHIFT_FUSE_AMQP_PORT}"/>
+            <transportConnector name="stomp"        publishedAddressPolicy="#addressPolicy"
+                                uri="stomp://${bind.address}:${OPENSHIFT_FUSE_STOMP_PORT}"/>
+            <transportConnector name="openwire-ssl" publishedAddressPolicy="#addressPolicy"
+                                uri="ssl://${bind.address}:${OPENSHIFT_FUSE_OPENWIRE_SSL_PORT}"/>
+            <transportConnector name="mqtt-ssl"     publishedAddressPolicy="#addressPolicy"
+                                uri="mqtt+ssl://${bind.address}:${OPENSHIFT_FUSE_MQTT_SSL_PORT}"/>
+            <transportConnector name="amqp-ssl"     publishedAddressPolicy="#addressPolicy"
+                                uri="amqp+ssl://${bind.address}:${OPENSHIFT_FUSE_AMQP_SSL_PORT}"/>
+            <transportConnector name="stomp-ssl"    publishedAddressPolicy="#addressPolicy"
+                                uri="stomp+ssl://${bind.address}:${OPENSHIFT_FUSE_STOMP_SSL_PORT}"/>
         </transportConnectors>
+
     </broker>
 
+    <bean id="addressPolicy" class="org.apache.activemq.broker.PublishedAddressPolicy">
+        <property name="portMapping">
+          <map>
+            <entry key="${OPENSHIFT_FUSE_OPENWIRE_PORT}" value="${OPENSHIFT_FUSE_OPENWIRE_PROXY_PORT}"/>
+            <entry key="${OPENSHIFT_FUSE_STOMP_PORT}" value="${OPENSHIFT_FUSE_STOMP_PROXY_PORT}"/>
+            <entry key="${OPENSHIFT_FUSE_AMQP_PORT}" value="${OPENSHIFT_FUSE_AMQP_PROXY_PORT}"/>
+            <entry key="${OPENSHIFT_FUSE_MQTT_PORT}" value="${OPENSHIFT_FUSE_MQTT_PROXY_PORT}"/>
+            <entry key="${OPENSHIFT_FUSE_OPENWIRE_SSL_PORT}" value="2303"/>
+            <entry key="${OPENSHIFT_FUSE_STOMP_SSL_PORT}" value="2304"/>
+            <entry key="${OPENSHIFT_FUSE_AMQP_SSL_PORT}" value="2305"/>
+            <entry key="${OPENSHIFT_FUSE_MQTT_SSL_PORT}" value="2306"/>
+          </map>
+        </property>
+    </bean>
 </beans>
