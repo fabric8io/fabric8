@@ -259,10 +259,6 @@
              <artifactId>gateway-fabric</artifactId>
            </dependency>
            <dependency>
-             <groupId>io.fabric8</groupId>
-             <artifactId>gateway-fabric-haproxy</artifactId>
-           </dependency>
-           <dependency>
                <groupId>io.fabric8</groupId>
                <artifactId>fabric-maven-proxy</artifactId>
            </dependency>
@@ -485,7 +481,6 @@
                                    <feature>fabric-web</feature>
                                    <feature>fabric-zookeeper-commands</feature>
                                    <feature>gateway-fabric</feature>
-                                   <feature>gateway-haproxy</feature>
                                    <feature>hawtio-fabric8-branding</feature>
                                    <feature>hawtio-karaf-terminal</feature>
                                    <feature>insight-elasticsearch</feature>
