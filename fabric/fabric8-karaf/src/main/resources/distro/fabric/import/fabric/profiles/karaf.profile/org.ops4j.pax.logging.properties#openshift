@@ -1,0 +1,58 @@
+# Root logger
+log4j.rootLogger=INFO, out, osgi:*
+log4j.throwableRenderer=org.apache.log4j.OsgiThrowableRenderer
+
+# To avoid flooding the log when using DEBUG level on an ssh connection and doing log:tail
+log4j.logger.org.apache.sshd.server.channel.ChannelSession = INFO
+
+# CONSOLE appender not used by default
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%d{ISO8601} | %-5.5p | %-16.16t | %-32.32c{1} | %-32.32C %4L | %X{bundle.id} - %X{bundle.name} - %X{bundle.version} | %m%n
+
+# File appender
+log4j.appender.out=org.apache.log4j.RollingFileAppender
+log4j.appender.out.layout=org.apache.log4j.PatternLayout
+log4j.appender.out.layout.ConversionPattern=%d{ISO8601} | %-5.5p | %-16.16t | %-32.32c{1} | %-32.32C %4L | %X{bundle.id} - %X{bundle.name} - %X{bundle.version} | %m%n
+log4j.appender.out.file=${karaf.log.dir}karaf-${karaf.name}.log
+log4j.appender.out.append=true
+log4j.appender.out.maxFileSize=1MB
+log4j.appender.out.maxBackupIndex=10
+
+# Sift appender
+log4j.appender.sift=org.apache.log4j.sift.MDCSiftingAppender
+log4j.appender.sift.key=bundle.name
+log4j.appender.sift.default=karaf
+log4j.appender.sift.appender=org.apache.log4j.FileAppender
+log4j.appender.sift.appender.layout=org.apache.log4j.PatternLayout
+log4j.appender.sift.appender.layout.ConversionPattern=%d{ISO8601} | %-5.5p | %-16.16t | %-32.32c{1} | %-32.32C %4L | %m%n
+log4j.appender.sift.appender.file=${karaf.log.dir}${karaf.name}-$\\{bundle.name\\}.log
+log4j.appender.sift.appender.append=true
+
+# tone down the ZooKeeper logging
+
+log4j.logger.org.apache.zookeeper.ClientCnxn = ERROR
+log4j.logger.org.apache.zookeeper.ClientCnxn$SendThread = ERROR
+log4j.logger.org.apache.zookeeper.server.NIOServerCnxnFactory = ERROR
+log4j.logger.org.apache.zookeeper.server.NIOServerCnxn  = ERROR
+log4j.logger.org.apache.zookeeper.server.ZooKeeperServer = ERROR
+log4j.logger.org.apache.zookeeper.server.PrepRequestProcessor = WARN
+log4j.logger.org.apache.zookeeper.client.ZooKeeperSaslClient = WARN
+
+# tone down httpclient logging
+log4j.logger.httpclient.wire=WARN
+log4j.logger.org.apache.commons.httpclient=WARN
+
+# tone down the ZooKeeper logging
+
+log4j.logger.org.apache.zookeeper.ClientCnxn = ERROR
+log4j.logger.org.apache.zookeeper.ClientCnxn$SendThread = ERROR
+log4j.logger.org.apache.zookeeper.server.NIOServerCnxnFactory = ERROR
+log4j.logger.org.apache.zookeeper.server.NIOServerCnxn  = ERROR
+log4j.logger.org.apache.zookeeper.server.ZooKeeperServer = ERROR
+log4j.logger.org.apache.zookeeper.server.PrepRequestProcessor = WARN
+log4j.logger.org.apache.zookeeper.client.ZooKeeperSaslClient = WARN
+
+# tone down httpclient logging
+log4j.logger.httpclient.wire=WARN
+log4j.logger.org.apache.commons.httpclient=WARN
