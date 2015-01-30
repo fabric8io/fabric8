@@ -134,6 +134,7 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
 
     private static final String GIT_REMOTE_USER = "gitRemoteUser";
     private static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
+    private static final String GIT_GC_ON_LOAD = "gitGcOnLoad";
     private static final int GIT_COMMIT_SHORT_LENGTH = 7;
     private static final int MAX_COMMITS_WITHOUT_GC = 40;
     private static final long AQUIRE_LOCK_TIMEOUT = 25 * 1000L;
@@ -177,7 +178,9 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
     private String importDir = "fabric";
     @Property(name = "gitRemotePollInterval", label = "Remote poll Interval", description = "The interval between remote repo polling operations")
     private long gitRemotePollInterval = 60 * 1000L;
-
+    @Property(name = GIT_GC_ON_LOAD, label = "Run Git GC", description = "Whether or not to run Git GC on load of the Git repo", boolValue = false)
+    private boolean gitGcOnLoad = false;
+    
     private final LoadingCache<String, Version> versionCache = CacheBuilder.newBuilder().build(new VersionCacheLoader());
     private final Set<String> versions = new HashSet<String>();
 
@@ -323,7 +326,27 @@ public final class GitDataStoreImpl extends AbstractComponent implements GitData
             //We need to catch this error so that the component gets activated.
         }
 
-
+        if (gitGcOnLoad) {
+            LockHandle writeLock = aquireWriteLock();
+            try {
+                GitOperation<Void> gitop = new GitOperation<Void>() {
+                    public Void call(Git git, GitContext context) throws Exception {
+                            long before = System.currentTimeMillis();
+                            try {
+                                git.gc().call();
+                                LOGGER.debug("git gc took " + ((System.currentTimeMillis() - before)) + " ms.");
+                            } catch (GitAPIException e) {
+                                LOGGER.debug("git gc threw an exception!", e);                    
+                            }
+                            return null;
+                    }
+                };      
+                executeInternal(new GitContext(), null, gitop);
+            } finally {
+                writeLock.unlock();
+            }
+        }
+    
         //It is not safe to assume that we will get notified by the ShareCounter, if the component is not activated
         // when the SharedCounter gets updated.
         //Also we cannot rely on the remote url change event, as it will only trigger when there is an actual change.
