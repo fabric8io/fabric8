@@ -17,8 +17,9 @@
 
 # launch script
 #
-# 
-JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_10.jdk/Contents/Home/
+#
+# assume JAVA_HOME is set
+### JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_10.jdk/Contents/Home/
 
 DIR=`cd "\`dirname "$0"\`" && pwd`
 
@@ -36,6 +37,6 @@ if [ ! -f "$TOOLSJAR" ] ; then
         exit 1
 fi
 
-"$JAVA_HOME"/bin/java $JAVA_OPTS -cp "$JAR_DIR/apmagent-project-1.2.0-SNAPSHOT.jar:$TOOLSJAR" \
+"$JAVA_HOME"/bin/java $JAVA_OPTS -cp "$JAR_DIR/fabric8-apm-2.2-SNAPSHOT.jar:$TOOLSJAR" \
 io.fabric8.apmagent.ApmAgentLauncher "$@"
 exit $?
