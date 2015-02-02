@@ -16,6 +16,7 @@
 package io.fabric8.apmagent;
 
 public interface ApmConfigurationMBean {
+
     String getWhiteList();
 
     void setWhiteList(String whiteList);

@@ -40,7 +40,7 @@ public class FilterItem {
 
     public boolean matches(String className) {
         className = className.replace('/', '.');
-        return className != null && (className.startsWith(getClassName()) || className.matches(getClassName()));
+        return className.startsWith(getClassName()) || className.matches(getClassName());
     }
 
     public boolean matches(String className, String method, boolean matchIfNoFilterMethod) {
@@ -51,7 +51,7 @@ public class FilterItem {
                 if (getMethodName() == null || getMethodName().isEmpty()) {
                     result = true;
                 }
-            } else if (method != null && getMethodName() != null && !getMethodName().isEmpty()) {
+            } else if (getMethodName() != null && !getMethodName().isEmpty()) {
                 result = method.matches(getMethodName());
             } else {
                 result = matchIfNoFilterMethod;

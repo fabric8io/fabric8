@@ -73,7 +73,7 @@ public class TraceStrategy implements Strategy, ClassFileTransformer {
     @Override
     public void stop() {
         if (started.compareAndSet(true, false)) {
-
+            // noop
         }
     }
 
@@ -93,7 +93,7 @@ public class TraceStrategy implements Strategy, ClassFileTransformer {
                 //clean up
                 instrumentApplication();
             } catch (Throwable e) {
-                LOG.error("Failed to shutdown", e);
+                LOG.warn("Failed to shutdown due " + e.getMessage() + ". This exception is ignored.", e);
             }
         }
     }
@@ -163,7 +163,7 @@ public class TraceStrategy implements Strategy, ClassFileTransformer {
                             try {
                                 instrumentation.retransformClasses(new Class[]{classInfo.getOriginalClass()});
                             } catch (Throwable e) {
-                                LOG.error("Could not transform " + classInfo.getClassName(), e);
+                                LOG.warn("Could not transform " + classInfo.getClassName() + " due " + e.getMessage(), e);
                             }
                         }
                     }
@@ -225,15 +225,15 @@ public class TraceStrategy implements Strategy, ClassFileTransformer {
     private boolean isInstrumentClass(Class c) {
 
         if (!instrumentation.isModifiableClass(c)) {
-            LOG.trace("NO INSTRUMENT: Class " + c.getName() + " is not modifiable");
+            LOG.trace("NO INSTRUMENT: Class {} is not modifiable", c.getName());
             return false;
         }
         if (!configuration.isAudit(c.getName())) {
-            LOG.trace("NO INSTRUMENT: Class " + c.getName() + " is blacklisted");
+            LOG.trace("NO INSTRUMENT: Class {} is blacklisted", c.getName());
             return false;
         }
         if (c.isArray() || c.isAnnotation() || c.isInterface() || c.isPrimitive() || c.isSynthetic() || c.isEnum()) {
-            LOG.trace("NO INSTRUMENT: Class " + c.getName() + " is an array, primitive, annotation or enum etc");
+            LOG.trace("NO INSTRUMENT: Class {} is an array, primitive, annotation or enum etc.", c.getName());
             return false;
         }
         return true;
@@ -275,7 +275,7 @@ public class TraceStrategy implements Strategy, ClassFileTransformer {
             CheckClassAdapter.verify(new ClassReader(transformed), false, pw);
             if (sw.toString().length() != 0) {
                 result = false;
-                LOG.error(" Failed to transform class: " + className);
+                LOG.error("Failed to transform class: " + className);
                 LOG.error(sw.toString());
             }
         }

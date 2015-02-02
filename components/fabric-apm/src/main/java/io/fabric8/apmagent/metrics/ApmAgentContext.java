@@ -15,21 +15,6 @@
  */
 package io.fabric8.apmagent.metrics;
 
-import io.fabric8.apmagent.ApmAgent;
-import io.fabric8.apmagent.ApmConfiguration;
-import io.fabric8.apmagent.ClassInfo;
-import io.fabric8.apmagent.MethodDescription;
-import org.jolokia.jmx.JolokiaMBeanServerUtil;
-import org.jolokia.jvmagent.JolokiaServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,6 +26,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
+
+import io.fabric8.apmagent.ApmAgent;
+import io.fabric8.apmagent.ApmConfiguration;
+import io.fabric8.apmagent.ClassInfo;
+import io.fabric8.apmagent.MethodDescription;
+import org.jolokia.jmx.JolokiaMBeanServerUtil;
+import org.jolokia.jvmagent.JolokiaServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ApmAgentContext {
     private static final Logger LOG = LoggerFactory.getLogger(ApmAgent.class);
@@ -116,7 +116,7 @@ public class ApmAgentContext {
                 configurationObjectName = new ObjectName(DEFAULT_DOMAIN, "type", "configuration");
                 registerMBean(configurationObjectName, configuration);
             } catch (Throwable e) {
-                LOG.error("Failed to register apmAgent mbeans with mBeanServer ", e);
+                LOG.warn("Failed to register ApmAgent mbeans with mBeanServer due " + e.getMessage(), e);
             }
         }
     }
@@ -135,7 +135,7 @@ public class ApmAgentContext {
                             }
                         }
                     }
-                });
+                }, "Fabric8-ApmAgent-BackgroundThread");
                 backgroundThread.setDaemon(true);
                 backgroundThread.start();
             }
@@ -159,7 +159,7 @@ public class ApmAgentContext {
                     threadMetrics.calculateMethodMetrics();
                 }
             } catch (Throwable e) {
-                e.printStackTrace();
+                LOG.warn("Error during housekeeping due " + e.getMessage() + ". This exception is ignored.", e);
             }
         }
     }
@@ -337,11 +337,10 @@ public class ApmAgentContext {
         for (ThreadMetrics threadMetrics : threadMetricsMap.values()) {
             threadMetrics.setMonitorSize(configuration.getThreadMetricDepth());
         }
-
     }
 
     private void remove(MethodDescription methodDescription) {
-        MethodMetrics methodMetrics = this.methodMetricsMap.remove(methodDescription.getFullMethodName());
+        methodMetricsMap.remove(methodDescription.getFullMethodName());
         for (ThreadMetrics threadMetrics : threadMetricsMap.values()) {
             threadMetrics.remove(methodDescription.getFullMethodName());
         }
@@ -361,7 +360,7 @@ public class ApmAgentContext {
             try {
                 beanServer.unregisterMBean(objectName);
             } catch (Throwable e) {
-                LOG.error("Failed to unregister " + objectName, e);
+                LOG.warn("Failed to unregister " + objectName + " due " + e.getMessage() + ". This exception is ignored.", e);
             }
         }
     }
@@ -371,11 +370,11 @@ public class ApmAgentContext {
             ObjectName objectName = new ObjectName(DEFAULT_DOMAIN + ":" +
                                                        "type=MethodMetrics" +
                                                        ",rank=" + ObjectName.quote("rank" + rank));
-            LOG.debug("registered " + objectName);
+            LOG.debug("registered {}", objectName);
             registerMBean(objectName, methodMetrics);
             objectNameMap.put(methodMetrics, objectName);
         } catch (Throwable e) {
-            LOG.warn("Failed to register mbean " + methodMetrics.toString(), e);
+            LOG.warn("Failed to register mbean " + methodMetrics.toString() + " due " + e.getMessage() + ". This exception is ignored.", e);
         }
     }
 
@@ -389,7 +388,7 @@ public class ApmAgentContext {
             registerMBean(objectName, threadMetrics);
             objectNameMap.put(threadMetrics, objectName);
         } catch (Throwable e) {
-            LOG.warn("Failed to register mbean " + threadMetrics.toString(), e);
+            LOG.warn("Failed to register mbean " + threadMetrics.toString() + " due " + e.getMessage() + ". This exception is ignored.", e);
         }
     }
 

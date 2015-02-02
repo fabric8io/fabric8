@@ -16,6 +16,7 @@
 package io.fabric8.apmagent;
 
 public interface Strategy extends ApmConfigurationChangeListener {
+
     void initialize() throws Exception;
 
     void start() throws Exception;

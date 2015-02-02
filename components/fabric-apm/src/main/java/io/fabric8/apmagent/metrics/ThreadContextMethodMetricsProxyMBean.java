@@ -16,6 +16,7 @@
 package io.fabric8.apmagent.metrics;
 
 public interface ThreadContextMethodMetricsProxyMBean extends MethodMetricsProxyMBean {
+
     String getThreadName();
 
     long getThreadId();

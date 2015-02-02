@@ -45,7 +45,7 @@ public class SamplingStrategy implements Strategy, Runnable {
     @Override
     public void initialize() throws Exception {
         if (initialized.compareAndSet(false, true)) {
-            samplingThread = new Thread(this, "SamplingStrategy");
+            samplingThread = new Thread(this, "Fabric8-ApmAgent-SamplingStrategy");
             samplingThread.setDaemon(true);
             configuration.addChangeListener(this);
         }

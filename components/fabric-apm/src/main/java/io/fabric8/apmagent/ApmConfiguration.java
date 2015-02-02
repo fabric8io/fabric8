@@ -31,7 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ApmConfiguration implements ApmConfigurationMBean {
     public enum STRATEGY {
         TRACE,
-        SAMPLE,;
+        SAMPLE;
 
         static STRATEGY getStrategy(String name) {
             for (STRATEGY v : values()) {
@@ -41,7 +41,7 @@ public class ApmConfiguration implements ApmConfigurationMBean {
             }
             return SAMPLE;
         }
-    };
+    }
 
     final static Logger logger = LoggerFactory.getLogger(ApmConfiguration.class);
     private boolean trace = false;
@@ -91,7 +91,6 @@ public class ApmConfiguration implements ApmConfigurationMBean {
         addToBlackList("com.codahale");
         //for testing only
         addToWhiteList("io.fabric8.testApp");
-
     }
 
     @Override
@@ -304,12 +303,13 @@ public class ApmConfiguration implements ApmConfigurationMBean {
     }
 
     public boolean isWhiteListed(String className) {
-
-        if (whiteFilterList.isEmpty())
+        if (whiteFilterList.isEmpty()) {
             return false;
+        }
         for (FilterItem item : whiteFilterList) {
-            if (className.matches(item.getClassName()))
+            if (className.matches(item.getClassName())) {
                 return true;
+            }
         }
         return false;
     }
@@ -385,9 +385,7 @@ public class ApmConfiguration implements ApmConfigurationMBean {
     }
 
     private void initializeList(String str, List<FilterItem> list) {
-
         String[] split = str.split(",");
-
         for (String s : split) {
             FilterItem filterItem = new FilterItem();
             String[] classAndMethod = s.split("@");
@@ -396,7 +394,6 @@ public class ApmConfiguration implements ApmConfigurationMBean {
                 filterItem.setMethodName(classAndMethod[1]);
             }
             list.add(filterItem);
-
         }
     }
 

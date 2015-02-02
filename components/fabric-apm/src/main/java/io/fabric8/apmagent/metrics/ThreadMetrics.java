@@ -95,7 +95,6 @@ public class ThreadMetrics {
         } else {
             //something weird happended reset the stack
             methodStackRef.set(new ThreadContextMethodMetricsStack());
-
         }
         return result;
     }

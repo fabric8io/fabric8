@@ -29,6 +29,9 @@ import org.jolokia.jvmagent.JvmAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Java Agent for APM.
+ */
 public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
     public static final ApmAgent INSTANCE = new ApmAgent();
     private static final Logger LOG = LoggerFactory.getLogger(ApmAgent.class);
@@ -53,7 +56,6 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
     public static void agentmain(final String args,
                                  final Instrumentation instrumentation) throws Exception {
         try {
-
             ApmAgent agent = ApmAgent.INSTANCE;
             if (agent.initialize(instrumentation, args)) {
                 if (agent.getConfiguration().isStartJolokiaAgent()) {
@@ -61,11 +63,9 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
                 }
             }
         } catch (Exception e) {
-            LOG.info("Failed in agentmain", e);
+            LOG.error("Failed in agentmain due " + e.getMessage(), e);
             throw e;
-
         }
-
     }
 
     public static void premain(String args, Instrumentation instrumentation) throws Exception {
@@ -80,7 +80,7 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
                 }
             }
         } catch (Exception e) {
-            LOG.error("Failed in premain", e);
+            LOG.error("Failed in premain due " + e.getMessage(), e);
             throw e;
         }
     }
