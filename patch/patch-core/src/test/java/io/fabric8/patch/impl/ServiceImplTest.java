@@ -115,7 +115,7 @@ public class ServiceImplTest {
         overrides = readFully(new File(karaf, "etc/overrides.properties"));
 
         assertEquals("", startup.trim());
-        assertEquals("mvn:foo/my-bsn/1.4.0;range=[1.3.0,1.5.0)\nmvn:foo/my-bsn/2.0.0", overrides.trim());
+        assertEquals("mvn:foo/my-bsn/1.4.0;range=[1.3.0,1.5.0)\nmvn:foo/my-bsn/2.0.0", overrides.trim().replaceAll("\r", ""));
         assertFalse(new File(karaf, "system/foo/my-bsn/1.3.2/my-bsn-1.3.2.jar").exists());
         assertTrue(new File(karaf, "system/foo/my-bsn/1.4.0/my-bsn-1.4.0.jar").exists());
         assertTrue(new File(karaf, "system/foo/my-bsn/2.0.0/my-bsn-2.0.0.jar").exists());
@@ -154,7 +154,7 @@ public class ServiceImplTest {
         overrides = readFully(new File(karaf, "etc/overrides.properties"));
 
         assertEquals("foo/my-bsn/1.4.0/my-bsn-1.4.0.jar=1", startup.trim());
-        assertEquals("mvn:foo/my-bsn/1.4.0;range=[1.3.0,1.5.0)\nmvn:foo/my-bsn/2.0.0", overrides.trim());
+        assertEquals("mvn:foo/my-bsn/1.4.0;range=[1.3.0,1.5.0)\nmvn:foo/my-bsn/2.0.0", overrides.trim().replaceAll("\r", ""));
         assertFalse(new File(karaf, "system/foo/my-bsn/1.3.2/my-bsn-1.3.2.jar").exists());
         assertTrue(new File(karaf, "system/foo/my-bsn/1.4.0/my-bsn-1.4.0.jar").exists());
         assertTrue(new File(karaf, "system/foo/my-bsn/2.0.0/my-bsn-2.0.0.jar").exists());
