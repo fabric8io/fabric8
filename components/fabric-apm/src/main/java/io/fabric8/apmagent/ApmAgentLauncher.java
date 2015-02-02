@@ -46,7 +46,7 @@ public class ApmAgentLauncher {
     }
 
     public static void loadAgent(String pid, String args) throws IOException {
-        VirtualMachine vm = null;
+        VirtualMachine vm;
         try {
             vm = VirtualMachine.attach(pid);
         } catch (AttachNotSupportedException x) {

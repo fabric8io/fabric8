@@ -15,22 +15,23 @@
  */
 package io.fabric8.apmagent;
 
+import java.lang.instrument.Instrumentation;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import io.fabric8.apmagent.metrics.ApmAgentContext;
 import io.fabric8.apmagent.metrics.ThreadMetrics;
 import io.fabric8.apmagent.strategy.sampling.SamplingStrategy;
 import io.fabric8.apmagent.strategy.trace.TraceStrategy;
 import io.fabric8.apmagent.utils.PropertyUtils;
 import org.jolokia.jvmagent.JvmAgent;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.instrument.Instrumentation;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
     public static final ApmAgent INSTANCE = new ApmAgent();
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ApmAgent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ApmAgent.class);
 
     final ApmConfiguration configuration = new ApmConfiguration();
     private AtomicBoolean initialized = new AtomicBoolean();
@@ -126,8 +127,6 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
     }
 
     /**
-     * @param instrumentation
-     * @param args
      * @return false if already initialized, else true if is actually initialized
      */
     public boolean initialize(final Instrumentation instrumentation, String args) throws Exception {
@@ -141,11 +140,11 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
             switch (theStrategy) {
                 case TRACE:
                     this.strategy = new TraceStrategy(apmAgentContext, instrumentation);
-                    LOG.info("Using Trace strategy");
+                    LOG.debug("Using Trace strategy");
                     break;
                 default:
                     this.strategy = new SamplingStrategy(apmAgentContext);
-                    LOG.info("Using Sampling strategy");
+                    LOG.debug("Using Sampling strategy");
 
             }
             this.strategy.initialize();
@@ -155,16 +154,12 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
 
                 @Override
                 public void run() {
-
                     try {
-
                         ApmAgent apmAgent = ApmAgent.INSTANCE;
                         apmAgent.shutDown();
-
                     } catch (Exception e) {
-                        LOG.error("Failed to run shutdown hook", e);
+                        LOG.warn("Failed to run shutdown hook due " + e.getMessage(), e);
                     }
-
                 }
 
             };
@@ -182,10 +177,10 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
                     s.start();
                 }
             } catch (Throwable e) {
-                LOG.error("Failed to start strategy ", e);
+                LOG.warn("Failed to start strategy due " + e.getMessage() + ". This exception is ignored.", e);
             }
         } else {
-            System.err.println("STARTMETRICS ALREADY STARTED");
+            LOG.debug("Metrics already started");
         }
     }
 
@@ -197,7 +192,7 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
                     s.stop();
                 }
             } catch (Throwable e) {
-                LOG.error("Failed to stop strategy", e);
+                LOG.warn("Failed to stop strategy due " + e.getMessage() + ". This exception is ignored.", e);
             }
             apmAgentContext.stop();
         }
@@ -217,7 +212,7 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
                     s.shutDown();
                 }
             } catch (Throwable e) {
-                LOG.error("Failed to shutdown", e);
+                LOG.warn("Failed to shutdown due " + e.getMessage(), e);
             }
         }
     }
@@ -242,7 +237,7 @@ public class ApmAgent implements ApmAgentMBean, ApmConfigurationChangeListener {
                             startMetrics();
                         }
                     } catch (Exception e) {
-                        LOG.error("Could not re-initialize");
+                        LOG.warn("Could not re-initialize due " + e.getMessage() + ". This exception is ignored.", e);
                     }
                 }
             }

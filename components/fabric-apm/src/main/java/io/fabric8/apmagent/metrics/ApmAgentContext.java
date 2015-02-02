@@ -371,11 +371,11 @@ public class ApmAgentContext {
             ObjectName objectName = new ObjectName(DEFAULT_DOMAIN + ":" +
                                                        "type=MethodMetrics" +
                                                        ",rank=" + ObjectName.quote("rank" + rank));
-            System.err.println("registered " + objectName);
+            LOG.debug("registered " + objectName);
             registerMBean(objectName, methodMetrics);
             objectNameMap.put(methodMetrics, objectName);
         } catch (Throwable e) {
-            LOG.error("Failed to register mbean " + methodMetrics.toString(), e);
+            LOG.warn("Failed to register mbean " + methodMetrics.toString(), e);
         }
     }
 
@@ -389,7 +389,7 @@ public class ApmAgentContext {
             registerMBean(objectName, threadMetrics);
             objectNameMap.put(threadMetrics, objectName);
         } catch (Throwable e) {
-            LOG.error("Failed to register mbean " + threadMetrics.toString(), e);
+            LOG.warn("Failed to register mbean " + threadMetrics.toString(), e);
         }
     }
 
