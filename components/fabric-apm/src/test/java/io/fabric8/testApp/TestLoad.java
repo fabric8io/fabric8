@@ -21,37 +21,19 @@ import java.util.concurrent.atomic.AtomicLong;
 public class TestLoad implements Runnable {
 
     private final int MAX_ITERATIONS;
-    private AtomicBoolean started = new AtomicBoolean();
+    private AtomicBoolean done = new AtomicBoolean();
     private AtomicLong count = new AtomicLong();
     private AtomicLong count2 = new AtomicLong();
     private String name;
-    private Thread thread;
 
     public TestLoad(String name) {
-        this(name, Integer.MAX_VALUE);
+        // use 100 by default
+        this(name, 100);
     }
 
     public TestLoad(String name, int maxIterations) {
         this.name = name;
         this.MAX_ITERATIONS = maxIterations;
-    }
-
-    public void doStart() {
-        started.set(true);
-        this.thread = new Thread(this, name);
-        this.thread.setDaemon(true);
-        this.thread.start();
-    }
-
-    public void doStop() {
-        started.set(false);
-        if (this.thread != null) {
-            try {
-                this.thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public long getCount() {
@@ -78,22 +60,24 @@ public class TestLoad implements Runnable {
     }
 
     public void run() {
-        for (int i = 0; i < MAX_ITERATIONS && started.get(); i++) {
+        for (int i = 0; i < MAX_ITERATIONS; i++) {
             for (TestValues value : TestValues.values()) {
+                System.out.println("TestLoad " + name + " running #" + i);
                 load(value);
                 if (i % 2 == 0) {
                     doSomethingElse();
                 }
             }
         }
-        System.err.println("TestLoad(" + name + ") stopping");
+        System.out.println("TestLoad " + name + " done");
+        done.set(true);
     }
 
     private void sleep(long sleepTime) {
         try {
             Thread.sleep(sleepTime);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            // ignore
         }
     }
 

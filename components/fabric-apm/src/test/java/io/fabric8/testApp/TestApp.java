@@ -15,15 +15,20 @@
  */
 package io.fabric8.testApp;
 
+import java.lang.management.ManagementFactory;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.lang.management.ManagementFactory;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TestApp {
     public static ObjectName AGENT_MBEAN_NAME;
     protected static AtomicBoolean enabledAgent = new AtomicBoolean(false);
+
+    private static ExecutorService pool = Executors.newCachedThreadPool();
 
     static {
         try {
@@ -35,7 +40,7 @@ public class TestApp {
         }
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
         try {
             System.err.println("RUNNING ...");
 
@@ -44,13 +49,19 @@ public class TestApp {
             final int COUNT = 20;
             for (int i = 0; i < COUNT; i++) {
                 TestLoad testLoad = new TestLoad("TestLoad:" + i);
-                testLoad.doStart();
+                pool.submit(testLoad);
             }
             TestLoad testLoad = new TestLoad("CreateDeath", 1000);
-            testLoad.doStart();
+            pool.submit(testLoad);
         } catch (Throwable e) {
             e.printStackTrace();
         }
+
+        System.err.println("WAITING FOR LOAD TO COMPLETE ...");
+
+        pool.awaitTermination(5, TimeUnit.MINUTES);
+
+        System.err.println("STOPPED");
     }
 
     protected static void checkEnabledMetrics() {
