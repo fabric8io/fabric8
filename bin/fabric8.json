@@ -65,7 +65,7 @@
         },
         "replicas": 1
       },
-      "id": "fabric8ConsoleController",
+      "id": "fabric8-console-controller",
       "kind": "ReplicationController",
       "labels": {
         "component": "fabric8ConsoleController"

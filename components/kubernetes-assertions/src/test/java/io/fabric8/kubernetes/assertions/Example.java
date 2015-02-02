@@ -55,17 +55,17 @@ public class Example {
                 }
             });
 
-            assertThat(client).replicationController("fabric8ConsoleController").hasId("fabric8ConsoleController");
+            assertThat(client).replicationController("fabric8-console-controller").hasId("fabric8-console-controller");
 
             Map<String, String> consoleLabels = new HashMap<>();
             consoleLabels.put("component", "fabric8Console");
 
-            assertThat(client).podsForReplicationController("fabric8ConsoleController").runningStatus().extracting("labels").contains(consoleLabels);
+            assertThat(client).podsForReplicationController("fabric8-console-controller").runningStatus().extracting("labels").contains(consoleLabels);
 
             assertAssertionError(new Block() {
                 @Override
                 public void invoke() throws Exception {
-                    assertThat(client).replicationController("doesNotExist").hasId("fabric8ConsoleController");
+                    assertThat(client).replicationController("doesNotExist").hasId("fabric8-console-controller");
                 }
             });
 
