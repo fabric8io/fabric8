@@ -29,7 +29,7 @@
         <property name="searchSystemEnvironment" value="true"/>
     </bean>
 
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${broker-name}" dataDirectory="${data}" start="false" restartAllowed="false">
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${broker-name}" dataDirectory="${data}" start="false">
 
         <destinationPolicy>
             <policyMap>
@@ -50,15 +50,14 @@
         </managementContext>
 
         <persistenceAdapter>
-            <replicatedLevelDB directory="${data}/leveldb/${karaf.name}"
+            <replicatedLevelDB directory="${data}/leveldb/${runtime.id}"
               replicas="${replicas}"
               zkAddress="${zookeeper.url}"
               zkPassword="${zookeeper.password}"
-              zkPath="/fabric/registry/clusters/fusemq-replication-elections/${group}"
+              zkPath="/fabric/registry/clusters/amq-replication-elections/${group}"
               securityToken="${zookeeper.password}"
+              hostname="${container.ip}"
               container="${container.id}"
-              bind="tcp://${bind.address}:${OPENSHIFT_FUSE_REPLICATION_PORT}"
-              connectUrl="tcp://${OPENSHIFT_GEAR_DNS}:${OPENSHIFT_FUSE_REPLICATION_PROXY_PORT}"
               />
         </persistenceAdapter>
 

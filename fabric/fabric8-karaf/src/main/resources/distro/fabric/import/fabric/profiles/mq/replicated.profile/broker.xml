@@ -80,10 +80,11 @@
         </systemUsage>
 
         <transportConnectors>
-            <transportConnector name="openwire" uri="tcp://0.0.0.0:0"/>
-            <transportConnector name="mqtt"     uri="mqtt://0.0.0.0:0"/>
-            <transportConnector name="amqp"     uri="amqp://0.0.0.0:0"/>
-            <transportConnector name="stomp"    uri="stomp://0.0.0.0:0"/>
+            <transportConnector name="openwire"     uri="tcp://0.0.0.0:0"/>
+            <transportConnector name="mqtt"         uri="mqtt://0.0.0.0:0"/>
+            <transportConnector name="amqp"         uri="amqp://0.0.0.0:0"/>
+            <transportConnector name="stomp"        uri="stomp://0.0.0.0:0"/>
+            <transportConnector name="ws"           uri="ws://0.0.0.0:0"/>
         </transportConnectors>
     </broker>
 

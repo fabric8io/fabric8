@@ -82,11 +82,11 @@
 
 
         <sslContext>
-            <sslContext
-                keyStore="${keystore.url}"
-                keyStorePassword="${zookeeper.password}"
-                trustStore="${keystore.url}"
-                trustStorePassword="${zookeeper.password}"
+            <sslContext 
+                keyStore="${keystore.file}" 
+                keyStorePassword="${keystore.password}" 
+                trustStore="${truststore.file}"  
+                trustStorePassword="${truststore.password}"
                 />
         </sslContext>
 
