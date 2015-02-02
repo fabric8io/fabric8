@@ -26,6 +26,7 @@ import io.fabric8.insight.camel.profiler.Profiler;
 import io.fabric8.insight.camel.trace.Tracer;
 import io.fabric8.insight.storage.StorageService;
 import org.apache.camel.CamelContext;
+import org.apache.camel.management.mbean.ManagedCamelContext;
 import org.apache.camel.spi.Container;
 import org.apache.felix.gogo.commands.basic.SimpleCommand;
 import org.apache.felix.scr.annotations.*;
@@ -152,6 +153,12 @@ public class InsightCamel implements Container {
             } catch (Exception e) {
                 LOG.error("Error managing CamelContext " + camelContext, e);
             }
+        }
+        ManagedCamelContext mcc = (ManagedCamelContext) camelContext.getManagementStrategy().getManagementObjectStrategy().getManagedObjectForCamelContext(camelContext);
+        try {
+            mcc.restart();
+        } catch (Exception e) {
+            LOG.error("Could not restart camel context", e);
         }
     }
 
