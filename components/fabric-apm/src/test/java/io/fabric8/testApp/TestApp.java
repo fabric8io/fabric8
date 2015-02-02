@@ -28,7 +28,7 @@ public class TestApp {
     public static ObjectName AGENT_MBEAN_NAME;
     protected static AtomicBoolean enabledAgent = new AtomicBoolean(false);
 
-    private static ExecutorService pool = Executors.newCachedThreadPool();
+    private static ExecutorService pool = Executors.newCachedThreadPool(new TestThreadFactory("TestLoad"));
 
     static {
         try {
@@ -48,10 +48,10 @@ public class TestApp {
             checkEnabledMetrics();
             final int COUNT = 20;
             for (int i = 0; i < COUNT; i++) {
-                TestLoad testLoad = new TestLoad("TestLoad:" + i);
+                TestLoad testLoad = new TestLoad();
                 pool.submit(testLoad);
             }
-            TestLoad testLoad = new TestLoad("CreateDeath", 1000);
+            TestLoad testLoad = new TestLoad(1000);
             pool.submit(testLoad);
         } catch (Throwable e) {
             e.printStackTrace();

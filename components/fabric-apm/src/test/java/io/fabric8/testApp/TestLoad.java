@@ -24,15 +24,13 @@ public class TestLoad implements Runnable {
     private AtomicBoolean done = new AtomicBoolean();
     private AtomicLong count = new AtomicLong();
     private AtomicLong count2 = new AtomicLong();
-    private String name;
 
-    public TestLoad(String name) {
+    public TestLoad() {
         // use 100 by default
-        this(name, 100);
+        this(100);
     }
 
-    public TestLoad(String name, int maxIterations) {
-        this.name = name;
+    public TestLoad(int maxIterations) {
         this.MAX_ITERATIONS = maxIterations;
     }
 
@@ -62,14 +60,14 @@ public class TestLoad implements Runnable {
     public void run() {
         for (int i = 0; i < MAX_ITERATIONS; i++) {
             for (TestValues value : TestValues.values()) {
-                System.out.println("TestLoad " + name + " running #" + i);
+                System.out.println(Thread.currentThread().getName() + " running #" + i);
                 load(value);
                 if (i % 2 == 0) {
                     doSomethingElse();
                 }
             }
         }
-        System.out.println("TestLoad " + name + " done");
+        System.out.println(Thread.currentThread().getName() + " done");
         done.set(true);
     }
 
