@@ -101,6 +101,29 @@ public class Systems {
     }
 
 
+    /**
+     * Returns the service host and port for the given environment variable name.
+     *
+     * @param serviceName the name of the service which is used as a prefix to access the <code>${serviceName}_SERVICE_HOST</code> and <code>${serviceName}_SERVICE_PORT</code> environment variables to find the hos and port
+     * @param defaultHost the default host to use if not injected via an environment variable (e.g. localhost)
+     * @parma defaultPort the default port to use to connect to the service if there is not an environment variable defined
+     */
+    public static String getServiceHostAndPort(String serviceName, String defaultHost, String defaultPort) {
+        String serviceEnvVarPrefix = getServiceEnvVarPrefix(serviceName);
+        String hostEnvVar = serviceEnvVarPrefix + "_HOST";
+        String portEnvVar = serviceEnvVarPrefix + "_PORT";
+
+        String host = Systems.getEnvVarOrSystemProperty(hostEnvVar, hostEnvVar, defaultHost);
+        String port = Systems.getEnvVarOrSystemProperty(portEnvVar, portEnvVar, defaultPort);
+
+        String answer = host + ":" + port;
+
+        LOG.info("Connecting to service " + serviceName + " on " + answer
+                + " from $" + hostEnvVar + " and $" + portEnvVar);
+        return answer;
+    }
+
+
     protected static String getServiceEnvVarPrefix(String serviceName) {
         return serviceName.toUpperCase() + "_SERVICE";
     }
