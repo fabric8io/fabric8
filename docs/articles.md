@@ -19,7 +19,8 @@
 * [The New PaaS](http://reinvent-hripps.rhcloud.com/#/): Using Docker and Containers to Simplify Your Life and Accelerate Development on AWS by [N. Harrison Ripps](http://twitter.com/nhripps) and [Steven Pousty](http://twitter.com/TheSteve0)
 * [An Introduction to Kubernetes](https://www.digitalocean.com/community/tutorials/an-introduction-to-kubernetes) by [Digital Ocean](https://www.digitalocean.com)
 
-### Videos
+## Videos
 
+* [Easy micro services with fabric8, docker and kubernetes!](https://skillsmatter.com/skillscasts/5476-easy-microservices-on-premise-on-docker-or-in-the-clouds-with-fabric8) or you can [view the slides](http://fabric8.io/presentations/fabric8-mucon/index.html) a presentation by [James Strachan](http://twitter.com/jstrachan) at [muCon](https://skillsmatter.com/conferences/6312-mucon)
 * [JBoss Fuse demo video album](https://vimeo.com/album/2635012) has various demos of fabric8
 
