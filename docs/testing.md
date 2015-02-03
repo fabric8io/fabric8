@@ -14,9 +14,9 @@ Using this extension you can easily:
 * [Arquillian](http://arquillian.org/) to run the JUnit tests and perform the necessary dependency injection
 * [kubernetes-assertions](https://github.com/fabric8io/fabric8/tree/master/components/kubernetes-assertions) and [jolokia-assertions](https://github.com/fabric8io/fabric8/tree/master/components/jolokia-assertions) to provide assertions within the JUnit test case.
 
-### Session, Lifecycle & Labels
+### Session, Lifecycle &amp; Labels
 
-The kubernetes configuration is applied once per test suite. This means that the environment is getting created once per test suite and then multiple test cases are run against that enviornment.
+The kubernetes configuration is applied once per test suite. This means that the environment is getting created once per test suite and then multiple test cases are run against that environment.
 To encapsulate everything that has been applied to kubernetes as part of the current test suite, the notion of "session" is used.
 
 In order to distinguish which pods, services and replication controllers have been created as part of the testing session, anything that is created using the arquillian extension, will be created inside a unique namespace per session.
@@ -134,6 +134,11 @@ In particular [here is the code that does JMX assertions via jolokia on the cont
 ### Requirements
 
 When running an **arquillian-fabric8** integration test then the environment variable **KUBERNETES_MASTER** needs to be specified to point to the kubernetes environment in which to create the containers and services.
+
+Also you may want to set the **KUBERNETES_TRUST_CERT** variable to allow connection to kubernetes without a client certificatE:
+
+    export KUBERNETES_TRUST_CERT=true
+    export KUBERNETES_MASTER=http://localhost:8443
 
 Note that this can be any kubernetes environment (a kubernetes installation, OpenShift, RHEL Atomic or GKE) or even a [Jube installation](http://fabric8.io/jube/getStarted.html). Also note that different integration tests can be running at the same time on the same kubernetes environment.
 

@@ -91,7 +91,7 @@ You'll need the following environment variables to be able use the [Tools](http:
 
     export DOCKER_IP=`boot2docker ip 2> /dev/null`
     export DOCKER_REGISTRY=$DOCKER_IP:5000
-    export KUBERNETES_MASTER=http://$DOCKER_IP:8080
+    export KUBERNETES_MASTER=https://$DOCKER_IP:8443
     export FABRIC8_CONSOLE=http://$DOCKER_IP:8484/hawtio
     export KUBERNETES_TRUST_CERT=true
 
@@ -101,7 +101,7 @@ Usually your $DOCKER_IP is something like **192.168.59.103** if you are on Windo
 
 Run this command or add it to your ~/.bashrc
 
-    alias kube="docker run --rm --net=host -i -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 openshift/origin:latest cli"
+    alias kube="docker run --rm --net=host -i -e KUBERNETES_MASTER=https://$DOCKER_IP:8443 openshift/origin:latest cli"
 
 You can now use the kube command line to list pods, replication controllers and services; delete or create resources etc:
 
@@ -133,7 +133,7 @@ The above single install script will add these automatically for you.
     docker pull openshift/origin
     docker run -v /var/run/docker.sock:/var/run/docker.sock --net=host --privileged openshift/origin start
 
-You should now be able to access the REST API for OpenShift on the **DOCKER_IP** address at [http://192.168.59.103:8080/api/v1beta1/pods](http://192.168.59.103:8080/api/v1beta1/pods)
+You should now be able to access the REST API for OpenShift on the **DOCKER_IP** address at [https://192.168.59.103:8443/api/v1beta1/pods](https://192.168.59.103:8443/api/v1beta1/pods)
 
 ### Running a local docker registry
 
@@ -145,7 +145,7 @@ There's a handy script called  [ping-registry.sh](https://github.com/fabric8io/f
 
 ### Running a hawtio console
 
-    docker run -p 8484:8080 -it -e KUBERNETES_MASTER=http://$DOCKER_IP:8080 fabric8/hawtio
+    docker run -p 8484:8080 -it -e KUBERNETES_MASTER=https://$DOCKER_IP:8443 fabric8/hawtio
 
 You can now access the web console at [http://192.168.59.103:8484/hawtio/kubernetes/pods](http://192.168.59.103:8484/hawtio/kubernetes/pods).
 
@@ -164,4 +164,4 @@ If you are not on linux [this article](http://viget.com/extend/how-to-use-docker
 
     echo $(docker-ip) dockerhost | sudo tee -a /etc/hosts
 
-Then you can access the REST API for OpenShift on the easier to remember and type URL: [http://dockerhost:8080/api/v1beta1/pods](http://dockerhost:8080/api/v1beta1/pods)
+Then you can access the REST API for OpenShift on the easier to remember and type URL: [https://dockerhost:8443/api/v1beta1/pods](https://dockerhost:8443/api/v1beta1/pods)

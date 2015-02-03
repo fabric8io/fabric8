@@ -6,7 +6,7 @@ Make sure you have [Installed OpenShift V3](openShiftInstall.html) and [Setup Yo
 
 Now make sure you have some environment variables setup. (You may want to place these in your **~/.bashrc** file)
 
-    export KUBERNETES_MASTER=http://openshifthost:8080
+    export KUBERNETES_MASTER=https://openshifthost:8443
     export DOCKER_REGISTRY=dockerhost:5000
     export DOCKER_HOST=tcp://dockerhost:2375
     export OPENSHIFT_HOST=`grep openshifthost /etc/hosts | cut -d " " -f1`

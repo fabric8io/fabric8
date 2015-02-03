@@ -20,7 +20,7 @@ vagrant up
 
 You now should have a master node running on **10.245.1.2**.
 
-You can test this by querying the REST API for the pods at: [http://10.245.1.2:8080/api/v1beta1/pods](http://10.245.1.2:8080/api/v1beta1/pods). It should return some valid JSON (but be mostly empty).
+You can test this by querying the REST API for the pods at: [https://10.245.1.2:8443/api/v1beta1/pods](https://10.245.1.2:8443/api/v1beta1/pods). It should return some valid JSON (but be mostly empty).
 
 ## Setup your machine
 
@@ -48,7 +48,7 @@ and add two lines
 
 Add the following to your ~/.profile or ~./bashrc
 
-    export KUBERNETES_MASTER=http://10.245.1.2:8080
+    export KUBERNETES_MASTER=https://10.245.1.2:8443
 
 You now should be able to use the various [Tools](http://fabric8.io/v2/tools.html) such as the [Console](console.html), [Maven Plugin](http://fabric8.io/v2/mavenPlugin.html), the [Forge Addons](http://fabric8.io/v2/forge.html) and the [java libraries](javaLibraries.html) to work on your local OpenShift.
 
