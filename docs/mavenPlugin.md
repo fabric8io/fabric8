@@ -133,12 +133,12 @@ You can use maven properties to customize the generation of the JSON:
 <td>Specifies the image pull policy; one of <code>PullAlways</code>,  <code>PullNever</code> or <code>PullIfNotPresent</code>, . Defaults to <code>PullAlways</code> if the project version ends with <code>SNAPSHOT</code> otherwise it is left blank. On newer OpenShift / Kubernetes versions a blank value implies <code>PullIfNotPresent</code></td>
 </tr>
 <tr>
-<td>fabric8.kubernetes.name</td>
-<td>The name of the application used in the id of the JSON and as a label.</td>
+<td>fabric8.replicationController.name</td>
+<td>The name of the replication controller used in the generated JSON.</td>
 </tr>
 <tr>
-<td>fabric8.kubernetes.kubernetesContainerName</td>
-<td>The docker container name of the application; if undefined it uses the lower case un-camelcased name.</td>
+<td>fabric8.container.name</td>
+<td>The docker container name of the application in the generated JSON.</td>
 </tr>
 <tr>
 <td>fabric8.generateJson</td>

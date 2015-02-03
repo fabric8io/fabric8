@@ -17,7 +17,6 @@ package io.fabric8.maven;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.fabric8.utils.Files;
-import io.fabric8.utils.Function;
 import io.fabric8.utils.Lists;
 import io.fabric8.utils.Strings;
 import io.fabric8.kubernetes.api.KubernetesHelper;
@@ -86,19 +85,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private boolean generateJson;
 
     /**
-     * The name label used in the generated Kubernetes JSON template
-     */
-    @Parameter(property = "fabric8.kubernetes.name")
-    private String kubernetesName;
-
-    /**
-     * The name label used in the generated Kubernetes JSON template
-     */
-    @Parameter(property = "fabric8.container.name")
-    private String kubernetesContainerName;
-
-
-    /**
      * The labels passed into the generated Kubernetes JSON template.
      * <p/>
      * If no value is explicitly configured in the maven plugin then we use all maven properties starting with "fabric8.label."
@@ -139,9 +125,27 @@ public class JsonMojo extends AbstractFabric8Mojo {
     private File kubernetesExtraJson;
 
     /**
+     * The replication controller name used in the generated Kubernetes JSON template
+     */
+    @Parameter(property = "fabric8.replicationController.name", defaultValue = "${project.artifactId}-controller")
+    private String replicationControllerName;
+
+    /**
+     * The name label used in the generated Kubernetes JSON template
+     */
+    @Parameter(property = "fabric8.kubernetes.name", defaultValue = "${project.artifactId}")
+    private String kubernetesName;
+
+    /**
+     * The name label used in the generated Kubernetes JSON template
+     */
+    @Parameter(property = "fabric8.container.name", defaultValue = "${project.artifactId}-container")
+    private String kubernetesContainerName;
+
+    /**
      * The service name
      */
-    @Parameter(property = "fabric8.service.name", defaultValue = "${project.artifactId}")
+    @Parameter(property = "fabric8.service.name", defaultValue = "${project.artifactId}-service")
     private String serviceName;
 
     /**
@@ -240,13 +244,18 @@ public class JsonMojo extends AbstractFabric8Mojo {
             config.setPorts(getPorts());
             config.setName(name);
             config.setContainerName(getKubernetesContainerName());
-            config.setReplicaCount(replicaCount);
             config.setEnvironmentVariables(getEnvironmentVariables());
-            config.setServiceName(serviceName);
-            config.setServicePort(servicePort);
-            config.setServiceContainerPort(serviceContainerPort);
             String pullPolicy = getImagePullPolicy();
             config.setImagePullPolicy(pullPolicy);
+
+            // replication controllers
+            config.setReplicaCount(replicaCount);
+            config.setReplicationControllerName(KubernetesHelper.validateKubernetesId(replicationControllerName, "fabric8.replicationController.name"));
+
+            // services
+            config.setServiceName(KubernetesHelper.validateKubernetesId(serviceName, "fabric8.service.name"));
+            config.setServicePort(servicePort);
+            config.setServiceContainerPort(serviceContainerPort);
 
 
             List<ClassLoader> classLoaders = Lists.newArrayList(Thread.currentThread().getContextClassLoader(),
@@ -302,9 +311,6 @@ public class JsonMojo extends AbstractFabric8Mojo {
     }
 
     public String getKubernetesName() {
-        if (Strings.isNullOrBlank(kubernetesName)) {
-            kubernetesName = Strings.convertToCamelCase(getKubernetesContainerName(), "-");
-        }
         return kubernetesName;
     }
 
