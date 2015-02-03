@@ -130,13 +130,7 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
     @Parameter(defaultValue = "${altDeploymentRepository}", readonly = true)
     private String altDeploymentRepository;
     
-    /**
-     * The Maven Session.
-     *
-     * @parameter expression="${session}"
-     * @required
-     * @readonly
-     */
+    @Component
     protected MavenSession session;
 
     @Override
@@ -322,7 +316,6 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
         
         if (rootProject.hasLifecyclePhase("deploy")) {
             getLog().info("Deploying aggregated zip " + projectOutputFile + " to root project " + rootProject.getArtifactId());
-            getLog().info("Using deploy goal: " + deployFileGoal + " with active profiles: " + activeProfileIds);
 
             InvocationRequest request = new DefaultInvocationRequest();
             request.setBaseDirectory(rootProject.getBasedir());
@@ -332,7 +325,13 @@ public class CreateProfileZipMojo extends AbstractProfileMojo {
             request.setInteractive(false);
             request.setProfiles(activeProfileIds);
             request.setShellEnvironmentInherited(true);
+            request.setLocalRepositoryDirectory(session.getRequest().getLocalRepositoryPath());
+            request.setUserSettingsFile(session.getRequest().getUserSettingsFile());
 
+            getLog().info("Using deploy goal: " + deployFileGoal + " with active profiles: " + activeProfileIds
+                    + " and local repo " + session.getRequest().getLocalRepositoryPath() + " and user settings "
+                    + session.getRequest().getUserSettingsFile());
+            
             Properties props = new Properties();            
             props.setProperty("file", "target/profile.zip");
             props.setProperty("groupId", rootProjectGroupId);
