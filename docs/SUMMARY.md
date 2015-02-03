@@ -17,6 +17,8 @@
     * [Deploy an example](example.md)
 * [Tools](tools.md)
     * [Console](console.md)
+    * [Logging](logging.md)
+    * [Metrics](metrics.md)
     * [QuickStarts](quickstarts.md)
     * [Maven Plugin](mavenPlugin.md)
     * [Forge Addons](forge.md)
