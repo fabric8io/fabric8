@@ -1183,4 +1183,21 @@ public class KubernetesHelper {
         }
         return false;
     }
+
+    /**
+     * Validates that the given value is valid according to the kubernetes ID parsing rules, throwing an exception if not.
+     */
+    public static String validateKubernetesId(String currentValue, String description) throws IllegalArgumentException {
+        if (isNullOrBlank(currentValue)) {
+            throw new IllegalArgumentException("No " + description + " is specified!");
+        }
+        int size = currentValue.length();
+        for (int i = 0; i < size; i++) {
+            char ch = currentValue.charAt(i);
+            if (Character.isUpperCase(ch)) {
+                throw new IllegalArgumentException("Invalid upper case letter '" + Character.valueOf(ch) + "' at index " + i + " for " + description + " value: " + currentValue);
+            }
+        }
+        return currentValue;
+    }
 }

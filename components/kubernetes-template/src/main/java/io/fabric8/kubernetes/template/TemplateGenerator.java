@@ -15,6 +15,7 @@
  */
 package io.fabric8.kubernetes.template;
 
+import io.fabric8.kubernetes.api.KubernetesHelper;
 import io.fabric8.utils.Files;
 import io.fabric8.utils.Objects;
 import io.fabric8.utils.Strings;
@@ -31,6 +32,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static io.fabric8.kubernetes.api.KubernetesHelper.validateKubernetesId;
 
 /**
  */
@@ -81,12 +84,28 @@ public class TemplateGenerator {
             Map<String, String> labels = config.getLabels();
             variables.put("labels", labels);
             variables.put("ports", config.getPorts());
-            variables.put("replicaCount", config.getReplicaCount());
             variables.put("environmentVariables", config.getEnvironmentVariables());
-            variables.put("serviceName", config.getServiceName());
+            variables.put("imagePullPolicy", config.getImagePullPolicy());
+
+            // replication controllers
+            variables.put("replicaCount", config.getReplicaCount());
+            String replicationControllerName =  validateKubernetesId(config.getReplicationControllerName(), "replicationControllerName");
+            variables.put("replicationControllerName", replicationControllerName);
+
+            // service
+            String serviceName = config.getServiceName();
+            if (Strings.isNotBlank(serviceName)) {
+                serviceName = validateKubernetesId(serviceName, "serviceName");
+            }
+            if (Strings.notEmpty(serviceName)) {
+                if (Objects.equal(serviceName, replicationControllerName)) {
+                    throw new IllegalArgumentException("replicationControllerName and serviceName are the same! (" + serviceName + ")");
+                }
+            }
+            variables.put("serviceName", serviceName);
             variables.put("servicePort", config.getServicePort());
             variables.put("serviceContainerPort", config.getServiceContainerPort());
-            variables.put("imagePullPolicy", config.getImagePullPolicy());
+
 
             try {
                 CompiledTemplate compiledTemplate = TemplateCompiler.compileTemplate(in, parserContext);

@@ -17,7 +17,7 @@
       }
     },@end{}
     {
-      "id": "@{name}",
+      "id": "@{replicationControllerName}",
       "kind": "ReplicationController",
       "apiVersion": "v1beta1",
       "desiredState": {

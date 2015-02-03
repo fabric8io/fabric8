@@ -25,6 +25,8 @@ import io.fabric8.kubernetes.api.model.ReplicationControllerState;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.template.CreateAppDTO;
 import io.fabric8.kubernetes.template.TemplateGenerator;
+import io.fabric8.utils.Asserts;
+import io.fabric8.utils.Block;
 import io.fabric8.utils.IOHelpers;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -64,6 +66,43 @@ public class TemplateGeneratorTest {
 
         Object entity = entities.get(0);
         assertGeneratedReplicationController(entity, dto);
+    }
+
+    @Test
+    public void testGenerateControllerJsonWithBadControllerID() throws Exception {
+        Asserts.assertException(new Block() {
+            @Override
+            public void invoke() throws Exception {
+                CreateAppDTO dto = createAppDto(3);
+                dto.setReplicationControllerName("BadName");
+                generateJsonFile("controllerBadRCName", dto);
+            }
+        });
+    }
+
+    @Test
+    public void testGenerateControllerJsonWithBadServiceId() throws Exception {
+        Asserts.assertException(new Block() {
+            @Override
+            public void invoke() throws Exception {
+                CreateAppDTO dto = createAppDto(3);
+                dto.setServiceName("BadName");
+                generateJsonFile("controllerBadServiceName", dto);
+            }
+        });
+    }
+
+    @Test
+    public void testGenerateControllerJsonWithIdenticalServiceAndControllerId() throws Exception {
+        Asserts.assertException(new Block() {
+            @Override
+            public void invoke() throws Exception {
+                CreateAppDTO dto = createAppDto(3);
+                dto.setServiceName("same-name");
+                dto.setReplicationControllerName("same-name");
+                generateJsonFile("controllerSameServiceAndControllerName", dto);
+            }
+        });
     }
 
     @Test
@@ -144,6 +183,7 @@ public class TemplateGeneratorTest {
 
         CreateAppDTO dto = new CreateAppDTO();
         dto.setName(name);
+        dto.setReplicationControllerName("my-controller");
         dto.setDockerImage("fabric8/hawtio");
         dto.setReplicaCount(replicaCount);
 

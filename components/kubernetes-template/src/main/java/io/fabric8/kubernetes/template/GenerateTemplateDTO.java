@@ -39,6 +39,7 @@ public class GenerateTemplateDTO {
     protected Map<String, Object> templateVariables;
     private Integer replicaCount;
     private String serviceName;
+    private String replicationControllerName;
     private Integer servicePort;
     private Integer serviceContainerPort;
 
@@ -142,6 +143,14 @@ public class GenerateTemplateDTO {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    public String getReplicationControllerName() {
+        return replicationControllerName;
+    }
+
+    public void setReplicationControllerName(String replicationControllerName) {
+        this.replicationControllerName = replicationControllerName;
     }
 
     public Integer getServicePort() {
