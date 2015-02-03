@@ -1,4 +1,9 @@
 
+### 2.0.25
+
+* Handle the new HTTPS only REST API in Kubernetes / OpenShift
+* Fixes [these issues](https://github.com/fabric8io/fabric8/issues?q=milestone%3A2.0.25+is%3Aclosed)
+
 ### 2.0.19
 
 * Uses auto-generated JSON Schema from the OpenShift/Kubernetes go source code to provide faithful Jackson DTOs for the REST API against v1beta2 of the kubernetes/openshift APIs

@@ -1,11 +1,11 @@
 ## Get Started with Fabric8 and Jube
 
-First you need to get the latest [Jube](jube.html) by [downloading jube-2.0.19-image.zip](http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.0.19/jube-2.0.19-image.zip) and unzipping it:
+First you need to get the latest [Jube](jube.html) by [downloading jube-2.0.25-image.zip](http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.0.25/jube-2.0.25-image.zip) and unzipping it:
 
-    curl -O http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.0.19/jube-2.0.19-image.zip
-    mkdir jube-2.0.19-image
-    cd jube-2.0.19-image
-    unzip ../jube-2.0.19-image.zip
+    curl -O http://central.maven.org/maven2/io/fabric8/jube/images/jube/jube/2.0.25/jube-2.0.25-image.zip
+    mkdir jube-2.0.25-image
+    cd jube-2.0.25-image
+    unzip ../jube-2.0.25-image.zip
 
 You can then startup Jube via:
 
